@@ -1,0 +1,483 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<TITLE></TITLE>
+	<STYLE TYPE="text/css">
+	</STYLE>
+</HEAD>
+<BODY LANG="en-NZ" DIR="LTR">
+<H1>Web to EPUB Extension for Chrome</H1>
+<p><br />
+</p>
+<h2>Introduction</h2>
+<p><br />
+</p>
+<p>If you're like me, you will have
+discovered that there are many sites on the Internet that have
+fiction that is free to read. For example,
+<a HREF="http://archiveofourown.org/">http://archiveofourown.org</a>.
+Unfortunately, most of these sites have two minor drawbacks. Firstly,
+because they're online sites, you need to be on-line to view them.
+Second, the individual chapters of each story (and the good stories
+almost always have multiple chapters) are on multiple web pages. So
+you need to go between the web pages to read the story.</p>
+<p>Consequently, when after reading the
+first chapter of one of these stories, I've often wished that I could
+press a single button on my browser and have the whole story saved to
+an EPUB file in my downloads directory, ready to copy to my EPUB
+viewer.</p>
+<p>Well, it turns out that it's possible
+to write "extensions" for Google's Chrome browser, which
+allow you to add additional functionality to Chrome. So, I've used
+that to to create a "Save to EPUB" plug-in, and I'm now
+going to show you how it's done, so you can use it, and extend it to
+handle the sites you like. 
+</p>
+<p><br />
+</p>
+<p>The topics covered are: 
+</p>
+<ul>
+    <li>The basics of building a Chrome extension.</li>
+    <li>How to get your extension to read the HTML of a web page in a Chrome tab.</li>
+    <li>How to use Chrome to examine a web page to figure out the author, title and list of chapters of a story, then write JavaScript to extract the information.</li>
+    <li>How to get Chrome to fetch additional web pages automatically.</li>
+    <li>How to pack the web pages into an EPUB file.</li>
+    <li>Some notes on Unit testing.</li>
+    <li>How to add a parser for a site you like.</li>
+</ul>
+<p><br />
+</p>
+<h2>Using the Code or "How to load an Extension into Chrome"</h2>
+<p>For those of you who just want to use the code, the basic steps are: 
+</p>
+<ul>
+	<li>Download the code for this Extension.</li>
+    <li>Load the Extension in the folder "plugin" into Chrome. (See section below.)</li>
+    <li>Go to web page you want to extract the story from. Note, currently the only site that's supported is <a href="http://archiveofourown.org/">Archive of Our Own</a>. So for a test try loading a story from there.</li>
+    <li>Click on the "Web To EPUB" action button <img src="02-book128.png" /> that's now on the chrome toolbar. <img src="01-ActionButton.png" /></li>
+    <li>Check that the story details on	the popup are correct.</li>
+    <li>Press "Fetch Chapters" button and wait for them to load.</li>
+    <li>Press "Pack EPUB" button.</li>
+</ul>
+<p><br />
+</p>
+    <h3>Steps to load an extension into Chrome are:</h3>
+<ul>
+	<li>Open Chrome and type "chrome://extensions" into the browser.</li>
+    <li>Make sure "Developer Mode" at the top of the page is checked.</li>
+    <li>Press the "Load unpacked extension.." button and browse to the root folder for the extensions files.</li>
+</ul>
+<p><br />
+</p>
+<h2>Basics of Building a Chrome extension</h2>
+<p>Google's excellent documentation on building extensions can be found at
+<a HREF="http://developer.chrome.com/extensions/getstarted.htm">http://developer.chrome.com/extensions/getstarted.htm</a>.</p>
+<p>However, here's the key points.</p>
+<ul>
+    <li>Extensions are a mixture of HTML and JavaScript.</li>
+    <li>Extensions contain the following:
+        <ul>
+            <li>A manifest, which is JSON that describes the extension.</li>
+            <li>A collection of HTML, CCS and JavaScript files that make up the extension.</li>
+        </ul>
+    </li>
+</ul>
+<p><br />
+</p>
+<p>The manifest for the Web To EPUB
+extension looks like this:</p>
+<pre lang="json">
+{
+  "manifest_version": 2,
+  "name": "WebToEpub",
+  "version": "1",
+  "icons": { "128": "book128.png" },
+  "permissions": ["tabs", "&lt;all_urls&gt;" ],
+  "browser_action": {
+    "default_title": "",
+    "default_icon": "book128.png",
+    "default_popup": "popup.html"
+  },
+  "minimum_chrome_version": "46"
+}</pre>
+<p><br />
+</p>
+<p>The major points of note are:
+    <ul>
+        <li>The extension puts a button on the Chrome toolbar which uses book128.png <img src="02-book128.png" /> as the image on the button.</li>
+        <li>When button is pressed, the web page "popup.html" is launched.  So, popup.html is the "main" page of this extension.</li>
+        <li>The extension needs the following permissions to work
+            <ul>
+                <li>tabs: can manipulate the contents on web page Chrome is displaying (i.e. A tab.)</li>
+                <li>all_urls: can make HTTP calls to any URL.</li>
+            </ul>
+        </li>
+    </ul>
+</p>
+<p><br />
+</p>
+<p>Popup.html is this:</p>
+    <pre lang="html">
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;title&gt;WebToEpub&lt;/title&gt;
+    &lt;base /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;style&gt;
+        body {
+        }
+        .scrollingtable {
+            overflow: scroll;
+            height: 300px;
+        }
+    &lt;/style&gt;
+    &lt;section id="inputSection"&gt;
+        &lt;table id="inputTable"&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Starting URL&lt;/td&gt;
+                &lt;td&gt;&lt;input id="startingUrlInput" type="url" name="startingUrlInput" size="80" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Title&lt;/td&gt;
+                &lt;td&gt;&lt;input id="titleInput" type="text" name="titleInput" size="80" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Author&lt;/td&gt;
+                &lt;td&gt;&lt;input id="authorInput" type="text" name="authorInput" size="80" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Language&lt;/td&gt;
+                &lt;td&gt;&lt;input id="languageInput" type="text" name="languageInput" size="80" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;
+        &lt;button id=fetchChaptersButton&gt;Fetch Chapters&lt;/button&gt;
+        &lt;button id=packEpubButton&gt;Pack EPUB&lt;/button&gt;
+    &lt;/section&gt;
+    &lt;section id="testSection"&gt;&lt;/section&gt;
+    &lt;section id="outputSection"&gt;
+        &lt;div class="scrollingtable"&gt;
+            &lt;table id=chapterUrlsTable&gt;
+                &lt;tr&gt;
+                    &lt;th align=left&gt;Title&lt;/th&gt;
+                    &lt;th align=left&gt;Loaded?&lt;/th&gt;
+                    &lt;th align=left&gt;URL&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+    &lt;!-- scripts go here --&gt;
+    &lt;script src="js/EpubMetaInfo.js"&gt;&lt;/script&gt;
+    &lt;script src="js/Util.js"&gt;&lt;/script&gt;
+    &lt;script src="js/HttpClient.js"&gt;&lt;/script&gt;
+    &lt;script src="js/parsers/ArchiveOfOurOwnParser.js"&gt;&lt;/script&gt;
+    &lt;script src="js-lib/jszip.min.js"&gt;&lt;/script&gt;
+    &lt;script src="js/EpubPacker.js"&gt;&lt;/script&gt;
+    &lt;script src="js/testFunctions.js"&gt;&lt;/script&gt;
+    &lt;script src="js/main.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<p><br />
+</p>
+<p>As you can see, it's an ordinary HTML
+file, with fields to show the key attributes of the story: Title,
+Author, Language and Chapters.  The only, even slightly, unusual
+aspect is that it has no embedded JavaScript.</p>
+<p><br />
+</p>
+<h2>How to read the HTML of a web page on a Chrome tab.</h2>
+<p>When this Extension is activated, the first thing it does is find the currently active tab (web page) in Chrome and search it for story information.  Basic steps are:
+    <ul>
+        <li>Add the "tabs" permission to manifest.json.  (We did this in the previous step.)</li>
+        <li>When popup.html starts, a function attached to the onload() event is called.</li>
+        <li>This function tells Chrome to inject a "Content Script" into the active web page.</li>
+        <li>The Content Script  is a simple JavaScript file that is run within the context of the active server page, so has access to the page's Document Object Model (DOM.)</li>
+        <li>The script reads the DOM and sends a serialized copy of it back to popup.html as a message.</li>
+        <li>Popup.html listens for the message, which will return asynchronously.  When the message arrives, the DOM is de-serialized and parsed to extract the story information to populate popup.html</li>
+        <li>Note that because the message returns asynchronously, the onload() function needs to set up a listener for the message before injecting the Content Script.</li>
+    </ul>
+</p>
+<p><br /> 
+</p>
+<p>The contents of the Content Script looks like this:</p>
+<pre code="javascript">
+// pack the DOM of this page into a message
+var parseResults = { 
+    messageType: "ParseResults",
+    document: document.all[0].outerHTML,
+};
+
+// send message back to our extension
+chrome.runtime.sendMessage(parseResults);</pre>
+<p><br />
+</p>
+<p>And the onload() function in popup.html
+looks like this:</p>
+<pre code="javascript">
+// actions to do when window opens
+window.onload = function () {
+    // register listener that is called when content script injected into HTML sends its results 
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.messageType == "ParseResults") {
+            // convert the string returned from content script back into a DOM
+            let dom = new DOMParser().parseFromString(message.document, "text/html");
+            // pass the DOM onto our function to extract the story info (more on this later)
+            processHtmlFromTab(dom);
+        }
+    });
+
+    // inject the content script into the active tab.
+    // in this case, the content script is in a file called "ContentScript.js"
+    chrome.tabs.executeScript({file: "js/ContentScript.js"});    
+}</pre>
+<p><br />
+</p>
+<p>And that's all you need to do for an extension to read the current tab's contents in Chrome. 
+    For more details on what's going on, check out Google's documentation on <a href="https://developer.chrome.com/extensions/content_scripts.html">Content Scripts</a>
+    and <a href="http://developer.chrome.com/extensions/messaging.html">Sending Messages</a>.</p>
+<p><br />
+</p>
+<h2>Using Chrome's &quot;Inspect Element&quot; to examine the DOM</h2>
+<p>This section assumes you know what a DOM is. If you don't, I suggest you read <a href="http://eloquentjavascript.net/13_dom.html">Chapter 13 of Eloquent Javascript</a>.  Go ahead, I'll wait.</p>
+<p>Welcome back. Now that you know what a DOM is and we got the DOM for the web page in the previous section,
+ the next step is to extract the information we need from the DOM. The things that we want are:
+    <ul>
+        <li>Title of the story</li>
+        <li>Author of the story</li>
+        <li>Title of each chapter</li>
+        <li>URL to each chapter</li>
+        <li>Language the story is in.  (Note, if you're only interested in American stories, you could skip extracting this and just hard code it to "en-us". If you're only interested in other languages, you could hard code their language code instead.)</li>
+    </ul>
+</p>
+<p>The first step to extracting the information is to figure out how to find it in the DOM. 
+Fortunately, Chrome has the tools built in to make doing this easy. All you need to do is:
+    <ul>
+        <li>Open the web page in Chrome</li>
+        <li>Place your mouse over the item you're interested in.</li>
+        <li>Click the right mouse button</li>
+        <li>Select "Inspect Element".</li>
+        <li>Chrome will open a window showing the DOM for the web page, with the cursor set to the element you clicked on.</li>
+        <li>Examine the DOM to to see how the element can be identified.</li>
+    </ul>
+</p>
+<p>I'll walk you through an example.  Start by loading the page <a href="http://archiveofourown.org/works/685590/chapters/1258295">http://archiveofourown.org/works/685590/chapters/1258295</a> 
+    and scroll through it until you see the story's Title and Author.  It will look something like this.</p>
+<img src="03-WebPage.png" />
+<p>Right click on "Judgement Day" and select "Inspect Element".  The Elements window appears at the bottom of the screen, looking something like this</p>
+<img src="04-WebPage.png" />
+<p>Note the element that is highlighted, this is the element holding the title.</p>
+<pre lang="html">
+&lt;h2 class="title heading"&gt;
+    Judgement Day
+&lt;/h2&gt;
+</pre>
+<p>This shows us that the Title is in a &lt;h2&gt; tag, with a class of "title heading". If we now click on the Author's name on the web page, the following DOM element is highlighted.</p>
+<pre lang="html">
+&lt;a href="http://archiveofourown.org/users/TheUnknownJohnSmith/pseuds/TheUnknownJohnSmith" class="login author" rel="author"&gt;TheUnknownJohnSmith&lt;/a&gt;
+</pre>
+<p>So the author is in an "a" tag, with a class of "login author".</p>
+<p>Finally, right click on drop down box that shows the list of chapters. The section of DOM looks like</p>
+<pre lang="html">
+&lt;select id="selected_id" name="selected_id"&gt;&lt;option value="1258295" selected="selected"&gt;1. Chapter 1&lt;/option&gt;
+&lt;option value="1258298"&gt;2. Judgement Day Part II&lt;/option&gt;
+&lt;option value="1457060"&gt;3. The Chariot&lt;/option&gt;
+&lt;option value="1457063"&gt;4. The World&lt;/option&gt;
+&lt;option value="1663608"&gt;5. Judgment&lt;/option&gt;
+&lt;option value="2342893"&gt;6. Temperance&lt;/option&gt;&lt;/select&gt;
+</pre>
+<p>As you can see, each chapter is in an "option" tag, with a "value" attribute that is URL of the chapter (relative to the web page).</p>
+<p>Finding the language of the story is a bit more difficult, as it's not explicitly shown on the web page.  
+    However, if we look at the source of the web page, which Chrome will show if we right click on the page and select "View page source", we find the following</p>
+<pre lang="html">
+&lt;meta name="keywords" content="fanfiction, transformative works, otw, fair use, archive"&gt;
+&lt;meta name="language" content="en-US"&gt;
+&lt;meta name="subject" content="fandom"&gt;
+</pre>
+<p>So the language is the "content" attribute of "meta" tag, with a "name" attribute "language".</p>
+<p><br />
+</p>
+<p>Now that we know where the information we want is in the DOM, the next step is to extract it.  Let's start with the title. 
+    As previously mentioned, the title is in a &lt;h2&gt; tag, with a class of "title heading".  
+    So, given the DOM object returned by the ContentScript, the following function will extract the title.</p>
+<pre lang="JavaScript">
+    extractTitle: function(dom) {
+    // first, get a list of all "h2" elements in the document
+    let elements = dom.getElementsByTagName("h2");
+
+    // getElementsByTagName() returns a HTMLCollection, convert it into an array
+    elements = Array.prototype.slice.apply(elements);
+
+    // remove all elements that do not have a class name of "title heading"
+    elements = elements.filter(e =&gt; e.className === "title heading");
+
+    // if the list has an element, then we've found the element we're looking for, so return its innerText.
+    return (elements.length != 0) ? elements[0].innerText() : null;
+}</pre>
+<p><br />
+</p>
+    <p>The two interesting parts are the functions <b>getElementsByTagName()</b> and <b>filter()</b>.</p>
+    <p><b>getElementsByTagName()</b> does just what it's name suggests, it returns all elements in the DOM with the specified tag.
+    Actually, it's more powerful that that. As well as searching an entire DOM, if you give it an element of the DOM, it will search the child nodes of that element.
+    This can be useful if you wanted to find a specific child node of a section of the DOM.</p>
+
+<p>The <b>.filter()</b> function removes the &lt;h2&gt; elements that don't have a className of "title heading".
+    The essentials of filter() are it takes an array of objects and a function that returns true or false. (The technical term for this is a predicate.)
+    Given these two inputs, filter() builds and a new array that containing all elements that the predicate returns true for.
+    In the above function, <b>e =&gt; e.className === "title heading"</b> is the predicate, I've written it as an arrow function expression that newer versions of Chrome support (it's part of the ECMAScript 6 standard.)
+    This is just a shorthand way of saying: <b>function(e) { return e.className === "title heading"; }</b>.  Congratulations! You've just had your first introduction to <a href="http://eloquentjavascript.net/05_higher_order.html">functional programming.</a></p>
+
+<p>Now that we've seen how to get the Title, it should be obvious that getting the author is an almost identical process.  
+    The only difference is we look for an <b>&lt;a&gt;</b> element, with a class of <b>"login author"</b>. </p>
+
+<p>Finding the Language is also easy.</p> 
+<ul>
+    <li>Use getElementsByTagName() to find the &lt;option&gt; elements.</li>
+    <li>The predicate must test for an element with a "name" attribute of "language".  Which is <b>e =&gt; (e.getAttribute("name") === "language")</b></li>
+    <li>The language value isn't the innerText of the element, but the value of the "content" attribute, so call <b>getAttribute()</b> to get the value.</li>
+</ul>
+
+<p>Finding an extracting the chapter information is only a tiny bit more complicated. The new wrinkles are</p>
+<ul>
+    <li>For each chapter we want both the title of the chapter and a URL to the chapter.</li>
+    <li>There are multiple chapters.</li>
+</ul>
+    <p>
+        Having to return title and URL for a chapter is easy.
+        Once we have an &lt;option&gt; element, the title is the innerText, and the URL is the "value" attribute.
+        We already know how to extract both of these.  So, all we need is a function to extract and package them together.
+    </p>
+<pre lang="JavaScript">
+optionToChapterInfo: function(optionElement) {
+    return {
+        sourceUrl: optionElement.getAttribute("value"),
+        title: optionElement.innerText
+    };
+}</pre>
+<p>Handling multiple chapters is also easy.  If you look at the extractTitle() function we wrote previously, 
+    you'll see that it's handling multiple elements (at least until the last line where it takes just the first element.)  
+    So, we can use that code to get an array of &lt;option&gt; elements.  
+    After that, it's just a matter of converting the &lt;option&gt; elements array into an array of "chapterInfo" objects.
+    And this is really easy.  The following code will do it.</p>
+<pre lang="JavaScript">
+    return elements.map(optionToChapterInfo);
+</pre>
+<p>What the <b>map()</b> function does: if you have a function that converts one type of object into a new type
+    (which we do, it's optionToChapterInfo we wrote previously) and an array of objects you want converted, 
+    it will create an array of the new types from the old ones. Functional Programming is awesome.</p>
+<p><br />
+</p>
+<h2>Fetching Web Pages programatically</h2>
+<p>Now that we have a list of URLs for the chapters, the next step is to fetch the them. 
+    This can be done using <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest">XMLHttpRequest</a>.
+    If you followed the above link, then the only additional thing you need to know is that Chrome requires a "&lt;all_urls&gt;" permission in the extension's manifest.
+    For those that didn't follow the link, the basics are:</p>
+<ul>
+    <li>Create a XMLHttpObject object</li>
+    <li>Set a onerror() handler, to deal with any network errors.</li>
+    <li>Set a onload() handler, (more on this later)</li>
+    <li>Call XMLHttpObject.send() to ask the server for the page.</li>
+    <li>If the server responds, the onload() hander will be called asynchronously at a later point in the future.</li>
+    <li>In your onload(), check if the server sent an error.  If it's not an error, process the response.</li>
+</ul>
+<p>The big complication XMLHttpObject, in case you didn't get it, is that the response is asynchronous<sup>1</sup> and we have multiple pages to fetch.
+    This requires asynchronous, recursive logic in the onload() handler which checks which chapter has been received, then calls the XMLHttpObject, 
+    setting the onload() handler to itself when the result arrives.  I'm not going to try explaining it in more detail here because it makes my head hurt.
+    If you want to see how it's done, examine onFetchChapters() and onLoadChapter() in main.js of this project.</p>
+<p>
+    <sup>Note 1</sup>You can use XMLHttpRequest synchronously under some conditions, but it's not a good idea.  Read the XMLHttpRequest docs for details.
+</p>
+<p><br />
+</p>
+<h2>Creating an EPUB</h2>
+<p>At this point, you have the web pages making up the story and the story's metadata (Title, Author, source URL and language).
+    This is everything you need to create an EPUB for the story. 
+    The <a href="http://www.idpf.org/epub/301/spec/epub-overview.html">full EPUB specifications</a> (currently version 3.0.1) are available on the web.  
+    If you find those documents lengthy, <a href="http://en.wikipedia.org/wiki/EPUB">Wikipedia has an excellent summary</a>.
+	Or, you could read my <a href="http://www.codeproject.com/Articles/592909/EPUB-Viewer-for-Android-with-Text-to-Speech">earlier article</a> on building an EPUB reader.
+    If that's still too lengthy, here's the thumbnail "An EPUB is a zip containing web pages and some files that describe how to view the web pages."</p>
+<p>Therefore, if we're going to create an EPUB, the first thing we're going to need is a way to make a zip file in JavaScript.
+   I use the <a href="https://stuk.github.io/jszip/">jszip library</a> for this, it's very easy to use. There's just three steps needed.</p>
+<ul>
+    <li>Create a JSZip object</li>
+    <li>Call file() on the JSZip object to add each file into it.</li>
+    <li>Call generate() to get the zip file as a blob. (Which you can then save.)</li>
+</ul>
+<p>Jumping back to the "some files that describe how to view the web pages", there are 4 files we need.</p>
+<ul>
+    <li>mimetype: an uncompressed ASCII file that contains the string <b>application/epub+zip</b></li>
+    <li>container.xml in directory META-INF:  an XML file that specifies which file in the zip is the OPF file.</li>
+    <li>OPF: XML file that describes all the other files in the zip, and their reading order.</li>
+    <li>Table of Contents: XML file that says where each chapter is in the zip.</li>
+</ul>
+<p>Adding a mimetype file to the zip is trivial, as it's just a string, the following code will do the job.</p>
+<pre lang="JavaScript">zipFile.file("mimetype", "application/epub+zip");</pre>
+<p>Adding the container.xml file is almost as easy. 
+    Because we will always use the same name for our OPF file, container.xml is also just a constant string.  
+    So, code to add container.xml is identical to that for mimetype, except we replace "mimetype" with "META-INF/container.xml" and
+    "application/epub+zip" with the XML for container.xml.</p>
+<p>Adding the OPF file is not much more difficult, even thought we need to build it using the information about the story before we can add it to the zip file.
+    That said, the OPF file is XML and has a simple structure.  
+    My <a href="http://www.codeproject.com/Articles/592909/EPUB-Viewer-for-Android-with-Text-to-Speech">earlier article</a> on parsing an EPUB file describes the OPF structure, so I won't repeat it here.
+    Assembling the XML to build such a structure is easy.  You could do it by inserting text into strings, if you wanted.
+    I would advise against doing it that way, it fails when the text you're inserting contains characters that need to be escaped.
+    Using a DOM and add elements to it is just as easy, much safer, and easier to understand.
+    To see how it's done, look at the function buildContentOpf() in EpubPacker.js.</p>
+<p>Once we have the OPF file, we want to add it to the file as a compressed file. This is trivial:</p>
+<pre lang="JavaScript">zipFile.file("content.opf", buildContentOpf(), { compression: "DEFLATE" });</pre>
+<p>Like the OPF, the "Table of Contents" (ToC) is a simple XML file that needs to built before it can be saved.
+    There's nothing new to creating the ToC that you didn't see for the OPF, look at buildTableOfContents() in EpubPacker.js if you want to see the details.</p>
+<p>Next step is to add the web pages to the zip.
+    There is a minor complication.  The EPUB 2 specification requires these web pages to be XHTML, also known as HTML 4.  
+    But web pages fetched from the Internet are usually HTML.
+    I solve this problem by stripping the actual story content from the fetched web page, inserting it into a blank XHTML document, which is added to the zip file.
+    As a beneficial side effect, this process usually strips out JavaScript and CCS file links as well.  So you don't need to fetch these files and pack them into the EPUB.
+    </p>
+<p>Once all the files have been added to the zip, the final step is to generate a blob and save the blob to your browser's "Downloads" folder.  
+    Ideally, we'd just call saveAs() to do this, but Chrome no longer supports it.
+    So, we can either use a <a href="http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js">polyfill library</a>, or use code like this</p>
+<pre lang="JavaScript">
+saveAs: function (blob, fileName) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+}</pre>
+<p><br />
+</p>
+<h2>Unit testing notes</h2>
+<p>This is the third JavaScript program I've attempted to write. 
+    One of the things I quickly learned was that providing unit tests to exercise the code as it was being written was vital.
+    The only way to know if your JavaScript works (or is even syntactically valid) is to run it.
+    Having working unit tests means that I could verify that the code I'd just written by (re)loading the web page Tests.html in unitTest folder. i.e. Clicking refresh in Chrome.
+    I didn't need to manually drive the extension's UI. Which got very tedious after the 200th time.</p>
+<ul>
+    <li>The <a href="http://qunitjs.com/intro/">qunit framework</a> is used to do the testing. This is a light, easy to use framework created and used by jQuery.</li>
+    <li>As the plug-in's primary task is to parse HTML, most of the tests involved loading a known HTML file, calling functions to parse the HTML and checking the functions returned the correct results.</li>
+    <li>So, for your testing your parsers, you will probably want to downloaded sample web pages and save them to disk for testing.</li>
+    <li>By default, Chrome won't allow extensions to access files on the disk, so you need to start Chrome with the "--allow-file-access-from-files" flag. Warning, you must not have any instances of Chrome running when you try starting Chrome with this flag.</li>
+</ul>
+
+<h2>How to add a parser for a site you like.</h2>
+<p>If you've gotten this far, I'm going to assume you want to modify this extension to save files from a site you like.  So I'll give you some tips.</p>
+<ul>
+    <li>The file ArchiveOfOurOwnParser.js is the one that does all the parsing. So, to handle a different site you'd just need to modify this file.  Or take a copy of it and modify the copy.</li>
+    <li>ArchiveOfOurOwnParser.js has 3 functions that are called by the rest of the extension, the rest of the functions in the class just implement the 3 "interface" functions.</li>
+    <li>So, to create your own parser, you need to implement these 3 functions. They are:
+        <ul>
+            <li>getEpubMetaInfo().  This takes a DOM and returns an EpubMetaInfo. Basically, the story's Author, Title, language and URL.</li>
+            <li>getChapterUrls().  Takes a DOM and returns and array of chapterInfo objects.</li>
+            <li>extractContent().  Takes a DOM and returns the elements of the DOM holding the chapter's text.</li>
+        </ul>
+    </li>
+</ul>
+<h2>Miscellaneous stuff</h2>
+<ul>
+    <li>I'd like to thank my co-workers, Paul, SeanO and Ross for their assistance in preparing this article:</li>
+    <li>This article is licensed under <a href="http://www.codeproject.com/info/cpol10.aspx" rel="license">The Code Project Open License (CPOL)</a></li>
+    <li>The code for the plug-in itself is licensed under GPL v3.</li>
+    <li>The latest version of the extension's code can be found on <a href="https://github.com/dteviot">GitHub</a>.</li>
+</ul>
+</BODY>
+</HTML>

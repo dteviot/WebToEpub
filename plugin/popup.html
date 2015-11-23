@@ -1,0 +1,63 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>WebToEpub</title>
+    <base />
+</head>
+<body>
+    <style>
+        body {
+        }
+
+        .scrollingtable {
+            overflow: scroll;
+            height: 300px;
+        }
+    </style>
+    <section id="inputSection">
+        <table id="inputTable">
+            <tr>
+                <td>Starting URL</td>
+                <td><input id="startingUrlInput" type="url" name="startingUrlInput" size="80" /></td>
+            </tr>
+            <tr>
+                <td>Title</td>
+                <td><input id="titleInput" type="text" name="titleInput" size="80" /></td>
+            </tr>
+            <tr>
+                <td>Author</td>
+                <td><input id="authorInput" type="text" name="authorInput" size="80" /></td>
+            </tr>
+            <tr>
+                <td>Language</td>
+                <td><input id="languageInput" type="text" name="languageInput" size="80" /></td>
+            </tr>
+        </table>
+        <button id=fetchChaptersButton>Fetch Chapters</button>
+        <button id=packEpubButton>Pack EPUB</button>
+        <button id=testButton>Test</button>  <!-- Button for hooking in tests when needed -->
+    </section>
+    <section id="testSection"></section>
+    <section id="outputSection">
+        <div class="scrollingtable">
+            <table id=chapterUrlsTable>
+                <tr>
+                    <th align=left>Title</th>
+                    <th align=left>Loaded?</th>
+                    <th align=left>URL</th>
+                </tr>
+            </table>
+        </div>
+    </section>
+    <!-- scripts go here -->
+    <script src="js/EpubMetaInfo.js"></script>
+    <script src="js/Util.js"></script>
+    <script src="js/HttpClient.js"></script>
+    <script src="js/parsers/ArchiveOfOurOwnParser.js"></script>
+    <script src="js-lib/jszip.min.js"></script>
+    <script src="js/EpubPacker.js"></script>
+    <script src="js/testFunctions.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

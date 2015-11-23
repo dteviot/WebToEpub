@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "WebToEpub",
+  "version": "1",
+  "icons": {
+    "128": "book128.png"
+  },
+  "permissions": [
+    "tabs", 
+	"<all_urls>"
+  ],
+  "browser_action": {
+    "default_title": "",
+    "default_icon": "book128.png",
+    "default_popup": "popup.html"
+  },
+  "minimum_chrome_version": "46"
+}

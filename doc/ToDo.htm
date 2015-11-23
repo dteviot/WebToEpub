@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" dir="ltr" class="client-js" xml:lang="en-GB">
+  <head>
+    <title>ToDo List</title>
+</head>
+<body>
+<h2>ToDo List for HtmlToEpub Chrome App</h2>
+<h3>Steps to create EPUB Phase one</h3>
+<ul>
+<li>Specify working directory and URL to download</li>
+<li>Fetch initial file from web.  Investigate WebView.</li>
+<li>Parse file for content (chapter) URLs</li>
+<li>Fetch the chapter HTML documents</li>
+<li>Extract wanted text from documents and repackage. Strip javascript, comments, stylesheets</li>
+<li>Phase 1, strip &lt;img&gt; tags</li>
+<li>Generate ToC and content.opf</li>
+<li>Add correct author to content.opf</li>
+<li>Pack epub.</li>
+</ul>
+
+<h3>Steps to create EPUB Phase two</h3>
+<ul>
+<li>May want to split content</li>
+<li>Locate images.  Download images and update &lt;img&gt; tags</li>
+<li>Fixup footnotes</li>
+<li>Rename footnote fragment.</li>
+</ul>
+
+<h3>Side Tasks</h3>
+<ul>
+<li>Check all // ToDo comments have been done.</li>
+<li>Add a git link to github?</li>
+<li>Add a ParserFactory class, to pick a parser based on the URL</li>
+<li></li>
+</ul>
+
+<h3>Immediate Tasks</h3>
+<ul>
+<li>Check if still need to append "?view_adult=true" to URLs.</li>
+<li>Check cookies associated with XMLHttpRequest</li>
+<li></li>
+<li>Get Icon</li>
+<li>Document Licenses</li>
+</ul>
+
+<h3>Finished Tasks</h3>
+<ul>
+<li><strike>Figure out how to load file resources synchronously for unit testing</strike></li>
+<li><strike>Convert into Chrome extension.  Need to look into how to do fetch.</strike></li>
+<li><strike>Remove the images part of UI for time being</strike></li>
+<li><strike>Parse title and author out of document</strike></li>
+<li><strike>Add language to epub properties</strike></li>
+<li><strike>Download process: Give error message on failure</strike></li>
+<li><strike>Update progress downloading chapters</strike></li>
+<li><strike>Check if Zip/Download can handle files > 10 Mbyte</strike></li>
+<li><strike>For Fetch, read URL from web page.</strike></li>
+<li><strike>Parse title and author out of document</strike></li>
+<li><strike>How to correctly add XML comment to start of X(HT)ML files.</strike></li>
+<li><strike>Create Icon.</strike></li>
+<li><strike>Extract just the bits I need out of FileSaver.js.</strike></li>
+<li><strike></strike></li>
+<li><strike></strike></li>
+</ul>
+
+<h3>Links</h3>
+<ul>
+<li>XMLHttpRequest
+<ul>
+<li>https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest</li>
+<li>https://developer.mozilla.org/en-US/docs/HTML_in_XMLHttpRequest</li>
+<li>https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest/Sending_and_Receiving_Binary_Data</li>
+<li>https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest#Monitoring_progress</li>
+</ul>
+<li>FileSystem
+<ul>
+<li>https://developer.chrome.com/apps/fileSystem</li>
+<li>https://github.com/GoogleChrome/chrome-app-samples/tree/master/samples/filesystem-access</li>
+<li>https://developer.mozilla.org/en-US/docs/Web/API/FileEntry</li>
+<li>http://www.html5rocks.com/en/tutorials/file/filesystem/</li>
+<li></li>
+</ul>
+<li>Javascript Zip library
+<ul>
+<li>https://stuk.github.io/jszip/</li>
+</ul>
+<li>Saving file to downloads
+<ul>
+<li>https://github.com/eligrey/FileSaver.js/</li>
+</ul>
+</ul>
+
+<h3>Notes</h3>
+<ul>
+<li>https://github.com/GoogleChrome/chrome-app-samples/tree/master/samples/messaging</li>
+<li>First chapter may have some text before the opening title.</li>
+<li>Not all images appear in the text.</li>
+<li>Image tag not being closed because HtmlNode._ownerdocument not set for inner nodes.</li>
+<li>For our purposes, EPUB only has two file types, XHTML files, and image files
+<ul>
+    <li>The HTML files are in reading order (i.e. Appear in same order as spine, and table of contents)</li>
+    <li>First image, (if there are any) will be the cover image</li>
+</ul>
+<li>use --allow-file-access-from-files for unit testing in Chrome, note, close all instances of Chrome before running with this flag.</li>
+</li>
+</ul>
+
+<h3>Question</h3>
+<ul>
+<li>How to validate image tags?</li>
+</ul>
+
+<h3>Done</h3>
+<ul>
+</ul>
+
+
+</body></html>

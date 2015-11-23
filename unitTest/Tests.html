@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WebToEpub QUnit tests</title>
+    <link rel="stylesheet" href="qunit/qunit-1.19.0.css">
+    <base />
+</head>
+<body>
+    <!-- QUnit boilerplate -->
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="qunit/qunit-1.19.0.js"></script>
+
+    <!-- App Source Files -->
+    <script src="../Plugin/js/EpubMetaInfo.js"></script>
+    <script src="../Plugin/js/Util.js"></script>
+    <script src="../Plugin/js/HttpClient.js"></script>
+    <script src="../Plugin/js/parsers/ArchiveOfOurOwnParser.js"></script>
+    <script src="../Plugin/js-lib/jszip.min.js"></script>
+    <script src="../Plugin/js/EpubPacker.js"></script>
+    <script src="../Plugin/js/testFunctions.js"></script>
+
+    <!-- UnitTests -->
+    <!--
+        <script src='UtestZipAndDownload.js'></script>
+    -->
+    <script src='UtestHttpClient.js'></script>
+    <script src='UtestEpubPacker.js'></script>
+    <script src='UtestArchiveOfOurOwnParser.js'></script>
+</body>
+</html>
