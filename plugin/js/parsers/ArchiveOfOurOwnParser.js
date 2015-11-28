@@ -4,77 +4,65 @@
 "use strict";
 
 function ArchiveOfOurOwnParser() {
-    let that = this;
 }
 
-ArchiveOfOurOwnParser.prototype = {
-    getEpubMetaInfo: function (dom) {
-        let that = this;
-        let metaInfo = new EpubMetaInfo();
-        metaInfo.uuid = dom.baseURI;
-        metaInfo.title = that.extractTitle(dom);
-        metaInfo.author = that.extractAuthor(dom);
-        metaInfo.language = that.extractLanguage(dom);
-        return metaInfo;
-    },
+// Make ArchiveOfOurOwnParser inherit from Parser
+ArchiveOfOurOwnParser.prototype = Object.create(Parser.prototype);
+ArchiveOfOurOwnParser.prototype.constructor = ArchiveOfOurOwnParser;
 
-    getChapterUrls: function (dom) {
-        let that = this;
+ArchiveOfOurOwnParser.prototype.getEpubMetaInfo = function (dom){
+    let that = this;
+    let metaInfo = new EpubMetaInfo();
+    metaInfo.uuid = dom.baseURI;
+    metaInfo.title = that.extractTitle(dom);
+    metaInfo.author = that.extractAuthor(dom);
+    metaInfo.language = that.extractLanguage(dom);
+    return metaInfo;
+};
 
-        let baseUrl = Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
-        let chaptersElement = Array.prototype.slice.apply(dom.getElementsByTagName("li"))
-           .filter(function (element) { return element.className === "chapter" });
-        if (chaptersElement.length === 0) {
-            return new Array();
-        }
+ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
+    let that = this;
 
-        return Array.prototype.slice.apply(chaptersElement[0].getElementsByTagName("option"))
-            .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
-    },
+    let baseUrl = Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
+    let chaptersElement = that.getElements(dom, "li", e => (e.className === "chapter") );
+    if (chaptersElement.length === 0) {
+        return new Array();
+    }
 
-    optionToChapterInfo: function (baseUrl, optionElement) {
-        let relativeUrl = optionElement.getAttribute("value");
-        return {
-            sourceUrl: new Util().resolveRelativeUrl(baseUrl, relativeUrl) + '?view_adult=true',
-            title: optionElement.innerText
-        };
-    },
+    return that.getElements(dom, "option", e => true)
+        .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
+};
+
+ArchiveOfOurOwnParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {
+    let relativeUrl = optionElement.getAttribute("value");
+    return {
+        sourceUrl: new Util().resolveRelativeUrl(baseUrl, relativeUrl) + '?view_adult=true',
+        title: optionElement.innerText
+    };
+};
 
     // extract the node(s) holding the story content
-    extractContent: function (dom) {
-        return Array.prototype.slice.apply(dom.getElementsByTagName("div"))
-            .filter(function (element) { return element.className === "userstuff module" })
-            .pop();
-    },
+ArchiveOfOurOwnParser.prototype.extractContent = function (dom) {
+    return this.getElement(dom, "div", e => (e.className === "userstuff module") );
+};
 
-    makeChapterDoc: function(dom) {
-        let that = this;
-        let util = new Util();
-        let doc = util.createEmptyXhtmlDoc();
-        util.addToDocBody(doc, that.extractContent(dom));
-        return doc;
-    },
+ArchiveOfOurOwnParser.prototype.makeChapterDoc = function(dom) {
+    let that = this;
+    let util = new Util();
+    let doc = util.createEmptyXhtmlDoc();
+    util.addToDocBody(doc, that.extractContent(dom));
+    return doc;
+};
 
-    extractTitle: function(dom) {
-        let that = this;
-        let element = that.getElement(dom, "h2", e => (e.className === "title heading") );
-        return element.innerText.trim();
-    },
+ArchiveOfOurOwnParser.prototype.extractTitle = function(dom) {
+    return this.getElement(dom, "h2", e => (e.className === "title heading") ).innerText.trim();
+};
 
-    extractAuthor: function(dom) {
-        let that = this;
-        let element = that.getElement(dom, "a", e => (e.className === "login author") );
-        return element.innerText.trim();
-    },
+ArchiveOfOurOwnParser.prototype.extractAuthor = function(dom) {
+    return this.getElement(dom, "a", e => (e.className === "login author") ).innerText.trim();
+};
 
-    extractLanguage: function(dom) {
-        let that = this;
-        let element = that.getElement(dom, "meta", e => (e.getAttribute("name") === "language") );
-        return element.getAttribute("content");
-    },
+ArchiveOfOurOwnParser.prototype.extractLanguage = function(dom) {
+    return this.getElement(dom, "meta", e => (e.getAttribute("name") === "language") ).getAttribute("content");
+};
 
-    getElement: function(dom, tagName, filter) {
-        let elements = Array.prototype.slice.apply(dom.getElementsByTagName(tagName)).filter(filter);
-        return (elements.length === 0) ? null : elements[0];
-    },
-}
