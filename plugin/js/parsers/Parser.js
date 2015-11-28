@@ -7,6 +7,16 @@ function Parser() {
 }
 
 Parser.prototype = {
+   getEpubMetaInfo: function (dom){
+        let that = this;
+        let metaInfo = new EpubMetaInfo();
+        metaInfo.uuid = dom.baseURI;
+        metaInfo.title = that.extractTitle(dom);
+        metaInfo.author = that.extractAuthor(dom);
+        metaInfo.language = that.extractLanguage(dom);
+        return metaInfo;
+   },
+
     makeChapterDoc: function(dom) {
         let that = this;
         let util = new Util();
@@ -29,5 +39,9 @@ Parser.prototype = {
         let parser = document.createElement("a");
         parser.href = url;
         return parser.hostname;
-    }
+    },
+
+    getBaseUrl: function (dom) {
+        return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
+    },
 }
