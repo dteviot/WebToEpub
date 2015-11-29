@@ -40,3 +40,8 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.language, "en");
 });
 
+QUnit.test("canParse", function (assert) {
+    let parser = new FanFictionParser();
+    ok(parser.canParse("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
+    notOk(parser.canParse("http://archiveofourown.org/works/123456/chapters/9876543"));
+});

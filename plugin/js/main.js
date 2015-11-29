@@ -10,7 +10,7 @@
 
     // details 
     let chapters = [];
-    let parser = new ArchiveOfOurOwnParser();
+    let parser = null;
 
     // register listener that is invoked when script injected into HTML sends its results 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -46,11 +46,13 @@
     }
 
     // extract urls from DOM and populate control
-    function processInitialHtml(dom) {
-        let metaInfo = parser.getEpubMetaInfo(dom);
-        populateMetaInfo(metaInfo);
-        chapters = parser.getChapterUrls(dom);
-        populateChapterUrls(chapters);
+    function processInitialHtml(url, dom) {
+        if (setParser(url)) {
+            let metaInfo = parser.getEpubMetaInfo(dom);
+            populateMetaInfo(metaInfo);
+            chapters = parser.getChapterUrls(dom);
+            populateChapterUrls(chapters);
+        }
     }
 
     function onFetchChapters() {
@@ -132,9 +134,22 @@
 
             // set the base tag, in case server did not supply it 
             new HttpClient().setBaseTag(message.url, dom);
-            processInitialHtml(dom);
+            processInitialHtml(message.url, dom);
         };
         getActiveTabDOM();
+    }
+
+    function setParser(url) {
+        let parsers = ParserFactory(url);
+        if (parsers.length === 0) {
+            alert("No parser found for this URL.");
+        } else {
+            if (parsers.length > 1) {
+                alert("Multiple parsers found for this URL.");
+            }
+            parser = parsers[0];
+        }
+        return parser !== null;
     }
 
     // actions to do when window opened
