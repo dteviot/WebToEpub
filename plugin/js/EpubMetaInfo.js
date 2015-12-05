@@ -14,4 +14,5 @@ function EpubMetaInfo() {
     this.title = "No title supplied";
     this.author = "No author supplied";
     this.language = "en";
+    this.fileName = "web.epub";
 }

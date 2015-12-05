@@ -51,9 +51,10 @@ QUnit.test("extractContent", function (assert) {
 QUnit.test("getEpubMetaInfo", function (assert) {
     let parser = new ArchiveOfOurOwnParser();
     let metaInfo = parser.getEpubMetaInfo(syncLoadArchiveOfOurOwnSampleDoc());
-    equal(metaInfo.title, "Web to EPUB Extension for Chrome");
+    equal(metaInfo.title, "Web *to EPUB: Extension \\for Chrome?");
     equal(metaInfo.author, "David Teviotdale");
     equal(metaInfo.language, "en-US");
+    equal(metaInfo.fileName, "Web-toEPUB-Extension-forChrome-.epub");
 });
 
 QUnit.test("canParse", function (assert) {

@@ -100,6 +100,7 @@
         document.getElementById("titleInput").value = metaInfo.title;
         document.getElementById("authorInput").value = metaInfo.author;
         document.getElementById("languageInput").value = metaInfo.language;
+        document.getElementById("fileNameInput").value = metaInfo.fileName;
     }
 
     function metaInfoFromContorls() {
@@ -108,25 +109,27 @@
         metaInfo.title = document.getElementById("titleInput").value;
         metaInfo.author = document.getElementById("authorInput").value;
         metaInfo.language = document.getElementById("languageInput").value;
+        metaInfo.fileName = document.getElementById("fileNameInput").value;
         return metaInfo;
     }
 
     function packEpub() {
         console.debug("Pack EPUB Button clicked");
-        let epub = new EpubPacker(metaInfoFromContorls());
+        let metaInfo = metaInfoFromContorls();
+        let epub = new EpubPacker(metaInfo);
         for (let i = 0; i < chapters.length; ++i) {
             let fileName = epub.createXhtmlFileName(i);
             let content = parser.makeChapterDoc(chapters[i].rawDom);
             epub.addXhtmlFile(fileName, content, chapters[i].title);
         }
-        epub.assembleAndSave("web.epub");
+        epub.assembleAndSave(metaInfo.fileName);
     }
 
     function getActiveTabDOM() {
         chrome.tabs.executeScript({file: "js/ContentScript.js"});
     }
 
-    function populateContorls() {
+    function populateControls() {
         // set up handler to get the response from our injected content script
         onMessageListener = function (message) {
             // convert the string returned from content script back into a DOM
@@ -157,9 +160,9 @@
         // add onClick event handlers
         document.getElementById("fetchChaptersButton").onclick = onFetchChapters;
         document.getElementById("packEpubButton").onclick = packEpub;
-        document.getElementById("testButton").onclick = populateContorls;
+        document.getElementById("testButton").onclick = populateControls;
 
-        populateContorls();
+        populateControls();
     }
 
 })();
