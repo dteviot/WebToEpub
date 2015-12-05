@@ -35,8 +35,8 @@ ArchiveOfOurOwnParser.prototype.optionToChapterInfo = function (baseUrl, optionE
     };
 };
 
-// extract the node(s) holding the story content
-ArchiveOfOurOwnParser.prototype.extractContent = function (dom) {
+// find the node(s) holding the story content
+ArchiveOfOurOwnParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "userstuff module") );
 };
 

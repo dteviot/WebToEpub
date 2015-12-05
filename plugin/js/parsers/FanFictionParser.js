@@ -39,8 +39,8 @@ FanFictionParser.prototype.optionToChapterInfo = function (baseUrl, optionElemen
     };
 };
 
-// extract the node(s) holding the story content
-FanFictionParser.prototype.extractContent = function (dom) {
+// find the node(s) holding the story content
+FanFictionParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "storytext xcontrast_txt nocopy") );
 };
 

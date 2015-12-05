@@ -8,13 +8,13 @@ var testFunctions = (function () {
         return new DOMParser().parseFromString(textString, "text/html");
     }
 
-    var testExtractContent = function (html) {
+    var testFindContent = function (html) {
         let dom = textToDom(html);
         let parser = new FimFictionParser(dom);
 
         let div = document.createElement("div");
         div.className = "scrollingtable";
-        div.appendChild(parser.extractContent(dom));
+        div.appendChild(parser.findContent(dom));
         document.getElementById("testSection").appendChild(div);
     }
 
@@ -63,7 +63,7 @@ var testFunctions = (function () {
         dumpChapters: dumpChapters,
         fakeArchiveOfOurOwnXmlHttpResponse: fakeArchiveOfOurOwnXmlHttpResponse,
         simulateHtmlFetch: simulateHtmlFetch,
-        testExtractContent: testExtractContent
+        testFindContent: testFindContent
     };
 })();
 

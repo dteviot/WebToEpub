@@ -24,9 +24,9 @@ QUnit.test("getChapterUrls", function (assert) {
     assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
 });
 
-QUnit.test("extractContent", function (assert) {
+QUnit.test("findContent", function (assert) {
     let parser = new FanFictionParser();
-    let content = parser.extractContent(syncLoadFanFictionSampleDoc());
+    let content = parser.findContent(syncLoadFanFictionSampleDoc());
     equal(content.childNodes.length, 3);
     let regex = /^If you're like me, you will have*/;
     assert.ok(regex.test(content.childNodes[1].innerText));

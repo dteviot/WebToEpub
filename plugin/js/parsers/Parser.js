@@ -22,7 +22,10 @@ Parser.prototype = {
         let that = this;
         let util = new Util();
         let doc = util.createEmptyXhtmlDoc();
-        util.addToDocBody(doc, that.extractContent(dom));
+        let content = that.findContent(dom)
+        if (content != null) {
+            util.addToDocBody(doc, content.cloneNode(true));
+        }
         return doc;
     },
 

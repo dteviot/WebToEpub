@@ -40,9 +40,9 @@ QUnit.test("getChapterUrls", function (assert) {
     });
 });
 
-QUnit.test("extractContent", function (assert) {
+QUnit.test("findContent", function (assert) {
     let parser = new ArchiveOfOurOwnParser();
-    let content = parser.extractContent(syncLoadArchiveOfOurOwnSampleDoc());
+    let content = parser.findContent(syncLoadArchiveOfOurOwnSampleDoc());
     equal(content.childNodes.length, 5);
     equal(content.childNodes[1].innerText, "Chapter Text");
     equal(content.childNodes[3].innerText, "If you're like me, you will have...");
@@ -61,5 +61,14 @@ QUnit.test("canParse", function (assert) {
     let parser = new ArchiveOfOurOwnParser();
     ok(parser.canParse("http://archiveofourown.org/works/123456/chapters/9876543"));
     notOk(parser.canParse("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
+});
+
+QUnit.test("makeChapterDocCopiesNotMovesNodes", function (assert) {
+    let parser = new ArchiveOfOurOwnParser();
+    let doc = syncLoadArchiveOfOurOwnSampleDoc();
+    equal(doc.all.length, 53);
+    let chapterDoc = parser.makeChapterDoc(doc);
+    equal(doc.all.length, 53);
+    let chapterDoc2 = parser.makeChapterDoc(doc);
 });
 
