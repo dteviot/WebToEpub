@@ -27,7 +27,8 @@ Parser.prototype = {
     },
 
     getElements: function(dom, tagName, filter) {
-        return Array.prototype.slice.apply(dom.getElementsByTagName(tagName)).filter(filter);
+        let array = Array.prototype.slice.apply(dom.getElementsByTagName(tagName));
+        return (filter == undefined) ? array : array.filter(filter)
     },
 
     getElement: function(dom, tagName, filter) {

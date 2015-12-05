@@ -23,7 +23,7 @@ FanFictionParser.prototype.getChapterUrls = function (dom) {
         return new Array();
     }
 
-    return that.getElements(chaptersElement, "option", e => true)
+    return that.getElements(chaptersElement, "option")
         .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
 };
 
@@ -46,7 +46,7 @@ FanFictionParser.prototype.extractContent = function (dom) {
 
 FanFictionParser.prototype.extractTextFromProfile = function(dom, tag) {
     let profile = this.getElement(dom, "div", e => (e.id === "profile_top") );
-    return this.getElement(profile, tag, e => true ).innerText.trim();
+    return this.getElement(profile, tag).innerText.trim();
 };
 
 FanFictionParser.prototype.extractTitle = function(dom) {

@@ -23,7 +23,7 @@ ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
     }
 
     let baseUrl = that.getBaseUrl(dom);
-    return that.getElements(chaptersElement, "option", e => true)
+    return that.getElements(chaptersElement, "option")
         .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
 };
 
