@@ -218,7 +218,7 @@ EpubPacker.prototype = {
     createAndAppendChild: function (element, name, data) {
         let child = element.ownerDocument.createElement(name);
         if (typeof data  !== "undefined") {
-            child.innerHTML = data;
+            child.appendChild(element.ownerDocument.createTextNode(data));
         }
         element.appendChild(child);
         return child;

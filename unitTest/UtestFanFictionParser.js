@@ -36,7 +36,7 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     let parser = new FanFictionParser();
     let metaInfo = parser.getEpubMetaInfo(syncLoadFanFictionSampleDoc());
     equal(metaInfo.title, "Web to Epub");
-    equal(metaInfo.author, "David Teviotdale");
+    equal(metaInfo.author, "David & Teviotdale");
     equal(metaInfo.language, "en");
     equal(metaInfo.fileName, "WebtoEpub.epub");
 });
