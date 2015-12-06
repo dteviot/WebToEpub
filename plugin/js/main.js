@@ -116,13 +116,18 @@
     function packEpub() {
         console.debug("Pack EPUB Button clicked");
         let metaInfo = metaInfoFromContorls();
-        let epub = new EpubPacker(metaInfo);
-        for (let i = 0; i < chapters.length; ++i) {
-            let fileName = epub.createXhtmlFileName(i);
-            let content = parser.makeChapterDoc(chapters[i].rawDom);
-            epub.addXhtmlFile(fileName, content, chapters[i].title);
+        let i = 0;
+        try {
+            let epub = new EpubPacker(metaInfo);
+            for (i = 0; i < chapters.length; ++i) {
+                let fileName = epub.createXhtmlFileName(i);
+                let content = parser.makeChapterDoc(chapters[i].rawDom);
+                epub.addXhtmlFile(fileName, content, chapters[i].title);
+            }
+            epub.assembleAndSave(metaInfo.fileName);
+        } catch (error) {
+            alert("Error packing EPUB. Chapter " + i + " Error: " + error.stack);
         }
-        epub.assembleAndSave(metaInfo.fileName);
     }
 
     function getActiveTabDOM() {
