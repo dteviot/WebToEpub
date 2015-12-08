@@ -122,7 +122,6 @@
     }
 
     function packEpub() {
-        console.debug("Pack EPUB Button clicked");
         let metaInfo = metaInfoFromContorls();
         let i = 0;
         try {
@@ -168,6 +167,23 @@
         return parser !== null;
     }
 
+    // called when the "Diagnostics" check box is ticked or unticked
+    function onDiagnosticsClick() {
+        let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
+        document.getElementById("reloadButton").hidden = !enable;
+        document.getElementById("packRawButton").hidden = !enable;
+    }
+
+    // pack the raw chapter HTML into a zip file (for later manual analysis)
+    function packRawChapters() {
+        let that = this;
+        let zipFile = new JSZip();
+        for (let i = 0; i < chapters.length; ++i) {
+            zipFile.file("chapter" + i + ".html", chapters[i].rawDom.documentElement.innerHTML, { compression: "DEFLATE" });
+        }
+        new EpubPacker().save(zipFile.generate({ type: "blob" }), "raw.zip");
+    }
+
     function getProgressBar() {
         return document.getElementById("fetchChaptersProgress");
     }
@@ -181,8 +197,9 @@
         // add onClick event handlers
         document.getElementById("fetchChaptersButton").onclick = onFetchChapters;
         getPackEpubButton().onclick = packEpub;
-        document.getElementById("testButton").onclick = populateControls;
-
+        document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
+        document.getElementById("reloadButton").onclick = populateControls;
+        document.getElementById("packRawButton").onclick = packRawChapters;
         populateControls();
     }
 
