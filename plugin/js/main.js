@@ -57,8 +57,9 @@
 
     function onFetchChapters() {
         if (0 == chapters.length) {
-            console.error("no chapters loaded");
+            alert("No chapters found.");
         } else {
+            setUiToShowChapterLoadingProgress();
             let client = new HttpClient();
 
             // for testing, uncomment the following lines
@@ -74,6 +75,12 @@
         }
     };
 
+    function setUiToShowChapterLoadingProgress() {
+        getPackEpubButton().disabled = true;
+        getProgressBar().max = chapters.length;
+        getProgressBar().value = 0;
+    }
+
     function onLoadChapter(chapterIndex, client) {
         if (chapterIndex < chapters.length) {
             let chapter = chapters[chapterIndex];
@@ -83,12 +90,13 @@
                 onLoadChapter(chapterIndex + 1, client);
             });
         } else {
-            alert("All chapters loaded.");
+            getPackEpubButton().disabled = false;
         }
     }
 
     function updateLoadState(chapter) {
         chapter.stateColumn.innerText = "Yes";
+        getProgressBar().value += 1;
     }
 
     function onChaptersLoaded() {
@@ -160,11 +168,19 @@
         return parser !== null;
     }
 
+    function getProgressBar() {
+        return document.getElementById("fetchChaptersProgress");
+    }
+
+    function getPackEpubButton() {
+        return document.getElementById("packEpubButton");
+    }
+
     // actions to do when window opened
     window.onload = function () {
         // add onClick event handlers
         document.getElementById("fetchChaptersButton").onclick = onFetchChapters;
-        document.getElementById("packEpubButton").onclick = packEpub;
+        getPackEpubButton().onclick = packEpub;
         document.getElementById("testButton").onclick = populateControls;
 
         populateControls();
