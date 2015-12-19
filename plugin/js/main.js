@@ -176,6 +176,7 @@
         let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
         document.getElementById("reloadButton").hidden = !enable;
         document.getElementById("packRawButton").hidden = !enable;
+        document.getElementById("testToXhtmlButton").hidden = !enable;
     }
 
     // pack the raw chapter HTML into a zip file (for later manual analysis)
