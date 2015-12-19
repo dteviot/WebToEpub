@@ -10,6 +10,10 @@ function BakaTsukiParser() {
 BakaTsukiParser.prototype = Object.create(Parser.prototype);
 BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 
+BakaTsukiParser.prototype.NOT_IMAGE = 0;
+BakaTsukiParser.prototype.GALLERY_IMAGE = 1;
+BakaTsukiParser.prototype.THUMB_IMAGE = 2;
+
 BakaTsukiParser.prototype.canParse = function (url) {
     return (this.extractHostName(url) === "www.baka-tsuki.org");
 }
@@ -48,6 +52,7 @@ BakaTsukiParser.prototype.toXhtml = function (dom) {
     let that = this;
     let content = that.findContent(dom);
     that.removeUnwantedElementsFromContentElement(content);
+    that.processImages(content);
     return dom;
 }
 
@@ -83,3 +88,52 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
         util.removeNode(endTable);
     }
 }
+
+BakaTsukiParser.prototype.processImages = function (element) {
+    let that = this;
+    that.findImages(element);
+    that.fixupImages();
+}
+
+BakaTsukiParser.prototype.findImages = function (element) {
+    let that = this;
+    that.imageNodes = [];
+
+    let walker = document.createTreeWalker(element);
+    while (walker.nextNode()) {
+        let currentNode = walker.currentNode;
+        if (that.isImageNode(currentNode)) {
+            that.recordImageElement(currentNode);
+        }
+    }
+}
+
+BakaTsukiParser.prototype.fixupImages = function () {
+    // at this point in time, just delete the images
+    let that = this;
+    util.removeElements(that.imageNodes);
+}
+
+BakaTsukiParser.prototype.isImageNode = function (element) {
+    let that = this;
+    return that.getImageNodeType(element) !== that.NOT_IMAGE;
+}
+
+BakaTsukiParser.prototype.getImageNodeType = function (element) {
+    let that = this;
+    if ((element.tagName === "LI") && (element.className === "gallerybox")) {
+        return this.GALLERY_IMAGE;
+    } else if ((element.tagName === "DIV") && 
+        ((element.className === "thumb tright") || (element.className === "floatright"))) {
+        return this.THUMB_IMAGE;
+    } else {
+        return this.NOT_IMAGE;
+    }
+}
+
+BakaTsukiParser.prototype.recordImageElement = function (element) {
+    let that = this;
+    that.imageNodes.push(element);
+}
+
+

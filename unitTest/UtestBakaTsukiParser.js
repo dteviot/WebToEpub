@@ -117,7 +117,6 @@ QUnit.test("removeComments", function (assert) {
     );
 
     let parser = new BakaTsukiParser();
-    getTestDom();
     util.removeComments(dom.documentElement);
     assert.equal(dom.body.innerHTML, "<x><h1>T1</h1><div class=\"toc\"></div></x>");
 });
@@ -132,7 +131,6 @@ QUnit.test("removeUnwantedTableWhenSingleTable", function (assert) {
     );
 
     let parser = new BakaTsukiParser();
-    getTestDom();
     parser.removeUnwantedTable(dom.documentElement);
     assert.equal(dom.body.innerHTML, "<x><h1>H1</h1></x>");
 });
@@ -152,7 +150,6 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
     );
 
     let parser = new BakaTsukiParser();
-    getTestDom();
     parser.removeUnwantedTable(dom.documentElement);
     assert.equal(dom.body.innerHTML,
         "<x>" +
@@ -163,3 +160,39 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
         "</x>");
 });
 
+QUnit.test("processImages", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<x>" +
+           "<ul class=\"gallery mw-gallery-traditional\">"+
+               "<li class=\"gallerybox\">" +
+                   "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                        "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >"+
+                   "</a>"+
+               "</li>"+
+               "<li class=\"comment\"></li>" +
+           "</ul>" +
+           "<div class=\"thumb tright\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                "</a>" +
+           "</div>" +
+           "<div class=\"thumbinner\">T1</div>" +
+           "<div class=\"floatright\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                "</a>" +
+           "</div>" +
+        "</x>",
+        "text/html"
+    );
+
+    let parser = new BakaTsukiParser();
+    parser.processImages(dom.documentElement);
+    assert.equal(dom.body.innerHTML,
+        "<x>" +
+           "<ul class=\"gallery mw-gallery-traditional\">" +
+               "<li class=\"comment\"></li>" +
+           "</ul>" +
+           "<div class=\"thumbinner\">T1</div>" +
+        "</x>");
+});
