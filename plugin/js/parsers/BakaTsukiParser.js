@@ -206,8 +206,17 @@ BakaTsukiParser.prototype.isChapterStart = function (node) {
 }
 
 BakaTsukiParser.prototype.appendToSectionsList = function (sectionsList, section) {
+    let that = this;
+    that.removeTrailingWhiteSpace(section);
     if (0 < section.length) {
         sectionsList.push(section);
     }
 }
 
+BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (section) {
+    let i = section.length - 1;
+    while ((0 <= i) && util.isWhiteSpace(section[i].textContent)) {
+        section.pop();
+        --i;
+    }
+}
