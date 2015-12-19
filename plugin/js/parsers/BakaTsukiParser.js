@@ -166,9 +166,53 @@ BakaTsukiParser.prototype.recordImageElement = function (element) {
 
 BakaTsukiParser.prototype.splitContentIntoSections = function (content) {
     let that = this;
+    that.flattenContent(content);
     let sectionsList = that.splitContentOnHeadingTags(content);
     sectionsList = that.consolidateSections(sectionsList);
     return sectionsList;
+}
+
+BakaTsukiParser.prototype.flattenContent = function (content) {
+    // most pages have all header tags as immediate children of the content element
+    // where this is not the case, flatten them so that they are.
+    let that = this;
+    for(let i = 0; i < content.childNodes.length; ++i) {
+        let node = content.childNodes[i];
+        if (that.nodeNeedsToBeFlattened(node)) {
+            for(let j = node.childNodes.length - 1; 0 <= j; --j) {
+                that.insertAfter(node, node.childNodes[j]);
+            }
+            util.removeNode(node);
+            --i;
+        }
+    }
+}
+
+BakaTsukiParser.prototype.nodeNeedsToBeFlattened = function (node) {
+    let that = this;
+    let numHeaders = that.numberOfHeaderTags(node);
+    return ((1 < numHeaders) || ((numHeaders === 1) && !that.isChapterStart(node)));
+}
+
+BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
+    let that = this;
+    let walker = document.createTreeWalker(node); 
+    let count = 0;
+    while (walker.nextNode()) {
+        if (that.isChapterStart(walker.currentNode)) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+BakaTsukiParser.prototype.insertAfter = function (atNode, nodeToInsert) {
+    let nextSibling = atNode.nextSibling;
+    if (nextSibling != null) {
+        atNode.parentNode.insertBefore(nodeToInsert, nextSibling);
+    } else {
+        atNode.parentNode.appendChild(nodeToInsert);
+    }
 }
 
 BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content) {

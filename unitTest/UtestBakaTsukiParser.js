@@ -197,6 +197,34 @@ QUnit.test("processImages", function (assert) {
         "</x>");
 });
 
+QUnit.test("flattenContent", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<div>" +
+           "<div>" +
+               "<div>" +
+                   "<h1>H1.1</h1>" +
+                   "<h2>H2.1</h2>" +
+               "</div>" +
+           "</div>" +
+           "<h3>H3.1</h3>" +
+           "<div>" +
+               "<h4>H4.1</h1>" +
+           "</div>" +
+        "</div>",
+        "text/html"
+    );
+
+    let parser = new BakaTsukiParser();
+    parser.flattenContent(dom.body.firstChild);
+    assert.equal(dom.body.firstChild.outerHTML,
+        "<div>" +
+            "<h1>H1.1</h1>" +
+            "<h2>H2.1</h2>" +
+            "<h3>H3.1</h3>" +
+            "<h4>H4.1</h4>" +
+        "</div>");
+});
+
 QUnit.test("splitContentIntoSections", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<div>" +
