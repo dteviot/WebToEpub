@@ -167,9 +167,7 @@ BakaTsukiParser.prototype.recordImageElement = function (element) {
 BakaTsukiParser.prototype.splitContentIntoSections = function (content) {
     let that = this;
     let sectionsList = that.splitContentOnHeadingTags(content);
-
-    // consolidate sections
-
+    sectionsList = that.consolidateSections(sectionsList);
     return sectionsList;
 }
 
@@ -193,7 +191,7 @@ BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content) {
 BakaTsukiParser.prototype.wrapRawTextNode = function (node) {
     if ((node.nodeType === Node.TEXT_NODE) && !util.isWhiteSpace(node.nodeValue)) {
         let wrapper = node.ownerDocument.createElement("p");
-        wrapper.appendChild(node);
+        wrapper.appendChild(node.ownerDocument.createTextNode(node.nodeValue));
         return wrapper;
     } else {
         return node;
@@ -219,4 +217,21 @@ BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (section) {
         section.pop();
         --i;
     }
+}
+
+// If a section only holds a heading element, combine with following section.
+// e.g. We're dealing with <h1> followed by <h2>
+BakaTsukiParser.prototype.consolidateSections = function (sectionsList) {
+    let newSectionsList = [ sectionsList[sectionsList.length - 1] ];
+    let i = sectionsList.length - 2;
+    while (0 <= i) {
+        let section = sectionsList[i];
+        if (section.length === 1) {
+            newSectionsList[0].unshift(section[0]);
+        } else {
+            newSectionsList.unshift(section);
+        }
+        --i;
+    }
+    return newSectionsList;
 }
