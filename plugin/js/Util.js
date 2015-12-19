@@ -69,6 +69,19 @@ var util = (function () {
         dom.insertBefore(declaration, dom.children[0]);
     }
 
+    
+    /**
+     * Determine whether a string is entirely whitespace.
+     * from https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Whitespace_in_the_DOM
+     *
+     * @param s    String to examine
+     * @return     True if all of the text content of |nod| is whitespace,
+     *             otherwise false.
+     */
+    var isWhiteSpace = function (s) {
+        return !(/[^\t\n\r ]/.test(s));
+    }
+
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         resolveRelativeUrl: resolveRelativeUrl,
@@ -76,7 +89,8 @@ var util = (function () {
         removeNode: removeNode,
         removeElements: removeElements,
         removeComments: removeComments,
-        addXmlDeclarationToStart: addXmlDeclarationToStart
+        addXmlDeclarationToStart: addXmlDeclarationToStart,
+        isWhiteSpace: isWhiteSpace
     };
 })();
 

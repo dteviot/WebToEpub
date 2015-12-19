@@ -196,3 +196,35 @@ QUnit.test("processImages", function (assert) {
            "<div class=\"thumbinner\">T1</div>" +
         "</x>");
 });
+
+QUnit.test("splitContentOnHeadingTags", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<div>" +
+           "<h1>H1.1</h1>" +
+           "<p>text1</p>" +
+           "\n" +
+           "<h1>H1.2</h1>" +
+           "<h2>H2.2</h2>" +
+           "<p>text2</p>" +
+           "text3" +
+        "</div>",
+        "text/html"
+    );
+
+    let parser = new BakaTsukiParser();
+    let chapterList = parser.splitContentOnHeadingTags(dom.body.firstChild);
+    assert.equal(chapterList.length, 3);
+    assert.equal(chapterList[0].length, 3);
+    assert.equal(chapterList[1].length, 1);
+    assert.equal(chapterList[2].length, 3);
+
+    assert.equal(chapterList[0][0].outerHTML, "<h1>H1.1</h1>");
+    assert.equal(chapterList[0][1].outerHTML, "<p>text1</p>");
+    assert.equal(chapterList[0][2].nodeValue, "\n");
+
+    assert.equal(chapterList[1][0].outerHTML, "<h1>H1.2</h1>");
+
+    assert.equal(chapterList[2][0].outerHTML, "<h2>H2.2</h2>");
+    assert.equal(chapterList[2][1].outerHTML, "<p>text2</p>");
+    assert.equal(chapterList[2][2].outerHTML, "<p>text3</p>");
+});

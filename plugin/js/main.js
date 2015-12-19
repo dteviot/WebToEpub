@@ -202,12 +202,11 @@
             
             // test Cleanup function
             let doc = chapters[0].rawDom;
-            doc = parser.toXhtml(doc);
-            var a = document.createElement('a');
-            let blob = new Blob([new XMLSerializer().serializeToString(doc)], { type: 'text/html' });
-            a.href = URL.createObjectURL(blob);
-            a.download = "raw.xhtml";
-            a.click();
+
+            // doc = parser.toXhtml(doc);
+            // let blob = new Blob([new XMLSerializer().serializeToString(doc)], { type: 'text/html' });
+            let zipFile = parser.testChapterSplit(doc);
+            new EpubPacker().save(zipFile.generate({ type: "blob" }), "xhtml.zip");
         }
     }
 

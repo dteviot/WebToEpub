@@ -60,6 +60,30 @@ BakaTsukiParser.prototype.toXhtml = function (dom) {
     return xhtml;
 }
 
+BakaTsukiParser.prototype.testChapterSplit = function (dom) {
+    let that = this;
+    let content = that.findContent(dom).cloneNode(true);
+    that.removeUnwantedElementsFromContentElement(content);
+    that.processImages(content);
+
+    let zipFile = new JSZip();
+    let chapterList = that.splitContentIntoChapters(content);
+    for (let i = 0; i < chapterList.length; ++i) {
+        let xhtml = that.packXhtmlChapter(chapterList[i]);
+        zipFile.file("chapter" + i + ".xhtml", new XMLSerializer().serializeToString(xhtml), { compression: "DEFLATE" });
+    }
+    return zipFile;
+}
+
+BakaTsukiParser.prototype.packXhtmlChapter = function (chapterElements) {
+    let that = this;
+    let xhtml = util.createEmptyXhtmlDoc();
+    let body = xhtml.getElementsByTagName("body")[0];
+    chapterElements.forEach(e => body.appendChild(e));
+    util.addXmlDeclarationToStart(xhtml);
+    return xhtml;
+}
+
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
     util.removeElements(that.getElements(element, "script"));
@@ -140,4 +164,50 @@ BakaTsukiParser.prototype.recordImageElement = function (element) {
     that.imageNodes.push(element);
 }
 
+BakaTsukiParser.prototype.splitContentIntoChapters = function (content) {
+    let that = this;
+    let chapterList = that.splitContentOnHeadingTags(content);
+
+    // consolidate chapters
+
+    return chapterList;
+}
+
+BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content) {
+    let that = this;
+    let chapterList = [];
+    let chapter = [];
+    for(let i = 0; i < content.childNodes.length; ++i) {
+        let node = that.wrapRawTextNode(content.childNodes[i]);
+        if (that.isChapterStart(node)) {
+            that.appendToChapterList(chapterList, chapter);
+            chapter = [];
+        }
+        chapter.push(node);
+    }
+    that.appendToChapterList(chapterList, chapter);
+    return chapterList;
+}
+
+// wrap any raw text in <p></p> tags
+BakaTsukiParser.prototype.wrapRawTextNode = function (node) {
+    if ((node.nodeType === Node.TEXT_NODE) && !util.isWhiteSpace(node.nodeValue)) {
+        let wrapper = node.ownerDocument.createElement("p");
+        wrapper.appendChild(node);
+        return wrapper;
+    } else {
+        return node;
+    }
+}
+
+BakaTsukiParser.prototype.isChapterStart = function (node) {
+    return (node.tagName === "H1") || (node.tagName === "H2") 
+        || (node.tagName === "H3") || (node.tagName === "H4")
+}
+
+BakaTsukiParser.prototype.appendToChapterList = function (chapterList, chapter) {
+    if (0 < chapter.length) {
+        chapterList.push(chapter);
+    }
+}
 
