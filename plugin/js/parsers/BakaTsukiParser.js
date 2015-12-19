@@ -60,6 +60,9 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
 
     util.removeComments(element);
     that.removeUnwantedTable(element);
+
+    // hyperlinks that allow editing text
+    util.removeElements(that.getElements(element, "span", e => (e.className === "mw-editsection")));
 };
 
 // There's a table at end of content, with links to other stories on Baka Tsuki.

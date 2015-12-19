@@ -68,7 +68,7 @@ QUnit.test("removeUnwantedElementsFromContentElement", function (assert) {
 function removeElementsTestDom() {
     return new DOMParser().parseFromString(
         "<x>" +
-           "<h1>T1</h1>" +
+           "<h1>T1<span class=\"mw-editsection\">Edit 1</span></h1>" +
            "<div class=\"toc\">" +
                "<script>\"use strict\"</script>" +
                "<div class=\"tok\">" +
@@ -76,6 +76,10 @@ function removeElementsTestDom() {
                "</div>" +
            "</div>" +
            "<h2>T1.1</h2>" +
+           "<table><tbody><tr><th>Table4" +
+               "<table><tbody><tr><th>Table5</th></tr></tbody></table>" +
+           "</th></tr></tbody></table>" +
+           "<span class=\"mw-editsection\">Edit 2</span>"+
         "</x>",
         "text/html"
     );
