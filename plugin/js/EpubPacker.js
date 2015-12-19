@@ -231,13 +231,7 @@ EpubPacker.prototype = {
     },
 
     domToString: function (dom) {
-        // add XML declaration to start.
-        // As JavaScript doesn't support this directly, need to do a dirty hack using
-        // a processing instruction
-        // see https://bugzilla.mozilla.org/show_bug.cgi?id=318086
-        let declaration = dom.createProcessingInstruction("xml", "version='1.0' encoding='utf-8'");
-        dom.insertBefore(declaration, dom.children[0]);
-
+        util.addXmlDeclarationToStart(dom);
         return new XMLSerializer().serializeToString(dom);
     }
 }

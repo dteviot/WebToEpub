@@ -61,13 +61,22 @@ var util = (function () {
         removeElements(nodeList);
     }
 
+    var addXmlDeclarationToStart = function(dom) {
+        // As JavaScript doesn't support this directly, need to do a dirty hack using
+        // a processing instruction
+        // see https://bugzilla.mozilla.org/show_bug.cgi?id=318086
+        let declaration = dom.createProcessingInstruction("xml", "version='1.0' encoding='utf-8'");
+        dom.insertBefore(declaration, dom.children[0]);
+    }
+
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         resolveRelativeUrl: resolveRelativeUrl,
         addToDocBody: addToDocBody,
         removeNode: removeNode,
         removeElements: removeElements,
-        removeComments: removeComments
+        removeComments: removeComments,
+        addXmlDeclarationToStart: addXmlDeclarationToStart
     };
 })();
 

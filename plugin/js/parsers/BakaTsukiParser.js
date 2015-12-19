@@ -50,10 +50,14 @@ BakaTsukiParser.prototype.findContent = function (dom) {
 // convert document to XHTML
 BakaTsukiParser.prototype.toXhtml = function (dom) {
     let that = this;
-    let content = that.findContent(dom);
+    let content = that.findContent(dom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content);
-    return dom;
+
+    let xhtml = util.createEmptyXhtmlDoc();
+    util.addToDocBody(xhtml, content);
+    util.addXmlDeclarationToStart(xhtml);
+    return xhtml;
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {

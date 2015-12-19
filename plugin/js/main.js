@@ -204,9 +204,9 @@
             let doc = chapters[0].rawDom;
             doc = parser.toXhtml(doc);
             var a = document.createElement('a');
-            let blob = new Blob([doc.documentElement.outerHTML], { type: 'text/html' });
+            let blob = new Blob([new XMLSerializer().serializeToString(doc)], { type: 'text/html' });
             a.href = URL.createObjectURL(blob);
-            a.download = "raw.html";
+            a.download = "raw.xhtml";
             a.click();
         }
     }
