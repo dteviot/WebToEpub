@@ -82,6 +82,17 @@ var util = (function () {
         return !(/[^\t\n\r ]/.test(s));
     }
 
+    var xmlToString = function(dom) {
+        util.addXmlDeclarationToStart(dom);
+        return new XMLSerializer().serializeToString(dom);
+    }
+
+    var zeroPad =  function(num) {
+        let padded = "000" + num;
+        padded = padded.substring(padded.length - 4, padded.length);
+        return padded;
+    }
+
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         resolveRelativeUrl: resolveRelativeUrl,
@@ -90,7 +101,9 @@ var util = (function () {
         removeElements: removeElements,
         removeComments: removeComments,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
-        isWhiteSpace: isWhiteSpace
+        isWhiteSpace: isWhiteSpace,
+        xmlToString: xmlToString,
+        zeroPad: zeroPad
     };
 })();
 

@@ -65,4 +65,10 @@ Parser.prototype = {
             return title + ".epub";
         }
     },
+
+    epubItemSupplier: function (chapters) {
+        let supplier = new EpubItemSupplier(this);
+        supplier.setChapters(chapters);
+        return supplier;
+    }
 }

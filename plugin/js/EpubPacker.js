@@ -5,7 +5,7 @@
 
 /*
     For our purposes, an EPUB only contains two types of content file: XHTML and image.
-    - The HTML files are in reading order (i.e. Appear in same order as spine, and table of contents (ToC))
+    - The HTML files are in reading order (i.e. Appear in same order as spine and table of contents (ToC))
     - If a HTML file entry has a "title" element, it will appear in the ToC
     - Stand alone images (e.g. Cover) will have a XHTML entry that points to the image.
     - First image, (if there are any) is be the cover image
@@ -17,44 +17,22 @@
 function EpubPacker(metaInfo) {
     let that = this;
     that.metaInfo = metaInfo;
-    that.xhtmlFiles = [];
 }
 
 EpubPacker.prototype = {
 
-    zeroPad : function(num) {
-        let padded = "000" + num;
-        padded = padded.substring(padded.length - 4, padded.length);
-        return padded;
-    },
-
-    createXhtmlFileName: function(fileIndex) {
+    assembleAndSave: function (fileName, epubItemSupplier) {
         let that = this;
-        return "index_split_" + that.zeroPad(fileIndex) + ".html";
+        that.save(that.assemble(epubItemSupplier), fileName);
     },
 
-    addXhtmlFile: function(href, contentDom, title) {
-        let that = this;
-        let xhtmlFile = {
-            href: href,
-            contentDom: contentDom,
-            title: title
-        };
-        that.xhtmlFiles.push(xhtmlFile);
-    },
-
-    assembleAndSave: function (fileName) {
-        let that = this;
-        that.save(that.assemble(), fileName);
-    },
-
-    assemble: function() {
+    assemble: function (epubItemSupplier) {
         let that = this;
         let zipFile = new JSZip();
         that.addRequiredFiles(zipFile);
-        zipFile.file("content.opf", that.buildContentOpf(), { compression: "DEFLATE" });
-        zipFile.file("toc.ncx", that.buildTableOfContents(), { compression: "DEFLATE" });
-        that.packXhtmlFiles(zipFile);
+        zipFile.file("content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
+        zipFile.file("toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
+        that.packXhtmlFiles(zipFile, epubItemSupplier);
         return zipFile.generate({ type: "blob" });
     },
 
@@ -79,18 +57,18 @@ EpubPacker.prototype = {
         );
     },
 
-    buildContentOpf: function () {
+    buildContentOpf: function (epubItemSupplier) {
         let that = this;
         let ns = "http://www.idpf.org/2007/opf";
         let opf = document.implementation.createDocument(ns, "package", null);
         opf.documentElement.setAttribute("version", "2.0");
         opf.documentElement.setAttribute("unique-identifier", "BookId");
         that.buildMetaData(opf);
-        that.buildManifest(opf);
-        that.buildSpine(opf);
+        that.buildManifest(opf, epubItemSupplier);
+        that.buildSpine(opf, epubItemSupplier);
         that.buildGuide(opf);
 
-        return that.domToString(opf);
+        return util.xmlToString(opf);
     },
 
     buildMetaData: function (opf) {
@@ -112,16 +90,11 @@ EpubPacker.prototype = {
         identifier.setAttribute("opf:scheme", "URI");
     },
 
-    buildManifest: function (opf) {
+    buildManifest: function (opf, epubItemSupplier) {
         let that = this;
         var manifest = that.createAndAppendChild(opf.documentElement, "manifest");
-
-        // ToDo: cover would go here
-
-        for(let i = 0; i < that.xhtmlFiles.length; ++i) {
-            let xhtmlFile = that.xhtmlFiles[i];
-            xhtmlFile.id = "html" + that.zeroPad(i);
-            that.addManifestItem(manifest, xhtmlFile.href, xhtmlFile.id, "application/xhtml+xml");
+        for(let item of epubItemSupplier.manifestItems()) {
+            that.addManifestItem(manifest, item.href, item.id, item.mediaType);
         };
 
         // ToDo: image files (with exception of cover) go here.
@@ -137,13 +110,13 @@ EpubPacker.prototype = {
         item.setAttribute("media-type", mediaType);
     },
 
-    buildSpine: function (opf) {
+    buildSpine: function (opf, epubItemSupplier) {
         let that = this;
         let spine = that.createAndAppendChild(opf.documentElement, "spine");
         spine.setAttribute("toc", "ncx");
-        that.xhtmlFiles.forEach(function (xhtmlFile) {
-            that.createAndAppendChild(spine, "itemref").setAttribute("idref", xhtmlFile.id);
-        });
+        for(let item of epubItemSupplier.spineItems()) {
+            that.createAndAppendChild(spine, "itemref").setAttribute("idref", item.id);
+        };
     },
 
     buildGuide: function (opf) {
@@ -151,7 +124,7 @@ EpubPacker.prototype = {
         // ToDo, typically, link to cover goes here.
     },
 
-    buildTableOfContents: function () {
+    buildTableOfContents: function (epubItemSupplier) {
         let that = this;
         let ns = "http://www.daisy.org/z3986/2005/ncx/";
         let ncx = document.implementation.createDocument(ns, "ncx", null);
@@ -159,9 +132,9 @@ EpubPacker.prototype = {
         ncx.documentElement.setAttribute("xml:lang", that.metaInfo.language);
         that.buildHead(ncx);
         that.buildDocTitle(ncx);
-        that.buildNavMap(ncx);
+        that.buildNavMap(ncx, epubItemSupplier);
 
-        return that.domToString(ncx);
+        return util.xmlToString(ncx);
     },
 
     buildHead: function (ncx) {
@@ -186,33 +159,30 @@ EpubPacker.prototype = {
         that.createAndAppendChild(docTitle, "text", that.metaInfo.title);
     },
 
-    buildNavMap: function (ncx) {
+    buildNavMap: function (ncx, epubItemSupplier) {
         let that = this;
         let navMap = that.createAndAppendChild(ncx.documentElement, "navMap");
         let playOrder = 0;
-        that.xhtmlFiles.forEach(function (xhtmlFile) {
-            if (typeof (xhtmlFile.title) !== "undefined") {
-                that.buildNavPoint(navMap, ++playOrder, xhtmlFile.title, xhtmlFile.href);
-            }
-        });
+        for(let chapterTitle of epubItemSupplier.chapterInfo()) {
+            that.buildNavPoint(navMap, ++playOrder, chapterTitle.title, chapterTitle.src);
+        };
     },
 
     buildNavPoint: function (navMap, playOrder, title, src) {
         let that = this;
         let navPoint = that.createAndAppendChild(navMap, "navPoint");
-        navPoint.setAttribute("id", that.zeroPad(playOrder));
+        navPoint.setAttribute("id", util.zeroPad(playOrder));
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", title);
         that.createAndAppendChild(navPoint, "content").setAttribute("src", src);
     },
 
-    packXhtmlFiles: function (zipFile) {
+    packXhtmlFiles: function (zipFile, epubItemSupplier) {
         let that = this;
-        that.xhtmlFiles.forEach(function (xhtmlFile) {
-            let contentAsString = that.domToString(xhtmlFile.contentDom);
-            zipFile.file(xhtmlFile.href, contentAsString, { compression: "DEFLATE" });
-        });
+        for(let file of epubItemSupplier.files()) {
+            zipFile.file(file.href, file.content, { compression: "DEFLATE" });
+        };
     },
 
     createAndAppendChild: function (element, name, data) {
@@ -228,10 +198,5 @@ EpubPacker.prototype = {
     /// return time string to put into <date> element of metadata
     getDateForMetaData: function () {
         return new Date().toISOString();
-    },
-
-    domToString: function (dom) {
-        util.addXmlDeclarationToStart(dom);
-        return new XMLSerializer().serializeToString(dom);
     }
 }

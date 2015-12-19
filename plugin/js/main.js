@@ -130,12 +130,7 @@
         let i = 0;
         try {
             let epub = new EpubPacker(metaInfo);
-            for (i = 0; i < chapters.length; ++i) {
-                let fileName = epub.createXhtmlFileName(i);
-                let content = parser.makeChapterDoc(chapters[i].rawDom);
-                epub.addXhtmlFile(fileName, content, chapters[i].title);
-            }
-            epub.assembleAndSave(metaInfo.fileName);
+            epub.assembleAndSave(metaInfo.fileName, parser.epubItemSupplier(chapters));
         } catch (error) {
             alert("Error packing EPUB. Chapter " + i + " Error: " + error.stack);
         }

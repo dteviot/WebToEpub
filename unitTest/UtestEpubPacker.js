@@ -16,19 +16,25 @@ function makePacker() {
     metaInfo.title = "Dummy <Title>";
     metaInfo.author = "Dummy & Author";
     let epubPacker = new EpubPacker(metaInfo);
-    for (let i = 0; i < 2; ++i) {
-        let href = epubPacker.createXhtmlFileName(i);
-        let title = 'Title' + i;
-        let content = makeDummyXhtmlFile(title);
-        epubPacker.addXhtmlFile(href, content, title);
-    }
     return epubPacker;
+}
+
+function makeEpubItemSupplier() {
+    let chapters = [];
+    for (let i = 0; i < 2; ++i) {
+        let title = "Title" + i;
+        chapters.push({
+            title: title,
+            rawContent: makeDummyXhtmlFile(title)
+        });
+    }
+    return new ArchiveOfOurOwnParser().epubItemSupplier(chapters);
 }
 
 test("buildContentOpf", function (assert) {
     let epubPacker = makePacker();
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
-    let contentOpf = epubPacker.buildContentOpf();
+    let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
     assert.equal(contentOpf,
         "<?xml version='1.0' encoding='utf-8'?>"+
@@ -54,7 +60,7 @@ test("buildContentOpf", function (assert) {
 });
 
 test("buildTableOfContents", function (assert) {
-    let buildTableOfContents = makePacker().buildTableOfContents();
+    let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     assert.equal(buildTableOfContents,
         "<?xml version='1.0' encoding='utf-8'?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
