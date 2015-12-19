@@ -52,6 +52,10 @@
             populateMetaInfo(metaInfo);
             chapters = parser.getChapterUrls(dom);
             populateChapterUrls(chapters);
+            if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
+                chapters[0].rawDom = dom;
+                updateLoadState(chapters[0]);
+            }
         }
     }
 
