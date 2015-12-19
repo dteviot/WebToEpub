@@ -67,19 +67,19 @@ BakaTsukiParser.prototype.testChapterSplit = function (dom) {
     that.processImages(content);
 
     let zipFile = new JSZip();
-    let chapterList = that.splitContentIntoChapters(content);
-    for (let i = 0; i < chapterList.length; ++i) {
-        let xhtml = that.packXhtmlChapter(chapterList[i]);
-        zipFile.file("chapter" + i + ".xhtml", new XMLSerializer().serializeToString(xhtml), { compression: "DEFLATE" });
+    let sectionsList = that.splitContentIntoSections(content);
+    for (let i = 0; i < sectionsList.length; ++i) {
+        let xhtml = that.packXhtmlChapter(sectionsList[i]);
+        zipFile.file("section" + i + ".xhtml", new XMLSerializer().serializeToString(xhtml), { compression: "DEFLATE" });
     }
     return zipFile;
 }
 
-BakaTsukiParser.prototype.packXhtmlChapter = function (chapterElements) {
+BakaTsukiParser.prototype.packXhtmlChapter = function (sectionElements) {
     let that = this;
     let xhtml = util.createEmptyXhtmlDoc();
     let body = xhtml.getElementsByTagName("body")[0];
-    chapterElements.forEach(e => body.appendChild(e));
+    sectionElements.forEach(e => body.appendChild(e));
     util.addXmlDeclarationToStart(xhtml);
     return xhtml;
 }
@@ -164,29 +164,29 @@ BakaTsukiParser.prototype.recordImageElement = function (element) {
     that.imageNodes.push(element);
 }
 
-BakaTsukiParser.prototype.splitContentIntoChapters = function (content) {
+BakaTsukiParser.prototype.splitContentIntoSections = function (content) {
     let that = this;
-    let chapterList = that.splitContentOnHeadingTags(content);
+    let sectionsList = that.splitContentOnHeadingTags(content);
 
-    // consolidate chapters
+    // consolidate sections
 
-    return chapterList;
+    return sectionsList;
 }
 
 BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content) {
     let that = this;
-    let chapterList = [];
-    let chapter = [];
+    let sectionsList = [];
+    let section = [];
     for(let i = 0; i < content.childNodes.length; ++i) {
         let node = that.wrapRawTextNode(content.childNodes[i]);
         if (that.isChapterStart(node)) {
-            that.appendToChapterList(chapterList, chapter);
-            chapter = [];
+            that.appendToSectionsList(sectionsList, section);
+            section = [];
         }
-        chapter.push(node);
+        section.push(node);
     }
-    that.appendToChapterList(chapterList, chapter);
-    return chapterList;
+    that.appendToSectionsList(sectionsList, section);
+    return sectionsList;
 }
 
 // wrap any raw text in <p></p> tags
@@ -205,9 +205,9 @@ BakaTsukiParser.prototype.isChapterStart = function (node) {
         || (node.tagName === "H3") || (node.tagName === "H4")
 }
 
-BakaTsukiParser.prototype.appendToChapterList = function (chapterList, chapter) {
-    if (0 < chapter.length) {
-        chapterList.push(chapter);
+BakaTsukiParser.prototype.appendToSectionsList = function (sectionsList, section) {
+    if (0 < section.length) {
+        sectionsList.push(section);
     }
 }
 
