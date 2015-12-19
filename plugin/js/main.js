@@ -196,6 +196,20 @@
         return document.getElementById("packEpubButton");
     }
 
+    function onTestToXhtml() {
+        if (0 < chapters.length) {
+            
+            // test Cleanup function
+            let doc = chapters[0].rawDom;
+            doc = parser.toXhtml(dom);
+            var a = document.createElement('a');
+            let blob = new Blob([doc.documentElement.outerHTML], { type: 'text/html' });
+            a.href = URL.createObjectURL(blob);
+            a.download = "raw.html";
+            a.click();
+        }
+    }
+
     // actions to do when window opened
     window.onload = function () {
         // add onClick event handlers
@@ -204,6 +218,7 @@
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
         document.getElementById("packRawButton").onclick = packRawChapters;
+        document.getElementById("testToXhtmlButton").onclick = onTestToXhtml;
         populateControls();
     }
 
