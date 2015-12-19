@@ -183,7 +183,7 @@
         let that = this;
         let zipFile = new JSZip();
         for (let i = 0; i < chapters.length; ++i) {
-            zipFile.file("chapter" + i + ".html", chapters[i].rawDom.documentElement.innerHTML, { compression: "DEFLATE" });
+            zipFile.file("chapter" + i + ".html", chapters[i].rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
         }
         new EpubPacker().save(zipFile.generate({ type: "blob" }), "raw.zip");
     }

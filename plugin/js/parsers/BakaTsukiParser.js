@@ -49,4 +49,6 @@ BakaTsukiParser.prototype.stripUnwantedElementsFromContentElement = function (el
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
+
+    util.removeComments(element);
 };

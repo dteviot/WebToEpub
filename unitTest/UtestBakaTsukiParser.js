@@ -18,8 +18,10 @@ function syncLoadBakaTsukiSampleDoc() {
 function getTestDom() {
     return new DOMParser().parseFromString(
         "<x>" +
+           "<!-- comment 1 -->" +
            "<h1>T1</h1>" +
            "<div class=\"toc\"></div>" +
+           "<!-- comment 2 -->" +
            "<script>\"use strict\"</script>" +
            "<h2>T1.1</h2>" +
         "</x>",
@@ -97,3 +99,24 @@ QUnit.test("removeElementsSafeToCallOnChildOfDeletedElement", function (assert) 
     util.removeElements([toc]);
     util.removeElements([tok]);
 });
+
+QUnit.test("removeComments", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<x>" +
+           "<!-- comment 1 -->" +
+           "<h1>T1</h1>" +
+           "<div class=\"toc\">"+
+               "<!-- comment 2 -->" +
+           "</div>" +
+        "</x>",
+        "text/html"
+    );
+
+    let parser = new BakaTsukiParser();
+    getTestDom();
+    util.removeComments(dom.documentElement);
+    assert.equal(dom.body.innerHTML, "<x><h1>T1</h1><div class=\"toc\"></div></x>");
+});
+
+
+

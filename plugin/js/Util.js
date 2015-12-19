@@ -39,20 +39,35 @@ var util = (function () {
         dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
     }
 
+    var removeNode = function (node) {
+        if (node.parentNode != null) {
+            node.parentNode.removeChild(node)
+        }
+    }
+
     // delete all nodes in the supplied array
     var removeElements = function (elements) {
-        elements.forEach(function (e) {
-            if (e.parentNode != null) {
-                e.parentNode.removeChild(e)
-            }
-        });
+        elements.forEach(e => removeNode(e));
+    }
+
+    var removeComments = function (root) {
+        let walker = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT);
+        
+        // if we delete currentNode, call to nextNode() fails.
+        let nodeList = [];
+        while (walker.nextNode()) {
+            nodeList.push(walker.currentNode);
+        }
+        removeElements(nodeList);
     }
 
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         resolveRelativeUrl: resolveRelativeUrl,
         addToDocBody: addToDocBody,
-        removeElements: removeElements
+        removeNode: removeNode,
+        removeElements: removeElements,
+        removeComments: removeComments
     };
 })();
 
