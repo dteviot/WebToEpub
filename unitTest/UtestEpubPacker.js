@@ -3,7 +3,7 @@
 
 module( "EpubPacker");
 function makeDummyXhtmlFile(title) {
-    let xhtml = new Util().createEmptyXhtmlDoc();
+    let xhtml = util.createEmptyXhtmlDoc();
     let h1 = xhtml.createElement("h1");
     h1.InnerText = title;
     xhtml.getElementsByTagName("body")[0].appendChild(h1);

@@ -15,6 +15,18 @@ function syncLoadBakaTsukiSampleDoc() {
     return dom;
 }
 
+function getTestDom() {
+    return new DOMParser().parseFromString(
+        "<x>" +
+           "<h1>T1</h1>" +
+           "<div class=\"toc\"></div>" +
+           "<script>\"use strict\"</script>" +
+           "<h2>T1.1</h2>" +
+        "</x>",
+        "text/html"
+    );
+}
+
 QUnit.test("canParse", function (assert) {
     let parser = new BakaTsukiParser();
     ok(parser.canParse("http://www.baka-tsuki.org/project/index.php?title=Web_to_Epub"));
@@ -46,8 +58,42 @@ QUnit.test("findContent", function (assert) {
 
 QUnit.test("stripUnwantedElementsFromContentElement", function (assert) {
     let parser = new BakaTsukiParser();
-    let dom = new DOMParser().parseFromString("<x><h1>T1</h1><script>\"use strict\"</script><h2>T1.1</h2></x>", "text/html");
-    let element = dom.body;
-    parser.stripUnwantedElementsFromContentElement(element);
+    let dom = getTestDom();
+    parser.stripUnwantedElementsFromContentElement(dom.documentElement);
     assert.equal(dom.body.innerHTML, "<x><h1>T1</h1><h2>T1.1</h2></x>");
+});
+
+function removeElementsTestDom() {
+    return new DOMParser().parseFromString(
+        "<x>" +
+           "<h1>T1</h1>" +
+           "<div class=\"toc\">" +
+               "<script>\"use strict\"</script>" +
+               "<div class=\"tok\">" +
+                   "<h3>T1.1</h3>" +
+               "</div>" +
+           "</div>" +
+           "<h2>T1.1</h2>" +
+        "</x>",
+        "text/html"
+    );
+}
+
+QUnit.test("removeElementsSafeToCallMultipleTimes", function (assert) {
+    assert.expect(0);
+    let dom = removeElementsTestDom();
+    let parser = new BakaTsukiParser();
+    let tok = dom.getElementsByClassName("tok")[0];
+    util.removeElements([tok]);
+    util.removeElements([tok]);
+});
+
+QUnit.test("removeElementsSafeToCallOnChildOfDeletedElement", function (assert) {
+    assert.expect(0);
+    let dom = removeElementsTestDom();
+    let parser = new BakaTsukiParser();
+    let toc = dom.getElementsByClassName("toc")[0];
+    let tok = dom.getElementsByClassName("tok")[0];
+    util.removeElements([toc]);
+    util.removeElements([tok]);
 });

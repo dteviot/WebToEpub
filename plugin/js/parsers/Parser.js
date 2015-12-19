@@ -20,7 +20,6 @@ Parser.prototype = {
 
     makeChapterDoc: function(dom) {
         let that = this;
-        let util = new Util();
         let doc = util.createEmptyXhtmlDoc();
         let content = that.findContent(dom)
         if (content != null) {

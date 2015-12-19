@@ -1,8 +1,8 @@
 /*
   test stuff
 */
+"use strict";
 var testFunctions = (function () {
-    "use strict";
 
     var textToDom = function (textString) {
         return new DOMParser().parseFromString(textString, "text/html");
@@ -30,7 +30,7 @@ var testFunctions = (function () {
     }
 
     var createFakeArchiveOfOurOwnFile = function () {
-        let xhtml = new Util().createEmptyXhtmlDoc();
+        let xhtml = util.createEmptyXhtmlDoc();
         let div = document.createElement("div");
         div.className = "chapter";
         xhtml.getElementsByTagName("body")[0].appendChild(div);

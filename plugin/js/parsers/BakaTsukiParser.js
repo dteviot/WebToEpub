@@ -45,10 +45,8 @@ BakaTsukiParser.prototype.findContent = function (dom) {
 
 BakaTsukiParser.prototype.stripUnwantedElementsFromContentElement = function (element) {
     let that = this;
-    that.removeNodes(that.getElements(element, "script"));
-};
+    util.removeElements(that.getElements(element, "script"));
 
-// delete all nodes in the supplied array
-BakaTsukiParser.prototype.removeNodes = function (elements) {
-    elements.forEach(e => e.parentNode.removeChild(e));
-}
+    // discard table of contents (will generate one from tags later)
+    util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
+};

@@ -32,7 +32,7 @@ FanFictionParser.prototype.optionToChapterInfo = function (baseUrl, optionElemen
     let relativeUrl = "../" + optionElement.getAttribute("value");
     let pathNodes = baseUrl.split("/");
     relativeUrl = relativeUrl + "/" + pathNodes[pathNodes.length - 1];
-    let url = new Util().resolveRelativeUrl(baseUrl, relativeUrl);
+    let url = util.resolveRelativeUrl(baseUrl, relativeUrl);
     return {
         sourceUrl:  url,
         title: optionElement.innerText
