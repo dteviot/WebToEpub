@@ -43,7 +43,15 @@ BakaTsukiParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
 };
 
-BakaTsukiParser.prototype.stripUnwantedElementsFromContentElement = function (element) {
+// convert document to XHTML
+BakaTsukiParser.prototype.toXhtml = function (dom) {
+    let that = this;
+    let content = that.findContent(dom);
+    that.removeUnwantedElementsFromContentElement(content);
+    return dom;
+}
+
+BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
     util.removeElements(that.getElements(element, "script"));
 
@@ -51,4 +59,24 @@ BakaTsukiParser.prototype.stripUnwantedElementsFromContentElement = function (el
     util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
 
     util.removeComments(element);
+    that.removeUnwantedTable(element);
 };
+
+// There's a table at end of content, with links to other stories on Baka Tsuki.
+// It's not wanted in the EPUB
+BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
+    // sometimes the wanted table has other tables nested in it.
+    let that = this;
+    let tables = that.getElements(element, "table");
+    if (0 < tables.length) {
+        let endTable = tables[tables.length - 1];
+        let node = endTable;
+        while (node.parentNode != null) {
+            node = node.parentNode;
+            if (node.tagName === "TABLE") {
+                endTable = node;
+            }
+        }
+        util.removeNode(endTable);
+    }
+}

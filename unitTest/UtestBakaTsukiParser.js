@@ -58,10 +58,10 @@ QUnit.test("findContent", function (assert) {
     equal(content.childNodes[3].innerText, "Novel Illustrations[edit]");
 });
 
-QUnit.test("stripUnwantedElementsFromContentElement", function (assert) {
+QUnit.test("removeUnwantedElementsFromContentElement", function (assert) {
     let parser = new BakaTsukiParser();
     let dom = getTestDom();
-    parser.stripUnwantedElementsFromContentElement(dom.documentElement);
+    parser.removeUnwantedElementsFromContentElement(dom.documentElement);
     assert.equal(dom.body.innerHTML, "<x><h1>T1</h1><h2>T1.1</h2></x>");
 });
 
@@ -118,5 +118,44 @@ QUnit.test("removeComments", function (assert) {
     assert.equal(dom.body.innerHTML, "<x><h1>T1</h1><div class=\"toc\"></div></x>");
 });
 
+QUnit.test("removeUnwantedTableWhenSingleTable", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<x>" +
+           "<h1>H1</h1>" +
+           "<table><tbody><tr><th>Table1</th></tr></tbody></table>" +
+        "</x>",
+        "text/html"
+    );
 
+    let parser = new BakaTsukiParser();
+    getTestDom();
+    parser.removeUnwantedTable(dom.documentElement);
+    assert.equal(dom.body.innerHTML, "<x><h1>H1</h1></x>");
+});
+
+QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<x>" +
+           "<table><tbody><tr><th>Table1</th></tr></tbody></table>" +
+           "<table><tbody><tr><th>Table2" +
+               "<table><tbody><tr><th>Table3</th></tr></tbody></table>" +
+           "</th></tr></tbody></table>" +
+           "<table><tbody><tr><th>Table4" +
+               "<table><tbody><tr><th>Table5</th></tr></tbody></table>" +
+           "</th></tr></tbody></table>" +
+        "</x>",
+        "text/html"
+    );
+
+    let parser = new BakaTsukiParser();
+    getTestDom();
+    parser.removeUnwantedTable(dom.documentElement);
+    assert.equal(dom.body.innerHTML,
+        "<x>" +
+           "<table><tbody><tr><th>Table1</th></tr></tbody></table>" +
+           "<table><tbody><tr><th>Table2" +
+               "<table><tbody><tr><th>Table3</th></tr></tbody></table>" +
+           "</th></tr></tbody></table>" +
+        "</x>");
+});
 
