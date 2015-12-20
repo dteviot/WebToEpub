@@ -244,21 +244,24 @@ QUnit.test("splitContentIntoSections", function (assert) {
     );
 
     let parser = new BakaTsukiParser();
-    let chapterList = parser.splitContentIntoSections(dom.body.firstChild);
-    assert.equal(chapterList.length, 3);
-    assert.equal(chapterList[0].length, 2);
-    assert.equal(chapterList[1].length, 4);
-    assert.equal(chapterList[2].length, 3);
+    let epubItems = parser.splitContentIntoSections(dom.body.firstChild);
+    assert.equal(epubItems.length, 3);
+    assert.equal(epubItems[0].elements.length, 2);
+    assert.equal(epubItems[1].elements.length, 4);
+    assert.equal(epubItems[2].elements.length, 3);
 
-    assert.equal(chapterList[0][0].outerHTML, "<h1>H1.1</h1>");
-    assert.equal(chapterList[0][1].outerHTML, "<p>text1</p>");
+    let elements = epubItems[0].elements;
+    assert.equal(elements[0].outerHTML, "<h1>H1.1</h1>");
+    assert.equal(elements[1].outerHTML, "<p>text1</p>");
 
-    assert.equal(chapterList[1][0].outerHTML, "<h1>H1.2</h1>");
-    assert.equal(chapterList[1][1].outerHTML, "<h2>H2.2</h2>");
-    assert.equal(chapterList[1][2].outerHTML, "<p>text2</p>");
-    assert.equal(chapterList[1][3].outerHTML, "<p>text3</p>");
+    elements = epubItems[1].elements;
+    assert.equal(elements[0].outerHTML, "<h1>H1.2</h1>");
+    assert.equal(elements[1].outerHTML, "<h2>H2.2</h2>");
+    assert.equal(elements[2].outerHTML, "<p>text2</p>");
+    assert.equal(elements[3].outerHTML, "<p>text3</p>");
 
-    assert.equal(chapterList[2][0].outerHTML, "<h1>H1.3</h1>");
-    assert.equal(chapterList[2][1].outerHTML, "<h2>H2.3</h2>");
-    assert.equal(chapterList[2][2].outerHTML, "<h3>H2.3</h3>");
+    elements = epubItems[2].elements;
+    assert.equal(elements[0].outerHTML, "<h1>H1.3</h1>");
+    assert.equal(elements[1].outerHTML, "<h2>H2.3</h2>");
+    assert.equal(elements[2].outerHTML, "<h3>H2.3</h3>");
 });

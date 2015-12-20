@@ -164,12 +164,12 @@ BakaTsukiParser.prototype.recordImageElement = function (element) {
     that.imageNodes.push(element);
 }
 
-BakaTsukiParser.prototype.splitContentIntoSections = function (content) {
+BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUrl) {
     let that = this;
     that.flattenContent(content);
-    let sectionsList = that.splitContentOnHeadingTags(content);
-    sectionsList = that.consolidateSections(sectionsList);
-    return sectionsList;
+    let epubItems = that.splitContentOnHeadingTags(content, sourceUrl);
+    epubItems = that.consolidateEpubItems(epubItems);
+    return epubItems;
 }
 
 BakaTsukiParser.prototype.flattenContent = function (content) {
@@ -215,20 +215,20 @@ BakaTsukiParser.prototype.insertAfter = function (atNode, nodeToInsert) {
     }
 }
 
-BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content) {
+BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content, sourceUrl) {
     let that = this;
-    let sectionsList = [];
-    let section = [];
+    let epubItems = [];
+    let elementsInItem = [];
     for(let i = 0; i < content.childNodes.length; ++i) {
         let node = that.wrapRawTextNode(content.childNodes[i]);
         if (that.isChapterStart(node)) {
-            that.appendToSectionsList(sectionsList, section);
-            section = [];
+            that.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
+            elementsInItem = [];
         }
-        section.push(node);
+        elementsInItem.push(node);
     }
-    that.appendToSectionsList(sectionsList, section);
-    return sectionsList;
+    that.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
+    return epubItems;
 }
 
 // wrap any raw text in <p></p> tags
@@ -247,35 +247,37 @@ BakaTsukiParser.prototype.isChapterStart = function (node) {
         || (node.tagName === "H3") || (node.tagName === "H4")
 }
 
-BakaTsukiParser.prototype.appendToSectionsList = function (sectionsList, section) {
+BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem, sourceUrl) {
     let that = this;
-    that.removeTrailingWhiteSpace(section);
-    if (0 < section.length) {
-        sectionsList.push(section);
+    that.removeTrailingWhiteSpace(elementsInItem);
+    if (0 < elementsInItem.length) {
+        let epubItem = new EpubItem(EpubItem.XHTML_ITEM, sourceUrl);
+        epubItem.elements = elementsInItem;
+        epubItems.push(epubItem);
     }
 }
 
-BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (section) {
-    let i = section.length - 1;
-    while ((0 <= i) && util.isWhiteSpace(section[i].textContent)) {
-        section.pop();
+BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (elementsInItem) {
+    let i = elementsInItem.length - 1;
+    while ((0 <= i) && util.isWhiteSpace(elementsInItem[i].textContent)) {
+        elementsInItem.pop();
         --i;
     }
 }
 
-// If a section only holds a heading element, combine with following section.
+// If a epubItem only holds a heading element, combine with following epubItem.
 // e.g. We're dealing with <h1> followed by <h2>
-BakaTsukiParser.prototype.consolidateSections = function (sectionsList) {
-    let newSectionsList = [ sectionsList[sectionsList.length - 1] ];
-    let i = sectionsList.length - 2;
+BakaTsukiParser.prototype.consolidateEpubItems = function (epubItems) {
+    let newEpubItems = [ epubItems[epubItems.length - 1] ];
+    let i = epubItems.length - 2;
     while (0 <= i) {
-        let section = sectionsList[i];
-        if (section.length === 1) {
-            newSectionsList[0].unshift(section[0]);
+        let epubItem = epubItems[i];
+        if (epubItem.elements.length === 1) {
+            newEpubItems[0].elements.unshift(epubItem.elements[0]);
         } else {
-            newSectionsList.unshift(section);
+            newEpubItems.unshift(epubItem);
         }
         --i;
     }
-    return newSectionsList;
+    return newEpubItems;
 }
