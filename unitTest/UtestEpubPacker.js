@@ -91,3 +91,52 @@ test("buildTableOfContents", function (assert) {
     );
 });
 
+test("NavPointParentElementsStackSimpleNest", function (assert) {
+    let stack = new NavPointParentElementsStack("navMap");
+    assert.equal(stack.maxDepth, 0);
+    stack.addElement(1, "h2");
+    stack.addElement(2, "h3");
+    stack.addElement(3, "h4");
+    assert.equal(stack.parents.length, 4);
+    assert.equal(stack.maxDepth, 3);
+
+    assert.equal(stack.findParentElement(0), "navMap");
+    assert.equal(stack.findParentElement(1), "navMap");
+    assert.equal(stack.findParentElement(2), "h2");
+    assert.equal(stack.findParentElement(3), "h3");
+});
+
+test("UnwindNavPointParentElementsStack", function (assert) {
+    // note, I should really be adding Elements to the stack
+    // but for testing purposes, strings work and are easier.
+    let stack = new NavPointParentElementsStack("navMap");
+    assert.equal(stack.maxDepth, 0);
+    stack.addElement(1, "h2");
+    stack.addElement(2, "h3");
+    stack.addElement(3, "h4");
+    assert.equal(stack.parents.length, 4);
+    assert.equal(stack.maxDepth, 3);
+
+    stack.addElement(2, "h3.2");
+    assert.equal(stack.parents.length, 3);
+    assert.equal(stack.maxDepth, 3);
+    assert.equal(stack.parents[2].element, "h3.2");
+
+    stack.addElement(3, "h4.2");
+    assert.equal(stack.parents.length, 4);
+    assert.equal(stack.maxDepth, 3);
+    assert.equal(stack.parents[2].element, "h3.2");
+    assert.equal(stack.parents[3].element, "h4.2");
+
+    stack.addElement(0, "h1.2");
+    assert.equal(stack.parents.length, 2);
+    assert.equal(stack.maxDepth, 3);
+    assert.equal(stack.parents[1].element, "h1.2");
+
+    stack.addElement(2, "h3.3");
+    assert.equal(stack.parents.length, 3);
+    assert.equal(stack.maxDepth, 3);
+    assert.equal(stack.parents[1].element, "h1.2");
+    assert.equal(stack.parents[2].element, "h3.3");
+});
+

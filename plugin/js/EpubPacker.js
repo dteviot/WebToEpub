@@ -130,18 +130,18 @@ EpubPacker.prototype = {
         let ncx = document.implementation.createDocument(ns, "ncx", null);
         ncx.documentElement.setAttribute("version", "2005-1");
         ncx.documentElement.setAttribute("xml:lang", that.metaInfo.language);
-        that.buildHead(ncx);
+        let head = that.createAndAppendChild(ncx.documentElement, "head");
         that.buildDocTitle(ncx);
-        that.buildNavMap(ncx, epubItemSupplier);
+        let depth = that.buildNavMap(ncx, epubItemSupplier);
+        that.populateHead(ncx, head, depth);
 
         return util.xmlToString(ncx);
     },
 
-    buildHead: function (ncx) {
+    populateHead: function (ncx, head, depth) {
         let that = this;
-        let head = that.createAndAppendChild(ncx.documentElement, "head");
         that.buildHeadMeta(head, that.metaInfo.uuid, "dtb:uid");
-        that.buildHeadMeta(head, "2", "dtb:depth");
+        that.buildHeadMeta(head, (depth < 2) ? "2" : depth, "dtb:depth");
         that.buildHeadMeta(head, "0", "dtb:totalPageCount");
         that.buildHeadMeta(head, "0", "dtb:maxPageNumber");
     },
@@ -162,20 +162,25 @@ EpubPacker.prototype = {
     buildNavMap: function (ncx, epubItemSupplier) {
         let that = this;
         let navMap = that.createAndAppendChild(ncx.documentElement, "navMap");
+        let parents = new NavPointParentElementsStack(navMap);
         let playOrder = 0;
-        for(let chapterTitle of epubItemSupplier.chapterInfo()) {
-            that.buildNavPoint(navMap, ++playOrder, chapterTitle.title, chapterTitle.src);
+        for(let chapterInfo of epubItemSupplier.chapterInfo()) {
+            let parent = parents.findParentElement(chapterInfo.depth);
+            let navPoint = that.buildNavPoint(parent, ++playOrder, chapterInfo);
+            parents.addElement(chapterInfo.depth, navPoint);
         };
+        return parents.maxDepth;
     },
 
-    buildNavPoint: function (navMap, playOrder, title, src) {
+    buildNavPoint: function (parent, playOrder, chapterInfo) {
         let that = this;
-        let navPoint = that.createAndAppendChild(navMap, "navPoint");
+        let navPoint = that.createAndAppendChild(parent, "navPoint");
         navPoint.setAttribute("id", util.zeroPad(playOrder));
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
-        that.createAndAppendChild(navLabel, "text", title);
-        that.createAndAppendChild(navPoint, "content").setAttribute("src", src);
+        that.createAndAppendChild(navLabel, "text", chapterInfo.title);
+        that.createAndAppendChild(navPoint, "content").setAttribute("src", chapterInfo.src);
+        return navPoint;
     },
 
     packXhtmlFiles: function (zipFile, epubItemSupplier) {
@@ -198,5 +203,42 @@ EpubPacker.prototype = {
     /// return time string to put into <date> element of metadata
     getDateForMetaData: function () {
         return new Date().toISOString();
+    }
+}
+
+/*
+  Class to make sure we correctly nest the NavPoint elements
+  in the table of contents
+*/
+function NavPointParentElementsStack(navMap) {
+    this.parents = [];
+    this.parents.push({
+        element: navMap,
+        depth: -1
+    });
+    this.maxDepth = 0;
+}
+
+NavPointParentElementsStack.prototype.findParentElement = function(depth) {
+    let that = this;
+    let index = that.parents.length - 1;
+    while (depth <= that.parents[index].depth) {
+        --index;
+    };
+    return that.parents[index].element;
+}
+
+NavPointParentElementsStack.prototype.addElement = function(depth, element) {
+    let that = this;
+    // discard any elements that are nested >= this one
+    while (depth <= that.parents[that.parents.length - 1].depth) {
+        that.parents.pop();
+    }
+    that.parents.push({
+        element: element,
+        depth: depth
+    });
+    if (that.maxDepth < that.parents.length - 1) {
+        that.maxDepth = that.parents.length - 1;
     }
 }

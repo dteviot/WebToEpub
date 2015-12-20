@@ -56,7 +56,8 @@ EpubItem.prototype.chapterInfo = function*() {
 }
 
 // convert type of heading element to nesting depth on Table of Contents
+// H1 = 0, H2 = 1, etc
 EpubItem.prototype.tagNameToTocDepth = function(tagName) {
-    // ToDo: Implement
-    return 0;
+    // ToDo: assert that tagName in range <h1> ... <h4>
+    return tagName[1] - '1';
 }
