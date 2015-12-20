@@ -54,6 +54,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function (chapters) {
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content);
     let epubItems = that.splitContentIntoSections(content, dom.baseURI);
+    that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems);
 }
 
@@ -262,5 +263,88 @@ BakaTsukiParser.prototype.indexEpubItems = function(epubItems) {
     for(let epubItem of  epubItems) {
         epubItem.setIndex(index);
         ++index;
+    }
+}
+
+BakaTsukiParser.prototype.fixupFootnotes = function(epubItems) {
+    let footnotes = this.findFootnotes(epubItems);
+    this.findAndFixCitations(epubItems, footnotes);
+}
+
+BakaTsukiParser.prototype.findFootnotes = function(epubItems) {
+    let that = this;
+    let footnotes = new Map();
+    that.walkEpubItemsWithElements(
+        epubItems, 
+        footnotes,
+        { acceptNode: e => that.isFootNote(e) },
+        that.recordFootnote
+    );
+    return footnotes;
+}
+
+BakaTsukiParser.prototype.findAndFixCitations = function(epubItems, footnotes) {
+    let that = this;
+    that.walkEpubItemsWithElements(
+        epubItems, 
+        footnotes,
+        { acceptNode: e => that.isCitation(e) },
+        that.fixCitation
+    );
+}
+
+BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footnotes, whatToShow, processFoundNode) {
+    let that = this;
+    for(let epubItem of epubItems) {
+        for(let element of epubItem.elements) {
+            let walker = document.createTreeWalker(
+                element, 
+                NodeFilter.SHOW_ELEMENT,
+                whatToShow,
+                false
+            );
+            while (walker.nextNode()) {
+                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getHref()]);
+            };
+        };
+    };
+}
+
+BakaTsukiParser.prototype.isFootNote = function(node) {
+    return ((node.tagName === "LI") && (node.id.indexOf("cite_note") === 0));
+}
+
+BakaTsukiParser.prototype.isCitation = function(node) {
+    return ((node.tagName === "SUP") && (node.className === "reference"));
+}
+
+BakaTsukiParser.prototype.recordFootnote = function(node, footnotes, href) {
+    let that = this;
+    footnotes.set(
+        node.id, 
+        { link: that.getElement(node, "a"), 
+          href: href 
+        }
+    );
+}
+
+BakaTsukiParser.prototype.fixCitation = function(citation, footnotes, citationHref) {
+    let that = this;
+    let citationLinkElement = that.getElement(citation, "a");
+    let footnoteId = that.extractFootnoteIdFromCitation(citationLinkElement);
+    let footnote = footnotes.get(footnoteId);
+    if (footnote != null) {
+        footnote.link.href = citationHref + '#' + citation.id; 
+        citationLinkElement.href = footnote.href + '#' + footnoteId;
+    }
+}
+
+BakaTsukiParser.prototype.extractFootnoteIdFromCitation = function(citationLinkElement) {
+    if (citationLinkElement == null) {
+        return null;
+    } else {
+        let href = citationLinkElement.href;
+        let index = href.indexOf("#");
+        return (index < 0) ? null : href.slice((index + 1) - href.length);
     }
 }

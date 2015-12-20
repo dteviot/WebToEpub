@@ -265,3 +265,45 @@ QUnit.test("splitContentIntoSections", function (assert) {
     assert.equal(elements[1].outerHTML, "<h2>H2.3</h2>");
     assert.equal(elements[2].outerHTML, "<h3>H2.3</h3>");
 });
+
+function fetchHrefForId(epubItems, id) {
+    for(let epubItem of epubItems) {
+        for(let element of epubItem.elements) {
+            let walker = document.createTreeWalker(element);
+            while(walker.nextNode()) {
+                let node = walker.currentNode;
+                if (node.id === id) {
+                    return node.getElementsByTagName("a")[0].getAttribute("href");
+                };
+            };
+        };
+    };
+}
+
+test("fixupFootnotes", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+                "<h1>H1</h1>" +
+                "<p><sup id=\"cite_ref-1\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-1\">[1]</a></sup></p>" +
+                "<h1>H2</h1>" +
+                "<ul><li id=\"cite_note-2\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-2\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
+                "<h1>H3</h1>" +
+                "<p><sup id=\"cite_ref-2\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-2\">[2]</a></sup></p>" +
+                "<h1>H4</h1>" +
+                "<ul><li id=\"cite_note-1\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-1\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    let parser = new BakaTsukiParser();
+    let content = dom.body.cloneNode(true);
+    let epubItems = parser.splitContentIntoSections(content, null);
+    parser.fixupFootnotes(epubItems);
+
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "index_split_0003.html#cite_note-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "index_split_0001.html#cite_note-2");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "index_split_0000.html#cite_ref-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "index_split_0002.html#cite_ref-2");
+
+});
