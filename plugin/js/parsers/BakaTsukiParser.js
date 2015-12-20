@@ -47,41 +47,14 @@ BakaTsukiParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
 };
 
-// convert document to XHTML
-BakaTsukiParser.prototype.toXhtml = function (dom) {
+BakaTsukiParser.prototype.epubItemSupplier = function (chapters) {
     let that = this;
+    let dom = chapters[0].rawDom;
     let content = that.findContent(dom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content);
-
-    let xhtml = util.createEmptyXhtmlDoc();
-    util.addToDocBody(xhtml, content);
-    util.addXmlDeclarationToStart(xhtml);
-    return xhtml;
-}
-
-BakaTsukiParser.prototype.testChapterSplit = function (dom) {
-    let that = this;
-    let content = that.findContent(dom).cloneNode(true);
-    that.removeUnwantedElementsFromContentElement(content);
-    that.processImages(content);
-
-    let zipFile = new JSZip();
-    let sectionsList = that.splitContentIntoSections(content);
-    for (let i = 0; i < sectionsList.length; ++i) {
-        let xhtml = that.packXhtmlChapter(sectionsList[i]);
-        zipFile.file("section" + i + ".xhtml", new XMLSerializer().serializeToString(xhtml), { compression: "DEFLATE" });
-    }
-    return zipFile;
-}
-
-BakaTsukiParser.prototype.packXhtmlChapter = function (sectionElements) {
-    let that = this;
-    let xhtml = util.createEmptyXhtmlDoc();
-    let body = xhtml.getElementsByTagName("body")[0];
-    sectionElements.forEach(e => body.appendChild(e));
-    util.addXmlDeclarationToStart(xhtml);
-    return xhtml;
+    let epubItems = that.splitContentIntoSections(content, dom.baseURI);
+    return new BakaTsukiEpubItemSupplier(that, epubItems);
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -169,6 +142,7 @@ BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUr
     that.flattenContent(content);
     let epubItems = that.splitContentOnHeadingTags(content, sourceUrl);
     epubItems = that.consolidateEpubItems(epubItems);
+    that.indexEpubItems(epubItems);
     return epubItems;
 }
 
@@ -243,8 +217,7 @@ BakaTsukiParser.prototype.wrapRawTextNode = function (node) {
 }
 
 BakaTsukiParser.prototype.isChapterStart = function (node) {
-    return (node.tagName === "H1") || (node.tagName === "H2") 
-        || (node.tagName === "H3") || (node.tagName === "H4")
+    return util.isHeaderTag(node);
 }
 
 BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem, sourceUrl) {
@@ -280,4 +253,14 @@ BakaTsukiParser.prototype.consolidateEpubItems = function (epubItems) {
         --i;
     }
     return newEpubItems;
+}
+
+BakaTsukiParser.prototype.indexEpubItems = function(epubItems) {
+    // ToDo: when have image files, this will probably need to be redone.
+    let that = this;
+    let index = 0;
+    for(let epubItem of  epubItems) {
+        epubItem.setIndex(index);
+        ++index;
+    }
 }

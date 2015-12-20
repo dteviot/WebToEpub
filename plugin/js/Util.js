@@ -82,6 +82,11 @@ var util = (function () {
         return !(/[^\t\n\r ]/.test(s));
     }
 
+    var isHeaderTag = function(node) {
+        return (node.tagName === "H1") || (node.tagName === "H2") 
+            || (node.tagName === "H3") || (node.tagName === "H4")
+    }
+
     var xmlToString = function(dom) {
         util.addXmlDeclarationToStart(dom);
         return new XMLSerializer().serializeToString(dom);
@@ -102,6 +107,7 @@ var util = (function () {
         removeComments: removeComments,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         isWhiteSpace: isWhiteSpace,
+        isHeaderTag: isHeaderTag,
         xmlToString: xmlToString,
         zeroPad: zeroPad
     };

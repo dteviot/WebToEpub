@@ -127,12 +127,11 @@
 
     function packEpub() {
         let metaInfo = metaInfoFromContorls();
-        let i = 0;
         try {
             let epub = new EpubPacker(metaInfo);
             epub.assembleAndSave(metaInfo.fileName, parser.epubItemSupplier(chapters));
         } catch (error) {
-            alert("Error packing EPUB. Chapter " + i + " Error: " + error.stack);
+            alert("Error packing EPUB. Error: " + error.stack);
         }
     }
 
@@ -194,14 +193,7 @@
 
     function onTestToXhtml() {
         if (0 < chapters.length) {
-            
-            // test Cleanup function
-            let doc = chapters[0].rawDom;
-
-            // doc = parser.toXhtml(doc);
-            // let blob = new Blob([new XMLSerializer().serializeToString(doc)], { type: 'text/html' });
-            let zipFile = parser.testChapterSplit(doc);
-            new EpubPacker().save(zipFile.generate({ type: "blob" }), "xhtml.zip");
+            packEpub();
         }
     }
 
