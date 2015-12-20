@@ -5,32 +5,42 @@
 </head>
 <body>
 <h2>ToDo List for HtmlToEpub Chrome App</h2>
-<h3>Steps to create EPUB Phase one</h3>
+<h3>Steps to create EPUB Phase one (no image file support)</h3>
 <ul>
 <li>Specify working directory and URL to download</li>
 <li>Fetch initial file from web.  Investigate WebView.</li>
-<li>Parse file for content (chapter) URLs</li>
-<li>Fetch the chapter HTML documents</li>
+<li><strike>Parse file for content (chapter) URLs</strike></li>
+<li><strike>Fetch the chapter HTML documents</strike></li>
 <li>Extract wanted text from documents and repackage. Strip javascript, comments, stylesheets</li>
-<li>Phase 1, strip &lt;img&gt; tags</li>
-<li>Generate ToC and content.opf</li>
-<li>Add correct author to content.opf</li>
-<li>Pack epub.</li>
+<li><strike>Phase 1, strip &lt;img&gt; tags</strike></li>
+<li><strike>Generate content.opf</strike></li>
+<li><strike>Generate Nested ToC</strike></li>
+<li><strike>Add correct author to content.opf</strike></li>
+<li>Fixup footnotes</li>
+<li><strike>Pack epub</strike></li>
 </ul>
 
-<h3>Steps to create EPUB Phase two</h3>
+<h3>Steps to create EPUB Phase two (image support)</h3>
 <ul>
-<li>May want to split content</li>
+<li><strike>May want to split content</strike></li>
 <li>Locate images.  Download images and update &lt;img&gt; tags</li>
-<li>Fixup footnotes</li>
-<li>Rename footnote fragment.</li>
+<li>Adjust UI dynamically, depending on web page being viewed</li>
+<li>Move fetching additional content files (XHTML or image) into parser class.</li>
+<li>Add images to content.opf and the zip</li>
+<li>Rework gallery and inline image tags in HTML files</li>
+<li>Fixup any text that appears before or after the gallery image table.</li>
 </ul>
 
 <h3>Side Tasks</h3>
 <ul>
+<li>Get code inspected</li>
 <li>Check all // ToDo comments have been done.</li>
-<li>Add a git link to github?</li>
-<li>Add a ParserFactory class, to pick a parser based on the URL</li>
+<li>Rework ParserFactory class, to be Map based.  (May make testing easier?)</li>
+<li>Get BakaTsukiEpubItemSupplier ctor to call EpubItemSupplier ctor?</li>
+<li>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.</li>
+<li>Figure out cleanest way to add cover + fixup content.opf for cover</li>
+<li>Update instructions</li>
+<li>Get a better icon</li>
 <li></li>
 </ul>
 
@@ -39,8 +49,6 @@
 <li>Check if still need to append "?view_adult=true" to URLs.</li>
 <li>Check cookies associated with XMLHttpRequest</li>
 <li></li>
-<li>Get Icon</li>
-<li>Document Licenses</li>
 </ul>
 
 <h3>Finished Tasks</h3>
@@ -58,6 +66,9 @@
 <li><strike>How to correctly add XML comment to start of X(HT)ML files.</strike></li>
 <li><strike>Create Icon.</strike></li>
 <li><strike>Extract just the bits I need out of FileSaver.js.</strike></li>
+<li><strike>Get Icon</strike></li>
+<li><strike>Document Licenses</strike></li>
+<li><strike>Add a git link to github?</strike></li>
 <li><strike></strike></li>
 <li><strike></strike></li>
 </ul>
@@ -108,10 +119,5 @@
 <ul>
 <li>How to validate image tags?</li>
 </ul>
-
-<h3>Done</h3>
-<ul>
-</ul>
-
 
 </body></html>
