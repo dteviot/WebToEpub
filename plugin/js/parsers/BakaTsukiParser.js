@@ -210,7 +210,7 @@ BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem
 
 BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (elementsInItem) {
     let i = elementsInItem.length - 1;
-    while ((0 <= i) && util.isWhiteSpace(elementsInItem[i].textContent)) {
+    while ((0 <= i) && (elementsInItem[i].nodeType === Node.TEXT_NODE) && util.isWhiteSpace(elementsInItem[i].textContent)) {
         elementsInItem.pop();
         --i;
     }
