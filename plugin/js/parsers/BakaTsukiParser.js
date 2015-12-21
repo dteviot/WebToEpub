@@ -173,11 +173,11 @@ BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
     let that = this;
     let walker = document.createTreeWalker(node); 
     let count = 0;
-    while (walker.nextNode()) {
+    do {
         if (that.isChapterStart(walker.currentNode)) {
             ++count;
-        }
-    }
+        };
+    } while (walker.nextNode());
     return count;
 }
 
@@ -277,7 +277,6 @@ BakaTsukiParser.prototype.findFootnotes = function(epubItems) {
     that.walkEpubItemsWithElements(
         epubItems, 
         footnotes,
-        { acceptNode: e => that.isFootNote(e) },
         that.recordFootnote
     );
     return footnotes;
@@ -288,24 +287,21 @@ BakaTsukiParser.prototype.findAndFixCitations = function(epubItems, footnotes) {
     that.walkEpubItemsWithElements(
         epubItems, 
         footnotes,
-        { acceptNode: e => that.isCitation(e) },
         that.fixCitation
     );
 }
 
-BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footnotes, whatToShow, processFoundNode) {
+BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footnotes, processFoundNode) {
     let that = this;
     for(let epubItem of epubItems) {
         for(let element of epubItem.elements) {
             let walker = document.createTreeWalker(
                 element, 
-                NodeFilter.SHOW_ELEMENT,
-                whatToShow,
-                false
+                NodeFilter.SHOW_ELEMENT
             );
-            while (walker.nextNode()) {
+            do {
                 processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getHref()]);
-            };
+            } while (walker.nextNode());
         };
     };
 }
@@ -320,22 +316,26 @@ BakaTsukiParser.prototype.isCitation = function(node) {
 
 BakaTsukiParser.prototype.recordFootnote = function(node, footnotes, href) {
     let that = this;
-    footnotes.set(
-        node.id, 
-        { link: that.getElement(node, "a"), 
-          href: href 
-        }
-    );
+    if (that.isFootNote(node)) {
+        footnotes.set(
+            node.id, 
+            { link: that.getElement(node, "a"), 
+                href: href 
+            }
+        );
+    };
 }
 
 BakaTsukiParser.prototype.fixCitation = function(citation, footnotes, citationHref) {
     let that = this;
-    let citationLinkElement = that.getElement(citation, "a");
-    let footnoteId = that.extractFootnoteIdFromCitation(citationLinkElement);
-    let footnote = footnotes.get(footnoteId);
-    if (footnote != null) {
-        footnote.link.href = citationHref + '#' + citation.id; 
-        citationLinkElement.href = footnote.href + '#' + footnoteId;
+    if (that.isCitation(citation)) {
+        let citationLinkElement = that.getElement(citation, "a");
+        let footnoteId = that.extractFootnoteIdFromCitation(citationLinkElement);
+        let footnote = footnotes.get(footnoteId);
+        if (footnote != null) {
+            footnote.link.href = citationHref + '#' + citation.id; 
+            citationLinkElement.href = footnote.href + '#' + footnoteId;
+        }
     }
 }
 

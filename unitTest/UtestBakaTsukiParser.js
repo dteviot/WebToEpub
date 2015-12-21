@@ -270,12 +270,12 @@ function fetchHrefForId(epubItems, id) {
     for(let epubItem of epubItems) {
         for(let element of epubItem.elements) {
             let walker = document.createTreeWalker(element);
-            while(walker.nextNode()) {
+            do {
                 let node = walker.currentNode;
                 if (node.id === id) {
                     return node.getElementsByTagName("a")[0].getAttribute("href");
                 };
-            };
+            } while(walker.nextNode());
         };
     };
 }
@@ -286,11 +286,11 @@ test("fixupFootnotes", function (assert) {
             "<head><title></title></head>" +
             "<body>" +
                 "<h1>H1</h1>" +
-                "<p><sup id=\"cite_ref-1\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-1\">[1]</a></sup></p>" +
+                "<sup id=\"cite_ref-1\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-1\">[1]</a></sup>" +
                 "<h1>H2</h1>" +
                 "<ul><li id=\"cite_note-2\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-2\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
                 "<h1>H3</h1>" +
-                "<p><sup id=\"cite_ref-2\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-2\">[2]</a></sup></p>" +
+                "<sup id=\"cite_ref-2\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-2\">[2]</a></sup>" +
                 "<h1>H4</h1>" +
                 "<ul><li id=\"cite_note-1\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-1\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
             "</body>" +
