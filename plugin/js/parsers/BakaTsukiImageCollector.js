@@ -43,13 +43,15 @@ BakaTsukiImageCollector.makeImageConverter = function (element) {
 
 BakaTsukiImageCollector.prototype.getImages = function (content) {
     let that = this;
-    let images = new Set();
+    let images = new Map();
     let walker = document.createTreeWalker(content);
     while (walker.nextNode()) {
         let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
-            images.add(BakaTsukiImageCollector.extractImageSrc(currentNode));
+            let src = BakaTsukiImageCollector.extractImageSrc(currentNode);
+            let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(currentNode);
+            images.set(pageUrl, src);
         }
     }
     return images;
@@ -64,7 +66,8 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
     images.forEach(function (image) {
         let row = document.createElement("tr");
         let img = document.createElement("img");
-        img.src = image;
+        that.fetchImageData(img, image);
+            // img.src = image;
         that.appendColumnToRow(row, img);
         imagesTable.appendChild(row);
     });
@@ -78,3 +81,17 @@ BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
     row.appendChild(col);
     return col;
 }
+
+BakaTsukiImageCollector.prototype.fetchImageData = function (img, url) {
+    let that = this;
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", url);
+    oReq.responseType = "blob";
+    oReq.onload = oEvent => that.onImageLoaded(img, oReq.response);
+    oReq.send(null);
+}
+
+BakaTsukiImageCollector.prototype.onImageLoaded = function (img, blob) {
+    img.src = URL.createObjectURL(blob);
+}
+
