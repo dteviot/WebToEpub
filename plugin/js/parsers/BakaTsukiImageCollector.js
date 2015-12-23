@@ -12,6 +12,11 @@ BakaTsukiImageCollector.extractImagePageUrl = function (element) {
     return element.getElementsByTagName("a")[0].href;
 }
 
+// get src value of <img> element
+BakaTsukiImageCollector.extractImageSrc = function (element) {
+    return element.getElementsByTagName("img")[0].src;
+}
+
 function ImageElementConverter(element) {
     this.element = element;
 }
@@ -36,3 +41,40 @@ BakaTsukiImageCollector.makeImageConverter = function (element) {
     }
 }
 
+BakaTsukiImageCollector.prototype.getImages = function (content) {
+    let that = this;
+    let images = new Set();
+    let walker = document.createTreeWalker(content);
+    while (walker.nextNode()) {
+        let currentNode = walker.currentNode;
+        let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
+        if (converter != null) {
+            images.add(BakaTsukiImageCollector.extractImageSrc(currentNode));
+        }
+    }
+    return images;
+}
+
+BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
+    let that = this;
+    let imagesTable = document.getElementById("imagesTable");
+    while (imagesTable.children.length > 1) {
+        imagesTable.removeChild(linksTable.children[imagesTable.children.length - 1])
+    }
+    images.forEach(function (image) {
+        let row = document.createElement("tr");
+        let img = document.createElement("img");
+        img.src = image;
+        that.appendColumnToRow(row, img);
+        imagesTable.appendChild(row);
+    });
+
+}
+
+BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
+    let col = document.createElement("td");
+    col.appendChild(element);
+    col.style.whiteSpace = "nowrap";
+    row.appendChild(col);
+    return col;
+}

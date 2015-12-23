@@ -197,6 +197,15 @@
         }
     }
 
+    function onTestPopulateImages() {
+        if (0 < chapters.length) {
+            let content = parser.findContent(chapters[0].rawDom);
+            let imageCollector = new BakaTsukiImageCollector();
+            let images = imageCollector.getImages(content);
+            imageCollector.populateImageTable(images);
+        }
+    }
+
     // actions to do when window opened
     window.onload = function () {
         // add onClick event handlers
@@ -206,6 +215,7 @@
         document.getElementById("reloadButton").onclick = populateControls;
         document.getElementById("packRawButton").onclick = packRawChapters;
         document.getElementById("testToXhtmlButton").onclick = onTestToXhtml;
+        document.getElementById("testPopulateImages").onclick = onTestPopulateImages;
         populateControls();
     }
 
