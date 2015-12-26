@@ -4,7 +4,7 @@
       type:  XHTML or image
       sourceUrl: where the html came from
       id:  the id value in the content.opf file
-      href: name of the item in the zip.
+      zipHref: name of the item in the zip.
 
       optional elements:
       elements:  list of elements that make up the content (if it's XHTML content)
@@ -20,8 +20,8 @@ EpubItem.prototype.setIndex = function (index) {
     this.index = index;
 }
 
-EpubItem.prototype.getHref = function () {
-    return "index_split_" + util.zeroPad(this.index) + ".html";;
+EpubItem.prototype.getZipHref = function () {
+    return "index_split_" + util.zeroPad(this.index) + ".html";
 }
 
 EpubItem.prototype.getId = function () {
@@ -49,7 +49,7 @@ EpubItem.prototype.chapterInfo = function*() {
             yield {
                 depth: this.tagNameToTocDepth(element.tagName),
                 title: element.textContent,
-                src: that.getHref()
+                src: that.getZipHref()
             };
         };
     };

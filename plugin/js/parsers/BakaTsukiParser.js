@@ -277,7 +277,7 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 NodeFilter.SHOW_ELEMENT
             );
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getHref()]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref()]);
             } while (walker.nextNode());
         };
     };

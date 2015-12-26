@@ -22,7 +22,7 @@ BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {
     let that = this;
     for(let item of that.epubItems) {
         yield {
-            href: item.getHref(),
+            href: item.getZipHref(),
             id:   item.getId(),
             mediaType: item.getMediaType()
         };
@@ -39,7 +39,7 @@ BakaTsukiEpubItemSupplier.prototype.files = function*() {
     let that = this;
     for(let item of that.epubItems) {
         yield {
-            href: item.getHref(),
+            href: item.getZipHref(),
             content: util.xmlToString(item.makeChapterDoc())
         };
     };
