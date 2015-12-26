@@ -40,16 +40,42 @@ HttpClient.prototype = {
         that.sendRequest(xhr);
     },
 
+    validateStatus: function(url, xhr, event) {
+        if ((xhr.status === 200) || (xhr.status === 0)) {
+            return true;
+        } else {
+            that.onError(url, xhr.statusText, event);
+            return false;
+        };
+    },
+
     onLoadHtml: function (url, xhr, event, onHtlmReceived) {
         let that = this;
         if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
+            if (that.validateStatus(url, xhr, event)) {
                 that.setBaseTag(url, xhr.responseXML);
                 onHtlmReceived(url, xhr.responseXML);
-            } else {
-                that.onError(url, xhr.statusText, event);
-            }
-        }
+            };
+        };
+    },
+
+    fetchBinary: function (url, onLoadBinary) {
+        let that = this;
+        let xhr = new XMLHttpRequest();
+        xhr.onload = function (event) { that.onBinaryReceived(url, xhr, event, onLoadBinary); };
+        xhr.onerror = function (event) { that.onError(url, xhr.statusText, event); };
+        xhr.open("GET", url);
+        xhr.responseType = "arraybuffer";
+        that.sendRequest(xhr);
+    },
+
+    onBinaryReceived: function (url, xhr, event, onLoadBinary) {
+        let that = this;
+        if (xhr.readyState === 4) {
+            if (that.validateStatus(url, xhr, event)) {
+                onLoadBinary(url, xhr.response);
+            };
+        };
     },
 
     // testing hook point.
@@ -72,6 +98,4 @@ HttpClient.prototype = {
         chapters.pop().rawDom = dom;
         that.fetchChapters(chapters, onFinished);
     }
-
-    // ToDo: create a fetchBinary() function
 }

@@ -61,11 +61,12 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
     let that = this;
     let imagesTable = document.getElementById("imagesTable");
     while (imagesTable.children.length > 1) {
-        imagesTable.removeChild(linksTable.children[imagesTable.children.length - 1])
+        imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
     images.forEach(function (image) {
         let row = document.createElement("tr");
         let img = document.createElement("img");
+        img.setAttribute("style", "max-height: 120px; width: auto; ");
         that.fetchImageData(img, image);
             // img.src = image;
         that.appendColumnToRow(row, img);
@@ -84,14 +85,11 @@ BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
 
 BakaTsukiImageCollector.prototype.fetchImageData = function (img, url) {
     let that = this;
-    var oReq = new XMLHttpRequest();
-    oReq.open("GET", url);
-    oReq.responseType = "blob";
-    oReq.onload = oEvent => that.onImageLoaded(img, oReq.response);
-    oReq.send(null);
+    let request = new HttpClient();
+    request.fetchBinary(url, (u, arraybuffer) => that.onImageData(img, url, arraybuffer));
 }
 
-BakaTsukiImageCollector.prototype.onImageLoaded = function (img, blob) {
+BakaTsukiImageCollector.prototype.onImageData = function (img, url, arraybuffer) {
+    let blob = new Blob([arraybuffer]);
     img.src = URL.createObjectURL(blob);
 }
-
