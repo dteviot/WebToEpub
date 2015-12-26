@@ -98,13 +98,13 @@ BakaTsukiParser.prototype.findImages = function (element) {
     that.imageConverters = [];
 
     let walker = document.createTreeWalker(element);
-    while (walker.nextNode()) {
+    do {
         let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
             that.imageConverters.push(converter);
         }
-    }
+    } while (walker.nextNode());
 }
 
 BakaTsukiParser.prototype.fixupImages = function () {

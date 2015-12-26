@@ -4,6 +4,68 @@
 
 "use strict";
 
+/*
+    Details of an image in BakaTsuki web page
+    imagePageUrl :  URL of web page that holds list of versions of the image
+    sourceImageUrl : URL of actual jpeg/png/bmp file that will be used for the image
+    zipHref:  relative path + filename used to store file in the EPUB (zip) file.
+    id: the id value in the content.opf file
+    mediaType: jpeg, png, etc.
+    isCover :  use this as the cover image?
+*/
+function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
+    let that = this;
+    this.imagePageUrl = imagePageUrl;
+    this.sourceImageUrl = sourceImageUrl;
+    let suffix = that.findImageType(imagePageUrl);
+    this.zipHref = that.makeZipHref(imageIndex, suffix);
+    this.id = that.makeId(imageIndex);
+    this.mediaType = that.makeMediaType(suffix);
+    this.isCover = false;
+}
+
+BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
+    // assume the image Page URL looks something like this:
+    // http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg
+    let index = imagePageUrl.lastIndexOf(".");
+    let suffix = imagePageUrl.substring(index + 1, imagePageUrl.length);
+    return suffix;
+}
+
+BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix) {
+    return "images/image_" + util.zeroPad(imageIndex) + "." +suffix;
+}
+
+BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {
+    return "image" + util.zeroPad(imageIndex);
+}
+
+BakaTsukiImageInfo.prototype.makeMediaType = function (suffix) {
+    switch(suffix.toUpperCase()) {
+        case "PNG":
+            return "image/png"
+        case "JPG":
+        case "JPEG":
+            return "image/jpeg"
+        case "GIF":
+            return "image/gif"
+        default:
+            console.error("Unknown media type:" + suffix);
+    };
+}
+
+BakaTsukiImageInfo.prototype.getZipHref = function () {
+    return this.zipHref;
+}
+
+BakaTsukiImageInfo.prototype.getId = function () {
+    return this.id;
+}
+
+BakaTsukiImageInfo.prototype.getMediaType = function () {
+    return this.mediaType;
+}
+
 function BakaTsukiImageCollector() {
 }
 
@@ -41,11 +103,11 @@ BakaTsukiImageCollector.makeImageConverter = function (element) {
     }
 }
 
-BakaTsukiImageCollector.prototype.getImages = function (content) {
+BakaTsukiImageCollector.prototype.getImages = function (content, imageMap) {
     let that = this;
-    let images = new Map();
+    let images = imageMap || new Map();
     let walker = document.createTreeWalker(content);
-    while (walker.nextNode()) {
+    do {
         let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
@@ -53,7 +115,7 @@ BakaTsukiImageCollector.prototype.getImages = function (content) {
             let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(currentNode);
             images.set(pageUrl, src);
         }
-    }
+    } while (walker.nextNode());
     return images;
 }
 
