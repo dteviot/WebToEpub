@@ -41,6 +41,7 @@ HttpClient.prototype = {
     },
 
     validateStatus: function(url, xhr, event) {
+        let that = this;
         if ((xhr.status === 200) || (xhr.status === 0)) {
             return true;
         } else {
