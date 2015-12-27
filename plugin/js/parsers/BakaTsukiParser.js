@@ -51,7 +51,7 @@ BakaTsukiParser.prototype.populateUI = function () {
     let that = this;
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
-    document.getElementById("fetchImagesButton").onclick = (e => that.onFetchImages());
+    that.getFetchContentButton().onclick = (e => that.onFetchImages());
 };
 
 BakaTsukiParser.prototype.epubItemSupplier = function () {
@@ -329,6 +329,7 @@ BakaTsukiParser.prototype.onFetchImages = function () {
     if (0 == that.images.size) {
         alert("No images found.");
     } else {
+        that.getFetchContentButton().disabled = true;
         this.setUiToShowLoadingProgress(that.images.size);
         // make copy of the map as a list, to make it easier for HttpClient to iterate 
         let imageList = [];
@@ -344,12 +345,18 @@ BakaTsukiParser.prototype.onFetchImages = function () {
    finished  true if have loaded all images, false if only loaded a single image
 */
 BakaTsukiParser.prototype.updateLoadState = function(finished) {
-    this.getProgressBar().value += 1;
+    let that = this;
+    that.getProgressBar().value += 1;
     if (finished) {
         main.getPackEpubButton().disabled = false;
+        that.getFetchContentButton().disabled = false;
     }
 }
 
 BakaTsukiParser.prototype.getProgressBar = function() {
     return document.getElementById("fetchImagesProgress");
+}
+
+BakaTsukiParser.prototype.getFetchContentButton = function() {
+    return document.getElementById("fetchImagesButton");
 }

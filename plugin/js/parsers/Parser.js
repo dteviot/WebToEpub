@@ -112,7 +112,7 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
 
 Parser.prototype.populateUI = function () {
     let that = this;
-    document.getElementById("fetchChaptersButton").onclick = (e => that.onFetchChapters());
+    that.getFetchContentButton().onclick = (e => that.onFetchChapters());
     document.getElementById("packRawButton").onclick = (e => that.packRawChapters());
 }
 
@@ -120,6 +120,7 @@ Parser.prototype.onFetchChapters = function () {
     if (0 == this.chapters.length) {
         alert("No chapters found.");
     } else {
+        this.getFetchContentButton().disabled = true;
         this.setUiToShowLoadingProgress(this.chapters.length);
         let client = new HttpClient();
 
@@ -153,6 +154,7 @@ Parser.prototype.onLoadChapter = function(chapterIndex, client) {
             that.onLoadChapter(chapterIndex + 1, client);
         });
     } else {
+        this.getFetchContentButton().disabled = false;
         main.getPackEpubButton().disabled = false;
     }
 }
@@ -169,6 +171,10 @@ Parser.prototype.onChaptersLoaded = function() {
 
 Parser.prototype.getProgressBar = function() {
     return document.getElementById("fetchChaptersProgress");
+}
+
+Parser.prototype.getFetchContentButton = function() {
+    return document.getElementById("fetchChaptersButton")
 }
 
 // pack the raw chapter HTML into a zip file (for later manual analysis)
