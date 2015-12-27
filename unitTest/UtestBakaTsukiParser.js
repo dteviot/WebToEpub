@@ -43,14 +43,6 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.language, "en");
 });
 
-QUnit.test("getChapterUrls", function (assert) {
-    let parser = new BakaTsukiParser();
-    let chapterUrls = parser.getChapterUrls(syncLoadBakaTsukiSampleDoc());
-    assert.equal(chapterUrls.length, 1);
-    assert.equal(chapterUrls[0].sourceUrl, "http://www.baka-tsuki.org/project/index.php?title=Web_to_Epub");
-    assert.equal(chapterUrls[0].title, "Web to Epub");
-});
-
 QUnit.test("findContent", function (assert) {
     let parser = new BakaTsukiParser();
     let content = parser.findContent(syncLoadBakaTsukiSampleDoc());

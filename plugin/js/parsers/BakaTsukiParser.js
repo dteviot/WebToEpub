@@ -4,6 +4,7 @@
 "use strict";
 
 function BakaTsukiParser() {
+    this.firstPageDom = null;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -13,17 +14,6 @@ BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 BakaTsukiParser.prototype.canParse = function (url) {
     return (this.extractHostName(url) === "www.baka-tsuki.org");
 }
-
-BakaTsukiParser.prototype.getChapterUrls = function (dom) {
-    // baka tsuki are single web page
-    let that = this;
-    let chapters = [];
-    chapters.push({
-        sourceUrl: that.getBaseUrl(dom),
-        title: that.extractTitle(dom)
-    });
-    return chapters;
-};
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
     return this.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
@@ -46,18 +36,14 @@ BakaTsukiParser.prototype.findContent = function (dom) {
 // called when plugin has obtained the first web page
 BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     let that = this;
-    let chapters = that.getChapterUrls(firstPageDom);
-    if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
-        chapters[0].rawDom = firstPageDom;
+    that.firstPageDom = firstPageDom;
         
-        // ToDo: at moment is collecting images from inital web page at load time
-        // when the popup UI is populated.  Will need to fetch correct images
-        // as a separate step later
-        let collector = new BakaTsukiImageCollector();
-        that.images = collector.getImages(that.findContent(firstPageDom));
-        collector.populateImageTable(that.images);
-    }
-    return chapters;
+    // ToDo: at moment is collecting images from inital web page at load time
+    // when the popup UI is populated.  Will need to fetch correct images
+    // as a separate step later
+    let collector = new BakaTsukiImageCollector();
+    that.images = collector.getImages(that.findContent(firstPageDom));
+    collector.populateImageTable(that.images);
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
@@ -65,13 +51,12 @@ BakaTsukiParser.prototype.populateUI = function () {
     document.getElementById("outputSection").hidden = true;
 };
 
-BakaTsukiParser.prototype.epubItemSupplier = function (chapters) {
+BakaTsukiParser.prototype.epubItemSupplier = function () {
     let that = this;
-    let dom = chapters[0].rawDom;
-    let content = that.findContent(dom).cloneNode(true);
+    let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content, that.images);
-    let epubItems = that.splitContentIntoSections(content, dom.baseURI);
+    let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.images);
 }

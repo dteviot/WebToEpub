@@ -38,19 +38,17 @@
                 <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
             </tr>
         </table>
-        <button id=fetchChaptersButton>Fetch Chapters</button>
-        <progress id=fetchChaptersProgress value="0" max="1"></progress>
         <button id=packEpubButton disabled>Pack EPUB</button>
         <p>
             Diagnostics: <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
             <button id=reloadButton hidden>Reload</button>
             <button id=packRawButton hidden>Pack Raw Chapters</button>
-            <button id=testToXhtmlButton hidden>Test ToXHTML()</button>
-            <button id=testPopulateImages>Test PolulateImages</button>
         </p>
     </section>
     <section id="testSection"></section>
     <section id="outputSection">
+        <button id=fetchChaptersButton>Fetch Chapters</button>
+        <progress id=fetchChaptersProgress value="0" max="1"></progress>
         <div class="scrollingtable">
             <table id=chapterUrlsTable>
                 <tr>
@@ -62,12 +60,14 @@
         </div>
     </section>
     <section hidden id="imageSection">
+        <button id=fetchImagesButton>Fetch Fimages</button>
+        <progress id=fetchImagesProgress value="0" max="1"></progress>
         <div class="scrollingtable">
             <table id=imagesTable>
                 <tr>
                     <th align=left>Images</th>
-<!--                    <th align=left>Cover?</th>
-                    <th align=left>Full Size?</th>  -->
+                    <th align=left>Cover?</th>
+                    <th align=left>Full Size?</th>
                 </tr>
             </table>
         </div>

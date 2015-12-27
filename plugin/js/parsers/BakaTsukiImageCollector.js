@@ -55,7 +55,7 @@ BakaTsukiImageInfo.prototype.makeMediaType = function (suffix) {
         case "GIF":
             return "image/gif"
         default:
-            console.error("Unknown media type:" + suffix);
+            alert("Unknown media type:" + suffix);
     };
 }
 
