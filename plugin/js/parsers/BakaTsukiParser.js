@@ -5,6 +5,7 @@
 
 function BakaTsukiParser() {
     this.firstPageDom = null;
+    this.images = new Map();
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -42,13 +43,15 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // when the popup UI is populated.  Will need to fetch correct images
     // as a separate step later
     let collector = new BakaTsukiImageCollector();
-    that.images = collector.getImages(that.findContent(firstPageDom));
+    that.images = collector.findImagesUsedInDocument(that.findContent(firstPageDom));
     collector.populateImageTable(that.images);
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
+    let that = this;
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
+    document.getElementById("fetchImagesButton").onclick = (e => that.onFetchImages());
 };
 
 BakaTsukiParser.prototype.epubItemSupplier = function () {
@@ -319,4 +322,34 @@ BakaTsukiParser.prototype.extractFootnoteIdFromCitation = function(citationLinkE
         let index = href.indexOf("#");
         return (index < 0) ? null : href.slice((index + 1) - href.length);
     }
+}
+
+BakaTsukiParser.prototype.onFetchImages = function () {
+    let that = this;
+    if (0 == that.images.size) {
+        alert("No images found.");
+    } else {
+        this.setUiToShowLoadingProgress(that.images.size);
+        // make copy of the map as a list, to make it easier for HttpClient to iterate 
+        let imageList = [];
+        that.images.forEach(i => imageList.push(i));
+        let client = new HttpClient();
+        let collector = new BakaTsukiImageCollector();
+        collector.onLoadImagePage(imageList, client, (finished => that.updateLoadState(finished)));
+    }
+}
+
+/*
+   Show progress,
+   finished  true if have loaded all images, false if only loaded a single image
+*/
+BakaTsukiParser.prototype.updateLoadState = function(finished) {
+    this.getProgressBar().value += 1;
+    if (finished) {
+        main.getPackEpubButton().disabled = false;
+    }
+}
+
+BakaTsukiParser.prototype.getProgressBar = function() {
+    return document.getElementById("fetchImagesProgress");
 }

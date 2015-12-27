@@ -48,14 +48,15 @@ BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {
 BakaTsukiImageInfo.prototype.makeMediaType = function (suffix) {
     switch(suffix.toUpperCase()) {
         case "PNG":
-            return "image/png"
+            return "image/png";
         case "JPG":
         case "JPEG":
-            return "image/jpeg"
+            return "image/jpeg";
         case "GIF":
-            return "image/gif"
+            return "image/gif";
         default:
             alert("Unknown media type:" + suffix);
+            return "image/" + suffix;
     };
 }
 
@@ -117,9 +118,9 @@ BakaTsukiImageCollector.makeImageConverter = function (element) {
     }
 }
 
-BakaTsukiImageCollector.prototype.getImages = function (content, imageMap) {
+BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
-    let images = imageMap || new Map();
+    let images = new Map();
     let walker = document.createTreeWalker(content);
     do {
         let currentNode = walker.currentNode;
@@ -146,8 +147,7 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
         let row = document.createElement("tr");
         let img = document.createElement("img");
         img.setAttribute("style", "max-height: 120px; width: auto; ");
-        that.fetchImageData(img, imageInfo);
-            // img.src = image;
+        img.src = imageInfo.sourceImageUrl;
         that.appendColumnToRow(row, img);
         imagesTable.appendChild(row);
     });
@@ -162,14 +162,35 @@ BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
     return col;
 }
 
-BakaTsukiImageCollector.prototype.fetchImageData = function (img, imageInfo) {
+BakaTsukiImageCollector.prototype.onLoadImagePage = function(imageList, client,  progressIndicator) {
     let that = this;
-    let request = new HttpClient();
-    request.fetchBinary(imageInfo.sourceImageUrl, (u, arraybuffer) => that.onImageData(img, imageInfo, arraybuffer));
+    if (0 < imageList.length) {
+        let imageInfo = imageList[imageList.length - 1];
+        client.fetchHtml(imageInfo.imagePageUrl, function (url, rawDom) {
+            let imagefileUrl = that.getImageFileUrlFromImagePage(rawDom);
+            that.onLoadImage(imageList, client,  progressIndicator, imagefileUrl);
+        });
+    } else {
+        progressIndicator(true);
+    }
 }
 
-BakaTsukiImageCollector.prototype.onImageData = function (img, imageInfo, arraybuffer) {
-    imageInfo.arraybuffer = arraybuffer;
-    let blob = new Blob([arraybuffer]);
-    img.src = URL.createObjectURL(blob);
+BakaTsukiImageCollector.prototype.onLoadImage = function(imageList, client,  progressIndicator, imagefileUrl) {
+    let that = this;
+    client.fetchBinary(imagefileUrl, 
+        (u, arraybuffer) => that.onImageData(imageList, client,  progressIndicator, arraybuffer)
+    );
 }
+
+BakaTsukiImageCollector.prototype.getImageFileUrlFromImagePage = function(dom) {
+    let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
+    return util.getElement(dom, "img").src;
+}
+
+BakaTsukiImageCollector.prototype.onImageData = function (imageList, client,  progressIndicator, arraybuffer) {
+    let that = this;
+    imageList.pop().arraybuffer = arraybuffer;
+    progressIndicator(false);
+    that.onLoadImagePage(imageList, client,  progressIndicator);
+}
+

@@ -96,7 +96,6 @@ var main = (function () {
         let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
         document.getElementById("reloadButton").hidden = !enable;
         document.getElementById("packRawButton").hidden = !enable;
-        document.getElementById("testToXhtmlButton").hidden = !enable;
     }
 
     function getPackEpubButton() {

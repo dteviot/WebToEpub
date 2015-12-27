@@ -29,13 +29,11 @@ Parser.prototype.makeChapterDoc = function(dom) {
 }
 
 Parser.prototype.getElements = function(dom, tagName, filter) {
-    let array = Array.prototype.slice.apply(dom.getElementsByTagName(tagName));
-    return (filter == undefined) ? array : array.filter(filter)
+    return util.getElements(dom, tagName, filter);
 }
 
 Parser.prototype.getElement = function(dom, tagName, filter) {
-    let elements = this.getElements(dom, tagName, filter);
-    return (elements.length === 0) ? null : elements[0];
+    return util.getElement(dom, tagName, filter);
 }
 
 // extract hostname from a URL
@@ -122,7 +120,7 @@ Parser.prototype.onFetchChapters = function () {
     if (0 == this.chapters.length) {
         alert("No chapters found.");
     } else {
-        this.setUiToShowChapterLoadingProgress();
+        this.setUiToShowLoadingProgress(this.chapters.length);
         let client = new HttpClient();
 
         // for testing, uncomment the following lines
@@ -138,10 +136,10 @@ Parser.prototype.onFetchChapters = function () {
     }
 }
 
-Parser.prototype.setUiToShowChapterLoadingProgress = function() {
+Parser.prototype.setUiToShowLoadingProgress = function(length) {
     let that = this;
     main.getPackEpubButton().disabled = true;
-    this.getProgressBar().max = that.chapters.length;
+    this.getProgressBar().max = length;
     this.getProgressBar().value = 0;
 }
 

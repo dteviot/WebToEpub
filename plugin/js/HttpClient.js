@@ -31,6 +31,7 @@ HttpClient.prototype = {
 
     // fetches html document from URL
     fetchHtml: function (url, onHtlmReceived) {
+        console.log("Fetching HTML from URL: " + url);
         let that = this;
         let xhr = new XMLHttpRequest();
         xhr.onload = function (event) { that.onLoadHtml(url, xhr, event, onHtlmReceived); };
@@ -61,6 +62,7 @@ HttpClient.prototype = {
     },
 
     fetchBinary: function (url, onLoadBinary) {
+        console.log("Fetching Binary from URL: " + url);
         let that = this;
         let xhr = new XMLHttpRequest();
         xhr.onload = function (event) { that.onBinaryReceived(url, xhr, event, onLoadBinary); };

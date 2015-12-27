@@ -98,6 +98,17 @@ var util = (function () {
         return padded;
     }
 
+    var getElements = function(dom, tagName, filter) {
+        let array = Array.prototype.slice.apply(dom.getElementsByTagName(tagName));
+        return (filter == undefined) ? array : array.filter(filter)
+    }
+
+    var getElement = function(dom, tagName, filter) {
+        let elements = getElements(dom, tagName, filter);
+        return (elements.length === 0) ? null : elements[0];
+    }
+
+
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         resolveRelativeUrl: resolveRelativeUrl,
@@ -106,6 +117,8 @@ var util = (function () {
         removeElements: removeElements,
         removeComments: removeComments,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
+        getElement: getElement,
+        getElements: getElements,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         xmlToString: xmlToString,
