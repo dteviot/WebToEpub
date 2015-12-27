@@ -70,10 +70,10 @@ BakaTsukiParser.prototype.epubItemSupplier = function (chapters) {
     let dom = chapters[0].rawDom;
     let content = that.findContent(dom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
-    that.processImages(content);
+    that.processImages(content, that.images);
     let epubItems = that.splitContentIntoSections(content, dom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems);
+    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images);
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -109,32 +109,20 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
     }
 }
 
-BakaTsukiParser.prototype.processImages = function (element) {
+BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
-    that.findImages(element);
-    that.fixupImages();
-}
-
-BakaTsukiParser.prototype.findImages = function (element) {
-    let that = this;
-    that.imageConverters = [];
-
     let walker = document.createTreeWalker(element);
+    let converters = [];
     do {
+        
         let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
-            that.imageConverters.push(converter);
+            converters.push(converter);
         }
     } while (walker.nextNode());
-}
 
-BakaTsukiParser.prototype.fixupImages = function () {
-    // at this point in time, just delete the images
-    let that = this;
-    for(let converter of that.imageConverters) {
-        converter.replaceWithImagePageUrl();
-    }
+    converters.forEach(c => c.replaceWithImagePageUrl(images));
 }
 
 BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUrl) {

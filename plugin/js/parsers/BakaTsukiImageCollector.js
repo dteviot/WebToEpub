@@ -25,7 +25,8 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.mediaType = that.makeMediaType(suffix);
     this.imageIndex = imageIndex;
     this.isCover = false;
-    this.arrayBuffer = null;
+    this.isInSpine = false;
+    this.arraybuffer = null;
 }
 
 BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
@@ -70,6 +71,10 @@ BakaTsukiImageInfo.prototype.getMediaType = function () {
     return this.mediaType;
 }
 
+BakaTsukiImageInfo.prototype.fileContentForEpub = function() {
+    return this.arraybuffer;
+}
+
 function BakaTsukiImageCollector() {
 }
 
@@ -87,12 +92,17 @@ function ImageElementConverter(element) {
     this.element = element;
 }
 
-ImageElementConverter.prototype.replaceWithImagePageUrl = function () {
+ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
     // replace nested tag with <img> tag holding web page with list of images
-    let img = that.element.ownerDocument.createElement("img");
-    img.src = BakaTsukiImageCollector.extractImagePageUrl(that.element);
-    that.element.parentElement.replaceChild(img, that.element);
+    let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
+    let imageInfo = images.get(imagePageUrl);
+    if (imageInfo != null) {
+        let newImage = that.element.ownerDocument.createElement("img");
+        let oldImage = that.element.getElementsByTagName("img")[0];
+        oldImage.parentElement.replaceChild(newImage, oldImage);
+        newImage.setAttribute("src", imageInfo.getZipHref());
+    }
 }
 
 BakaTsukiImageCollector.makeImageConverter = function (element) {

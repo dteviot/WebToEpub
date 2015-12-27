@@ -14,6 +14,7 @@
 function EpubItem(type, sourceUrl) {
     this.type = type;
     this.sourceUrl = sourceUrl;
+    this.isInSpine = true;
 }
 
 EpubItem.prototype.setIndex = function (index) {
@@ -60,4 +61,8 @@ EpubItem.prototype.chapterInfo = function*() {
 EpubItem.prototype.tagNameToTocDepth = function(tagName) {
     // ToDo: assert that tagName in range <h1> ... <h4>
     return tagName[1] - '1';
+}
+
+EpubItem.prototype.fileContentForEpub = function() {
+    return util.xmlToString(this.makeChapterDoc());
 }

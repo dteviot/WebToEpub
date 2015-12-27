@@ -5,9 +5,11 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems) {
+function BakaTsukiEpubItemSupplier(parser, epubItems, images) {
     this.parser = parser;
-    this.epubItems = epubItems;
+    this.epubItems = [];
+    images.forEach(image => this.epubItems.push(image));
+    epubItems.forEach(item => this.epubItems.push(item));
 }
 
 // Make BakaTsukiEpubItemSupplier inherit from EpubItemSupplier
@@ -28,7 +30,12 @@ BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {
 
 // used to populate spine
 BakaTsukiEpubItemSupplier.prototype.spineItems = function*() {
-    yield* this.manifestItems();
+    let that = this;
+    for(let item of that.epubItems) {
+        if (item.isInSpine) {
+            yield { id: item.getId() };
+        };
+    };
 }
 
 // used to populate Zip file itself
@@ -37,7 +44,7 @@ BakaTsukiEpubItemSupplier.prototype.files = function*() {
     for(let item of that.epubItems) {
         yield {
             href: item.getZipHref(),
-            content: util.xmlToString(item.makeChapterDoc())
+            content: item.fileContentForEpub()
         };
     };
 }
@@ -46,6 +53,8 @@ BakaTsukiEpubItemSupplier.prototype.files = function*() {
 BakaTsukiEpubItemSupplier.prototype.chapterInfo = function*() {
     let that = this;
     for(let epubItem of that.epubItems) {
-        yield* epubItem.chapterInfo();
+        if (epubItem.chapterInfo != undefined) {
+            yield* epubItem.chapterInfo();
+        };
     };
 }
