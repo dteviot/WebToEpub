@@ -11,9 +11,11 @@
     zipHref:  relative path + filename used to store file in the EPUB (zip) file.
     id: the id value in the content.opf file
     mediaType: jpeg, png, etc.
+    arrayBuffer: the image bytes
     isCover :  use this as the cover image?
 */
 function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
+    // ToDo:  This will need to derive from EpubItem
     let that = this;
     this.imagePageUrl = imagePageUrl;
     this.sourceImageUrl = sourceImageUrl;
@@ -21,7 +23,9 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.zipHref = that.makeZipHref(imageIndex, suffix);
     this.id = that.makeId(imageIndex);
     this.mediaType = that.makeMediaType(suffix);
+    this.imageIndex = imageIndex;
     this.isCover = false;
+    this.arrayBuffer = null;
 }
 
 BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
@@ -113,7 +117,10 @@ BakaTsukiImageCollector.prototype.getImages = function (content, imageMap) {
         if (converter != null) {
             let src = BakaTsukiImageCollector.extractImageSrc(currentNode);
             let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(currentNode);
-            images.set(pageUrl, src);
+            let existing = images.get(pageUrl);
+            let index = (existing == null) ? images.size : existing.imageIndex;
+            let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
+            images.set(pageUrl, imageInfo);
         }
     } while (walker.nextNode());
     return images;
@@ -125,11 +132,11 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
     while (imagesTable.children.length > 1) {
         imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
-    images.forEach(function (image) {
+    images.forEach(function (imageInfo) {
         let row = document.createElement("tr");
         let img = document.createElement("img");
         img.setAttribute("style", "max-height: 120px; width: auto; ");
-        that.fetchImageData(img, image);
+        that.fetchImageData(img, imageInfo);
             // img.src = image;
         that.appendColumnToRow(row, img);
         imagesTable.appendChild(row);
@@ -145,13 +152,14 @@ BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
     return col;
 }
 
-BakaTsukiImageCollector.prototype.fetchImageData = function (img, url) {
+BakaTsukiImageCollector.prototype.fetchImageData = function (img, imageInfo) {
     let that = this;
     let request = new HttpClient();
-    request.fetchBinary(url, (u, arraybuffer) => that.onImageData(img, url, arraybuffer));
+    request.fetchBinary(imageInfo.sourceImageUrl, (u, arraybuffer) => that.onImageData(img, imageInfo, arraybuffer));
 }
 
-BakaTsukiImageCollector.prototype.onImageData = function (img, url, arraybuffer) {
+BakaTsukiImageCollector.prototype.onImageData = function (img, imageInfo, arraybuffer) {
+    imageInfo.arraybuffer = arraybuffer;
     let blob = new Blob([arraybuffer]);
     img.src = URL.createObjectURL(blob);
 }

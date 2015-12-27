@@ -70,5 +70,46 @@ Parser.prototype = {
         let supplier = new EpubItemSupplier(this);
         supplier.setChapters(chapters);
         return supplier;
+    },
+
+    appendColumnDataToRow: function (row, textData) {
+        let col = document.createElement("td");
+        col.innerText = textData;
+        col.style.whiteSpace = "nowrap";
+        row.appendChild(col);
+        return col;
+    },
+
+    populateChapterUrls: function (chapters) {
+        let that = this;
+        let linksTable = document.getElementById("chapterUrlsTable");
+        while (linksTable.children.length > 1) {
+            linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
+        }
+        chapters.forEach(function (chapter) {
+            let row = document.createElement("tr");
+            that.appendColumnDataToRow(row, chapter.title);
+            chapter.stateColumn = that.appendColumnDataToRow(row, "No");
+            that.appendColumnDataToRow(row, chapter.sourceUrl);
+            linksTable.appendChild(row);
+        });
+    },
+
+    // called when plugin has obtained the first web page
+    onLoadFirstPage: function (url, firstPageDom) {
+        let that = this;
+        let chapters = that.getChapterUrls(firstPageDom);
+        that.populateChapterUrls(chapters);
+        if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
+            chapters[0].rawDom = firstPageDom;
+
+            // ToDo: this call is broken until updateLoadState is moved into this class from main.js.
+            updateLoadState(chapters[0]);
+        }
+        return chapters;
+    },
+
+    populateUI: function () {
+        // ToDO: add controls for typical parser
     }
 }

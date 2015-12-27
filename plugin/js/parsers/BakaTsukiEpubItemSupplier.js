@@ -14,9 +14,6 @@ function BakaTsukiEpubItemSupplier(parser, epubItems) {
 BakaTsukiEpubItemSupplier.prototype = Object.create(EpubItemSupplier.prototype);
 BakaTsukiEpubItemSupplier.prototype.constructor = EpubItemSupplier;
 
-BakaTsukiEpubItemSupplier.prototype.updateEpubItems = function(epubItems) {
-}
-
 // used to populate manifest
 BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {
     let that = this;

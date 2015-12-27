@@ -43,6 +43,28 @@ BakaTsukiParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
 };
 
+// called when plugin has obtained the first web page
+BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
+    let that = this;
+    let chapters = that.getChapterUrls(firstPageDom);
+    if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
+        chapters[0].rawDom = firstPageDom;
+        
+        // ToDo: at moment is collecting images from inital web page at load time
+        // when the popup UI is populated.  Will need to fetch correct images
+        // as a separate step later
+        let collector = new BakaTsukiImageCollector();
+        that.images = collector.getImages(that.findContent(firstPageDom));
+        collector.populateImageTable(that.images);
+    }
+    return chapters;
+};
+
+BakaTsukiParser.prototype.populateUI = function () {
+    document.getElementById("imageSection").hidden = false;
+    document.getElementById("outputSection").hidden = true;
+};
+
 BakaTsukiParser.prototype.epubItemSupplier = function (chapters) {
     let that = this;
     let dom = chapters[0].rawDom;

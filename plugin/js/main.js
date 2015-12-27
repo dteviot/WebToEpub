@@ -23,39 +23,13 @@
         }
     });
 
-    function appendColumnDataToRow(row, textData) {
-        let col = document.createElement("td");
-        col.innerText = textData;
-        col.style.whiteSpace = "nowrap";
-        row.appendChild(col);
-        return col;
-    }
-
-    function populateChapterUrls(chapters) {
-        let linksTable = document.getElementById("chapterUrlsTable");
-        while (linksTable.children.length > 1) {
-            linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
-        }
-        chapters.forEach(function (chapter) {
-            let row = document.createElement("tr");
-            appendColumnDataToRow(row, chapter.title);
-            chapter.stateColumn = appendColumnDataToRow(row, "No");
-            appendColumnDataToRow(row, chapter.sourceUrl);
-            linksTable.appendChild(row);
-        });
-    }
-
     // extract urls from DOM and populate control
     function processInitialHtml(url, dom) {
         if (setParser(url)) {
             let metaInfo = parser.getEpubMetaInfo(dom);
             populateMetaInfo(metaInfo);
-            chapters = parser.getChapterUrls(dom);
-            populateChapterUrls(chapters);
-            if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
-                chapters[0].rawDom = dom;
-                updateLoadState(chapters[0]);
-            }
+            parser.populateUI();
+            chapters = parser.onLoadFirstPage(url, dom);
         }
     }
 
