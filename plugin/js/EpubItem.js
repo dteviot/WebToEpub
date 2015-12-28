@@ -66,11 +66,3 @@ EpubItem.prototype.tagNameToTocDepth = function(tagName) {
 EpubItem.prototype.fileContentForEpub = function() {
     return util.xmlToString(this.makeChapterDoc());
 }
-
-EpubItem.coverImageXhtmlHref = function() {
-    return "cover.xhtml";
-}
-
-EpubItem.coverImageXhtmlId = function() {
-    return "cover.xhtml";
-}

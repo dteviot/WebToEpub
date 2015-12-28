@@ -19,6 +19,14 @@ function EpubPacker(metaInfo) {
     that.metaInfo = metaInfo;
 }
 
+EpubPacker.coverImageXhtmlHref = function() {
+    return "cover.xhtml";
+}
+
+EpubPacker.coverImageXhtmlId = function() {
+    return "cover.xhtml";
+}
+
 EpubPacker.prototype = {
 
     assembleAndSave: function (fileName, epubItemSupplier) {
@@ -103,9 +111,10 @@ EpubPacker.prototype = {
             that.addManifestItem(manifest, item.href, item.id, item.mediaType);
         };
 
-        // ToDo: image files (with exception of cover) go here.
-
         that.addManifestItem(manifest, "toc.ncx", "ncx", "application/x-dtbncx+xml");
+        if (epubItemSupplier.hasCoverImageFile()) {
+            that.addManifestItem(manifest, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/x-dtbncx+xml");
+        };
     },
 
     addManifestItem: function(manifest, href, id, mediaType) {
@@ -120,9 +129,16 @@ EpubPacker.prototype = {
         let that = this;
         let spine = that.createAndAppendChild(opf.documentElement, "spine");
         spine.setAttribute("toc", "ncx");
-        for(let item of epubItemSupplier.spineItems()) {
-            that.createAndAppendChild(spine, "itemref").setAttribute("idref", item.id);
+        if (epubItemSupplier.hasCoverImageFile()) {
+            that.addSpineItemRef(spine, EpubPacker.coverImageXhtmlId());
         };
+        for(let item of epubItemSupplier.spineItems()) {
+            that.addSpineItemRef(spine, item.id);
+        };
+    },
+
+    addSpineItemRef: function(spine, idref) {
+        this.createAndAppendChild(spine, "itemref").setAttribute("idref", idref);
     },
 
     buildGuide: function (opf, epubItemSupplier) {
@@ -130,7 +146,7 @@ EpubPacker.prototype = {
         if (epubItemSupplier.hasCoverImageFile()) {
             let guide = that.createAndAppendChild(opf.documentElement, "guide");
             let reference = that.createAndAppendChild(guide, "reference");
-            reference.setAttribute("href", EpubItem.coverImageXhtmlHref());
+            reference.setAttribute("href", EpubPacker.coverImageXhtmlHref());
             reference.setAttribute("title", "Cover");
             reference.setAttribute("type", "cover");
         };

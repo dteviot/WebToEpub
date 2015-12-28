@@ -81,8 +81,10 @@ test("buildContentOpfWithCover", function (assert) {
               "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"index_split_0001.html\" id=\"html0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
+              "<item href=\"cover.xhtml\" id=\"cover.xhtml\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>" +
             "<spine toc=\"ncx\">" +
+              "<itemref idref=\"cover.xhtml\"/>" +
               "<itemref idref=\"html0000\"/>" +
               "<itemref idref=\"html0001\"/>" +
             "</spine>" +
