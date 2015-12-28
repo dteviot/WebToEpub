@@ -213,9 +213,25 @@ EpubPacker.prototype = {
 
     packXhtmlFiles: function (zipFile, epubItemSupplier) {
         let that = this;
+        let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
-            zipFile.file(file.href, file.content, { compression: "DEFLATE" });
+            zipFile.file(file.href, file.content, zipOptions);
         };
+        if (epubItemSupplier.hasCoverImageFile()) {
+            zipFile.file(EpubPacker.coverImageXhtmlHref(), that.makeCoverImageXhtmlFile(epubItemSupplier), zipOptions);
+        };
+    },
+
+    // create a XHTML file that "wraps" the cover image
+    makeCoverImageXhtmlFile: function (epubItemSupplier) {
+        let that = this;
+        let doc = util.createEmptyXhtmlDoc();
+        let body = doc.getElementsByTagName("body")[0];
+        let div = that.createAndAppendChild(body, "div");
+        div.setAttribute("style", "text-align: center; padding: 0pt; margin: 0pt;");
+        let img = that.createAndAppendChild(div, "img");
+        img.setAttribute("src", epubItemSupplier.coverImageFileName());
+        return util.xmlToString(doc);
     },
 
     createAndAppendChild: function (element, name, data) {

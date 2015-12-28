@@ -176,3 +176,22 @@ test("UnwindNavPointParentElementsStack", function (assert) {
     assert.equal(stack.parents[2].element, "h3.3");
 });
 
+test("makeCoverImageXhtmlFile", function (assert) {
+    let itemSupplier = makeEpubItemSupplier();
+    itemSupplier.coverImageFileName = function () { return "cover.png" };
+    let xhtmlFile = makePacker().makeCoverImageXhtmlFile(itemSupplier);
+    assert.equal(xhtmlFile,
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+            "<head>" +
+                "<title></title>" +
+                "<style type=\"text/css\">img { max-width: 100%; padding: 0; margin: 0; }</style>" +
+            "</head>" +
+            "<body>" +
+                "<div style=\"text-align: center; padding: 0pt; margin: 0pt;\">" +
+                    "<img src=\"cover.png\">" +
+                "</div>" +
+            "</body>" +
+        "</html>"
+    );
+});
