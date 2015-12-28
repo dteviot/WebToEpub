@@ -13,7 +13,13 @@ var util = (function () {
         let doc = document.implementation.createDocument("http://www.w3.org/1999/xhtml", "", null);
         let htmlNode = doc.createElement("html");
         doc.appendChild(htmlNode);
-        htmlNode.appendChild(doc.createElement("head"));
+        let head = doc.createElement("head");
+        htmlNode.appendChild(head);
+        head.appendChild(doc.createElement("title"));
+        let style = doc.createElement("style");
+        head.appendChild(style);
+        style.setAttribute("type", "text/css");
+        style.appendChild(doc.createTextNode("img { max-width: 100%; padding: 0; margin: 0; }"));
         let body = doc.createElement("body");
         htmlNode.appendChild(body);
         return doc;
