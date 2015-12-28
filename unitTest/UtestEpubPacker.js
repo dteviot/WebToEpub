@@ -189,7 +189,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "</head>" +
             "<body>" +
                 "<div style=\"text-align: center; padding: 0pt; margin: 0pt;\">" +
-                    "<img src=\"cover.png\">" +
+                    "<img src=\"cover.png\" />" +
                 "</div>" +
             "</body>" +
         "</html>"
