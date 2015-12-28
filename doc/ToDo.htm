@@ -23,12 +23,15 @@
 <h3>Steps to create EPUB Phase two (image support)</h3>
 <ul>
 <li><strike>May want to split content</strike></li>
-<li>Locate images.  Download images and update &lt;img&gt; tags</li>
+<li><strike>Locate images.  Download images and update &lt;img&gt; tags</strike></li>
 <li>Adjust UI dynamically, depending on web page being viewed</li>
-<li>Move fetching additional content files (XHTML or image) into parser class.</li>
-<li>Add images to content.opf and the zip</li>
+<li><strike>Move fetching additional content files (XHTML or image) into parser class.</strike></li>
+<li><strike>Add images to content.opf and the zip</strike></li>
 <li>Rework gallery and inline image tags in HTML files</li>
 <li>Fixup any text that appears before or after the gallery image table.</li>
+<li>Add cover (does it make sense to add cover to content and ToC, then delelete if not present?</li>
+<li>Handle Gallery imagage different to inline?</li>
+<li><strike>Add Style (for images) to XHTML header</strike></li>
 </ul>
 
 <h3>Side Tasks</h3>
@@ -37,7 +40,7 @@
 <li>Check all // ToDo comments have been done.</li>
 <li>Rework ParserFactory class, to be Map based.  (May make testing easier?)</li>
 <li>Get BakaTsukiEpubItemSupplier ctor to call EpubItemSupplier ctor?</li>
-<li>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.</li>
+<li>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.  Also EpubItem/BaskTsukiEpubItem</li>
 <li>Figure out cleanest way to add cover + fixup content.opf for cover</li>
 <li>Update instructions</li>
 <li>Get a better icon</li>

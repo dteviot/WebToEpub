@@ -59,6 +59,40 @@ test("buildContentOpf", function (assert) {
     );
 });
 
+test("buildContentOpfWithCover", function (assert) {
+    let itemSupplier = makeEpubItemSupplier();
+    itemSupplier.coverImageFileName = function () { return "cover.png" };
+    let epubPacker = makePacker();
+    epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
+    let contentOpf = epubPacker.buildContentOpf(itemSupplier);
+
+    assert.equal(contentOpf,
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
+            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
+            "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
+            "<dc:language>en</dc:language>" +
+            "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
+            "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
+            "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
+            "<meta name=\"cover\" content=\"cover.png\"/>" +
+            "</metadata>" +
+            "<manifest>" +
+              "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"index_split_0001.html\" id=\"html0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
+            "</manifest>" +
+            "<spine toc=\"ncx\">" +
+              "<itemref idref=\"html0000\"/>" +
+              "<itemref idref=\"html0001\"/>" +
+            "</spine>" +
+            "<guide>" +
+                "<reference href=\"cover.xhtml\" title=\"Cover\" type=\"cover\"/>" +
+            "</guide>" +
+        "</package>"
+    );
+});
+
 test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     assert.equal(buildTableOfContents,

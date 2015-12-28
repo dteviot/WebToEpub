@@ -63,15 +63,15 @@ EpubPacker.prototype = {
         let opf = document.implementation.createDocument(ns, "package", null);
         opf.documentElement.setAttribute("version", "2.0");
         opf.documentElement.setAttribute("unique-identifier", "BookId");
-        that.buildMetaData(opf);
+        that.buildMetaData(opf, epubItemSupplier);
         that.buildManifest(opf, epubItemSupplier);
         that.buildSpine(opf, epubItemSupplier);
-        that.buildGuide(opf);
+        that.buildGuide(opf, epubItemSupplier);
 
         return util.xmlToString(opf);
     },
 
-    buildMetaData: function (opf) {
+    buildMetaData: function (opf, epubItemSupplier) {
         let that = this;
         var metadata = that.createAndAppendChild(opf.documentElement, "metadata");
         metadata.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
@@ -88,6 +88,12 @@ EpubPacker.prototype = {
         let identifier = that.createAndAppendChild(metadata, "dc:identifier", that.metaInfo.uuid);
         identifier.setAttribute("id", "BookId");
         identifier.setAttribute("opf:scheme", "URI");
+
+        if (epubItemSupplier.hasCoverImageFile()) {
+            let cover = that.createAndAppendChild(metadata, "meta");
+            cover.setAttribute("name", "cover");
+            cover.setAttribute("content", epubItemSupplier.coverImageFileName());
+        };
     },
 
     buildManifest: function (opf, epubItemSupplier) {
@@ -119,9 +125,15 @@ EpubPacker.prototype = {
         };
     },
 
-    buildGuide: function (opf) {
+    buildGuide: function (opf, epubItemSupplier) {
         let that = this;
-        // ToDo, typically, link to cover goes here.
+        if (epubItemSupplier.hasCoverImageFile()) {
+            let guide = that.createAndAppendChild(opf.documentElement, "guide");
+            let reference = that.createAndAppendChild(guide, "reference");
+            reference.setAttribute("href", EpubItem.coverImageXhtmlHref());
+            reference.setAttribute("title", "Cover");
+            reference.setAttribute("type", "cover");
+        };
     },
 
     buildTableOfContents: function (epubItemSupplier) {
