@@ -31,9 +31,11 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
         "<x>" +
            "<ul class=\"gallery mw-gallery-traditional\">" +
                "<li class=\"gallerybox\">" +
-                   "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
-                        "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
-                   "</a>" +
+                   "<div class=\"thumb\">" +
+                       "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                            "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                       "</a>" +
+                   "</div>" +
                "</li>" +
                "<li class=\"comment\"></li>" +
            "</ul>" +

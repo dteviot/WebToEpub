@@ -95,23 +95,21 @@ function ImageElementConverter(element) {
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
-    // replace <a> tag with nested <img> tag, with new <img> tag
+    // replace tag with nested <img> tag, with new <img> tag
     let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
     let imageInfo = images.get(imagePageUrl);
     if (imageInfo != null) {
         let newImage = that.element.ownerDocument.createElement("img");
-        let oldElement = that.element.getElementsByTagName("a")[0];
-        oldElement.parentElement.replaceChild(newImage, oldElement);
+        that.element.parentElement.replaceChild(newImage, that.element);
         newImage.setAttribute("src", imageInfo.getZipHref());
     }
 }
 
 BakaTsukiImageCollector.makeImageConverter = function (element) {
     let that = this;
-    if ((element.tagName === "LI") && (element.className === "gallerybox")) {
-        return new ImageElementConverter(element);
-    } else if ((element.tagName === "DIV") &&
-        ((element.className === "thumb tright") || (element.className === "floatright"))) {
+    if ((element.tagName === "DIV") &&
+        ((element.className === "thumb tright") || (element.className === "floatright") ||
+        (element.className === "thumb"))) {
         return new ImageElementConverter(element);
     } else {
         return null;
