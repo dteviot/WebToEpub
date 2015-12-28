@@ -95,13 +95,13 @@ function ImageElementConverter(element) {
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
-    // replace nested tag with <img> tag holding web page with list of images
+    // replace <a> tag with nested <img> tag, with new <img> tag
     let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
     let imageInfo = images.get(imagePageUrl);
     if (imageInfo != null) {
         let newImage = that.element.ownerDocument.createElement("img");
-        let oldImage = that.element.getElementsByTagName("img")[0];
-        oldImage.parentElement.replaceChild(newImage, oldImage);
+        let oldElement = that.element.getElementsByTagName("a")[0];
+        oldElement.parentElement.replaceChild(newImage, oldElement);
         newImage.setAttribute("src", imageInfo.getZipHref());
     }
 }

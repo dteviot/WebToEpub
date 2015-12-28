@@ -164,8 +164,8 @@ QUnit.test("processImages", function (assert) {
                "<li class=\"comment\"></li>" +
            "</ul>" +
            "<div class=\"thumb tright\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
-                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png\" class=\"image\">" +
+                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000b.png\" >" +
                 "</a>" +
            "</div>" +
            "<div class=\"thumbinner\">T1</div>" +
@@ -178,14 +178,25 @@ QUnit.test("processImages", function (assert) {
         "text/html"
     );
 
+    let imageCollector = new BakaTsukiImageCollector();
+    let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
     let parser = new BakaTsukiParser();
-    parser.processImages(dom.documentElement);
+    parser.processImages(dom.documentElement, imagesMap);
     assert.equal(dom.body.innerHTML,
         "<x>" +
            "<ul class=\"gallery mw-gallery-traditional\">" +
+               "<li class=\"gallerybox\">" +
+                    "<img src=\"images/image_0000.jpg\">"+
+               "</li>"+
                "<li class=\"comment\"></li>" +
            "</ul>" +
+           "<div class=\"thumb tright\">" +
+                "<img src=\"images/image_0001.png\">"+
+           "</div>" +
            "<div class=\"thumbinner\">T1</div>" +
+           "<div class=\"floatright\">" +
+                "<img src=\"images/image_0000.jpg\">"+
+           "</div>" +
         "</x>");
 });
 
