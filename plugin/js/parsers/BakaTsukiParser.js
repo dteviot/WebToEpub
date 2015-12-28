@@ -6,6 +6,7 @@
 function BakaTsukiParser() {
     this.firstPageDom = null;
     this.images = new Map();
+    this.coverImage = null;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -61,7 +62,16 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.processImages(content, that.images);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images);
+    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.getCoverImageZipHref());
+}
+
+// if know the cover image, make it available to the EpubItemSupplier
+BakaTsukiParser.prototype.getCoverImageZipHref = function () {
+    return (this.coverImage == null) ? null : this.coverImage.getZipHref();
+}
+
+BakaTsukiParser.prototype.setCoverImage = function (imagePageUrl) {
+    this.coverImage = this.images.get(imagePageUrl);
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -81,7 +91,7 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
 // There's a table at end of content, with links to other stories on Baka Tsuki.
 // It's not wanted in the EPUB
 BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
-    // sometimes the wanted table has other tables nested in it.
+    // sometimes the target table has other tables nested in it.
     let that = this;
     let tables = that.getElements(element, "table");
     if (0 < tables.length) {

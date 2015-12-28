@@ -5,11 +5,12 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems, images) {
+function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageFileName) {
     this.parser = parser;
     this.epubItems = [];
     images.forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
+    this.coverImageFileName = function() { return coverImageFileName };
 }
 
 // Make BakaTsukiEpubItemSupplier inherit from EpubItemSupplier

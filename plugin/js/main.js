@@ -26,10 +26,14 @@ var main = (function () {
     // extract urls from DOM and populate control
     function processInitialHtml(url, dom) {
         if (setParser(url)) {
-            let metaInfo = parser.getEpubMetaInfo(dom);
-            populateMetaInfo(metaInfo);
-            parser.populateUI();
-            parser.onLoadFirstPage(url, dom);
+            try {
+                let metaInfo = parser.getEpubMetaInfo(dom);
+                populateMetaInfo(metaInfo);
+                parser.populateUI();
+                parser.onLoadFirstPage(url, dom);
+            } catch (error) {
+                alert("Error parsing HTML: " + error.stack);
+            }
         }
     }
 
