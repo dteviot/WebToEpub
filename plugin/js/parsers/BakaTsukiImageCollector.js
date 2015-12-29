@@ -135,7 +135,7 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
     return images;
 }
 
-BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
+BakaTsukiImageCollector.prototype.populateImageTable = function (images, bakaTsukiParser) {
     let that = this;
     let imagesTable = document.getElementById("imagesTable");
     while (imagesTable.children.length > 1) {
@@ -143,6 +143,15 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images) {
     }
     images.forEach(function (imageInfo) {
         let row = document.createElement("tr");
+        
+        // add button
+        let button = document.createElement("button");
+        let key = imageInfo.imagePageUrl;
+        button.textContent = "Set cover";
+        button.onclick = function() { bakaTsukiParser.setCoverImage(key); };
+        that.appendColumnToRow(row, button);
+
+        // add image
         let img = document.createElement("img");
         img.setAttribute("style", "max-height: 120px; width: auto; ");
         img.src = imageInfo.sourceImageUrl;

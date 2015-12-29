@@ -45,7 +45,7 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // as a separate step later
     let collector = new BakaTsukiImageCollector();
     that.images = collector.findImagesUsedInDocument(that.findContent(firstPageDom));
-    collector.populateImageTable(that.images);
+    collector.populateImageTable(that.images, that);
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
