@@ -103,9 +103,8 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     that.populateChapterUrls(chapters);
     if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
         chapters[0].rawDom = firstPageDom;
-
-        // ToDo: this call is broken until updateLoadState is moved into this class from main.js.
-        updateLoadState(chapters[0]);
+        that.updateLoadState(chapters[0]);
+        this.getProgressBar().value = 0;
     }
     that.chapters = chapters;
 }
