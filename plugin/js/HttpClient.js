@@ -43,41 +43,39 @@ HttpClient.prototype = {
 
     validateStatus: function(url, xhr, event) {
         let that = this;
-        if ((xhr.status === 200) || (xhr.status === 0)) {
-            return true;
-        } else {
-            that.onError(url, xhr.statusText, event);
-            return false;
+        if (xhr.readyState === 4) {
+            if ((xhr.status === 200) || (xhr.status === 0)) {
+                return true;
+            } else {
+                that.onError(url, xhr.statusText, event);
+            };
         };
+        return false;
     },
 
     onLoadHtml: function (url, xhr, event, onHtlmReceived) {
         let that = this;
-        if (xhr.readyState === 4) {
-            if (that.validateStatus(url, xhr, event)) {
-                that.setBaseTag(url, xhr.responseXML);
-                onHtlmReceived(url, xhr.responseXML);
-            };
+        if (that.validateStatus(url, xhr, event)) {
+            that.setBaseTag(url, xhr.responseXML);
+            onHtlmReceived(url, xhr.responseXML);
         };
     },
 
-    fetchBinary: function (url, onLoadBinary) {
+    fetchBinary: function (url, onBinaryReceived) {
         console.log("Fetching Binary from URL: " + url);
         let that = this;
         let xhr = new XMLHttpRequest();
-        xhr.onload = function (event) { that.onBinaryReceived(url, xhr, event, onLoadBinary); };
+        xhr.onload = function (event) { that.onLoadBinary(url, xhr, event, onBinaryReceived); };
         xhr.onerror = function (event) { that.onError(url, xhr.statusText, event); };
         xhr.open("GET", url);
         xhr.responseType = "arraybuffer";
         that.sendRequest(xhr);
     },
 
-    onBinaryReceived: function (url, xhr, event, onLoadBinary) {
+    onLoadBinary: function (url, xhr, event, onBinaryReceived) {
         let that = this;
-        if (xhr.readyState === 4) {
-            if (that.validateStatus(url, xhr, event)) {
-                onLoadBinary(url, xhr.response);
-            };
+        if (that.validateStatus(url, xhr, event)) {
+            onBinaryReceived(url, xhr.response);
         };
     },
 
@@ -86,19 +84,4 @@ HttpClient.prototype = {
     sendRequest: function(xhr) {
         xhr.send();
     },
-
-    fetchChapters: function (chapters, onFinished) {
-        let that = this;
-        if (0 < chapters.length) {
-            that.fetchHtml(chapters[chapters.length - 1].sourceUrl, function(url, dom) { that.onChapterFetched(chapters, dom, onFinished) });
-        } else {
-            onFinished();
-        }
-    },
-
-    onChapterFetched: function(chapters, dom, onFinished) {
-        let that = this;
-        chapters.pop().rawDom = dom;
-        that.fetchChapters(chapters, onFinished);
-    }
 }
