@@ -83,16 +83,12 @@ var main = (function () {
     }
 
     function setParser(url) {
-        let parsers = ParserFactory(url);
-        if (parsers.length === 0) {
+        parser = parserFactory.fetch(url);
+        if (parser === undefined) {
             alert("No parser found for this URL.");
-        } else {
-            if (parsers.length > 1) {
-                alert("Multiple parsers found for this URL.");
-            }
-            parser = parsers[0];
+            return false;
         }
-        return parser !== null;
+        return true;
     }
 
     // called when the "Diagnostics" check box is ticked or unticked

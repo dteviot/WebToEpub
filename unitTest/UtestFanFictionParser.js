@@ -41,8 +41,7 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.fileName, "WebtoEpub.epub");
 });
 
-QUnit.test("canParse", function (assert) {
-    let parser = new FanFictionParser();
-    ok(parser.canParse("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
-    notOk(parser.canParse("http://archiveofourown.org/works/123456/chapters/9876543"));
+QUnit.test("parserFactory", function (assert) {
+    let parser = parserFactory.fetch("https://www.fanfiction.net/s/1234567/1/WebToEpub");
+    assert.ok(parser instanceof FanFictionParser);
 });

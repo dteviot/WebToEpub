@@ -36,13 +36,6 @@ Parser.prototype.getElement = function(dom, tagName, filter) {
     return util.getElement(dom, tagName, filter);
 }
 
-// extract hostname from a URL
-Parser.prototype.extractHostName = function (url) {
-    let parser = document.createElement("a");
-    parser.href = url;
-    return parser.hostname;
-}
-
 Parser.prototype.getBaseUrl = function (dom) {
     return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
 }

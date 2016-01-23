@@ -57,10 +57,9 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.fileName, "Web-toEPUB-Extension-forChrome-.epub");
 });
 
-QUnit.test("canParse", function (assert) {
-    let parser = new ArchiveOfOurOwnParser();
-    ok(parser.canParse("http://archiveofourown.org/works/123456/chapters/9876543"));
-    notOk(parser.canParse("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
+QUnit.test("parserFactory", function (assert) {
+    let parser = parserFactory.fetch("http://archiveofourown.org/works/123456/chapters/9876543");
+    assert.ok(parser instanceof ArchiveOfOurOwnParser );
 });
 
 QUnit.test("makeChapterDocCopiesNotMovesNodes", function (assert) {

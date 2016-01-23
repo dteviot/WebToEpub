@@ -10,9 +10,7 @@ function FanFictionParser() {
 FanFictionParser.prototype = Object.create(Parser.prototype);
 FanFictionParser.prototype.constructor = FanFictionParser;
 
-FanFictionParser.prototype.canParse = function (url) {
-    return (this.extractHostName(url) === "www.fanfiction.net");
-}
+parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser() });
 
 FanFictionParser.prototype.getChapterUrls = function (dom) {
     let that = this;

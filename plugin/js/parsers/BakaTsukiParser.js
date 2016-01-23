@@ -13,8 +13,10 @@ function BakaTsukiParser() {
 BakaTsukiParser.prototype = Object.create(Parser.prototype);
 BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 
+parserFactory.register("www.baka-tsuki.org", function() { return new BakaTsukiParser() });
+
 BakaTsukiParser.prototype.canParse = function (url) {
-    return (this.extractHostName(url) === "www.baka-tsuki.org");
+    return (this.extractHostName(url) === "");
 }
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {

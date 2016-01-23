@@ -10,9 +10,7 @@ function ArchiveOfOurOwnParser() {
 ArchiveOfOurOwnParser.prototype = Object.create(Parser.prototype);
 ArchiveOfOurOwnParser.prototype.constructor = ArchiveOfOurOwnParser;
 
-ArchiveOfOurOwnParser.prototype.canParse = function (url) {
-    return (this.extractHostName(url) === "archiveofourown.org");
-}
+parserFactory.register("archiveofourown.org", function() { return new ArchiveOfOurOwnParser() });
 
 ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
     let that = this;

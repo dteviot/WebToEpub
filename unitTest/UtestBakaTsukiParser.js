@@ -29,10 +29,9 @@ function getTestDom() {
     );
 }
 
-QUnit.test("canParse", function (assert) {
-    let parser = new BakaTsukiParser();
-    ok(parser.canParse("http://www.baka-tsuki.org/project/index.php?title=Web_to_Epub"));
-    notOk(parser.canParse("http://archiveofourown.org/works/123456/chapters/9876543"));
+QUnit.test("parserFactory", function (assert) {
+    let parser = parserFactory.fetch("http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg");
+    assert.ok(parser instanceof BakaTsukiParser);
 });
 
 QUnit.test("getEpubMetaInfo", function (assert) {
