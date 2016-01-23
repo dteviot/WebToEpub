@@ -12,6 +12,9 @@ FanFictionParser.prototype.constructor = FanFictionParser;
 
 parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser() });
 
+// fictionpress.com has same format as fanfiction.net
+parserFactory.register("www.fictionpress.com", function() { return new FanFictionParser() });
+
 FanFictionParser.prototype.getChapterUrls = function (dom) {
     let that = this;
 
