@@ -15,12 +15,12 @@ parserFactory.register("archiveofourown.org", function() { return new ArchiveOfO
 ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
     let that = this;
 
+    let baseUrl = that.getBaseUrl(dom);
     let chaptersElement = that.getElement(dom, "li", e => (e.className === "chapter") );
-    if (chaptersElement.length === null) {
-        return new Array();
+    if (chaptersElement === null) {
+        return that.singleChapterStory(baseUrl, dom);
     }
 
-    let baseUrl = that.getBaseUrl(dom);
     return that.getElements(chaptersElement, "option")
         .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
 };
@@ -43,7 +43,7 @@ ArchiveOfOurOwnParser.prototype.extractTitle = function(dom) {
 };
 
 ArchiveOfOurOwnParser.prototype.extractAuthor = function(dom) {
-    return this.getElement(dom, "a", e => (e.className === "login author") ).innerText.trim();
+    return this.getElement(dom, "h3", e => (e.className === "byline heading") ).innerText.trim();
 };
 
 ArchiveOfOurOwnParser.prototype.extractLanguage = function(dom) {

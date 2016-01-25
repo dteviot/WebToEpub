@@ -28,6 +28,13 @@ Parser.prototype.makeChapterDoc = function(dom) {
     return doc;
 }
 
+Parser.prototype.singleChapterStory = function (baseUrl, dom) {
+    return [{
+        sourceUrl: baseUrl,
+        title: this.extractTitle(dom)
+    }];
+}
+
 Parser.prototype.getElements = function(dom, tagName, filter) {
     return util.getElements(dom, tagName, filter);
 }

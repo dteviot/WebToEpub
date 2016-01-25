@@ -20,7 +20,7 @@ FanFictionParser.prototype.getChapterUrls = function (dom) {
 
     let baseUrl = that.getBaseUrl(dom);
     let chaptersElement = that.getElement(dom, "select", e => (e.id === "chap_select") );
-    if (chaptersElement == null) {
+    if (chaptersElement === null) {
         // no list of chapters found, assume it's a single chapter story
         return that.singleChapterStory(baseUrl, dom);
     }
@@ -28,13 +28,6 @@ FanFictionParser.prototype.getChapterUrls = function (dom) {
     return that.getElements(chaptersElement, "option")
         .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
 };
-
-FanFictionParser.prototype.singleChapterStory = function (baseUrl, dom) {
-    return [{
-        sourceUrl: baseUrl,
-        title: this.extractTitle(dom)
-    }];
-}
 
 FanFictionParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {
     // constructing the URL is a bit complicated as the value is not final part of URL.
