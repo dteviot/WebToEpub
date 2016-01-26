@@ -35,7 +35,9 @@ ArchiveOfOurOwnParser.prototype.optionToChapterInfo = function (baseUrl, optionE
 
 // find the node(s) holding the story content
 ArchiveOfOurOwnParser.prototype.findContent = function (dom) {
-    return this.getElement(dom, "div", e => (e.className === "userstuff module") );
+    return this.getElement(dom, "div", 
+		e => (e.className === "userstuff module") || e.className.startsWith("storytext")
+	);
 };
 
 ArchiveOfOurOwnParser.prototype.extractTitle = function(dom) {
