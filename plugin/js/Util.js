@@ -114,6 +114,16 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
+    // This is for Unit Testing only
+    function syncLoadSampleDoc(fileName, url) {
+        let that = this;
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", fileName, false);
+        xhr.send(null);
+        let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
+        new HttpClient().setBaseTag(url, dom);
+        return dom;
+    }
 
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
@@ -127,6 +137,7 @@ var util = (function () {
         getElements: getElements,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
+        syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad
     };

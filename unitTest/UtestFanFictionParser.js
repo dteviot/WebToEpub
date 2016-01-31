@@ -3,38 +3,26 @@
 
 module("FanFictionParser");
 
-/// Load the sample file
-/// As file operation is async, load the sample file into dom, and call doneCallback when file loaded
-function syncLoadFanFictionSampleDoc(fileName) {
-    let that = this;
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", fileName, false);
-    xhr.send(null);
-    let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
-    new HttpClient().setBaseTag("https://www.fanfiction.net/s/1234567/1/WebToEpub", dom);
-    return dom;
+function loadFanFictionMultiPageDoc() {
+    return util.syncLoadSampleDoc("../testdata/FanFiction.html", "https://www.fanfiction.net/s/1234567/1/WebToEpub")
 }
 
-function loadMultiPageDoc() {
-    return syncLoadFanFictionSampleDoc("../testdata/FanFiction.html")
-}
-
-function loadSinglePageDoc() {
-    return syncLoadFanFictionSampleDoc("../testdata/FanFictionSinglePage.html")
+function loadFanFictionSinglePageDoc() {
+    return util.syncLoadSampleDoc("../testdata/FanFictionSinglePage.html", "https://www.fanfiction.net/s/1234567/1/WebToEpub")
 }
 
 QUnit.test("getChapterUrls", function (assert) {
     let parser = new FanFictionParser();
-    let chapterUrls = parser.getChapterUrls(loadMultiPageDoc());
+    let chapterUrls = parser.getChapterUrls(loadFanFictionMultiPageDoc());
     assert.equal(chapterUrls.length, 5);
     assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
     assert.equal(chapterUrls[1].sourceUrl, "https://www.fanfiction.net/s/1234567/2/WebToEpub");
     assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
 });
 
-QUnit.test("findContent", function (assert) {
+QUnit.test("findMultiPageContent", function (assert) {
     let parser = new FanFictionParser();
-    let content = parser.findContent(loadMultiPageDoc());
+    let content = parser.findContent(loadFanFictionMultiPageDoc());
     equal(content.childNodes.length, 3);
     let regex = /^If you're like me, you will have*/;
     assert.ok(regex.test(content.childNodes[1].innerText));
@@ -42,7 +30,7 @@ QUnit.test("findContent", function (assert) {
 
 QUnit.test("getEpubMetaInfo", function (assert) {
     let parser = new FanFictionParser();
-    let metaInfo = parser.getEpubMetaInfo(loadMultiPageDoc());
+    let metaInfo = parser.getEpubMetaInfo(loadFanFictionMultiPageDoc());
     equal(metaInfo.title, "Web to Epub");
     equal(metaInfo.author, "David & Teviotdale");
     equal(metaInfo.language, "en");
@@ -56,15 +44,15 @@ QUnit.test("parserFactory", function (assert) {
 
 QUnit.test("getSingleChapterUrls", function (assert) {
     let parser = new FanFictionParser();
-    let chapterUrls = parser.getChapterUrls(loadSinglePageDoc());
+    let chapterUrls = parser.getChapterUrls(loadFanFictionSinglePageDoc());
     assert.equal(chapterUrls.length, 1);
     assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
     assert.equal(chapterUrls[0].title, "Web to Epub");
 });
 
-QUnit.test("findContent", function (assert) {
+QUnit.test("findSinglePageContent", function (assert) {
     let parser = new FanFictionParser();
-    let content = parser.findContent(loadSinglePageDoc());
+    let content = parser.findContent(loadFanFictionSinglePageDoc());
     equal(content.childNodes.length, 3);
     let regex = /^If you're like me, you will have*/;
     assert.ok(regex.test(content.childNodes[1].innerText));
