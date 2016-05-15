@@ -155,13 +155,13 @@ QUnit.test("processImages", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
            "<ul class=\"gallery mw-gallery-traditional\">"+
-               "<li class=\"gallerybox\">" +
+               "<li class=\"gallerybox\" style=\"width: 155px\"><div style=\"width: 155px\">" +
                    "<div class=\"thumb\">" +
                        "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
                             "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                        "</a>" +
                    "</div>" +
-               "</li>"+
+               "</div></li>"+
                "<li class=\"comment\"></li>" +
            "</ul>" +
            "<div class=\"thumb tright\">" +
@@ -186,9 +186,9 @@ QUnit.test("processImages", function (assert) {
     assert.equal(dom.body.innerHTML,
         "<x>" +
            "<ul class=\"gallery mw-gallery-traditional\">" +
-               "<li class=\"gallerybox\">" +
+               "<li class=\"gallerybox\"><div>" +
                     "<img src=\"images/image_0000.jpg\">"+
-               "</li>"+
+               "</div></li>"+
                "<li class=\"comment\"></li>" +
            "</ul>" +
            "<img src=\"images/image_0001.png\">"+

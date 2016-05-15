@@ -111,6 +111,7 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
 
 BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
+    that.stripGalleryBoxWidthStyle(element);
     let walker = document.createTreeWalker(element);
     let converters = [];
     do {
@@ -123,6 +124,25 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
     } while (walker.nextNode());
 
     converters.forEach(c => c.replaceWithImagePageUrl(images));
+}
+
+// remove the "Width" style from the GalleryBox items, so images can take full screen.
+BakaTsukiParser.prototype.stripGalleryBoxWidthStyle = function (element) {
+    let that = this;
+    for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
+        that.stripWidthStyle(listItem);
+        for(let d of util.getElements(listItem, "div")) {
+            that.stripWidthStyle(d);
+        }
+    }
+}
+
+BakaTsukiParser.prototype.stripWidthStyle = function (element) {
+    let that = this;
+    let style = element.getAttribute("style");
+    if (style !== null && style.startsWith("width: ")) {
+        element.removeAttribute("style");
+    }
 }
 
 BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUrl) {
