@@ -181,19 +181,46 @@ QUnit.test("processImages", function (assert) {
 
     let imageCollector = new BakaTsukiImageCollector();
     let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
+
+    // fake getting image size data
+    let imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
+    imageInfo.height = 100;
+    imageInfo.width = 200;
+    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png");
+    imageInfo.height = 300;
+    imageInfo.width = 400;
+
     let parser = new BakaTsukiParser();
     parser.processImages(dom.documentElement, imagesMap);
-    assert.equal(dom.body.innerHTML,
-        "<x>" +
+
+    // convert to XHTML for comparison
+    let doc2 = util.createEmptyXhtmlDoc();
+    let body = doc2.getElementsByTagName("body")[0];
+    body.appendChild(dom.getElementsByTagName("x")[0]);
+
+    assert.equal(doc2.getElementsByTagName("x")[0].outerHTML,
+        "<x xmlns=\"http://www.w3.org/1999/xhtml\">" +
            "<ul class=\"gallery mw-gallery-traditional\">" +
                "<li class=\"gallerybox\"><div>" +
-                    "<img src=\"images/image_0000.jpg\">"+
+                    "<div class=\"svg_outer svg_inner\">"+
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
+                            "<image xlink:href=\"images/image_0000.jpg\" height=\"100\" width=\"200\"/>"+
+                        "</svg>"+
+                    "</div>"+
                "</div></li>"+
                "<li class=\"comment\"></li>" +
            "</ul>" +
-           "<img src=\"images/image_0001.png\">"+
+           "<div class=\"svg_outer svg_inner\">"+
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 300\">" +
+                    "<image xlink:href=\"images/image_0001.png\" height=\"300\" width=\"400\"/>"+
+                "</svg>"+
+            "</div>"+
            "<div class=\"thumbinner\">T1</div>" +
-           "<img src=\"images/image_0000.jpg\">"+
+           "<div class=\"svg_outer svg_inner\">"+
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
+                    "<image xlink:href=\"images/image_0000.jpg\" height=\"100\" width=\"200\"/>"+
+                "</svg>"+
+            "</div>"+
         "</x>");
 });
 

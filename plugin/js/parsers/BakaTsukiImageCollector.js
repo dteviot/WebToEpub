@@ -7,12 +7,15 @@
 /*
     Details of an image in BakaTsuki web page
     imagePageUrl :  URL of web page that holds list of versions of the image
-    sourceImageUrl : URL of actual jpeg/png/bmp file that will be used for the image
+    sourceImageUrl : URL of thumbnail image jpeg/png/bmp file in source web page
     zipHref:  relative path + filename used to store file in the EPUB (zip) file.
     id: the id value in the content.opf file
     mediaType: jpeg, png, etc.
     arrayBuffer: the image bytes
     isCover :  use this as the cover image?
+    height: "full size" image height 
+    width: "full size" image width
+    imagefileUrl: URL of "full size" image file at Baka-Tsuki
 */
 function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     // ToDo:  This will need to derive from EpubItem
@@ -27,6 +30,9 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.isCover = false;
     this.isInSpine = false;
     this.arraybuffer = null;
+    this.height = null;
+    this.width = null;
+    this.imagefileUrl = null
 }
 
 BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
@@ -76,6 +82,29 @@ BakaTsukiImageInfo.prototype.fileContentForEpub = function() {
     return this.arraybuffer;
 }
 
+BakaTsukiImageInfo.prototype.createImageElement = function() {
+    let that = this;
+    let doc = util.createEmptyXhtmlDoc();
+    let body = doc.getElementsByTagName("body")[0];
+    let div = doc.createElement("div");
+    div.className = "svg_outer svg_inner";
+    body.appendChild(div);
+    var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    div.appendChild(svg);
+    svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    svg.setAttribute("height", "100%");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("version", "1.1");
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.setAttribute("viewBox", "0 0 " + that.width + " " + that.height);
+    let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
+    svg.appendChild(newImage);
+    newImage.setAttribute("xlink:href", that.getZipHref());
+    newImage.setAttribute("height", that.height);
+    newImage.setAttribute("width", that.width);
+    return div;
+}
+
 function BakaTsukiImageCollector() {
 }
 
@@ -99,9 +128,8 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
     let imageInfo = images.get(imagePageUrl);
     if (imageInfo != null) {
-        let newImage = that.element.ownerDocument.createElement("img");
+        let newImage = imageInfo.createImageElement();
         that.element.parentElement.replaceChild(newImage, that.element);
-        newImage.setAttribute("src", imageInfo.getZipHref());
     }
 }
 
@@ -174,8 +202,8 @@ BakaTsukiImageCollector.prototype.onLoadImagePage = function(imageList, client, 
     if (0 < imageList.length) {
         let imageInfo = imageList[imageList.length - 1];
         client.fetchHtml(imageInfo.imagePageUrl, function (url, rawDom) {
-            let imagefileUrl = that.getImageFileUrlFromImagePage(rawDom);
-            that.onLoadImage(imageList, client,  progressIndicator, imagefileUrl);
+            imageInfo = that.getImageFileDataFromImagePage(rawDom, imageInfo);
+            that.onLoadImage(imageList, client,  progressIndicator, imageInfo.imagefileUrl);
         });
     } else {
         progressIndicator(true);
@@ -189,9 +217,13 @@ BakaTsukiImageCollector.prototype.onLoadImage = function(imageList, client,  pro
     );
 }
 
-BakaTsukiImageCollector.prototype.getImageFileUrlFromImagePage = function(dom) {
+BakaTsukiImageCollector.prototype.getImageFileDataFromImagePage = function(dom, imageInfo) {
     let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-    return util.getElement(dom, "img").src;
+    let img = util.getElement(dom, "img");
+    imageInfo.imagefileUrl = img.src;
+    imageInfo.height = img.height;
+    imageInfo.width = img.width;
+    return imageInfo;
 }
 
 BakaTsukiImageCollector.prototype.onImageData = function (imageList, client,  progressIndicator, arraybuffer) {

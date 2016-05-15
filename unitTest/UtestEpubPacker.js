@@ -185,7 +185,11 @@ test("makeCoverImageXhtmlFile", function (assert) {
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
                 "<title></title>" +
-                "<style type=\"text/css\">img { max-width: 100%; padding: 0; margin: 0; }</style>" +
+                "<style type=\"text/css\">img { max-width: 100%; padding: 0; margin: 0; } " +
+                "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
+                                "padding-right: 0; padding-top: 0; text-align: left } " +
+                "div.svg_inner { display: block; text-align: center } " +
+                "</style>" +
             "</head>" +
             "<body>" +
                 "<div style=\"text-align: center; padding: 0pt; margin: 0pt;\">" +

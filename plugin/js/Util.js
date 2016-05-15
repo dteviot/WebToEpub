@@ -19,7 +19,12 @@ var util = (function () {
         let style = doc.createElement("style");
         head.appendChild(style);
         style.setAttribute("type", "text/css");
-        style.appendChild(doc.createTextNode("img { max-width: 100%; padding: 0; margin: 0; }"));
+        style.appendChild(doc.createTextNode(
+            "img { max-width: 100%; padding: 0; margin: 0; } " +
+            "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
+                            "padding-right: 0; padding-top: 0; text-align: left } " +
+            "div.svg_inner { display: block; text-align: center } "
+        ));
         let body = doc.createElement("body");
         htmlNode.appendChild(body);
         return doc;
