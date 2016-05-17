@@ -151,15 +151,13 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images, bakaTsu
     while (imagesTable.children.length > 1) {
         imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
+    let checkBoxIndex = 0;
     images.forEach(function (imageInfo) {
         let row = document.createElement("tr");
         
-        // add button
-        let button = document.createElement("button");
-        let key = imageInfo.imagePageUrl;
-        button.textContent = "Set cover";
-        button.onclick = function() { bakaTsukiParser.setCoverImage(key); };
-        that.appendColumnToRow(row, button);
+        // add checkbox
+        let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex, bakaTsukiParser);
+        that.appendColumnToRow(row, checkbox);
 
         // add image
         let img = document.createElement("img");
@@ -167,9 +165,45 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images, bakaTsu
         img.src = imageInfo.sourceImageUrl;
         that.appendColumnToRow(row, img);
         imagesTable.appendChild(row);
+
+        ++checkBoxIndex;
     });
 
 }
+
+BakaTsukiImageCollector.prototype.createCheckBoxAndLabel = function (imageInfo, checkBoxIndex, bakaTsukiParser) {
+    let that = this;
+    let key = imageInfo.imagePageUrl;
+    let label = document.createElement("label");
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = "setCoverCheckBox" + checkBoxIndex;
+    checkbox.onclick = function() { that.onImageClicked(checkbox.id, key, bakaTsukiParser); };
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode("Set Cover"));
+
+    // default to first image as cover image
+    if (checkBoxIndex === 0) {
+        bakaTsukiParser.setCoverImage(key);
+        checkbox.checked = true;
+    }
+    return label;
+}
+
+BakaTsukiImageCollector.prototype.onImageClicked = function(checkboxId, key, bakaTsukiParser) {
+    let checkbox = document.getElementById(checkboxId);
+    if (checkbox.checked === true) {
+        bakaTsukiParser.setCoverImage(key);
+
+        // uncheck any other checked boxes
+        let imagesTable = document.getElementById("imagesTable");
+        for(let box of util.getElements(imagesTable, "input")) {
+            if (box.id !== checkboxId) {
+                box.checked = false;
+            }
+        }
+    }
+} 
 
 BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
     let col = document.createElement("td");
