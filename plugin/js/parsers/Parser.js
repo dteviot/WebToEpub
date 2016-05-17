@@ -139,8 +139,8 @@ Parser.prototype.onFetchChapters = function () {
 Parser.prototype.setUiToShowLoadingProgress = function(length) {
     let that = this;
     main.getPackEpubButton().disabled = true;
-    this.getProgressBar().max = length;
-    this.getProgressBar().value = 0;
+    this.getProgressBar().max = length + 1;
+    this.getProgressBar().value = 1;
 }
 
 Parser.prototype.onLoadChapter = function(chapterIndex, client) {
