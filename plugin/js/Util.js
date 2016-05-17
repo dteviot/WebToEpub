@@ -30,6 +30,29 @@ var util = (function () {
         return doc;
     }
 
+    function createSvgImageElement(href, width, height) {
+        let that = this;
+        let doc = that.createEmptyXhtmlDoc();
+        let body = doc.getElementsByTagName("body")[0];
+        let div = doc.createElement("div");
+        div.className = "svg_outer svg_inner";
+        body.appendChild(div);
+        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        div.appendChild(svg);
+        svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("version", "1.1");
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+        let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
+        svg.appendChild(newImage);
+        newImage.setAttribute("xlink:href", href);
+        newImage.setAttribute("height", height);
+        newImage.setAttribute("width", width);
+        return div;
+    }
+
     var resolveRelativeUrl = function(baseUrl, relativeUrl) {
         // Assumes parent document has a <base> element
         let base = document.getElementsByTagName('base')[0];
@@ -132,6 +155,7 @@ var util = (function () {
 
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
+        createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
         addToDocBody: addToDocBody,
         removeNode: removeNode,

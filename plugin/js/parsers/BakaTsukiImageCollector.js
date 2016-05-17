@@ -84,25 +84,7 @@ BakaTsukiImageInfo.prototype.fileContentForEpub = function() {
 
 BakaTsukiImageInfo.prototype.createImageElement = function() {
     let that = this;
-    let doc = util.createEmptyXhtmlDoc();
-    let body = doc.getElementsByTagName("body")[0];
-    let div = doc.createElement("div");
-    div.className = "svg_outer svg_inner";
-    body.appendChild(div);
-    var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-    div.appendChild(svg);
-    svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-    svg.setAttribute("height", "100%");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("version", "1.1");
-    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    svg.setAttribute("viewBox", "0 0 " + that.width + " " + that.height);
-    let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
-    svg.appendChild(newImage);
-    newImage.setAttribute("xlink:href", that.getZipHref());
-    newImage.setAttribute("height", that.height);
-    newImage.setAttribute("width", that.width);
-    return div;
+    return util.createSvgImageElement(that.getZipHref(), that.width, that.height);
 }
 
 function BakaTsukiImageCollector() {
