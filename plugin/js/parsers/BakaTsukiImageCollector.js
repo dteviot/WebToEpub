@@ -152,22 +152,27 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images, bakaTsu
         imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
     let checkBoxIndex = 0;
-    images.forEach(function (imageInfo) {
-        let row = document.createElement("tr");
+    if (0 === images.size) {
+        imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
+    }
+    else {
+        images.forEach(function (imageInfo) {
+            let row = document.createElement("tr");
         
-        // add checkbox
-        let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex, bakaTsukiParser);
-        that.appendColumnToRow(row, checkbox);
+            // add checkbox
+            let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex, bakaTsukiParser);
+            that.appendColumnToRow(row, checkbox);
 
-        // add image
-        let img = document.createElement("img");
-        img.setAttribute("style", "max-height: 120px; width: auto; ");
-        img.src = imageInfo.sourceImageUrl;
-        that.appendColumnToRow(row, img);
-        imagesTable.appendChild(row);
+            // add image
+            let img = document.createElement("img");
+            img.setAttribute("style", "max-height: 120px; width: auto; ");
+            img.src = imageInfo.sourceImageUrl;
+            that.appendColumnToRow(row, img);
+            imagesTable.appendChild(row);
 
-        ++checkBoxIndex;
-    });
+            ++checkBoxIndex;
+        });
+    }
 
 }
 
