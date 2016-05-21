@@ -385,10 +385,6 @@ BakaTsukiParser.prototype.updateLoadState = function(finished) {
     }
 }
 
-BakaTsukiParser.prototype.getProgressBar = function() {
-    return document.getElementById("fetchImagesProgress");
-}
-
 BakaTsukiParser.prototype.getFetchContentButton = function() {
     return document.getElementById("fetchImagesButton");
 }

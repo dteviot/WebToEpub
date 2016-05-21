@@ -169,7 +169,7 @@ Parser.prototype.onChaptersLoaded = function() {
 }
 
 Parser.prototype.getProgressBar = function() {
-    return document.getElementById("fetchChaptersProgress");
+    return document.getElementById("fetchProgress");
 }
 
 Parser.prototype.getFetchContentButton = function() {
