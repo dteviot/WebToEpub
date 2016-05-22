@@ -120,7 +120,6 @@ Parser.prototype.onFetchChaptersClicked = function () {
         alert("No chapters found.");
     } else {
         this.getFetchContentButton().disabled = true;
-        this.setUiToShowLoadingProgress(this.chapters.length);
         this.fetchChapters();
     }
 }
@@ -139,6 +138,7 @@ Parser.prototype.setUiToShowLoadingProgress = function(length) {
 Parser.prototype.fetchChapters = function() {
     let that = this;
     let client = new HttpClient();
+    this.setUiToShowLoadingProgress(this.chapters.length);
 
     // for testing, uncomment the following line
     // that.FakeNetworkActivity(client);
