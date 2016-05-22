@@ -177,9 +177,12 @@ test("UnwindNavPointParentElementsStack", function (assert) {
 });
 
 test("makeCoverImageXhtmlFile", function (assert) {
-    let itemSupplier = makeEpubItemSupplier();
-    itemSupplier.coverImageFileName = function () { return "cover.png" };
-    let xhtmlFile = makePacker().makeCoverImageXhtmlFile(itemSupplier);
+    let imageInfo = new BakaTsukiImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
+    imageInfo.width = 400;
+    imageInfo.height = 200;
+    imageInfo.zipHref = "cover.png"
+    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "cover.png");
+    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
         "<?xml version='1.0' encoding='utf-8'?>" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
@@ -192,8 +195,10 @@ test("makeCoverImageXhtmlFile", function (assert) {
                 "</style>" +
             "</head>" +
             "<body>" +
-                "<div style=\"text-align: center; padding: 0pt; margin: 0pt;\">" +
-                    "<img src=\"cover.png\" />" +
+               "<div class=\"svg_outer svg_inner\">" +
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
+                        "<image xlink:href=\"cover.png\" height=\"200\" width=\"400\"/>" +
+                    "</svg>" +
                 "</div>" +
             "</body>" +
         "</html>"

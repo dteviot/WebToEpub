@@ -5,9 +5,10 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageFileName) {
+function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageInfo, coverImageFileName) {
     this.parser = parser;
     this.epubItems = [];
+    this.coverImageInfo = coverImageInfo;
     images.forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
     this.coverImageFileName = function() { return coverImageFileName };
@@ -59,3 +60,12 @@ BakaTsukiEpubItemSupplier.prototype.chapterInfo = function*() {
         };
     };
 }
+
+EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
+    let that = this;
+    let doc = util.createEmptyXhtmlDoc();
+    let body = doc.getElementsByTagName("body")[0];
+    body.appendChild(that.coverImageInfo.createImageElement());
+    return util.xmlToString(doc);
+}
+

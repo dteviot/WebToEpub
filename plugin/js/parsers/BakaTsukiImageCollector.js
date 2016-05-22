@@ -178,27 +178,26 @@ BakaTsukiImageCollector.prototype.populateImageTable = function (images, bakaTsu
 
 BakaTsukiImageCollector.prototype.createCheckBoxAndLabel = function (imageInfo, checkBoxIndex, bakaTsukiParser) {
     let that = this;
-    let key = imageInfo.imagePageUrl;
     let label = document.createElement("label");
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = "setCoverCheckBox" + checkBoxIndex;
-    checkbox.onclick = function() { that.onImageClicked(checkbox.id, key, bakaTsukiParser); };
+    checkbox.onclick = function() { that.onImageClicked(checkbox.id, imageInfo, bakaTsukiParser); };
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode("Set Cover"));
 
     // default to first image as cover image
     if (checkBoxIndex === 0) {
-        bakaTsukiParser.setCoverImage(key);
+        bakaTsukiParser.setCoverImage(imageInfo);
         checkbox.checked = true;
     }
     return label;
 }
 
-BakaTsukiImageCollector.prototype.onImageClicked = function(checkboxId, key, bakaTsukiParser) {
+BakaTsukiImageCollector.prototype.onImageClicked = function(checkboxId, imageInfo, bakaTsukiParser) {
     let checkbox = document.getElementById(checkboxId);
     if (checkbox.checked === true) {
-        bakaTsukiParser.setCoverImage(key);
+        bakaTsukiParser.setCoverImage(imageInfo);
 
         // uncheck any other checked boxes
         let imagesTable = document.getElementById("imagesTable");

@@ -6,7 +6,7 @@
 function BakaTsukiParser() {
     this.firstPageDom = null;
     this.images = new Map();
-    this.coverImage = null;
+    this.coverImageInfo = null;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -64,16 +64,16 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.processImages(content, that.images);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.getCoverImageZipHref());
+    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo, that.getCoverImageZipHref());
 }
 
 // if know the cover image, make it available to the EpubItemSupplier
 BakaTsukiParser.prototype.getCoverImageZipHref = function () {
-    return (this.coverImage == null) ? null : this.coverImage.getZipHref();
+    return (this.coverImageInfo == null) ? null : this.coverImageInfo.getZipHref();
 }
 
-BakaTsukiParser.prototype.setCoverImage = function (imagePageUrl) {
-    this.coverImage = this.images.get(imagePageUrl);
+BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
+    this.coverImageInfo = imageInfo;
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {

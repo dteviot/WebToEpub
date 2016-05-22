@@ -86,3 +86,8 @@ EpubItemSupplier.prototype.hasCoverImageFile = function() {
 EpubItemSupplier.prototype.coverImageFileName = function() {
     return null;
 }
+
+// create a XHTML file that "wraps" the cover image
+EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
+    throw new Error("Not implemented");
+}
