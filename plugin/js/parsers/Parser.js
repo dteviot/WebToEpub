@@ -121,18 +121,7 @@ Parser.prototype.onFetchChapters = function () {
     } else {
         this.getFetchContentButton().disabled = true;
         this.setUiToShowLoadingProgress(this.chapters.length);
-        let client = new HttpClient();
-
-        // for testing, uncomment the following lines
-        /*
-        client.sendRequest = function (xhr) { xhr.onload.call() };
-        client.oldOnLoadHtml = client.onLoadHtml;
-        client.onLoadHtml = function (url, xhr, event, onHtlmReceived) {
-            xhr = testFunctions.fakeArchiveOfOurOwnXmlHttpResponse();
-            client.oldOnLoadHtml(url, xhr, event, onHtlmReceived);
-        };
-        */
-        this.onLoadChapter(0, client);
+        this.LoadChapters();
     }
 }
 
@@ -143,29 +132,34 @@ Parser.prototype.setUiToShowLoadingProgress = function(length) {
     this.getProgressBar().value = 1;
 }
 
-Parser.prototype.onLoadChapter = function(chapterIndex, client) {
+Parser.prototype.LoadChapters = function() {
     let that = this;
-    if (chapterIndex < that.chapters.length) {
-        let chapter = that.chapters[chapterIndex];
-        client.fetchHtml(chapter.sourceUrl, function (url, rawDom) {
+    let client = new HttpClient();
+
+    // for testing, uncomment the following line
+    that.FakeNetworkActivity(client);
+
+    var sequence = Promise.resolve();
+    that.chapters.forEach(function(chapter) {
+        sequence = sequence.then(function () {
+            return client.fetchHtml(chapter.sourceUrl);
+        }).then(function (rawDom) {
             chapter.rawDom = rawDom;
             that.updateLoadState(chapter);
-            that.onLoadChapter(chapterIndex + 1, client);
-        });
-    } else {
-        this.getFetchContentButton().disabled = false;
+        }); 
+    });
+    sequence = sequence.then(function() {
+        that.getFetchContentButton().disabled = false;
         main.getPackEpubButton().disabled = false;
-    }
+    }).catch(function (err) {
+        alert(err);
+    })
+    return sequence;
 }
 
 Parser.prototype.updateLoadState = function(chapter) {
     chapter.stateColumn.innerText = "Yes";
     this.getProgressBar().value += 1;
-}
-
-Parser.prototype.onChaptersLoaded = function() {
-    let that = this;
-    testFunctions.dumpChapters(that.chapters);
 }
 
 Parser.prototype.getProgressBar = function() {
@@ -186,3 +180,11 @@ Parser.prototype.packRawChapters = function() {
     new EpubPacker().save(zipFile.generate({ type: "blob" }), "raw.zip");
 }
 
+Parser.prototype.FakeNetworkActivity = function(client) {
+    client.sendRequest = function (xhr) { xhr.onload.call() };
+    client.oldOnLoadHtml = client.onLoadHtml;
+    client.onLoadHtml = function (url, xhr, event, onHtlmReceived, resolve, reject) {
+        xhr = testFunctions.fakeArchiveOfOurOwnXmlHttpResponse();
+        client.oldOnLoadHtml(url, xhr, event, onHtlmReceived, resolve, reject);
+    };
+}
