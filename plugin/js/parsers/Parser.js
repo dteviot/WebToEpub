@@ -111,11 +111,11 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
 
 Parser.prototype.populateUI = function () {
     let that = this;
-    that.getFetchContentButton().onclick = (e => that.onFetchChapters());
+    that.getFetchContentButton().onclick = (e => that.onFetchChaptersClicked());
     document.getElementById("packRawButton").onclick = (e => that.packRawChapters());
 }
 
-Parser.prototype.onFetchChapters = function () {
+Parser.prototype.onFetchChaptersClicked = function () {
     if (0 == this.chapters.length) {
         alert("No chapters found.");
     } else {
@@ -123,6 +123,10 @@ Parser.prototype.onFetchChapters = function () {
         this.setUiToShowLoadingProgress(this.chapters.length);
         this.LoadChapters();
     }
+}
+
+Parser.prototype.fetchContent = function () {
+    return this.LoadChapters();
 }
 
 Parser.prototype.setUiToShowLoadingProgress = function(length) {

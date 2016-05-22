@@ -55,6 +55,14 @@ var main = (function () {
         return metaInfo;
     }
 
+    function fetchContentAndPackEpub() {
+        parser.fetchContent().then(function () {
+            packEpub();
+        }).catch(function (err) {
+            alert(err);
+        });
+    }
+
     function packEpub() {
         let metaInfo = metaInfoFromContorls();
         try {
@@ -107,7 +115,7 @@ var main = (function () {
     // actions to do when window opened
     window.onload = function () {
         // add onClick event handlers
-        getPackEpubButton().onclick = packEpub;
+        getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
         populateControls();
