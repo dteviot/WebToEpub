@@ -56,6 +56,7 @@ var main = (function () {
     }
 
     function fetchContentAndPackEpub() {
+        main.getPackEpubButton().disabled = true;
         parser.fetchContent().then(function () {
             packEpub();
         }).catch(function (err) {

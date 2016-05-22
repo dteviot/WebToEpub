@@ -54,7 +54,7 @@ BakaTsukiParser.prototype.populateUI = function () {
     let that = this;
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
-    that.getFetchContentButton().onclick = (e => that.onFetchImages());
+    that.getFetchContentButton().onclick = (e => that.onFetchImagesClicked());
 };
 
 BakaTsukiParser.prototype.epubItemSupplier = function () {
@@ -356,20 +356,27 @@ BakaTsukiParser.prototype.extractFootnoteIdFromCitation = function(citationLinkE
     }
 }
 
-BakaTsukiParser.prototype.onFetchImages = function () {
+BakaTsukiParser.prototype.onFetchImagesClicked = function () {
     let that = this;
     if (0 == that.images.size) {
         alert("No images found.");
     } else {
         that.getFetchContentButton().disabled = true;
-        this.setUiToShowLoadingProgress(that.images.size);
-        // make copy of the map as a list, to make it easier for HttpClient to iterate 
-        let imageList = [];
-        that.images.forEach(i => imageList.push(i));
-        let client = new HttpClient();
-        let collector = new BakaTsukiImageCollector();
-        collector.onLoadImagePage(imageList, client, (finished => that.updateLoadState(finished)));
+        that.fetchContent();
     }
+}
+
+BakaTsukiParser.prototype.fetchContent = function () {
+    let that = this;
+    let collector = new BakaTsukiImageCollector();
+    this.setUiToShowLoadingProgress(that.images.size);
+    return collector.fetchImages(that.images, () => that.updateLoadState(false))
+        .then(function() {
+            main.getPackEpubButton().disabled = false;
+            that.getFetchContentButton().disabled = false;
+        }).catch(function (err) {
+            alert(err);
+        });
 }
 
 /*
@@ -379,10 +386,6 @@ BakaTsukiParser.prototype.onFetchImages = function () {
 BakaTsukiParser.prototype.updateLoadState = function(finished) {
     let that = this;
     that.getProgressBar().value += 1;
-    if (finished) {
-        main.getPackEpubButton().disabled = false;
-        that.getFetchContentButton().disabled = false;
-    }
 }
 
 BakaTsukiParser.prototype.getFetchContentButton = function() {

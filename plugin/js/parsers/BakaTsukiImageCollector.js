@@ -218,39 +218,31 @@ BakaTsukiImageCollector.prototype.appendColumnToRow = function (row, element) {
     return col;
 }
 
-BakaTsukiImageCollector.prototype.onLoadImagePage = function(imageList, client,  progressIndicator) {
+BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressIndicator) {
     let that = this;
-    if (0 < imageList.length) {
-        let imageInfo = imageList[imageList.length - 1];
-        client.fetchHtml(imageInfo.imagePageUrl, function (url, rawDom) {
-            imageInfo = that.getImageFileDataFromImagePage(rawDom, imageInfo);
-            that.onLoadImage(imageList, client,  progressIndicator, imageInfo.imagefileUrl);
-        });
-    } else {
-        progressIndicator(true);
-    }
+    let client = new HttpClient();
+    var sequence = Promise.resolve();
+    imageList.forEach(function(imageInfo) {
+        sequence = sequence.then(function () {
+            return client.fetchHtml(imageInfo.imagePageUrl);
+        }).then(function (rawDom) {
+            that.updateImageInfoFromImagePage(rawDom, imageInfo);
+        }).then(function () {
+            return client.fetchBinary(imageInfo.imagefileUrl);
+        }).then(function (arraybuffer) {
+            imageInfo.arraybuffer = arraybuffer;
+            progressIndicator();
+        })
+    });
+    return sequence;
 }
 
-BakaTsukiImageCollector.prototype.onLoadImage = function(imageList, client,  progressIndicator, imagefileUrl) {
-    let that = this;
-    client.fetchBinary(imagefileUrl, 
-        (u, arraybuffer) => that.onImageData(imageList, client,  progressIndicator, arraybuffer)
-    );
-}
-
-BakaTsukiImageCollector.prototype.getImageFileDataFromImagePage = function(dom, imageInfo) {
+BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
     let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
     let img = util.getElement(dom, "img");
     imageInfo.imagefileUrl = img.src;
     imageInfo.height = img.height;
     imageInfo.width = img.width;
     return imageInfo;
-}
-
-BakaTsukiImageCollector.prototype.onImageData = function (imageList, client,  progressIndicator, arraybuffer) {
-    let that = this;
-    imageList.pop().arraybuffer = arraybuffer;
-    progressIndicator(false);
-    that.onLoadImagePage(imageList, client,  progressIndicator);
 }
 

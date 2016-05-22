@@ -121,12 +121,12 @@ Parser.prototype.onFetchChaptersClicked = function () {
     } else {
         this.getFetchContentButton().disabled = true;
         this.setUiToShowLoadingProgress(this.chapters.length);
-        this.LoadChapters();
+        this.fetchChapters();
     }
 }
 
 Parser.prototype.fetchContent = function () {
-    return this.LoadChapters();
+    return this.fetchChapters();
 }
 
 Parser.prototype.setUiToShowLoadingProgress = function(length) {
@@ -136,12 +136,12 @@ Parser.prototype.setUiToShowLoadingProgress = function(length) {
     this.getProgressBar().value = 1;
 }
 
-Parser.prototype.LoadChapters = function() {
+Parser.prototype.fetchChapters = function() {
     let that = this;
     let client = new HttpClient();
 
     // for testing, uncomment the following line
-    that.FakeNetworkActivity(client);
+    // that.FakeNetworkActivity(client);
 
     var sequence = Promise.resolve();
     that.chapters.forEach(function(chapter) {
