@@ -28,7 +28,27 @@ RoyalRoadParser.prototype.elementToChapterInfo = function (chapterElement) {
 
 // find the node(s) holding the story content
 RoyalRoadParser.prototype.findContent = function (dom) {
-    return util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
+    let that = this;
+    let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
+    
+    // cleanup story content
+    that.removePostContent(content);
+    that.stripStyle(content);
+    return content;
+};
+
+RoyalRoadParser.prototype.removePostContent = function (element) {
+    let navigationBox = util.getElement(element, "div", e => (e.className === "post-content") );
+    if (navigationBox !== null) {
+        util.removeNode(navigationBox);
+    }
+};
+
+RoyalRoadParser.prototype.stripStyle = function (element) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT);
+    do {
+        walker.currentNode.removeAttribute("style");
+    } while(walker.nextNode());
 };
 
 RoyalRoadParser.prototype.extractTextFromPage = function(dom, tagName, filter) {
