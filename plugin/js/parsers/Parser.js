@@ -138,6 +138,11 @@ Parser.prototype.setUiToShowLoadingProgress = function(length) {
 Parser.prototype.fetchChapters = function() {
     let that = this;
     let client = new HttpClient();
+
+    if (that.chapters.length === 0) {
+        return Promise.reject(new Error("No chapters found."));
+    }
+
     this.setUiToShowLoadingProgress(this.chapters.length);
 
     // for testing, uncomment the following line
