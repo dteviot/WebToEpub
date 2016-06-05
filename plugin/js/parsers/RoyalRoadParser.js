@@ -1,5 +1,5 @@
 /*
-  Parses files on archiveofourown.net
+  Parses files on www.royalroadl.com
 */
 "use strict";
 
@@ -63,10 +63,5 @@ RoyalRoadParser.prototype.extractTitle = function(dom) {
 RoyalRoadParser.prototype.extractAuthor = function(dom) {
     let author = this.extractTextFromPage(dom, "span", e=> (e.className === "author"));
     return author.startsWith("by ") ? author.substring(3) : author;
-};
-
-RoyalRoadParser.prototype.extractLanguage = function(dom) {
-    // was not able to locate in Royal Road HTML, so just return constant
-    return "en";
 };
 

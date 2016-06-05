@@ -1,5 +1,5 @@
 /*
-  Parses files on archiveofourown.net
+  Base class that all parsers build from.
 */
 "use strict";
 
@@ -197,3 +197,8 @@ Parser.prototype.FakeNetworkActivity = function(client) {
         client.oldOnLoadHtml(url, xhr, event, onHtlmReceived, resolve, reject);
     };
 }
+
+Parser.prototype.extractLanguage = function(dom) {
+    // if HTML doesn't have language, default to english
+    return "en";
+};

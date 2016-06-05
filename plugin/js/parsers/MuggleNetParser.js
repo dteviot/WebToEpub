@@ -1,5 +1,5 @@
 /*
-  Parses files on archiveofourown.net
+  Parses files on fanfiction.mugglenet.com
 */
 "use strict";
 
@@ -64,8 +64,5 @@ MuggleNetParser.prototype.extractAuthor = function(dom) {
     return this.extractTextFromPageTitle(dom, 1);
 };
 
-MuggleNetParser.prototype.extractLanguage = function(dom) {
-    // was not able to locate in MuggleNet HTML, so just return constant
-    return "en";
-};
+
 

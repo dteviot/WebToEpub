@@ -1,5 +1,5 @@
 /*
-  Parses files on archiveofourown.net
+  Parses files on www.fanfiction.net
 */
 "use strict";
 
@@ -57,10 +57,5 @@ FanFictionParser.prototype.extractTitle = function(dom) {
 
 FanFictionParser.prototype.extractAuthor = function(dom) {
     return this.extractTextFromProfile(dom, "a");
-};
-
-FanFictionParser.prototype.extractLanguage = function(dom) {
-    // not really available in HTML, so just return constant
-    return "en";
 };
 
