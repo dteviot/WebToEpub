@@ -33,7 +33,7 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
                "<li class=\"gallerybox\">" +
                    "<div class=\"thumb\">" +
                        "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
-                            "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                            "<img src=\"https://www.baka-tsuki.org/Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                        "</a>" +
                    "</div>" +
                "</li>" +
@@ -41,22 +41,25 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
            "</ul>" +
            "<div class=\"thumb tright\">" +
                 "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png\" class=\"image\">" +
-                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000b.png\" >" +
+                    "<img src=\"https://www.baka-tsuki.org/Baka-Tsuki_files/120px-BTS_vol_01_000b.png\" >" +
                 "</a>" +
            "</div>" +
            "<div class=\"thumbinner\">T1</div>" +
            "<div class=\"floatright\">" +
                 "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
-                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
+                    "<img src=\"https://www.baka-tsuki.org/Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                 "</a>" +
            "</div>" +
+           "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000c.jpg\" class=\"image\">" +
+                "<img src=\"https://www.baka-tsuki.org/Baka-Tsuki_files/120px-BTS_vol_01_000c.jpg\" >" +
+            "</a>" +
         "</x>",
         "text/html"
     );
 
     let imageCollector = new BakaTsukiImageCollector();
     let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
-    assert.equal(imagesMap.size, 2);
+    assert.equal(imagesMap.size, 3);
     let imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
     assert.equal(imageInfo.getZipHref(), "images/image_0000.jpg");
 });

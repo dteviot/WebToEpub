@@ -92,7 +92,7 @@ function BakaTsukiImageCollector() {
 
 // get URL of page that holds all copies of this image
 BakaTsukiImageCollector.extractImagePageUrl = function (element) {
-    return element.getElementsByTagName("a")[0].href;
+    return (element.tagName === "A") ? element.href : element.getElementsByTagName("a")[0].href;
 }
 
 // get src value of <img> element
@@ -117,13 +117,27 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
 
 BakaTsukiImageCollector.makeImageConverter = function (element) {
     let that = this;
-    if ((element.tagName === "DIV") &&
-        ((element.className === "thumb tright") || (element.className === "floatright") ||
-        (element.className === "thumb"))) {
-        return new ImageElementConverter(element);
-    } else {
-        return null;
+    let wrapper = null;
+    if (element.tagName === "IMG") {
+        // assume all images are wrapped in at least a href
+        wrapper = new ImageElementConverter(element.parentElement);
+
+        // find "highest" element that is wrapping an image element
+        let parent = element.parentElement;
+        while (parent != null) {
+            if (that.isImageWrapperElement(parent)) {
+                return new ImageElementConverter(parent);
+            }
+            parent = parent.parentElement;
+        }
     }
+    return wrapper;
+}
+
+BakaTsukiImageCollector.isImageWrapperElement = function (element) {
+    return ((element.tagName === "DIV") &&
+        ((element.className === "thumb tright") || (element.className === "floatright") ||
+        (element.className === "thumb")));
 }
 
 BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) {
@@ -134,8 +148,8 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
         let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
-            let src = BakaTsukiImageCollector.extractImageSrc(currentNode);
-            let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(currentNode);
+            let src = BakaTsukiImageCollector.extractImageSrc(converter.element);
+            let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(converter.element);
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
