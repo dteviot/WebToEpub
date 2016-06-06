@@ -43,6 +43,13 @@ var main = (function () {
         document.getElementById("authorInput").value = metaInfo.author;
         document.getElementById("languageInput").value = metaInfo.language;
         document.getElementById("fileNameInput").value = metaInfo.fileName;
+
+        if (metaInfo.seriesInfo !== null) {
+            document.getElementById("seriesRow").hidden = false;
+            document.getElementById("volumeRow").hidden = false;
+            document.getElementById("seriesInput").value = metaInfo.seriesInfo.name;
+            document.getElementById("seriesIndexInput").value = metaInfo.seriesInfo.seriesIndex;
+        }
     }
 
     function metaInfoFromContorls() {
@@ -52,6 +59,14 @@ var main = (function () {
         metaInfo.author = document.getElementById("authorInput").value;
         metaInfo.language = document.getElementById("languageInput").value;
         metaInfo.fileName = document.getElementById("fileNameInput").value;
+
+        if (document.getElementById("seriesRow").hidden === false) {
+            metaInfo.seriesInfo = {
+                name: document.getElementById("seriesInput").value,
+                seriesIndex: document.getElementById("seriesIndexInput").value
+            };
+        }
+
         return metaInfo;
     }
 

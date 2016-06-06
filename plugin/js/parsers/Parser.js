@@ -15,6 +15,7 @@ Parser.prototype.getEpubMetaInfo = function (dom){
     metaInfo.author = that.extractAuthor(dom);
     metaInfo.language = that.extractLanguage(dom);
     metaInfo.fileName = that.makeFileName(metaInfo.title);
+    metaInfo.seriesInfo = that.extractSeriesInfo(dom);
     return metaInfo;
 }
 
@@ -202,3 +203,7 @@ Parser.prototype.extractLanguage = function(dom) {
     // if HTML doesn't have language, default to english
     return "en";
 };
+
+Parser.prototype.extractSeriesInfo = function(dom) {
+    return null;
+}

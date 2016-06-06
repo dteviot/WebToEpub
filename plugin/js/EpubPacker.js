@@ -98,12 +98,23 @@ EpubPacker.prototype = {
         identifier.setAttribute("opf:scheme", "URI");
 
         if (epubItemSupplier.hasCoverImageFile()) {
-            let cover = that.createAndAppendChild(metadata, "meta");
-            cover.setAttribute("name", "cover");
-            cover.setAttribute("content", epubItemSupplier.coverImageFileName());
+            that.appendMetaContent(metadata, "cover", epubItemSupplier.coverImageFileName());
         };
+
+        let seriesInfo = that.metaInfo.seriesInfo;
+        if (seriesInfo !== null) {
+            that.appendMetaContent(metadata, "calibre:series", seriesInfo.name);
+            that.appendMetaContent(metadata, "calibre:series_index", seriesInfo.seriesIndex);
+        }
     },
 
+    appendMetaContent: function(parent, name, content) {
+        let that = this;
+        let meta = that.createAndAppendChild(parent, "meta");
+        meta.setAttribute("content", content);
+        meta.setAttribute("name", name);
+    },
+    
     buildManifest: function (opf, epubItemSupplier) {
         let that = this;
         var manifest = that.createAndAppendChild(opf.documentElement, "manifest");

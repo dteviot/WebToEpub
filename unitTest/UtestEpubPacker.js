@@ -33,6 +33,7 @@ function makeEpubItemSupplier() {
 
 test("buildContentOpf", function (assert) {
     let epubPacker = makePacker();
+    epubPacker.metaInfo.seriesInfo = { name: "BakaSeries", seriesIndex: "666" };
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
@@ -45,6 +46,8 @@ test("buildContentOpf", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>"+
+            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
+            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
             "<manifest>"+
               "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
@@ -75,7 +78,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
-            "<meta name=\"cover\" content=\"cover.png\"/>" +
+            "<meta content=\"cover.png\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
               "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +

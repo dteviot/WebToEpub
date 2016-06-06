@@ -40,6 +40,15 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.title, "Web to Epub");
     equal(metaInfo.author, "<Unknown>");
     equal(metaInfo.language, "en");
+    propEqual(metaInfo.seriesInfo, { name: "Web to Epub", seriesIndex: "103" });
+});
+
+QUnit.test("noSeriesInfo", function (assert) {
+    let parser = new BakaTsukiParser();
+    let dom = syncLoadBakaTsukiSampleDoc();
+    util.getElement(dom, "title").innerText = "Web to Epub";
+    let metaInfo = parser.getEpubMetaInfo(dom);
+    equal(metaInfo.seriesInfo, null);
 });
 
 QUnit.test("findContent", function (assert) {

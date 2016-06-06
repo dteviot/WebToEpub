@@ -32,6 +32,31 @@ BakaTsukiParser.prototype.extractLanguage = function(dom) {
     return this.getElement(dom, "html").getAttribute("lang");
 };
 
+BakaTsukiParser.prototype.extractSeriesInfo = function(dom) {
+    // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
+    let that = this;
+    let title = util.getElement(dom, "title").innerText.trim();
+    let splitIndex = title.indexOf(':');
+    if (0 < splitIndex) {
+        return { 
+            name: title.substring(0, splitIndex), 
+            seriesIndex: that.extractVolumeIndex(title.substring(splitIndex))
+        };
+    } else {
+        return null;
+    }
+}
+
+BakaTsukiParser.prototype.extractVolumeIndex = function(volumeString) {
+    let volumeIndex = "";
+    for(let ch of volumeString) {
+        if (('0' <= ch) && (ch <= '9')) {
+            volumeIndex += ch;
+        };
+    };    
+    return volumeIndex;
+}
+
 // find the node(s) holding the story content
 BakaTsukiParser.prototype.findContent = function (dom) {
     return this.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
