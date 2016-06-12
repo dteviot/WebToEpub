@@ -100,14 +100,19 @@ Parser.prototype.populateChapterUrls = function (chapters) {
 // called when plugin has obtained the first web page
 Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     let that = this;
-    let chapters = that.getChapterUrls(firstPageDom);
-    that.populateChapterUrls(chapters);
-    if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
-        chapters[0].rawDom = firstPageDom;
-        that.updateLoadState(chapters[0]);
-        this.getProgressBar().value = 0;
-    }
-    that.chapters = chapters;
+    
+    // returns promise, because may need to fetch additional pages to find list of chapters
+    that.getChapterUrls(firstPageDom).then(function(chapters) {
+        that.populateChapterUrls(chapters);
+        if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
+            chapters[0].rawDom = firstPageDom;
+            that.updateLoadState(chapters[0]);
+            that.getProgressBar().value = 0;
+        }
+        that.chapters = chapters;
+    }).catch(function(error) {
+        alert(error)
+    });
 }
 
 Parser.prototype.populateUI = function () {

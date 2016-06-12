@@ -14,16 +14,16 @@ parserFactory.register("fanfiction.mugglenet.com", function() { return new Muggl
 
 MuggleNetParser.prototype.getChapterUrls = function (dom) {
     let that = this;
-
-    let baseUrl = that.getBaseUrl(dom);
-    let chaptersElement = that.getElement(dom, "select", e => (e.getAttribute("name") === "chapter") );
-    if (chaptersElement === null) {
-        // no list of chapters found, assume it's a single chapter story
-        return that.singleChapterStory(baseUrl, dom);
-    }
-
-    return that.getElements(chaptersElement, "option")
-        .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
+    return new Promise(function(resolve, reject) {
+        let baseUrl = that.getBaseUrl(dom);
+        let chaptersElement = that.getElement(dom, "select", e => (e.getAttribute("name") === "chapter") );
+        if (chaptersElement === null) {
+            // no list of chapters found, assume it's a single chapter story
+            resolve(that.singleChapterStory(baseUrl, dom));
+        } else {
+            resolve(that.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+        }
+    });
 };
 
 MuggleNetParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {

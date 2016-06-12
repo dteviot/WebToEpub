@@ -14,8 +14,9 @@ parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser
 
 RoyalRoadParser.prototype.getChapterUrls = function (dom) {
     let that = this;
-    return that.getElements(dom, "li", e => (e.className === "chapter"))
-        .map(function (element) { return that.elementToChapterInfo(element) });
+    return new Promise(function(resolve, reject) {
+        resolve(that.getElements(dom, "li", e => (e.className === "chapter")).map(element => that.elementToChapterInfo(element)));
+    });
 };
 
 RoyalRoadParser.prototype.elementToChapterInfo = function (chapterElement) {

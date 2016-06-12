@@ -12,12 +12,15 @@ function loadFanFictionSinglePageDoc() {
 }
 
 QUnit.test("getChapterUrls", function (assert) {
+    let done = assert.async();
     let parser = new FanFictionParser();
-    let chapterUrls = parser.getChapterUrls(loadFanFictionMultiPageDoc());
-    assert.equal(chapterUrls.length, 5);
-    assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
-    assert.equal(chapterUrls[1].sourceUrl, "https://www.fanfiction.net/s/1234567/2/WebToEpub");
-    assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
+    parser.getChapterUrls(loadFanFictionMultiPageDoc()).then(function (chapterUrls) {
+        assert.equal(chapterUrls.length, 5);
+        assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
+        assert.equal(chapterUrls[1].sourceUrl, "https://www.fanfiction.net/s/1234567/2/WebToEpub");
+        assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
+        done();
+    });
 });
 
 QUnit.test("findMultiPageContent", function (assert) {
@@ -43,11 +46,14 @@ QUnit.test("parserFactory", function (assert) {
 });
 
 QUnit.test("getSingleChapterUrls", function (assert) {
+    let done = assert.async();
     let parser = new FanFictionParser();
-    let chapterUrls = parser.getChapterUrls(loadFanFictionSinglePageDoc());
-    assert.equal(chapterUrls.length, 1);
-    assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
-    assert.equal(chapterUrls[0].title, "Web to Epub");
+    parser.getChapterUrls(loadFanFictionSinglePageDoc()).then(function (chapterUrls) {
+        assert.equal(chapterUrls.length, 1);
+        assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
+        assert.equal(chapterUrls[0].title, "Web to Epub");
+        done();
+    });
 });
 
 QUnit.test("findSinglePageContent", function (assert) {

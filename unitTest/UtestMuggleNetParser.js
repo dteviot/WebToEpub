@@ -18,12 +18,15 @@ function loadMuggleNetSinglePageDoc() {
 }
 
 QUnit.test("getChapterUrls", function (assert) {
+    let done = assert.async();
     let parser = new MuggleNetParser();
-    let chapterUrls = parser.getChapterUrls(loadMuggleNetMultiPageDoc());
-    assert.equal(chapterUrls.length, 5);
-    assert.equal(chapterUrls[0].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123456&chapter=1");
-    assert.equal(chapterUrls[1].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123456&chapter=2");
-    assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
+    parser.getChapterUrls(loadMuggleNetMultiPageDoc()).then(function (chapterUrls) {
+        assert.equal(chapterUrls.length, 5);
+        assert.equal(chapterUrls[0].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123456&chapter=1");
+        assert.equal(chapterUrls[1].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123456&chapter=2");
+        assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
+        done();
+    });
 });
 
 QUnit.test("findMultiPageContent", function (assert) {
@@ -48,11 +51,14 @@ QUnit.test("parserFactory", function (assert) {
 });
 
 QUnit.test("getSingleChapterUrls", function (assert) {
+    let done = assert.async();
     let parser = new MuggleNetParser();
-    let chapterUrls = parser.getChapterUrls(loadMuggleNetSinglePageDoc());
-    assert.equal(chapterUrls.length, 1);
-    assert.equal(chapterUrls[0].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123457&chapter=1");
-    assert.equal(chapterUrls[0].title, "Web to Epub");
+    parser.getChapterUrls(loadMuggleNetSinglePageDoc()).then(function (chapterUrls) {
+        assert.equal(chapterUrls.length, 1);
+        assert.equal(chapterUrls[0].sourceUrl, "http://fanfiction.mugglenet.com/viewstory.php?sid=123457&chapter=1");
+        assert.equal(chapterUrls[0].title, "Web to Epub");
+        done();
+    });
 });
 
 QUnit.test("findSinglePageContent", function (assert) {

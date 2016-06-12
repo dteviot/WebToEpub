@@ -14,15 +14,15 @@ parserFactory.register("archiveofourown.org", function() { return new ArchiveOfO
 
 ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
     let that = this;
-
-    let baseUrl = that.getBaseUrl(dom);
-    let chaptersElement = that.getElement(dom, "li", e => (e.className === "chapter") );
-    if (chaptersElement === null) {
-        return that.singleChapterStory(baseUrl, dom);
-    }
-
-    return that.getElements(chaptersElement, "option")
-        .map(function (option) { return that.optionToChapterInfo(baseUrl, option) });
+    return new Promise(function(resolve, reject) {
+        let baseUrl = that.getBaseUrl(dom);
+        let chaptersElement = that.getElement(dom, "li", e => (e.className === "chapter") );
+        if (chaptersElement === null) {
+            resolve(that.singleChapterStory(baseUrl, dom));
+        } else {
+            resolve(that.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+        }
+    });
 };
 
 ArchiveOfOurOwnParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {
