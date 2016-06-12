@@ -117,21 +117,18 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
 
 BakaTsukiImageCollector.makeImageConverter = function (element) {
     let that = this;
-    let wrapper = null;
-    if (element.tagName === "IMG") {
-        // assume all images are wrapped in at least a href
-        wrapper = new ImageElementConverter(element.parentElement);
 
-        // find "highest" element that is wrapping an image element
-        let parent = element.parentElement;
-        while (parent != null) {
-            if (that.isImageWrapperElement(parent)) {
-                return new ImageElementConverter(parent);
-            }
-            parent = parent.parentElement;
+    // find "highest" element that is wrapping an image element
+    let parent = element.parentElement;
+    while (parent != null) {
+        if (that.isImageWrapperElement(parent)) {
+            return new ImageElementConverter(parent);
         }
+        parent = parent.parentElement;
     }
-    return wrapper;
+
+    // assume all images are wrapped in at least a href
+    return new ImageElementConverter(element.parentElement);
 }
 
 BakaTsukiImageCollector.isImageWrapperElement = function (element) {
@@ -143,9 +140,7 @@ BakaTsukiImageCollector.isImageWrapperElement = function (element) {
 BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
     let images = new Map();
-    let walker = document.createTreeWalker(content);
-    do {
-        let currentNode = walker.currentNode;
+    for(let currentNode of util.getElements(content, "img")) {
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
             let src = BakaTsukiImageCollector.extractImageSrc(converter.element);
@@ -155,7 +150,7 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
             images.set(pageUrl, imageInfo);
         }
-    } while (walker.nextNode());
+    };
     return images;
 }
 

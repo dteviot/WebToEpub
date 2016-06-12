@@ -137,16 +137,14 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
 BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
     that.stripGalleryBoxWidthStyle(element);
-    let walker = document.createTreeWalker(element);
     let converters = [];
-    do {
+    for(let currentNode of util.getElements(element, "img")) {
         
-        let currentNode = walker.currentNode;
         let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
             converters.push(converter);
         }
-    } while (walker.nextNode());
+    };
 
     converters.forEach(c => c.replaceWithImagePageUrl(images));
 }
