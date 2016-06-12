@@ -38,11 +38,21 @@ RoyalRoadParser.prototype.findContent = function (dom) {
 };
 
 RoyalRoadParser.prototype.removePostContent = function (element) {
-    let navigationBox = util.getElement(element, "div", e => (e.className === "post-content") );
+    let navigationBox = this.findNavigationBox(element);
     if (navigationBox !== null) {
         util.removeNode(navigationBox);
     }
 };
+
+RoyalRoadParser.prototype.findNavigationBox = function (element) {
+    for(let navigationBox of util.getElements(element, "div", e => (e.className === "post-content"))) {
+        let navLinks = util.getElements(navigationBox, "a", e2 => (e2.className === "chapterNav"));
+        if (0 < navLinks.length) {
+            return navigationBox;
+        }
+    }
+    return null;
+}
 
 RoyalRoadParser.prototype.stripStyle = function (element) {
     let walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT);
