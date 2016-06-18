@@ -199,7 +199,7 @@ QUnit.test("processImages", function (assert) {
     imageInfo.height = 300;
     imageInfo.width = 400;
 
-    let parser = new BakaTsukiParser();
+    let parser = new BakaTsukiParser(imageCollector);
     parser.processImages(dom.documentElement, imagesMap);
 
     // convert to XHTML for comparison

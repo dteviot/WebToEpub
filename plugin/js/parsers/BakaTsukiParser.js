@@ -3,21 +3,20 @@
 */
 "use strict";
 
-function BakaTsukiParser() {
+function BakaTsukiParser(imageCollector) {
     this.firstPageDom = null;
     this.images = new Map();
     this.coverImageInfo = null;
+    this.imageCollector = imageCollector;
 }
 
 // Make BakaTsukiParser inherit from Parser
 BakaTsukiParser.prototype = Object.create(Parser.prototype);
 BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 
-parserFactory.register("www.baka-tsuki.org", function() { return new BakaTsukiParser() });
-
-BakaTsukiParser.prototype.canParse = function (url) {
-    return (this.extractHostName(url) === "");
-}
+parserFactory.register("www.baka-tsuki.org", function() { 
+    return new BakaTsukiParser(new BakaTsukiImageCollector()) 
+});
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
     return this.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
@@ -70,9 +69,8 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // ToDo: at moment is collecting images from inital web page at load time
     // when the popup UI is populated.  Will need to fetch correct images
     // as a separate step later
-    let collector = new BakaTsukiImageCollector();
-    that.images = collector.findImagesUsedInDocument(that.findContent(firstPageDom));
-    collector.populateImageTable(that.images, that);
+    that.images = that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
+    that.imageCollector.populateImageTable(that.images, that);
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
@@ -140,7 +138,7 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
         
-        let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
+        let converter = that.imageCollector.makeImageConverter(currentNode)
         if (converter != null) {
             converters.push(converter);
         }
@@ -391,9 +389,8 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
-    let collector = new BakaTsukiImageCollector();
     this.setUiToShowLoadingProgress(that.images.size);
-    return collector.fetchImages(that.images, () => that.updateLoadState(false))
+    return that.imageCollector.fetchImages(that.images, () => that.updateLoadState(false))
         .then(function() {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;
