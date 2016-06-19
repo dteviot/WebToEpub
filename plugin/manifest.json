@@ -14,5 +14,10 @@
     "default_icon": "book128.png",
     "default_popup": "popup.html"
   },
+  "applications": {
+	"gecko": {
+		"id": "webToEpub@gusser.org"
+	}
+  },
   "minimum_chrome_version": "46"
 }
