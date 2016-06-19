@@ -100,9 +100,9 @@ BakaTsukiImageCollector.prototype.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element, extractImagePageUrl) {
+function ImageElementConverter(element, imagePageUrl) {
     this.element = element;
-    this.imagePageUrl = extractImagePageUrl(element);
+    this.imagePageUrl = imagePageUrl;
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
@@ -117,18 +117,25 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
 
 BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
     let that = this;
+    let wrappingElement = that.findImageWrappingElement(element);
+    let imagePageUrl = that.extractImagePageUrl(wrappingElement);
+    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl);
+}
+
+BakaTsukiImageCollector.prototype.findImageWrappingElement = function (element) {
+    let that = this;
 
     // find "highest" element that is wrapping an image element
     let parent = element.parentElement;
     while (parent != null) {
         if (that.isImageWrapperElement(parent)) {
-            return new ImageElementConverter(parent, that.extractImagePageUrl);
+            return parent;
         }
         parent = parent.parentElement;
     }
 
     // assume all images are wrapped in at least a href
-    return new ImageElementConverter(element.parentElement, that.extractImagePageUrl);
+    return element.parentElement;
 }
 
 BakaTsukiImageCollector.prototype.isImageWrapperElement = function (element) {
@@ -144,7 +151,7 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
         let converter = that.makeImageConverter(currentNode)
         if (converter != null) {
             let src = that.extractImageSrc(converter.element);
-            let pageUrl = that.extractImagePageUrl(converter.element);
+            let pageUrl = converter.imagePageUrl;
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
@@ -247,7 +254,7 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
 
 BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
     let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-    let img = util.getElement(dom, "img");
+    let img = util.getElement(div, "img");
     imageInfo.imagefileUrl = img.src;
     imageInfo.height = img.height;
     imageInfo.width = img.width;
