@@ -87,12 +87,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.processImages(content, that.images);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo, that.getCoverImageZipHref());
-}
-
-// if know the cover image, make it available to the EpubItemSupplier
-BakaTsukiParser.prototype.getCoverImageZipHref = function () {
-    return (this.coverImageInfo == null) ? null : this.coverImageInfo.getZipHref();
+    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
 }
 
 BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {

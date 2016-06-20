@@ -5,13 +5,16 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageInfo, coverImageFileName) {
+function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageInfo) {
     this.parser = parser;
     this.epubItems = [];
     this.coverImageInfo = coverImageInfo;
     images.forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
-    this.coverImageFileName = function() { return coverImageFileName };
+    let that = this;
+    this.coverImageFileName = function() { 
+        return (that.coverImageInfo == null) ? null : that.coverImageInfo.getZipHref(); 
+    };
 }
 
 // Make BakaTsukiEpubItemSupplier inherit from EpubItemSupplier
