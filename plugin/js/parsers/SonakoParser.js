@@ -41,8 +41,7 @@ SonakoParser.prototype.constructor = SonakoParser;
 parserFactory.register("sonako.wikia.com", function() { return new SonakoParser() });
 
 SonakoParser.prototype.extractTitle = function(dom) {
-    let meta = util.getElement(dom, "meta", e => (e.getAttribute("name") === "description"));
-    return (meta === null) ? null : meta.getAttribute("content");
+    return util.getElement(dom, "title").innerText;
 };
 
 SonakoParser.prototype.extractAuthor = function(dom) {
