@@ -7,7 +7,7 @@
   },
   "permissions": [
     "tabs", 
-	"<all_urls>"
+    "<all_urls>"
   ],
   "browser_action": {
     "default_title": "",
@@ -15,9 +15,9 @@
     "default_popup": "popup.html"
   },
   "applications": {
-	"gecko": {
-		"id": "webToEpub@gusser.org"
-	}
+    "gecko": {
+      "id": "webToEpub@gusser.org"
+    }
   },
   "minimum_chrome_version": "46"
 }
