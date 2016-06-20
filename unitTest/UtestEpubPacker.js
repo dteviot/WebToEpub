@@ -64,7 +64,7 @@ test("buildContentOpf", function (assert) {
 
 test("buildContentOpfWithCover", function (assert) {
     let itemSupplier = makeEpubItemSupplier();
-    itemSupplier.coverImageFileName = function () { return "cover.png" };
+    itemSupplier.coverImageId = function () { return "cover000" };
     let epubPacker = makePacker();
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(itemSupplier);
@@ -78,13 +78,13 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
-            "<meta content=\"cover.png\" name=\"cover\"/>" +
+            "<meta content=\"cover000\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
               "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"index_split_0001.html\" id=\"html0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
-              "<item href=\"cover.xhtml\" id=\"cover.xhtml\" media-type=\"application/x-dtbncx+xml\"/>" +
+              "<item href=\"cover.xhtml\" id=\"cover.xhtml\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
             "<spine toc=\"ncx\">" +
               "<itemref idref=\"cover.xhtml\"/>" +

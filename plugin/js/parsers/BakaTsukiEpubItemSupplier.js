@@ -12,8 +12,8 @@ function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageInfo) {
     images.forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
     let that = this;
-    this.coverImageFileName = function() { 
-        return (that.coverImageInfo == null) ? null : that.coverImageInfo.getZipHref(); 
+    this.coverImageId = function() { 
+        return (that.coverImageInfo == null) ? null : that.coverImageInfo.id; 
     };
 }
 

@@ -78,12 +78,12 @@ EpubItemSupplier.prototype.chapterInfo = function*() {
 }
 
 EpubItemSupplier.prototype.hasCoverImageFile = function() {
-    return (this.coverImageFileName() != null);
+    return (this.coverImageId() != null);
 }
 
 // Name of Cover image in EPUB file
 // returns null if no cover image
-EpubItemSupplier.prototype.coverImageFileName = function() {
+EpubItemSupplier.prototype.coverImageId = function() {
     return null;
 }
 

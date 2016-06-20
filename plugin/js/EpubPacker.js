@@ -98,7 +98,7 @@ EpubPacker.prototype = {
         identifier.setAttribute("opf:scheme", "URI");
 
         if (epubItemSupplier.hasCoverImageFile()) {
-            that.appendMetaContent(metadata, "cover", epubItemSupplier.coverImageFileName());
+            that.appendMetaContent(metadata, "cover", epubItemSupplier.coverImageId());
         };
 
         let seriesInfo = that.metaInfo.seriesInfo;
@@ -124,7 +124,7 @@ EpubPacker.prototype = {
 
         that.addManifestItem(manifest, "toc.ncx", "ncx", "application/x-dtbncx+xml");
         if (epubItemSupplier.hasCoverImageFile()) {
-            that.addManifestItem(manifest, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/x-dtbncx+xml");
+            that.addManifestItem(manifest, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
         };
     },
 
