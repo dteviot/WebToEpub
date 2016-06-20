@@ -234,7 +234,9 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
         sequence = sequence.then(function () {
             return client.fetchHtml(imageInfo.imagePageUrl);
         }).then(function (rawDom) {
-            that.updateImageInfoFromImagePage(rawDom, imageInfo);
+            that.updateImageInfoFromImagePage(rawDom, imageInfo).then(function(iInfo){
+                imageInfo = iInfo;
+            });
         }).then(function () {
             return client.fetchBinary(imageInfo.imagefileUrl);
         }).then(function (arraybuffer) {
@@ -246,14 +248,23 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
 }
 
 BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
-    let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
-    let a = util.getElement(div, "a");
-    let img = new Image();
-    imageInfo.imagefileUrl = img.src = a.href;
-    img.onload = function() {
-        imageInfo.height = img.height;
-        imageInfo.width = img.width;
-        return imageInfo;
-    }
+    return new Promise(function(resolve, reject){
+        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
+        let a = util.getElement(div, "a");
+        let img = new Image();
+        imageInfo.imagefileUrl = img.src = a.href;
+        img.onload = function() {
+            imageInfo.height = img.height;
+            imageInfo.width = img.width;
+            resolve(imageInfo);
+        }
+        img.onerror = function(){
+            // If the image gives an error then set a general height and width
+            imageInfo.height = 1200;
+            imageInfo.width = 1600;
+            resolve(imageInfo);
+        }
+
+    });
 }
 
