@@ -250,8 +250,10 @@ BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, i
     let a = util.getElement(div, "a");
     let img = new Image();
     imageInfo.imagefileUrl = img.src = a.href;
-    imageInfo.height = img.height;
-    imageInfo.width = img.width;
-    return imageInfo;
+    img.onload = function() {
+        imageInfo.height = img.height;
+        imageInfo.width = img.width;
+        return imageInfo;
+    }
 }
 
