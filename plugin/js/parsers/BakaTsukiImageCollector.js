@@ -109,7 +109,7 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     // replace tag with nested <img> tag, with new <img> tag
     let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
     let imageInfo = images.get(imagePageUrl);
-    if (imageInfo != null) {
+    if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
         that.element.parentElement.replaceChild(newImage, that.element);
     }
@@ -247,7 +247,7 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
 
 BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
     let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-    let img = util.getElement(dom, "img");
+    let img = util.getElement(div, "img");
     imageInfo.imagefileUrl = img.src;
     imageInfo.height = img.height;
     imageInfo.width = img.width;
