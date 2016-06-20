@@ -46,15 +46,15 @@ EpubPacker.prototype = {
 
     // write blob to "Downloads" directory
     save: function (blob, fileName) {
-		var clickEvent = new MouseEvent("click", {
-			"view": window,
-			"bubbles": true,
-			"cancelable": false
-		});
+                var clickEvent = new MouseEvent("click", {
+                        "view": window,
+                        "bubbles": true,
+                        "cancelable": false
+                });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = fileName;
-	a.dispatchEvent(clickEvent);
+        a.dispatchEvent(clickEvent);
         // a.click();
     },
 
