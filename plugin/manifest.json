@@ -16,7 +16,7 @@
   },
   "applications": {
     "gecko": {
-      "id": "webToEpub@gusser.org"
+      "id": "webToEpub@something.org"
     }
   },
   "minimum_chrome_version": "46"
