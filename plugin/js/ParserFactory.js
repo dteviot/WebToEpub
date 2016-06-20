@@ -9,7 +9,7 @@ var parserFactory = (function () {
     let parsers = new Map();
 
     var isWebArchive = function(hostName) {
-        return extractHostName(hostName).startsWith("web.archive.org") ? 1 : 0;
+        return extractHostName(hostName).startsWith("web.archive.org");
     }
 
     var stripWebArchive = function(url) {
