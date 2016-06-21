@@ -109,7 +109,7 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
     // replace tag with nested <img> tag, with new <img> tag
     let imageInfo = images.get(that.imagePageUrl);
-    if (imageInfo != null) {
+    if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
         that.element.parentElement.replaceChild(newImage, that.element);
     }
@@ -241,7 +241,7 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
         sequence = sequence.then(function () {
             return client.fetchHtml(imageInfo.imagePageUrl);
         }).then(function (rawDom) {
-            that.updateImageInfoFromImagePage(rawDom, imageInfo);
+            return that.updateImageInfoFromImagePage(rawDom, imageInfo);
         }).then(function () {
             return client.fetchBinary(imageInfo.imagefileUrl);
         }).then(function (arraybuffer) {
@@ -253,11 +253,24 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
 }
 
 BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
-    let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-    let img = util.getElement(div, "img");
-    imageInfo.imagefileUrl = img.src;
-    imageInfo.height = img.height;
-    imageInfo.width = img.width;
-    return imageInfo;
+    let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
+    let a = util.getElement(div, "a");
+    imageInfo.imagefileUrl = a.href;
+    return new Promise(function(resolve, reject){
+        let img = new Image();
+        img.onload = function() {
+            imageInfo.height = img.height;
+            imageInfo.width = img.width;
+            resolve();
+        }
+        img.onerror = function(){
+            // If the image gives an error then set a general height and width
+            imageInfo.height = 1200;
+            imageInfo.width = 1600;
+            resolve();
+        }
+        // start downloading image after event handlers are set
+        img.src = a.href;
+    });
 }
 
