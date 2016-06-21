@@ -91,54 +91,47 @@ function BakaTsukiImageCollector() {
 }
 
 // get URL of page that holds all copies of this image
-BakaTsukiImageCollector.prototype.extractImagePageUrl = function (element) {
+BakaTsukiImageCollector.extractImagePageUrl = function (element) {
     return (element.tagName === "A") ? element.href : element.getElementsByTagName("a")[0].href;
 }
 
 // get src value of <img> element
-BakaTsukiImageCollector.prototype.extractImageSrc = function (element) {
+BakaTsukiImageCollector.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element, imagePageUrl) {
+function ImageElementConverter(element) {
     this.element = element;
-    this.imagePageUrl = imagePageUrl;
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
     // replace tag with nested <img> tag, with new <img> tag
-    let imageInfo = images.get(that.imagePageUrl);
+    let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
+    let imageInfo = images.get(imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
         that.element.parentElement.replaceChild(newImage, that.element);
     }
 }
 
-BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
-    let that = this;
-    let wrappingElement = that.findImageWrappingElement(element);
-    let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl);
-}
-
-BakaTsukiImageCollector.prototype.findImageWrappingElement = function (element) {
+BakaTsukiImageCollector.makeImageConverter = function (element) {
     let that = this;
 
     // find "highest" element that is wrapping an image element
     let parent = element.parentElement;
     while (parent != null) {
         if (that.isImageWrapperElement(parent)) {
-            return parent;
+            return new ImageElementConverter(parent);
         }
         parent = parent.parentElement;
     }
 
     // assume all images are wrapped in at least a href
-    return element.parentElement;
+    return new ImageElementConverter(element.parentElement);
 }
 
-BakaTsukiImageCollector.prototype.isImageWrapperElement = function (element) {
+BakaTsukiImageCollector.isImageWrapperElement = function (element) {
     return ((element.tagName === "DIV") &&
         ((element.className === "thumb tright") || (element.className === "floatright") ||
         (element.className === "thumb")));
@@ -148,10 +141,10 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
     let that = this;
     let images = new Map();
     for(let currentNode of util.getElements(content, "img")) {
-        let converter = that.makeImageConverter(currentNode)
+        let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
         if (converter != null) {
-            let src = that.extractImageSrc(converter.element);
-            let pageUrl = converter.imagePageUrl;
+            let src = BakaTsukiImageCollector.extractImageSrc(converter.element);
+            let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(converter.element);
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
@@ -241,7 +234,7 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
         sequence = sequence.then(function () {
             return client.fetchHtml(imageInfo.imagePageUrl);
         }).then(function (rawDom) {
-            return that.updateImageInfoFromImagePage(rawDom, imageInfo);
+            return that.updateImageInfoFromImagePage(rawDom, imageInfo)
         }).then(function () {
             return client.fetchBinary(imageInfo.imagefileUrl);
         }).then(function (arraybuffer) {
