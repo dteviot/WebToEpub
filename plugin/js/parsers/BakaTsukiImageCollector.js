@@ -91,47 +91,54 @@ function BakaTsukiImageCollector() {
 }
 
 // get URL of page that holds all copies of this image
-BakaTsukiImageCollector.extractImagePageUrl = function (element) {
+BakaTsukiImageCollector.prototype.extractImagePageUrl = function (element) {
     return (element.tagName === "A") ? element.href : element.getElementsByTagName("a")[0].href;
 }
 
 // get src value of <img> element
-BakaTsukiImageCollector.extractImageSrc = function (element) {
+BakaTsukiImageCollector.prototype.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element) {
+function ImageElementConverter(element, imagePageUrl) {
     this.element = element;
+    this.imagePageUrl = imagePageUrl;
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
     // replace tag with nested <img> tag, with new <img> tag
-    let imagePageUrl = BakaTsukiImageCollector.extractImagePageUrl(that.element);
-    let imageInfo = images.get(imagePageUrl);
+    let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
         that.element.parentElement.replaceChild(newImage, that.element);
     }
 }
 
-BakaTsukiImageCollector.makeImageConverter = function (element) {
+BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
+    let that = this;
+    let wrappingElement = that.findImageWrappingElement(element);
+    let imagePageUrl = that.extractImagePageUrl(wrappingElement);
+    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl);
+}
+
+BakaTsukiImageCollector.prototype.findImageWrappingElement = function (element) {
     let that = this;
 
     // find "highest" element that is wrapping an image element
     let parent = element.parentElement;
     while (parent != null) {
         if (that.isImageWrapperElement(parent)) {
-            return new ImageElementConverter(parent);
+            return parent;
         }
         parent = parent.parentElement;
     }
 
     // assume all images are wrapped in at least a href
-    return new ImageElementConverter(element.parentElement);
+    return element.parentElement;
 }
 
-BakaTsukiImageCollector.isImageWrapperElement = function (element) {
+BakaTsukiImageCollector.prototype.isImageWrapperElement = function (element) {
     return ((element.tagName === "DIV") &&
         ((element.className === "thumb tright") || (element.className === "floatright") ||
         (element.className === "thumb")));
@@ -141,10 +148,10 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
     let that = this;
     let images = new Map();
     for(let currentNode of util.getElements(content, "img")) {
-        let converter = BakaTsukiImageCollector.makeImageConverter(currentNode)
+        let converter = that.makeImageConverter(currentNode)
         if (converter != null) {
-            let src = BakaTsukiImageCollector.extractImageSrc(converter.element);
-            let pageUrl = BakaTsukiImageCollector.extractImagePageUrl(converter.element);
+            let src = that.extractImageSrc(converter.element);
+            let pageUrl = converter.imagePageUrl;
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
@@ -234,9 +241,7 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
         sequence = sequence.then(function () {
             return client.fetchHtml(imageInfo.imagePageUrl);
         }).then(function (rawDom) {
-            that.updateImageInfoFromImagePage(rawDom, imageInfo).then(function(iInfo){
-                imageInfo = iInfo;
-            });
+            return that.updateImageInfoFromImagePage(rawDom, imageInfo);
         }).then(function () {
             return client.fetchBinary(imageInfo.imagefileUrl);
         }).then(function (arraybuffer) {
@@ -248,23 +253,23 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
 }
 
 BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
+    let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
+    let a = util.getElement(div, "a");
+    imageInfo.imagefileUrl = a.href;
     return new Promise(function(resolve, reject){
-        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
-        let a = util.getElement(div, "a");
         let img = new Image();
-        imageInfo.imagefileUrl = img.src = a.href;
         img.onload = function() {
             imageInfo.height = img.height;
             imageInfo.width = img.width;
-            resolve(imageInfo);
+            resolve();
         }
         img.onerror = function(){
             // If the image gives an error then set a general height and width
             imageInfo.height = 1200;
             imageInfo.width = 1600;
-            resolve(imageInfo);
+            resolve();
         }
-
+        // start downloading image after event handlers are set
+        img.src = a.href;
     });
 }
-
