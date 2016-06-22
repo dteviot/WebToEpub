@@ -29,6 +29,7 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.imageIndex = imageIndex;
     this.isCover = false;
     this.isInSpine = false;
+    this.isOutsideGallery = false;
     this.arraybuffer = null;
     this.height = null;
     this.width = null;
@@ -44,7 +45,7 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
 }
 
 BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix) {
-    return "images/image_" + util.zeroPad(imageIndex) + "." +suffix;
+    return "OEBPS/Images/image_" + util.zeroPad(imageIndex) + "." +suffix;
 }
 
 BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {
@@ -84,7 +85,7 @@ BakaTsukiImageInfo.prototype.fileContentForEpub = function() {
 
 BakaTsukiImageInfo.prototype.createImageElement = function() {
     let that = this;
-    return util.createSvgImageElement(that.getZipHref(), that.width, that.height);
+    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, that.imagePageUrl);
 }
 
 function BakaTsukiImageCollector() {
@@ -111,7 +112,11 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        that.element.parentElement.replaceChild(newImage, that.element);
+        if(that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover)){
+            that.element.parentElement.removeChild(that.element);
+        }else{
+            that.element.parentElement.replaceChild(newImage, that.element);
+        }
     }
 }
 
@@ -155,6 +160,10 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
+            if(existing != null){
+                existing.isOutsideGallery = true;
+                imageInfo.isOutsideGallery = true;
+            }
             images.set(pageUrl, imageInfo);
         }
     };

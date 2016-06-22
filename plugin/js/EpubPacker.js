@@ -20,11 +20,11 @@ function EpubPacker(metaInfo) {
 }
 
 EpubPacker.coverImageXhtmlHref = function() {
-    return "cover.xhtml";
+    return "OEBPS/Text/Cover.xhtml";
 }
 
 EpubPacker.coverImageXhtmlId = function() {
-    return "cover.xhtml";
+    return "cover";
 }
 
 EpubPacker.prototype = {
@@ -38,8 +38,8 @@ EpubPacker.prototype = {
         let that = this;
         let zipFile = new JSZip();
         that.addRequiredFiles(zipFile);
-        zipFile.file("content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
-        zipFile.file("toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
+        zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
+        zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         return zipFile.generate({ type: "blob" });
     },
@@ -59,7 +59,7 @@ EpubPacker.prototype = {
             "<?xml version=\"1.0\"?>" +
             "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">" +
                 "<rootfiles>" +
-                    "<rootfile full-path=\"content.opf\" media-type=\"application/oebps-package+xml\"/>" +
+                    "<rootfile full-path=\"OEBPS/content.opf\" media-type=\"application/oebps-package+xml\"/>" +
                 "</rootfiles>" +
             "</container>"
         );
@@ -122,7 +122,7 @@ EpubPacker.prototype = {
             that.addManifestItem(manifest, item.href, item.id, item.mediaType);
         };
 
-        that.addManifestItem(manifest, "toc.ncx", "ncx", "application/x-dtbncx+xml");
+        that.addManifestItem(manifest, "OEBPS/toc.ncx", "ncx", "application/x-dtbncx+xml");
         if (epubItemSupplier.hasCoverImageFile()) {
             that.addManifestItem(manifest, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
         };
@@ -131,7 +131,7 @@ EpubPacker.prototype = {
     addManifestItem: function(manifest, href, id, mediaType) {
         let that = this;
         var item = that.createAndAppendChild(manifest, "item");
-        item.setAttribute("href", href);
+        item.setAttribute("href", href.substr(6));
         item.setAttribute("id", id);
         item.setAttribute("media-type", mediaType);
     },

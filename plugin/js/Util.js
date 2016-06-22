@@ -20,7 +20,7 @@ var util = (function () {
         head.appendChild(style);
         style.setAttribute("type", "text/css");
         style.appendChild(doc.createTextNode(
-            "img { max-width: 100%; padding: 0; margin: 0; } " +
+            "img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
             "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
                             "padding-right: 0; padding-top: 0; text-align: left } " +
             "div.svg_inner { display: block; text-align: center } "
@@ -30,7 +30,7 @@ var util = (function () {
         return doc;
     }
 
-    function createSvgImageElement(href, width, height) {
+    function createSvgImageElement(href, width, height, origin) {
         let that = this;
         let doc = that.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
@@ -45,9 +45,10 @@ var util = (function () {
         svg.setAttribute("version", "1.1");
         svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+        svg.setAttribute("data-origin", origin);
         let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
         svg.appendChild(newImage);
-        newImage.setAttribute("xlink:href", href);
+        newImage.setAttribute("xlink:href", ".." + href.substr(5));
         newImage.setAttribute("height", height);
         newImage.setAttribute("width", width);
         return div;

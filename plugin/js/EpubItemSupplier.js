@@ -18,12 +18,13 @@ EpubItemSupplier.prototype.setChapters = function (chapters) {
 }
 
 EpubItemSupplier.prototype.createXhtmlFileName = function (fileIndex) {
-    return "index_split_" + util.zeroPad(fileIndex) + ".html";
+    // Belldandu: For now only new format gets implemented because not sure where this files functions are even called and i dont want to accidentally break something.
+    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + ".xhtml";
 }
 
 // return id attribute to go into <item> element in <manifest>
 EpubItemSupplier.prototype.createId = function(fileIndex) {
-    return "html" + util.zeroPad(fileIndex);
+    return "xhtml" + util.zeroPad(fileIndex);
 }
 
 // used to populate manifest

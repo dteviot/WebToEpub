@@ -100,6 +100,9 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
+    
+    // discard gallery text (to improve epub format)
+    util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
 
     util.removeComments(element);
     that.removeUnwantedTable(element);
@@ -132,13 +135,11 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
     that.stripGalleryBoxWidthStyle(element);
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
-        
         let converter = that.imageCollector.makeImageConverter(currentNode)
         if (converter != null) {
             converters.push(converter);
         }
     };
-
     converters.forEach(c => c.replaceWithImagePageUrl(images));
 }
 
@@ -146,10 +147,11 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
 BakaTsukiParser.prototype.stripGalleryBoxWidthStyle = function (element) {
     let that = this;
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
-        that.stripWidthStyle(listItem);
         for(let d of util.getElements(listItem, "div")) {
             that.stripWidthStyle(d);
         }
+        that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
+        listItem.parentNode.removeChild(listItem);
     }
 }
 
@@ -322,8 +324,11 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 element, 
                 NodeFilter.SHOW_ELEMENT
             );
+            if(util.isHeaderTag(element)){
+                epubItem.chapterTitle = element.textContent;
+            }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref()]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref(epubItem.chapterTitle)]);
             } while (walker.nextNode());
         };
     };
