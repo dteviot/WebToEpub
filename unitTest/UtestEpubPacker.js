@@ -183,8 +183,8 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let imageInfo = new BakaTsukiImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
     imageInfo.width = 400;
     imageInfo.height = 200;
-    imageInfo.zipHref = "cover.png"
-    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "cover.png");
+    imageInfo.zipHref = "OEBPS/Images/cover.png"
+    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "OEBPS/Images/cover.png");
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
         "<?xml version='1.0' encoding='utf-8'?>\n" +
@@ -200,7 +200,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
                     "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
-                        "<image xlink:href=\"...png\" height=\"200\" width=\"400\" data-origin=\"http://dummy/cover.png\"/>" +
+                        "<image xlink:href=\"../Images/cover.png\" height=\"200\" width=\"400\" data-origin=\"http://dummy/cover.png\"/>" +
                     "</svg>" +
                 "</div>" +
             "</body>" +
