@@ -45,12 +45,12 @@ var util = (function () {
         svg.setAttribute("version", "1.1");
         svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svg.setAttribute("viewBox", "0 0 " + width + " " + height);
-        svg.setAttribute("data-origin", origin);
         let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
         svg.appendChild(newImage);
         newImage.setAttribute("xlink:href", ".." + href.substr(5));
         newImage.setAttribute("height", height);
         newImage.setAttribute("width", width);
+        newImage.setAttribute("data-origin", origin);
         return div;
     }
 

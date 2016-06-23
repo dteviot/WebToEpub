@@ -157,7 +157,7 @@ EpubPacker.prototype = {
         if (epubItemSupplier.hasCoverImageFile()) {
             let guide = that.createAndAppendChild(opf.documentElement, "guide");
             let reference = that.createAndAppendChild(guide, "reference");
-            reference.setAttribute("href", EpubPacker.coverImageXhtmlHref());
+            reference.setAttribute("href", EpubPacker.coverImageXhtmlHref().substr(6));
             reference.setAttribute("title", "Cover");
             reference.setAttribute("type", "cover");
         };
@@ -218,7 +218,7 @@ EpubPacker.prototype = {
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", chapterInfo.title);
-        that.createAndAppendChild(navPoint, "content").setAttribute("src", chapterInfo.src);
+        that.createAndAppendChild(navPoint, "content").setAttribute("src", chapterInfo.src.substr(6));
         return navPoint;
     },
 
