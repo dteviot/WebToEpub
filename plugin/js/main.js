@@ -115,6 +115,12 @@ var main = (function () {
         return true;
     }
 
+    // called when the "Remove Duplicate Images" check box is ticked or unticked
+    function onRemoveDuplicateImagesClick() {
+        let enable = document.getElementById("removeDuplicateImages").checked;
+        parser.removeDuplicateImages = enable;
+    }
+
     // called when the "Diagnostics" check box is ticked or unticked
     function onDiagnosticsClick() {
         let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
@@ -132,6 +138,7 @@ var main = (function () {
     window.onload = function () {
         // add onClick event handlers
         getPackEpubButton().onclick = fetchContentAndPackEpub;
+        document.getElementById("removeDuplicateImages").onclick = onRemoveDuplicateImagesClick;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
         populateControls();

@@ -89,6 +89,7 @@ BakaTsukiImageInfo.prototype.createImageElement = function() {
 }
 
 function BakaTsukiImageCollector() {
+    this.removeDuplicateImages = false;
 }
 
 // get URL of page that holds all copies of this image
@@ -101,9 +102,10 @@ BakaTsukiImageCollector.prototype.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element, imagePageUrl) {
+function ImageElementConverter(element, imagePageUrl, removeDuplicateImages) {
     this.element = element;
     this.imagePageUrl = imagePageUrl;
+    this.removeDuplicateImages = removeDuplicateImages;
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
@@ -112,26 +114,24 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        if(0 === 1){ // placeholder for some check if we should remove the duplicate images (currently resolves to false)
-            that.removeDuplicateImages(imageInfo);
+        if(that.isRemoveDuplicateImages(imageInfo)){ // placeholder for some check if we should remove the duplicate images (currently resolves to false)
+            that.element.parentElement.removeChild(that.element);
         }else{
             that.element.parentElement.replaceChild(newImage, that.element);
         }
     }
 }
 
-ImageElementConverter.prototype.removeDuplicateImages = function (imageInfo) {
+ImageElementConverter.prototype.isRemoveDuplicateImages = function (imageInfo) {
     let that = this;
-    if(that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover)){
-        that.element.parentElement.removeChild(that.element);
-    }
+    return that.removeDuplicateImages && that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover);
 }
 
 BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
     let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl);
+    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl, that.removeDuplicateImages);
 }
 
 BakaTsukiImageCollector.prototype.findImageWrappingElement = function (element) {
