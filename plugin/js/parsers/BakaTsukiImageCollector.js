@@ -112,11 +112,18 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        if(that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover)){
-            that.element.parentElement.removeChild(that.element);
+        if(0 === 1){ // placeholder for some check if we should remove the duplicate images (currently resolves to false)
+            that.removeDuplicateImages(imageInfo);
         }else{
             that.element.parentElement.replaceChild(newImage, that.element);
         }
+    }
+}
+
+ImageElementConverter.prototype.removeDuplicateImages = function (imageInfo) {
+    let that = this;
+    if(that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover)){
+        that.element.parentElement.removeChild(that.element);
     }
 }
 
@@ -161,8 +168,7 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
             if(existing != null){
-                existing.isOutsideGallery = true;
-                imageInfo.isOutsideGallery = true;
+                existing.isOutsideGallery = imageInfo.isOutsideGallery = true;
             }
             images.set(pageUrl, imageInfo);
         }

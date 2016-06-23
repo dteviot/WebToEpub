@@ -337,9 +337,9 @@ test("fixupFootnotes", function (assert) {
     let epubItems = parser.splitContentIntoSections(content, null);
     parser.fixupFootnotes(epubItems);
 
-    assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "index_split_0003.html#cite_note-1");
-    assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "index_split_0001.html#cite_note-2");
-    assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "index_split_0000.html#cite_ref-1");
-    assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "index_split_0002.html#cite_ref-2");
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "[0003]H4.html#cite_note-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "[0001]H2.html#cite_note-2");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "[0000]H1.html#cite_ref-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "[0002]H3.html#cite_ref-2");
 
 });

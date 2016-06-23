@@ -18,8 +18,8 @@ EpubItemSupplier.prototype.setChapters = function (chapters) {
 }
 
 EpubItemSupplier.prototype.createXhtmlFileName = function (fileIndex) {
-    // Belldandu: For now only new format gets implemented because not sure where this files functions are even called and i dont want to accidentally break something.
-    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + ".xhtml";
+    let that = this;
+    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + util.getTruncatedChapterTitle(this.items[fileIndex].chapterTitle) + ".xhtml";
 }
 
 // return id attribute to go into <item> element in <manifest>

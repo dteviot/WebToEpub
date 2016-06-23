@@ -100,9 +100,6 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
-    
-    // discard gallery text (to improve epub format)
-    util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
 
     util.removeComments(element);
     that.removeUnwantedTable(element);
@@ -132,7 +129,7 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
 
 BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
-    that.stripGalleryBoxWidthStyle(element);
+    that.stripGalleryBox(element);
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
         let converter = that.imageCollector.makeImageConverter(currentNode)
@@ -143,8 +140,8 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
     converters.forEach(c => c.replaceWithImagePageUrl(images));
 }
 
-// remove the "Width" style from the GalleryBox items, so images can take full screen.
-BakaTsukiParser.prototype.stripGalleryBoxWidthStyle = function (element) {
+// remove gallery text and move images out of the gallery box so images can take full screen.
+BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     let that = this;
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
         for(let d of util.getElements(listItem, "div")) {
@@ -153,6 +150,8 @@ BakaTsukiParser.prototype.stripGalleryBoxWidthStyle = function (element) {
         that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
         listItem.parentNode.removeChild(listItem);
     }
+    // discard gallery text (to improve epub format)
+    util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
@@ -328,7 +327,7 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 epubItem.chapterTitle = element.textContent;
             }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref(epubItem.chapterTitle)]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref()]);
             } while (walker.nextNode());
         };
     };

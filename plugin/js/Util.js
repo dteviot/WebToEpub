@@ -143,6 +143,14 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
+    var getTruncatedChapterTitle = function (title) {
+        if(title) {
+            return (title.length > 20 ? title.substr(0, 20) + "..." : title);
+        }else {
+            return "";
+        }
+    }
+
     // This is for Unit Testing only
     function syncLoadSampleDoc(fileName, url) {
         let that = this;
@@ -165,6 +173,7 @@ var util = (function () {
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
+        getTruncatedChapterTitle: getTruncatedChapterTitle,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,

@@ -15,14 +15,16 @@ function EpubItem(type, sourceUrl) {
     this.type = type;
     this.sourceUrl = sourceUrl;
     this.isInSpine = true;
+    this.chapterTitle = null;
 }
 
 EpubItem.prototype.setIndex = function (index) {
     this.index = index;
 }
 
-EpubItem.prototype.getZipHref = function (title) {
-    return "OEBPS/Text/[" + util.zeroPad(this.index) + "]" + (title.length > 20 ? title.substr(0, 20) + "..." : title) + ".xhtml";
+EpubItem.prototype.getZipHref = function () {
+    let that = this;
+    return "OEBPS/Text/[" + util.zeroPad(this.index) + "]" + util.getTruncatedChapterTitle(that.chapterTitle) + ".xhtml";
 }
 
 EpubItem.prototype.getId = function () {
@@ -50,7 +52,7 @@ EpubItem.prototype.chapterInfo = function*() {
             yield {
                 depth: this.tagNameToTocDepth(element.tagName),
                 title: element.textContent,
-                src: that.getZipHref(element.textContent)
+                src: that.getZipHref()
             };
         };
     };
