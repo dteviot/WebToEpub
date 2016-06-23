@@ -114,7 +114,7 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        if(that.isRemoveDuplicateImages(imageInfo)){ // placeholder for some check if we should remove the duplicate images (currently resolves to false)
+        if(that.isRemoveDuplicateImages(imageInfo)){
             that.element.parentElement.removeChild(that.element);
         }else{
             that.element.parentElement.replaceChild(newImage, that.element);
