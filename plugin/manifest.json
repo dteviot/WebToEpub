@@ -7,12 +7,18 @@
   },
   "permissions": [
     "tabs", 
-	"<all_urls>"
+    "<all_urls>"
   ],
   "browser_action": {
     "default_title": "",
     "default_icon": "book128.png",
     "default_popup": "popup.html"
   },
-  "minimum_chrome_version": "46"
+  "applications": {
+    "gecko": {
+      "id": "WebToEpub@Baka-tsuki.org"
+    }
+  },
+  "minimum_chrome_version": "46",
+  "minimum_firefox_version": "48"
 }
