@@ -23,7 +23,7 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.imagePageUrl = imagePageUrl;
     this.sourceImageUrl = sourceImageUrl;
     let suffix = that.findImageType(imagePageUrl);
-    this.zipHref = that.makeZipHref(imageIndex, suffix);
+    this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
     this.id = that.makeId(imageIndex);
     this.mediaType = that.makeMediaType(suffix);
     this.imageIndex = imageIndex;
@@ -44,8 +44,8 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
     return suffix;
 }
 
-BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix) {
-    return "OEBPS/Images/image_" + util.zeroPad(imageIndex) + "." +suffix;
+BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
+    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + util.getImageName(imagePageUrl) + "." +suffix;
 }
 
 BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {

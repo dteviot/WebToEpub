@@ -143,12 +143,23 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
-    var getTruncatedChapterTitle = function (title) {
+    var getChapterTitle = function (title) {
         if(title) {
+            title = title.replace(/([^a-z0-9_\- ]+)/gi, '');
             return (title.length > 20 ? title.substr(0, 20) + "..." : title);
-        }else {
-            return "";
         }
+        return "";
+    }
+
+    var getImageName = function (page) {
+        if(page){
+            let name = page.split(/file:/gi)[1];
+            if(name){
+                let image = name.split(/\./gi)[0].replace(/([^a-z0-9_\- ]+)/gi, '');
+                return (image.length > 20 ? image.substr(0, 20) + "..." : image);
+            }
+        }
+        return "";
     }
 
     // This is for Unit Testing only
@@ -173,7 +184,8 @@ var util = (function () {
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
-        getTruncatedChapterTitle: getTruncatedChapterTitle,
+        getChapterTitle: getChapterTitle,
+        getImageName: getImageName,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,
