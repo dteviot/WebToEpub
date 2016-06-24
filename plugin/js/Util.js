@@ -143,21 +143,10 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
-    var getChapterTitle = function (title) {
+    var getTitle = function (title) {
         if(title) {
             title = title.replace(/([^a-z0-9_\- ]+)/gi, '');
             return (title.length > 20 ? title.substr(0, 20) + "..." : title);
-        }
-        return "";
-    }
-
-    var getImageName = function (page) {
-        if(page){
-            let name = page.split(/file:/gi)[1];
-            if(name){
-                let image = name.split(/\./gi)[0].replace(/([^a-z0-9_\- ]+)/gi, '');
-                return (image.length > 20 ? image.substr(0, 20) + "..." : image);
-            }
         }
         return "";
     }
@@ -184,8 +173,7 @@ var util = (function () {
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
-        getChapterTitle: getChapterTitle,
-        getImageName: getImageName,
+        getTitle: getTitle,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,

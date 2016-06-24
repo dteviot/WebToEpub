@@ -45,7 +45,19 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
 }
 
 BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
-    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + util.getImageName(imagePageUrl) + "." +suffix;
+    let that = this;
+    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + that.getImageName(imagePageUrl) + "." +suffix;
+}
+
+BakaTsukiImageInfo.prototype.getImageName = function (page) {
+    if(page){
+        var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
+        if(name){
+            name = name.split(/\./gi)[0];
+            return util.getTitle(name);
+        }
+    }
+    return "";
 }
 
 BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {
