@@ -54,7 +54,7 @@ BakaTsukiImageInfo.prototype.getImageName = function (page) {
         var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
         if(name){
             name = name.split(/\./gi)[0];
-            return util.getTitle(name);
+            return util.safeForFileName(name);
         }
     }
     return "";

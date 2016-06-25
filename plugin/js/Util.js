@@ -143,7 +143,7 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
-    var getTitle = function (title) {
+    var safeForFileName = function (title) {
         if(title) {
             title = title.replace(/([^a-z0-9_\- ]+)/gi, '');
             return (title.length > 20 ? title.substr(0, 20) + "..." : title);
@@ -173,7 +173,7 @@ var util = (function () {
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
-        getTitle: getTitle,
+        safeForFileName: safeForFileName,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,
