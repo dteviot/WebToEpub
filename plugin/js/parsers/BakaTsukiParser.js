@@ -153,7 +153,7 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
             that.stripWidthStyle(d);
         }
         that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
-        listItem.parentNode.removeChild(listItem);
+        util.removeNode(listItem);
     }
     // discard gallery text (to improve epub format)
     util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));

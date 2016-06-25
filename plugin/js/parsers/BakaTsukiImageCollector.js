@@ -126,17 +126,21 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        if(that.isRemoveDuplicateImages(imageInfo)){
-            that.element.parentElement.removeChild(that.element);
+        if (that.isDuplicateImageToRemove(imageInfo)) {
+            util.removeNode(that.element)
         }else{
             that.element.parentElement.replaceChild(newImage, that.element);
         }
     }
 }
 
-ImageElementConverter.prototype.isRemoveDuplicateImages = function (imageInfo) {
+ImageElementConverter.prototype.isDuplicateImageToRemove = function (imageInfo) {
     let that = this;
-    return that.removeDuplicateImages && that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover);
+    return that.removeDuplicateImages && that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
+}
+
+ImageElementConverter.prototype.isElementInImageGallery = function () {
+    return (this.element.className === "thumb");
 }
 
 BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
