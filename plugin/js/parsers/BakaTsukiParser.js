@@ -131,9 +131,7 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
 BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
     that.stripGalleryBox(element);
-    if(that.removeDuplicateImages){
-        that.imageCollector.removeDuplicateImages = that.removeDuplicateImages;
-    }
+    that.imageCollector.removeDuplicateImages = that.removeDuplicateImages;
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
         let converter = that.imageCollector.makeImageConverter(currentNode);

@@ -180,7 +180,7 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
             if(existing != null){
-                existing.isOutsideGallery = imageInfo.isOutsideGallery = true;
+                imageInfo.isOutsideGallery = true;
             }
             images.set(pageUrl, imageInfo);
         }
