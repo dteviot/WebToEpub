@@ -212,7 +212,7 @@ QUnit.test("processImages", function (assert) {
         "<x xmlns=\"http://www.w3.org/1999/xhtml\">" +
            "<div></div>" +
            "<div>" +
-             "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
+             "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
                     "<image xlink:href=\"../Images/[0000]BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\"/>"+
                 "</svg>"+
@@ -221,13 +221,13 @@ QUnit.test("processImages", function (assert) {
            "<ul class=\"gallery mw-gallery-traditional\">" +
                "<li class=\"comment\"></li>" +
            "</ul>" +
-           "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
+           "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 300\">" +
                     "<image xlink:href=\"../Images/[0001]BTS_vol_01_000b.png\" height=\"300\" width=\"400\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png\"/>"+
                 "</svg>"+
             "</div>"+
            "<div class=\"thumbinner\">T1</div>" +
-           "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
+           "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
                     "<image xlink:href=\"../Images/[0000]BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\"/>"+
                 "</svg>"+
