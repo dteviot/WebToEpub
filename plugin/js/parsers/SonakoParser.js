@@ -73,7 +73,9 @@ SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (elem
     util.removeElements(that.getElements(element, "a", e => (e.className === "toc-link")));
 
     util.removeElements(that.getElements(element, "a", e => e.className.startsWith("wikia-photogallery-add")));
-    util.removeElements(that.getElements(element, "div", e => (e.className ==="dotEPUBremove")));
+    util.removeElements(that.getElements(element, "div", e => (e.className ==="print-no")));
+    util.removeElements(that.getElements(element, "div", e => (e.id.startsWith("INCONTENT"))));
+
 
     util.removeComments(element);
     util.removeElements(that.getElements(element, "table"));
