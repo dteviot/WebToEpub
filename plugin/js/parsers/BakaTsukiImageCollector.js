@@ -253,6 +253,8 @@ BakaTsukiImageCollector.prototype.onImageClicked = function(checkboxId, imageInf
                 box.checked = false;
             }
         }
+    } else {
+        bakaTsukiParser.setCoverImage(null);
     }
 } 
 

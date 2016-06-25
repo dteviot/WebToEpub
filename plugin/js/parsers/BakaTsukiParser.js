@@ -91,8 +91,16 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
 }
 
+// when imageInfo === null, setting to "No cover image"
 BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
-    this.coverImageInfo = imageInfo;
+    let that = this;
+    if (that.coverImageInfo !== null) {
+        that.coverImageInfo.isCover = false;
+    }
+    if (imageInfo !== null) {
+        imageInfo.isCover = true;
+    };
+    that.coverImageInfo = imageInfo;
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -136,9 +144,6 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
     for(let currentNode of util.getElements(element, "img")) {
         let converter = that.imageCollector.makeImageConverter(currentNode);
         if (converter != null) {
-            if(that.coverImageInfo) {
-                that.coverImageInfo.isCover = converter.isCover = true;
-            }
             converters.push(converter);
         }
     };
