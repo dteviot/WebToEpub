@@ -136,7 +136,7 @@ EpubPacker.prototype = {
     addManifestItem: function(manifest, href, id, mediaType) {
         let that = this;
         var item = that.createAndAppendChild(manifest, "item");
-        item.setAttribute("href", href.substr(6));
+        item.setAttribute("href", that.makeRelative(href));
         item.setAttribute("id", id);
         item.setAttribute("media-type", mediaType);
     },
@@ -162,7 +162,7 @@ EpubPacker.prototype = {
         if (epubItemSupplier.hasCoverImageFile()) {
             let guide = that.createAndAppendChild(opf.documentElement, "guide");
             let reference = that.createAndAppendChild(guide, "reference");
-            reference.setAttribute("href", EpubPacker.coverImageXhtmlHref().substr(6));
+            reference.setAttribute("href", that.makeRelative(EpubPacker.coverImageXhtmlHref()));
             reference.setAttribute("title", "Cover");
             reference.setAttribute("type", "cover");
         };
@@ -223,7 +223,7 @@ EpubPacker.prototype = {
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", chapterInfo.title);
-        that.createAndAppendChild(navPoint, "content").setAttribute("src", chapterInfo.src.substr(6));
+        that.createAndAppendChild(navPoint, "content").setAttribute("src", that.makeRelative(chapterInfo.src));
         return navPoint;
     },
 
@@ -245,6 +245,12 @@ EpubPacker.prototype = {
         }
         element.appendChild(child);
         return child;
+    },
+
+    // changes href to be relative to manifest (and toc.ncx)
+    // which are in OEBPS
+    makeRelative: function (href) {
+        return href.substr(6);
     },
 
     /// hook point for unit testing (because we can't control the actual time)

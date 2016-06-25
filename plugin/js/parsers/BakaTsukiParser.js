@@ -339,10 +339,16 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 epubItem.chapterTitle = element.textContent;
             }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, ".." + epubItem.getZipHref().substring(5)]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, that.makeRelative(epubItem.getZipHref())]);
             } while (walker.nextNode());
         };
     };
+}
+
+// Make href a relative one.
+// assumes both files involved are in OEBPS/Text/
+BakaTsukiParser.prototype.makeRelative = function(href) {
+    return href.substring(11);
 }
 
 BakaTsukiParser.prototype.isFootNote = function(node) {
