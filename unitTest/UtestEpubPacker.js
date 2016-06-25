@@ -38,9 +38,9 @@ test("buildContentOpf", function (assert) {
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
     assert.equal(contentOpf,
-        "<?xml version='1.0' encoding='utf-8'?>\n"+
+        "<?xml version='1.0' encoding='utf-8'?>"+
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">"+
-            "<metadata xmlns=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
+            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
             "<dc:language>en</dc:language>"+
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
@@ -49,12 +49,12 @@ test("buildContentOpf", function (assert) {
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
-            "<manifest xmlns=\"\">"+
+            "<manifest>"+
               "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
-            "<spine xmlns=\"\" toc=\"ncx\">"+
+            "<spine toc=\"ncx\">"+
               "<itemref idref=\"xhtml0000\"/>" +
               "<itemref idref=\"xhtml0001\"/>" +
             "</spine>" +
@@ -70,9 +70,9 @@ test("buildContentOpfWithCover", function (assert) {
     let contentOpf = epubPacker.buildContentOpf(itemSupplier);
 
     assert.equal(contentOpf,
-        "<?xml version='1.0' encoding='utf-8'?>\n" +
+        "<?xml version='1.0' encoding='utf-8'?>" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
-            "<metadata xmlns=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
+            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
             "<dc:language>en</dc:language>" +
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
@@ -80,18 +80,18 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
             "<meta content=\"cover000\" name=\"cover\"/>" +
             "</metadata>" +
-            "<manifest xmlns=\"\">" +
+            "<manifest>" +
               "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
               "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
-            "<spine xmlns=\"\" toc=\"ncx\">" +
+            "<spine toc=\"ncx\">" +
               "<itemref idref=\"cover\"/>" +
               "<itemref idref=\"xhtml0000\"/>" +
               "<itemref idref=\"xhtml0001\"/>" +
             "</spine>" +
-            "<guide xmlns=\"\">" +
+            "<guide>" +
                 "<reference href=\"Text/Cover.xhtml\" title=\"Cover\" type=\"cover\"/>" +
             "</guide>" +
         "</package>"
@@ -101,18 +101,18 @@ test("buildContentOpfWithCover", function (assert) {
 test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     assert.equal(buildTableOfContents,
-        "<?xml version='1.0' encoding='utf-8'?>\n" +
+        "<?xml version='1.0' encoding='utf-8'?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
-          "<head xmlns=\"\">" +
+          "<head>" +
             "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
             "<meta content=\"2\" name=\"dtb:depth\"/>" +
             "<meta content=\"0\" name=\"dtb:totalPageCount\"/>" +
             "<meta content=\"0\" name=\"dtb:maxPageNumber\"/>" +
           "</head>" +
-          "<docTitle xmlns=\"\">" +
+          "<docTitle>" +
             "<text>Dummy &lt;Title&gt;</text>" +
           "</docTitle>" +
-          "<navMap xmlns=\"\">" +
+          "<navMap>" +
             "<navPoint id=\"0001\" playOrder=\"1\">" +
               "<navLabel>" +
                 "<text>Title0</text>" +
@@ -187,10 +187,10 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "OEBPS/Images/cover.png");
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
-        "<?xml version='1.0' encoding='utf-8'?>\n" +
-        "<html>" +
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
-                "<title/>" +
+                "<title></title>" +
                 "<style type=\"text/css\">img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
                 "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
                                 "padding-right: 0; padding-top: 0; text-align: left } " +
