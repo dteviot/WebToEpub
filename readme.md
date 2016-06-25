@@ -2,8 +2,12 @@
 (c) 2015 David Teviotdale   
 Firefox mod by Markus Vieth
 
-A simple Extension that converts a story on Baka-Tsuki into an EPUB.
-Also works with ArchiveOfOurOwn.org and FanFiction.net.
+A simple Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
+Also works with 
+* ArchiveOfOurOwn.org
+* mugglenet.com
+* FanFiction.net
+* royalroadl.com 
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
@@ -23,13 +27,13 @@ Also works with ArchiveOfOurOwn.org and FanFiction.net.
 ## How to install 
 ### from Chrome Web Store
 * Start Chrome
-* Go to https://chrome.google.com/webstore/deta ... cnibaigelm
+* Go to https://chrome.google.com/webstore/detail/webtoepub/akiljllkbielkidmammnifcnibaigelm
 * Click on the "Add to Chrome" button.
 
 ### with Firefox
 * Start Firefox
-* Go to https://github.com/Gusser93/WebToEpubForFirefox/releases
-* Click on webtoepub-***-fx.an.xpi.
+* Go to https://addons.mozilla.org/en-US/firefox/addon/webtoepub-for-baka-tsuki
+* Click on "Download anyway"
 
 ## How to install from Source
 ### Chrome

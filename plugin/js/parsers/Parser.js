@@ -48,7 +48,7 @@ Parser.prototype.getBaseUrl = function (dom) {
     return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
 }
 
-// Name to save file as. Default is strip spaces from title and add ".epub" extension.
+// Name to save EPUB file as.
 Parser.prototype.makeFileName = function(title) {
     if (title == null) {
         return "web.epub";
