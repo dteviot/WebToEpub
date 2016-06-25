@@ -328,7 +328,9 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 element, 
                 NodeFilter.SHOW_ELEMENT
             );
-            if(util.isHeaderTag(element)){
+            
+            // assume first header tag we find is title of the chapter.
+            if(util.isHeaderTag(element) && (epubItem.chapterTitle === null)){
                 epubItem.chapterTitle = element.textContent;
             }
             do {
