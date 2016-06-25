@@ -18,12 +18,13 @@ EpubItemSupplier.prototype.setChapters = function (chapters) {
 }
 
 EpubItemSupplier.prototype.createXhtmlFileName = function (fileIndex) {
-    return "index_split_" + util.zeroPad(fileIndex) + ".html";
+    let that = this;
+    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + util.getTitle(this.items[fileIndex].chapterTitle) + ".xhtml";
 }
 
 // return id attribute to go into <item> element in <manifest>
 EpubItemSupplier.prototype.createId = function(fileIndex) {
-    return "html" + util.zeroPad(fileIndex);
+    return "xhtml" + util.zeroPad(fileIndex);
 }
 
 // used to populate manifest

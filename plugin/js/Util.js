@@ -20,7 +20,7 @@ var util = (function () {
         head.appendChild(style);
         style.setAttribute("type", "text/css");
         style.appendChild(doc.createTextNode(
-            "img { max-width: 100%; padding: 0; margin: 0; } " +
+            "img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
             "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
                             "padding-right: 0; padding-top: 0; text-align: left } " +
             "div.svg_inner { display: block; text-align: center } "
@@ -30,7 +30,7 @@ var util = (function () {
         return doc;
     }
 
-    function createSvgImageElement(href, width, height) {
+    function createSvgImageElement(href, width, height, origin) {
         let that = this;
         let doc = that.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
@@ -47,9 +47,10 @@ var util = (function () {
         svg.setAttribute("viewBox", "0 0 " + width + " " + height);
         let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
         svg.appendChild(newImage);
-        newImage.setAttribute("xlink:href", href);
+        newImage.setAttribute("xlink:href", ".." + href.substr(5));
         newImage.setAttribute("height", height);
         newImage.setAttribute("width", width);
+        newImage.setAttribute("data-origin", origin);
         return div;
     }
 
@@ -142,6 +143,14 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
+    var getTitle = function (title) {
+        if(title) {
+            title = title.replace(/([^a-z0-9_\- ]+)/gi, '');
+            return (title.length > 20 ? title.substr(0, 20) + "..." : title);
+        }
+        return "";
+    }
+
     // This is for Unit Testing only
     function syncLoadSampleDoc(fileName, url) {
         let that = this;
@@ -164,6 +173,7 @@ var util = (function () {
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
+        getTitle: getTitle,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,

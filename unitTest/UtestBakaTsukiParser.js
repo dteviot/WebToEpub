@@ -163,6 +163,7 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
 QUnit.test("processImages", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
+           "<div></div>" +
            "<ul class=\"gallery mw-gallery-traditional\">"+
                "<li class=\"gallerybox\" style=\"width: 155px\"><div style=\"width: 155px\">" +
                    "<div class=\"thumb\">" +
@@ -209,25 +210,26 @@ QUnit.test("processImages", function (assert) {
 
     assert.equal(doc2.getElementsByTagName("x")[0].outerHTML,
         "<x xmlns=\"http://www.w3.org/1999/xhtml\">" +
+           "<div></div>" +
+           "<div>" +
+             "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
+                    "<image xlink:href=\"../Images/[0000]BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\"/>"+
+                "</svg>"+
+             "</div>"+
+           "</div>"+
            "<ul class=\"gallery mw-gallery-traditional\">" +
-               "<li class=\"gallerybox\"><div>" +
-                    "<div class=\"svg_outer svg_inner\">"+
-                        "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
-                            "<image xlink:href=\"images/image_0000.jpg\" height=\"100\" width=\"200\"/>"+
-                        "</svg>"+
-                    "</div>"+
-               "</div></li>"+
                "<li class=\"comment\"></li>" +
            "</ul>" +
-           "<div class=\"svg_outer svg_inner\">"+
+           "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 300\">" +
-                    "<image xlink:href=\"images/image_0001.png\" height=\"300\" width=\"400\"/>"+
+                    "<image xlink:href=\"../Images/[0001]BTS_vol_01_000b.png\" height=\"300\" width=\"400\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png\"/>"+
                 "</svg>"+
             "</div>"+
            "<div class=\"thumbinner\">T1</div>" +
-           "<div class=\"svg_outer svg_inner\">"+
+           "<div xmlns=\"\" class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
-                    "<image xlink:href=\"images/image_0000.jpg\" height=\"100\" width=\"200\"/>"+
+                    "<image xlink:href=\"../Images/[0000]BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\" data-origin=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\"/>"+
                 "</svg>"+
             "</div>"+
         "</x>");
@@ -337,9 +339,9 @@ test("fixupFootnotes", function (assert) {
     let epubItems = parser.splitContentIntoSections(content, null);
     parser.fixupFootnotes(epubItems);
 
-    assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "index_split_0003.html#cite_note-1");
-    assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "index_split_0001.html#cite_note-2");
-    assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "index_split_0000.html#cite_ref-1");
-    assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "index_split_0002.html#cite_ref-2");
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "../Text/[0003]H4.xhtml#cite_note-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "../Text/[0001]H2.xhtml#cite_note-2");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "../Text/[0000]H1.xhtml#cite_ref-1");
+    assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "../Text/[0002]H3.xhtml#cite_ref-2");
 
 });

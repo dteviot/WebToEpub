@@ -15,6 +15,7 @@ function EpubItem(type, sourceUrl) {
     this.type = type;
     this.sourceUrl = sourceUrl;
     this.isInSpine = true;
+    this.chapterTitle = null;
 }
 
 EpubItem.prototype.setIndex = function (index) {
@@ -22,11 +23,12 @@ EpubItem.prototype.setIndex = function (index) {
 }
 
 EpubItem.prototype.getZipHref = function () {
-    return "index_split_" + util.zeroPad(this.index) + ".html";
+    let that = this;
+    return "OEBPS/Text/[" + util.zeroPad(this.index) + "]" + util.getTitle(that.chapterTitle) + ".xhtml";
 }
 
 EpubItem.prototype.getId = function () {
-    return "html" + util.zeroPad(this.index);
+    return "xhtml" + util.zeroPad(this.index);
 }
 
 EpubItem.prototype.getMediaType = function () {

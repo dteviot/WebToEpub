@@ -8,6 +8,7 @@ function BakaTsukiParser(imageCollector) {
     this.images = new Map();
     this.coverImageInfo = null;
     this.imageCollector = imageCollector;
+    this.removeDuplicateImages = false;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -129,28 +130,35 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
 
 BakaTsukiParser.prototype.processImages = function (element, images) {
     let that = this;
-    that.stripGalleryBoxWidthStyle(element);
+    that.stripGalleryBox(element);
+    if(that.removeDuplicateImages){
+        that.imageCollector.removeDuplicateImages = that.removeDuplicateImages;
+    }
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
-        
-        let converter = that.imageCollector.makeImageConverter(currentNode)
+        let converter = that.imageCollector.makeImageConverter(currentNode);
         if (converter != null) {
+            if(that.coverImageInfo) {
+                that.coverImageInfo.isCover = converter.isCover = true;
+            }
             converters.push(converter);
         }
     };
-
     converters.forEach(c => c.replaceWithImagePageUrl(images));
 }
 
-// remove the "Width" style from the GalleryBox items, so images can take full screen.
-BakaTsukiParser.prototype.stripGalleryBoxWidthStyle = function (element) {
+// remove gallery text and move images out of the gallery box so images can take full screen.
+BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     let that = this;
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
-        that.stripWidthStyle(listItem);
         for(let d of util.getElements(listItem, "div")) {
             that.stripWidthStyle(d);
         }
+        that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
+        listItem.parentNode.removeChild(listItem);
     }
+    // discard gallery text (to improve epub format)
+    util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
@@ -322,8 +330,11 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 element, 
                 NodeFilter.SHOW_ELEMENT
             );
+            if(util.isHeaderTag(element)){
+                epubItem.chapterTitle = element.textContent;
+            }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, epubItem.getZipHref()]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, ".." + epubItem.getZipHref().substring(5)]);
             } while (walker.nextNode());
         };
     };

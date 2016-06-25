@@ -7,7 +7,7 @@ QUnit.test("BakaTsukiImageInfo.findImageType", function (assert) {
     let imageInfo = new BakaTsukiImageInfo("WebToEpub.jpg", 0, null);
     assert.equal(imageInfo.imagePageUrl, "WebToEpub.jpg");
     assert.equal(imageInfo.sourceImageUrl, null);
-    assert.equal(imageInfo.getZipHref(), "images/image_0000.jpg");
+    assert.equal(imageInfo.getZipHref(), "OEBPS/Images/[0000]WebToEpub.jpg");
     assert.equal(imageInfo.getId(), "image0000");
     assert.equal(imageInfo.getMediaType(), "image/jpeg");
 });
@@ -61,5 +61,5 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
     let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
     assert.equal(imagesMap.size, 3);
     let imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
-    assert.equal(imageInfo.getZipHref(), "images/image_0000.jpg");
+    assert.equal(imageInfo.getZipHref(), "OEBPS/Images/[0000]BTS_vol_01_000a.jpg");
 });

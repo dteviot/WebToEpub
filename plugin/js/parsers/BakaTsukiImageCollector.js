@@ -23,12 +23,13 @@ function BakaTsukiImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.imagePageUrl = imagePageUrl;
     this.sourceImageUrl = sourceImageUrl;
     let suffix = that.findImageType(imagePageUrl);
-    this.zipHref = that.makeZipHref(imageIndex, suffix);
+    this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
     this.id = that.makeId(imageIndex);
     this.mediaType = that.makeMediaType(suffix);
     this.imageIndex = imageIndex;
     this.isCover = false;
     this.isInSpine = false;
+    this.isOutsideGallery = false;
     this.arraybuffer = null;
     this.height = null;
     this.width = null;
@@ -43,8 +44,20 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
     return suffix;
 }
 
-BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix) {
-    return "images/image_" + util.zeroPad(imageIndex) + "." +suffix;
+BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
+    let that = this;
+    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + that.getImageName(imagePageUrl) + "." +suffix;
+}
+
+BakaTsukiImageInfo.prototype.getImageName = function (page) {
+    if(page){
+        var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
+        if(name){
+            name = name.split(/\./gi)[0];
+            return util.getTitle(name);
+        }
+    }
+    return "";
 }
 
 BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {
@@ -84,10 +97,11 @@ BakaTsukiImageInfo.prototype.fileContentForEpub = function() {
 
 BakaTsukiImageInfo.prototype.createImageElement = function() {
     let that = this;
-    return util.createSvgImageElement(that.getZipHref(), that.width, that.height);
+    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, that.imagePageUrl);
 }
 
 function BakaTsukiImageCollector() {
+    this.removeDuplicateImages = false;
 }
 
 // get URL of page that holds all copies of this image
@@ -100,9 +114,10 @@ BakaTsukiImageCollector.prototype.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element, imagePageUrl) {
+function ImageElementConverter(element, imagePageUrl, removeDuplicateImages) {
     this.element = element;
     this.imagePageUrl = imagePageUrl;
+    this.removeDuplicateImages = removeDuplicateImages;
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
@@ -111,15 +126,24 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
         let newImage = imageInfo.createImageElement();
-        that.element.parentElement.replaceChild(newImage, that.element);
+        if(that.isRemoveDuplicateImages(imageInfo)){
+            that.element.parentElement.removeChild(that.element);
+        }else{
+            that.element.parentElement.replaceChild(newImage, that.element);
+        }
     }
+}
+
+ImageElementConverter.prototype.isRemoveDuplicateImages = function (imageInfo) {
+    let that = this;
+    return that.removeDuplicateImages && that.element.className === "thumb" && (imageInfo.isOutsideGallery || imageInfo.isCover);
 }
 
 BakaTsukiImageCollector.prototype.makeImageConverter = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
     let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl);
+    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl, that.removeDuplicateImages);
 }
 
 BakaTsukiImageCollector.prototype.findImageWrappingElement = function (element) {
@@ -155,6 +179,9 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let existing = images.get(pageUrl);
             let index = (existing == null) ? images.size : existing.imageIndex;
             let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
+            if(existing != null){
+                existing.isOutsideGallery = imageInfo.isOutsideGallery = true;
+            }
             images.set(pageUrl, imageInfo);
         }
     };

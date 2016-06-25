@@ -38,9 +38,9 @@ test("buildContentOpf", function (assert) {
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
     assert.equal(contentOpf,
-        "<?xml version='1.0' encoding='utf-8'?>"+
+        "<?xml version='1.0' encoding='utf-8'?>\n"+
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">"+
-            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
+            "<metadata xmlns=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
             "<dc:language>en</dc:language>"+
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
@@ -49,14 +49,14 @@ test("buildContentOpf", function (assert) {
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
-            "<manifest>"+
-              "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"index_split_0001.html\" id=\"html0001\" media-type=\"application/xhtml+xml\"/>" +
+            "<manifest xmlns=\"\">"+
+              "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
-            "<spine toc=\"ncx\">"+
-              "<itemref idref=\"html0000\"/>" +
-              "<itemref idref=\"html0001\"/>" +
+            "<spine xmlns=\"\" toc=\"ncx\">"+
+              "<itemref idref=\"xhtml0000\"/>" +
+              "<itemref idref=\"xhtml0001\"/>" +
             "</spine>" +
         "</package>"
     );
@@ -70,9 +70,9 @@ test("buildContentOpfWithCover", function (assert) {
     let contentOpf = epubPacker.buildContentOpf(itemSupplier);
 
     assert.equal(contentOpf,
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version='1.0' encoding='utf-8'?>\n" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
-            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
+            "<metadata xmlns=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
             "<dc:language>en</dc:language>" +
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
@@ -80,19 +80,19 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
             "<meta content=\"cover000\" name=\"cover\"/>" +
             "</metadata>" +
-            "<manifest>" +
-              "<item href=\"index_split_0000.html\" id=\"html0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"index_split_0001.html\" id=\"html0001\" media-type=\"application/xhtml+xml\"/>" +
+            "<manifest xmlns=\"\">" +
+              "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
-              "<item href=\"cover.xhtml\" id=\"cover.xhtml\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
-            "<spine toc=\"ncx\">" +
-              "<itemref idref=\"cover.xhtml\"/>" +
-              "<itemref idref=\"html0000\"/>" +
-              "<itemref idref=\"html0001\"/>" +
+            "<spine xmlns=\"\" toc=\"ncx\">" +
+              "<itemref idref=\"cover\"/>" +
+              "<itemref idref=\"xhtml0000\"/>" +
+              "<itemref idref=\"xhtml0001\"/>" +
             "</spine>" +
-            "<guide>" +
-                "<reference href=\"cover.xhtml\" title=\"Cover\" type=\"cover\"/>" +
+            "<guide xmlns=\"\">" +
+                "<reference href=\"Text/Cover.xhtml\" title=\"Cover\" type=\"cover\"/>" +
             "</guide>" +
         "</package>"
     );
@@ -101,29 +101,29 @@ test("buildContentOpfWithCover", function (assert) {
 test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     assert.equal(buildTableOfContents,
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version='1.0' encoding='utf-8'?>\n" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
-          "<head>" +
+          "<head xmlns=\"\">" +
             "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
             "<meta content=\"2\" name=\"dtb:depth\"/>" +
             "<meta content=\"0\" name=\"dtb:totalPageCount\"/>" +
             "<meta content=\"0\" name=\"dtb:maxPageNumber\"/>" +
           "</head>" +
-          "<docTitle>" +
+          "<docTitle xmlns=\"\">" +
             "<text>Dummy &lt;Title&gt;</text>" +
           "</docTitle>" +
-          "<navMap>" +
+          "<navMap xmlns=\"\">" +
             "<navPoint id=\"0001\" playOrder=\"1\">" +
               "<navLabel>" +
                 "<text>Title0</text>" +
               "</navLabel>" +
-              "<content src=\"index_split_0000.html\"/>" +
+              "<content src=\"Text/[0000].xhtml\"/>" +
             "</navPoint>" +
             "<navPoint id=\"0002\" playOrder=\"2\">" +
               "<navLabel>" +
                 "<text>Title1</text>" +
               "</navLabel>" +
-              "<content src=\"index_split_0001.html\"/>" +
+              "<content src=\"Text/[0001].xhtml\"/>" +
             "</navPoint>" +
           "</navMap>" +
         "</ncx>"
@@ -183,15 +183,15 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let imageInfo = new BakaTsukiImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
     imageInfo.width = 400;
     imageInfo.height = 200;
-    imageInfo.zipHref = "cover.png"
-    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "cover.png");
+    imageInfo.zipHref = "OEBPS/Images/cover.png"
+    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "OEBPS/Images/cover.png");
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
-        "<?xml version='1.0' encoding='utf-8'?>" +
-        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+        "<?xml version='1.0' encoding='utf-8'?>\n" +
+        "<html>" +
             "<head>" +
-                "<title></title>" +
-                "<style type=\"text/css\">img { max-width: 100%; padding: 0; margin: 0; } " +
+                "<title/>" +
+                "<style type=\"text/css\">img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
                 "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
                                 "padding-right: 0; padding-top: 0; text-align: left } " +
                 "div.svg_inner { display: block; text-align: center } " +
@@ -200,7 +200,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
                     "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
-                        "<image xlink:href=\"cover.png\" height=\"200\" width=\"400\"/>" +
+                        "<image xlink:href=\"../Images/cover.png\" height=\"200\" width=\"400\" data-origin=\"http://dummy/cover.png\"/>" +
                     "</svg>" +
                 "</div>" +
             "</body>" +
