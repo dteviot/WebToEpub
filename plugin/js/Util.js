@@ -165,10 +165,21 @@ var util = (function () {
     var safeForId = function (id) {
         if(id) {
             // Allow only a-z regardless of case and numbers as well as hyphens and underscores
-            id = id.replace(/([^a-z0-9_\- ]+)/gi, '');
+            id = id.replace(/([^a-z0-9_\-]+)/gi, '');
             return id;
         }
         return "";
+    }
+
+    var makeStorageFileName = function (subdirectory, index, title, extension) {
+        let that = this;
+        if(title) {
+            title = "_" + that.safeForFileName(title) + ".";
+        }else {
+            // We don't want issues so just set it to . to prepare for the extension
+            title = ".";
+        }
+        return subdirectory + index + title + extension;
     }
 
     // This is for Unit Testing only
@@ -191,6 +202,7 @@ var util = (function () {
         removeElements: removeElements,
         removeComments: removeComments,
         makeRelative: makeRelative,
+        makeStorageFileName: makeStorageFileName,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,

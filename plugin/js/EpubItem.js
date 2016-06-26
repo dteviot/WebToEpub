@@ -24,8 +24,7 @@ EpubItem.prototype.setIndex = function (index) {
 
 EpubItem.prototype.getZipHref = function () {
     let that = this;
-    let chapter = util.safeForFileName(that.chapterTitle);
-    return "OEBPS/Text/" + util.zeroPad(this.index) + (chapter ? "_" : "") + chapter + ".xhtml";
+    return util.makeStorageFileName("OEBPS/Text/", util.zeroPad(that.index), that.chapterTitle, "xhtml");
 }
 
 EpubItem.prototype.getId = function () {

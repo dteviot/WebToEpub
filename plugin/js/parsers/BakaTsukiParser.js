@@ -112,7 +112,7 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
         hl.setAttribute("id", util.safeForId(hl.getAttribute("id")));
     }
 
-    // discord <br /> tags as epubcheck says they are invalid and not allowed in xhtml
+    // discard br tags as epubcheck says they are invalid in the places they are at in xhtml
     util.removeElements(util.getElements(element, "br"));
 
     // discard table of contents (will generate one from tags later)
