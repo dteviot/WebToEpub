@@ -379,7 +379,7 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
 // Make href a relative one.
 // assumes both files involved are in OEBPS/Text/
 BakaTsukiParser.prototype.makeRelative = function(href) {
-    return href.substring(11);
+    return ".." + href.substring(5);
 }
 
 BakaTsukiParser.prototype.isFootNote = function(node) {
