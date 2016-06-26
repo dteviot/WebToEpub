@@ -46,7 +46,7 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
 
 BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
     let that = this;
-    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + that.getImageName(imagePageUrl) + "." +suffix;
+    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + util.safeForFileName(that.getImageName(imagePageUrl)) + "." +suffix;
 }
 
 BakaTsukiImageInfo.prototype.getImageName = function (page) {
@@ -181,12 +181,11 @@ BakaTsukiImageCollector.prototype.findImagesUsedInDocument = function (content) 
             let src = that.extractImageSrc(converter.element);
             let pageUrl = converter.imagePageUrl;
             let existing = images.get(pageUrl);
-            let index = (existing == null) ? images.size : existing.imageIndex;
-            let imageInfo = new BakaTsukiImageInfo(pageUrl, index, src);
-            if(existing != null){
-                imageInfo.isOutsideGallery = true;
+            if(existing == null){
+                images.set(pageUrl, new BakaTsukiImageInfo(pageUrl, images.size, src));
+            } else {
+                existing.isOutsideGallery = true;
             }
-            images.set(pageUrl, imageInfo);
         }
     };
     return images;
