@@ -263,6 +263,44 @@ QUnit.test("flattenContent", function (assert) {
         "</div>");
 });
 
+QUnit.test("hasNoVisibleContent", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html><head><title></title></head>" +        
+        "<body><div style=\"display:none;\"></div>"+
+        "<div class=\"print-no\">\n"+
+        "</div>"+
+         "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 1500 597\">"+
+         "<image xlink:href=\"../Images/[0000]Hantuki01 001.jpg\" height=\"597\" width=\"1500\" data-origin=\"http://sonako.wikia.com/wiki/File:Hantuki01 001.jpg\"/>"+
+         "</svg>"+
+         "<div><div id=\"mb_video_syncad_bottom\" style=\"padding: 5px 0px 0px;\"></div></div><p><br />"+
+         "</p>\n</body></html>",
+        "text/html"
+    );
+
+    let elements = new Array();
+    for(let child of dom.getElementsByTagName("body")[0].childNodes) {
+        elements.push(child);
+    };
+
+    assert.equal(BakaTsukiParser.prototype.hasVisibleContent(elements), true);
+
+    // remove <image>, now no visible content
+    let newElements = elements.filter(e => (e.tagName !== "svg"));
+    assert.equal(BakaTsukiParser.prototype.hasVisibleContent(newElements), false);
+
+    // add <img> at top level
+    let img = dom.createElement("img");
+    newElements.push(img);
+    assert.equal(BakaTsukiParser.prototype.hasVisibleContent(newElements), true);
+
+    // add nested <img>
+    newElements.pop();
+    assert.equal(BakaTsukiParser.prototype.hasVisibleContent(newElements), false);
+    newElements[0].appendChild(img);
+    assert.equal(BakaTsukiParser.prototype.hasVisibleContent(newElements), true);
+});
+
+
 QUnit.test("splitContentIntoSections", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<div>" +

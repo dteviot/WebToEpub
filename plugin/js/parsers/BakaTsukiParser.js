@@ -177,6 +177,7 @@ BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUr
     that.flattenContent(content);
     let epubItems = that.splitContentOnHeadingTags(content, sourceUrl);
     epubItems = that.consolidateEpubItems(epubItems);
+    epubItems = that.discardEpubItemsWithNoVisibleContent(epubItems);
     that.indexEpubItems(epubItems);
     return epubItems;
 }
@@ -288,6 +289,34 @@ BakaTsukiParser.prototype.consolidateEpubItems = function (epubItems) {
         --i;
     }
     return newEpubItems;
+}
+
+BakaTsukiParser.prototype.discardEpubItemsWithNoVisibleContent = function(epubItems) {
+    let that = this;
+    return epubItems.filter(item => that.hasVisibleContent(item.elements));
+}
+
+BakaTsukiParser.prototype.hasVisibleContent = function(elements) {
+    for (let element of elements) {
+        if (element.nodeType === Node.TEXT_NODE) {
+            if (!util.isWhiteSpace(element.textContent)) {
+                return true;
+            }
+        } else {
+            if ((element.tagName === "IMG") || (element.tagName === "image")) {
+                return true;
+            }
+            if (0 < (util.getElements(element, "img").length) || (0 < util.getElements(element, "image").length)) {
+                return true;
+            }
+            if (!util.isWhiteSpace(element.innerText)) {
+                return true;
+            }
+        }
+    }
+
+    // if get here, no visible content
+    return false;
 }
 
 BakaTsukiParser.prototype.indexEpubItems = function(epubItems) {
