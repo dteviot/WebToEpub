@@ -50,7 +50,9 @@ var util = (function () {
         newImage.setAttribute("xlink:href", makeRelative.call(this, href));
         newImage.setAttribute("height", height);
         newImage.setAttribute("width", width);
-        newImage.setAttribute("data-origin", origin);
+        let desc = doc.createElementNS("http://www.w3.org/2000/svg","desc");
+        svg.appendChild(desc);
+        desc.innerHTML = origin;
         return div;
     }
 
@@ -150,8 +152,21 @@ var util = (function () {
 
     var safeForFileName = function (title) {
         if(title) {
-            title = title.replace(/([^a-z0-9_\- ]+)/gi, '');
-            return (title.length > 20 ? title.substr(0, 20) + "..." : title);
+            // Allow only a-z regardless of case and numbers as well as hyphens and underscores; replace spaces with underscores
+            title = title.replace(/ /gi, '_').replace(/([^a-z0-9_\-]+)/gi, '');
+            // There is technically a 255 character limit in windows for file paths. 
+            // So we will allow files to have 20 characters and when they go over we split them 
+            // we then truncate the middle so that the file name is always different
+            return (title.length > 20 ? title.substr(0, 10) + "..." + title.substr(title.length - 10, title.length) : title);
+        }
+        return "";
+    }
+
+    var safeForId = function (id) {
+        if(id) {
+            // Allow only a-z regardless of case and numbers as well as hyphens and underscores
+            id = id.replace(/([^a-z0-9_\- ]+)/gi, '');
+            return id;
         }
         return "";
     }
@@ -175,10 +190,12 @@ var util = (function () {
         removeNode: removeNode,
         removeElements: removeElements,
         removeComments: removeComments,
+        makeRelative: makeRelative,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         getElement: getElement,
         getElements: getElements,
         safeForFileName: safeForFileName,
+        safeForId: safeForId,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,

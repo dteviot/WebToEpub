@@ -219,7 +219,7 @@ EpubPacker.prototype = {
     buildNavPoint: function (parent, playOrder, chapterInfo) {
         let that = this;
         let navPoint = that.createAndAppendChild(parent, "navPoint");
-        navPoint.setAttribute("id", util.zeroPad(playOrder));
+        navPoint.setAttribute("id", that.makeId(util.zeroPad(playOrder)));
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", chapterInfo.title);
@@ -247,6 +247,9 @@ EpubPacker.prototype = {
         return child;
     },
 
+    makeId: function (id) {
+        return "body" + id;
+    },
     // changes href to be relative to manifest (and toc.ncx)
     // which are in OEBPS
     makeRelative: function (href) {

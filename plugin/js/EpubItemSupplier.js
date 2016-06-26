@@ -19,7 +19,8 @@ EpubItemSupplier.prototype.setChapters = function (chapters) {
 
 EpubItemSupplier.prototype.createXhtmlFileName = function (fileIndex) {
     let that = this;
-    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + util.safeForFileName(this.items[fileIndex].chapterTitle) + ".xhtml";
+    let chapter = util.safeForFileName(this.items[fileIndex].chapterTitle);
+    return "OEBPS/Text/" + util.zeroPad(fileIndex) + (chapter ? "_" : "") + chapter + ".xhtml";
 }
 
 // return id attribute to go into <item> element in <manifest>
