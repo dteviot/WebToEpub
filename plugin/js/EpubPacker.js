@@ -208,18 +208,27 @@ EpubPacker.prototype = {
         let navMap = that.createAndAppendChild(ncx.documentElement, "navMap");
         let parents = new NavPointParentElementsStack(navMap);
         let playOrder = 0;
+        let id = 0;
+        var lastChapterSrc = null;
         for(let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
-            let navPoint = that.buildNavPoint(parent, ++playOrder, chapterInfo);
+            if(lastChapterSrc && lastChapterSrc === chapterInfo.src){
+                ++id;
+            }else{
+                ++id;
+                ++playOrder;
+            }
+            let navPoint = that.buildNavPoint(parent, playOrder, id, chapterInfo);
+            lastChapterSrc = chapterInfo.src;
             parents.addElement(chapterInfo.depth, navPoint);
         };
         return parents.maxDepth;
     },
 
-    buildNavPoint: function (parent, playOrder, chapterInfo) {
+    buildNavPoint: function (parent, playOrder, id, chapterInfo) {
         let that = this;
         let navPoint = that.createAndAppendChild(parent, "navPoint");
-        navPoint.setAttribute("id", that.makeId(util.zeroPad(playOrder)));
+        navPoint.setAttribute("id", that.makeId(util.zeroPad(id)));
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", chapterInfo.title);
