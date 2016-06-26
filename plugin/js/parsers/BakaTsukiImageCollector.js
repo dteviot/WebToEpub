@@ -274,7 +274,8 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
         sequence = sequence.then(function () {
             return client.fetchHtml(imageInfo.imagePageUrl);
         }).then(function (rawDom) {
-            return that.updateImageInfoFromImagePage(rawDom, imageInfo);
+            imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(rawDom);
+            return that.updateImageInfoFromImagePage(imageInfo);
         }).then(function () {
             return client.fetchBinary(imageInfo.imagefileUrl);
         }).then(function (arraybuffer) {
@@ -285,10 +286,17 @@ BakaTsukiImageCollector.prototype.fetchImages = function (imageList, progressInd
     return sequence;
 }
 
-BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, imageInfo) {
+BakaTsukiImageCollector.prototype.getHighestResImageUrlFromImagePage = function(dom) {
     let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
-    let a = util.getElement(div, "a");
-    imageInfo.imagefileUrl = a.href;
+    return util.getElement(div, "a").href;
+}
+
+BakaTsukiImageCollector.prototype.getReducedResImageUrlFromImagePage = function(dom) {
+    let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
+    return util.getElement(div, "img").src;
+}
+
+BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(imageInfo) {
     return new Promise(function(resolve, reject){
         let img = new Image();
         img.onload = function() {
@@ -303,7 +311,7 @@ BakaTsukiImageCollector.prototype.updateImageInfoFromImagePage = function(dom, i
             resolve();
         }
         // start downloading image after event handlers are set
-        img.src = a.href;
+        img.src = imageInfo.imagefileUrl;
     });
 }
 

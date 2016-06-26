@@ -9,6 +9,7 @@ function BakaTsukiParser(imageCollector) {
     this.coverImageInfo = null;
     this.imageCollector = imageCollector;
     this.removeDuplicateImages = false;
+    this.coverUrlProvider = null;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -98,6 +99,7 @@ BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
         that.coverImageInfo.isCover = false;
     }
     if (imageInfo !== null) {
+        // ToDo, should check that that.isGetCoverFromUrl() is false
         imageInfo.isCover = true;
     };
     that.coverImageInfo = imageInfo;
@@ -435,14 +437,20 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
-    this.setUiToShowLoadingProgress(that.images.size);
-    return that.imageCollector.fetchImages(that.images, () => that.updateLoadState(false))
+    this.setUiToShowLoadingProgress(that.numberOfImagesToFetch());
+    return that.imageCollector.fetchImages(that.images, () => that.updateProgressBarOneStep())
         .then(function() {
+            return that.fetchCoverImage();
+        }).then(function() {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;
         }).catch(function (err) {
             alert(err);
         });
+}
+
+BakaTsukiParser.prototype.updateProgressBarOneStep = function() {
+    this.updateLoadState(false);
 }
 
 /*
@@ -454,6 +462,44 @@ BakaTsukiParser.prototype.updateLoadState = function(finished) {
     that.getProgressBar().value += 1;
 }
 
+
 BakaTsukiParser.prototype.getFetchContentButton = function() {
     return document.getElementById("fetchImagesButton");
+}
+
+BakaTsukiParser.prototype.setCoverFromUrl = function(urlProvider) {
+    let that = this;
+    this.coverUrlProvider = urlProvider;
+    if (that.isGetCoverFromUrl()) {
+        that.setCoverImage(null);
+    }
+}
+
+BakaTsukiParser.prototype.isGetCoverFromUrl = function() {
+    return this.coverUrlProvider !== null;
+}
+
+BakaTsukiParser.prototype.numberOfImagesToFetch = function() {
+    return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
+}
+
+BakaTsukiParser.prototype.fetchCoverImage = function() {
+    let that = this;
+    if (that.isGetCoverFromUrl()) {
+        let url = that.coverUrlProvider()
+        that.coverImageInfo = new BakaTsukiImageInfo(url, this.images.size, url);
+        that.coverImageInfo.imagefileUrl = url;
+        that.coverImageInfo.isCover = true;
+        let client = new HttpClient();
+        return client.fetchBinary(url).then(function (arraybuffer) {
+            that.coverImageInfo.arraybuffer = arraybuffer;
+        }).then(function () {
+            return that.imageCollector.updateImageInfoFromImagePage(that.coverImageInfo);
+        }).then(function () {
+            that.images.set(url, that.coverImageInfo);
+            that.updateProgressBarOneStep();
+        });
+    } else {
+        return Promise.resolve();
+    }
 }

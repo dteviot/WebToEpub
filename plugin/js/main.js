@@ -121,6 +121,15 @@ var main = (function () {
         parser.removeDuplicateImages = enable;
     }
 
+    function coverUrlProvider() {
+        return document.getElementById("coverImageUrlInput").value;
+    }
+
+    function onCoverFromUrlClick() {
+        let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
+        parser.setCoverFromUrl( enable ?  coverUrlProvider : null );
+    }
+
     // called when the "Diagnostics" check box is ticked or unticked
     function onDiagnosticsClick() {
         let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
@@ -139,6 +148,7 @@ var main = (function () {
         // add onClick event handlers
         getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("removeDuplicateImages").onclick = onRemoveDuplicateImagesClick;
+        document.getElementById("coverFromUrlCheckboxInput").onclick = onCoverFromUrlClick;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
         populateControls();
