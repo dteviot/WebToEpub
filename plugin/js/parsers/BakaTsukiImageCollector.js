@@ -46,7 +46,7 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
 
 BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
     let that = this;
-    return util.makeStorageFileName("OEBPS/Images/", util.zeroPad(imageIndex), that.getImageName(imagePageUrl), suffix);
+    return util.makeStorageFileName("OEBPS/Images/", imageIndex, that.getImageName(imagePageUrl), suffix);
 }
 
 BakaTsukiImageInfo.prototype.getImageName = function (page) {

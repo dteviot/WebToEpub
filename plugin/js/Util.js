@@ -179,7 +179,7 @@ var util = (function () {
             // We don't want issues so just set it to . to prepare for the extension
             title = ".";
         }
-        return subdirectory + index + title + extension;
+        return subdirectory + that.zeroPad(index) + title + extension;
     }
 
     // This is for Unit Testing only

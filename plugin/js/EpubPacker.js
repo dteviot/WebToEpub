@@ -212,13 +212,10 @@ EpubPacker.prototype = {
         var lastChapterSrc = null;
         for(let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
-            if(lastChapterSrc && lastChapterSrc === chapterInfo.src){
-                ++id;
-            }else{
-                ++id;
+            if(lastChapterSrc !== chapterInfo.src){
                 ++playOrder;
             }
-            let navPoint = that.buildNavPoint(parent, playOrder, id, chapterInfo);
+            let navPoint = that.buildNavPoint(parent, playOrder, ++id, chapterInfo);
             lastChapterSrc = chapterInfo.src;
             parents.addElement(chapterInfo.depth, navPoint);
         };
