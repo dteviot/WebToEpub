@@ -46,18 +46,18 @@ BakaTsukiImageInfo.prototype.findImageType = function (imagePageUrl) {
 
 BakaTsukiImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
     let that = this;
-    return "OEBPS/Images/[" + util.zeroPad(imageIndex) + "]" + that.getImageName(imagePageUrl) + "." +suffix;
+    return util.makeStorageFileName("OEBPS/Images/", util.zeroPad(imageIndex), that.getImageName(imagePageUrl), suffix);
 }
 
 BakaTsukiImageInfo.prototype.getImageName = function (page) {
     if(page){
         var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
         if(name){
-            name = name.split(/\./gi)[0];
-            return util.safeForFileName(name);
+            return name.split(/\./gi)[0];
         }
     }
-    return "";
+    // This is actually wise to do now.
+    return undefined;
 }
 
 BakaTsukiImageInfo.prototype.makeId = function (imageIndex) {

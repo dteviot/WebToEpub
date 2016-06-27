@@ -106,6 +106,14 @@ BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
     util.removeElements(that.getElements(element, "script"));
+    // Strip headline id of illegal characters that epubcheck doesn't like
+    let headlines = util.getElements(element, "span", e => (e.className === "mw-headline"));
+    for(let hl of headlines){
+        hl.setAttribute("id", util.safeForId(hl.getAttribute("id")));
+    }
+
+    // discard br tags as epubcheck says they are invalid in the places they are at in xhtml
+    util.removeElements(util.getElements(element, "br"));
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
@@ -157,11 +165,11 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
         for(let d of util.getElements(listItem, "div")) {
             that.stripWidthStyle(d);
         }
-        that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
-        util.removeNode(listItem);
+        that.insertAfter(util.getElement(element, "h3"), listItem.firstChild);
     }
     // discard gallery text (to improve epub format)
     util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
+    util.removeElements(util.getElements(element, "ul"));
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
@@ -368,16 +376,10 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 epubItem.chapterTitle = element.textContent;
             }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, that.makeRelative(epubItem.getZipHref())]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, util.makeRelative(epubItem.getZipHref())]);
             } while (walker.nextNode());
         };
     };
-}
-
-// Make href a relative one.
-// assumes both files involved are in OEBPS/Text/
-BakaTsukiParser.prototype.makeRelative = function(href) {
-    return href.substring(11);
 }
 
 BakaTsukiParser.prototype.isFootNote = function(node) {

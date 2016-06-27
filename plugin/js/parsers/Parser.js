@@ -53,8 +53,8 @@ Parser.prototype.makeFileName = function(title) {
     if (title == null) {
         return "web.epub";
     } else {
-        // allow only legal characters within the file name (not including spaces)
-        title = title.replace(/([^a-z0-9_\-]+)/gi, '')
+        // allow only legal characters within the file name
+        title = util.safeForFileName(title);
 
         // append suffix
         return title + ".epub";
