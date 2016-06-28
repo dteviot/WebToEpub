@@ -182,9 +182,8 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     }
 }
 
-// discard blank divs and page created when moving elements
+// discard blank divs created when moving elements
 BakaTsukiParser.prototype.stripBlankElements = function(element){
-	util.removeElements(util.getElements(element, "p", e => (e.innerHTML.replace(/\s/g, "") == "")));
 	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
 }
 
