@@ -86,6 +86,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content, that.images);
+    that.stripBlankElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
@@ -116,7 +117,7 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
     util.removeElements(util.getElements(element, "br"));
 
     // discard table of contents (will generate one from tags later)
-    util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
+    util.removeElements(that.getElements(element, "div", e => (e.id === "toc")));
 
     util.removeComments(element);
     that.removeUnwantedTable(element);
@@ -179,6 +180,12 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     for(let gallery of galleries) {
         util.removeNode(gallery);
     }
+}
+
+// discard blank divs and page created when moving elements
+BakaTsukiParser.prototype.stripBlankElements = function(element){
+	util.removeElements(util.getElements(element, "p", e => (e.innerHTML.replace(/\s/g, "") == "")));
+	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {

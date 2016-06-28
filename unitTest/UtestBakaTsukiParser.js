@@ -20,7 +20,7 @@ function getTestDom() {
         "<x>" +
            "<!-- comment 1 -->" +
            "<h1>T1</h1>" +
-           "<div class=\"toc\"></div>" +
+           "<div id=\"toc\"></div>" +
            "<!-- comment 2 -->" +
            "<script>\"use strict\"</script>" +
            "<h2>T1.1</h2>" +
