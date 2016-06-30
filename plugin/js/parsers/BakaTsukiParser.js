@@ -87,6 +87,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content, that.images);
     that.stripBlankElements(content);
+    that.replaceInvalidElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
@@ -109,12 +110,9 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
     util.removeElements(that.getElements(element, "script"));
     // Strip headline id of illegal characters that epubcheck doesn't like
     let headlines = util.getElements(element, "span", e => (e.className === "mw-headline"));
-    for(let hl of headlines){
+    for(let hl of headlines) {
         hl.setAttribute("id", util.safeForId(hl.getAttribute("id")));
     }
-
-    // discard br tags as epubcheck says they are invalid in the places they are at in xhtml
-    util.removeElements(util.getElements(element, "br"));
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.id === "toc")));
@@ -183,8 +181,18 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
 }
 
 // discard blank divs created when moving elements
-BakaTsukiParser.prototype.stripBlankElements = function(element){
+BakaTsukiParser.prototype.stripBlankElements = function(element) {
 	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
+}
+
+// Replace elements that are invalid in xhtml with their valid counter parts
+BakaTsukiParser.prototype.replaceInvalidElements = function(element) {
+    // replace br tags
+    let brs = util.getElements(element, "br");
+    for(let br of brs) {
+        let newBr = document.createElement("br");
+        br.parentNode.replaceChild(newBr, br);
+    }
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
