@@ -111,6 +111,12 @@ var util = (function () {
         dom.insertBefore(declaration, dom.children[0]);
     }
 
+    var addXhtmlDocTypeToStart = function(dom) {
+        // So that we don't get weird as hell issues with certain tags we use a dirty hack to add a doctype
+        let docType = dom.implementation.createDocumentType("html","-//W3C//DTD XHTML 1.1//EN", "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
+        dom.insertBefore(docType, dom.children[0]);
+    }
+
     
     /**
      * Determine whether a string is entirely whitespace.
@@ -129,8 +135,11 @@ var util = (function () {
             || (node.tagName === "H3") || (node.tagName === "H4")
     }
 
-    var xmlToString = function(dom) {
+    var xmlToString = function(dom, chapter) {
         util.addXmlDeclarationToStart(dom);
+        if(chapter){
+            util.addXhtmlDocTypeToStart(dom);
+        }
         return new XMLSerializer().serializeToString(dom);
     }
 
@@ -204,6 +213,7 @@ var util = (function () {
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
+        addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,
         getElements: getElements,
         safeForFileName: safeForFileName,

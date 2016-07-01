@@ -55,7 +55,7 @@ EpubItemSupplier.prototype.files = function*() {
         let rawDom = that.items[index - 1].rawDom;
         yield {
             href: that.createXhtmlFileName(index - 1),
-            content: util.xmlToString(that.parser.makeChapterDoc(rawDom))
+            content: util.xmlToString(that.parser.makeChapterDoc(rawDom), true)
         }
     };
 }

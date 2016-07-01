@@ -81,7 +81,7 @@ EpubPacker.prototype = {
         that.buildSpine(opf, epubItemSupplier);
         that.buildGuide(opf, epubItemSupplier);
 
-        return util.xmlToString(opf);
+        return util.xmlToString(opf, false);
     },
 
     buildMetaData: function (opf, epubItemSupplier) {
@@ -179,7 +179,7 @@ EpubPacker.prototype = {
         let depth = that.buildNavMap(ncx, epubItemSupplier);
         that.populateHead(ncx, head, depth);
 
-        return util.xmlToString(ncx);
+        return util.xmlToString(ncx, false);
     },
 
     populateHead: function (ncx, head, depth) {
