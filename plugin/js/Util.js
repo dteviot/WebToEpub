@@ -135,9 +135,9 @@ var util = (function () {
             || (node.tagName === "H3") || (node.tagName === "H4")
     }
 
-    var xmlToString = function(dom, chapter) {
+    var xmlToString = function(dom, isXhtml) {
         util.addXmlDeclarationToStart(dom);
-        if(chapter){
+        if(isXhtml){
             util.addXhtmlDocTypeToStart(dom);
         }
         return new XMLSerializer().serializeToString(dom);
