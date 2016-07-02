@@ -163,7 +163,7 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
 QUnit.test("processImages", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
-           "<h3></h3>" +
+           "<div></div>" +
            "<ul class=\"gallery mw-gallery-traditional\">"+
                "<li class=\"gallerybox\" style=\"width: 155px\"><div style=\"width: 155px\">" +
                    "<div class=\"thumb\">" +
@@ -210,7 +210,7 @@ QUnit.test("processImages", function (assert) {
 
     assert.equal(doc2.getElementsByTagName("x")[0].outerHTML,
         "<x xmlns=\"http://www.w3.org/1999/xhtml\">" +
-           "<h3></h3>" +
+           "<div></div>" +
            "<div>" +
              "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
@@ -382,4 +382,46 @@ test("fixupFootnotes", function (assert) {
     assert.equal(fetchHrefForId(epubItems, "cite_note-1"), "../Text/0000_H1.xhtml#cite_ref-1");
     assert.equal(fetchHrefForId(epubItems, "cite_note-2"), "../Text/0002_H3.xhtml#cite_ref-2");
 
+});
+
+test("stripBlankElements", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+                "<div><h1>H1</h1></div>" +
+                "<div><div></div></div>" +
+                "<div>    \n\n\n</div>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    let parser = new BakaTsukiParser();
+    let content = dom.body.cloneNode(true);
+    parser.stripBlankElements(content);
+
+    assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div></div>");
+});
+
+// demonstrate Chrome closing <br> tags when convert from HTML to XHTML
+test("replaceInvalidElements", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+                "<p>SomeText</p>" +
+                "<br>" +
+                "<p>More</p>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    let parser = new BakaTsukiParser();
+    let content = dom.body.cloneNode(true);
+    assert.equal(content.outerHTML, "<body><p>SomeText</p><br><p>More</p></body>");
+
+    let xhtml = util.createEmptyXhtmlDoc();
+    let body = xhtml.getElementsByTagName("body")[0];
+    body.parentNode.replaceChild(content, body);
+
+    assert.equal(xhtml.getElementsByTagName("body")[0].outerHTML, 
+        "<body xmlns=\"http://www.w3.org/1999/xhtml\"><p>SomeText</p><br /><p>More</p></body>");
 });
