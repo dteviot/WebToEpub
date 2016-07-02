@@ -81,7 +81,7 @@ EpubPacker.prototype = {
         that.buildSpine(opf, epubItemSupplier);
         that.buildGuide(opf, epubItemSupplier);
 
-        return util.xmlToString(opf);
+        return util.xmlToString(opf, false);
     },
 
     buildMetaData: function (opf, epubItemSupplier) {
@@ -179,7 +179,7 @@ EpubPacker.prototype = {
         let depth = that.buildNavMap(ncx, epubItemSupplier);
         that.populateHead(ncx, head, depth);
 
-        return util.xmlToString(ncx);
+        return util.xmlToString(ncx, false);
     },
 
     populateHead: function (ncx, head, depth) {
@@ -208,18 +208,24 @@ EpubPacker.prototype = {
         let navMap = that.createAndAppendChild(ncx.documentElement, "navMap");
         let parents = new NavPointParentElementsStack(navMap);
         let playOrder = 0;
+        let id = 0;
+        var lastChapterSrc = null;
         for(let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
-            let navPoint = that.buildNavPoint(parent, ++playOrder, chapterInfo);
+            if(lastChapterSrc !== chapterInfo.src){
+                ++playOrder;
+            }
+            let navPoint = that.buildNavPoint(parent, playOrder, ++id, chapterInfo);
+            lastChapterSrc = chapterInfo.src;
             parents.addElement(chapterInfo.depth, navPoint);
         };
         return parents.maxDepth;
     },
 
-    buildNavPoint: function (parent, playOrder, chapterInfo) {
+    buildNavPoint: function (parent, playOrder, id, chapterInfo) {
         let that = this;
         let navPoint = that.createAndAppendChild(parent, "navPoint");
-        navPoint.setAttribute("id", util.zeroPad(playOrder));
+        navPoint.setAttribute("id", that.makeId(util.zeroPad(id)));
         navPoint.setAttribute("playOrder", playOrder);
         let navLabel = that.createAndAppendChild(navPoint, "navLabel");
         that.createAndAppendChild(navLabel, "text", chapterInfo.title);
@@ -247,6 +253,9 @@ EpubPacker.prototype = {
         return child;
     },
 
+    makeId: function (id) {
+        return "body" + id;
+    },
     // changes href to be relative to manifest (and toc.ncx)
     // which are in OEBPS
     makeRelative: function (href) {

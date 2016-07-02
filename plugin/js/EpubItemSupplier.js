@@ -19,7 +19,7 @@ EpubItemSupplier.prototype.setChapters = function (chapters) {
 
 EpubItemSupplier.prototype.createXhtmlFileName = function (fileIndex) {
     let that = this;
-    return "OEBPS/Text/[" + util.zeroPad(fileIndex) + "]" + util.safeForFileName(this.items[fileIndex].chapterTitle) + ".xhtml";
+    return util.makeStorageFileName("OEBPS/Text/", fileIndex, that.items[fileIndex].chapterTitle, "xhtml");
 }
 
 // return id attribute to go into <item> element in <manifest>
@@ -55,7 +55,7 @@ EpubItemSupplier.prototype.files = function*() {
         let rawDom = that.items[index - 1].rawDom;
         yield {
             href: that.createXhtmlFileName(index - 1),
-            content: util.xmlToString(that.parser.makeChapterDoc(rawDom))
+            content: util.xmlToString(that.parser.makeChapterDoc(rawDom), true)
         }
     };
 }

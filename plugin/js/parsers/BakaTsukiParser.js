@@ -87,6 +87,8 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content, that.images);
+    that.stripBlankElements(content);
+    that.replaceInvalidElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
@@ -108,9 +110,14 @@ BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
     util.removeElements(that.getElements(element, "script"));
+    // Strip headline id of illegal characters that epubcheck doesn't like
+    let headlines = util.getElements(element, "span", e => (e.className === "mw-headline"));
+    for(let hl of headlines) {
+        hl.setAttribute("id", util.safeForId(hl.getAttribute("id")));
+    }
 
     // discard table of contents (will generate one from tags later)
-    util.removeElements(that.getElements(element, "div", e => (e.className === "toc")));
+    util.removeElements(that.getElements(element, "div", e => (e.id === "toc")));
 
     util.removeComments(element);
     that.removeUnwantedTable(element);
@@ -155,15 +162,39 @@ BakaTsukiParser.prototype.processImages = function (element, images) {
 // remove gallery text and move images out of the gallery box so images can take full screen.
 BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     let that = this;
+
+    // move images out of the <ul> gallery
+    let garbage = new Set();
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
         for(let d of util.getElements(listItem, "div")) {
             that.stripWidthStyle(d);
         }
-        that.insertAfter(listItem.parentNode.previousSibling, listItem.firstChild);
-        util.removeNode(listItem);
+        util.removeElements(that.getElements(listItem, "div", e => (e.className === "gallerytext")));
+
+        let gallery = listItem.parentNode;
+        garbage.add(gallery);
+        gallery.parentNode.insertBefore(listItem.firstChild, gallery);
     }
-    // discard gallery text (to improve epub format)
-    util.removeElements(that.getElements(element, "div", e => (e.className === "gallerytext")));
+
+    // throw away rest of gallery  (note sometimes there are multiple galleries)
+    for(let node of garbage) {
+        util.removeNode(node);
+    }
+}
+
+// discard blank divs created when moving elements
+BakaTsukiParser.prototype.stripBlankElements = function(element) {
+	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
+}
+
+// Replace elements that are invalid in xhtml with their valid counter parts
+BakaTsukiParser.prototype.replaceInvalidElements = function(element) {
+    // replace br tags
+    let brs = util.getElements(element, "br");
+    for(let br of brs) {
+        let newBr = document.createElement("br");
+        br.parentNode.replaceChild(newBr, br);
+    }
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
@@ -370,16 +401,10 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 epubItem.chapterTitle = element.textContent;
             }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, that.makeRelative(epubItem.getZipHref())]);
+                processFoundNode.apply(that, [walker.currentNode, footnotes, util.makeRelative(epubItem.getZipHref())]);
             } while (walker.nextNode());
         };
     };
-}
-
-// Make href a relative one.
-// assumes both files involved are in OEBPS/Text/
-BakaTsukiParser.prototype.makeRelative = function(href) {
-    return ".." + href.substring(5);
 }
 
 BakaTsukiParser.prototype.isFootNote = function(node) {

@@ -50,8 +50,8 @@ test("buildContentOpf", function (assert) {
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
             "<manifest>"+
-              "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
             "<spine toc=\"ncx\">"+
@@ -81,8 +81,8 @@ test("buildContentOpfWithCover", function (assert) {
             "<meta content=\"cover000\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
-              "<item href=\"Text/[0000].xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"Text/[0001].xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
               "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
@@ -113,17 +113,17 @@ test("buildTableOfContents", function (assert) {
             "<text>Dummy &lt;Title&gt;</text>" +
           "</docTitle>" +
           "<navMap>" +
-            "<navPoint id=\"0001\" playOrder=\"1\">" +
+            "<navPoint id=\"body0001\" playOrder=\"1\">" +
               "<navLabel>" +
                 "<text>Title0</text>" +
               "</navLabel>" +
-              "<content src=\"Text/[0000].xhtml\"/>" +
+              "<content src=\"Text/0000.xhtml\"/>" +
             "</navPoint>" +
-            "<navPoint id=\"0002\" playOrder=\"2\">" +
+            "<navPoint id=\"body0002\" playOrder=\"2\">" +
               "<navLabel>" +
                 "<text>Title1</text>" +
               "</navLabel>" +
-              "<content src=\"Text/[0001].xhtml\"/>" +
+              "<content src=\"Text/0001.xhtml\"/>" +
             "</navPoint>" +
           "</navMap>" +
         "</ncx>"
@@ -188,6 +188,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
         "<?xml version='1.0' encoding='utf-8'?>" +
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
                 "<title></title>" +
@@ -200,7 +201,8 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
                     "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"100%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
-                        "<image xlink:href=\"../Images/cover.png\" height=\"200\" width=\"400\" data-origin=\"http://dummy/cover.png\"/>" +
+                        "<image xlink:href=\"../Images/cover.png\" height=\"200\" width=\"400\"/>" +
+                        "<desc>http://dummy/cover.png</desc>" + 
                     "</svg>" +
                 "</div>" +
             "</body>" +
