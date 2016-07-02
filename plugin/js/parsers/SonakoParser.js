@@ -4,12 +4,12 @@
 "use strict";
 
 //-----------------------------------------------------------------------------
-// class SonakoImageCollector  (derives from BakaTsukiImageCollector)
+// class SonakoImageCollector  (derives from ImageCollector)
 //-----------------------------------------------------------------------------
 
 function SonakoImageCollector(imageCollector) {
 }
-SonakoImageCollector.prototype = Object.create(BakaTsukiImageCollector.prototype);
+SonakoImageCollector.prototype = Object.create(ImageCollector.prototype);
 SonakoImageCollector.prototype.constructor = SonakoImageCollector;
 
 //  Assume all images can be found on a web page with URL
@@ -23,7 +23,7 @@ SonakoImageCollector.prototype.extractImagePageUrl = function (element) {
 }
 
 SonakoImageCollector.prototype.isImageWrapperElement = function (element) {
-    return (element.tagName === "FIGURE") ||  BakaTsukiImageCollector.prototype.isImageWrapperElement(element);
+    return (element.tagName === "FIGURE") ||  ImageCollector.prototype.isImageWrapperElement(element);
 }
 
 

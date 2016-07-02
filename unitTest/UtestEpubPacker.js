@@ -180,7 +180,7 @@ test("UnwindNavPointParentElementsStack", function (assert) {
 });
 
 test("makeCoverImageXhtmlFile", function (assert) {
-    let imageInfo = new BakaTsukiImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
+    let imageInfo = new ImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
     imageInfo.width = 400;
     imageInfo.height = 200;
     imageInfo.zipHref = "OEBPS/Images/cover.png"

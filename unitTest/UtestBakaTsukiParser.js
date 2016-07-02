@@ -189,7 +189,7 @@ QUnit.test("processImages", function (assert) {
         "text/html"
     );
 
-    let imageCollector = new BakaTsukiImageCollector();
+    let imageCollector = new ImageCollector();
     let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
 
     // fake getting image size data

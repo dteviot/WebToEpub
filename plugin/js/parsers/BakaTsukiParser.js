@@ -17,7 +17,7 @@ BakaTsukiParser.prototype = Object.create(Parser.prototype);
 BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 
 parserFactory.register("www.baka-tsuki.org", function() { 
-    return new BakaTsukiParser(new BakaTsukiImageCollector()) 
+    return new BakaTsukiParser(new ImageCollector()) 
 });
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
@@ -512,7 +512,7 @@ BakaTsukiParser.prototype.fetchCoverImage = function() {
     let that = this;
     if (that.isGetCoverFromUrl()) {
         let url = that.coverUrlProvider()
-        that.coverImageInfo = new BakaTsukiImageInfo(url, this.images.size, url);
+        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
         that.coverImageInfo.imagefileUrl = url;
         that.coverImageInfo.isCover = true;
         let client = new HttpClient();
