@@ -42,7 +42,7 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.title, "Web to Epub");
     equal(metaInfo.author, "David & Teviotdale");
     equal(metaInfo.language, "en");
-    equal(metaInfo.fileName, "WebtoEpub.epub");
+    equal(metaInfo.fileName, "Web_to_Epub.epub");
 });
 
 QUnit.test("parserFactory", function (assert) {
