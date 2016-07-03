@@ -183,8 +183,9 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let imageInfo = new ImageInfo("http://dummy/cover.png", -1, "http://dummy/cover.png");
     imageInfo.width = 400;
     imageInfo.height = 200;
-    imageInfo.zipHref = "OEBPS/Images/cover.png"
-    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], [], imageInfo, "OEBPS/Images/cover.png");
+    imageInfo.zipHref = "OEBPS/Images/cover.png";
+    let dummyImageCollector = { coverImageInfo: imageInfo, images: [] };
+    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], dummyImageCollector);
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
         "<?xml version='1.0' encoding='utf-8'?>" +
