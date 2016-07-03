@@ -102,6 +102,10 @@ ImageInfo.prototype.createImageElement = function() {
 
 function ImageCollector() {
     this.removeDuplicateImages = false;
+    this.images = new Map();
+    this.removeDuplicateImages = false;
+    this.coverImageInfo = null;
+    this.coverUrlProvider = null;
 }
 
 // get URL of page that holds all copies of this image
@@ -175,6 +179,7 @@ ImageCollector.prototype.isImageWrapperElement = function (element) {
 ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
     let images = new Map();
+    that.images = images;
     for(let currentNode of util.getElements(content, "img")) {
         let converter = that.makeImageConverter(currentNode)
         if (converter != null) {
@@ -191,18 +196,30 @@ ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     return images;
 }
 
-ImageCollector.prototype.populateImageTable = function (images, bakaTsukiParser) {
+ImageCollector.prototype.processImages = function (element) {
+    let that = this;
+    let converters = [];
+    for(let currentNode of util.getElements(element, "img")) {
+        let converter = that.makeImageConverter(currentNode);
+        if (converter != null) {
+            converters.push(converter);
+        }
+    };
+    converters.forEach(c => c.replaceWithImagePageUrl(that.images));
+}
+
+ImageCollector.prototype.populateImageTable = function (bakaTsukiParser) {
     let that = this;
     let imagesTable = document.getElementById("imagesTable");
     while (imagesTable.children.length > 1) {
         imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
     let checkBoxIndex = 0;
-    if (0 === images.size) {
+    if (0 === that.images.size) {
         imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
     }
     else {
-        images.forEach(function (imageInfo) {
+        that.images.forEach(function (imageInfo) {
             let row = document.createElement("tr");
         
             // add checkbox
@@ -256,6 +273,19 @@ ImageCollector.prototype.onImageClicked = function(checkboxId, imageInfo, bakaTs
         bakaTsukiParser.setCoverImage(null);
     }
 } 
+
+// when imageInfo === null, setting to "No cover image"
+ImageCollector.prototype.setCoverImage = function (imageInfo) {
+    let that = this;
+    if (that.coverImageInfo !== null) {
+        that.coverImageInfo.isCover = false;
+    }
+    if (imageInfo !== null) {
+        // ToDo, should check that that.isGetCoverFromUrl() is false
+        imageInfo.isCover = true;
+    };
+    that.coverImageInfo = imageInfo;
+}
 
 ImageCollector.prototype.appendColumnToRow = function (row, element) {
     let col = document.createElement("td");
@@ -314,3 +344,39 @@ ImageCollector.prototype.updateImageInfoFromImagePage = function(imageInfo) {
     });
 }
 
+ImageCollector.prototype.setCoverFromUrl = function(urlProvider) {
+    let that = this;
+    this.coverUrlProvider = urlProvider;
+    if (that.isGetCoverFromUrl()) {
+        that.setCoverImage(null);
+    }
+}
+
+ImageCollector.prototype.isGetCoverFromUrl = function() {
+    return this.coverUrlProvider !== null;
+}
+
+ImageCollector.prototype.numberOfImagesToFetch = function() {
+    return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
+}
+
+ImageCollector.prototype.fetchCoverImage = function() {
+    let that = this;
+    if (that.isGetCoverFromUrl()) {
+        let url = that.coverUrlProvider()
+        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
+        that.coverImageInfo.imagefileUrl = url;
+        that.coverImageInfo.isCover = true;
+        let client = new HttpClient();
+        return client.fetchBinary(url).then(function (arraybuffer) {
+            that.coverImageInfo.arraybuffer = arraybuffer;
+        }).then(function () {
+            return that.updateImageInfoFromImagePage(that.coverImageInfo);
+        }).then(function () {
+            that.images.set(url, that.coverImageInfo);
+            that.updateProgressBarOneStep();
+        });
+    } else {
+        return Promise.resolve();
+    }
+}

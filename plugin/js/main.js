@@ -118,7 +118,7 @@ var main = (function () {
     // called when the "Remove Duplicate Images" check box is ticked or unticked
     function onRemoveDuplicateImagesClick() {
         let enable = document.getElementById("removeDuplicateImages").checked;
-        parser.removeDuplicateImages = enable;
+        parser.setRemoveDuplicateImages(enable);
     }
 
     function coverUrlProvider() {

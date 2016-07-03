@@ -208,3 +208,11 @@ Parser.prototype.extractLanguage = function(dom) {
 Parser.prototype.extractSeriesInfo = function(dom) {
     return null;
 }
+
+Parser.prototype.setRemoveDuplicateImages = function(isRemove) {
+    this.imageCollector.removeDuplicateImages = isRemove;
+}
+
+Parser.prototype.setCoverImage = function(imageInfo) {
+    this.imageCollector.setCoverImage(imageInfo);
+}

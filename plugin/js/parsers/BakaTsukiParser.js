@@ -5,11 +5,7 @@
 
 function BakaTsukiParser(imageCollector) {
     this.firstPageDom = null;
-    this.images = new Map();
-    this.coverImageInfo = null;
     this.imageCollector = imageCollector;
-    this.removeDuplicateImages = false;
-    this.coverUrlProvider = null;
 }
 
 // Make BakaTsukiParser inherit from Parser
@@ -71,8 +67,8 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // ToDo: at moment is collecting images from inital web page at load time
     // when the popup UI is populated.  Will need to fetch correct images
     // as a separate step later
-    that.images = that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
-    that.imageCollector.populateImageTable(that.images, that);
+    that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
+    that.imageCollector.populateImageTable(that);
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
@@ -86,25 +82,12 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let that = this;
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
-    that.processImages(content, that.images);
+    that.processImages(content);
     that.stripBlankElements(content);
     that.replaceInvalidElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems, that.images, that.coverImageInfo);
-}
-
-// when imageInfo === null, setting to "No cover image"
-BakaTsukiParser.prototype.setCoverImage = function (imageInfo) {
-    let that = this;
-    if (that.coverImageInfo !== null) {
-        that.coverImageInfo.isCover = false;
-    }
-    if (imageInfo !== null) {
-        // ToDo, should check that that.isGetCoverFromUrl() is false
-        imageInfo.isCover = true;
-    };
-    that.coverImageInfo = imageInfo;
+    return new BakaTsukiEpubItemSupplier(that, epubItems, that.imageCollector);
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -145,18 +128,10 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
     }
 }
 
-BakaTsukiParser.prototype.processImages = function (element, images) {
+BakaTsukiParser.prototype.processImages = function (element) {
     let that = this;
     that.stripGalleryBox(element);
-    that.imageCollector.removeDuplicateImages = that.removeDuplicateImages;
-    let converters = [];
-    for(let currentNode of util.getElements(element, "img")) {
-        let converter = that.imageCollector.makeImageConverter(currentNode);
-        if (converter != null) {
-            converters.push(converter);
-        }
-    };
-    converters.forEach(c => c.replaceWithImagePageUrl(images));
+    that.imageCollector.processImages(element);
 }
 
 // remove gallery text and move images out of the gallery box so images can take full screen.
@@ -452,7 +427,7 @@ BakaTsukiParser.prototype.extractFootnoteIdFromCitation = function(citationLinkE
 
 BakaTsukiParser.prototype.onFetchImagesClicked = function () {
     let that = this;
-    if (0 == that.images.size) {
+    if (0 == that.imageCollector.images.size) {
         alert("No images found.");
     } else {
         that.getFetchContentButton().disabled = true;
@@ -462,10 +437,10 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
-    this.setUiToShowLoadingProgress(that.numberOfImagesToFetch());
-    return that.imageCollector.fetchImages(that.images, () => that.updateProgressBarOneStep())
+    this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
+    return that.imageCollector.fetchImages(that.imageCollector.images, () => that.updateProgressBarOneStep())
         .then(function() {
-            return that.fetchCoverImage();
+            return that.imageCollector.fetchCoverImage();
         }).then(function() {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;
@@ -493,38 +468,5 @@ BakaTsukiParser.prototype.getFetchContentButton = function() {
 }
 
 BakaTsukiParser.prototype.setCoverFromUrl = function(urlProvider) {
-    let that = this;
-    this.coverUrlProvider = urlProvider;
-    if (that.isGetCoverFromUrl()) {
-        that.setCoverImage(null);
-    }
-}
-
-BakaTsukiParser.prototype.isGetCoverFromUrl = function() {
-    return this.coverUrlProvider !== null;
-}
-
-BakaTsukiParser.prototype.numberOfImagesToFetch = function() {
-    return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
-}
-
-BakaTsukiParser.prototype.fetchCoverImage = function() {
-    let that = this;
-    if (that.isGetCoverFromUrl()) {
-        let url = that.coverUrlProvider()
-        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
-        that.coverImageInfo.imagefileUrl = url;
-        that.coverImageInfo.isCover = true;
-        let client = new HttpClient();
-        return client.fetchBinary(url).then(function (arraybuffer) {
-            that.coverImageInfo.arraybuffer = arraybuffer;
-        }).then(function () {
-            return that.imageCollector.updateImageInfoFromImagePage(that.coverImageInfo);
-        }).then(function () {
-            that.images.set(url, that.coverImageInfo);
-            that.updateProgressBarOneStep();
-        });
-    } else {
-        return Promise.resolve();
-    }
+    this.imageCollector.setCoverFromUrl(urlProvider);
 }

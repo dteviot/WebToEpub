@@ -5,11 +5,11 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems, images, coverImageInfo) {
+function BakaTsukiEpubItemSupplier(parser, epubItems, imageCollector) {
     this.parser = parser;
     this.epubItems = [];
-    this.coverImageInfo = coverImageInfo;
-    images.forEach(image => this.epubItems.push(image));
+    this.coverImageInfo = imageCollector.coverImageInfo;
+    imageCollector.images.forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
     let that = this;
     this.coverImageId = function() {
