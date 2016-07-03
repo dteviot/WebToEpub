@@ -438,9 +438,9 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
     this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
-    return that.imageCollector.fetchImages(that.imageCollector.images, () => that.updateProgressBarOneStep())
+    return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
         .then(function() {
-            return that.imageCollector.fetchCoverImage();
+            return that.imageCollector.fetchCoverImage(() => that.updateProgressBarOneStep());
         }).then(function() {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;

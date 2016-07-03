@@ -83,7 +83,7 @@ HttpClient.prototype = {
     onLoadBinary: function (url, xhr, event, resolve, reject) {
         let that = this;
         if (that.validateStatus(url, xhr, event, reject)) {
-            resolve(xhr.response);
+            resolve(xhr);
         };
     },
 

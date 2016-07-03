@@ -305,26 +305,6 @@ ImageCollector.prototype.appendColumnToRow = function (row, element) {
     return col;
 }
 
-ImageCollector.prototype.fetchImages = function (imageList, progressIndicator) {
-    let that = this;
-    let client = new HttpClient();
-    var sequence = Promise.resolve();
-    imageList.forEach(function(imageInfo) {
-        sequence = sequence.then(function () {
-            return client.fetchHtml(imageInfo.imagePageUrl);
-        }).then(function (rawDom) {
-            imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(rawDom);
-            return that.updateImageInfoFromImagePage(imageInfo);
-        }).then(function () {
-            return client.fetchBinary(imageInfo.imagefileUrl);
-        }).then(function (arraybuffer) {
-            imageInfo.arraybuffer = arraybuffer;
-            progressIndicator();
-        })
-    });
-    return sequence;
-}
-
 ImageCollector.prototype.getHighestResImageUrlFromImagePage = function(dom) {
     let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
     return util.getElement(div, "a").href;
@@ -390,7 +370,7 @@ ImageCollector.prototype.numberOfImagesToFetch = function() {
     return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
 }
 
-ImageCollector.prototype.fetchCoverImage = function() {
+ImageCollector.prototype.fetchCoverImage = function(progressIndicator) {
     let that = this;
     if (that.isGetCoverFromUrl()) {
         let url = that.coverUrlProvider()
@@ -398,15 +378,45 @@ ImageCollector.prototype.fetchCoverImage = function() {
         that.coverImageInfo.imagefileUrl = url;
         that.coverImageInfo.isCover = true;
         let client = new HttpClient();
-        return client.fetchBinary(url).then(function (arraybuffer) {
-            that.coverImageInfo.arraybuffer = arraybuffer;
+        return client.fetchBinary(url).then(function (xhr) {
+            that.coverImageInfo.arraybuffer = xhr.arraybuffer;
         }).then(function () {
             return that.updateImageInfoFromImagePage(that.coverImageInfo);
         }).then(function () {
             that.images.set(url, that.coverImageInfo);
-            that.updateProgressBarOneStep();
+            progressIndicator();
         });
     } else {
         return Promise.resolve();
     }
+}
+
+ImageCollector.prototype.fetchImages = function (progressIndicator) {
+    let that = this;
+    let imageListCopy = [];
+    for(let imageInfo of that.images) { 
+        imageListCopy.push(imageInfo[1]);
+    };
+    return imageListCopy.reduce(function(sequence, mapElement) {
+        return sequence.then(function() {
+            return that.fetchImage(mapElement, progressIndicator);
+        })
+    }, Promise.resolve());
+}
+
+ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
+    let that = this;
+    let client = new HttpClient();
+    return client.fetchHtml(imageInfo.imagePageUrl).then(function (rawDom) {
+        imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(rawDom);
+        return that.updateImageInfoFromImagePage(imageInfo);
+    }).then(function () {
+        return client.fetchBinary(imageInfo.imagefileUrl);
+    }).then(function (xhr) {
+        imageInfo.arraybuffer = xhr.response;
+        progressIndicator();
+    }).catch(function(error) {
+        // ToDo, implement error handler.
+        alert(error);
+    });
 }
