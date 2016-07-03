@@ -208,12 +208,22 @@ ImageCollector.prototype.processImages = function (element) {
     converters.forEach(c => c.replaceWithImagePageUrl(that.images));
 }
 
-ImageCollector.prototype.populateImageTable = function (bakaTsukiParser) {
+ImageCollector.prototype.getImageTableElement = function() {
+    return document.getElementById("imagesTable");
+}
+
+ImageCollector.prototype.clearImageTable = function() {
     let that = this;
-    let imagesTable = document.getElementById("imagesTable");
-    while (imagesTable.children.length > 1) {
+    let imagesTable = that.getImageTableElement();
+    while (imagesTable.children.length > 0) {
         imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
     }
+}
+
+ImageCollector.prototype.populateImageTable = function() {
+    let that = this;
+    that.clearImageTable();
+    let imagesTable = that.getImageTableElement();
     let checkBoxIndex = 0;
     if (0 === that.images.size) {
         imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
@@ -223,7 +233,7 @@ ImageCollector.prototype.populateImageTable = function (bakaTsukiParser) {
             let row = document.createElement("tr");
         
             // add checkbox
-            let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex, bakaTsukiParser);
+            let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex);
             that.appendColumnToRow(row, checkbox);
 
             // add image
@@ -236,41 +246,41 @@ ImageCollector.prototype.populateImageTable = function (bakaTsukiParser) {
             ++checkBoxIndex;
         });
     }
-
 }
 
-ImageCollector.prototype.createCheckBoxAndLabel = function (imageInfo, checkBoxIndex, bakaTsukiParser) {
+ImageCollector.prototype.createCheckBoxAndLabel = function (imageInfo, checkBoxIndex) {
     let that = this;
     let label = document.createElement("label");
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = "setCoverCheckBox" + checkBoxIndex;
-    checkbox.onclick = function() { that.onImageClicked(checkbox.id, imageInfo, bakaTsukiParser); };
+    checkbox.onclick = function() { that.onImageClicked(checkbox.id, imageInfo, that); };
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode("Set Cover"));
 
     // default to first image as cover image
     if (checkBoxIndex === 0) {
-        bakaTsukiParser.setCoverImage(imageInfo);
+        that.setCoverImage(imageInfo);
         checkbox.checked = true;
     }
     return label;
 }
 
-ImageCollector.prototype.onImageClicked = function(checkboxId, imageInfo, bakaTsukiParser) {
+ImageCollector.prototype.onImageClicked = function(checkboxId, imageInfo, imageCollector) {
+    let that = this;
     let checkbox = document.getElementById(checkboxId);
     if (checkbox.checked === true) {
-        bakaTsukiParser.setCoverImage(imageInfo);
+        imageCollector.setCoverImage(imageInfo);
 
         // uncheck any other checked boxes
-        let imagesTable = document.getElementById("imagesTable");
+        let imagesTable = that.getImageTableElement();
         for(let box of util.getElements(imagesTable, "input")) {
             if (box.id !== checkboxId) {
                 box.checked = false;
             }
         }
     } else {
-        bakaTsukiParser.setCoverImage(null);
+        imageCollector.setCoverImage(null);
     }
 } 
 
@@ -344,12 +354,32 @@ ImageCollector.prototype.updateImageInfoFromImagePage = function(imageInfo) {
     });
 }
 
-ImageCollector.prototype.setCoverFromUrl = function(urlProvider) {
+ImageCollector.prototype.onCoverFromUrlClick = function(enable) {
     let that = this;
-    this.coverUrlProvider = urlProvider;
-    if (that.isGetCoverFromUrl()) {
+    if (enable) {
         that.setCoverImage(null);
+        that.clearImageTable();
+        that.addCoverFromUrlInputRow();
+        that.coverUrlProvider = function () { 
+            return document.getElementById("coverImageUrlInput").value 
+        };
+    } else {
+        that.coverUrlProvider = null;
+        that.populateImageTable();
     }
+}
+
+ImageCollector.prototype.addCoverFromUrlInputRow = function(urlProvider) {
+    let that = this;
+    let row = document.createElement("tr");
+    that.getImageTableElement().appendChild(row);
+    that.appendColumnToRow(row, document.createTextNode("Cover Image URL:"));
+
+    let inputUrl = document.createElement("input");
+    inputUrl.type = "text";
+    inputUrl.id = "coverImageUrlInput";
+    inputUrl.size = 60;
+    that.appendColumnToRow(row, inputUrl);
 }
 
 ImageCollector.prototype.isGetCoverFromUrl = function() {

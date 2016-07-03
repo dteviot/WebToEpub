@@ -467,6 +467,6 @@ BakaTsukiParser.prototype.getFetchContentButton = function() {
     return document.getElementById("fetchImagesButton");
 }
 
-BakaTsukiParser.prototype.setCoverFromUrl = function(urlProvider) {
-    this.imageCollector.setCoverFromUrl(urlProvider);
+BakaTsukiParser.prototype.onCoverFromUrlClick = function(enable) {
+    this.imageCollector.onCoverFromUrlClick(enable);
 }

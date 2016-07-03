@@ -121,13 +121,9 @@ var main = (function () {
         parser.setRemoveDuplicateImages(enable);
     }
 
-    function coverUrlProvider() {
-        return document.getElementById("coverImageUrlInput").value;
-    }
-
     function onCoverFromUrlClick() {
         let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
-        parser.setCoverFromUrl( enable ?  coverUrlProvider : null );
+        parser.onCoverFromUrlClick(enable);
     }
 
     // called when the "Diagnostics" check box is ticked or unticked
