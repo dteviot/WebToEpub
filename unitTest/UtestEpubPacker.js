@@ -184,7 +184,10 @@ test("makeCoverImageXhtmlFile", function (assert) {
     imageInfo.width = 400;
     imageInfo.height = 200;
     imageInfo.zipHref = "OEBPS/Images/cover.png";
-    let dummyImageCollector = { coverImageInfo: imageInfo, images: [] };
+    let dummyImageCollector = {
+        coverImageInfo: imageInfo,
+        imagesToPackInEpub: function () { return []; }
+    };
     let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], dummyImageCollector);
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
