@@ -440,8 +440,6 @@ BakaTsukiParser.prototype.fetchContent = function () {
     this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
     return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
         .then(function() {
-            return that.imageCollector.fetchCoverImage(() => that.updateProgressBarOneStep());
-        }).then(function() {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;
         }).catch(function (err) {

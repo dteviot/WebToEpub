@@ -48,6 +48,10 @@ ImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
     return util.makeStorageFileName("OEBPS/Images/", imageIndex, that.getImageName(imagePageUrl), suffix);
 }
 
+// assume image URL is one one of the following
+// https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
+// https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.jpg&width=427
+// https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
 ImageInfo.prototype.getImageName = function (page) {
     if(page){
         var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
@@ -299,7 +303,7 @@ ImageCollector.prototype.getReducedResImageUrlFromImagePage = function(dom) {
     return util.getElement(div, "img").src;
 }
 
-ImageCollector.prototype.updateImageInfoFromImagePage = function(imageInfo) {
+ImageCollector.prototype.getImageDimensions = function(imageInfo) {
     return new Promise(function(resolve, reject){
         let img = new Image();
         img.onload = function() {
@@ -354,46 +358,34 @@ ImageCollector.prototype.numberOfImagesToFetch = function() {
     return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
 }
 
-ImageCollector.prototype.fetchCoverImage = function(progressIndicator) {
-    let that = this;
-    if (that.isGetCoverFromUrl()) {
-        let url = that.coverUrlProvider()
-        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
-        that.coverImageInfo.imagefileUrl = url;
-        that.coverImageInfo.isCover = true;
-        let client = new HttpClient();
-        return client.fetchBinary(url).then(function (xhr) {
-            that.coverImageInfo.arraybuffer = xhr.response;
-        }).then(function () {
-            return that.updateImageInfoFromImagePage(that.coverImageInfo);
-        }).then(function () {
-            that.images.set(url, that.coverImageInfo);
-            progressIndicator();
-        });
-    } else {
-        return Promise.resolve();
-    }
-}
-
 ImageCollector.prototype.fetchImages = function (progressIndicator) {
     let that = this;
-    let imageListCopy = [];
-    for(let imageInfo of that.images) { 
-        imageListCopy.push(imageInfo[1]);
-    };
-    return imageListCopy.reduce(function(sequence, mapElement) {
+    let imagesToFetch = [];
+    that.images.forEach(image => imagesToFetch.push(image));
+    that.addCoverFromUrlToList(imagesToFetch);
+    return imagesToFetch.reduce(function(sequence, mapElement) {
         return sequence.then(function() {
             return that.fetchImage(mapElement, progressIndicator);
         })
     }, Promise.resolve());
 }
 
+ImageCollector.prototype.addCoverFromUrlToList = function(imageListCopy) {
+    let that = this;
+    if (that.isGetCoverFromUrl()) {
+        let url = that.coverUrlProvider();
+        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
+        that.coverImageInfo.isCover = true;
+        imageListCopy.push(that.coverImageInfo);
+    };
+}
+
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
     let client = new HttpClient();
     return client.fetchHtml(imageInfo.imagePageUrl).then(function (xhr) {
-        imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(xhr.responseXML);
-        return that.updateImageInfoFromImagePage(imageInfo);
+        imageInfo.imagefileUrl = that.findImageFileUrl(xhr, imageInfo);
+        return that.getImageDimensions(imageInfo);
     }).then(function () {
         return client.fetchBinary(imageInfo.imagefileUrl);
     }).then(function (xhr) {
@@ -404,4 +396,26 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
         // ToDo, implement error handler.
         alert(error);
     });
+}
+
+ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
+    let that = this;
+    let contentType = xhr.getResponseHeader("Content-Type");
+    if (contentType.startsWith("text/html")) {
+        // find URL of wanted image file on html page
+        return that.getHighestResImageUrlFromImagePage(xhr.responseXML);
+    } else {
+        // page wasn't HTML, so assume is actual image
+        return imageInfo.imagePageUrl;
+    }
+}
+
+ImageCollector.prototype.imagesToPackInEpub = function() {
+    let that = this;
+    let imageListCopy = [];
+    that.images.forEach(image => imageListCopy.push(image));
+    if (that.isGetCoverFromUrl()) {
+        imageListCopy.push(that.coverImageInfo);
+    }
+    return imageListCopy;
 }

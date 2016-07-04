@@ -9,7 +9,7 @@ function BakaTsukiEpubItemSupplier(parser, epubItems, imageCollector) {
     this.parser = parser;
     this.epubItems = [];
     this.coverImageInfo = imageCollector.coverImageInfo;
-    imageCollector.images.forEach(image => this.epubItems.push(image));
+    imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
     epubItems.forEach(item => this.epubItems.push(item));
     let that = this;
     this.coverImageId = function() {

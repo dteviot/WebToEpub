@@ -52,7 +52,7 @@ var util = (function () {
         newImage.setAttribute("width", width);
         let desc = doc.createElementNS("http://www.w3.org/2000/svg","desc");
         svg.appendChild(desc);
-        desc.innerHTML = origin;
+        desc.appendChild(document.createTextNode(origin));
         return div;
     }
 
