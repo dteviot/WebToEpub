@@ -379,7 +379,7 @@ ImageCollector.prototype.fetchCoverImage = function(progressIndicator) {
         that.coverImageInfo.isCover = true;
         let client = new HttpClient();
         return client.fetchBinary(url).then(function (xhr) {
-            that.coverImageInfo.arraybuffer = xhr.arraybuffer;
+            that.coverImageInfo.arraybuffer = xhr.response;
         }).then(function () {
             return that.updateImageInfoFromImagePage(that.coverImageInfo);
         }).then(function () {
@@ -407,8 +407,8 @@ ImageCollector.prototype.fetchImages = function (progressIndicator) {
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
     let client = new HttpClient();
-    return client.fetchHtml(imageInfo.imagePageUrl).then(function (rawDom) {
-        imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(rawDom);
+    return client.fetchHtml(imageInfo.imagePageUrl).then(function (xhr) {
+        imageInfo.imagefileUrl = that.getHighestResImageUrlFromImagePage(xhr.responseXML);
         return that.updateImageInfoFromImagePage(imageInfo);
     }).then(function () {
         return client.fetchBinary(imageInfo.imagefileUrl);

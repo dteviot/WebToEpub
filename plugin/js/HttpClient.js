@@ -63,7 +63,7 @@ HttpClient.prototype = {
         let that = this;
         if (that.validateStatus(url, xhr, event, reject)) {
             that.setBaseTag(url, xhr.responseXML);
-            resolve(xhr.responseXML);
+            resolve(xhr);
         };
     },
 

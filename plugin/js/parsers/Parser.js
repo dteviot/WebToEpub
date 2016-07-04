@@ -154,8 +154,8 @@ Parser.prototype.fetchChapters = function() {
     that.chapters.forEach(function(chapter) {
         sequence = sequence.then(function () {
             return client.fetchHtml(chapter.sourceUrl);
-        }).then(function (rawDom) {
-            chapter.rawDom = rawDom;
+        }).then(function (xhr) {
+            chapter.rawDom = xhr.responseXML;
             that.updateLoadState(chapter);
         }); 
     });

@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 
 function SonakoImageCollector(imageCollector) {
+    ImageCollector.call(this);
 }
 SonakoImageCollector.prototype = Object.create(ImageCollector.prototype);
 SonakoImageCollector.prototype.constructor = SonakoImageCollector;

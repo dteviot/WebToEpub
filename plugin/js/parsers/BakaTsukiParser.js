@@ -68,7 +68,7 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // when the popup UI is populated.  Will need to fetch correct images
     // as a separate step later
     that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
-    that.imageCollector.populateImageTable(that);
+    that.imageCollector.populateImageTable();
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
