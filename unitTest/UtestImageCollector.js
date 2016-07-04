@@ -9,21 +9,12 @@ QUnit.test("ImageInfo.findImageType", function (assert) {
     assert.equal(imageInfo.sourceImageUrl, null);
     assert.equal(imageInfo.getZipHref(), "OEBPS/Images/0000_WebToEpub.jpg");
     assert.equal(imageInfo.getId(), "image0000");
-    assert.equal(imageInfo.getMediaType(), "image/jpeg");
 });
 
 QUnit.test("ImageInfo.findImageType", function (assert) {
     let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
     let suffix = imageInfo.findImageType("http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg");
     assert.equal(suffix, "jpg");
-});
-
-QUnit.test("ImageInfo.makeMediaType", function (assert) {
-    let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
-    let suffix = imageInfo.makeMediaType("png");
-    assert.equal(suffix, "image/png");
-    assert.equal(imageInfo.makeMediaType("jpg"), "image/jpeg");
-    assert.equal(imageInfo.makeMediaType("jpEg"), "image/jpeg");
 });
 
 QUnit.test("findImagesUsedInDocument", function (assert) {

@@ -25,7 +25,6 @@ function ImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     let suffix = that.findImageType(imagePageUrl);
     this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
     this.id = that.makeId(imageIndex);
-    this.mediaType = that.makeMediaType(suffix);
     this.imageIndex = imageIndex;
     this.isCover = false;
     this.isInSpine = false;
@@ -62,21 +61,6 @@ ImageInfo.prototype.getImageName = function (page) {
 
 ImageInfo.prototype.makeId = function (imageIndex) {
     return "image" + util.zeroPad(imageIndex);
-}
-
-ImageInfo.prototype.makeMediaType = function (suffix) {
-    switch(suffix.toUpperCase()) {
-        case "PNG":
-            return "image/png";
-        case "JPG":
-        case "JPEG":
-            return "image/jpeg";
-        case "GIF":
-            return "image/gif";
-        default:
-            alert("Unknown media type:" + suffix);
-            return "image/" + suffix;
-    };
 }
 
 ImageInfo.prototype.getZipHref = function () {
@@ -413,6 +397,7 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     }).then(function () {
         return client.fetchBinary(imageInfo.imagefileUrl);
     }).then(function (xhr) {
+        imageInfo.mediaType = xhr.getResponseHeader("Content-Type");
         imageInfo.arraybuffer = xhr.response;
         progressIndicator();
     }).catch(function(error) {
