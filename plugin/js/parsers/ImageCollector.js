@@ -22,9 +22,10 @@ function ImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     let that = this;
     this.imagePageUrl = imagePageUrl;
     this.sourceImageUrl = sourceImageUrl;
-    let suffix = that.findImageType(imagePageUrl);
+    let suffix = that.findImageSuffix(imagePageUrl);
     this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
     this.id = that.makeId(imageIndex);
+    this.mediaType = "image/jpeg";
     this.imageIndex = imageIndex;
     this.isCover = false;
     this.isInSpine = false;
@@ -35,11 +36,14 @@ function ImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.imagefileUrl = null
 }
 
-ImageInfo.prototype.findImageType = function (imagePageUrl) {
-    // assume the image Page URL looks something like this:
-    // http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg
-    let index = imagePageUrl.lastIndexOf(".");
-    let suffix = imagePageUrl.substring(index + 1, imagePageUrl.length);
+ImageInfo.prototype.findImageSuffix = function(imagePageUrl) {
+    let that = this;
+    let suffix = "";
+    let fileName = that.extractImageFileNameFromUrl(imagePageUrl)
+    if (fileName != null) {
+        let index = fileName.lastIndexOf(".");
+        suffix = fileName.substring(index + 1);
+    }
     return suffix;
 }
 
@@ -48,13 +52,58 @@ ImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
     return util.makeStorageFileName("OEBPS/Images/", imageIndex, that.getImageName(imagePageUrl), suffix);
 }
 
-// assume image URL is one one of the following
+// assume image URL looks like one one of the following
 // https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
-// https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.jpg&width=427
+// https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427
 // https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
+
+// http://sonako.wikia.com/wiki/File:Date4_000c.png
+// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
+// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
+ImageInfo.prototype.extractImageFileNameFromUrl = function(url) {
+    let that = this;
+    let temp = url;
+    
+    // remove everything after hash
+    let index = url.indexOf("#");
+    if (0 <= index) {
+        temp = url.substring(0, index);
+    }
+
+    // make sure it's long enough to be a url
+    if (9 < temp.length) {
+
+        // remove protocol, hostname and port, make sure there's a pathname left
+        temp = temp.substring(8);
+        index = temp.indexOf("/");
+        if ((0 <= index) && (index < temp.length - 2)) {
+            temp = temp.substring(index + 1);
+
+            // break into pieces and take any piece that looks like an image filename
+            let fileNames = temp.split(/=|&|\:|\//).filter(s => that.isImageFileNameCandidate(s));
+            if (0 < fileNames.length) {
+                return fileNames[0];
+            }
+        }
+    } 
+    
+    // if get here, nothing found
+    return undefined;
+}
+
+// Crude. If string has '.' and is not a .php or .html, assume it's an image filename
+ImageInfo.prototype.isImageFileNameCandidate = function(candidate) {
+    let lowerString = candidate.toLowerCase();
+    return (4 < lowerString.length) &&
+        (lowerString.indexOf(".") !== -1) &&
+        (lowerString.indexOf(".html") === -1) &&
+        (lowerString.indexOf(".php") === -1);
+}
+
 ImageInfo.prototype.getImageName = function (page) {
+    let that = this;
     if(page){
-        var name = page.split(/\//gi).length > 1 ? page.split(/file:/gi)[1] : page;
+        var name = that.extractImageFileNameFromUrl(page);
         if(name){
             return name.split(/\./gi)[0];
         }
@@ -363,9 +412,9 @@ ImageCollector.prototype.fetchImages = function (progressIndicator) {
     let imagesToFetch = [];
     that.images.forEach(image => imagesToFetch.push(image));
     that.addCoverFromUrlToList(imagesToFetch);
-    return imagesToFetch.reduce(function(sequence, mapElement) {
+    return imagesToFetch.reduce(function(sequence, imageInfo) {
         return sequence.then(function() {
-            return that.fetchImage(mapElement, progressIndicator);
+            return that.fetchImage(imageInfo, progressIndicator);
         })
     }, Promise.resolve());
 }

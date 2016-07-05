@@ -3,18 +3,33 @@
 
 module("UTestImageCollector");
 
-QUnit.test("ImageInfo.findImageType", function (assert) {
-    let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
-    assert.equal(imageInfo.imagePageUrl, "WebToEpub.jpg");
+QUnit.test("ImageInfo.ctor", function (assert) {
+    let imageInfo = new ImageInfo("http://www.baka-tsuki.org/WebToEpub.jpg", 0, null);
+    assert.equal(imageInfo.imagePageUrl, "http://www.baka-tsuki.org/WebToEpub.jpg");
     assert.equal(imageInfo.sourceImageUrl, null);
     assert.equal(imageInfo.getZipHref(), "OEBPS/Images/0000_WebToEpub.jpg");
     assert.equal(imageInfo.getId(), "image0000");
 });
 
-QUnit.test("ImageInfo.findImageType", function (assert) {
+QUnit.test("ImageInfo.findImageSuffix", function (assert) {
     let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
-    let suffix = imageInfo.findImageType("http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg");
-    assert.equal(suffix, "jpg");
+    assert.equal(imageInfo.findImageSuffix("http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg"), "jpg");
+    assert.equal(imageInfo.findImageSuffix("https://www.baka-tsuki.org/project/thumb.php?f=WebToEpub.gif&width=427"), "gif");
+});
+
+QUnit.test("ImageInfo.extractImageFileNameFromUrl", function (assert) {
+    let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
+    assert.equal(imageInfo.extractImageFileNameFromUrl(""), undefined);
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org"), undefined);
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/"), undefined);
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/HSDxD_v01_cover.svg"), "HSDxD_v01_cover.svg");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/HSDxD_v01_cover.svg#hash"), "HSDxD_v01_cover.svg");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg"), "HSDxD_v01_cover.jpg");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427"), "HSDxD_v01_cover.gif");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg"), "HSDxD_v01_cover.jpg");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("http://sonako.wikia.com/wiki/File:Date4_000c.png"), "Date4_000c.png");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052"), "Date4_000c.png");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052"), "Date4_000c.png");
 });
 
 QUnit.test("findImagesUsedInDocument", function (assert) {
