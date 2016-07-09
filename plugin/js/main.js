@@ -44,11 +44,11 @@ var main = (function () {
         document.getElementById("languageInput").value = metaInfo.language;
         document.getElementById("fileNameInput").value = metaInfo.fileName;
 
-        if (metaInfo.seriesInfo !== null) {
+        if (metaInfo.seriesName !== null) {
             document.getElementById("seriesRow").hidden = false;
             document.getElementById("volumeRow").hidden = false;
-            document.getElementById("seriesInput").value = metaInfo.seriesInfo.name;
-            document.getElementById("seriesIndexInput").value = metaInfo.seriesInfo.seriesIndex;
+            document.getElementById("seriesInput").value = metaInfo.seriesName;
+            document.getElementById("seriesIndexInput").value = metaInfo.seriesIndex;
         }
     }
 

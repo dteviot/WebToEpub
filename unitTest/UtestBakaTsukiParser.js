@@ -40,7 +40,8 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     equal(metaInfo.title, "Web to Epub");
     equal(metaInfo.author, "<Unknown>");
     equal(metaInfo.language, "en");
-    propEqual(metaInfo.seriesInfo, { name: "Web to Epub", seriesIndex: "103" });
+    equal(metaInfo.seriesName, "Web to Epub");
+    equal(metaInfo.seriesIndex, "103");
 });
 
 QUnit.test("noSeriesInfo", function (assert) {
@@ -48,7 +49,7 @@ QUnit.test("noSeriesInfo", function (assert) {
     let dom = syncLoadBakaTsukiSampleDoc();
     util.getElement(dom, "title").innerText = "Web to Epub";
     let metaInfo = parser.getEpubMetaInfo(dom);
-    equal(metaInfo.seriesInfo, null);
+    equal(metaInfo.seriesName, null);
 });
 
 QUnit.test("findContent", function (assert) {

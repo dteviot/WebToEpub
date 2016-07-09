@@ -54,8 +54,8 @@ SonakoParser.prototype.extractLanguage = function(dom) {
     return "vi-VN";
 };
 
-SonakoParser.prototype.extractSeriesInfo = function(dom) {
-    return null;
+SonakoParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
+    // This parser does not currently support this functionality
 }
 
 // find the node(s) holding the story content

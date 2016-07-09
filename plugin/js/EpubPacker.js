@@ -106,10 +106,9 @@ EpubPacker.prototype = {
             that.appendMetaContent(metadata, "cover", epubItemSupplier.coverImageId());
         };
 
-        let seriesInfo = that.metaInfo.seriesInfo;
-        if (seriesInfo !== null) {
-            that.appendMetaContent(metadata, "calibre:series", seriesInfo.name);
-            that.appendMetaContent(metadata, "calibre:series_index", seriesInfo.seriesIndex);
+        if (that.metaInfo.seriesName !== null) {
+            that.appendMetaContent(metadata, "calibre:series", that.metaInfo.seriesName);
+            that.appendMetaContent(metadata, "calibre:series_index", that.metaInfo.seriesIndex);
         }
     },
 

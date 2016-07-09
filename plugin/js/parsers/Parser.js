@@ -17,7 +17,7 @@ Parser.prototype.getEpubMetaInfo = function (dom){
     metaInfo.author = that.extractAuthor(dom);
     metaInfo.language = that.extractLanguage(dom);
     metaInfo.fileName = that.makeFileName(metaInfo.title);
-    metaInfo.seriesInfo = that.extractSeriesInfo(dom);
+    that.extractSeriesInfo(dom, metaInfo);
     return metaInfo;
 }
 
@@ -207,8 +207,8 @@ Parser.prototype.extractLanguage = function(dom) {
     return "en";
 };
 
-Parser.prototype.extractSeriesInfo = function(dom) {
-    return null;
+Parser.prototype.extractSeriesInfo = function(dom, metaInfo) {
+    // Derived classes will override
 }
 
 Parser.prototype.setRemoveDuplicateImages = function(isRemove) {

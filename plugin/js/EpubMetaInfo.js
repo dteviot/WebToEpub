@@ -16,5 +16,6 @@ function EpubMetaInfo() {
     this.author = "No author supplied";
     this.language = "en";
     this.fileName = "web.epub";
-    this.seriesInfo = null;
+    this.seriesName = null;
+    this.seriesIndex = null;
 }

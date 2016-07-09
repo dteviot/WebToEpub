@@ -33,7 +33,8 @@ function makeEpubItemSupplier() {
 
 test("buildContentOpf", function (assert) {
     let epubPacker = makePacker();
-    epubPacker.metaInfo.seriesInfo = { name: "BakaSeries", seriesIndex: "666" };
+    epubPacker.metaInfo.seriesName = "BakaSeries";
+    epubPacker.metaInfo.seriesIndex = "666";
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
