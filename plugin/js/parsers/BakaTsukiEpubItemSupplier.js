@@ -5,21 +5,19 @@
 
 "use strict";
 
-function BakaTsukiEpubItemSupplier(parser, epubItems, imageCollector) {
-    this.parser = parser;
-    this.epubItems = [];
-    this.coverImageInfo = imageCollector.coverImageInfo;
-    imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
-    epubItems.forEach(item => this.epubItems.push(item));
-    let that = this;
-    this.coverImageId = function() {
-        return (that.coverImageInfo == null) ? null : that.coverImageInfo.id; 
-    };
+class BakaTsukiEpubItemSupplier extends EpubItemSupplier {
+    constructor(parser, epubItems, imageCollector) {
+        super(parser);
+        this.epubItems = [];
+        this.coverImageInfo = imageCollector.coverImageInfo;
+        imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
+        epubItems.forEach(item => this.epubItems.push(item));
+        let that = this;
+        this.coverImageId = function() {
+            return (that.coverImageInfo == null) ? null : that.coverImageInfo.id; 
+        };
+    }
 }
-
-// Make BakaTsukiEpubItemSupplier inherit from EpubItemSupplier
-BakaTsukiEpubItemSupplier.prototype = Object.create(EpubItemSupplier.prototype);
-BakaTsukiEpubItemSupplier.prototype.constructor = EpubItemSupplier;
 
 // used to populate manifest
 BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {

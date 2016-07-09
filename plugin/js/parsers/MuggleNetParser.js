@@ -3,12 +3,11 @@
 */
 "use strict";
 
-function MuggleNetParser() {
+class MuggleNetParser extends Parser{
+    constructor() {
+        super();
+    }
 }
-
-// Make MuggleNetParser inherit from Parser
-MuggleNetParser.prototype = Object.create(Parser.prototype);
-MuggleNetParser.prototype.constructor = MuggleNetParser;
 
 parserFactory.register("fanfiction.mugglenet.com", function() { return new MuggleNetParser() });
 

@@ -7,11 +7,11 @@
 // class SonakoImageCollector  (derives from ImageCollector)
 //-----------------------------------------------------------------------------
 
-function SonakoImageCollector(imageCollector) {
-    ImageCollector.call(this);
+class SonakoImageCollector extends ImageCollector {
+    constructor() {
+        super();
+    }
 }
-SonakoImageCollector.prototype = Object.create(ImageCollector.prototype);
-SonakoImageCollector.prototype.constructor = SonakoImageCollector;
 
 //  Assume all images can be found on a web page with URL
 //  http://sonako.wikia.com/wiki/File:{data-image-name}
@@ -32,12 +32,11 @@ SonakoImageCollector.prototype.isImageWrapperElement = function (element) {
 // class SonakoParser
 //-----------------------------------------------------------------------------
 
-// SonakoParser derives from BakaTsukiParser
-function SonakoParser(imageCollector) {
-    BakaTsukiParser.call(this, new SonakoImageCollector);
+class SonakoParser extends BakaTsukiParser {
+    constructor() {
+        super(new SonakoImageCollector);
+    }
 }
-SonakoParser.prototype = Object.create(BakaTsukiParser.prototype);
-SonakoParser.prototype.constructor = SonakoParser;
 
 parserFactory.register("sonako.wikia.com", function() { return new SonakoParser() });
 

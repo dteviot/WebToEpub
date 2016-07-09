@@ -3,8 +3,10 @@
 */
 "use strict";
 
-function Parser() {
-    this.chapters = [];
+class Parser {
+    constructor() {
+        this.chapters = [];
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){

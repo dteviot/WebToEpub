@@ -140,12 +140,14 @@ ImageInfo.prototype.createImageElement = function() {
     return util.createSvgImageElement(that.getZipHref(), that.width, that.height, that.imagePageUrl);
 }
 
-function ImageCollector() {
-    this.removeDuplicateImages = false;
-    this.images = new Map();
-    this.removeDuplicateImages = false;
-    this.coverImageInfo = null;
-    this.coverUrlProvider = null;
+class ImageCollector {
+    constructor() {
+        this.removeDuplicateImages = false;
+        this.images = new Map();
+        this.removeDuplicateImages = false;
+        this.coverImageInfo = null;
+        this.coverUrlProvider = null;
+    }
 }
 
 // get URL of page that holds all copies of this image
@@ -158,10 +160,12 @@ ImageCollector.prototype.extractImageSrc = function (element) {
     return element.getElementsByTagName("img")[0].src;
 }
 
-function ImageElementConverter(element, imagePageUrl, removeDuplicateImages) {
-    this.element = element;
-    this.imagePageUrl = imagePageUrl;
-    this.removeDuplicateImages = removeDuplicateImages;
+class ImageElementConverter {
+    constructor(element, imagePageUrl, removeDuplicateImages) {
+        this.element = element;
+        this.imagePageUrl = imagePageUrl;
+        this.removeDuplicateImages = removeDuplicateImages;
+    }
 }
 
 ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {

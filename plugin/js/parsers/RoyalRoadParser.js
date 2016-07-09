@@ -3,12 +3,11 @@
 */
 "use strict";
 
-function RoyalRoadParser() {
+class RoyalRoadParser extends Parser{
+    constructor() {
+        super();
+    }
 }
-
-// Make RoyalRoadParser inherit from Parser
-RoyalRoadParser.prototype = Object.create(Parser.prototype);
-RoyalRoadParser.prototype.constructor = RoyalRoadParser;
 
 parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser() });
 

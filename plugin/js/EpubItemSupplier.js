@@ -7,9 +7,11 @@
 
 "use strict";
 
-function EpubItemSupplier(parser) {
-    this.items = [];
-    this.parser = parser;
+class EpubItemSupplier {
+    constructor(parser) {
+        this.items = [];
+        this.parser = parser;
+    }
 }
 
 // load set of chapters

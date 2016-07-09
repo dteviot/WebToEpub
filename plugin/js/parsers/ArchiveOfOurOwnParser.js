@@ -3,12 +3,11 @@
 */
 "use strict";
 
-function ArchiveOfOurOwnParser() {
+class ArchiveOfOurOwnParser extends Parser{
+    constructor() {
+        super();
+    }
 }
-
-// Make ArchiveOfOurOwnParser inherit from Parser
-ArchiveOfOurOwnParser.prototype = Object.create(Parser.prototype);
-ArchiveOfOurOwnParser.prototype.constructor = ArchiveOfOurOwnParser;
 
 parserFactory.register("archiveofourown.org", function() { return new ArchiveOfOurOwnParser() });
 

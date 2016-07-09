@@ -3,12 +3,11 @@
 */
 "use strict";
 
-function FanFictionParser() {
+class FanFictionParser extends Parser {
+    constructor() {
+        super();
+    }
 }
-
-// Make FanFictionParser inherit from Parser
-FanFictionParser.prototype = Object.create(Parser.prototype);
-FanFictionParser.prototype.constructor = FanFictionParser;
 
 parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser() });
 

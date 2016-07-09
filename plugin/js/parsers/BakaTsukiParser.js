@@ -3,14 +3,13 @@
 */
 "use strict";
 
-function BakaTsukiParser(imageCollector) {
-    this.firstPageDom = null;
-    this.imageCollector = imageCollector;
+class BakaTsukiParser extends Parser{
+    constructor(imageCollector) {
+        super();
+        this.firstPageDom = null;
+        this.imageCollector = imageCollector;
+    }
 }
-
-// Make BakaTsukiParser inherit from Parser
-BakaTsukiParser.prototype = Object.create(Parser.prototype);
-BakaTsukiParser.prototype.constructor = BakaTsukiParser;
 
 parserFactory.register("www.baka-tsuki.org", function() { 
     return new BakaTsukiParser(new ImageCollector()) 
