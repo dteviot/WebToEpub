@@ -66,5 +66,5 @@ EpubItem.prototype.tagNameToTocDepth = function(tagName) {
 }
 
 EpubItem.prototype.fileContentForEpub = function() {
-    return util.xmlToString(this.makeChapterDoc(), true);
+    return util.xmlToString(this.makeChapterDoc());
 }

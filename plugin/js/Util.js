@@ -11,6 +11,7 @@ var util = (function () {
 
     var createEmptyXhtmlDoc = function() {
         let doc = document.implementation.createDocument("http://www.w3.org/1999/xhtml", "", null);
+        util.addXhtmlDocTypeToStart(doc);
         let htmlNode = doc.createElement("html");
         doc.appendChild(htmlNode);
         let head = doc.createElement("head");
@@ -108,7 +109,7 @@ var util = (function () {
         // a processing instruction
         // see https://bugzilla.mozilla.org/show_bug.cgi?id=318086
         let declaration = dom.createProcessingInstruction("xml", "version='1.0' encoding='utf-8'");
-        dom.insertBefore(declaration, dom.children[0]);
+        dom.insertBefore(declaration, dom.childNodes[0]);
     }
 
     var addXhtmlDocTypeToStart = function(dom) {
@@ -135,11 +136,8 @@ var util = (function () {
             || (node.tagName === "H3") || (node.tagName === "H4")
     }
 
-    var xmlToString = function(dom, isXhtml) {
+    var xmlToString = function(dom) {
         util.addXmlDeclarationToStart(dom);
-        if(isXhtml){
-            util.addXhtmlDocTypeToStart(dom);
-        }
         return new XMLSerializer().serializeToString(dom);
     }
 
