@@ -17,15 +17,11 @@ var util = (function () {
         let head = doc.createElement("head");
         htmlNode.appendChild(head);
         head.appendChild(doc.createElement("title"));
-        let style = doc.createElement("style");
+        let style = doc.createElement("link");
         head.appendChild(style);
+        style.setAttribute("href", "../" + util.styleSheetFileName());
         style.setAttribute("type", "text/css");
-        style.appendChild(doc.createTextNode(
-            "img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
-            "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
-                            "padding-right: 0; padding-top: 0; text-align: left } " +
-            "div.svg_inner { display: block; text-align: center } "
-        ));
+        style.setAttribute("rel", "stylesheet");
         let body = doc.createElement("body");
         htmlNode.appendChild(body);
         return doc;
@@ -200,6 +196,10 @@ var util = (function () {
         return dom;
     }
 
+    function styleSheetFileName() {
+        return "css/stylesheet.css";
+    }
+
     return {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,
@@ -216,6 +216,7 @@ var util = (function () {
         getElements: getElements,
         safeForFileName: safeForFileName,
         safeForId: safeForId,
+        styleSheetFileName: styleSheetFileName,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
         syncLoadSampleDoc : syncLoadSampleDoc,

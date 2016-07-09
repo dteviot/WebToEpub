@@ -53,6 +53,7 @@ test("buildContentOpf", function (assert) {
             "<manifest>"+
               "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
             "<spine toc=\"ncx\">"+
@@ -84,6 +85,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<manifest>" +
               "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
               "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
@@ -197,11 +199,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
                 "<title></title>" +
-                "<style type=\"text/css\">img { max-width: 100%; max-height: 100%; padding: 0; margin: 0; } " +
-                "div.svg_outer { display: block; margin-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; padding-bottom: 0; padding-left: 0; "+
-                                "padding-right: 0; padding-top: 0; text-align: left } " +
-                "div.svg_inner { display: block; text-align: center } " +
-                "</style>" +
+                "<link href=\"../"+ util.styleSheetFileName() +"\" type=\"text/css\" rel=\"stylesheet\" />" +
             "</head>" +
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
