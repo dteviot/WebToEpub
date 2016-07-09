@@ -84,7 +84,6 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content);
     that.stripBlankElements(content);
-    that.replaceInvalidElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new BakaTsukiEpubItemSupplier(that, epubItems, that.imageCollector);
@@ -160,16 +159,6 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
 // discard blank divs created when moving elements
 BakaTsukiParser.prototype.stripBlankElements = function(element) {
 	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
-}
-
-// Replace elements that are invalid in xhtml with their valid counter parts
-BakaTsukiParser.prototype.replaceInvalidElements = function(element) {
-    // replace br tags
-    let brs = util.getElements(element, "br");
-    for(let br of brs) {
-        let newBr = document.createElement("br");
-        br.parentNode.replaceChild(newBr, br);
-    }
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
