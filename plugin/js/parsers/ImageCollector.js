@@ -79,10 +79,10 @@ ImageInfo.prototype.extractImageFileNameFromUrl = function(url) {
         if ((0 <= index) && (index < temp.length - 2)) {
             temp = temp.substring(index + 1);
 
-            // break into pieces and take any piece that looks like an image filename
-            let fileNames = temp.split(/=|&|\:|\//).filter(s => that.isImageFileNameCandidate(s));
+            // break into pieces and take last piece that looks like an image filename
+            let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => that.isImageFileNameCandidate(s));
             if (0 < fileNames.length) {
-                return fileNames[0];
+                return fileNames[fileNames.length - 1];
             }
         }
     } 
@@ -91,13 +91,16 @@ ImageInfo.prototype.extractImageFileNameFromUrl = function(url) {
     return undefined;
 }
 
-// Crude. If string has '.' and is not a .php or .html, assume it's an image filename
+// Crude. If string has '.' and is not a .php or .html, 
+// and there's at least 3 characters after the '.'
+// assume it's an image filename
 ImageInfo.prototype.isImageFileNameCandidate = function(candidate) {
     let lowerString = candidate.toLowerCase();
     return (4 < lowerString.length) &&
         (lowerString.indexOf(".") !== -1) &&
         (lowerString.indexOf(".html") === -1) &&
-        (lowerString.indexOf(".php") === -1);
+        (lowerString.indexOf(".php") === -1) &&
+        (4 <= (lowerString.length - lowerString.lastIndexOf(".")));
 }
 
 ImageInfo.prototype.getImageName = function (page) {

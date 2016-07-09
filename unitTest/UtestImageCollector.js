@@ -24,6 +24,7 @@ QUnit.test("ImageInfo.extractImageFileNameFromUrl", function (assert) {
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/"), undefined);
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/HSDxD_v01_cover.svg"), "HSDxD_v01_cover.svg");
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/HSDxD_v01_cover.svg#hash"), "HSDxD_v01_cover.svg");
+    assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/index.php?HSDxD_v01_cover.jpg"), "HSDxD_v01_cover.jpg");
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg"), "HSDxD_v01_cover.jpg");
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427"), "HSDxD_v01_cover.gif");
     assert.equal(imageInfo.extractImageFileNameFromUrl("https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg"), "HSDxD_v01_cover.jpg");
