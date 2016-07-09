@@ -34,7 +34,7 @@ SonakoImageCollector.prototype.isImageWrapperElement = function (element) {
 
 class SonakoParser extends BakaTsukiParser {
     constructor() {
-        super(new SonakoImageCollector);
+        super(new SonakoImageCollector());
     }
 }
 
