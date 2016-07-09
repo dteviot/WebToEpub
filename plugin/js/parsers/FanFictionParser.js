@@ -16,16 +16,14 @@ parserFactory.register("www.fictionpress.com", function() { return new FanFictio
 
 FanFictionParser.prototype.getChapterUrls = function (dom) {
     let that = this;
-    return new Promise(function(resolve, reject) {
-        let baseUrl = that.getBaseUrl(dom);
-        let chaptersElement = that.getElement(dom, "select", e => (e.id === "chap_select") );
-        if (chaptersElement === null) {
-            // no list of chapters found, assume it's a single chapter story
-            resolve(that.singleChapterStory(baseUrl, dom));
-        } else {
-            resolve(that.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
-        }
-    });
+    let baseUrl = that.getBaseUrl(dom);
+    let chaptersElement = that.getElement(dom, "select", e => (e.id === "chap_select") );
+    if (chaptersElement === null) {
+        // no list of chapters found, assume it's a single chapter story
+        return Promise.resolve(that.singleChapterStory(baseUrl, dom));
+    } else {
+        return Promise.resolve(that.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+    }
 };
 
 FanFictionParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {
