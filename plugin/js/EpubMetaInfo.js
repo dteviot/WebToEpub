@@ -21,6 +21,12 @@ class EpubMetaInfo {
         this.seriesName = null;
         this.seriesIndex = null;
         this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();
+        this.translator = null;
+        this.fileAuthorAs = null;
+    }
+
+    getFileAuthorAs() {
+        return (this.fileAuthorAs === null) ? this.author : this.fileAuthorAs;
     }
 
     static getDefaultStyleSheet() {

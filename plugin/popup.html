@@ -32,7 +32,7 @@
             </tr>
             <tr id="seriesRow" hidden>
                 <td>Series</td>
-                <td><input id="seriesInput" type="text" name="titleInput" size="80" /></td>
+                <td><input id="seriesNameInput" type="text" name="titleInput" size="80" /></td>
             </tr>
             <tr id="volumeRow" hidden>
                 <td>Volume</td>
@@ -53,13 +53,39 @@
         </table>
         <button id=packEpubButton>Pack EPUB</button>
         <progress id=fetchProgress value="0" max="1"></progress>
-        <p>
-            Diagnostics: <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
-            <button id=reloadButton hidden>Reload</button>
-            <button id=packRawButton hidden>Pack Raw Chapters</button>
-            <button id=fetchChaptersButton hidden>Fetch Chapters</button>
-            <button id=fetchImagesButton hidden>Fetch Images</button>
-        </p>
+        <button id=advancedOptionsButton>Advanced Options</button>
+        <section hidden id="advancedOptionsSection">
+            <div class="scrollingtable">
+                <table id="advancedOptionsTable">
+                    <tr id="translatorRow" hidden>
+                        <td>Translator</td>
+                        <td><input id="translatorInput" type="text" name="translatorInput" size="80" /></td>
+                    </tr>
+                    <tr id="fileAuthorAsRow" hidden>
+                        <td>File Author as</td>
+                        <td><input id="fileAuthorAsInput" type="text" name="fileAuthorAsInput" size="80"></td>
+                    </tr>
+                    <tr id="styleSheetRow">
+                        <td>Stylesheet:</td>
+                        <td><textarea id="stylesheetInput" rows="6" cols="70"></textarea></td>
+                    </tr>
+                    <tr id="stylesheetToDefaultRow">
+                        <td></td>
+                        <td><button id=stylesheetToDefaultButton>Reset stylesheet to default</button></td>
+                    </tr>
+                    <tr id="developerStuffRow">
+                        <td>Developer Stuff:</td>
+                        <td>
+                            <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
+                            <button id=reloadButton hidden>Reload</button>
+                            <button id=packRawButton hidden>Pack Raw Chapters</button>
+                            <button id=fetchChaptersButton hidden>Fetch Chapters</button>
+                            <button id=fetchImagesButton hidden>Fetch Images</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </section>
     </section>
     <section id="testSection"></section>
     <section id="outputSection">

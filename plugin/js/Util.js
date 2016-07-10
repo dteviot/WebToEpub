@@ -185,6 +185,15 @@ var util = (function () {
         return subdirectory + that.zeroPad(index) + title + extension;
     }
 
+    var isTextAreaField = function (element) {
+        return (element.tagName === "TEXTAREA");
+    }
+
+    var isTextInputField = function (element) {
+        return (element.tagName === "INPUT") &&
+           ((element.type === "text") || (element.type === "url"));
+    }
+
     // This is for Unit Testing only
     function syncLoadSampleDoc(fileName, url) {
         let that = this;
@@ -196,7 +205,7 @@ var util = (function () {
         return dom;
     }
 
-    function styleSheetFileName() {
+    var styleSheetFileName = function () {
         return "css/stylesheet.css";
     }
 
@@ -219,6 +228,8 @@ var util = (function () {
         styleSheetFileName: styleSheetFileName,
         isWhiteSpace: isWhiteSpace,
         isHeaderTag: isHeaderTag,
+        isTextAreaField: isTextAreaField,
+        isTextInputField: isTextInputField,
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad

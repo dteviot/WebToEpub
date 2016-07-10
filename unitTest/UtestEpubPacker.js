@@ -101,6 +101,42 @@ test("buildContentOpfWithCover", function (assert) {
     );
 });
 
+test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
+    let epubPacker = makePacker();
+    epubPacker.metaInfo.seriesName = "BakaSeries";
+    epubPacker.metaInfo.seriesIndex = "666";
+    epubPacker.metaInfo.fileAuthorAs = "Doe, John";
+    epubPacker.metaInfo.translator = "Baka-Tsuki staff";
+    epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
+    let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
+
+    assert.equal(contentOpf,
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
+            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
+            "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
+            "<dc:language>en</dc:language>" +
+            "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
+            "<dc:creator opf:file-as=\"Doe, John\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
+            "<dc:contributor opf:file-as=\"Baka-Tsuki staff\" opf:role=\"trl\">Baka-Tsuki staff</dc:contributor>" +
+            "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
+            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
+            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "</metadata>" +
+            "<manifest>" +
+              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
+              "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
+            "</manifest>" +
+            "<spine toc=\"ncx\">" +
+              "<itemref idref=\"xhtml0000\"/>" +
+              "<itemref idref=\"xhtml0001\"/>" +
+            "</spine>" +
+        "</package>"
+    );
+});
+
 test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     assert.equal(buildTableOfContents,

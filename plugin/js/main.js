@@ -38,36 +38,61 @@ var main = (function () {
     }
 
     function populateMetaInfo(metaInfo) {
-        document.getElementById("startingUrlInput").value = metaInfo.uuid;
-        document.getElementById("titleInput").value = metaInfo.title;
-        document.getElementById("authorInput").value = metaInfo.author;
-        document.getElementById("languageInput").value = metaInfo.language;
-        document.getElementById("fileNameInput").value = metaInfo.fileName;
+        setUiFieldToValue("startingUrlInput", metaInfo.uuid);
+        setUiFieldToValue("titleInput", metaInfo.title);
+        setUiFieldToValue("authorInput", metaInfo.author);
+        setUiFieldToValue("languageInput", metaInfo.language);
+        setUiFieldToValue("fileNameInput", metaInfo.fileName);
 
         if (metaInfo.seriesName !== null) {
             document.getElementById("seriesRow").hidden = false;
             document.getElementById("volumeRow").hidden = false;
-            document.getElementById("seriesInput").value = metaInfo.seriesName;
-            document.getElementById("seriesIndexInput").value = metaInfo.seriesIndex;
+            setUiFieldToValue("seriesNameInput", metaInfo.seriesName);
+            setUiFieldToValue("seriesIndexInput", metaInfo.seriesIndex);
+        }
+
+        setUiFieldToValue("translatorInput", metaInfo.translator);
+        setUiFieldToValue("fileAuthorAsInput", metaInfo.fileAuthorAs);
+        setUiFieldToValue("stylesheetInput", metaInfo.styleSheet);
+    }
+
+    function setUiFieldToValue(elementId, value) {
+        let element = document.getElementById(elementId);
+        if (util.isTextInputField(element) || util.isTextAreaField(element)) {
+            element.value = (value == null) ? "" : value;
+        } else {
+            alert("ERROR: Unhandled field type");
         }
     }
 
     function metaInfoFromContorls() {
         let metaInfo = new EpubMetaInfo();
-        metaInfo.uuid = document.getElementById("startingUrlInput").value;
-        metaInfo.title = document.getElementById("titleInput").value;
-        metaInfo.author = document.getElementById("authorInput").value;
-        metaInfo.language = document.getElementById("languageInput").value;
-        metaInfo.fileName = document.getElementById("fileNameInput").value;
+        metaInfo.uuid = getValueFromUiField("startingUrlInput");
+        metaInfo.title = getValueFromUiField("titleInput");
+        metaInfo.author = getValueFromUiField("authorInput");
+        metaInfo.language = getValueFromUiField("languageInput");
+        metaInfo.fileName = getValueFromUiField("fileNameInput");
 
         if (document.getElementById("seriesRow").hidden === false) {
-            metaInfo.seriesInfo = {
-                name: document.getElementById("seriesInput").value,
-                seriesIndex: document.getElementById("seriesIndexInput").value
-            };
+            metaInfo.seriesName = getValueFromUiField("seriesNameInput");
+            metaInfo.seriesIndex = getValueFromUiField("seriesIndexInput");
         }
 
+        metaInfo.translator = getValueFromUiField("translatorInput");
+        metaInfo.fileAuthorAs = getValueFromUiField("fileAuthorAsInput");
+        metaInfo.styleSheet = getValueFromUiField("stylesheetInput");
+
         return metaInfo;
+    }
+
+    function getValueFromUiField(elementId) {
+        let element = document.getElementById(elementId);
+        if (util.isTextInputField(element) || util.isTextAreaField(element)) {
+            return (element.value === "") ? null : element.value;
+        } else {
+            alert("ERROR: Unhandled field type");
+            return null;
+        }
     }
 
     function fetchContentAndPackEpub() {
@@ -135,6 +160,15 @@ var main = (function () {
         document.getElementById("fetchImagesButton").hidden = !enable;
     }
 
+    function onAdvancedOptionsClick() {
+        let section = document.getElementById("advancedOptionsSection");
+        section.hidden = !section.hidden;
+    }
+
+    function onStylesheetToDefaultClick() {
+        document.getElementById("stylesheetInput").innerText = EpubMetaInfo.getDefaultStyleSheet();
+    }
+
     function getPackEpubButton() {
         return document.getElementById("packEpubButton");
     }
@@ -147,6 +181,8 @@ var main = (function () {
         document.getElementById("coverFromUrlCheckboxInput").onclick = onCoverFromUrlClick;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
+        document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
+        document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         populateControls();
     }
 

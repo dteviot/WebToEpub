@@ -70,6 +70,8 @@ BakaTsukiParser.prototype.populateUI = function () {
     let that = this;
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
+    document.getElementById("translatorRow").hidden = false;
+    document.getElementById("fileAuthorAsRow").hidden = false;
     that.getFetchContentButton().onclick = (e => that.onFetchImagesClicked());
 };
 

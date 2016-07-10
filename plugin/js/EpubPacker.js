@@ -96,8 +96,14 @@ EpubPacker.prototype = {
         that.createAndAppendChild(metadata, "dc:date", that.getDateForMetaData());
 
         let author = that.createAndAppendChild(metadata, "dc:creator", that.metaInfo.author);
-        author.setAttribute("opf:file-as", that.metaInfo.author);
+        author.setAttribute("opf:file-as", that.metaInfo.getFileAuthorAs());
         author.setAttribute("opf:role", "aut");
+
+        if (that.metaInfo.translator !== null) {
+            let translator = that.createAndAppendChild(metadata, "dc:contributor", that.metaInfo.translator);
+            translator.setAttribute("opf:file-as", that.metaInfo.translator);
+            translator.setAttribute("opf:role", "trl");
+        }
 
         let identifier = that.createAndAppendChild(metadata, "dc:identifier", that.metaInfo.uuid);
         identifier.setAttribute("id", "BookId");
