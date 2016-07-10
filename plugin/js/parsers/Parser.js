@@ -64,12 +64,28 @@ Parser.prototype.makeFileName = function(title) {
 }
 
 Parser.prototype.epubItemSupplier = function (chapters) {
+    let that = this;
     if (chapters == undefined) {
         chapters = this.chapters;
     }
-    let supplier = new EpubItemSupplier(this);
-    supplier.setChapters(chapters);
+    let epubItems = that.chaptersToEpubItems(chapters);
+    let imageCollector = ImageCollector.StubCollector();
+    let supplier = new EpubItemSupplier(this, epubItems, imageCollector);
     return supplier;
+}
+
+Parser.prototype.chaptersToEpubItems = function (chapters) {
+    let that = this;
+    let epubItems = [];
+    let index = -1;
+    for(let chapter of chapters) {
+        let content = that.findContent(chapter.rawDom);
+        if (content != null) {
+            let epubItem = new ChapterEpubItem(chapter, content, ++index);
+            epubItems.push(epubItem);
+        }
+    }
+    return epubItems;
 }
 
 Parser.prototype.appendColumnDataToRow = function (row, textData) {

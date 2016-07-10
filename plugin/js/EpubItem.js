@@ -11,11 +11,12 @@
 */
 "use strict";
 
-function EpubItem(type, sourceUrl) {
-    this.type = type;
-    this.sourceUrl = sourceUrl;
-    this.isInSpine = true;
-    this.chapterTitle = null;
+class EpubItem {
+    constructor(sourceUrl) {
+        this.sourceUrl = sourceUrl;
+        this.isInSpine = true;
+        this.chapterTitle = null;
+    }
 }
 
 EpubItem.prototype.setIndex = function (index) {
@@ -68,3 +69,28 @@ EpubItem.prototype.tagNameToTocDepth = function(tagName) {
 EpubItem.prototype.fileContentForEpub = function() {
     return util.xmlToString(this.makeChapterDoc());
 }
+
+//==============================================================
+// Construct an Epub item from source where each chapter 
+// was a separate HTML file.
+class ChapterEpubItem extends EpubItem {
+    constructor(chapter, content, index) {
+        super(chapter.sourceUrl);
+        super.setIndex(index);
+        this.elements = [ content ];
+        this.chapterTitle = chapter.title;
+    }
+}
+
+ChapterEpubItem.prototype.chapterInfo = function*() {
+    let that = this;
+    if (typeof (that.chapterTitle) !== "undefined") {
+        yield {
+            depth: 0,
+            title: that.chapterTitle,
+            src: that.getZipHref()
+        }
+    }
+}
+
+

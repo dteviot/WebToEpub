@@ -5,9 +5,9 @@
 
 "use strict";
 
-class BakaTsukiEpubItemSupplier extends EpubItemSupplier {
+class EpubItemSupplier {
     constructor(parser, epubItems, imageCollector) {
-        super(parser);
+        this.parser = parser;
         this.epubItems = [];
         this.coverImageInfo = imageCollector.coverImageInfo;
         imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
@@ -20,7 +20,7 @@ class BakaTsukiEpubItemSupplier extends EpubItemSupplier {
 }
 
 // used to populate manifest
-BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {
+EpubItemSupplier.prototype.manifestItems = function*() {
     let that = this;
     for(let item of that.epubItems) {
         yield {
@@ -32,7 +32,7 @@ BakaTsukiEpubItemSupplier.prototype.manifestItems = function*() {
 }
 
 // used to populate spine
-BakaTsukiEpubItemSupplier.prototype.spineItems = function*() {
+EpubItemSupplier.prototype.spineItems = function*() {
     let that = this;
     for(let item of that.epubItems) {
         if (item.isInSpine) {
@@ -42,7 +42,7 @@ BakaTsukiEpubItemSupplier.prototype.spineItems = function*() {
 }
 
 // used to populate Zip file itself
-BakaTsukiEpubItemSupplier.prototype.files = function*() {
+EpubItemSupplier.prototype.files = function*() {
     let that = this;
     for(let item of that.epubItems) {
         yield {
@@ -53,7 +53,7 @@ BakaTsukiEpubItemSupplier.prototype.files = function*() {
 }
 
 // used to populate table of contents
-BakaTsukiEpubItemSupplier.prototype.chapterInfo = function*() {
+EpubItemSupplier.prototype.chapterInfo = function*() {
     let that = this;
     for(let epubItem of that.epubItems) {
         if (epubItem.chapterInfo != undefined) {
@@ -70,3 +70,6 @@ EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
     return util.xmlToString(doc);
 }
 
+EpubItemSupplier.prototype.hasCoverImageFile = function() {
+    return (this.coverImageId() != null);
+}

@@ -148,6 +148,15 @@ class ImageCollector {
         this.coverImageInfo = null;
         this.coverUrlProvider = null;
     }
+
+    // An "image collector" with no images
+    // used by parsers for source with no images.
+    static StubCollector() {
+        return {
+            coverImageInfo: null,
+            imagesToPackInEpub: function() { return []; }
+        }
+    }
 }
 
 // get URL of page that holds all copies of this image

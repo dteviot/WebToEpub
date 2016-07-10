@@ -83,7 +83,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     that.stripBlankElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
-    return new BakaTsukiEpubItemSupplier(that, epubItems, that.imageCollector);
+    return new EpubItemSupplier(that, epubItems, that.imageCollector);
 }
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
@@ -254,7 +254,7 @@ BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem
     let that = this;
     that.removeTrailingWhiteSpace(elementsInItem);
     if (0 < elementsInItem.length) {
-        let epubItem = new EpubItem(EpubItem.XHTML_ITEM, sourceUrl);
+        let epubItem = new EpubItem(sourceUrl);
         epubItem.elements = elementsInItem;
         epubItems.push(epubItem);
     }

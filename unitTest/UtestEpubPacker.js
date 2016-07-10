@@ -4,9 +4,12 @@
 module( "EpubPacker");
 function makeDummyXhtmlFile(title) {
     let xhtml = util.createEmptyXhtmlDoc();
+    let content = xhtml.createElement("div");
+    content.className = "userstuff module";
+    xhtml.getElementsByTagName("body")[0].appendChild(content);
     let h1 = xhtml.createElement("h1");
     h1.InnerText = title;
-    xhtml.getElementsByTagName("body")[0].appendChild(h1);
+    content.appendChild(h1);
     return xhtml;
 }
 
@@ -24,8 +27,9 @@ function makeEpubItemSupplier() {
     for (let i = 0; i < 2; ++i) {
         let title = "Title" + i;
         chapters.push({
+            sourceUrl: "http://dummy.com/" + title,
             title: title,
-            rawContent: makeDummyXhtmlFile(title)
+            rawDom: makeDummyXhtmlFile(title)
         });
     }
     return new ArchiveOfOurOwnParser().epubItemSupplier(chapters);
@@ -51,8 +55,8 @@ test("buildContentOpf", function (assert) {
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
             "<manifest>"+
-              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
@@ -83,8 +87,8 @@ test("buildContentOpfWithCover", function (assert) {
             "<meta content=\"cover000\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
-              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
               "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
@@ -124,8 +128,8 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>" +
             "<manifest>" +
-              "<item href=\"Text/0000.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"Text/0001.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>" +
@@ -156,13 +160,13 @@ test("buildTableOfContents", function (assert) {
               "<navLabel>" +
                 "<text>Title0</text>" +
               "</navLabel>" +
-              "<content src=\"Text/0000.xhtml\"/>" +
+              "<content src=\"Text/0000_Title0.xhtml\"/>" +
             "</navPoint>" +
             "<navPoint id=\"body0002\" playOrder=\"2\">" +
               "<navLabel>" +
                 "<text>Title1</text>" +
               "</navLabel>" +
-              "<content src=\"Text/0001.xhtml\"/>" +
+              "<content src=\"Text/0001_Title1.xhtml\"/>" +
             "</navPoint>" +
           "</navMap>" +
         "</ncx>"
@@ -227,7 +231,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
-    let itemSupplier = new BakaTsukiEpubItemSupplier(null, [], dummyImageCollector);
+    let itemSupplier = new EpubItemSupplier(null, [], dummyImageCollector);
     let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
     assert.equal(xhtmlFile,
         "<?xml version='1.0' encoding='utf-8'?>" +
