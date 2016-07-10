@@ -166,7 +166,7 @@ var main = (function () {
     }
 
     function onStylesheetToDefaultClick() {
-        document.getElementById("stylesheetInput").innerText = EpubMetaInfo.getDefaultStyleSheet();
+        document.getElementById("stylesheetInput").value = EpubMetaInfo.getDefaultStyleSheet();
     }
 
     function getPackEpubButton() {
