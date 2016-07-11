@@ -123,8 +123,21 @@ var util = (function () {
      * @return     True if all of the text content of |nod| is whitespace,
      *             otherwise false.
      */
-    var isWhiteSpace = function (s) {
+    var isStringWhiteSpace = function (s) {
         return !(/[^\t\n\r ]/.test(s));
+    }
+
+    var isElementWhiteSpace = function(element) {
+        if (element.nodeType === Node.TEXT_NODE) {
+            return util.isStringWhiteSpace(element.textContent);
+        } 
+        if ((element.tagName === "IMG") || (element.tagName === "image")) {
+            return false;
+        }
+        if (0 < (util.getElements(element, "img").length) || (0 < util.getElements(element, "image").length)) {
+            return false;
+        }
+        return util.isStringWhiteSpace(element.innerText);
     }
 
     var isHeaderTag = function(node) {
@@ -226,7 +239,8 @@ var util = (function () {
         safeForFileName: safeForFileName,
         safeForId: safeForId,
         styleSheetFileName: styleSheetFileName,
-        isWhiteSpace: isWhiteSpace,
+        isStringWhiteSpace: isStringWhiteSpace,
+        isElementWhiteSpace: isElementWhiteSpace,
         isHeaderTag: isHeaderTag,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,

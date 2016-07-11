@@ -309,6 +309,8 @@ QUnit.test("splitContentIntoSections", function (assert) {
            "<h1>H1.1</h1>" +
            "<p>text1</p>" +
            "\n" +
+           "<p><br /></p>" +
+           "<br />" +
            "<h1>H1.2</h1>" +
            "<h2>H2.2</h2>" +
            "<p>text2</p>" +

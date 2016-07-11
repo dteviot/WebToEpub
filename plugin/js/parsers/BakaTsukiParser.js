@@ -237,7 +237,7 @@ BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content, sourceU
 
 // wrap any raw text in <p></p> tags
 BakaTsukiParser.prototype.wrapRawTextNode = function (node) {
-    if ((node.nodeType === Node.TEXT_NODE) && !util.isWhiteSpace(node.nodeValue)) {
+    if ((node.nodeType === Node.TEXT_NODE) && !util.isStringWhiteSpace(node.nodeValue)) {
         let wrapper = node.ownerDocument.createElement("p");
         wrapper.appendChild(node.ownerDocument.createTextNode(node.nodeValue));
         return wrapper;
@@ -262,7 +262,7 @@ BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem
 
 BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (elementsInItem) {
     let i = elementsInItem.length - 1;
-    while ((0 <= i) && (elementsInItem[i].nodeType === Node.TEXT_NODE) && util.isWhiteSpace(elementsInItem[i].textContent)) {
+    while ((0 <= i) && util.isElementWhiteSpace(elementsInItem[i])) {
         elementsInItem.pop();
         --i;
     }
@@ -292,20 +292,8 @@ BakaTsukiParser.prototype.discardEpubItemsWithNoVisibleContent = function(epubIt
 
 BakaTsukiParser.prototype.hasVisibleContent = function(elements) {
     for (let element of elements) {
-        if (element.nodeType === Node.TEXT_NODE) {
-            if (!util.isWhiteSpace(element.textContent)) {
-                return true;
-            }
-        } else {
-            if ((element.tagName === "IMG") || (element.tagName === "image")) {
-                return true;
-            }
-            if (0 < (util.getElements(element, "img").length) || (0 < util.getElements(element, "image").length)) {
-                return true;
-            }
-            if (!util.isWhiteSpace(element.innerText)) {
-                return true;
-            }
+        if (!util.isElementWhiteSpace(element)) {
+            return true;
         }
     }
 
