@@ -19,7 +19,7 @@ var util = (function () {
         head.appendChild(doc.createElement("title"));
         let style = doc.createElement("link");
         head.appendChild(style);
-        style.setAttribute("href", "../" + util.styleSheetFileName());
+        style.setAttribute("href", makeRelative.call(this, util.styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
         let body = doc.createElement("body");
@@ -219,7 +219,7 @@ var util = (function () {
     }
 
     var styleSheetFileName = function () {
-        return "css/stylesheet.css";
+        return "OEBPS/Styles/stylesheet.css";
     }
 
     return {

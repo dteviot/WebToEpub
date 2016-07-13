@@ -41,7 +41,7 @@ EpubPacker.prototype = {
         zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
         zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
         that.packXhtmlFiles(zipFile, epubItemSupplier);
-        zipFile.file("OEBPS/" + util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
+        zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
         return zipFile.generate({ type: "blob" });
     },
 
@@ -133,7 +133,7 @@ EpubPacker.prototype = {
             that.addManifestItem(manifest, item.href, item.id, item.mediaType);
         };
 
-        that.addManifestItem(manifest, "OEBPS/" + util.styleSheetFileName(), "stylesheet", "text/css");
+        that.addManifestItem(manifest, util.styleSheetFileName(), "stylesheet", "text/css");
         that.addManifestItem(manifest, "OEBPS/toc.ncx", "ncx", "application/x-dtbncx+xml");
         if (epubItemSupplier.hasCoverImageFile()) {
             that.addManifestItem(manifest, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
