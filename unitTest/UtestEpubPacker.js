@@ -57,7 +57,7 @@ test("buildContentOpf", function (assert) {
             "<manifest>"+
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
+              "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>"+
             "<spine toc=\"ncx\">"+
@@ -89,7 +89,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<manifest>" +
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
+              "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
               "<item href=\"Text/Cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" +
             "</manifest>" +
@@ -130,7 +130,7 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
             "<manifest>" +
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
-              "<item href=\"" + util.styleSheetFileName() + "\" id=\"stylesheet\" media-type=\"text/css\"/>" +
+              "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
               "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
             "</manifest>" +
             "<spine toc=\"ncx\">" +
@@ -239,7 +239,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
                 "<title></title>" +
-                "<link href=\"../"+ util.styleSheetFileName() +"\" type=\"text/css\" rel=\"stylesheet\" />" +
+                "<link href=\"../Styles/stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />" +
             "</head>" +
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
