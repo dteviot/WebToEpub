@@ -24,7 +24,6 @@ function ImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
     this.sourceImageUrl = sourceImageUrl;
     let suffix = that.findImageSuffix(imagePageUrl);
     this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
-    this.id = that.makeId(imageIndex);
     this.mediaType = "image/jpeg";
     this.imageIndex = imageIndex;
     this.isCover = false;
@@ -124,7 +123,7 @@ ImageInfo.prototype.getZipHref = function () {
 }
 
 ImageInfo.prototype.getId = function () {
-    return this.id;
+    return this.isCover ? "cover" : this.makeId(this.imageIndex);
 }
 
 ImageInfo.prototype.getMediaType = function () {

@@ -130,7 +130,7 @@ EpubPacker.prototype = {
         let that = this;
         var manifest = that.createAndAppendChild(opf.documentElement, "manifest");
         for(let item of epubItemSupplier.manifestItems()) {
-            that.addManifestItem(manifest, item.href, item.id, item.mediaType);
+            that.addManifestItem(manifest, item.href, item.getId(), item.mediaType);
         };
 
         that.addManifestItem(manifest, util.styleSheetFileName(), "stylesheet", "text/css");
@@ -156,7 +156,7 @@ EpubPacker.prototype = {
             that.addSpineItemRef(spine, EpubPacker.coverImageXhtmlId());
         };
         for(let item of epubItemSupplier.spineItems()) {
-            that.addSpineItemRef(spine, item.id);
+            that.addSpineItemRef(spine, item.getId());
         };
     },
 

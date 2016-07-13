@@ -13,10 +13,8 @@ class EpubItemSupplier {
         imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
         epubItems.forEach(item => this.epubItems.push(item));
         let that = this;
-        this.coverImageId = function() {
-            return (that.coverImageInfo == null) ? null : that.coverImageInfo.id; 
-        };
-    }
+        this.coverImageId = () => that.coverImageInfo.getId();
+    };
 }
 
 // used to populate manifest
@@ -25,7 +23,7 @@ EpubItemSupplier.prototype.manifestItems = function*() {
     for(let item of that.epubItems) {
         yield {
             href: item.getZipHref(),
-            id:   item.getId(),
+            getId: () => item.getId(),
             mediaType: item.getMediaType()
         };
     };
@@ -36,7 +34,7 @@ EpubItemSupplier.prototype.spineItems = function*() {
     let that = this;
     for(let item of that.epubItems) {
         if (item.isInSpine) {
-            yield { id: item.getId() };
+            yield { getId: () => item.getId() };
         };
     };
 }
@@ -71,5 +69,5 @@ EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
 }
 
 EpubItemSupplier.prototype.hasCoverImageFile = function() {
-    return (this.coverImageId() != null);
+    return (this.coverImageInfo != null);
 }
