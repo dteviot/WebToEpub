@@ -31,18 +31,15 @@ EpubPacker.prototype = {
 
     assembleAndSave: function (fileName, epubItemSupplier) {
         let that = this;
-        that.save(that.assemble(epubItemSupplier), fileName);
-    },
-
-    assemble: function (epubItemSupplier) {
-        let that = this;
         let zipFile = new JSZip();
         that.addRequiredFiles(zipFile);
         zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
         zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
-        return zipFile.generate({ type: "blob" });
+        zipFile.generateAsync({ type: "blob" }).then(function(content) {
+            that.save(content, fileName);
+        });
     },
 
     // write blob to "Downloads" directory
