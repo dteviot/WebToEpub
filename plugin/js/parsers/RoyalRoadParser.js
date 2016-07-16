@@ -29,6 +29,7 @@ RoyalRoadParser.prototype.findContent = function (dom) {
     let that = this;
     let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
     that.removeUnwantedElementsFromContent(content);
+    that.addTitleToContent(dom, content);
     return content;
 };
 
@@ -83,3 +84,17 @@ RoyalRoadParser.prototype.extractAuthor = function(dom) {
     return author.startsWith("by ") ? author.substring(3) : author;
 };
 
+RoyalRoadParser.prototype.addTitleToContent = function(dom, content) {
+    let that = this;
+    let titleText = that.findChapterTitle(dom);
+    if (titleText !== "") {
+        let title = dom.createElement("h2");
+        title.appendChild(dom.createTextNode(titleText));
+        content.insertBefore(title, content.firstChild);
+    };
+}
+
+RoyalRoadParser.prototype.findChapterTitle = function(dom) {
+    let title = util.getElement(dom, "div", e => (e.className === "ccgtheadposttitle"));
+    return (title === null) ? "" : title.innerText.trim();
+}
