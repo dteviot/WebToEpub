@@ -178,38 +178,38 @@ EpubPacker.prototype = {
         let ncx = document.implementation.createDocument(ns, "ncx", null);
         ncx.documentElement.setAttribute("version", "2005-1");
         ncx.documentElement.setAttribute("xml:lang", that.metaInfo.language);
-        let head = that.createAndAppendChild(ncx.documentElement, "head");
-        that.buildDocTitle(ncx);
-        let depth = that.buildNavMap(ncx, epubItemSupplier);
-        that.populateHead(ncx, head, depth);
+        let head = that.createAndAppendChildNS(ncx.documentElement, ns, "head");
+        that.buildDocTitle(ncx, ns);
+        let depth = that.buildNavMap(ncx, ns, epubItemSupplier);
+        that.populateHead(head, ns, depth);
 
         return util.xmlToString(ncx);
     },
 
-    populateHead: function (ncx, head, depth) {
+    populateHead: function (head, ns, depth) {
         let that = this;
-        that.buildHeadMeta(head, that.metaInfo.uuid, "dtb:uid");
-        that.buildHeadMeta(head, (depth < 2) ? "2" : depth, "dtb:depth");
-        that.buildHeadMeta(head, "0", "dtb:totalPageCount");
-        that.buildHeadMeta(head, "0", "dtb:maxPageNumber");
+        that.buildHeadMeta(head, ns, that.metaInfo.uuid, "dtb:uid");
+        that.buildHeadMeta(head, ns, (depth < 2) ? "2" : depth, "dtb:depth");
+        that.buildHeadMeta(head, ns, "0", "dtb:totalPageCount");
+        that.buildHeadMeta(head, ns, "0", "dtb:maxPageNumber");
     },
 
-    buildHeadMeta: function (head, content, name) {
+    buildHeadMeta: function (head, ns, content, name) {
         let that = this;
-        let meta = that.createAndAppendChild(head, "meta");
+        let meta = that.createAndAppendChildNS(head, ns, "meta");
         meta.setAttribute("content", content);
         meta.setAttribute("name", name);
     },
 
-    buildDocTitle: function (ncx) {
+    buildDocTitle: function (ncx, ns) {
         let that = this;
-        let docTitle = that.createAndAppendChild(ncx.documentElement, "docTitle");
-        that.createAndAppendChild(docTitle, "text", that.metaInfo.title);
+        let docTitle = that.createAndAppendChildNS(ncx.documentElement, ns, "docTitle");
+        that.createAndAppendChildNS(docTitle, ns, "text", that.metaInfo.title);
     },
 
-    buildNavMap: function (ncx, epubItemSupplier) {
+    buildNavMap: function (ncx, ns, epubItemSupplier) {
         let that = this;
-        let navMap = that.createAndAppendChild(ncx.documentElement, "navMap");
+        let navMap = that.createAndAppendChildNS(ncx.documentElement, ns, "navMap");
         let parents = new NavPointParentElementsStack(navMap);
         let playOrder = 0;
         let id = 0;
@@ -219,21 +219,21 @@ EpubPacker.prototype = {
             if(lastChapterSrc !== chapterInfo.src){
                 ++playOrder;
             }
-            let navPoint = that.buildNavPoint(parent, playOrder, ++id, chapterInfo);
+            let navPoint = that.buildNavPoint(parent, ns, playOrder, ++id, chapterInfo);
             lastChapterSrc = chapterInfo.src;
             parents.addElement(chapterInfo.depth, navPoint);
         };
         return parents.maxDepth;
     },
 
-    buildNavPoint: function (parent, playOrder, id, chapterInfo) {
+    buildNavPoint: function (parent, ns, playOrder, id, chapterInfo) {
         let that = this;
-        let navPoint = that.createAndAppendChild(parent, "navPoint");
+        let navPoint = that.createAndAppendChildNS(parent, ns, "navPoint");
         navPoint.setAttribute("id", that.makeId(util.zeroPad(id)));
         navPoint.setAttribute("playOrder", playOrder);
-        let navLabel = that.createAndAppendChild(navPoint, "navLabel");
-        that.createAndAppendChild(navLabel, "text", chapterInfo.title);
-        that.createAndAppendChild(navPoint, "content").setAttribute("src", that.makeRelative(chapterInfo.src));
+        let navLabel = that.createAndAppendChildNS(navPoint, ns, "navLabel");
+        that.createAndAppendChildNS(navLabel, ns, "text", chapterInfo.title);
+        that.createAndAppendChildNS(navPoint, ns, "content").setAttribute("src", that.makeRelative(chapterInfo.src));
         return navPoint;
     },
 
@@ -250,6 +250,15 @@ EpubPacker.prototype = {
 
     createAndAppendChild: function (element, name, data) {
         let child = element.ownerDocument.createElement(name);
+        if (typeof data  !== "undefined") {
+            child.appendChild(element.ownerDocument.createTextNode(data));
+        }
+        element.appendChild(child);
+        return child;
+    },
+
+    createAndAppendChildNS: function (element, ns, name, data) {
+        let child = element.ownerDocument.createElementNS(ns, name);
         if (typeof data  !== "undefined") {
             child.appendChild(element.ownerDocument.createTextNode(data));
         }

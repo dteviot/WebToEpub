@@ -152,7 +152,8 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
 
 test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
-    assert.equal(buildTableOfContents,
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(buildTableOfContents.replace(/\r|\n/g, ""),
         "<?xml version='1.0' encoding='utf-8'?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
           "<head>" +
