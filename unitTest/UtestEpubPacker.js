@@ -92,10 +92,10 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
-            "<meta content=\"cover\" name=\"cover\"/>" +
+            "<meta content=\"cover-image\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
-              "<item href=\"Images/0000_thepic.jpeg\" id=\"cover\" media-type=\"image/jpeg\"/>" +
+              "<item href=\"Images/0000_thepic.jpeg\" id=\"cover-image\" media-type=\"image/jpeg\"/>" +
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
