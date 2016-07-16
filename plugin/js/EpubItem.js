@@ -41,7 +41,7 @@ EpubItem.prototype.makeChapterDoc = function() {
     let doc = util.createEmptyXhtmlDoc();
     let body = doc.getElementsByTagName("body")[0];
     for(let element of that.elements) {
-        body.appendChild(element);
+        body.appendChild(doc.importNode(element, true));
     };
     return doc;
 }

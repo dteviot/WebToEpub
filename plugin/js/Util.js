@@ -10,44 +10,48 @@
 var util = (function () {
 
     var createEmptyXhtmlDoc = function() {
-        let doc = document.implementation.createDocument("http://www.w3.org/1999/xhtml", "", null);
+        let ns = "http://www.w3.org/1999/xhtml";
+        let doc = document.implementation.createDocument(ns, "", null);
         util.addXhtmlDocTypeToStart(doc);
-        let htmlNode = doc.createElement("html");
+        let htmlNode = doc.createElementNS(ns, "html");
         doc.appendChild(htmlNode);
-        let head = doc.createElement("head");
+        let head = doc.createElementNS(ns, "head");
         htmlNode.appendChild(head);
-        head.appendChild(doc.createElement("title"));
-        let style = doc.createElement("link");
+        head.appendChild(doc.createElementNS(ns, "title"));
+        let style = doc.createElementNS(ns, "link");
         head.appendChild(style);
         style.setAttribute("href", makeRelative.call(this, util.styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
-        let body = doc.createElement("body");
+        let body = doc.createElementNS(ns, "body");
         htmlNode.appendChild(body);
         return doc;
     }
 
     var createSvgImageElement = function (href, width, height, origin) {
+        let xmlns = "http://www.w3.org/1999/xhtml";
+        let svg_ns = "http://www.w3.org/2000/svg";
+        let xlink_ns = "http://www.w3.org/1999/xlink";
         let that = this;
         let doc = that.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
-        let div = doc.createElement("div");
+        let div = doc.createElementNS(xmlns, "div");
         div.className = "svg_outer svg_inner";
         body.appendChild(div);
-        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        var svg = document.createElementNS(svg_ns,"svg");
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", xlink_ns);
         div.appendChild(svg);
-        svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-        svg.setAttribute("height", "95%");
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("version", "1.1");
-        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-        svg.setAttribute("viewBox", "0 0 " + width + " " + height);
-        let newImage = doc.createElementNS("http://www.w3.org/2000/svg","image");
+        svg.setAttributeNS(null, "height", "95%");
+        svg.setAttributeNS(null, "width", "100%");
+        svg.setAttributeNS(null, "version", "1.1");
+        svg.setAttributeNS(null, "preserveAspectRatio", "xMidYMid meet");
+        svg.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height);
+        let newImage = doc.createElementNS(svg_ns,"image");
         svg.appendChild(newImage);
-        newImage.setAttribute("xlink:href", makeRelative.call(this, href));
-        newImage.setAttribute("height", height);
-        newImage.setAttribute("width", width);
-        let desc = doc.createElementNS("http://www.w3.org/2000/svg","desc");
+        newImage.setAttributeNS(xlink_ns, "xlink:href", makeRelative.call(this, href));
+        newImage.setAttributeNS(null, "height", height);
+        newImage.setAttributeNS(null, "width", width);
+        let desc = doc.createElementNS(svg_ns,"desc");
         svg.appendChild(desc);
         desc.appendChild(document.createTextNode(origin));
         return div;

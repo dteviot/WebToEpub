@@ -21,16 +21,6 @@ Parser.prototype.getEpubMetaInfo = function (dom){
     return metaInfo;
 }
 
-Parser.prototype.makeChapterDoc = function(dom) {
-    let that = this;
-    let doc = util.createEmptyXhtmlDoc();
-    let content = that.findContent(dom)
-    if (content != null) {
-        util.addToDocBody(doc, content.cloneNode(true));
-    }
-    return doc;
-}
-
 Parser.prototype.singleChapterStory = function (baseUrl, dom) {
     return [{
         sourceUrl: baseUrl,

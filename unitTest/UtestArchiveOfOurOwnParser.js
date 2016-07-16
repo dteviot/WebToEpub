@@ -64,12 +64,3 @@ QUnit.test("parserFactory", function (assert) {
     assert.ok(parser instanceof ArchiveOfOurOwnParser );
 });
 
-QUnit.test("makeChapterDocCopiesNotMovesNodes", function (assert) {
-    let parser = new ArchiveOfOurOwnParser();
-    let doc = syncLoadArchiveOfOurOwnSampleDoc();
-    equal(doc.all.length, 53);
-    let chapterDoc = parser.makeChapterDoc(doc);
-    equal(doc.all.length, 53);
-    let chapterDoc2 = parser.makeChapterDoc(doc);
-});
-
