@@ -28,14 +28,24 @@ RoyalRoadParser.prototype.elementToChapterInfo = function (chapterElement) {
 RoyalRoadParser.prototype.findContent = function (dom) {
     let that = this;
     let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
-    
-    // cleanup story content
-    that.removePostContent(content);
-    that.stripStyle(content);
+    that.removeUnwantedElementsFromContent(content);
     return content;
 };
 
-RoyalRoadParser.prototype.removePostContent = function (element) {
+RoyalRoadParser.prototype.removeUnwantedElementsFromContent = function(content) {
+    let that = this;
+    that.removeNavigationBox(content);
+    that.stripStyle(content);
+
+    // get rid of donation request at end of chapters
+    util.removeElements(util.getElements(content, "div", e => e.className === "thead"));
+
+    // remove links to get rid of the "Read this chapter using beta fiction reader"
+    util.removeElements(util.getElements(content, "a"));
+    util.removeEmptyDivElements(content);
+}
+
+RoyalRoadParser.prototype.removeNavigationBox = function (element) {
     let navigationBox = this.findNavigationBox(element);
     if (navigationBox !== null) {
         util.removeNode(navigationBox);

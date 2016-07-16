@@ -100,6 +100,11 @@ var util = (function () {
         removeElements(nodeList);
     }
 
+    // discard empty divs created when moving elements
+    var removeEmptyDivElements = function(element) {
+        util.removeElements(util.getElements(element, "div", e => isStringWhiteSpace(e.innerHTML)));
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -230,6 +235,7 @@ var util = (function () {
         removeNode: removeNode,
         removeElements: removeElements,
         removeComments: removeComments,
+        removeEmptyDivElements: removeEmptyDivElements,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         addXmlDeclarationToStart: addXmlDeclarationToStart,

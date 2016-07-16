@@ -80,7 +80,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     that.processImages(content);
-    that.stripBlankElements(content);
+    util.removeEmptyDivElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
     that.fixupFootnotes(epubItems);
     return new EpubItemSupplier(that, epubItems, that.imageCollector);
@@ -151,11 +151,6 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     for(let node of garbage) {
         util.removeNode(node);
     }
-}
-
-// discard blank divs created when moving elements
-BakaTsukiParser.prototype.stripBlankElements = function(element) {
-	util.removeElements(util.getElements(element, "div", e => (e.innerHTML.replace(/\s/g, "") == "")));
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {

@@ -387,24 +387,6 @@ test("fixupFootnotes", function (assert) {
 
 });
 
-test("stripBlankElements", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<div><h1>H1</h1></div>" +
-                "<div><div></div></div>" +
-                "<div>    \n\n\n</div>" +
-            "</body>" +
-        "</html>",
-        "text/html");
-    let parser = new BakaTsukiParser();
-    let content = dom.body.cloneNode(true);
-    parser.stripBlankElements(content);
-
-    assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div></div>");
-});
-
 // demonstrate Chrome closing <br> tags when convert from HTML to XHTML
 test("replaceInvalidElements", function (assert) {
     let dom = new DOMParser().parseFromString(
