@@ -45,7 +45,8 @@ test("buildContentOpf", function (assert) {
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
-    assert.equal(contentOpf,
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(contentOpf.replace(/\r|\n/g, ""),
         "<?xml version='1.0' encoding='utf-8'?>"+
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">"+
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
@@ -83,7 +84,8 @@ test("buildContentOpfWithCover", function (assert) {
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(itemSupplier);
 
-    assert.equal(contentOpf,
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(contentOpf.replace(/\r|\n/g, ""),
         "<?xml version='1.0' encoding='utf-8'?>" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
@@ -123,7 +125,8 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
     let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
 
-    assert.equal(contentOpf,
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(contentOpf.replace(/\r|\n/g, ""),
         "<?xml version='1.0' encoding='utf-8'?>" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
