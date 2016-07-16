@@ -57,5 +57,20 @@ For details on how to extend, see http://www.codeproject.com/Articles/1060680/We
 Licenced under GPLv3.
 
 WebToEpub uses the following libraries:
-* JSZip library: https://github.com/Stuk/jszip, which is dual licensed with the MIT license or GPLv3.
+* JSZip library v3.0.0: https://github.com/Stuk/jszip, which is dual licensed with the MIT license or GPLv3.
 * quint: http://qunitjs.com/, licensed under MIT license.
+
+## Other notes
+### To run unit tests under Chrome
+* Close all running copies of Chrome 
+* Start Chrome with command line argument --allow-file-access-from-files
+* Load unitTest/Tests.html
+* When finished, close all running copies of Chrome
+
+### To run unit tests under Firefox
+* Start Firefox 
+* Go to about:config
+* Find security.fileuri.strict_origin_policy parameter
+* Set it to false
+* Load unitTest/Tests.html
+* (Remember to reset security.fileuri.strict_origin_policy to true when done.
