@@ -1,6 +1,5 @@
 # WebToEpub
 (c) 2015 David Teviotdale   
-Firefox mod by Markus Vieth
 
 A simple Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
 Also works with 
@@ -8,6 +7,13 @@ Also works with
 * mugglenet.com
 * FanFiction.net
 * royalroadl.com 
+
+Credits
+* Firefox mod by Markus Vieth
+* Belldandu
+* typhoon71
+* toshiya44
+* dreamer2908
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
@@ -38,7 +44,10 @@ Also works with
 ## How to install from Source
 ### Chrome
 * Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-* Open zip file and copy the "plugin" folder where you want to keep it.
+* Unpack zip file and copy content to a "plugin" directory where you want to keep it.
+* Create a "jszip\dist" directory under the "plugin" directory.
+* Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+* Extract jszip.min.js from the jszip library and copy to the jszip\dist directory from previous step.
 * Open Chrome and type "chrome://extensions" into the browser.
 * Make sure "Developer Mode" at the top of the page is checked.
 * Press the "Load unpacked extension.." button and browse to the "plugin" folder from step 2.
@@ -48,10 +57,13 @@ For details on how to extend, see http://www.codeproject.com/Articles/1060680/We
 ### Firefox
 * Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
 * Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-* Open zip file and pack the content of "plugin" folder in a zip file (with manifest.json on root level).
-* Change the extension from zip to xpi
-* Open Firefox and type "about:addons" into the browser.
-* Drag & Drop the xpi file in the Firefox window.
+* Unpack zip file and copy content to a "plugin" directory where you want to keep it.
+* Create a "jszip\dist" directory under the "plugin" directory.
+* Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+* Extract jszip.min.js from the jszip library and copy to the jszip\dist directory from previous step.
+* Open Firefox and type "about:debugging" into the URL bar.
+* Click "Load Temporary Add-on".
+* Open the plugin directory and select manifest.json.
 
 ## License information
 Licenced under GPLv3.
