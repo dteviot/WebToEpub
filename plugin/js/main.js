@@ -115,20 +115,34 @@ var main = (function () {
     }
 
     function getActiveTabDOM() {
-        chrome.tabs.executeScript({file: "js/ContentScript.js"});
+        chrome.tabs.executeScript({ file: "js/ContentScript.js" },
+            function (result) {
+                if (chrome.runtime.lastError) {
+                    // if fails, assume we're running in tab mode.
+                    // but log the error message just in case I'm wrong.
+                    console.log(chrome.runtime.lastError.message);
+                    configureForTabMode();
+                };
+            }
+        );
     }
 
     function populateControls() {
         // set up handler to get the response from our injected content script
         onMessageListener = function (message) {
             // convert the string returned from content script back into a DOM
-            initalWebPage = new DOMParser().parseFromString(message.document, "text/html");
-
-            // set the base tag, in case server did not supply it 
-            new HttpClient().setBaseTag(message.url, initalWebPage);
-            processInitialHtml(message.url, initalWebPage);
+            let dom = new DOMParser().parseFromString(message.document, "text/html");
+            populateControlsWithDom(message.url, dom);
         };
         getActiveTabDOM();
+    }
+
+    function populateControlsWithDom(url, dom) {
+        initalWebPage = dom;
+
+        // set the base tag, in case server did not supply it 
+        new HttpClient().setBaseTag(url, initalWebPage);
+        processInitialHtml(url, initalWebPage);
     }
 
     function setParser(url) {
@@ -169,8 +183,36 @@ var main = (function () {
         document.getElementById("stylesheetInput").value = EpubMetaInfo.getDefaultStyleSheet();
     }
 
+    function onOpenAsTabClick() {
+        window.open(chrome.extension.getURL("popup.html"), "exampleName");
+        window.close();
+    }
+
+    function onLoadAndAnalyseButtonClick() {
+        // load page via XmlHTTPRequest
+        let url = getValueFromUiField("startingUrlInput");
+        getLoadAndAnalyseButton().disabled = true;
+        let client = new HttpClient();
+        return client.fetchHtml(url).then(function (xhr) {
+            populateControlsWithDom(url, xhr.responseXML);
+            getLoadAndAnalyseButton().disabled = false;
+        }).catch(function (error) {
+            // ToDo, implement error handler.
+            getLoadAndAnalyseButton().disabled = false;
+            alert(error);
+        });
+    }
+
+    function configureForTabMode() {
+        document.getElementById("loadAndAnalyseButton").hidden = false;
+    }
+
     function getPackEpubButton() {
         return document.getElementById("packEpubButton");
+    }
+
+    function getLoadAndAnalyseButton() {
+        return document.getElementById("loadAndAnalyseButton");
     }
 
     // actions to do when window opened
@@ -183,6 +225,8 @@ var main = (function () {
         document.getElementById("reloadButton").onclick = populateControls;
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
+        document.getElementById("openAsTabButton").onclick = onOpenAsTabClick;
+        getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
         populateControls();
     }
 

@@ -24,7 +24,9 @@
         <table id="inputTable">
             <tr>
                 <td>Starting URL</td>
-                <td><input id="startingUrlInput" type="url" name="startingUrlInput" size="80" /></td>
+                <td><input id="startingUrlInput" type="url" name="startingUrlInput" size="80" />
+                    <button id=loadAndAnalyseButton hidden>Load and Analyse</button>
+                </td>
             </tr>
             <tr>
                 <td>Title</td>
@@ -72,6 +74,10 @@
                     <tr id="stylesheetToDefaultRow">
                         <td></td>
                         <td><button id=stylesheetToDefaultButton>Reset stylesheet to default</button></td>
+                    </tr>
+                    <tr id="openAsTabRow">
+                        <td></td>
+                        <td><button id=openAsTabButton>Open As Tab</button></td>
                     </tr>
                     <tr id="developerStuffRow">
                         <td>Developer Stuff:</td>
