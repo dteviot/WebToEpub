@@ -28,12 +28,12 @@ RoyalRoadParser.prototype.elementToChapterInfo = function (chapterElement) {
 RoyalRoadParser.prototype.findContent = function (dom) {
     let that = this;
     let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
-    that.removeUnwantedElementsFromContent(content);
+    that.removeUnwantedElementsFromContent(dom, content);
     that.addTitleToContent(dom, content);
     return content;
 };
 
-RoyalRoadParser.prototype.removeUnwantedElementsFromContent = function(content) {
+RoyalRoadParser.prototype.removeUnwantedElementsFromContent = function(dom, content) {
     let that = this;
     that.removeNavigationBox(content);
     that.stripStyle(content);
@@ -43,6 +43,7 @@ RoyalRoadParser.prototype.removeUnwantedElementsFromContent = function(content) 
 
     // remove links to get rid of the "Read this chapter using beta fiction reader"
     util.removeElements(util.getElements(content, "a"));
+    that.removeOlderChapterNavJunk(dom, content);
     util.removeEmptyDivElements(content);
 }
 
@@ -97,4 +98,16 @@ RoyalRoadParser.prototype.addTitleToContent = function(dom, content) {
 RoyalRoadParser.prototype.findChapterTitle = function(dom) {
     let title = util.getElement(dom, "div", e => (e.className === "ccgtheadposttitle"));
     return (title === null) ? "" : title.innerText.trim();
+}
+
+RoyalRoadParser.prototype.removeOlderChapterNavJunk = function(dom, content) {
+    // some older chapters have next chapter & previous chapter links seperated by string "<-->"
+    let walker = dom.createTreeWalker(content, NodeFilter.SHOW_TEXT, 
+        n => (n.textContent.trim() === "<-->"), 
+        false
+    );
+    let node = null;
+    while (node = walker.nextNode()) {
+        util.removeNode(node);
+    };
 }
