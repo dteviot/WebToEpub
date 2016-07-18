@@ -45,6 +45,7 @@ RoyalRoadParser.prototype.removeUnwantedElementsFromContent = function(dom, cont
     util.removeElements(util.getElements(content, "a"));
     that.removeOlderChapterNavJunk(dom, content);
     util.removeEmptyDivElements(content);
+    that.removeTrailingWhiteSpace(content);
 }
 
 RoyalRoadParser.prototype.removeNavigationBox = function (element) {
@@ -111,3 +112,13 @@ RoyalRoadParser.prototype.removeOlderChapterNavJunk = function(dom, content) {
         util.removeNode(node);
     };
 }
+
+RoyalRoadParser.prototype.removeTrailingWhiteSpace = function (content) {
+    let children = Array.prototype.slice.apply(content.childNodes);
+    let i = children.length - 1;
+    while ((0 <= i) && util.isElementWhiteSpace(children[i])) {
+        util.removeNode(children[i]);
+        --i;
+    }
+}
+
