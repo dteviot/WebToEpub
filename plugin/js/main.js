@@ -6,7 +6,11 @@ var main = (function () {
     "use strict";
 
     // this will be called when message listener fires
-    var onMessageListener = null;
+    function onMessageListener(message) {
+        // convert the string returned from content script back into a DOM
+        let dom = new DOMParser().parseFromString(message.document, "text/html");
+        populateControlsWithDom(message.url, dom);
+    };
 
     // details 
     let initalWebPage = null;
@@ -17,9 +21,7 @@ var main = (function () {
         if (request.messageType == "ParseResults") {
             console.log("addListener");
             console.log(request);
-            if (onMessageListener != null) {
-                onMessageListener(request);
-            }
+            onMessageListener(request);
         }
     });
 
@@ -118,27 +120,37 @@ var main = (function () {
         chrome.tabs.executeScript({ file: "js/ContentScript.js" },
             function (result) {
                 if (chrome.runtime.lastError) {
-                    // if fails, assume we're running in tab mode.
-                    // but log the error message just in case I'm wrong.
                     console.log(chrome.runtime.lastError.message);
-                    configureForTabMode();
                 };
             }
         );
     }
 
     function populateControls() {
-        // set up handler to get the response from our injected content script
-        onMessageListener = function (message) {
-            // convert the string returned from content script back into a DOM
-            let dom = new DOMParser().parseFromString(message.document, "text/html");
-            populateControlsWithDom(message.url, dom);
-        };
-        getActiveTabDOM();
+        if (isRunningInTabMode()) {
+            configureForTabMode();
+        } else if (isRunningFromWebPageOrLocalFile()) {
+            // nothing to do, user will need to supply URL
+        } else {
+            // running as an extention, try get active tab
+            getActiveTabDOM();
+        }
+    }
+
+    function isRunningFromWebPageOrLocalFile() {
+        let protocol = window.location.protocol;
+        return (protocol.startsWith("http") || protocol.startsWith("file"));
+    }
+
+    function isRunningInTabMode() {
+        // if query string supplied, we're running in Tab mode.
+        let search = window.location.search;
+        return (search != null) && (search !== "");
     }
 
     function populateControlsWithDom(url, dom) {
         initalWebPage = dom;
+        setUiFieldToValue("startingUrlInput", url);
 
         // set the base tag, in case server did not supply it 
         new HttpClient().setBaseTag(url, initalWebPage);
@@ -151,6 +163,7 @@ var main = (function () {
             alert("No parser found for this URL.");
             return false;
         }
+        getLoadAndAnalyseButton().hidden = true;
         return true;
     }
 
@@ -184,7 +197,11 @@ var main = (function () {
     }
 
     function onOpenAsTabClick() {
-        window.open(chrome.extension.getURL("popup.html"), "exampleName");
+        // open new tab window, passing URL with content to convert to epub as query parameter.
+        let url = chrome.extension.getURL("popup.html");
+        url += "?url=";
+        url += encodeURIComponent(getValueFromUiField("startingUrlInput"));
+        window.open(url, "_blank");
         window.close();
     }
 
@@ -204,7 +221,13 @@ var main = (function () {
     }
 
     function configureForTabMode() {
-        document.getElementById("loadAndAnalyseButton").hidden = false;
+        setUiFieldToValue("startingUrlInput", extractContentUrlFromQueryParameter());
+        onLoadAndAnalyseButtonClick();
+    }
+
+    function extractContentUrlFromQueryParameter() {
+        let encodedUrl = window.location.search.split("=")[1];
+        return decodeURIComponent(encodedUrl);
     }
 
     function getPackEpubButton() {
