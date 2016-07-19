@@ -18,6 +18,7 @@ var main = (function () {
 
     // register listener that is invoked when script injected into HTML sends its results
     try {
+        // note, this will throw if not running as an extension.
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             if (request.messageType == "ParseResults") {
                 console.log("addListener");
@@ -28,7 +29,6 @@ var main = (function () {
     }
     catch (chromeError)
     {
-        // ignore. Above only works if running as extension, so assume not running as extension.
         console.log(chromeError);
     }
 
