@@ -16,14 +16,21 @@ var main = (function () {
     let initalWebPage = null;
     let parser = null;
 
-    // register listener that is invoked when script injected into HTML sends its results 
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        if (request.messageType == "ParseResults") {
-            console.log("addListener");
-            console.log(request);
-            onMessageListener(request);
-        }
-    });
+    // register listener that is invoked when script injected into HTML sends its results
+    try {
+        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+            if (request.messageType == "ParseResults") {
+                console.log("addListener");
+                console.log(request);
+                onMessageListener(request);
+            }
+        });
+    }
+    catch (chromeError)
+    {
+        // ignore. Above only works if running as extension, so assume not running as extension.
+        console.log(chromeError);
+    }
 
     // extract urls from DOM and populate control
     function processInitialHtml(url, dom) {
