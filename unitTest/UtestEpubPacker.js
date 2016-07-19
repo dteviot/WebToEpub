@@ -258,7 +258,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "</head>" +
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
-                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"95%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
                         "<image xlink:href=\"../Images/cover.png\" height=\"200\" width=\"400\"/>" +
                         "<desc>http://dummy/cover.png</desc>" + 
                     "</svg>" +
