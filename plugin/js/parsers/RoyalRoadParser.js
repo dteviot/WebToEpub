@@ -114,11 +114,9 @@ RoyalRoadParser.prototype.removeOlderChapterNavJunk = function(dom, content) {
 }
 
 RoyalRoadParser.prototype.removeTrailingWhiteSpace = function (content) {
-    let children = Array.prototype.slice.apply(content.childNodes);
-    let i = children.length - 1;
-    while ((0 <= i) && util.isElementWhiteSpace(children[i])) {
-        util.removeNode(children[i]);
-        --i;
+    let children = content.childNodes;
+    while ((0 < children.length) && util.isElementWhiteSpace(children[children.length - 1])) {
+        util.removeNode(children[children.length - 1]);
     }
 }
 
