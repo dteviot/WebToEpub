@@ -41,7 +41,7 @@ var util = (function () {
         var svg = document.createElementNS(svg_ns,"svg");
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", xlink_ns);
         div.appendChild(svg);
-        svg.setAttributeNS(null, "height", "95%");
+        svg.setAttributeNS(null, "height", "99%");
         svg.setAttributeNS(null, "width", "100%");
         svg.setAttributeNS(null, "version", "1.1");
         svg.setAttributeNS(null, "preserveAspectRatio", "xMidYMid meet");
