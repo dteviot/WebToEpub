@@ -90,7 +90,7 @@ RoyalRoadParser.prototype.addTitleToContent = function(dom, content) {
     let that = this;
     let titleText = that.findChapterTitle(dom);
     if (titleText !== "") {
-        let title = dom.createElement("h2");
+        let title = dom.createElement("h3");
         title.appendChild(dom.createTextNode(titleText));
         content.insertBefore(title, content.firstChild);
     };
