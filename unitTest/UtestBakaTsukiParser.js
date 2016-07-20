@@ -186,6 +186,14 @@ QUnit.test("processImages", function (assert) {
                     "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                 "</a>" +
            "</div>" +
+           "<div class=\"floatleft\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg\" class=\"image\">" +
+                    "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_V01_Cover.jpg\" >" +
+                "</a>" +
+           "</div>" +
+           "<div class=\"rating-section\">" +
+                    "<img src=\"https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif\" >" +
+           "</div>" +
         "</x>",
         "text/html"
     );
@@ -200,7 +208,12 @@ QUnit.test("processImages", function (assert) {
     imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png");
     imageInfo.height = 300;
     imageInfo.width = 400;
-
+    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg");
+    imageInfo.height = 10;
+    imageInfo.width = 20;
+    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif");
+    imageInfo.height = 1;
+    imageInfo.width = 2;
     let parser = new BakaTsukiParser(imageCollector);
     parser.processImages(dom.documentElement, imagesMap);
 
@@ -233,6 +246,20 @@ QUnit.test("processImages", function (assert) {
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
             "</div>"+
+            "<div class=\"svg_outer svg_inner\">"+
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 20 10\">" +
+                    "<image xlink:href=\"../Images/0002_BTS_V01_Cover.jpg\" height=\"10\" width=\"20\"/>"+
+                    "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg</desc>"+
+                "</svg>"+
+             "</div>"+
+             "<div class=\"rating-section\">" +
+             "<div class=\"svg_outer svg_inner\">"+
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 2 1\">" +
+                    "<image xlink:href=\"../Images/0003_star_on.gif\" height=\"1\" width=\"2\"/>"+
+                    "<desc>https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif</desc>"+
+                "</svg>"+
+             "</div>"+
+             "</div>" +
         "</x>");
 });
 

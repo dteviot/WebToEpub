@@ -160,12 +160,15 @@ class ImageCollector {
 
 // get URL of page that holds all copies of this image
 ImageCollector.prototype.extractImagePageUrl = function (element) {
+    if (element.tagName === "IMG") {
+        return element.src;
+    }
     return (element.tagName === "A") ? element.href : element.getElementsByTagName("a")[0].href;
 }
 
 // get src value of <img> element
 ImageCollector.prototype.extractImageSrc = function (element) {
-    return element.getElementsByTagName("img")[0].src;
+    return (element.tagName === "IMG") ?  element.src : element.getElementsByTagName("img")[0].src;
 }
 
 class ImageElementConverter {
@@ -211,6 +214,10 @@ ImageCollector.prototype.findImageWrappingElement = function (element) {
 
     // find "highest" element that is wrapping an image element
     let parent = element.parentElement;
+    if ((parent === null) || (parent.tagName !== "A")) {
+        // image not wrapped in hyperlink, so just return the image itself
+        return element;
+    }
     while (parent != null) {
         if (that.isImageWrapperElement(parent)) {
             return parent;
@@ -225,7 +232,7 @@ ImageCollector.prototype.findImageWrappingElement = function (element) {
 ImageCollector.prototype.isImageWrapperElement = function (element) {
     return ((element.tagName === "DIV") &&
         ((element.className === "thumb tright") || (element.className === "floatright") ||
-        (element.className === "thumb")));
+        (element.className === "thumb") || (element.className === "floatleft")));
 }
 
 ImageCollector.prototype.findImagesUsedInDocument = function (content) {
