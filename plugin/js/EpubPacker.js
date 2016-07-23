@@ -130,7 +130,7 @@ EpubPacker.prototype = {
         let that = this;
         var manifest = that.createAndAppendChildNS(opf.documentElement, ns, "manifest");
         for(let item of epubItemSupplier.manifestItems()) {
-            that.addManifestItem(manifest, ns, item.href, item.getId(), item.mediaType);
+            that.addManifestItem(manifest, ns, item.getZipHref(), item.getId(), item.getMediaType());
         };
 
         that.addManifestItem(manifest, ns, util.styleSheetFileName(), "stylesheet", "text/css");
@@ -244,7 +244,7 @@ EpubPacker.prototype = {
         let that = this;
         let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
-            zipFile.file(file.href, file.content, zipOptions);
+            zipFile.file(file.getZipHref(), file.fileContentForEpub(), zipOptions);
         };
         if (epubItemSupplier.hasCoverImageFile()) {
             zipFile.file(EpubPacker.coverImageXhtmlHref(), epubItemSupplier.makeCoverImageXhtmlFile(), zipOptions);

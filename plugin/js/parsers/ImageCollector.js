@@ -4,141 +4,6 @@
 
 "use strict";
 
-/*
-    Details of an image in BakaTsuki web page
-    imagePageUrl :  URL of web page that holds list of versions of the image
-    sourceImageUrl : URL of thumbnail image jpeg/png/bmp file in source web page
-    zipHref:  relative path + filename used to store file in the EPUB (zip) file.
-    id: the id value in the content.opf file
-    mediaType: jpeg, png, etc.
-    arrayBuffer: the image bytes
-    isCover :  use this as the cover image?
-    height: "full size" image height 
-    width: "full size" image width
-    imagefileUrl: URL of "full size" image file at Baka-Tsuki
-*/
-function ImageInfo(imagePageUrl, imageIndex, sourceImageUrl) {
-    // ToDo:  This will need to derive from EpubItem
-    let that = this;
-    this.imagePageUrl = imagePageUrl;
-    this.sourceImageUrl = sourceImageUrl;
-    let suffix = that.findImageSuffix(imagePageUrl);
-    this.zipHref = that.makeZipHref(imageIndex, suffix, imagePageUrl);
-    this.mediaType = "image/jpeg";
-    this.imageIndex = imageIndex;
-    this.isCover = false;
-    this.isInSpine = false;
-    this.isOutsideGallery = false;
-    this.arraybuffer = null;
-    this.height = null;
-    this.width = null;
-    this.imagefileUrl = null
-}
-
-ImageInfo.prototype.findImageSuffix = function(imagePageUrl) {
-    let that = this;
-    let suffix = "";
-    let fileName = that.extractImageFileNameFromUrl(imagePageUrl)
-    if (fileName != null) {
-        let index = fileName.lastIndexOf(".");
-        suffix = fileName.substring(index + 1);
-    }
-    return suffix;
-}
-
-ImageInfo.prototype.makeZipHref = function (imageIndex, suffix, imagePageUrl) {
-    let that = this;
-    return util.makeStorageFileName("OEBPS/Images/", imageIndex, that.getImageName(imagePageUrl), suffix);
-}
-
-// assume image URL looks like one one of the following
-// https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
-// https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427
-// https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
-
-// http://sonako.wikia.com/wiki/File:Date4_000c.png
-// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
-// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
-ImageInfo.prototype.extractImageFileNameFromUrl = function(url) {
-    let that = this;
-    let temp = url;
-    
-    // remove everything after hash
-    let index = url.indexOf("#");
-    if (0 <= index) {
-        temp = url.substring(0, index);
-    }
-
-    // make sure it's long enough to be a url
-    if (9 < temp.length) {
-
-        // remove protocol, hostname and port, make sure there's a pathname left
-        temp = temp.substring(8);
-        index = temp.indexOf("/");
-        if ((0 <= index) && (index < temp.length - 2)) {
-            temp = temp.substring(index + 1);
-
-            // break into pieces and take last piece that looks like an image filename
-            let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => that.isImageFileNameCandidate(s));
-            if (0 < fileNames.length) {
-                return fileNames[fileNames.length - 1];
-            }
-        }
-    } 
-    
-    // if get here, nothing found
-    return undefined;
-}
-
-// Crude. If string has '.' and is not a .php or .html, 
-// and there's at least 3 characters after the '.'
-// assume it's an image filename
-ImageInfo.prototype.isImageFileNameCandidate = function(candidate) {
-    let lowerString = candidate.toLowerCase();
-    return (4 < lowerString.length) &&
-        (lowerString.indexOf(".") !== -1) &&
-        (lowerString.indexOf(".html") === -1) &&
-        (lowerString.indexOf(".php") === -1) &&
-        (4 <= (lowerString.length - lowerString.lastIndexOf(".")));
-}
-
-ImageInfo.prototype.getImageName = function (page) {
-    let that = this;
-    if(page){
-        var name = that.extractImageFileNameFromUrl(page);
-        if(name){
-            return name.split(/\./gi)[0];
-        }
-    }
-    // This is actually wise to do now.
-    return undefined;
-}
-
-ImageInfo.prototype.makeId = function (imageIndex) {
-    return "image" + util.zeroPad(imageIndex);
-}
-
-ImageInfo.prototype.getZipHref = function () {
-    return this.zipHref;
-}
-
-ImageInfo.prototype.getId = function () {
-    return this.isCover ? "cover-image" : this.makeId(this.imageIndex);
-}
-
-ImageInfo.prototype.getMediaType = function () {
-    return this.mediaType;
-}
-
-ImageInfo.prototype.fileContentForEpub = function() {
-    return this.arraybuffer;
-}
-
-ImageInfo.prototype.createImageElement = function() {
-    let that = this;
-    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, that.imagePageUrl);
-}
-
 class ImageCollector {
     constructor() {
         this.removeDuplicateImages = false;
@@ -298,7 +163,7 @@ ImageCollector.prototype.populateImageTable = function() {
             // add image
             let img = document.createElement("img");
             img.setAttribute("style", "max-height: 120px; width: auto; ");
-            img.src = imageInfo.sourceImageUrl;
+            img.src = imageInfo.sourceUrl;
             that.appendColumnToRow(row, img);
             imagesTable.appendChild(row);
 
@@ -389,7 +254,7 @@ ImageCollector.prototype.getImageDimensions = function(imageInfo) {
             resolve();
         }
         // start downloading image after event handlers are set
-        img.src = imageInfo.imagefileUrl;
+        img.src = imageInfo.sourceUrl;
     });
 }
 
@@ -455,10 +320,10 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
     let client = new HttpClient();
     return client.fetchHtml(imageInfo.imagePageUrl).then(function (xhr) {
-        imageInfo.imagefileUrl = that.findImageFileUrl(xhr, imageInfo);
+        imageInfo.sourceUrl = that.findImageFileUrl(xhr, imageInfo);
         return that.getImageDimensions(imageInfo);
     }).then(function () {
-        return client.fetchBinary(imageInfo.imagefileUrl);
+        return client.fetchBinary(imageInfo.sourceUrl);
     }).then(function (xhr) {
         imageInfo.mediaType = xhr.getResponseHeader("Content-Type");
         imageInfo.arraybuffer = xhr.response;

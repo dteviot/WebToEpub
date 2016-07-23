@@ -18,45 +18,25 @@ class EpubItemSupplier {
 }
 
 // used to populate manifest
-EpubItemSupplier.prototype.manifestItems = function*() {
-    let that = this;
-    for(let item of that.epubItems) {
-        yield {
-            href: item.getZipHref(),
-            getId: () => item.getId(),
-            mediaType: item.getMediaType()
-        };
-    };
+EpubItemSupplier.prototype.manifestItems = function() {
+    return this.epubItems;
 }
 
 // used to populate spine
-EpubItemSupplier.prototype.spineItems = function*() {
-    let that = this;
-    for(let item of that.epubItems) {
-        if (item.isInSpine) {
-            yield { getId: () => item.getId() };
-        };
-    };
+EpubItemSupplier.prototype.spineItems = function() {
+    return this.epubItems.filter(item => item.isInSpine);
 }
 
 // used to populate Zip file itself
-EpubItemSupplier.prototype.files = function*() {
-    let that = this;
-    for(let item of that.epubItems) {
-        yield {
-            href: item.getZipHref(),
-            content: item.fileContentForEpub()
-        };
-    };
+EpubItemSupplier.prototype.files = function() {
+    return this.epubItems;
 }
 
 // used to populate table of contents
 EpubItemSupplier.prototype.chapterInfo = function*() {
     let that = this;
     for(let epubItem of that.epubItems) {
-        if (epubItem.chapterInfo != undefined) {
-            yield* epubItem.chapterInfo();
-        };
+        yield* epubItem.chapterInfo();
     };
 }
 
