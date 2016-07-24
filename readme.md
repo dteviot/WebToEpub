@@ -10,7 +10,7 @@ Also works with
 
 Credits
 * Firefox mod by Markus Vieth
-* Belldandu
+* Michael Fox (Belldandu)
 * typhoon71
 * toshiya44
 * dreamer2908
