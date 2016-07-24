@@ -38,13 +38,17 @@
 <ul>
 <li>Get code inspected</li>
 <li>Check all // ToDo comments have been done.</li>
-<li><strike>Rework ParserFactory class, to be Map based.  (May make testing easier?)</strike></li>
-<li>Get BakaTsukiEpubItemSupplier ctor to call EpubItemSupplier ctor?</li>
-<li>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.  Also EpubItem/BaskTsukiEpubItem</li>
 <li>Figure out cleanest way to add cover + fixup content.opf for cover</li>
-<li>Update instructions</li>
 <li>Get a better icon</li>
 <li>EpubPacker.save() needs to get rid of object created by createObjectURL() when we're done with it.</li>
+<li>Improve HTML to XHTML conversion and packaging to ePUB.
+<ul>
+<li>Replace &lt;center&gt; tags, they're not legal XHTML.</li>
+<li>Detect and fix up hypterlinks to same page.</li>
+<li>Remove any id attributes that are no longer needed</li>
+<li>Strip iframe elements</li>
+</ul></li>
+<li>fate:zero chapter 3, generates a lot of epubcheck warnings. Looks like it may have different formatting for translator notes.</li>
 </ul>
 
 <h3>Immediate Tasks</h3>
@@ -76,6 +80,10 @@
 <li><strike>What to do for Baka-Tsuki with no images?  e.g. https://www.baka-tsuki.org/project/index.php?title=Anohana:Part_1</strike></li>
 <li><strike>Cover image needs to be packaged as SVG image element</strike></li>
 <li><strike>Baka-Tsuki, needs to check for &lt;img&gt; elements that were not processed.  See: https://www.baka-tsuki.org/project/index.php?title=Gekkou </strike></li>
+<li><strike>Rework ParserFactory class, to be Map based.  (May make testing easier?)</strike></li>
+<li><strike>Get BakaTsukiEpubItemSupplier ctor to call EpubItemSupplier ctor?</strike></li>
+<li></strike>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.  Also EpubItem/BaskTsukiEpubItem</strike></li>
+<li><strike>Update instructions</strike></li>
 <li><strike></strike></li>
 <li><strike></strike></li>
 </ul>
