@@ -7,6 +7,12 @@ class Parser {
     constructor() {
         this.chapters = [];
     }
+
+    onUserPreferencesUpdate(userPreferences) {
+        if (typeof(this.imageCollector) !== "undefined") {
+            this.imageCollector.onUserPreferencesUpdate(userPreferences);
+        }
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -215,10 +221,6 @@ Parser.prototype.extractLanguage = function(dom) {
 
 Parser.prototype.extractSeriesInfo = function(dom, metaInfo) {
     // Derived classes will override
-}
-
-Parser.prototype.setRemoveDuplicateImages = function(isRemove) {
-    this.imageCollector.removeDuplicateImages = isRemove;
 }
 
 Parser.prototype.setCoverImage = function(imageInfo) {

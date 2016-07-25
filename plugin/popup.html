@@ -79,6 +79,14 @@
                         <td></td>
                         <td><button id=openAsTabButton>Open As Tab</button></td>
                     </tr>
+                    <tr id="includeImageSourceUrlRow">
+                        <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="true"></td>
+                        <td>Include URL of Images</td>
+                    </tr>
+                    <tr id="higestResolutionImagesRow">
+                        <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
+                        <td>Fetch Highest Resolution Images</td>
+                    </tr>
                     <tr id="developerStuffRow">
                         <td>Developer Stuff:</td>
                         <td>
@@ -118,6 +126,7 @@
         </div>
     </section>
     <!-- scripts go here -->
+    <script src="js/UserPreferences.js"></script>
     <script src="js/EpubMetaInfo.js"></script>
     <script src="js/Util.js"></script>
     <script src="js/HttpClient.js"></script>

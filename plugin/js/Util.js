@@ -28,7 +28,7 @@ var util = (function () {
         return doc;
     }
 
-    var createSvgImageElement = function (href, width, height, origin) {
+    var createSvgImageElement = function (href, width, height, origin, includeImageSourceUrl) {
         let xmlns = "http://www.w3.org/1999/xhtml";
         let svg_ns = "http://www.w3.org/2000/svg";
         let xlink_ns = "http://www.w3.org/1999/xlink";
@@ -51,9 +51,11 @@ var util = (function () {
         newImage.setAttributeNS(xlink_ns, "xlink:href", makeRelative.call(this, href));
         newImage.setAttributeNS(null, "height", height);
         newImage.setAttributeNS(null, "width", width);
-        let desc = doc.createElementNS(svg_ns,"desc");
-        svg.appendChild(desc);
-        desc.appendChild(document.createTextNode(origin));
+        if (includeImageSourceUrl) {
+            let desc = doc.createElementNS(svg_ns,"desc");
+            svg.appendChild(desc);
+            desc.appendChild(document.createTextNode(origin));
+        }
         return div;
     }
 

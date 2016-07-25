@@ -8,9 +8,10 @@ class ImageCollector {
     constructor() {
         this.removeDuplicateImages = false;
         this.images = new Map();
-        this.removeDuplicateImages = false;
         this.coverImageInfo = null;
         this.coverUrlProvider = null;
+        this.includeImageSourceUrl = true;
+        this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
     }
 
     // An "image collector" with no images
@@ -19,6 +20,16 @@ class ImageCollector {
         return {
             coverImageInfo: null,
             imagesToPackInEpub: function() { return []; }
+        }
+    }
+
+    onUserPreferencesUpdate(userPreferences) {
+        this.removeDuplicateImages = userPreferences.removeDuplicateImages;
+        this.includeImageSourceUrl = userPreferences.includeImageSourceUrl;
+        if (userPreferences.higestResolutionImages) {
+            this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
+        } else {
+            this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
         }
     }
 }
@@ -37,10 +48,11 @@ ImageCollector.prototype.extractImageSrc = function (element) {
 }
 
 class ImageElementConverter {
-    constructor(element, imagePageUrl, removeDuplicateImages) {
+    constructor(element, imagePageUrl, removeDuplicateImages, includeImageSourceUrl) {
         this.element = element;
         this.imagePageUrl = imagePageUrl;
         this.removeDuplicateImages = removeDuplicateImages;
+        this.includeImageSourceUrl = includeImageSourceUrl
     }
 }
 
@@ -49,7 +61,7 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     // replace tag with nested <img> tag, with new <img> tag
     let imageInfo = images.get(that.imagePageUrl);
     if (imageInfo != null && that.element.parentElement != null) {
-        let newImage = imageInfo.createImageElement();
+        let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
         if (that.isDuplicateImageToRemove(imageInfo)) {
             util.removeNode(that.element)
         }else{
@@ -71,7 +83,11 @@ ImageCollector.prototype.makeImageConverter = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
     let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    return (imagePageUrl === null) ? null : new ImageElementConverter(wrappingElement, imagePageUrl, that.removeDuplicateImages);
+    if (imagePageUrl === null) {
+        return null;
+    } else {
+        return new ImageElementConverter(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
+    }
 }
 
 ImageCollector.prototype.findImageWrappingElement = function (element) {
@@ -339,7 +355,7 @@ ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
     let contentType = xhr.getResponseHeader("Content-Type");
     if (contentType.startsWith("text/html")) {
         // find URL of wanted image file on html page
-        return that.getHighestResImageUrlFromImagePage(xhr.responseXML);
+        return that.selectImageUrlFromImagePage(xhr.responseXML);
     } else {
         // page wasn't HTML, so assume is actual image
         return imageInfo.imagePageUrl;

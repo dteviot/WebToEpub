@@ -218,9 +218,10 @@ ImageInfo.prototype.getImageName = function (page) {
     return undefined;
 }
 
-ImageInfo.prototype.createImageElement = function() {
+ImageInfo.prototype.createImageElement = function(includeImageSourceUrl) {
     let that = this;
-    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, that.imagePageUrl);
+    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, 
+        that.imagePageUrl, includeImageSourceUrl);
 }
 
 ImageInfo.prototype.chapterInfo = function*() {

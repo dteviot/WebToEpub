@@ -15,6 +15,7 @@ var main = (function () {
     // details 
     let initalWebPage = null;
     let parser = null;
+    let userPreferences = null;
 
     // register listener that is invoked when script injected into HTML sends its results
     try {
@@ -36,6 +37,7 @@ var main = (function () {
     function processInitialHtml(url, dom) {
         if (setParser(url)) {
             try {
+                userPreferences.addObserver(parser);
                 let metaInfo = parser.getEpubMetaInfo(dom);
                 populateMetaInfo(metaInfo);
                 parser.populateUI();
@@ -62,7 +64,6 @@ var main = (function () {
 
         setUiFieldToValue("translatorInput", metaInfo.translator);
         setUiFieldToValue("fileAuthorAsInput", metaInfo.fileAuthorAs);
-        setUiFieldToValue("stylesheetInput", metaInfo.styleSheet);
     }
 
     function setUiFieldToValue(elementId, value) {
@@ -89,7 +90,7 @@ var main = (function () {
 
         metaInfo.translator = getValueFromUiField("translatorInput");
         metaInfo.fileAuthorAs = getValueFromUiField("fileAuthorAsInput");
-        metaInfo.styleSheet = getValueFromUiField("stylesheetInput");
+        metaInfo.styleSheet = userPreferences.styleSheet;
 
         return metaInfo;
     }
@@ -134,6 +135,7 @@ var main = (function () {
     }
 
     function populateControls() {
+        loadUserPreferences();
         if (isRunningInTabMode()) {
             configureForTabMode();
         } else if (isRunningFromWebPageOrLocalFile()) {
@@ -142,6 +144,12 @@ var main = (function () {
             // running as an extention, try get active tab
             getActiveTabDOM();
         }
+    }
+
+    function loadUserPreferences() {
+        userPreferences = UserPreferences.readFromLocalStorage();
+        userPreferences.writeToUi();
+        userPreferences.hookupUi();
     }
 
     function isRunningFromWebPageOrLocalFile() {
@@ -174,12 +182,6 @@ var main = (function () {
         return true;
     }
 
-    // called when the "Remove Duplicate Images" check box is ticked or unticked
-    function onRemoveDuplicateImagesClick() {
-        let enable = document.getElementById("removeDuplicateImages").checked;
-        parser.setRemoveDuplicateImages(enable);
-    }
-
     function onCoverFromUrlClick() {
         let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
         parser.onCoverFromUrlClick(enable);
@@ -201,6 +203,7 @@ var main = (function () {
 
     function onStylesheetToDefaultClick() {
         document.getElementById("stylesheetInput").value = EpubMetaInfo.getDefaultStyleSheet();
+        userPreferences.readFromUi();
     }
 
     function onOpenAsTabClick() {
@@ -249,7 +252,6 @@ var main = (function () {
     window.onload = function () {
         // add onClick event handlers
         getPackEpubButton().onclick = fetchContentAndPackEpub;
-        document.getElementById("removeDuplicateImages").onclick = onRemoveDuplicateImagesClick;
         document.getElementById("coverFromUrlCheckboxInput").onclick = onCoverFromUrlClick;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;

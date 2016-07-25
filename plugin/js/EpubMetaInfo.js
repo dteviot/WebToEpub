@@ -2,6 +2,8 @@
     Wrapper for EPUB information
 */
 
+"use strict";
+
 /*
     Any EPUB we create should have following info
     <param name="uuid" type="string">identifier for this EPUB.  (i.e. "origin" URL story was downloaded from)</param>

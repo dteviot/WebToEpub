@@ -10,6 +10,7 @@ class EpubItemSupplier {
         this.parser = parser;
         this.epubItems = [];
         this.coverImageInfo = imageCollector.coverImageInfo;
+        this.imageCollector = imageCollector;
         imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
         epubItems.forEach(item => this.epubItems.push(item));
         let that = this;
@@ -44,7 +45,8 @@ EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
     let that = this;
     let doc = util.createEmptyXhtmlDoc();
     let body = doc.getElementsByTagName("body")[0];
-    body.appendChild(that.coverImageInfo.createImageElement());
+    let includeImageSourceUrl = that.imageCollector.includeImageSourceUrl;
+    body.appendChild(that.coverImageInfo.createImageElement(includeImageSourceUrl));
     return util.xmlToString(doc);
 }
 

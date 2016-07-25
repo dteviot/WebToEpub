@@ -6,7 +6,8 @@
     "128": "book128.png"
   },
   "permissions": [
-    "tabs", 
+    "storage",
+	"tabs", 
     "<all_urls>"
   ],
   "browser_action": {
