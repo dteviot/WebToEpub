@@ -111,6 +111,11 @@ var util = (function () {
         util.removeElements(util.getElements(element, "div", e => isStringWhiteSpace(e.innerHTML)));
     }
 
+    var removeScriptableElements = function(element) {
+        util.removeElements(util.getElements(element, "script"));
+        util.removeElements(util.getElements(element, "iframe"));
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -233,6 +238,7 @@ var util = (function () {
         removeElements: removeElements,
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,
+        removeScriptableElements: removeScriptableElements,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         addXmlDeclarationToStart: addXmlDeclarationToStart,

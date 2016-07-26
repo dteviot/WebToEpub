@@ -88,7 +88,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
 
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
-    util.removeElements(that.getElements(element, "script"));
+    util.removeScriptableElements(element);
     // Strip headline id of illegal characters that epubcheck doesn't like
     let headlines = util.getElements(element, "span", e => (e.className === "mw-headline"));
     for(let hl of headlines) {
