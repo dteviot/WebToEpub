@@ -90,14 +90,14 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
 BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
     let that = this;
     util.removeScriptableElements(element);
-    // Strip headline id of illegal characters that epubcheck doesn't like
-    let headlines = util.getElements(element, "span", e => (e.className === "mw-headline"));
-    for(let hl of headlines) {
-        hl.setAttribute("id", util.safeForId(hl.getAttribute("id")));
-    }
 
     // discard table of contents (will generate one from tags later)
     util.removeElements(that.getElements(element, "div", e => (e.id === "toc")));
+
+    // remove "Jump Up" text that appears beside the up arrow from translator notes
+    util.removeElements(that.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
+
+    util.removeUnneededIds(element);
 
     util.removeComments(element);
     that.removeUnwantedTable(element);

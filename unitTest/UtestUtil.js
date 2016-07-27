@@ -56,3 +56,49 @@ test("prepForConvertToXhtml", function (assert) {
         "<p style=\"text-align: center;\">X			X</p>"
     );
 });
+
+test("removeUnneededIds", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<h2><span id=\"Life.0\">Life.0</span></h2>" +
+            "<sup id=\"cite_ref-1\" class=\"reference\">"+
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
+            "</sup>" +
+            "<sup id=\"cite_ref-2\" class=\"reference\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
+            "</sup>" +
+            "<ol>" +
+            "<li id=\"cite_note-1\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
+            "</li>"+
+            "<li id=\"cite_note-3\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
+            "</li>" +
+            "</ol>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    let content = dom.body.cloneNode(true);
+    util.removeUnneededIds(content);
+
+    assert.equal(content.innerHTML,
+        "<h2><span>Life.0</span></h2>" +
+        "<sup id=\"cite_ref-1\" class=\"reference\">"+
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
+        "</sup>" +
+        "<sup class=\"reference\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
+        "</sup>" +
+        "<ol>" +
+        "<li id=\"cite_note-1\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
+        "</li>"+
+        "<li>" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
+        "</li>" +
+        "</ol>"
+    );
+});
+

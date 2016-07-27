@@ -159,6 +159,34 @@ var util = (function () {
         }
     }
 
+    var removeUnneededIds = function(contentElement) {
+        let hashes = util.getAllHyperlinkHashes(contentElement);
+        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT, 
+            n => (n.id !== ""), 
+            false
+        );
+        let element = null;
+        while (element = walker.nextNode()) {
+            if (!hashes.has(element.id)) {
+                element.removeAttribute("id");
+            }
+        };
+    }
+
+    var getAllHyperlinkHashes = function(element) {
+        // ToDo: should exclude hyperlinks that don't point to this page
+        let hashes = new Set();
+        for(let link of util.getElements(element, "a", e => e.href.indexOf('#') != -1)) {
+            hashes.add(util.extractHashFromUri(link.href));
+        }
+        return hashes;
+    }
+
+    var extractHashFromUri = function(uri) {
+        let index = uri.indexOf('#');
+        return (index === -1) ? null : uri.substring(uri.indexOf('#') + 1);
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -228,15 +256,6 @@ var util = (function () {
         return "";
     }
 
-    var safeForId = function (id) {
-        if(id) {
-            // Allow only a-z regardless of case and numbers as well as hyphens and underscores
-            id = id.replace(/([^a-z0-9_\-]+)/gi, '');
-            return id;
-        }
-        return "";
-    }
-
     var makeStorageFileName = function (subdirectory, index, title, extension) {
         let that = this;
         if(title) {
@@ -290,12 +309,14 @@ var util = (function () {
         copyAttributes: copyAttributes,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
+        removeUnneededIds: removeUnneededIds,
+        getAllHyperlinkHashes: getAllHyperlinkHashes,
+        extractHashFromUri: extractHashFromUri,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,
         getElements: getElements,
         safeForFileName: safeForFileName,
-        safeForId: safeForId,
         styleSheetFileName: styleSheetFileName,
         isStringWhiteSpace: isStringWhiteSpace,
         isElementWhiteSpace: isElementWhiteSpace,
