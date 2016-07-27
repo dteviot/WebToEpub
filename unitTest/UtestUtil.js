@@ -37,3 +37,18 @@ test("removeScriptableElements", function (assert) {
 
     assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div>    \n\n\n</div>");
 });
+
+test("prepForConvertToXhtml", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<p>Normal <u id=\"test1\">underline <i>italic</i></u></p>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    let content = dom.body.cloneNode(true);
+    util.prepForConvertToXhtml(content);
+
+    assert.equal(content.innerHTML, "<p>Normal <span id=\"test1\" style=\"text-decoration: underline;\">underline <i>italic</i></span></p>");
+});

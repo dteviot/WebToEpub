@@ -116,6 +116,41 @@ var util = (function () {
         util.removeElements(util.getElements(element, "iframe"));
     }
 
+    var prepForConvertToXhtml = function(element) {
+        this.replaceUnderscoreTags(element);
+    }
+
+    var replaceUnderscoreTags = function(element) {
+        let that = this;
+        for(let underscore of util.getElements(element, "U")) {
+            let replacement = underscore.ownerDocument.createElement("span");
+            replacement.setAttribute("style", "text-decoration: underline;");
+            convertElement(underscore, replacement);
+        }
+    }
+
+    var convertElement = function(element, replacement) {
+        let parent = element.parentElement;
+        parent.insertBefore(replacement, element);
+        util.moveChildElements(element, replacement);
+        util.copyAttributes(element, replacement);
+        util.removeNode(element);
+    }
+
+    var moveChildElements = function(from, to) {
+        while (0 < from.childNodes.length) {
+            let node = from.childNodes[0];
+            to.appendChild(node);
+        }
+    }
+
+    var copyAttributes = function(from, to) {
+        for(let i = 0; i < from.attributes.length; ++i) {
+            let attr = from.attributes[i];
+            to.setAttribute(attr.localName, attr.value);
+        }
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -239,6 +274,11 @@ var util = (function () {
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,
         removeScriptableElements: removeScriptableElements,
+        prepForConvertToXhtml: prepForConvertToXhtml,
+        replaceUnderscoreTags: replaceUnderscoreTags,
+        convertElement: convertElement,
+        moveChildElements: moveChildElements,
+        copyAttributes: copyAttributes,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
