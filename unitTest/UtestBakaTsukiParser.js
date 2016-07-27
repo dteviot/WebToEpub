@@ -396,7 +396,7 @@ function fetchHrefForId(epubItems, id) {
     };
 }
 
-test("fixupFootnotes", function (assert) {
+test("fixupInternalHyperLinks", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<html>" +
             "<head><title></title></head>" +
@@ -415,7 +415,7 @@ test("fixupFootnotes", function (assert) {
     let parser = new BakaTsukiParser();
     let content = dom.body.cloneNode(true);
     let epubItems = parser.splitContentIntoSections(content, null);
-    parser.fixupFootnotes(epubItems);
+    parser.fixupInternalHyperLinks(epubItems);
 
     assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "../Text/0003_H4.xhtml#cite_note-1");
     assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "../Text/0001_H2.xhtml#cite_note-2");

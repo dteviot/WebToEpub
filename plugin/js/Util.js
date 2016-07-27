@@ -161,13 +161,10 @@ var util = (function () {
 
     var removeUnneededIds = function(contentElement) {
         let hashes = util.getAllHyperlinkHashes(contentElement);
-        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT, 
-            n => (n.id !== ""), 
-            false
-        );
+        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
         let element = null;
         while (element = walker.nextNode()) {
-            if (!hashes.has(element.id)) {
+            if ((element.id !== "") && !hashes.has(element.id)) {
                 element.removeAttribute("id");
             }
         };

@@ -83,7 +83,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     util.prepForConvertToXhtml(content);
     util.removeEmptyDivElements(content);
     let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
-    that.fixupFootnotes(epubItems);
+    that.fixupInternalHyperLinks(epubItems);
     return new EpubItemSupplier(that, epubItems, that.imageCollector);
 }
 
@@ -307,32 +307,32 @@ BakaTsukiParser.prototype.indexEpubItems = function(epubItems) {
     }
 }
 
-BakaTsukiParser.prototype.fixupFootnotes = function(epubItems) {
-    let footnotes = this.findFootnotes(epubItems);
-    this.findAndFixCitations(epubItems, footnotes);
+BakaTsukiParser.prototype.fixupInternalHyperLinks = function(epubItems) {
+    let targets = this.findLinkTargets(epubItems);
+    this.findAndFixHyperLinks(epubItems, targets);
 }
 
-BakaTsukiParser.prototype.findFootnotes = function(epubItems) {
+BakaTsukiParser.prototype.findLinkTargets = function(epubItems) {
     let that = this;
-    let footnotes = new Map();
+    let targets = new Map();
     that.walkEpubItemsWithElements(
         epubItems, 
-        footnotes,
-        that.recordFootnote
+        targets,
+        that.recordTarget
     );
-    return footnotes;
+    return targets;
 }
 
-BakaTsukiParser.prototype.findAndFixCitations = function(epubItems, footnotes) {
+BakaTsukiParser.prototype.findAndFixHyperLinks = function(epubItems, targets) {
     let that = this;
     that.walkEpubItemsWithElements(
         epubItems, 
-        footnotes,
-        that.fixCitation
+        targets,
+        that.fixHyperlink
     );
 }
 
-BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footnotes, processFoundNode) {
+BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, targets, processFoundNode) {
     let that = this;
     for(let epubItem of epubItems) {
         for(let element of epubItem.elements) {
@@ -346,52 +346,27 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, footno
                 epubItem.chapterTitle = element.textContent;
             }
             do {
-                processFoundNode.apply(that, [walker.currentNode, footnotes, util.makeRelative(epubItem.getZipHref())]);
+                processFoundNode.apply(that, [walker.currentNode, targets, util.makeRelative(epubItem.getZipHref())]);
             } while (walker.nextNode());
         };
     };
 }
 
-BakaTsukiParser.prototype.isFootNote = function(node) {
-    return ((node.tagName === "LI") && (node.id.indexOf("cite_note") === 0));
-}
-
-BakaTsukiParser.prototype.isCitation = function(node) {
-    return ((node.tagName === "SUP") && (node.className === "reference"));
-}
-
-BakaTsukiParser.prototype.recordFootnote = function(node, footnotes, href) {
+BakaTsukiParser.prototype.recordTarget = function(node, targets, zipHref) {
     let that = this;
-    if (that.isFootNote(node)) {
-        footnotes.set(
-            node.id, 
-            { link: that.getElement(node, "a"), 
-                href: href 
-            }
-        );
+    if (node.id != "") {
+        targets.set(node.id, zipHref);
     };
 }
 
-BakaTsukiParser.prototype.fixCitation = function(citation, footnotes, citationHref) {
+BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) {
     let that = this;
-    if (that.isCitation(citation)) {
-        let citationLinkElement = that.getElement(citation, "a");
-        let footnoteId = that.extractFootnoteIdFromCitation(citationLinkElement);
-        let footnote = footnotes.get(footnoteId);
-        if (footnote != null) {
-            footnote.link.href = citationHref + '#' + citation.id; 
-            citationLinkElement.href = footnote.href + '#' + footnoteId;
+    if (node.tagName === "A") {
+        let targetId = util.extractHashFromUri(node.href);
+        let targetZipHref = targets.get(targetId);
+        if (targetZipHref != null) {
+            node.href = targetZipHref + '#' + targetId;
         }
-    }
-}
-
-BakaTsukiParser.prototype.extractFootnoteIdFromCitation = function(citationLinkElement) {
-    if (citationLinkElement == null) {
-        return null;
-    } else {
-        let href = citationLinkElement.href;
-        let index = href.indexOf("#");
-        return (index < 0) ? null : href.slice((index + 1) - href.length);
     }
 }
 

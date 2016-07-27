@@ -51,10 +51,13 @@ test("prepForConvertToXhtml", function (assert) {
     let content = dom.body.cloneNode(true);
     util.prepForConvertToXhtml(content);
 
-    assert.equal(content.innerHTML,
-        "<p>Normal <span id=\"test1\" style=\"text-decoration: underline;\">underline <i>italic</i></span></p>"+
+    // Firefox and Chrome put span's id attribute in different positions.
+    assert.equal(content.innerHTML.replace(" id=\"test1\"", ""),
+        "<p>Normal <span style=\"text-decoration: underline;\">underline <i>italic</i></span></p>" +
         "<p style=\"text-align: center;\">X			X</p>"
     );
+    let span = util.getElement(content, "span");
+    assert.equal(span.id, "test1");
 });
 
 test("removeUnneededIds", function (assert) {
