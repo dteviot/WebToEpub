@@ -117,15 +117,23 @@ var util = (function () {
     }
 
     var prepForConvertToXhtml = function(element) {
+        this.replaceCenterTags(element);
         this.replaceUnderscoreTags(element);
     }
 
+    var replaceCenterTags = function(element) {
+        for(let center of util.getElements(element, "center")) {
+            let replacement = center.ownerDocument.createElement("p");
+            replacement.setAttribute("style", "text-align: center;");
+            util.convertElement(center, replacement);
+        }
+    }
+
     var replaceUnderscoreTags = function(element) {
-        let that = this;
         for(let underscore of util.getElements(element, "U")) {
             let replacement = underscore.ownerDocument.createElement("span");
             replacement.setAttribute("style", "text-decoration: underline;");
-            convertElement(underscore, replacement);
+            util.convertElement(underscore, replacement);
         }
     }
 
@@ -275,6 +283,7 @@ var util = (function () {
         removeEmptyDivElements: removeEmptyDivElements,
         removeScriptableElements: removeScriptableElements,
         prepForConvertToXhtml: prepForConvertToXhtml,
+        replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,
         convertElement: convertElement,
         moveChildElements: moveChildElements,

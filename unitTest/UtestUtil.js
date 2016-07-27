@@ -44,11 +44,15 @@ test("prepForConvertToXhtml", function (assert) {
             "<head><title></title></head>" +
             "<body>" +
             "<p>Normal <u id=\"test1\">underline <i>italic</i></u></p>" +
+            "<center>X			X</center>"+
             "</body>" +
         "</html>",
         "text/html");
     let content = dom.body.cloneNode(true);
     util.prepForConvertToXhtml(content);
 
-    assert.equal(content.innerHTML, "<p>Normal <span id=\"test1\" style=\"text-decoration: underline;\">underline <i>italic</i></span></p>");
+    assert.equal(content.innerHTML,
+        "<p>Normal <span id=\"test1\" style=\"text-decoration: underline;\">underline <i>italic</i></span></p>"+
+        "<p style=\"text-align: center;\">X			X</p>"
+    );
 });
