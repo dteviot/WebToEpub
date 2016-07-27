@@ -60,12 +60,20 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let that = this;
     // replace tag with nested <img> tag, with new <img> tag
     let imageInfo = images.get(that.imagePageUrl);
-    if (imageInfo != null && that.element.parentElement != null) {
+    let parent = that.element.parentElement;
+    if ((imageInfo != null) && (parent != null)) {
         let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
         if (that.isDuplicateImageToRemove(imageInfo)) {
             util.removeNode(that.element)
         }else{
-            that.element.parentElement.replaceChild(newImage, that.element);
+            if (parent.tagName === "P") {
+                // Under XHTML, <div> not allowed to be a child of a <p> element
+                // so make image sibling of the <p> element
+                parent.parentNode.insertBefore(newImage, parent);
+                util.removeNode(that.element);
+            } else {
+                parent.replaceChild(newImage, that.element);
+            }
         }
     }
 }
