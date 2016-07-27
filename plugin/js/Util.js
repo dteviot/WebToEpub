@@ -20,7 +20,7 @@ var util = (function () {
         head.appendChild(doc.createElementNS(ns, "title"));
         let style = doc.createElementNS(ns, "link");
         head.appendChild(style);
-        style.setAttribute("href", makeRelative.call(this, util.styleSheetFileName()));
+        style.setAttribute("href", util.makeRelative(util.styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
         let body = doc.createElementNS(ns, "body");
@@ -48,7 +48,7 @@ var util = (function () {
         svg.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height);
         let newImage = doc.createElementNS(svg_ns,"image");
         svg.appendChild(newImage);
-        newImage.setAttributeNS(xlink_ns, "xlink:href", makeRelative.call(this, href));
+        newImage.setAttributeNS(xlink_ns, "xlink:href", util.makeRelative(href));
         newImage.setAttributeNS(null, "height", height);
         newImage.setAttributeNS(null, "width", width);
         if (includeImageSourceUrl) {
