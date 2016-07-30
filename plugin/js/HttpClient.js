@@ -35,7 +35,7 @@ HttpClient.prototype = {
     fetchHtml: function (url) {
         let that = this;
         return new Promise(function(resolve, reject) {
-            console.log("Fetching HTML from URL: " + url);
+            util.log("Fetching HTML from URL: " + url);
             let xhr = new XMLHttpRequest();
             xhr.onload = function (event) { that.onLoadHtml(url, xhr, event, resolve, reject); };
             xhr.onerror = function (event) { that.onError(url, xhr.statusText, event, reject); };
@@ -70,7 +70,7 @@ HttpClient.prototype = {
     fetchBinary: function (url) {
         let that = this;
         return new Promise(function(resolve, reject) {
-            console.log("Fetching Binary from URL: " + url);
+            util.log("Fetching Binary from URL: " + url);
             let xhr = new XMLHttpRequest();
             xhr.onload = function (event) { that.onLoadBinary(url, xhr, event, resolve, reject); };
             xhr.onerror = function (event) { that.onError(url, xhr.statusText, event, reject); };

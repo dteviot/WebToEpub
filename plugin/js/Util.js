@@ -286,6 +286,12 @@ var util = (function () {
            ((element.type === "text") || (element.type === "url"));
     }
 
+    // allow disabling loging from one place
+    var log = function(arg) {
+        // ToDo: uncomment this for debug logging
+        // console.log(arg);
+    }
+
     // This is for Unit Testing only
     function syncLoadSampleDoc(fileName, url) {
         let that = this;
@@ -305,6 +311,7 @@ var util = (function () {
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
+        log: log,
         addToDocBody: addToDocBody,
         removeNode: removeNode,
         removeElements: removeElements,

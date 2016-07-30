@@ -22,15 +22,15 @@ var main = (function () {
         // note, this will throw if not running as an extension.
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             if (request.messageType == "ParseResults") {
-                console.log("addListener");
-                console.log(request);
+                util.log("addListener");
+                util.log(request);
                 onMessageListener(request);
             }
         });
     }
     catch (chromeError)
     {
-        console.log(chromeError);
+        util.log(chromeError);
     }
 
     // extract urls from DOM and populate control
@@ -128,7 +128,7 @@ var main = (function () {
         chrome.tabs.executeScript({ file: "js/ContentScript.js" },
             function (result) {
                 if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError.message);
+                    util.log(chrome.runtime.lastError.message);
                 };
             }
         );
