@@ -105,3 +105,47 @@ test("removeUnneededIds", function (assert) {
     );
 });
 
+test("removeUnusedHeadingLevels", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<h2>h2</h2>" +
+            "<h5>h5</h5>" +
+            "<h6>h6</h6>" +
+            "<h2>h2</h2>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    util.removeUnusedHeadingLevels(dom.body);
+
+    assert.equal(dom.body.innerHTML, "<h1>h2</h1><h2>h5</h2><h3>h6</h3><h1>h2</h1>");
+
+    // headings are already in order - no change
+    dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<h1>h1</h1>" +
+            "<h2>h2</h2>" +
+            "<h3>h3</h3>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    util.removeUnusedHeadingLevels(dom.body);
+    assert.equal(dom.body.innerHTML, "<h1>h1</h1><h2>h2</h2><h3>h3</h3>");
+
+    // no headings
+    dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<div>h1</div>" +
+            "<p>h2</p>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    util.removeUnusedHeadingLevels(dom.body);
+    assert.equal(dom.body.innerHTML, "<div>h1</div><p>h2</p>");
+});
+

@@ -184,6 +184,19 @@ var util = (function () {
         return (index === -1) ? null : uri.substring(uri.indexOf('#') + 1);
     }
 
+    // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
+    var removeUnusedHeadingLevels = function(contentElement) {
+        let tags = [ "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8" ];
+        let usedHeadings = tags.map(tag => util.getElements(contentElement, tag))
+            .filter(headings => 0 < headings.length);
+        for(let i = 0; i < usedHeadings.length; ++i) {
+            for(let element of usedHeadings[i]) {
+                let replacement = element.ownerDocument.createElement(tags[i]);
+                util.convertElement(element, replacement);
+            }
+        }
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -309,6 +322,7 @@ var util = (function () {
         removeUnneededIds: removeUnneededIds,
         getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
+        removeUnusedHeadingLevels: removeUnusedHeadingLevels,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,
