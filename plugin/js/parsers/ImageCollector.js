@@ -253,14 +253,22 @@ ImageCollector.prototype.appendColumnToRow = function (row, element) {
     return col;
 }
 
+ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
+    let div = util.getElement(dom, "div", e => (e.className === className));
+    if (div === null) {
+        return null;
+    } else {
+        let link = util.getElement(div, "a");
+        return (link === null) ? null : link.href;
+    }
+}
+
 ImageCollector.prototype.getHighestResImageUrlFromImagePage = function(dom) {
-    let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
-    return util.getElement(div, "a").href;
+    return this.getImageUrlFromImagePage(dom, "fullMedia");
 }
 
 ImageCollector.prototype.getReducedResImageUrlFromImagePage = function(dom) {
-    let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-    return util.getElement(div, "img").src;
+    return this.getImageUrlFromImagePage(dom, "fullImageLink");
 }
 
 ImageCollector.prototype.getImageDimensions = function(imageInfo) {
@@ -363,7 +371,8 @@ ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
     let contentType = xhr.getResponseHeader("Content-Type");
     if (contentType.startsWith("text/html")) {
         // find URL of wanted image file on html page
-        return that.selectImageUrlFromImagePage(xhr.responseXML);
+        let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
+        return (temp == null) ? imageInfo.sourceUrl : temp;
     } else {
         // page wasn't HTML, so assume is actual image
         return imageInfo.imagePageUrl;
