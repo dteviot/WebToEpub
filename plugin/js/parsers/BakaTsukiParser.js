@@ -120,10 +120,16 @@ BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
             node = node.parentNode;
             if (node.tagName === "TABLE") {
                 endTable = node;
-            }
-        }
-        util.removeNode(endTable);
+            };
+        };
+        if (that.isTableContainsHyperLinks(endTable)) {
+            util.removeNode(endTable);
+        };
     }
+}
+
+BakaTsukiParser.prototype.isTableContainsHyperLinks = function(tableElement) {
+    return util.getElement(tableElement, "a") !== null;
 }
 
 BakaTsukiParser.prototype.processImages = function (element) {

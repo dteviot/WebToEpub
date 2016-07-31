@@ -126,7 +126,7 @@ QUnit.test("removeUnwantedTableWhenSingleTable", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
            "<h1>H1</h1>" +
-           "<table><tbody><tr><th>Table1</th></tr></tbody></table>" +
+           "<table><tbody><tr><th>Table1</th></tr><tr><td><a href=\"http:\\dummy.html\">a</a></td></tr></tbody></table>" +
         "</x>",
         "text/html"
     );
@@ -144,7 +144,7 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
                "<table><tbody><tr><th>Table3</th></tr></tbody></table>" +
            "</th></tr></tbody></table>" +
            "<table><tbody><tr><th>Table4" +
-               "<table><tbody><tr><th>Table5</th></tr></tbody></table>" +
+               "<table><tbody><tr><th>Table5</th></tr><tr><td><a href=\"http:\\dummy.html\">a</a></td></tr></tbody></table>" +
            "</th></tr></tbody></table>" +
         "</x>",
         "text/html"
