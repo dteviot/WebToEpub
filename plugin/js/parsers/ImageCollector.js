@@ -62,20 +62,28 @@ ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
     let imageInfo = images.get(that.imagePageUrl);
     let parent = that.element.parentElement;
     if ((imageInfo != null) && (parent != null)) {
-        let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
         if (that.isDuplicateImageToRemove(imageInfo)) {
-            util.removeNode(that.element)
-        }else{
-            if (parent.tagName === "P") {
-                // Under XHTML, <div> not allowed to be a child of a <p> element
-                // so make image sibling of the <p> element
-                parent.parentNode.insertBefore(newImage, parent);
-                util.removeNode(that.element);
-            } else {
-                parent.replaceChild(newImage, that.element);
-            }
-        }
-    }
+            util.removeNode(that.element);
+        } else {
+            that.insertImageInLegalParent(parent, imageInfo);
+        };
+    };
+}
+
+ImageElementConverter.prototype.insertImageInLegalParent = function(parent, imageInfo) {
+    let that = this;
+    // Under XHTML, <div> not allowed to be a child of a <p> element, (or <i>, <u>, <s> etc.)
+    let nodeAfter = that.element;
+    while (util.isInlineElement(parent) && (parent.parentNode != null)) {
+        nodeAfter = parent;
+        parent = parent.parentNode;
+    };
+    if (parent.tagName === "P") {
+        nodeAfter = parent;
+    };
+    let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
+    nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
+    util.removeNode(that.element);
 }
 
 ImageElementConverter.prototype.isDuplicateImageToRemove = function (imageInfo) {
