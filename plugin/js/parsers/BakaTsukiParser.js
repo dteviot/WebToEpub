@@ -79,6 +79,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let that = this;
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
+    util.fixBlockTagsNestedInInlineTags(content);
     that.processImages(content);
     util.removeUnusedHeadingLevels(content);
     util.prepForConvertToXhtml(content);

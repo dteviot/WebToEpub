@@ -149,3 +149,25 @@ test("removeUnusedHeadingLevels", function (assert) {
     assert.equal(dom.body.innerHTML, "<div>h1</div><p>h2</p>");
 });
 
+test("fixBlockTagsNestedInInlineTags", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title></head>" +
+            "<body>" +
+            "<u><div><p><b>test1</b><a href=\"http://dummy.com\"><img src=\"http://dummy.com\"></a></p></div></u>" +
+            "<u><b><div><p>test2</p></div></b></u>" +
+            "<s><h2><span>test3<a href=\"http://dummy2.com\">dummy2</a></span></h2><p>3</p><p>4</p></s>" +
+            "<i><table><tbody><tr><th>test4Head</th></tr><tr><td>test4Data</td></tr></tbody></table><p>6</p><p>7</p></i>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+    util.fixBlockTagsNestedInInlineTags(dom.body);
+
+    assert.equal(dom.body.innerHTML,
+        "<div><p><b>test1</b><a href=\"http://dummy.com\"><img src=\"http://dummy.com\"></a></p></div>" +
+        "<div><p>test2</p></div>" +
+        "<h2><span>test3<a href=\"http://dummy2.com\">dummy2</a></span></h2><p>3</p><p>4</p>" +
+        "<table><tbody><tr><th>test4Head</th></tr><tr><td>test4Data</td></tr></tbody></table><p>6</p><p>7</p>"
+    );
+});
+

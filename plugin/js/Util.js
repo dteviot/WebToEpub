@@ -119,12 +119,13 @@ var util = (function () {
     var prepForConvertToXhtml = function(element) {
         this.replaceCenterTags(element);
         this.replaceUnderscoreTags(element);
+        this.replaceSTags(element);
     }
 
     var replaceCenterTags = function(element) {
         for(let center of util.getElements(element, "center")) {
             let replacement = center.ownerDocument.createElement("p");
-            replacement.setAttribute("style", "text-align: center;");
+            replacement.style.textAlign = "center";
             util.convertElement(center, replacement);
         }
     }
@@ -132,7 +133,17 @@ var util = (function () {
     var replaceUnderscoreTags = function(element) {
         for(let underscore of util.getElements(element, "U")) {
             let replacement = underscore.ownerDocument.createElement("span");
+            // ToDo: figure out how to do this by manipulating the style directly
             replacement.setAttribute("style", "text-decoration: underline;");
+            util.convertElement(underscore, replacement);
+        }
+    }
+
+    var replaceSTags = function(element) {
+        for(let underscore of util.getElements(element, "s")) {
+            let replacement = underscore.ownerDocument.createElement("span");
+            // ToDo: figure out how to do this by manipulating the style directly
+            replacement.setAttribute("style", "text-decoration: line-through;");
             util.convertElement(underscore, replacement);
         }
     }
@@ -149,14 +160,83 @@ var util = (function () {
         while (0 < from.childNodes.length) {
             let node = from.childNodes[0];
             to.appendChild(node);
-        }
+        };
     }
 
     var copyAttributes = function(from, to) {
         for(let i = 0; i < from.attributes.length; ++i) {
             let attr = from.attributes[i];
             to.setAttribute(attr.localName, attr.value);
+        };
+    }
+
+    var fixBlockTagsNestedInInlineTags = function(contentElement) {
+        // if an inline tag contains block tags, move contents out of inline tag
+        // refer https://github.com/dteviot/WebToEpub/issues/62
+        let garbage = [];
+        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
+        let element = contentElement;
+        while (element != null) {
+            if (util.isInlineElement(element) && util.isBlockElementInside(element)) {
+                util.moveElementsOutsideTag(element);
+                garbage.push(element);
+            };
+            element = walker.nextNode();
+        };
+
+        for(let g of garbage) {
+            util.removeNode(g);
+        };
+    }
+
+    var isBlockElementInside = function(inlineElement) {
+        let walker = inlineElement.ownerDocument.createTreeWalker(inlineElement, NodeFilter.SHOW_ELEMENT);
+        let element = null;
+        while (element = walker.nextNode()) {
+            if (util.isBlockElement(element)) {
+                return true;
+            };
+        };
+        // if get here no block element found
+        return false;
+    }
+
+    var moveElementsOutsideTag = function(inlineElement) {
+        while (0 < inlineElement.childNodes.length) {
+            let node = inlineElement.childNodes[0];
+            inlineElement.parentNode.insertBefore(node, inlineElement);
+            
+            // handle case of <inline><inline><block></block></inline></inline>
+            util.fixBlockTagsNestedInInlineTags(node);
+        };
+    }
+
+    // copied from http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
+    var getDisplayType = function(element) {
+        var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+        return cStyle.display;
+    }
+
+    var isNodeInTag = function(tags, node) {
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return false;
+        } else {
+            return tags.indexOf("," + node.tagName.toLowerCase() + ",") !== -1;
         }
+    }
+
+    var isInlineElement = function(node) {
+        // ugly, but we're treating <u> and <s> as inline (they are not)
+        let inlineTags = ",b,big,i,small,tt,abbr,acronym,cite,code,dfn,em,kbd,strong,samp,time,var,"+
+        "a,bdo,br,img,map,object,q,script,span,sub,sup,button,input,label,select,textarea,u,s,";
+        return this.isNodeInTag(inlineTags, node);
+    }
+
+    var isBlockElement = function(node) {
+        let blockTags = ",address,article,aside,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,"+
+        "footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,li,main,nav,"+
+        "noscript,ol,output,p,pre,section,table,tfoot,ul,video,";
+        return this.isNodeInTag(blockTags, node);
     }
 
     var removeUnneededIds = function(contentElement) {
@@ -186,7 +266,7 @@ var util = (function () {
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
     var removeUnusedHeadingLevels = function(contentElement) {
-        let tags = [ "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8" ];
+        let tags = [ "h1", "h2", "h3", "h4", "h5", "h6" ];
         let usedHeadings = tags.map(tag => util.getElements(contentElement, tag))
             .filter(headings => 0 < headings.length);
         for(let i = 0; i < usedHeadings.length; ++i) {
@@ -321,9 +401,16 @@ var util = (function () {
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,
+        replaceSTags: replaceSTags,
         convertElement: convertElement,
         moveChildElements: moveChildElements,
         copyAttributes: copyAttributes,
+        fixBlockTagsNestedInInlineTags: fixBlockTagsNestedInInlineTags, 
+        isBlockElementInside: isBlockElementInside,
+        moveElementsOutsideTag: moveElementsOutsideTag,
+        isNodeInTag: isNodeInTag,
+        isInlineElement: isInlineElement,
+        isBlockElement: isBlockElement,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         removeUnneededIds: removeUnneededIds,
