@@ -248,6 +248,17 @@ var main = (function () {
         return document.getElementById("loadAndAnalyseButton");
     }
 
+    function resetUI() {
+        initalWebPage = null;
+        parser = null;
+        let metaInfo = new EpubMetaInfo();
+        metaInfo.uuid = "";
+        populateMetaInfo(metaInfo);
+        getLoadAndAnalyseButton().hidden = false;
+        main.getPackEpubButton().disabled = false;
+        document.getElementById("fetchProgress").value = 0;
+    }
+
     // actions to do when window opened
     window.onload = function () {
         // add onClick event handlers
@@ -258,6 +269,7 @@ var main = (function () {
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("openAsTabButton").onclick = onOpenAsTabClick;
+        document.getElementById("resetButton").onclick = resetUI;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
         populateControls();
     }
