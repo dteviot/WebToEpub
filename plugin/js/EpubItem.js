@@ -152,6 +152,12 @@ ImageInfo.prototype.findImageSuffix = function(imagePageUrl) {
         let index = fileName.lastIndexOf(".");
         suffix = fileName.substring(index + 1);
     }
+
+    // if can't find suffix from file, use the media type
+    if (fileName == null) {
+        let split = that.mediaType.split("/");
+        suffix = split[split.length - 1];
+    };
     return suffix;
 }
 

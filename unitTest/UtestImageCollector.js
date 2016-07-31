@@ -13,8 +13,10 @@ QUnit.test("ImageInfo.ctor", function (assert) {
 
 QUnit.test("ImageInfo.findImageSuffix", function (assert) {
     let imageInfo = new ImageInfo("WebToEpub.jpg", 0, null);
+    imageInfo.mediaType = "image/bmp";
     assert.equal(imageInfo.findImageSuffix("http://www.baka-tsuki.org/project/index.php?title=File:WebToEpub.jpg"), "jpg");
     assert.equal(imageInfo.findImageSuffix("https://www.baka-tsuki.org/project/thumb.php?f=WebToEpub.gif&width=427"), "gif");
+    assert.equal(imageInfo.findImageSuffix("https://baka-tsuki.org/project/index.php?title=The_Unexplored_Summon_Blood_Sign:Volume1"), "bmp");
 });
 
 QUnit.test("ImageInfo.extractImageFileNameFromUrl", function (assert) {
