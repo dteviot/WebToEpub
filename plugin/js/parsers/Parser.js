@@ -145,7 +145,7 @@ Parser.prototype.populateChapterUrls = function (chapters) {
     chapters.forEach(function (chapter) {
         let row = document.createElement("tr");
         that.appendCheckBoxToRow(row, chapter);
-        that.appendColumnDataToRow(row, chapter.title);
+        that.appendInputTextToRow(row, chapter);
         chapter.stateColumn = that.appendColumnDataToRow(row, "No");
         that.appendColumnDataToRow(row, chapter.sourceUrl);
         linksTable.appendChild(row);
@@ -160,6 +160,16 @@ Parser.prototype.appendCheckBoxToRow = function (row, chapter) {
     checkbox.checked = chapter.isIncludeable;
     checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
     col.appendChild(checkbox);
+    row.appendChild(col);
+}
+
+Parser.prototype.appendInputTextToRow = function (row, chapter) {
+    let col = document.createElement("td");
+    let input = document.createElement("input");
+    input.type = "text";
+    input.value = chapter.title;
+    input.addEventListener('blur', function(e) { chapter.title = input.value; },  true);
+    col.appendChild(input);
     row.appendChild(col);
 }
 
