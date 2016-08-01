@@ -9,7 +9,7 @@ var parserFactory = (function () {
     let parsers = new Map();
 
     var isWebArchive = function(hostName) {
-        return extractHostName(hostName).startsWith("web.archive.org");
+        return util.extractHostName(hostName).startsWith("web.archive.org");
     }
 
     var stripWebArchive = function(url) {
@@ -33,15 +33,9 @@ var parserFactory = (function () {
         if (isWebArchive(url)) {
             url = stripWebArchive(url);
         }
-        let hostName = stripLeadingWww(extractHostName(url));
+        let hostName = stripLeadingWww(util.extractHostName(url));
         let constructor = parsers.get(hostName);
         return (constructor === undefined) ? undefined : constructor();
-    };
-
-    var extractHostName = function (url) {
-        let parser = document.createElement("a");
-        parser.href = url;
-        return parser.hostname;
     };
 
     return {

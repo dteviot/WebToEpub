@@ -80,6 +80,12 @@ var util = (function () {
         return resolvedUrl;
     }
 
+    var extractHostName = function (url) {
+        let parser = document.createElement("a");
+        parser.href = url;
+        return parser.hostname;
+    };
+
     var addToDocBody = function (dom, contentToAdd) {
         dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
     }
@@ -392,6 +398,7 @@ var util = (function () {
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
         log: log,
+        extractHostName: extractHostName,
         addToDocBody: addToDocBody,
         removeNode: removeNode,
         removeElements: removeElements,
