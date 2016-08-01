@@ -13,6 +13,33 @@ class Parser {
             this.imageCollector.onUserPreferencesUpdate(userPreferences);
         }
     }
+
+    getChapterUrlsTable() {
+        return document.getElementById("chapterUrlsTable");
+    }
+
+    getSelectAllUrlsButton() {
+        return document.getElementById("selectAllUrlsButton");
+    }
+
+    getUnselectAllUrlsButton() {
+        return document.getElementById("unselectAllUrlsButton");
+    }
+
+    setAllUrlsSelectState(select) {
+        let linksTable = this.getChapterUrlsTable();
+        for(let row of linksTable.children) {
+            let input = util.getElement(row, "input", i => i.type === "checkbox");
+            if ((input !== null) && (input.checked !== select)) {
+                input.checked = select;
+                input.onclick();
+            }
+        }
+    }
+
+    isChapterPackable(chapter) {
+        return (chapter.rawDom != null) && (chapter.isIncludeable);
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -59,12 +86,9 @@ Parser.prototype.makeFileName = function(title) {
     }
 }
 
-Parser.prototype.epubItemSupplier = function (chapters) {
+Parser.prototype.epubItemSupplier = function () {
     let that = this;
-    if (chapters == undefined) {
-        chapters = this.chapters;
-    }
-    let epubItems = that.chaptersToEpubItems(chapters);
+    let epubItems = that.chaptersToEpubItems(that.chapters);
     let imageCollector = ImageCollector.StubCollector();
     let supplier = new EpubItemSupplier(this, epubItems, imageCollector);
     return supplier;
@@ -74,7 +98,7 @@ Parser.prototype.chaptersToEpubItems = function (chapters) {
     let that = this;
     let epubItems = [];
     let index = -1;
-    for(let chapter of chapters) {
+    for(let chapter of chapters.filter(c => that.isChapterPackable(c))) {
         let content = that.findContent(chapter.rawDom);
         if (content != null) {
             let epubItem = new ChapterEpubItem(chapter, content, ++index);
@@ -94,17 +118,29 @@ Parser.prototype.appendColumnDataToRow = function (row, textData) {
 
 Parser.prototype.populateChapterUrls = function (chapters) {
     let that = this;
-    let linksTable = document.getElementById("chapterUrlsTable");
+    let linksTable = that.getChapterUrlsTable();
     while (linksTable.children.length > 1) {
         linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
     }
     chapters.forEach(function (chapter) {
         let row = document.createElement("tr");
+        that.appendCheckBoxToRow(row, chapter);
         that.appendColumnDataToRow(row, chapter.title);
         chapter.stateColumn = that.appendColumnDataToRow(row, "No");
         that.appendColumnDataToRow(row, chapter.sourceUrl);
         linksTable.appendChild(row);
     });
+}
+
+Parser.prototype.appendCheckBoxToRow = function (row, chapter) {
+    let col = document.createElement("td");
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    chapter.isIncludeable = true;
+    checkbox.checked = chapter.isIncludeable;
+    checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
+    col.appendChild(checkbox);
+    row.appendChild(col);
 }
 
 // called when plugin has obtained the first web page
@@ -114,10 +150,14 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // returns promise, because may need to fetch additional pages to find list of chapters
     that.getChapterUrls(firstPageDom).then(function(chapters) {
         that.populateChapterUrls(chapters);
-        if ((0 < chapters.length) && (chapters[0].sourceUrl === url)) {
-            chapters[0].rawDom = firstPageDom;
-            that.updateLoadState(chapters[0]);
+        if (0 < chapters.length) {
+            if (chapters[0].sourceUrl === url) {
+                chapters[0].rawDom = firstPageDom;
+                that.updateLoadState(chapters[0]);
+            }
             that.getProgressBar().value = 0;
+            that.getSelectAllUrlsButton().onclick = (e => that.setAllUrlsSelectState(true));
+            that.getUnselectAllUrlsButton().onclick = ( e=> that.setAllUrlsSelectState(false));
         }
         that.chapters = chapters;
     }).catch(function(error) {
@@ -155,17 +195,18 @@ Parser.prototype.fetchChapters = function() {
     let that = this;
     let client = new HttpClient();
 
-    if (that.chapters.length === 0) {
+    let pagesToFetch = that.chapters.filter(c => c.isIncludeable);
+    if (pagesToFetch.length === 0) {
         return Promise.reject(new Error("No chapters found."));
     }
 
-    this.setUiToShowLoadingProgress(this.chapters.length);
+    this.setUiToShowLoadingProgress(pagesToFetch.length);
 
     // for testing, uncomment the following line
     // that.FakeNetworkActivity(client);
 
     var sequence = Promise.resolve();
-    that.chapters.forEach(function(chapter) {
+    pagesToFetch.forEach(function(chapter) {
         sequence = sequence.then(function () {
             return client.fetchHtml(chapter.sourceUrl);
         }).then(function (xhr) {
@@ -200,7 +241,9 @@ Parser.prototype.packRawChapters = function() {
     let that = this;
     let zipFile = new JSZip();
     for (let i = 0; i < that.chapters.length; ++i) {
-        zipFile.file("chapter" + i + ".html", that.chapters[i].rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
+        if (that.chapters[i].rawDom != null) {
+            zipFile.file("chapter" + i + ".html", that.chapters[i].rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
+        };
     }
     new EpubPacker().save(zipFile.generate({ type: "blob" }), "raw.zip");
 }

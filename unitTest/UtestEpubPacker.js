@@ -30,6 +30,7 @@ function makeEpubItemSupplier(imageCollector) {
         chapters.push({
             sourceUrl: "http://dummy.com/" + title,
             title: title,
+            isIncludeable: true,
             rawDom: makeDummyXhtmlFile(title)
         });
     }
