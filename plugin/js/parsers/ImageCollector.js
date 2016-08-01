@@ -36,15 +36,15 @@ class ImageCollector {
 
 // get URL of page that holds all copies of this image
 ImageCollector.prototype.extractImagePageUrl = function (element) {
-    if (element.tagName === "IMG") {
+    if (element.tagName.toLowerCase() === "img") {
         return element.src;
     }
-    return (element.tagName === "A") ? element.href : element.getElementsByTagName("a")[0].href;
+    return (element.tagName.toLowerCase() === "a") ? element.href : element.getElementsByTagName("a")[0].href;
 }
 
 // get src value of <img> element
 ImageCollector.prototype.extractImageSrc = function (element) {
-    return (element.tagName === "IMG") ?  element.src : element.getElementsByTagName("img")[0].src;
+    return (element.tagName.toLowerCase() === "img") ?  element.src : element.getElementsByTagName("img")[0].src;
 }
 
 class ImageElementConverter {
@@ -78,7 +78,7 @@ ImageElementConverter.prototype.insertImageInLegalParent = function(parent, imag
         nodeAfter = parent;
         parent = parent.parentNode;
     };
-    if (parent.tagName === "P") {
+    if (parent.tagName.toLowerCase() === "p") {
         nodeAfter = parent;
     };
     let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
@@ -111,7 +111,7 @@ ImageCollector.prototype.findImageWrappingElement = function (element) {
 
     // find "highest" element that is wrapping an image element
     let parent = element.parentElement;
-    if ((parent === null) || (parent.tagName !== "A")) {
+    if ((parent === null) || (parent.tagName.toLowerCase() !== "a")) {
         // image not wrapped in hyperlink, so just return the image itself
         return element;
     }
@@ -127,7 +127,7 @@ ImageCollector.prototype.findImageWrappingElement = function (element) {
 }
 
 ImageCollector.prototype.isImageWrapperElement = function (element) {
-    return ((element.tagName === "DIV") &&
+    return ((element.tagName.toLowerCase() === "div") &&
         ((element.className === "thumb tright") || (element.className === "floatright") ||
         (element.className === "thumb") || (element.className === "floatleft")));
 }
