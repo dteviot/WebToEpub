@@ -245,7 +245,11 @@ Parser.prototype.packRawChapters = function() {
             zipFile.file("chapter" + i + ".html", that.chapters[i].rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
         };
     }
-    new EpubPacker().save(zipFile.generate({ type: "blob" }), "raw.zip");
+    zipFile.generateAsync({ type: "blob" }).then(function(content) {
+        EpubPacker.save(content, "raw.zip");
+    }).catch(function(error) {
+        alert(error);
+    });
 }
 
 Parser.prototype.FakeNetworkActivity = function(client) {
