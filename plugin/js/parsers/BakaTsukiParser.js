@@ -5,9 +5,8 @@
 
 class BakaTsukiParser extends Parser{
     constructor(imageCollector) {
-        super();
+        super(imageCollector);
         this.firstPageDom = null;
-        this.imageCollector = imageCollector;
     }
 }
 

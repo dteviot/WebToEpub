@@ -67,7 +67,8 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
     );
 
     let imageCollector = new ImageCollector();
-    let imagesMap = imageCollector.findImagesUsedInDocument(dom.body);
+    imageCollector.findImagesUsedInDocument(dom.body);
+    let imagesMap = imageCollector.images;
     assert.equal(imagesMap.size, 3);
     let imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
     assert.equal(imageInfo.getZipHref(), "OEBPS/Images/0000_BTS_vol_01_000a.jpg");

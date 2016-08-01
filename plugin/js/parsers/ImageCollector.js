@@ -134,22 +134,19 @@ ImageCollector.prototype.isImageWrapperElement = function (element) {
 
 ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
-    let images = new Map();
-    that.images = images;
     for(let currentNode of util.getElements(content, "img")) {
         let converter = that.makeImageConverter(currentNode)
         if (converter != null) {
             let src = that.extractImageSrc(converter.element);
             let pageUrl = converter.imagePageUrl;
-            let existing = images.get(pageUrl);
+            let existing = that.images.get(pageUrl);
             if(existing == null){
-                images.set(pageUrl, new ImageInfo(pageUrl, images.size, src));
+                that.images.set(pageUrl, new ImageInfo(pageUrl, that.images.size, src));
             } else {
                 existing.isOutsideGallery = true;
             }
         }
     };
-    return images;
 }
 
 ImageCollector.prototype.processImages = function (element) {

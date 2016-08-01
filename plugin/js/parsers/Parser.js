@@ -4,14 +4,13 @@
 "use strict";
 
 class Parser {
-    constructor() {
+    constructor(imageCollector) {
         this.chapters = [];
+        this.imageCollector = imageCollector || new ImageCollector();
     }
 
     onUserPreferencesUpdate(userPreferences) {
-        if (typeof(this.imageCollector) !== "undefined") {
-            this.imageCollector.onUserPreferencesUpdate(userPreferences);
-        }
+        this.imageCollector.onUserPreferencesUpdate(userPreferences);
     }
 
     getChapterUrlsTable() {
@@ -40,6 +39,22 @@ class Parser {
     isChapterPackable(chapter) {
         return (chapter.rawDom != null) && (chapter.isIncludeable);
     }
+
+    convertRawDomToContent(dom) {
+        let that = this;
+        let content = that.findContent(dom);
+        util.fixBlockTagsNestedInInlineTags(content);
+        that.imageCollector.processImages(content);
+        util.removeUnusedHeadingLevels(content);
+        util.prepForConvertToXhtml(content);
+        util.removeEmptyDivElements(content);
+        return content;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeScriptableElements(element);
+        util.removeComments(element);
+    };
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -89,8 +104,7 @@ Parser.prototype.makeFileName = function(title) {
 Parser.prototype.epubItemSupplier = function () {
     let that = this;
     let epubItems = that.chaptersToEpubItems(that.chapters);
-    let imageCollector = ImageCollector.StubCollector();
-    let supplier = new EpubItemSupplier(this, epubItems, imageCollector);
+    let supplier = new EpubItemSupplier(this, epubItems, that.imageCollector);
     return supplier;
 }
 
@@ -99,7 +113,7 @@ Parser.prototype.chaptersToEpubItems = function (chapters) {
     let epubItems = [];
     let index = -1;
     for(let chapter of chapters.filter(c => that.isChapterPackable(c))) {
-        let content = that.findContent(chapter.rawDom);
+        let content = that.convertRawDomToContent(chapter.rawDom);
         if (content != null) {
             let epubItem = new ChapterEpubItem(chapter, content, ++index);
             epubItems.push(epubItem);
@@ -212,9 +226,14 @@ Parser.prototype.fetchChapters = function() {
         }).then(function (xhr) {
             chapter.rawDom = xhr.responseXML;
             that.updateLoadState(chapter);
+            let content = that.findContent(chapter.rawDom);
+            that.imageCollector.findImagesUsedInDocument(content);
         }); 
     });
     sequence = sequence.then(function() {
+        that.setUiToShowLoadingProgress(that.imageCollector.images.size);
+        return that.imageCollector.fetchImages(() => that.getProgressBar().value += 1);
+    }).then(function () {
         that.getFetchContentButton().disabled = false;
         main.getPackEpubButton().disabled = false;
     }).catch(function (err) {
