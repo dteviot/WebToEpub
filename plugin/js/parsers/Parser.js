@@ -40,9 +40,11 @@ class Parser {
         return (chapter.rawDom != null) && (chapter.isIncludeable);
     }
 
-    convertRawDomToContent(dom) {
+    convertRawDomToContent(chapter) {
         let that = this;
-        let content = that.findContent(dom);
+        let content = that.findContent(chapter.rawDom);
+        that.customRawDomToContentStep(chapter, content);
+        that.removeUnwantedElementsFromContentElement(content);
         util.fixBlockTagsNestedInInlineTags(content);
         that.imageCollector.processImages(content);
         util.removeUnusedHeadingLevels(content);
@@ -55,6 +57,10 @@ class Parser {
         util.removeScriptableElements(element);
         util.removeComments(element);
     };
+
+    customRawDomToContentStep(chapter, content) {
+        // override for any custom processing
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -113,7 +119,7 @@ Parser.prototype.chaptersToEpubItems = function (chapters) {
     let epubItems = [];
     let index = -1;
     for(let chapter of chapters.filter(c => that.isChapterPackable(c))) {
-        let content = that.convertRawDomToContent(chapter.rawDom);
+        let content = that.convertRawDomToContent(chapter);
         if (content != null) {
             let epubItem = new ChapterEpubItem(chapter, content, ++index);
             epubItems.push(epubItem);
