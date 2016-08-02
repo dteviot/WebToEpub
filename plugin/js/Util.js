@@ -55,6 +55,8 @@ var util = (function () {
             let desc = doc.createElementNS(svg_ns,"desc");
             svg.appendChild(desc);
             desc.appendChild(document.createTextNode(origin));
+        } else {
+            svg.appendChild(doc.createComment("  " + origin + "  "));
         }
         return div;
     }
