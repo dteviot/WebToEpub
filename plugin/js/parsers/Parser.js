@@ -237,6 +237,7 @@ Parser.prototype.fetchChapters = function() {
     // that.FakeNetworkActivity(client);
 
     var sequence = Promise.resolve();
+    that.imageCollector.addCoverImageToImagesToFetch();
     pagesToFetch.forEach(function(chapter) {
         sequence = sequence.then(function () {
             return client.fetchHtml(chapter.sourceUrl);
@@ -245,12 +246,10 @@ Parser.prototype.fetchChapters = function() {
             that.updateLoadState(chapter);
             let content = that.findContent(chapter.rawDom);
             that.imageCollector.findImagesUsedInDocument(content);
+            return that.imageCollector.fetchImages(() => { });
         }); 
     });
     sequence = sequence.then(function() {
-        that.setUiToShowLoadingProgress(that.imageCollector.images.size);
-        return that.imageCollector.fetchImages(() => that.getProgressBar().value += 1);
-    }).then(function () {
         that.getFetchContentButton().disabled = false;
         main.getPackEpubButton().disabled = false;
     }).catch(function (err) {

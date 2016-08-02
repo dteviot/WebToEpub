@@ -389,6 +389,7 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
+    that.imageCollector.rebuildImagesToFetch();
     this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
     return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
         .then(function() {

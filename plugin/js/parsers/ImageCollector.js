@@ -8,6 +8,7 @@ class ImageCollector {
     constructor() {
         this.removeDuplicateImages = false;
         this.images = new Map();
+        this.imagesToFetch = [];
         this.coverImageInfo = null;
         this.coverUrlProvider = null;
         this.includeImageSourceUrl = true;
@@ -31,6 +32,39 @@ class ImageCollector {
         } else {
             this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
         }
+    }
+
+    numberOfImagesToFetch() {
+        return this.imagesToFetch.length;
+    }
+
+    fetchImages(progressIndicator) {
+        let that = this;
+        let temp = that.imagesToFetch.reduce(function(sequence, imageInfo) {
+            return sequence.then(function() {
+                return that.fetchImage(imageInfo, progressIndicator);
+            })
+        }, Promise.resolve());
+        that.imagesToFetch = [];
+        return temp;
+    }
+
+    addCoverImageToImagesToFetch() {
+        let that = this;
+        if (that.isGetCoverFromUrl()) {
+            let url = that.coverUrlProvider();
+            that.coverImageInfo = new ImageInfo(url, this.images.size, url);
+            that.coverImageInfo.isCover = true;
+            that.imagesToFetch.push(that.coverImageInfo);
+        };
+    }
+
+    rebuildImagesToFetch() {
+        // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
+        let that = this;
+        that.imagesToFetch = [];
+        that.addCoverImageToImagesToFetch();
+        that.images.forEach(image => that.imagesToFetch.push(image));
     }
 }
 
@@ -141,7 +175,9 @@ ImageCollector.prototype.findImagesUsedInDocument = function (content) {
             let pageUrl = converter.imagePageUrl;
             let existing = that.images.get(pageUrl);
             if(existing == null){
-                that.images.set(pageUrl, new ImageInfo(pageUrl, that.images.size, src));
+                let imageInfo = new ImageInfo(pageUrl, that.images.size, src);
+                that.images.set(pageUrl, imageInfo);
+                that.imagesToFetch.push(imageInfo);
             } else {
                 existing.isOutsideGallery = true;
             }
@@ -325,32 +361,6 @@ ImageCollector.prototype.addCoverFromUrlInputRow = function(urlProvider) {
 
 ImageCollector.prototype.isGetCoverFromUrl = function() {
     return this.coverUrlProvider !== null;
-}
-
-ImageCollector.prototype.numberOfImagesToFetch = function() {
-    return this.images.size + (this.isGetCoverFromUrl() ? 1 : 0);
-}
-
-ImageCollector.prototype.fetchImages = function (progressIndicator) {
-    let that = this;
-    let imagesToFetch = [];
-    that.images.forEach(image => imagesToFetch.push(image));
-    that.addCoverFromUrlToList(imagesToFetch);
-    return imagesToFetch.reduce(function(sequence, imageInfo) {
-        return sequence.then(function() {
-            return that.fetchImage(imageInfo, progressIndicator);
-        })
-    }, Promise.resolve());
-}
-
-ImageCollector.prototype.addCoverFromUrlToList = function(imageListCopy) {
-    let that = this;
-    if (that.isGetCoverFromUrl()) {
-        let url = that.coverUrlProvider();
-        that.coverImageInfo = new ImageInfo(url, this.images.size, url);
-        that.coverImageInfo.isCover = true;
-        imageListCopy.push(that.coverImageInfo);
-    };
 }
 
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
