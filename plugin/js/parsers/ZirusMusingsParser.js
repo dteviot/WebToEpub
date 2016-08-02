@@ -13,8 +13,6 @@ class ZirusMusingsParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let content = that.findContent(dom);
-        content = content.cloneNode(true);
-        that.removeUnwantedElementsFromContentElement(content);
         let chapters = that.getElements(content, "a", a => that.isChapterHref(a.href))
             .map(element => that.elementToChapterInfo(element));
         return Promise.resolve(chapters);
@@ -102,9 +100,9 @@ class ZirusMusingsParser extends Parser {
             let index = text.indexOf("\"images\":[{\"hash\"");
             if (index !== -1) {
                 text = text.substring(index + 9);
-                let endIndex = text.indexOf("\"}]");
+                let endIndex = text.indexOf("}]");
                 if (endIndex !== -1) {
-                    return JSON.parse(text.substring(0, endIndex + 3));
+                    return JSON.parse(text.substring(0, endIndex + 2));
                 }
             }
         }
