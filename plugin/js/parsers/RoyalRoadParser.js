@@ -45,8 +45,6 @@ class RoyalRoadParser extends Parser{
         // remove links to get rid of the "Read this chapter using beta fiction reader"
         util.removeElements(util.getElements(content, "a"));
         that.removeOlderChapterNavJunk(content);
-        util.removeEmptyDivElements(content);
-        that.removeTrailingWhiteSpace(content);
         super.removeUnwantedElementsFromContentElement(content);
     }
 
@@ -113,12 +111,5 @@ class RoyalRoadParser extends Parser{
         while (node = walker.nextNode()) {
             util.removeNode(node);
         };
-    }
-
-    removeTrailingWhiteSpace(content) {
-        let children = content.childNodes;
-        while ((0 < children.length) && util.isElementWhiteSpace(children[children.length - 1])) {
-            util.removeNode(children[children.length - 1]);
-        }
     }
 }

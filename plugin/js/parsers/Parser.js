@@ -50,6 +50,7 @@ class Parser {
         util.removeUnusedHeadingLevels(content);
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
+        util.removeTrailingWhiteSpace(content);
         return content;
     }
 
