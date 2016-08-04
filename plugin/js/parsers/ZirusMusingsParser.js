@@ -46,7 +46,11 @@ class ZirusMusingsParser extends Parser {
         // ToDo: Fix this ugly hack.
         let host = util.extractHostName(dom.documentURI).toLowerCase();
         if (host === "imgur.com") {
-            return that.constructStandardHtmForImgur(dom);
+            let imagesList = ZirusMusingsParser.findImagesList(dom);
+            if (imagesList == null) {
+                imagesList = [];
+            }
+            return ZirusMusingsParser.constructStandardHtmForImgur(imagesList);
         } else {
             let article = util.getElement(dom, "article", e => e.clasName !== "comment-body");
             let div = util.getElement(article, "div");
@@ -75,24 +79,20 @@ class ZirusMusingsParser extends Parser {
         return util.getElement(div, "a", a => (0 < a.href.indexOf("toc/")));
     }
 
-    constructStandardHtmForImgur(dom) {
-        let ns = "http://www.w3.org/1999/xhtml";
-        let doc = util.createEmptyXhtmlDoc();
-        let div = dom.createElementNS(ns, "div");
+    static constructStandardHtmForImgur(imagesList) {
+        let doc = document.implementation.createHTMLDocument();
+        let div = doc.createElement("div");
         doc.body.appendChild(div);
-        let imageList = this.findImagesList(dom);
-        if (imageList != null) {
-            for(let item of imageList) {
-                let img = dom.createElementNS(ns, "img");
-                // ToDo: use real image to build URI
-                img.src = "http://i.imgur.com/" + item.hash + item.ext;
-                div.appendChild(img);
-            };
+        for(let item of imagesList) {
+            let img = doc.createElement("img");
+            // ToDo: use real image to build URI
+            img.src = "http://i.imgur.com/" + item.hash + item.ext;
+            div.appendChild(img);
         };
         return div;
     }
 
-    findImagesList(dom) {
+    static findImagesList(dom) {
         // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
         // Obviously this will break each time imgur change their scripts.
         for(let script of util.getElements(dom, "script")) {
