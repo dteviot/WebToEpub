@@ -19,7 +19,9 @@ class ZirusMusingsParser extends Parser {
     }
 
     isChapterHref(href) {
-        return !href.startsWith("http://ncode.syosetu.com");
+        return !href.startsWith("http://ncode.syosetu.com") &&
+            (href != '') &&
+            (href != 'https://wordpress.com/about-these-ads/');
     }
 
     elementToChapterInfo(chapterElement) {
