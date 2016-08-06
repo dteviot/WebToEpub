@@ -43,7 +43,7 @@ class RoyalRoadParser extends Parser{
         util.removeElements(util.getElements(content, "div", e => e.className === "thead"));
 
         // remove links to get rid of the "Read this chapter using beta fiction reader"
-        util.removeElements(util.getElements(content, "a"));
+        util.removeElements(util.getElements(content, "a").filter(a => util.getElements(a, "img").length === 0));
         that.removeOlderChapterNavJunk(content);
         super.removeUnwantedElementsFromContentElement(content);
     }
