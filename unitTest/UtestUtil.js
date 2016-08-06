@@ -192,3 +192,22 @@ test("removeTrailingWhiteSpace", function (assert) {
     util.removeTrailingWhiteSpace(content);
     assert.equal(content.innerHTML, "Some text ");
 });
+
+
+test("removeLeadingWhiteSpace", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html><head><title></title></head>" +
+        "<body><div id=\"content\">" +
+        "\n  \n" +
+        "<br />\n" +
+        "<p></p>\n" +
+        "<hr />\n" +
+         "<p>Chapter 1</p>" +
+         "</div></body></html>",
+        "text/html"
+    );
+
+    let content = dom.getElementById("content");
+    util.removeLeadingWhiteSpace(content);
+    assert.equal(content.innerHTML, "<p>Chapter 1</p>");
+});

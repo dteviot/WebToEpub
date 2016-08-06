@@ -41,6 +41,7 @@ class WuxiaworldParser extends Parser {
         super.removeUnwantedElementsFromContentElement(element);
 
         that.removeNextAndPreviousChapterHyperlinks(element);
+        util.removeLeadingWhiteSpace(element);
         that.removeOnClick(element);
         that.removeEmoji(element);
     }

@@ -140,6 +140,13 @@ var util = (function () {
         }
     }
 
+    var removeLeadingWhiteSpace = function(element) {
+        let children = element.childNodes;
+        while ((0 < children.length) && util.isElementWhiteSpace(children[0])) {
+            util.removeNode(children[0]);
+        }
+    }
+
     var removeScriptableElements = function(element) {
         util.removeElements(util.getElements(element, "script"));
         util.removeElements(util.getElements(element, "iframe"));
@@ -442,6 +449,7 @@ var util = (function () {
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
+        removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
