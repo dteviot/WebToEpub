@@ -18,7 +18,7 @@ class WuxiaworldParser extends Parser {
     }
 
     isChapterHref(link) {
-        return (link.hostname !== "wiki.wuxiaworld.com");
+        return (link.hostname === "www.wuxiaworld.com");
     }
 
     extractTitle(dom) {

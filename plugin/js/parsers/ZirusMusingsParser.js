@@ -19,7 +19,6 @@ class ZirusMusingsParser extends Parser {
 
     isChapterHref(link) {
         return (link.hostname !== "ncode.syosetu.com") &&
-            (link.href != "") &&
             (link.href != "https://wordpress.com/about-these-ads/");
     }
 

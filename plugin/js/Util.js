@@ -130,7 +130,7 @@ var util = (function () {
 
     // discard empty divs created when moving elements
     var removeEmptyDivElements = function(element) {
-        util.removeElements(util.getElements(element, "div", e => isStringWhiteSpace(e.innerHTML)));
+        util.removeElements(util.getElements(element, "div", e => util.isStringWhiteSpace(e.innerHTML)));
     }
 
     var removeTrailingWhiteSpace = function(element) {
@@ -313,9 +313,20 @@ var util = (function () {
         }
     }
 
+    var isNullOrEmpty = function(s) {
+        return ((s == null) || util.isStringWhiteSpace(s));
+    }
+
     var hyperlinksToChapterList = function(contentElement, isChapterPredicate) {
-        isChapterPredicate = isChapterPredicate || function(a) { return true; };
-        return this.getElements(contentElement, "a", a => isChapterPredicate(a))
+        let includeLink = function(link) {
+            // ignore links with no name or link
+            if (util.isNullOrEmpty(link.innerText) || util.isNullOrEmpty(link.href)) {
+                return false;
+            };
+            return isChapterPredicate ? isChapterPredicate(link) : true;
+        };
+
+        return this.getElements(contentElement, "a", a => includeLink(a))
             .map(link => util.hyperLinkToChapter(link))
     }
 
@@ -470,6 +481,7 @@ var util = (function () {
         getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
+        isNullOrEmpty: isNullOrEmpty,
         hyperlinksToChapterList: hyperlinksToChapterList,
         hyperLinkToChapter: hyperLinkToChapter,
         addXmlDeclarationToStart: addXmlDeclarationToStart,

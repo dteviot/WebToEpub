@@ -211,3 +211,35 @@ test("removeLeadingWhiteSpace", function (assert) {
     util.removeLeadingWhiteSpace(content);
     assert.equal(content.innerHTML, "<p>Chapter 1</p>");
 });
+
+function dummyWuxiaDocWithArcNames() {
+    return new DOMParser().parseFromString(
+        "<html>" +
+           "<head><title></title></head>" +
+           "<body>" +
+           "<div itemprop=\"articleBody\">" +
+           "<div id=\"target-id8123\" class=\"collapseomatic_content \" style=\"display: none;\">" +
+           "<p><strong>&#8211; Book 1 &#8211; Patriarch Reliance &#8211;</strong><br/>" +
+               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-1/\">Chapter 1: Scholar Meng Hao<br/></a>" +
+               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-2/\">Chapter 2: The Reliance Sect</a><br/>" +
+               "<a href=\"http://www.wuxiaworld.com/wmw-index/wmw-chapter-17/\"><br></a>" +
+           "</div>" +
+           "<div id=\"target-id4879\" class=\"collapseomatic_content \" style=\"display: none;\">" +
+           "<p><strong>&#8211; Book 2 &#8211; Cutting Into the Southern Domain &#8211;</strong><br/>" +
+               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-96/\">Chapter 96: Demonic Jade in a Mountain Valley</a><br/>" +
+               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-97/\">Chapter 97: Cultivation Breakthrough in a Mountain Valley</a><br/>" +
+           "</div>" +
+           "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-801/\">Chapter 801: We Will Meet Again!</a><br/>" +
+           "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-802/\">Chapter 802: Immortal Ancient Dao Medallion!</a><br/>" +
+           "</div>" +
+           "</body></html>",
+        "text/html"
+    );
+}
+
+test("hyperlinksToChapterList", function (assert) {
+    let dom = dummyWuxiaDocWithArcNames();
+    let chapters = util.hyperlinksToChapterList(dom);
+    assert.equal(chapters.length, 6);
+});
+
