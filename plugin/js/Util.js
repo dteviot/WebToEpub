@@ -292,6 +292,19 @@ var util = (function () {
         }
     }
 
+    var hyperlinksToChapterList = function(contentElement, isChapterPredicate) {
+        isChapterPredicate = isChapterPredicate || function(a) { return true; };
+        return this.getElements(contentElement, "a", a => isChapterPredicate(a))
+            .map(link => util.hyperLinkToChapter(link))
+    }
+
+    var hyperLinkToChapter = function(link) {
+        return {
+            sourceUrl:  link.href,
+            title: link.innerText
+        }
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -434,6 +447,8 @@ var util = (function () {
         getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
+        hyperlinksToChapterList: hyperlinksToChapterList,
+        hyperLinkToChapter: hyperLinkToChapter,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,
