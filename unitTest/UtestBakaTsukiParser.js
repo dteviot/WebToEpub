@@ -11,7 +11,7 @@ function syncLoadBakaTsukiSampleDoc() {
     xhr.open("GET", "../testdata/Baka-Tsuki.html", false);
     xhr.send(null);
     let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
-    new HttpClient().setBaseTag("http://www.baka-tsuki.org/project/index.php?title=Web_to_Epub", dom);
+    util.setBaseTag("http://www.baka-tsuki.org/project/index.php?title=Web_to_Epub", dom);
     return dom;
 }
 

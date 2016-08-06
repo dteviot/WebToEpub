@@ -92,6 +92,20 @@ var util = (function () {
         dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
     }
 
+    // set the base tag of a DOM to specified URL.
+    var setBaseTag = function (url, dom) {
+        if (dom != null) {
+            let tags = Array.prototype.slice.apply(dom.getElementsByTagName("base"));
+            if (0 < tags.length) {
+                tags[0].setAttribute("href", url);
+            } else {
+                let baseTag = dom.createElement("base");
+                baseTag.setAttribute("href", url);
+                dom.getElementsByTagName("head")[0].appendChild(baseTag);
+            }
+        }
+    }
+
     var removeNode = function (node) {
         if (node.parentNode != null) {
             node.parentNode.removeChild(node)
@@ -407,7 +421,7 @@ var util = (function () {
         xhr.open("GET", fileName, false);
         xhr.send(null);
         let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
-        new HttpClient().setBaseTag(url, dom);
+        util.setBaseTag(url, dom);
         return dom;
     }
 
@@ -422,6 +436,7 @@ var util = (function () {
         log: log,
         extractHostName: extractHostName,
         addToDocBody: addToDocBody,
+        setBaseTag: setBaseTag,
         removeNode: removeNode,
         removeElements: removeElements,
         removeComments: removeComments,

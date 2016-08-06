@@ -12,7 +12,7 @@ function asyncLoadArchiveOfOurOwnSampleDoc(doneCallback) {
     xhr.responseType = "document";
     xhr.onload = function () {
         let dom = this.responseXML;
-        new HttpClient().setBaseTag("http://archiveofourown.org/works/123456/chapters/9876543", dom);
+        util.setBaseTag("http://archiveofourown.org/works/123456/chapters/9876543", dom);
         doneCallback(dom);
     }
     xhr.send();
@@ -24,7 +24,7 @@ function syncLoadArchiveOfOurOwnSampleDoc() {
     xhr.open("GET", "../testdata/DredC1.html", false);
     xhr.send(null);
     let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
-    new HttpClient().setBaseTag("http://archiveofourown.org/works/123456/chapters/9876543", dom);
+    util.setBaseTag("http://archiveofourown.org/works/123456/chapters/9876543", dom);
     return dom;
 }
 

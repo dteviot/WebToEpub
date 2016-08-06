@@ -9,20 +9,6 @@ function HttpClient(dom) {
 
 HttpClient.prototype = {
 
-    // set the base tag of a DOM to specified URL.
-    setBaseTag: function (url, dom) {
-        if (dom != null) {
-            let tags = Array.prototype.slice.apply(dom.getElementsByTagName("base"));
-            if (0 < tags.length) {
-                tags[0].setAttribute("href", url);
-            } else {
-                let baseTag = dom.createElement("base");
-                baseTag.setAttribute("href", url);
-                dom.getElementsByTagName("head")[0].appendChild(baseTag);
-            }
-        }
-    },
-
     // called when HTTP call fails
     // override to change default behaviour
     onError: function (url, statusText, event, reject) {
@@ -62,7 +48,7 @@ HttpClient.prototype = {
     onLoadHtml: function (url, xhr, event, resolve, reject) {
         let that = this;
         if (that.validateStatus(url, xhr, event, reject)) {
-            that.setBaseTag(url, xhr.responseXML);
+            util.setBaseTag(url, xhr.responseXML);
             resolve(xhr);
         };
     },

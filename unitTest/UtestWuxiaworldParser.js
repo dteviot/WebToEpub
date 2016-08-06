@@ -4,7 +4,7 @@
 module("WuxiaworldParser");
 
 function dummyWuxiaDoc() {
-    return new DOMParser().parseFromString(
+    let dom = new DOMParser().parseFromString(
         "<html>" +
            "<head><title></title></head>" +
            "<body>" +
@@ -24,6 +24,11 @@ function dummyWuxiaDoc() {
             "</body></html>",
         "text/html"
     );
+
+    // Hack, if I don't do this, on Chrome the href value for <a> tags with just a hash is blank.
+    util.setBaseTag("http://wuxiaworld.com/wmw-index.html", dom);
+
+    return dom;
 }
 
 test("removeUnwantedElementsFromContentElement", function (assert) {

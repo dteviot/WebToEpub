@@ -20,7 +20,7 @@ var testFunctions = (function () {
 
     var processLoadedHtml = function(rawHtml, baseUrl, callback) {
         let dom = textToDom(rawHtml);
-        new HttpClient().setBaseTag(baseUrl, dom);
+        util.setBaseTag(baseUrl, dom);
         callback(dom);
     }
 

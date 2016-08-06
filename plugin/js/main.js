@@ -168,7 +168,7 @@ var main = (function () {
         setUiFieldToValue("startingUrlInput", url);
 
         // set the base tag, in case server did not supply it 
-        new HttpClient().setBaseTag(url, initalWebPage);
+        util.setBaseTag(url, initalWebPage);
         processInitialHtml(url, initalWebPage);
     }
 
