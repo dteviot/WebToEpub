@@ -13,13 +13,32 @@ class ZirusMusingsParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let content = that.findContent(dom);
-        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref);
+
+        let getChapterArc = function(link) { return null; }
+        if (dom.baseURI === "https://zirusmusings.com/ldm-toc/") {
+            getChapterArc = that.getChapterArc;
+        } 
+        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref, getChapterArc);
         return Promise.resolve(chapters);
     }
 
     isChapterHref(link) {
         return (link.hostname !== "ncode.syosetu.com") &&
             (link.href != "https://wordpress.com/about-these-ads/");
+    }
+
+    getChapterArc(link) {
+        let arc = null;
+        if (link.parentNode !== null) {
+            let parent = link.parentNode;
+            if (parent.tagName === "P") {
+                let strong = util.getElement(parent, "strong");
+                if (strong != null) {
+                    arc = strong.innerText;
+                };
+            };
+        };
+        return arc;
     }
 
     extractTitle(dom) {

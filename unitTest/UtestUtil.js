@@ -219,13 +219,13 @@ function dummyWuxiaDocWithArcNames() {
            "<body>" +
            "<div itemprop=\"articleBody\">" +
            "<div id=\"target-id8123\" class=\"collapseomatic_content \" style=\"display: none;\">" +
-           "<p><strong>&#8211; Book 1 &#8211; Patriarch Reliance &#8211;</strong><br/>" +
+           "<p><strong>Book 1 Patriarch Reliance</strong><br/>" +
                "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-1/\">Chapter 1: Scholar Meng Hao<br/></a>" +
                "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-2/\">Chapter 2: The Reliance Sect</a><br/>" +
                "<a href=\"http://www.wuxiaworld.com/wmw-index/wmw-chapter-17/\"><br></a>" +
            "</div>" +
            "<div id=\"target-id4879\" class=\"collapseomatic_content \" style=\"display: none;\">" +
-           "<p><strong>&#8211; Book 2 &#8211; Cutting Into the Southern Domain &#8211;</strong><br/>" +
+           "<p><strong>Book 2 Cutting Into the Southern Domain</strong><br/>" +
                "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-96/\">Chapter 96: Demonic Jade in a Mountain Valley</a><br/>" +
                "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-97/\">Chapter 97: Cultivation Breakthrough in a Mountain Valley</a><br/>" +
            "</div>" +

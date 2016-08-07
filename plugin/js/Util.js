@@ -317,7 +317,7 @@ var util = (function () {
         return ((s == null) || util.isStringWhiteSpace(s));
     }
 
-    var hyperlinksToChapterList = function(contentElement, isChapterPredicate) {
+    var hyperlinksToChapterList = function(contentElement, isChapterPredicate, getChapterArc) {
         let includeLink = function(link) {
             // ignore links with no name or link
             if (util.isNullOrEmpty(link.innerText) || util.isNullOrEmpty(link.href)) {
@@ -326,15 +326,32 @@ var util = (function () {
             return isChapterPredicate ? isChapterPredicate(link) : true;
         };
 
-        return this.getElements(contentElement, "a", a => includeLink(a))
-            .map(link => util.hyperLinkToChapter(link))
+        // only set newArc when arc changes
+        let currentArc = null;
+        let newArcValueForChapter = function(link) {
+            if (getChapterArc) {
+                let arc = getChapterArc(link);
+                if (arc === currentArc) {
+                    return null;
+                } else {
+                    currentArc = arc;
+                    return currentArc;
+                };
+            };
+            return currentArc;
+        }
+
+        let chaptersList = this.getElements(contentElement, "a", a => includeLink(a))
+            .map(link => util.hyperLinkToChapter(link, newArcValueForChapter(link)));
+        return chaptersList;
     }
 
-    var hyperLinkToChapter = function(link) {
+    var hyperLinkToChapter = function(link, newArc) {
         return {
             sourceUrl:  link.href,
-            title: link.innerText
-        }
+            title: link.innerText,
+            newArc: newArc
+        };
     }
 
     var addXmlDeclarationToStart = function(dom) {

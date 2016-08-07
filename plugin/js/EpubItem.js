@@ -80,14 +80,23 @@ class ChapterEpubItem extends EpubItem {
         super.setIndex(index);
         this.elements = [ content ];
         this.chapterTitle = chapter.title;
+        this.newArc = chapter.newArc;
     }
 }
 
 ChapterEpubItem.prototype.chapterInfo = function*() {
     let that = this;
-    if (typeof (that.chapterTitle) !== "undefined") {
+    if (that.newArc !== null) {
         yield {
             depth: 0,
+            title: that.newArc,
+            src: that.getZipHref()
+        }
+    }
+
+    if (typeof (that.chapterTitle) !== "undefined") {
+        yield {
+            depth: 1,
             title: that.chapterTitle,
             src: that.getZipHref()
         }

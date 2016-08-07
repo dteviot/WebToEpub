@@ -31,6 +31,7 @@ function makeEpubItemSupplier(imageCollector) {
             sourceUrl: "http://dummy.com/" + title,
             title: title,
             isIncludeable: true,
+            newArc: null,
             rawDom: makeDummyXhtmlFile(title)
         });
     }
@@ -181,6 +182,71 @@ test("buildTableOfContents", function (assert) {
                 "<text>Title1</text>" +
               "</navLabel>" +
               "<content src=\"Text/0001_Title1.xhtml\"/>" +
+            "</navPoint>" +
+          "</navMap>" +
+        "</ncx>"
+    );
+});
+
+test("buildNestedTableOfContents", function (assert) {
+    let epubItemSupplier = makeEpubItemSupplier();
+    let epubItems = [];
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "C1", newArc: null }, null, 0));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C1", newArc: "A1" }, null, 1));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C2", newArc: null }, null, 2));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A2C1", newArc: "A2" }, null, 3));
+
+    epubItemSupplier.epubItems = epubItems;
+    let buildTableOfContents = makePacker().buildTableOfContents(epubItemSupplier);
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(buildTableOfContents.replace(/\r|\n/g, ""),
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
+          "<head>" +
+            "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
+            "<meta content=\"2\" name=\"dtb:depth\"/>" +
+            "<meta content=\"0\" name=\"dtb:totalPageCount\"/>" +
+            "<meta content=\"0\" name=\"dtb:maxPageNumber\"/>" +
+          "</head>" +
+          "<docTitle>" +
+            "<text>Dummy &lt;Title&gt;</text>" +
+          "</docTitle>" +
+          "<navMap>" +
+            "<navPoint id=\"body0001\" playOrder=\"1\">" +
+              "<navLabel>" +
+                "<text>C1</text>" +
+              "</navLabel>" +
+              "<content src=\"Text/0000_C1.xhtml\"/>" +
+            "</navPoint>" +
+            "<navPoint id=\"body0002\" playOrder=\"2\">" +
+              "<navLabel>" +
+                "<text>A1</text>" +
+              "</navLabel>" +
+              "<content src=\"Text/0001_A1C1.xhtml\"/>" +
+                "<navPoint id=\"body0003\" playOrder=\"2\">" +
+                  "<navLabel>" +
+                    "<text>A1C1</text>" +
+                  "</navLabel>" +
+                  "<content src=\"Text/0001_A1C1.xhtml\"/>" +
+                "</navPoint>" +
+                "<navPoint id=\"body0004\" playOrder=\"3\">" +
+                  "<navLabel>" +
+                    "<text>A1C2</text>" +
+                  "</navLabel>" +
+                  "<content src=\"Text/0002_A1C2.xhtml\"/>" +
+                "</navPoint>" +
+            "</navPoint>" +
+            "<navPoint id=\"body0005\" playOrder=\"4\">" +
+              "<navLabel>" +
+                "<text>A2</text>" +
+              "</navLabel>" +
+              "<content src=\"Text/0003_A2C1.xhtml\"/>" +
+                "<navPoint id=\"body0006\" playOrder=\"4\">" +
+                  "<navLabel>" +
+                    "<text>A2C1</text>" +
+                  "</navLabel>" +
+                  "<content src=\"Text/0003_A2C1.xhtml\"/>" +
+                "</navPoint>" +
             "</navPoint>" +
           "</navMap>" +
         "</ncx>"

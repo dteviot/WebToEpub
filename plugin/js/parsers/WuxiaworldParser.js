@@ -13,12 +13,26 @@ class WuxiaworldParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let content = that.findContent(dom);
-        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref);
+        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref, that.getChapterArc);
         return Promise.resolve(chapters);
     }
 
     isChapterHref(link) {
         return (link.hostname === "www.wuxiaworld.com");
+    }
+
+    getChapterArc(link) {
+        let arc = null;
+        if ((link.parentNode !== null) && (link.parentNode.parentNode !== null)) {
+            let parent = link.parentNode.parentNode;
+            if (parent.tagName === "DIV" && parent.className.startsWith("collapseomatic")) {
+                let strong = util.getElement(parent, "strong");
+                if (strong != null) {
+                    arc = strong.innerText;
+                };
+            };
+        };
+        return arc;
     }
 
     extractTitle(dom) {

@@ -75,3 +75,19 @@ test("normalizeUrl", function (assert) {
     assert.equal(parser.normalizeUrl(testUrl1), testUrl1);
     assert.equal(parser.normalizeUrl(testUrl2), testUrl1);
 });
+
+test("getArcName", function (assert) {
+    let done = assert.async();
+    let dom = dummyWuxiaDocWithArcNames();
+    let parser = new WuxiaworldParser();
+    parser.getChapterUrls(dom).then(function (chapters) {
+        assert.equal(chapters.length, 6);
+        assert.equal(chapters[0].newArc, "Book 1 Patriarch Reliance");
+        assert.equal(chapters[1].newArc, null);
+        assert.equal(chapters[2].newArc, "Book 2 Cutting Into the Southern Domain");
+        assert.equal(chapters[3].newArc, null);
+        assert.equal(chapters[4].newArc, null);
+        assert.equal(chapters[5].newArc, null);
+        done();
+    });
+});
