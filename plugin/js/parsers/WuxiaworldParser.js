@@ -46,19 +46,35 @@ class WuxiaworldParser extends Parser {
         that.removeEmoji(element);
     }
 
+    normalizeUrl(url) {
+        // remove trailing '/'
+        return (url[url.length - 1] === '/') ? url.substring(0, url.length - 1) : url;
+    }
+
     removeNextAndPreviousChapterHyperlinks(element) {
         let that = this;
-        for(let unwanted of util.getElements(element, "a", link => link.hash === "")
+        let chapterLinks = new Set();
+        for(let c of that.chapters) { 
+            chapterLinks.add(that.normalizeUrl(c.sourceUrl));
+        };
+
+        for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(that.normalizeUrl(link.href)))
            .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
            util.removeNode(unwanted);
         };
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
-        // "previous" chapter is immediate child of <p> tag to remove
-        // "next" chapter has a <span> tag wrapping it, then the <p> tag
-        let parent = link.parentNode;
-        return (parent.tagName === "P") ? parent : parent.parentNode;
+        // "previous" chapter may be immediate child of <p> tag to remove
+        // "next" chapter has a <span> tag wrapping it, then the maybe a <p> tag
+        let toRemove = link.parentNode;
+        if (toRemove.parentNode.tagName.toLowerCase() === "span") {
+            toRemove = link.parentNode;
+        };
+        if (toRemove.parentNode.tagName.toLowerCase() === "p") {
+            toRemove = toRemove.parentNode;
+        };
+        return toRemove;
     }
 
     removeOnClick(contentElement) {
