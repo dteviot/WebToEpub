@@ -81,7 +81,7 @@ class WuxiaworldParser extends Parser {
     findParentNodeOfChapterLinkToRemoveAt(link) {
         // "previous" chapter may be immediate child of <p> tag to remove
         // "next" chapter has a <span> tag wrapping it, then the maybe a <p> tag
-        let toRemove = link.parentNode;
+        let toRemove = link;
         if (toRemove.parentNode.tagName.toLowerCase() === "span") {
             toRemove = link.parentNode;
         };
