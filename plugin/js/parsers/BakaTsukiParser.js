@@ -79,7 +79,7 @@ BakaTsukiParser.prototype.epubItemSupplier = function () {
     let content = that.findContent(that.firstPageDom).cloneNode(true);
     that.removeUnwantedElementsFromContentElement(content);
     util.fixBlockTagsNestedInInlineTags(content);
-    that.processImages(content);
+    that.replaceImageTags(content);
     util.removeUnusedHeadingLevels(content);
     util.prepForConvertToXhtml(content);
     util.removeEmptyDivElements(content);
@@ -132,10 +132,10 @@ BakaTsukiParser.prototype.isTableContainsHyperLinks = function(tableElement) {
     return util.getElement(tableElement, "a") !== null;
 }
 
-BakaTsukiParser.prototype.processImages = function (element) {
+BakaTsukiParser.prototype.replaceImageTags = function (element) {
     let that = this;
     that.stripGalleryBox(element);
-    that.imageCollector.processImages(element);
+    that.imageCollector.replaceImageTags(element);
 }
 
 // remove gallery text and move images out of the gallery box so images can take full screen.

@@ -46,7 +46,7 @@ class Parser {
         that.customRawDomToContentStep(chapter, content);
         that.removeUnwantedElementsFromContentElement(content);
         util.fixBlockTagsNestedInInlineTags(content);
-        that.imageCollector.processImages(content);
+        that.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);

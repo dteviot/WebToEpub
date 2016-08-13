@@ -205,7 +205,10 @@ ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     };
 }
 
-ImageCollector.prototype.processImages = function (element) {
+/**  Update image tags, point to image file in epub
+* @param {element} element containing <img> tags to update
+*/
+ImageCollector.prototype.replaceImageTags = function (element) {
     let that = this;
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {

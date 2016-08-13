@@ -161,7 +161,7 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
         "</x>");
 });
 
-QUnit.test("processImages", function (assert) {
+QUnit.test("replaceImageTags", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
            "<div></div>" +
@@ -222,7 +222,7 @@ QUnit.test("processImages", function (assert) {
     imageInfo.height = 1;
     imageInfo.width = 2;
     let parser = new BakaTsukiParser(imageCollector);
-    parser.processImages(dom.documentElement, imagesMap);
+    parser.replaceImageTags(dom.documentElement, imagesMap);
 
     // convert to XHTML for comparison
     let doc2 = util.createEmptyXhtmlDoc();
