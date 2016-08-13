@@ -160,7 +160,7 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     for(let currentNode of util.getElements(element, "img")) {
         converters.push(that.makeImageTagReplacer(currentNode));
     };
-    converters.forEach(c => c.replaceWithImagePageUrl(that.images));
+    converters.forEach(c => c.replaceTag(that.images.get(c.imagePageUrl)));
 }
 
 ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
@@ -263,10 +263,12 @@ class ImageTagReplacer {
         this.includeImageSourceUrl = includeImageSourceUrl
     }
 
-    replaceWithImagePageUrl(images) {
+    /**
+     * @param {imageInfo} imageInfo to use to construct replacement tag
+     */
+    replaceTag(imageInfo) {
         let that = this;
         // replace tag with nested <img> tag, with new <img> tag
-        let imageInfo = images.get(that.imagePageUrl);
         let parent = that.wrappingElement.parentElement;
         if ((imageInfo != null) && (parent != null)) {
             if (that.isDuplicateImageToRemove(imageInfo)) {
@@ -277,6 +279,9 @@ class ImageTagReplacer {
         };
     }
 
+    /**
+     * @private
+     */
     insertImageInLegalParent(parent, imageInfo) {
         let that = this;
         // Under XHTML, <div> not allowed to be a child of a <p> element, (or <i>, <u>, <s> etc.)
@@ -293,11 +298,17 @@ class ImageTagReplacer {
         util.removeNode(that.wrappingElement);
     }
 
+    /**
+     * @private
+     */
     isDuplicateImageToRemove(imageInfo) {
         let that = this;
         return that.removeDuplicateImages && that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
     }
 
+    /**
+     * @private
+     */
     isElementInImageGallery() {
         return (this.wrappingElement.className === "thumb");
     }
