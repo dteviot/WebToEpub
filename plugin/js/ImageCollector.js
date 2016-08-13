@@ -105,11 +105,7 @@ ImageCollector.prototype.makeImageTagReplacer = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
     let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    if (imagePageUrl === null) {
-        return null;
-    } else {
-        return new ImageTagReplacer(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
-    }
+    return new ImageTagReplacer(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
 }
 
 ImageCollector.prototype.findImageWrappingElement = function (element) {
@@ -142,18 +138,16 @@ ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
     for(let currentNode of util.getElements(content, "img")) {
         let converter = that.makeImageTagReplacer(currentNode)
-        if (converter != null) {
-            let src = that.extractImageSrc(converter.wrappingElement);
-            let pageUrl = converter.imagePageUrl;
-            let existing = that.images.get(pageUrl);
-            if(existing == null){
-                let imageInfo = new ImageInfo(pageUrl, that.images.size, src);
-                that.images.set(pageUrl, imageInfo);
-                that.imagesToFetch.push(imageInfo);
-            } else {
-                existing.isOutsideGallery = true;
-            }
-        }
+        let src = that.extractImageSrc(converter.wrappingElement);
+        let pageUrl = converter.imagePageUrl;
+        let existing = that.images.get(pageUrl);
+        if(existing == null){
+            let imageInfo = new ImageInfo(pageUrl, that.images.size, src);
+            that.images.set(pageUrl, imageInfo);
+            that.imagesToFetch.push(imageInfo);
+        } else {
+            existing.isOutsideGallery = true;
+        };
     };
 }
 
@@ -164,10 +158,7 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     let that = this;
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
-        let converter = that.makeImageTagReplacer(currentNode);
-        if (converter != null) {
-            converters.push(converter);
-        }
+        converters.push(that.makeImageTagReplacer(currentNode));
     };
     converters.forEach(c => c.replaceWithImagePageUrl(that.images));
 }
@@ -276,7 +267,7 @@ class ImageTagReplacer {
         let that = this;
         // replace tag with nested <img> tag, with new <img> tag
         let imageInfo = images.get(that.imagePageUrl);
-        let parent = that.element.parentElement;
+        let parent = that.wrappingElement.parentElement;
         if ((imageInfo != null) && (parent != null)) {
             if (that.isDuplicateImageToRemove(imageInfo)) {
                 util.removeNode(that.wrappingElement);
