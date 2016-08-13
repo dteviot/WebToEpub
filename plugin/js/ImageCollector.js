@@ -101,62 +101,14 @@ ImageCollector.prototype.extractImageSrc = function (element) {
     return (element.tagName.toLowerCase() === "img") ?  element.src : element.getElementsByTagName("img")[0].src;
 }
 
-class ImageElementConverter {
-    constructor(element, imagePageUrl, removeDuplicateImages, includeImageSourceUrl) {
-        this.element = element;
-        this.imagePageUrl = imagePageUrl;
-        this.removeDuplicateImages = removeDuplicateImages;
-        this.includeImageSourceUrl = includeImageSourceUrl
-    }
-}
-
-ImageElementConverter.prototype.replaceWithImagePageUrl = function (images) {
-    let that = this;
-    // replace tag with nested <img> tag, with new <img> tag
-    let imageInfo = images.get(that.imagePageUrl);
-    let parent = that.element.parentElement;
-    if ((imageInfo != null) && (parent != null)) {
-        if (that.isDuplicateImageToRemove(imageInfo)) {
-            util.removeNode(that.element);
-        } else {
-            that.insertImageInLegalParent(parent, imageInfo);
-        };
-    };
-}
-
-ImageElementConverter.prototype.insertImageInLegalParent = function(parent, imageInfo) {
-    let that = this;
-    // Under XHTML, <div> not allowed to be a child of a <p> element, (or <i>, <u>, <s> etc.)
-    let nodeAfter = that.element;
-    while (util.isInlineElement(parent) && (parent.parentNode != null)) {
-        nodeAfter = parent;
-        parent = parent.parentNode;
-    };
-    if (parent.tagName.toLowerCase() === "p") {
-        nodeAfter = parent;
-    };
-    let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
-    nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
-    util.removeNode(that.element);
-}
-
-ImageElementConverter.prototype.isDuplicateImageToRemove = function (imageInfo) {
-    let that = this;
-    return that.removeDuplicateImages && that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
-}
-
-ImageElementConverter.prototype.isElementInImageGallery = function () {
-    return (this.element.className === "thumb");
-}
-
-ImageCollector.prototype.makeImageConverter = function (element) {
+ImageCollector.prototype.makeImageTagReplacer = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
     let imagePageUrl = that.extractImagePageUrl(wrappingElement);
     if (imagePageUrl === null) {
         return null;
     } else {
-        return new ImageElementConverter(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
+        return new ImageTagReplacer(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
     }
 }
 
@@ -189,9 +141,9 @@ ImageCollector.prototype.isImageWrapperElement = function (element) {
 ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
     for(let currentNode of util.getElements(content, "img")) {
-        let converter = that.makeImageConverter(currentNode)
+        let converter = that.makeImageTagReplacer(currentNode)
         if (converter != null) {
-            let src = that.extractImageSrc(converter.element);
+            let src = that.extractImageSrc(converter.wrappingElement);
             let pageUrl = converter.imagePageUrl;
             let existing = that.images.get(pageUrl);
             if(existing == null){
@@ -212,7 +164,7 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     let that = this;
     let converters = [];
     for(let currentNode of util.getElements(element, "img")) {
-        let converter = that.makeImageConverter(currentNode);
+        let converter = that.makeImageTagReplacer(currentNode);
         if (converter != null) {
             converters.push(converter);
         }
@@ -300,4 +252,62 @@ ImageCollector.prototype.imagesToPackInEpub = function() {
         imageListCopy.push(that.coverImageInfo);
     }
     return imageListCopy;
+}
+
+//==============================================================
+
+/** Class to replace an <img> tag. */
+class ImageTagReplacer {
+    /**
+     * Record details of element to replace
+     * @param {element} wrappingElement the outermost parent element of the <img> tag to remove.
+     * @param {string} imagePageUrl url of image being replaced
+     * @param {bool} removeDuplicateImages - Remove images from gallery that appear elsewhere?
+     * @param {bool} includeImageSourceUrl - Include the image's orignal URL as a svc <desc>?
+     */
+    constructor(wrappingElement, imagePageUrl, removeDuplicateImages, includeImageSourceUrl) {
+        this.wrappingElement = wrappingElement;
+        this.imagePageUrl = imagePageUrl;
+        this.removeDuplicateImages = removeDuplicateImages;
+        this.includeImageSourceUrl = includeImageSourceUrl
+    }
+
+    replaceWithImagePageUrl(images) {
+        let that = this;
+        // replace tag with nested <img> tag, with new <img> tag
+        let imageInfo = images.get(that.imagePageUrl);
+        let parent = that.element.parentElement;
+        if ((imageInfo != null) && (parent != null)) {
+            if (that.isDuplicateImageToRemove(imageInfo)) {
+                util.removeNode(that.wrappingElement);
+            } else {
+                that.insertImageInLegalParent(parent, imageInfo);
+            };
+        };
+    }
+
+    insertImageInLegalParent(parent, imageInfo) {
+        let that = this;
+        // Under XHTML, <div> not allowed to be a child of a <p> element, (or <i>, <u>, <s> etc.)
+        let nodeAfter = that.wrappingElement;
+        while (util.isInlineElement(parent) && (parent.parentNode != null)) {
+            nodeAfter = parent;
+            parent = parent.parentNode;
+        };
+        if (parent.tagName.toLowerCase() === "p") {
+            nodeAfter = parent;
+        };
+        let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
+        nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
+        util.removeNode(that.wrappingElement);
+    }
+
+    isDuplicateImageToRemove(imageInfo) {
+        let that = this;
+        return that.removeDuplicateImages && that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
+    }
+
+    isElementInImageGallery() {
+        return (this.wrappingElement.className === "thumb");
+    }
 }
