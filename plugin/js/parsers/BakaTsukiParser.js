@@ -417,7 +417,3 @@ BakaTsukiParser.prototype.updateLoadState = function(finished) {
 BakaTsukiParser.prototype.getFetchContentButton = function() {
     return document.getElementById("fetchImagesButton");
 }
-
-BakaTsukiParser.prototype.onCoverFromUrlClick = function(enable) {
-    this.imageCollector.onCoverFromUrlClick(enable);
-}

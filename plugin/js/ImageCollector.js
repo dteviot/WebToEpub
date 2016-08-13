@@ -66,6 +66,26 @@ class ImageCollector {
         that.addCoverImageToImagesToFetch();
         that.images.forEach(image => that.imagesToFetch.push(image));
     }
+
+    /** user has selected/unselected an image for cover
+    * @param {imageInfo} image to use as cover, or null if setting to "No cover image"
+    * @private
+    */
+    setCoverImage(imageInfo) {
+        let that = this;
+        if (that.coverImageInfo !== null) {
+            that.coverImageInfo.isCover = false;
+        }
+        if (imageInfo !== null) {
+            // ToDo, should check that that.isGetCoverFromUrl() is false
+            imageInfo.isCover = true;
+        };
+        that.coverImageInfo = imageInfo;
+    }
+
+    populateImageTable() {
+        CoverImageUI.populateImageTable(this.images, this);
+    }
 }
 
 // get URL of page that holds all copies of this image
@@ -197,103 +217,6 @@ ImageCollector.prototype.processImages = function (element) {
     converters.forEach(c => c.replaceWithImagePageUrl(that.images));
 }
 
-ImageCollector.prototype.getImageTableElement = function() {
-    return document.getElementById("imagesTable");
-}
-
-ImageCollector.prototype.clearImageTable = function() {
-    let that = this;
-    let imagesTable = that.getImageTableElement();
-    while (imagesTable.children.length > 0) {
-        imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
-    }
-}
-
-ImageCollector.prototype.populateImageTable = function() {
-    let that = this;
-    that.clearImageTable();
-    let imagesTable = that.getImageTableElement();
-    let checkBoxIndex = 0;
-    if (0 === that.images.size) {
-        imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
-    }
-    else {
-        that.images.forEach(function (imageInfo) {
-            let row = document.createElement("tr");
-        
-            // add checkbox
-            let checkbox = that.createCheckBoxAndLabel(imageInfo, checkBoxIndex);
-            that.appendColumnToRow(row, checkbox);
-
-            // add image
-            let img = document.createElement("img");
-            img.setAttribute("style", "max-height: 120px; width: auto; ");
-            img.src = imageInfo.sourceUrl;
-            that.appendColumnToRow(row, img);
-            imagesTable.appendChild(row);
-
-            ++checkBoxIndex;
-        });
-    }
-}
-
-ImageCollector.prototype.createCheckBoxAndLabel = function (imageInfo, checkBoxIndex) {
-    let that = this;
-    let label = document.createElement("label");
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.id = "setCoverCheckBox" + checkBoxIndex;
-    checkbox.onclick = function() { that.onImageClicked(checkbox.id, imageInfo, that); };
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode("Set Cover"));
-
-    // default to first image as cover image
-    if (checkBoxIndex === 0) {
-        that.setCoverImage(imageInfo);
-        checkbox.checked = true;
-    }
-    return label;
-}
-
-ImageCollector.prototype.onImageClicked = function(checkboxId, imageInfo, imageCollector) {
-    let that = this;
-    let checkbox = document.getElementById(checkboxId);
-    if (checkbox.checked === true) {
-        imageCollector.setCoverImage(imageInfo);
-
-        // uncheck any other checked boxes
-        let imagesTable = that.getImageTableElement();
-        for(let box of util.getElements(imagesTable, "input")) {
-            if (box.id !== checkboxId) {
-                box.checked = false;
-            }
-        }
-    } else {
-        imageCollector.setCoverImage(null);
-    }
-} 
-
-// when imageInfo === null, setting to "No cover image"
-ImageCollector.prototype.setCoverImage = function (imageInfo) {
-    let that = this;
-    if (that.coverImageInfo !== null) {
-        that.coverImageInfo.isCover = false;
-    }
-    if (imageInfo !== null) {
-        // ToDo, should check that that.isGetCoverFromUrl() is false
-        imageInfo.isCover = true;
-    };
-    that.coverImageInfo = imageInfo;
-}
-
-ImageCollector.prototype.appendColumnToRow = function (row, element) {
-    let col = document.createElement("td");
-    col.appendChild(element);
-    col.style.whiteSpace = "nowrap";
-    row.appendChild(col);
-    return col;
-}
-
 ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
     let div = util.getElement(dom, "div", e => (e.className === className));
     if (div === null) {
@@ -329,34 +252,6 @@ ImageCollector.prototype.getImageDimensions = function(imageInfo) {
         // start downloading image after event handlers are set
         img.src = imageInfo.sourceUrl;
     });
-}
-
-ImageCollector.prototype.onCoverFromUrlClick = function(enable) {
-    let that = this;
-    if (enable) {
-        that.setCoverImage(null);
-        that.clearImageTable();
-        that.addCoverFromUrlInputRow();
-        that.coverUrlProvider = function () { 
-            return document.getElementById("coverImageUrlInput").value 
-        };
-    } else {
-        that.coverUrlProvider = null;
-        that.populateImageTable();
-    }
-}
-
-ImageCollector.prototype.addCoverFromUrlInputRow = function(urlProvider) {
-    let that = this;
-    let row = document.createElement("tr");
-    that.getImageTableElement().appendChild(row);
-    that.appendColumnToRow(row, document.createTextNode("Cover Image URL:"));
-
-    let inputUrl = document.createElement("input");
-    inputUrl.type = "text";
-    inputUrl.id = "coverImageUrlInput";
-    inputUrl.size = 60;
-    that.appendColumnToRow(row, inputUrl);
 }
 
 ImageCollector.prototype.isGetCoverFromUrl = function() {

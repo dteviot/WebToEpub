@@ -184,7 +184,7 @@ var main = (function () {
 
     function onCoverFromUrlClick() {
         let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
-        parser.onCoverFromUrlClick(enable);
+        CoverImageUI.onCoverFromUrlClick(enable, parser.imageCollector);
     }
 
     // called when the "Diagnostics" check box is ticked or unticked
