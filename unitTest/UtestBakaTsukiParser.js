@@ -206,23 +206,22 @@ QUnit.test("replaceImageTags", function (assert) {
 
     let imageCollector = new ImageCollector();
     imageCollector.findImagesUsedInDocument(dom.body);
-    let imagesMap = imageCollector.images;
 
     // fake getting image size data
-    let imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
+    let imageInfo = imageCollector.imageInfoByUrl("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg");
     imageInfo.height = 100;
     imageInfo.width = 200;
-    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png");
+    imageInfo = imageCollector.imageInfoByUrl("https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png");
     imageInfo.height = 300;
     imageInfo.width = 400;
-    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg");
+    imageInfo = imageCollector.imageInfoByUrl("https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg");
     imageInfo.height = 10;
     imageInfo.width = 20;
-    imageInfo = imagesMap.get("https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif");
+    imageInfo = imageCollector.imageInfoByUrl("https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif");
     imageInfo.height = 1;
     imageInfo.width = 2;
     let parser = new BakaTsukiParser(imageCollector);
-    parser.replaceImageTags(dom.documentElement, imagesMap);
+    parser.replaceImageTags(dom.documentElement);
 
     // convert to XHTML for comparison
     let doc2 = util.createEmptyXhtmlDoc();

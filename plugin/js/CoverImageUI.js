@@ -39,7 +39,7 @@ class CoverImageUI {
         CoverImageUI.clearImageTable();
         let imagesTable = CoverImageUI.getImageTableElement();
         let checkBoxIndex = 0;
-        if (0 === images.size) {
+        if (0 === images.length) {
             imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
         }
         else {
@@ -117,14 +117,14 @@ class CoverImageUI {
     * @private
     * @todo  this should be moved to Baka-Tsuki, this logic is specific to B-T
     */
-    static onCoverFromUrlClick(enable, imageCollector) {
+    static onCoverFromUrlClick(enable, images) {
         if (enable) {
             CoverImageUI.setCoverImageUrl(null);
             CoverImageUI.clearImageTable();
             CoverImageUI.showCoverImageUrlInput(true);
         } else {
             CoverImageUI.showCoverImageUrlInput(false);
-            imageCollector.populateImageTable();
+            CoverImageUI.populateImageTable(images);
         }
     }
 

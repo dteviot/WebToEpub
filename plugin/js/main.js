@@ -182,11 +182,6 @@ var main = (function () {
         return true;
     }
 
-    function onCoverFromUrlClick() {
-        let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
-        CoverImageUI.onCoverFromUrlClick(enable, parser.imageCollector);
-    }
-
     // called when the "Diagnostics" check box is ticked or unticked
     function onDiagnosticsClick() {
         let enable = document.getElementById("diagnosticsCheckBoxInput").checked;
@@ -263,7 +258,6 @@ var main = (function () {
     window.onload = function () {
         // add onClick event handlers
         getPackEpubButton().onclick = fetchContentAndPackEpub;
-        document.getElementById("coverFromUrlCheckboxInput").onclick = onCoverFromUrlClick;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;

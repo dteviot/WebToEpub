@@ -4,12 +4,16 @@
 
 "use strict";
 
+/** class that handles image tags 
+ * urlIndex - track URLs associated with an ImageInfo
+ * bitmapIndex - hashes of the image bitmaps, to allow us to elminate duplicate images
+ * imagesToFetch - images that need to be fetched from internet
+ * imagesToPack - images to pack into epub
+*/
 class ImageCollector {
     constructor() {
         this.removeDuplicateImages = false;
-        this.images = new Map();
-        this.imagesToFetch = [];
-        this.coverImageInfo = null;
+        this.reset();
         this.includeImageSourceUrl = true;
         this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
     }
@@ -21,6 +25,62 @@ class ImageCollector {
             coverImageInfo: null,
             imagesToPackInEpub: function() { return []; }
         }
+    }
+
+    reset() {
+        this.imageInfoList = [];
+        this.urlIndex = new Map();
+        this.bitmapIndex = new Map();
+        this.imagesToFetch = [];
+        this.imagesToPack = [];
+        this.coverImageInfo = null;
+    }
+
+    addImageInfo(wrappingUrl, sourceUrl, fetchFirst) {
+        let that = this;
+        let imageInfo = null;
+        let index = this.urlIndex.get(sourceUrl);
+        if (index !== undefined) {
+             imageInfo = that.imageInfoList[index];
+        } else {
+            index = this.urlIndex.get(wrappingUrl);
+            if (index !== undefined) {
+                imageInfo = that.imageInfoList[index];
+            };
+        };
+        if (imageInfo === null) {
+            index = that.imageInfoList.length;
+            imageInfo = new ImageInfo(wrappingUrl, index, sourceUrl);
+            this.imageInfoList.push(imageInfo);
+            if (!!fetchFirst) {
+                that.imagesToFetch = [imageInfo].concat(that.imagesToFetch);
+            } else {
+                this.imagesToFetch.push(imageInfo);
+            }
+        };           
+        this.urlIndex.set(wrappingUrl, index);
+        this.urlIndex.set(sourceUrl, index);
+        return imageInfo;
+    }
+
+    setCoverImageUrl(url) {
+        // Note, this can be called in two cases.
+        // 1. Baka-Tsuki, where images have already been loaded, so image may already be present
+        // 2. Other Parsers, so image is not present.
+        let that = this;
+        if (url !== null) {
+            let info = that.imageInfoByUrl(url);
+            if (info === null) {
+                info = that.addImageInfo(url, url, true);
+            };
+            info.isCover = true;
+            that.coverImageInfo = info;
+        };
+    }
+
+    imageInfoByUrl(url) {
+        let index = this.urlIndex.get(url);
+        return (index === undefined) ? null : this.imageInfoList[index];
     }
 
     onUserPreferencesUpdate(userPreferences) {
@@ -48,26 +108,50 @@ class ImageCollector {
         return temp;
     }
 
-    addCoverImageToImagesToFetch() {
+    /**
+    * @private
+    */
+    addToPackList(imageInfo) {
         let that = this;
-        let url = CoverImageUI.getCoverImageUrl();
-        if (url !== null) {
-            that.coverImageInfo = new ImageInfo(url, this.images.size, url);
-            that.coverImageInfo.isCover = true;
-            that.imagesToFetch.push(that.coverImageInfo);
+        let hash = ImageCollector.calculateHash(imageInfo.arraybuffer);
+        let index = that.bitmapIndex.get(hash);
+        if (index === undefined) {
+            // first time we've seen the bitmap, so all OK
+            that.bitmapIndex.set(hash, imageInfo.index);
+            that.imagesToPack.push(imageInfo);
+        } else {
+            // duplicate bitmap, use previous version
+            let wrongIndex = imageInfo.index;
+            for(let [key, value] of that.urlIndex) {
+                if (value === wrongIndex) {
+                    that.urlIndex.set(key, index);
+                };
+            };
         };
     }
 
-    rebuildImagesToFetch() {
-        // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
-        let that = this;
-        that.imagesToFetch = [];
-        that.addCoverImageToImagesToFetch();
-        that.images.forEach(image => that.imagesToFetch.push(image));
+    /**
+    * @private
+    */
+    static calculateHash(arraybuffer) {
+        let hash = 0;
+        let byteArray = new Uint8Array(arraybuffer);
+        if (byteArray.length !== 0) {
+            for(let i = 0; i < byteArray.length; ++i) {
+                hash = ((hash << 5) - hash) + byteArray[i];
+                hash |= 0;
+            }
+        }
+        return ImageCollector.toHex(byteArray.length) + ImageCollector.toHex(hash);
     }
 
-    populateImageTable() {
-        CoverImageUI.populateImageTable(this.images);
+    
+    /** Convert integer to 8 character Hex value
+    * @private
+    */
+    static toHex(i) {
+        let s = '00000000' + i.toString(16);
+        return s.substring(s.length - 8);
     }
 }
 
@@ -123,11 +207,9 @@ ImageCollector.prototype.findImagesUsedInDocument = function (content) {
         let src = currentNode.src;
         let wrappingElement = that.findImageWrappingElement(currentNode);
         let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-        let existing = that.images.get(wrappingUrl);
+        let existing = that.imageInfoByUrl(wrappingUrl);
         if(existing == null){
-            let imageInfo = new ImageInfo(wrappingUrl, that.images.size, src);
-            that.images.set(wrappingUrl, imageInfo);
-            that.imagesToFetch.push(imageInfo);
+            that.addImageInfo(wrappingUrl, src, false);
         } else {
             existing.isOutsideGallery = true;
         };
@@ -143,7 +225,7 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     for(let currentNode of util.getElements(element, "img")) {
         converters.push(that.makeImageTagReplacer(currentNode));
     };
-    converters.forEach(c => c.replaceTag(that.images.get(c.wrappingUrl)));
+    converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
 }
 
 ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
@@ -195,8 +277,10 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
         imageInfo.mediaType = xhr.getResponseHeader("Content-Type");
         imageInfo.arraybuffer = xhr.response;
         progressIndicator();
+        that.addToPackList(imageInfo)
     }).catch(function(error) {
         // ToDo, implement error handler.
+        that.imagesToPack.push(imageInfo);
         alert(error);
     });
 }
@@ -215,13 +299,7 @@ ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
 }
 
 ImageCollector.prototype.imagesToPackInEpub = function() {
-    let that = this;
-    let imageListCopy = [];
-    that.images.forEach(image => imageListCopy.push(image));
-    if (that.coverImageInfo !== null) {
-        imageListCopy.push(that.coverImageInfo);
-    }
-    return imageListCopy;
+    return this.imagesToPack;
 }
 
 //==============================================================

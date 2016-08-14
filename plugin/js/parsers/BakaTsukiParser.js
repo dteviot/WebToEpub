@@ -3,16 +3,29 @@
 */
 "use strict";
 
+parserFactory.register("www.baka-tsuki.org", function() { 
+    return new BakaTsukiParser(new ImageCollector()) 
+});
+
 class BakaTsukiParser extends Parser{
     constructor(imageCollector) {
         super(imageCollector);
         this.firstPageDom = null;
     }
-}
 
-parserFactory.register("www.baka-tsuki.org", function() { 
-    return new BakaTsukiParser(new ImageCollector()) 
-});
+    rebuildImagesToFetch() {
+        // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
+        let that = this;
+        that.imageCollector.reset();
+        that.imageCollector.findImagesUsedInDocument(that.findContent(that.firstPageDom));
+        that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
+    }
+
+    populateImageTable() {
+        let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
+        CoverImageUI.onCoverFromUrlClick(enable, this.imageCollector.imageInfoList);
+    }
+}
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
     return this.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
@@ -57,12 +70,9 @@ BakaTsukiParser.prototype.findContent = function (dom) {
 BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     let that = this;
     that.firstPageDom = firstPageDom;
-        
-    // ToDo: at moment is collecting images from inital web page at load time
-    // when the popup UI is populated.  Will need to fetch correct images
-    // as a separate step later
+
     that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
-    that.imageCollector.populateImageTable();
+    that.populateImageTable();
 };
 
 BakaTsukiParser.prototype.populateUI = function () {
@@ -72,6 +82,7 @@ BakaTsukiParser.prototype.populateUI = function () {
     document.getElementById("translatorRow").hidden = false;
     document.getElementById("fileAuthorAsRow").hidden = false;
     that.getFetchContentButton().onclick = (e => that.onFetchImagesClicked());
+    document.getElementById("coverFromUrlCheckboxInput").onclick = (e => that.populateImageTable());
 };
 
 BakaTsukiParser.prototype.epubItemSupplier = function () {
@@ -389,7 +400,7 @@ BakaTsukiParser.prototype.onFetchImagesClicked = function () {
 
 BakaTsukiParser.prototype.fetchContent = function () {
     let that = this;
-    that.imageCollector.rebuildImagesToFetch();
+    that.rebuildImagesToFetch();
     this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
     return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
         .then(function() {

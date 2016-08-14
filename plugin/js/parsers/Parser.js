@@ -237,7 +237,10 @@ Parser.prototype.fetchChapters = function() {
     // that.FakeNetworkActivity(client);
 
     var sequence = Promise.resolve();
-    that.imageCollector.addCoverImageToImagesToFetch();
+
+    that.imageCollector.reset();
+    that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
+
     pagesToFetch.forEach(function(chapter) {
         sequence = sequence.then(function () {
             return client.fetchHtml(chapter.sourceUrl);
