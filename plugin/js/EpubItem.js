@@ -106,7 +106,7 @@ ChapterEpubItem.prototype.chapterInfo = function*() {
 //==============================================================
 /*
     Details of an image in BakaTsuki web page
-    imagePageUrl :  URL of web page that holds list of versions of the image
+    wrappingUrl :  URL of <a> tag that wraps the <img> (For Baka-Tsuki, is a web page that holds list of versions of the image)
     sourceUrl : URL of actual image  (initially, image on page)
     mediaType: jpeg, png, etc.
     arrayBuffer: the image bytes
@@ -115,13 +115,13 @@ ChapterEpubItem.prototype.chapterInfo = function*() {
     width: "full size" image width
 */
 class ImageInfo extends EpubItem {
-    constructor(imagePageUrl, index, sourceUrl) {
+    constructor(wrappingUrl, index, sourceUrl) {
         super(sourceUrl);
         // ToDo:  This will need to derive from EpubItem
         let that = this;
         super.index = index;
         super.isInSpine = false;
-        this.imagePageUrl = imagePageUrl;
+        this.wrappingUrl = wrappingUrl;
         this.mediaType = "image/jpeg";
         this.isCover = false;
         this.isOutsideGallery = false;
@@ -132,8 +132,8 @@ class ImageInfo extends EpubItem {
 
     getZipHref() {
         let that = this;
-        let suffix = that.findImageSuffix(that.imagePageUrl);
-        return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.imagePageUrl), suffix);
+        let suffix = that.findImageSuffix(that.wrappingUrl);
+        return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
     }
 
     getId() {
@@ -153,10 +153,10 @@ class ImageInfo extends EpubItem {
     }
 }
 
-ImageInfo.prototype.findImageSuffix = function(imagePageUrl) {
+ImageInfo.prototype.findImageSuffix = function(wrappingUrl) {
     let that = this;
     let suffix = "";
-    let fileName = that.extractImageFileNameFromUrl(imagePageUrl)
+    let fileName = that.extractImageFileNameFromUrl(wrappingUrl)
     if (fileName != null) {
         let index = fileName.lastIndexOf(".");
         suffix = fileName.substring(index + 1);
@@ -236,7 +236,7 @@ ImageInfo.prototype.getImageName = function (page) {
 ImageInfo.prototype.createImageElement = function(includeImageSourceUrl) {
     let that = this;
     return util.createSvgImageElement(that.getZipHref(), that.width, that.height, 
-        that.imagePageUrl, includeImageSourceUrl);
+        that.wrappingUrl, includeImageSourceUrl);
 }
 
 ImageInfo.prototype.chapterInfo = function*() {

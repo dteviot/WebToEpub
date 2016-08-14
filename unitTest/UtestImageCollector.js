@@ -5,7 +5,7 @@ module("UTestImageCollector");
 
 QUnit.test("ImageInfo.ctor", function (assert) {
     let imageInfo = new ImageInfo("http://www.baka-tsuki.org/WebToEpub.jpg", 0, null);
-    assert.equal(imageInfo.imagePageUrl, "http://www.baka-tsuki.org/WebToEpub.jpg");
+    assert.equal(imageInfo.wrappingUrl, "http://www.baka-tsuki.org/WebToEpub.jpg");
     assert.equal(imageInfo.sourceUrl, null);
     assert.equal(imageInfo.getZipHref(), "OEBPS/Images/0000_WebToEpub.jpg");
     assert.equal(imageInfo.getId(), "image0000");

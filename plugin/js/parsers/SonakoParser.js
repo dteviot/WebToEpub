@@ -17,7 +17,7 @@ class SonakoImageCollector extends ImageCollector {
 //  http://sonako.wikia.com/wiki/File:{data-image-name}
 //  where {data-image-name} is data-image-name element of the img tag.
 //
-SonakoImageCollector.prototype.extractImagePageUrl = function (element) {
+SonakoImageCollector.prototype.extractWrappingUrl = function (element) {
     // ToDo, use utilresolveRelativeUrl() rather than string concatanation
     let dataImageName = util.getElement(element, "img").getAttribute("data-image-name");
     return (dataImageName === null) ? null : "http://sonako.wikia.com/wiki/File:" + dataImageName;

@@ -72,7 +72,7 @@ class ImageCollector {
 }
 
 // get URL of page that holds all copies of this image
-ImageCollector.prototype.extractImagePageUrl = function (element) {
+ImageCollector.prototype.extractWrappingUrl = function (element) {
     if (element.tagName.toLowerCase() === "img") {
         return element.src;
     }
@@ -87,8 +87,8 @@ ImageCollector.prototype.extractImageSrc = function (element) {
 ImageCollector.prototype.makeImageTagReplacer = function (element) {
     let that = this;
     let wrappingElement = that.findImageWrappingElement(element);
-    let imagePageUrl = that.extractImagePageUrl(wrappingElement);
-    return new ImageTagReplacer(wrappingElement, imagePageUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
+    let wrappingUrl = that.extractWrappingUrl(wrappingElement);
+    return new ImageTagReplacer(wrappingElement, wrappingUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
 }
 
 ImageCollector.prototype.findImageWrappingElement = function (element) {
@@ -120,13 +120,13 @@ ImageCollector.prototype.isImageWrapperElement = function (element) {
 ImageCollector.prototype.findImagesUsedInDocument = function (content) {
     let that = this;
     for(let currentNode of util.getElements(content, "img")) {
-        let converter = that.makeImageTagReplacer(currentNode)
-        let src = that.extractImageSrc(converter.wrappingElement);
-        let pageUrl = converter.imagePageUrl;
-        let existing = that.images.get(pageUrl);
+        let src = currentNode.src;
+        let wrappingElement = that.findImageWrappingElement(currentNode);
+        let wrappingUrl = that.extractWrappingUrl(wrappingElement);
+        let existing = that.images.get(wrappingUrl);
         if(existing == null){
-            let imageInfo = new ImageInfo(pageUrl, that.images.size, src);
-            that.images.set(pageUrl, imageInfo);
+            let imageInfo = new ImageInfo(wrappingUrl, that.images.size, src);
+            that.images.set(wrappingUrl, imageInfo);
             that.imagesToFetch.push(imageInfo);
         } else {
             existing.isOutsideGallery = true;
@@ -143,7 +143,7 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     for(let currentNode of util.getElements(element, "img")) {
         converters.push(that.makeImageTagReplacer(currentNode));
     };
-    converters.forEach(c => c.replaceTag(that.images.get(c.imagePageUrl)));
+    converters.forEach(c => c.replaceTag(that.images.get(c.wrappingUrl)));
 }
 
 ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
@@ -186,7 +186,7 @@ ImageCollector.prototype.getImageDimensions = function(imageInfo) {
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
     let client = new HttpClient();
-    return client.fetchHtml(imageInfo.imagePageUrl).then(function (xhr) {
+    return client.fetchHtml(imageInfo.wrappingUrl).then(function (xhr) {
         imageInfo.sourceUrl = that.findImageFileUrl(xhr, imageInfo);
         return that.getImageDimensions(imageInfo);
     }).then(function () {
@@ -210,7 +210,7 @@ ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
         return (temp == null) ? imageInfo.sourceUrl : temp;
     } else {
         // page wasn't HTML, so assume is actual image
-        return imageInfo.imagePageUrl;
+        return imageInfo.wrappingUrl;
     }
 }
 
@@ -231,13 +231,13 @@ class ImageTagReplacer {
     /**
      * Record details of element to replace
      * @param {element} wrappingElement the outermost parent element of the <img> tag to remove.
-     * @param {string} imagePageUrl url of image being replaced
+     * @param {string} wrappingUrl url of image being replaced
      * @param {bool} removeDuplicateImages - Remove images from gallery that appear elsewhere?
      * @param {bool} includeImageSourceUrl - Include the image's orignal URL as a svc <desc>?
      */
-    constructor(wrappingElement, imagePageUrl, removeDuplicateImages, includeImageSourceUrl) {
+    constructor(wrappingElement, wrappingUrl, removeDuplicateImages, includeImageSourceUrl) {
         this.wrappingElement = wrappingElement;
-        this.imagePageUrl = imagePageUrl;
+        this.wrappingUrl = wrappingUrl;
         this.removeDuplicateImages = removeDuplicateImages;
         this.includeImageSourceUrl = includeImageSourceUrl
     }
