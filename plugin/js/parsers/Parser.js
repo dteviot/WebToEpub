@@ -304,7 +304,3 @@ Parser.prototype.extractLanguage = function(dom) {
 Parser.prototype.extractSeriesInfo = function(dom, metaInfo) {
     // Derived classes will override
 }
-
-Parser.prototype.setCoverImage = function(imageInfo) {
-    this.imageCollector.setCoverImage(imageInfo);
-}

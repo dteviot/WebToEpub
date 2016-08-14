@@ -10,7 +10,6 @@ class ImageCollector {
         this.images = new Map();
         this.imagesToFetch = [];
         this.coverImageInfo = null;
-        this.coverUrlProvider = null;
         this.includeImageSourceUrl = true;
         this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
     }
@@ -51,8 +50,8 @@ class ImageCollector {
 
     addCoverImageToImagesToFetch() {
         let that = this;
-        if (that.isGetCoverFromUrl()) {
-            let url = that.coverUrlProvider();
+        let url = CoverImageUI.getCoverImageUrl();
+        if (url !== null) {
             that.coverImageInfo = new ImageInfo(url, this.images.size, url);
             that.coverImageInfo.isCover = true;
             that.imagesToFetch.push(that.coverImageInfo);
@@ -65,22 +64,6 @@ class ImageCollector {
         that.imagesToFetch = [];
         that.addCoverImageToImagesToFetch();
         that.images.forEach(image => that.imagesToFetch.push(image));
-    }
-
-    /** user has selected/unselected an image for cover
-    * @param {imageInfo} image to use as cover, or null if setting to "No cover image"
-    * @private
-    */
-    setCoverImage(imageInfo) {
-        let that = this;
-        if (that.coverImageInfo !== null) {
-            that.coverImageInfo.isCover = false;
-        }
-        if (imageInfo !== null) {
-            // ToDo, should check that that.isGetCoverFromUrl() is false
-            imageInfo.isCover = true;
-        };
-        that.coverImageInfo = imageInfo;
     }
 
     populateImageTable() {
@@ -200,10 +183,6 @@ ImageCollector.prototype.getImageDimensions = function(imageInfo) {
     });
 }
 
-ImageCollector.prototype.isGetCoverFromUrl = function() {
-    return this.coverUrlProvider !== null;
-}
-
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
     let client = new HttpClient();
@@ -239,7 +218,7 @@ ImageCollector.prototype.imagesToPackInEpub = function() {
     let that = this;
     let imageListCopy = [];
     that.images.forEach(image => imageListCopy.push(image));
-    if (that.isGetCoverFromUrl()) {
+    if (that.coverImageInfo !== null) {
         imageListCopy.push(that.coverImageInfo);
     }
     return imageListCopy;

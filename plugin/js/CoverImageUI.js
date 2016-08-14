@@ -12,7 +12,7 @@ class CoverImageUI {
     /** return URL of image to use for cover, or NULL if no cover
     */
     static getCoverImageUrl() {
-        let url = getCoverImageUrlInput().value;
+        let url = CoverImageUI.getCoverImageUrlInput().value;
         return ((url === null) || (url.trim === "")) ? null : url;
     }
 
@@ -20,8 +20,8 @@ class CoverImageUI {
      * @param {bool} visible - show/hide control
     */
     static showCoverImageUrlInput(visible) {
-        let section = document.getElementById("coverUrlSection");
-        section.hidden = !visible;
+        document.getElementById("coverUrlSection").hidden = !visible;
+        document.getElementById("imagesTableDiv").hidden = visible;
     }
 
     /** remove all images from the table of images to pick from */
@@ -139,6 +139,6 @@ class CoverImageUI {
     * @private
     */
     static setCoverImageUrl(url) {
-        getCoverImageUrlInput().value = url;
+        CoverImageUI.getCoverImageUrlInput().value = url;
     }
 }
