@@ -204,6 +204,9 @@ QUnit.test("replaceImageTags", function (assert) {
         "text/html"
     );
 
+    // Hack, if I don't do this, on Chrome the src value for <img> tags with relative paths is blank.
+    util.setBaseTag("https://www.baka-tsuki.org/project/index.php", dom);
+
     let imageCollector = new ImageCollector();
     imageCollector.findImagesUsedInDocument(dom.body);
 
