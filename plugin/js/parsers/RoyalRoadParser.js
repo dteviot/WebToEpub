@@ -112,4 +112,9 @@ class RoyalRoadParser extends Parser{
             util.removeNode(node);
         };
     }
+
+    populateUI() {
+        super.populateUI();
+        CoverImageUI.showCoverImageUrlInput(true);
+    }
 }

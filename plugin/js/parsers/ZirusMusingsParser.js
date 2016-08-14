@@ -119,4 +119,9 @@ class ZirusMusingsParser extends Parser {
             }
         }
     }
+
+    populateUI() {
+        super.populateUI();
+        CoverImageUI.showCoverImageUrlInput(true);
+    }
 }

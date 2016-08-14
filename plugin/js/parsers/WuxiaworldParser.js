@@ -107,4 +107,9 @@ class WuxiaworldParser extends Parser {
             img.parentNode.replaceChild(textNode, img);
         }
     }
+
+    populateUI() {
+        super.populateUI();
+        CoverImageUI.showCoverImageUrlInput(true);
+    }
 }
