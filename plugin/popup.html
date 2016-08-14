@@ -103,6 +103,22 @@
         </section>
     </section>
     <section id="testSection"></section>
+    <section hidden id="imageSection">
+        <p>
+            Remove Duplicate Images: <input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false">
+        </p>
+        <p>
+            Cover from URL: <input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false">
+        </p>
+        <div class="scrollingtable">
+            <table id=imagesTable></table>
+        </div>
+    </section>
+    <section hidden id="coverUrlSection">
+        <p>
+            Cover Image URL: <input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
+        </p>
+    </section>
     <section id="outputSection">
         <div class="scrollingtable">
             <table id=chapterUrlsTable>
@@ -115,18 +131,6 @@
             </table>
             <button id=selectAllUrlsButton>Select All</button>
             <button id=unselectAllUrlsButton>Unselect All</button>
-        </div>
-    </section>
-    <section hidden id="imageSection">
-        <p>
-            Remove Duplicate Images: <input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false">
-        </p>
-        <p>
-            Cover from URL: <input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false">
-        </p>
-        <div class="scrollingtable">
-            <table id=imagesTable>
-            </table>
         </div>
     </section>
     <!-- scripts go here -->

@@ -84,7 +84,7 @@ class ImageCollector {
     }
 
     populateImageTable() {
-        CoverImageUI.populateImageTable(this.images, this);
+        CoverImageUI.populateImageTable(this.images);
     }
 }
 

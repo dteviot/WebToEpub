@@ -9,6 +9,21 @@ class CoverImageUI {
         return document.getElementById("imagesTable");
     }
 
+    /** return URL of image to use for cover, or NULL if no cover
+    */
+    static getCoverImageUrl() {
+        let url = getCoverImageUrlInput().value;
+        return ((url === null) || (url.trim === "")) ? null : url;
+    }
+
+    /** toggle visibility of the Cover Image URL input control
+     * @param {bool} visible - show/hide control
+    */
+    static showCoverImageUrlInput(visible) {
+        let section = document.getElementById("coverUrlSection");
+        section.hidden = !visible;
+    }
+
     /** remove all images from the table of images to pick from */
     static clearImageTable() {
         let imagesTable = CoverImageUI.getImageTableElement();
@@ -19,9 +34,8 @@ class CoverImageUI {
 
     /** create table of images for user to pick from 
     * @param {array of ImageInfo} images to populate table with
-    * @param {imageCollector} to notify of user's chosen image
     */
-    static populateImageTable(images, imageCollector) {
+    static populateImageTable(images) {
         CoverImageUI.clearImageTable();
         let imagesTable = CoverImageUI.getImageTableElement();
         let checkBoxIndex = 0;
@@ -33,7 +47,7 @@ class CoverImageUI {
                 let row = document.createElement("tr");
         
                 // add checkbox
-                let checkbox = CoverImageUI.createCheckBoxAndLabel(imageInfo, checkBoxIndex, imageCollector);
+                let checkbox = CoverImageUI.createCheckBoxAndLabel(imageInfo.sourceUrl, checkBoxIndex);
                 CoverImageUI.appendColumnToRow(row, checkbox);
 
                 // add image
@@ -51,18 +65,18 @@ class CoverImageUI {
     /** adds row to the images table 
     * @private
     */
-    static createCheckBoxAndLabel(imageInfo, checkBoxIndex, imageCollector) {
+    static createCheckBoxAndLabel(sourceUrl, checkBoxIndex) {
         let label = document.createElement("label");
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.id = "setCoverCheckBox" + checkBoxIndex;
-        checkbox.onclick = function() { CoverImageUI.onImageClicked(checkbox.id, imageInfo, imageCollector); };
+        checkbox.onclick = function() { CoverImageUI.onImageClicked(checkbox.id, sourceUrl); };
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode("Set Cover"));
 
         // default to first image as cover image
         if (checkBoxIndex === 0) {
-            imageCollector.setCoverImage(imageInfo);
+            CoverImageUI.setCoverImageUrl(sourceUrl);
             checkbox.checked = true;
         }
         return label;
@@ -71,10 +85,10 @@ class CoverImageUI {
     /** user has selected/unselected an image for cover
     * @private
     */
-    static onImageClicked(checkboxId, imageInfo, imageCollector) {
+    static onImageClicked(checkboxId, sourceUrl) {
         let checkbox = document.getElementById(checkboxId);
         if (checkbox.checked === true) {
-            imageCollector.setCoverImage(imageInfo);
+            CoverImageUI.setCoverImageUrl(sourceUrl);
 
             // uncheck any other checked boxes
             let imagesTable = CoverImageUI.getImageTableElement();
@@ -84,10 +98,13 @@ class CoverImageUI {
                 }
             }
         } else {
-            imageCollector.setCoverImage(null);
+            CoverImageUI.setCoverImageUrl(null);
         }
     } 
 
+    /**
+    * @private
+    */
     static appendColumnToRow(row, element) {
         let col = document.createElement("td");
         col.appendChild(element);
@@ -96,29 +113,32 @@ class CoverImageUI {
         return col;
     }
 
+    /**
+    * @private
+    * @todo  this should be moved to Baka-Tsuki, this logic is specific to B-T
+    */
     static onCoverFromUrlClick(enable, imageCollector) {
         if (enable) {
-            imageCollector.setCoverImage(null);
+            CoverImageUI.setCoverImageUrl(null);
             CoverImageUI.clearImageTable();
-            CoverImageUI.addCoverFromUrlInputRow();
-            imageCollector.coverUrlProvider = function () { 
-                return document.getElementById("coverImageUrlInput").value 
-            };
+            CoverImageUI.showCoverImageUrlInput(true);
         } else {
-            imageCollector.coverUrlProvider = null;
+            CoverImageUI.showCoverImageUrlInput(false);
             imageCollector.populateImageTable();
         }
     }
 
-    static addCoverFromUrlInputRow(urlProvider) {
-        let row = document.createElement("tr");
-        CoverImageUI.getImageTableElement().appendChild(row);
-        CoverImageUI.appendColumnToRow(row, document.createTextNode("Cover Image URL:"));
+    /** user has selected/unselected an image for cover
+    * @private
+    */
+    static getCoverImageUrlInput() {
+        return document.getElementById("coverImageUrlInput");
+    }
 
-        let inputUrl = document.createElement("input");
-        inputUrl.type = "text";
-        inputUrl.id = "coverImageUrlInput";
-        inputUrl.size = 60;
-        CoverImageUI.appendColumnToRow(row, inputUrl);
+    /** set URL of image to use for cover, or NULL if no cover
+    * @private
+    */
+    static setCoverImageUrl(url) {
+        getCoverImageUrlInput().value = url;
     }
 }
