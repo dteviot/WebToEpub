@@ -18,7 +18,8 @@ class WuxiaworldParser extends Parser {
     }
 
     isChapterHref(link) {
-        return (link.hostname === "www.wuxiaworld.com");
+        return (link.hostname === "www.wuxiaworld.com") &&
+            (link.hash === "");
     }
 
     getChapterArc(link) {
