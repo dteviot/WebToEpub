@@ -7,6 +7,7 @@ Also works with
 * mugglenet.com
 * FanFiction.net
 * royalroadl.com 
+* wuxiaworld.com
 
 Credits
 * Firefox mod by Markus Vieth
