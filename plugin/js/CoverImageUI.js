@@ -136,7 +136,7 @@ class CoverImageUI {
     }
 
     /** set URL of image to use for cover, or NULL if no cover
-    * @private
+    * @public
     */
     static setCoverImageUrl(url) {
         CoverImageUI.getCoverImageUrlInput().value = url;

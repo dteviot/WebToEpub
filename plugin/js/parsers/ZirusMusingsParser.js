@@ -120,8 +120,21 @@ class ZirusMusingsParser extends Parser {
         }
     }
 
-    populateUI() {
-        super.populateUI();
+    populateUI(dom) {
+        super.populateUI(dom);
         CoverImageUI.showCoverImageUrlInput(true);
+    }
+
+    findCoverImageUrl(dom) {
+        if (dom != null) {
+            let content = this.findContent(dom);
+            if (content != null) {
+                let cover = util.getElement(content, "img");
+                if (cover != null) {
+                    return cover.src;
+                };
+            };
+        };
+        return null;
     }
 }

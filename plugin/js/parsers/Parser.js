@@ -62,6 +62,20 @@ class Parser {
     customRawDomToContentStep(chapter, content) {
         // override for any custom processing
     }
+
+    populateUI(dom) {
+        let that = this;
+        that.getFetchContentButton().onclick = (e => that.onFetchChaptersClicked());
+        document.getElementById("packRawButton").onclick = (e => that.packRawChapters());
+        let coverUrl = that.findCoverImageUrl(dom);
+        if (!util.isNullOrEmpty(coverUrl)) {
+            CoverImageUI.setCoverImageUrl(coverUrl);
+        };
+    }
+
+    findCoverImageUrl(dom) {
+        return null;
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -194,12 +208,6 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     }).catch(function(error) {
         alert(error)
     });
-}
-
-Parser.prototype.populateUI = function () {
-    let that = this;
-    that.getFetchContentButton().onclick = (e => that.onFetchChaptersClicked());
-    document.getElementById("packRawButton").onclick = (e => that.packRawChapters());
 }
 
 Parser.prototype.onFetchChaptersClicked = function () {

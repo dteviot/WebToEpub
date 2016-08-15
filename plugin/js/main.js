@@ -40,7 +40,7 @@ var main = (function () {
                 userPreferences.addObserver(parser);
                 let metaInfo = parser.getEpubMetaInfo(dom);
                 populateMetaInfo(metaInfo);
-                parser.populateUI();
+                parser.populateUI(dom);
                 parser.onLoadFirstPage(url, dom);
             } catch (error) {
                 alert("Error parsing HTML: " + error.stack);

@@ -75,7 +75,7 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     that.populateImageTable();
 };
 
-BakaTsukiParser.prototype.populateUI = function () {
+BakaTsukiParser.prototype.populateUI = function (dom) {
     let that = this;
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
