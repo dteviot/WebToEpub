@@ -68,7 +68,7 @@ class ImageCollector {
         // 1. Baka-Tsuki, where images have already been loaded, so image may already be present
         // 2. Other Parsers, so image is not present.
         let that = this;
-        if (url !== null) {
+        if (!util.isNullOrEmpty(url)) {
             let info = that.imageInfoByUrl(url);
             if (info === null) {
                 info = that.addImageInfo(url, url, true);
