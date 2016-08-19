@@ -17,7 +17,9 @@ class BakaTsukiParser extends Parser{
         // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
         let that = this;
         that.imageCollector.reset();
-        that.imageCollector.findImagesUsedInDocument(that.findContent(that.firstPageDom));
+        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        that.removeUnwantedElementsFromContentElement(content);
+        that.imageCollector.findImagesUsedInDocument(content);
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
     }
 
@@ -71,7 +73,9 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     let that = this;
     that.firstPageDom = firstPageDom;
 
-    that.imageCollector.findImagesUsedInDocument(that.findContent(firstPageDom));
+    let content = that.findContent(that.firstPageDom).cloneNode(true);
+    that.removeUnwantedElementsFromContentElement(content);
+    that.imageCollector.findImagesUsedInDocument(content);
     that.populateImageTable();
 };
 

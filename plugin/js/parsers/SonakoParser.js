@@ -18,9 +18,19 @@ class SonakoImageCollector extends ImageCollector {
 //  where {data-image-name} is data-image-name element of the img tag.
 //
 SonakoImageCollector.prototype.extractWrappingUrl = function (element) {
+    let tagName = element.tagName.toLowerCase();
+    if (tagName === "a") {
+        return element.href;
+    }
+    let link = util.getElement(element, "a");
+    if (link !== null) {
+        return link.href;
+    };
+    let img = (tagName === "img") ? element : util.getElement(element, "img");
+    let dataImageName = img.getAttribute("data-image-name");
+
     // ToDo, use utilresolveRelativeUrl() rather than string concatanation
-    let dataImageName = util.getElement(element, "img").getAttribute("data-image-name");
-    return (dataImageName === null) ? null : "http://sonako.wikia.com/wiki/File:" + dataImageName;
+    return (dataImageName === null) ? img.src : "http://sonako.wikia.com/wiki/File:" + dataImageName;
 }
 
 SonakoImageCollector.prototype.isImageWrapperElement = function (element) {
@@ -84,6 +94,14 @@ SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (elem
     util.removeElements(that.getElements(element, "span", e => (e.className === "editsection")));
 
     that.stripGalleryImageWidthStyle(element);
+
+    // fix source for delay loaded image tags
+    for(let img of util.getElements(element, "img", e => e.src.startsWith("data:image"))) {
+        let href = img.getAttribute("data-src");
+        if (href != null) {
+            img.src = href;
+        };
+    };
 };
 
 // remove the "Width" style from the Gallery items, so images can take full screen.
