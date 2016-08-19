@@ -51,29 +51,12 @@ test("removeUnwantedElementsFromContentElement", function (assert) {
     );
 });
 
-test("removeOnClick", function (assert) {
-    let dom = dummyWuxiaDoc();
-    let parser = new WuxiaworldParser();
-    let body = parser.removeOnClick(dom.body);
-    let link = dom.getElementById("fnref-63064-1");
-    assert.equal(link.outerHTML, "<a href=\"#fn-63064-1\" id=\"fnref-63064-1\">1</a>");
-});
-
 test("removeEmoji", function (assert) {
     let dom = dummyWuxiaDoc();
     let parser = new WuxiaworldParser();
     let body = parser.removeEmoji(dom.body);
     let link = util.getElement(dom.getElementById("fn-63064-1"), "a");
     assert.equal(link.outerHTML, "<a href=\"#fnref-63064-1\">...</a>");
-});
-
-test("normalizeUrl", function (assert) {
-    let testUrl1 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2";
-    let testUrl2 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2/";
-
-    let parser = new WuxiaworldParser();
-    assert.equal(parser.normalizeUrl(testUrl1), testUrl1);
-    assert.equal(parser.normalizeUrl(testUrl2), testUrl1);
 });
 
 test("getArcName", function (assert) {

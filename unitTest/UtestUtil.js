@@ -243,3 +243,18 @@ test("hyperlinksToChapterList", function (assert) {
     assert.equal(chapters.length, 6);
 });
 
+test("normalizeUrl", function (assert) {
+    let testUrl1 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2";
+    let testUrl2 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2/";
+
+    assert.equal(util.normalizeUrl(testUrl1), testUrl1);
+    assert.equal(util.normalizeUrl(testUrl2), testUrl1);
+});
+
+test("removeEventHandlers", function (assert) {
+    let dom = dummyWuxiaDoc();
+    let parser = new WuxiaworldParser();
+    let body = util.removeEventHandlers(dom.body);
+    let link = dom.getElementById("fnref-63064-1");
+    assert.equal(link.outerHTML, "<a href=\"#fn-63064-1\" id=\"fnref-63064-1\">1</a>");
+});

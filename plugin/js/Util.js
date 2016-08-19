@@ -150,6 +150,19 @@ var util = (function () {
     var removeScriptableElements = function(element) {
         util.removeElements(util.getElements(element, "script"));
         util.removeElements(util.getElements(element, "iframe"));
+        util.removeEventHandlers(element);
+    }
+
+    /**
+    * @todo expand to remove ALL event handlers
+    */
+    var removeEventHandlers = function(contentElement) {
+        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
+        let element = contentElement;
+        while (element != null) {
+            element.removeAttribute("onclick");
+            element = walker.nextNode();
+        };
     }
 
     var prepForConvertToXhtml = function(element) {
@@ -318,11 +331,18 @@ var util = (function () {
     }
 
     var hyperlinksToChapterList = function(contentElement, isChapterPredicate, getChapterArc) {
+        let linkSet = new Set();
         let includeLink = function(link) {
             // ignore links with no name or link
             if (util.isNullOrEmpty(link.innerText) || util.isNullOrEmpty(link.href)) {
                 return false;
             };
+            // ignore duplicate links
+            let href = util.normalizeUrl(link.href);
+            if (linkSet.has(href)) {
+                return false;
+            };
+            linkSet.add(href);
             return isChapterPredicate ? isChapterPredicate(link) : true;
         };
 
@@ -344,6 +364,11 @@ var util = (function () {
         let chaptersList = this.getElements(contentElement, "a", a => includeLink(a))
             .map(link => util.hyperLinkToChapter(link, newArcValueForChapter(link)));
         return chaptersList;
+    }
+
+    var normalizeUrl = function(url) {
+        // remove trailing '/'
+        return (url[url.length - 1] === '/') ? url.substring(0, url.length - 1) : url;
     }
 
     var hyperLinkToChapter = function(link, newArc) {
@@ -479,6 +504,7 @@ var util = (function () {
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
+        removeEventHandlers: removeEventHandlers,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,
@@ -500,6 +526,7 @@ var util = (function () {
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
         isNullOrEmpty: isNullOrEmpty,
         hyperlinksToChapterList: hyperlinksToChapterList,
+        normalizeUrl: normalizeUrl,
         hyperLinkToChapter: hyperLinkToChapter,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,

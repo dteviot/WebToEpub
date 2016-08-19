@@ -73,8 +73,33 @@ class Parser {
         };
     }
 
+    /**
+     * Default implementation, take first image in content section
+    */
     findCoverImageUrl(dom) {
+        if (dom != null) {
+            let content = this.findContent(dom);
+            if (content != null) {
+                let cover = util.getElement(content, "img");
+                if (cover != null) {
+                    return cover.src;
+                };
+            };
+        };
         return null;
+    }
+
+    removeNextAndPreviousChapterHyperlinks(element) {
+        let that = this;
+        let chapterLinks = new Set();
+        for(let c of that.chapters) { 
+            chapterLinks.add(util.normalizeUrl(c.sourceUrl));
+        };
+
+        for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
+           .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
+           util.removeNode(unwanted);
+        };
     }
 }
 

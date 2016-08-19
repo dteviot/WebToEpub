@@ -40,6 +40,10 @@ class WuxiaworldParser extends Parser {
         return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
     }
 
+    extractLanguage(dom) {
+        return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:locale")).getAttribute("content");
+    };
+
     extractAuthor(dom) {
         return "<unknown>";
     }
@@ -57,26 +61,7 @@ class WuxiaworldParser extends Parser {
 
         that.removeNextAndPreviousChapterHyperlinks(element);
         util.removeLeadingWhiteSpace(element);
-        that.removeOnClick(element);
         that.removeEmoji(element);
-    }
-
-    normalizeUrl(url) {
-        // remove trailing '/'
-        return (url[url.length - 1] === '/') ? url.substring(0, url.length - 1) : url;
-    }
-
-    removeNextAndPreviousChapterHyperlinks(element) {
-        let that = this;
-        let chapterLinks = new Set();
-        for(let c of that.chapters) { 
-            chapterLinks.add(that.normalizeUrl(c.sourceUrl));
-        };
-
-        for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(that.normalizeUrl(link.href)))
-           .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
-           util.removeNode(unwanted);
-        };
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -92,15 +77,6 @@ class WuxiaworldParser extends Parser {
         return toRemove;
     }
 
-    removeOnClick(contentElement) {
-        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
-        let element = contentElement;
-        while (element != null) {
-            element.removeAttribute("onclick");
-            element = walker.nextNode();
-        };
-    }
-
     removeEmoji(contentElement) {
         for(let img of util.getElements(contentElement, "img", i => i.className === "emoji")) {
             let text = img.getAttribute("alt") || "back to reference";
@@ -112,18 +88,5 @@ class WuxiaworldParser extends Parser {
     populateUI(dom) {
         super.populateUI(dom);
         CoverImageUI.showCoverImageUrlInput(true);
-    }
-
-    findCoverImageUrl(dom) {
-        if (dom != null) {
-            let content = this.findContent(dom);
-            if (content != null) {
-                let cover = util.getElement(content, "img");
-                if (cover != null) {
-                    return cover.src;
-                };
-            };
-        };
-        return null;
     }
 }
