@@ -23,7 +23,7 @@ class UserPreferences {
         return newPreferences;
     }
 
-    writeToLocalStorage(name) {
+    writeToLocalStorage() {
         let that = this;
         that.writeFieldToLocalStorage("removeDuplicateImages");
         that.writeFieldToLocalStorage("includeImageSourceUrl");

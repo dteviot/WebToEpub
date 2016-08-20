@@ -25,7 +25,7 @@ var parserFactory = (function () {
         if (parsers.get(stripLeadingWww(hostName)) == null) {
             parsers.set(stripLeadingWww(hostName), constructor);
         } else {
-            throw new Error("Duplicate parser registered for url " + url);
+            throw new Error("Duplicate parser registered for hostName " + hostName);
         };
     };
 
