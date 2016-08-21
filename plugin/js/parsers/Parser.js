@@ -57,6 +57,7 @@ class Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeScriptableElements(element);
         util.removeComments(element);
+        util.removeElements(util.getElements(element, "noscript"));
     };
 
     customRawDomToContentStep(chapter, content) {
