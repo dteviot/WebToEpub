@@ -21,7 +21,7 @@ class ReadLightNovelParser extends Parser {
             return Promise.resolve(chapters);
         }
         else {
-            return Promise.reject(new Error("No chapters found. This may not be the novel's detail page."));
+            return Promise.reject(new Error(chrome.i18n.getMessage("noChaptersFound")));
         }
     }
 
