@@ -27,6 +27,52 @@ class BakaTsukiParser extends Parser{
         let enable = document.getElementById("coverFromUrlCheckboxInput").checked;
         CoverImageUI.onCoverFromUrlClick(enable, this.imageCollector.imageInfoList);
     }
+
+    static splitContentOnHeadingTags(content, sourceUrl) {
+        let epubItems = [];
+        let elementsInItem = [];
+        for(let i = 0; i < content.childNodes.length; ++i) {
+            let node = util.wrapRawTextNode(content.childNodes[i]);
+            if (BakaTsukiParser.isChapterStart(node)) {
+                BakaTsukiParser.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
+                elementsInItem = [];
+            };
+            elementsInItem.push(node);
+        };
+        BakaTsukiParser.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
+        return epubItems;
+    }
+
+    static isChapterStart(node) {
+        return util.isHeaderTag(node);
+    }
+
+    static appendToEpubItems(epubItems, elementsInItem, sourceUrl) {
+        BakaTsukiParser.removeTrailingWhiteSpace(elementsInItem);
+        if (0 < elementsInItem.length) {
+            let epubItem = new EpubItem(sourceUrl);
+            epubItem.elements = elementsInItem;
+            epubItems.push(epubItem);
+        };
+    }
+
+    static removeTrailingWhiteSpace(elementsInItem) {
+        let i = elementsInItem.length - 1;
+        while ((0 <= i) && util.isElementWhiteSpace(elementsInItem[i])) {
+            elementsInItem.pop();
+            --i;
+        };
+    }
+
+    static indexEpubItems(epubItems, startAt) {
+        // ToDo: when have image files, this will probably need to be redone.
+        let that = this;
+        let index = startAt;
+        for(let epubItem of  epubItems) {
+            epubItem.setIndex(index);
+            ++index;
+        };
+    }
 }
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
@@ -187,10 +233,10 @@ BakaTsukiParser.prototype.stripWidthStyle = function (element) {
 BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUrl) {
     let that = this;
     that.flattenContent(content);
-    let epubItems = that.splitContentOnHeadingTags(content, sourceUrl);
+    let epubItems = BakaTsukiParser.splitContentOnHeadingTags(content, sourceUrl);
     epubItems = that.consolidateEpubItems(epubItems);
     epubItems = that.discardEpubItemsWithNoVisibleContent(epubItems);
-    that.indexEpubItems(epubItems);
+    BakaTsukiParser.indexEpubItems(epubItems, 0);
     return epubItems;
 }
 
@@ -213,7 +259,7 @@ BakaTsukiParser.prototype.flattenContent = function (content) {
 BakaTsukiParser.prototype.nodeNeedsToBeFlattened = function (node) {
     let that = this;
     let numHeaders = that.numberOfHeaderTags(node);
-    return ((1 < numHeaders) || ((numHeaders === 1) && !that.isChapterStart(node)));
+    return ((1 < numHeaders) || ((numHeaders === 1) && !BakaTsukiParser.isChapterStart(node)));
 }
 
 BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
@@ -221,7 +267,7 @@ BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
     let walker = document.createTreeWalker(node); 
     let count = 0;
     do {
-        if (that.isChapterStart(walker.currentNode)) {
+        if (BakaTsukiParser.isChapterStart(walker.currentNode)) {
             ++count;
         };
     } while (walker.nextNode());
@@ -234,55 +280,6 @@ BakaTsukiParser.prototype.insertAfter = function (atNode, nodeToInsert) {
         atNode.parentNode.insertBefore(nodeToInsert, nextSibling);
     } else {
         atNode.parentNode.appendChild(nodeToInsert);
-    }
-}
-
-BakaTsukiParser.prototype.splitContentOnHeadingTags = function (content, sourceUrl) {
-    let that = this;
-    let epubItems = [];
-    let elementsInItem = [];
-    for(let i = 0; i < content.childNodes.length; ++i) {
-        let node = that.wrapRawTextNode(content.childNodes[i]);
-        if (that.isChapterStart(node)) {
-            that.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
-            elementsInItem = [];
-        }
-        elementsInItem.push(node);
-    }
-    that.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
-    return epubItems;
-}
-
-// wrap any raw text in <p></p> tags
-BakaTsukiParser.prototype.wrapRawTextNode = function (node) {
-    if ((node.nodeType === Node.TEXT_NODE) && !util.isStringWhiteSpace(node.nodeValue)) {
-        let wrapper = node.ownerDocument.createElement("p");
-        wrapper.appendChild(node.ownerDocument.createTextNode(node.nodeValue));
-        return wrapper;
-    } else {
-        return node;
-    }
-}
-
-BakaTsukiParser.prototype.isChapterStart = function (node) {
-    return util.isHeaderTag(node);
-}
-
-BakaTsukiParser.prototype.appendToEpubItems = function(epubItems, elementsInItem, sourceUrl) {
-    let that = this;
-    that.removeTrailingWhiteSpace(elementsInItem);
-    if (0 < elementsInItem.length) {
-        let epubItem = new EpubItem(sourceUrl);
-        epubItem.elements = elementsInItem;
-        epubItems.push(epubItem);
-    }
-}
-
-BakaTsukiParser.prototype.removeTrailingWhiteSpace = function (elementsInItem) {
-    let i = elementsInItem.length - 1;
-    while ((0 <= i) && util.isElementWhiteSpace(elementsInItem[i])) {
-        elementsInItem.pop();
-        --i;
     }
 }
 
@@ -317,16 +314,6 @@ BakaTsukiParser.prototype.hasVisibleContent = function(elements) {
 
     // if get here, no visible content
     return false;
-}
-
-BakaTsukiParser.prototype.indexEpubItems = function(epubItems) {
-    // ToDo: when have image files, this will probably need to be redone.
-    let that = this;
-    let index = 0;
-    for(let epubItem of  epubItems) {
-        epubItem.setIndex(index);
-        ++index;
-    }
 }
 
 BakaTsukiParser.prototype.fixupInternalHyperLinks = function(epubItems) {

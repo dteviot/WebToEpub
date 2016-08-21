@@ -102,6 +102,18 @@ class Parser {
            util.removeNode(unwanted);
         };
     }
+
+    /**
+    * default implementation turns each chapter into single epub item
+    */
+    chapterToEpubItems(chapter, epubItemIndex) {
+        let content = this.convertRawDomToContent(chapter);
+        let items = [];
+        if (content != null) {
+            items.push(new ChapterEpubItem(chapter, content, epubItemIndex));
+        }
+        return items;
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -158,13 +170,11 @@ Parser.prototype.epubItemSupplier = function () {
 Parser.prototype.chaptersToEpubItems = function (chapters) {
     let that = this;
     let epubItems = [];
-    let index = -1;
+    let index = 0;
     for(let chapter of chapters.filter(c => that.isChapterPackable(c))) {
-        let content = that.convertRawDomToContent(chapter);
-        if (content != null) {
-            let epubItem = new ChapterEpubItem(chapter, content, ++index);
-            epubItems.push(epubItem);
-        }
+        let newItems = that.chapterToEpubItems(chapter, index);
+        epubItems = epubItems.concat(newItems);
+        index += newItems.length;
     }
     return epubItems;
 }

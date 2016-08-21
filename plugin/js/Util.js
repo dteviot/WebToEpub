@@ -326,6 +326,19 @@ var util = (function () {
         }
     }
 
+    /**
+    * wrap any raw text in <p></p> tags
+    */
+    var wrapRawTextNode = function (node) {
+        if ((node.nodeType === Node.TEXT_NODE) && !util.isStringWhiteSpace(node.nodeValue)) {
+            let wrapper = node.ownerDocument.createElement("p");
+            wrapper.appendChild(node.ownerDocument.createTextNode(node.nodeValue));
+            return wrapper;
+        } else {
+            return node;
+        }
+    }
+
     var isNullOrEmpty = function(s) {
         return ((s == null) || util.isStringWhiteSpace(s));
     }
@@ -374,7 +387,7 @@ var util = (function () {
     var hyperLinkToChapter = function(link, newArc) {
         return {
             sourceUrl:  link.href,
-            title: link.innerText,
+            title: link.innerText.trim(),
             newArc: newArc
         };
     }
@@ -525,6 +538,7 @@ var util = (function () {
         extractHashFromUri: extractHashFromUri,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
         isNullOrEmpty: isNullOrEmpty,
+        wrapRawTextNode: wrapRawTextNode,
         hyperlinksToChapterList: hyperlinksToChapterList,
         normalizeUrl: normalizeUrl,
         hyperLinkToChapter: hyperLinkToChapter,
