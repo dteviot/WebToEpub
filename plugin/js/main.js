@@ -124,8 +124,9 @@ var main = (function () {
         }
     }
 
-    function getActiveTabDOM() {
-        chrome.tabs.executeScript({ file: "js/ContentScript.js" },
+    function getActiveTabDOM(tabId) {
+        console.log("getActiveTabDOM(" + tabId + "), typeof =" + typeof (tabId));
+        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js" },
             function (result) {
                 if (chrome.runtime.lastError) {
                     util.log(chrome.runtime.lastError.message);
@@ -160,7 +161,7 @@ var main = (function () {
     function isRunningInTabMode() {
         // if query string supplied, we're running in Tab mode.
         let search = window.location.search;
-        return (search != null) && (search !== "");
+        return !util.isNullOrEmpty(search);
     }
 
     function populateControlsWithDom(url, dom) {
@@ -201,13 +202,26 @@ var main = (function () {
         userPreferences.readFromUi();
     }
 
-    function onOpenAsTabClick() {
-        // open new tab window, passing URL with content to convert to epub as query parameter.
-        let url = chrome.extension.getURL("popup.html");
-        url += "?url=";
-        url += encodeURIComponent(getValueFromUiField("startingUrlInput"));
-        window.open(url, "_blank");
-        window.close();
+    function openTabWindow() {
+        // open new tab window, passing ID of open tab with content to convert to epub as query parameter.
+        getActiveTab().then(function (tabId) {
+            let url = chrome.extension.getURL("popup.html") + "?id=";
+            url += tabId;
+            chrome.tabs.create({ url: url });
+            window.close();
+        });
+    }
+
+    function getActiveTab() {
+        return new Promise(function (resolve, reject) {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                if ((tabs != null) && (0 < tabs.length)) {
+                    resolve(tabs[0].id);
+                } else {
+                    reject();
+                };
+            });
+        });
     }
 
     function onLoadAndAnalyseButtonClick() {
@@ -226,13 +240,14 @@ var main = (function () {
     }
 
     function configureForTabMode() {
-        setUiFieldToValue("startingUrlInput", extractContentUrlFromQueryParameter());
-        onLoadAndAnalyseButtonClick();
+        getActiveTabDOM(extractTabIdFromQueryParameter());
     }
 
-    function extractContentUrlFromQueryParameter() {
-        let encodedUrl = window.location.search.split("=")[1];
-        return decodeURIComponent(encodedUrl);
+    function extractTabIdFromQueryParameter() {
+        let windowId = window.location.search.split("=")[1];
+        if (!util.isNullOrEmpty(windowId)) {
+            return parseInt(windowId, 10);
+        }
     }
 
     function getPackEpubButton() {
@@ -256,16 +271,20 @@ var main = (function () {
 
     // actions to do when window opened
     window.onload = function () {
-        // add onClick event handlers
-        getPackEpubButton().onclick = fetchContentAndPackEpub;
-        document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
-        document.getElementById("reloadButton").onclick = populateControls;
-        document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
-        document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
-        document.getElementById("openAsTabButton").onclick = onOpenAsTabClick;
-        document.getElementById("resetButton").onclick = resetUI;
-        getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
-        populateControls();
+        if (isRunningInTabMode()) {
+            // add onClick event handlers
+            getPackEpubButton().onclick = fetchContentAndPackEpub;
+            document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
+            document.getElementById("reloadButton").onclick = populateControls;
+            document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
+            document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
+            document.getElementById("openAsTabButton").onclick = openTabWindow;
+            document.getElementById("resetButton").onclick = resetUI;
+            getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+            populateControls();
+        } else {
+            openTabWindow();
+        }
     }
 
     return {
