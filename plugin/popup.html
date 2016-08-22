@@ -56,7 +56,6 @@
         <button id=packEpubButton>Pack EPUB</button>
         <progress id=fetchProgress value="0" max="1"></progress>
         <button id=advancedOptionsButton>Advanced Options</button>
-        <button id=openAsTabButton>Open As Tab (buggy!)</button>
         <section hidden id="advancedOptionsSection">
             <div class="scrollingtable">
                 <table id="advancedOptionsTable">
@@ -83,6 +82,10 @@
                     <tr id="higestResolutionImagesRow">
                         <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
                         <td>Fetch Highest Resolution Images</td>
+                    </tr>
+                    <tr id="alwaysOpenAsTabRow">
+                        <td><input id="alwaysOpenAsTabInput" type="checkbox" name="alwaysOpenAsTabInput" value="false"></td>
+                        <td>Always Open as Tab</td>
                     </tr>
                     <tr id="resetRow">
                         <td></td>

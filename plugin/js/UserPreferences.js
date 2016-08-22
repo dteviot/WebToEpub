@@ -9,6 +9,7 @@ class UserPreferences {
         this.removeDuplicateImages = false;
         this.includeImageSourceUrl = true;
         this.higestResolutionImages = true;
+        this.alwaysOpenAsTab = true;
         this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();
 
         this.observers = [];
@@ -19,6 +20,7 @@ class UserPreferences {
         newPreferences.readBooleanFromLocalStorage("removeDuplicateImages");
         newPreferences.readBooleanFromLocalStorage("includeImageSourceUrl");
         newPreferences.readBooleanFromLocalStorage("higestResolutionImages");
+        newPreferences.readBooleanFromLocalStorage("alwaysOpenAsTab");
         newPreferences.readStringFromLocalStorage("styleSheet");
         return newPreferences;
     }
@@ -28,6 +30,7 @@ class UserPreferences {
         that.writeFieldToLocalStorage("removeDuplicateImages");
         that.writeFieldToLocalStorage("includeImageSourceUrl");
         that.writeFieldToLocalStorage("higestResolutionImages");
+        that.writeFieldToLocalStorage("alwaysOpenAsTab");
         that.writeFieldToLocalStorage("styleSheet");
     }
 
@@ -72,6 +75,7 @@ class UserPreferences {
         that.removeDuplicateImages = that.getRemoveDuplicateImagesUiControl().checked;
         that.includeImageSourceUrl = that.getIncludeImageSourceUrlUiControl().checked;
         that.higestResolutionImages = that.getHigestResolutionImagesUiControl().checked;
+        that.alwaysOpenAsTab = that.getAlwaysOpenAsTabUiControl().checked;
         that.styleSheet = that.getStylesheetUiControl().value;
 
         that.writeToLocalStorage();
@@ -91,6 +95,7 @@ class UserPreferences {
         that.getRemoveDuplicateImagesUiControl().checked = that.removeDuplicateImages;
         that.getIncludeImageSourceUrlUiControl().checked = that.includeImageSourceUrl;
         that.getHigestResolutionImagesUiControl().checked = that.higestResolutionImages;
+        that.getAlwaysOpenAsTabUiControl().checked = that.alwaysOpenAsTab;
         that.getStylesheetUiControl().value = that.styleSheet;
     }
 
@@ -106,6 +111,10 @@ class UserPreferences {
         return document.getElementById("higestResolutionImagesCheckboxInput");
     }
 
+    getAlwaysOpenAsTabUiControl() {
+        return document.getElementById("alwaysOpenAsTabInput");
+    }
+
     getStylesheetUiControl() {
         return document.getElementById("stylesheetInput");
     }
@@ -115,6 +124,7 @@ class UserPreferences {
         that.getRemoveDuplicateImagesUiControl().onclick = () => that.readFromUi();
         that.getIncludeImageSourceUrlUiControl().onclick = () => that.readFromUi();
         that.getHigestResolutionImagesUiControl().onclick = () => that.readFromUi();
+        that.getAlwaysOpenAsTabUiControl().onclick = () => that.readFromUi();
         that.getStylesheetUiControl().addEventListener('blur', (e) => that.readFromUi(), true);
 
         that.notifyObserversOfChange();

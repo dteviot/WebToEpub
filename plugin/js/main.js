@@ -271,14 +271,14 @@ var main = (function () {
 
     // actions to do when window opened
     window.onload = function () {
-        if (isRunningInTabMode()) {
+        userPreferences = UserPreferences.readFromLocalStorage();
+        if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab) {
             // add onClick event handlers
             getPackEpubButton().onclick = fetchContentAndPackEpub;
             document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
             document.getElementById("reloadButton").onclick = populateControls;
             document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
             document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
-            document.getElementById("openAsTabButton").onclick = openTabWindow;
             document.getElementById("resetButton").onclick = resetUI;
             getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
             populateControls();
