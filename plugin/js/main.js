@@ -125,7 +125,6 @@ var main = (function () {
     }
 
     function getActiveTabDOM(tabId) {
-        console.log("getActiveTabDOM(" + tabId + "), typeof =" + typeof (tabId));
         chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js" },
             function (result) {
                 if (chrome.runtime.lastError) {
