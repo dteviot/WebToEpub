@@ -11,7 +11,6 @@ class HttpClient {
     // override to change default behaviour
     onError(url, statusText, event, reject) {
         var msg = "fetch of URL(" + url + ") failed.  Error: " + statusText;
-        alert(msg);
         reject(Error(msg));
     }
 

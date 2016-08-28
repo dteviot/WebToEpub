@@ -2,5 +2,9 @@
 	"noChaptersFound": {
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."
+	},
+	"unhandledFieldTypeError": {
+		"message": "ERROR: Unhandled field type.",
+		"description": "Internal message for developer."
 	}
 }

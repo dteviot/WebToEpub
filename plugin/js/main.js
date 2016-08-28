@@ -71,7 +71,7 @@ var main = (function () {
         if (util.isTextInputField(element) || util.isTextAreaField(element)) {
             element.value = (value == null) ? "" : value;
         } else {
-            alert("ERROR: Unhandled field type");
+            throw new Error(chrome.i18n.getMessage("unhandledFieldTypeError"));
         }
     }
 
@@ -100,8 +100,7 @@ var main = (function () {
         if (util.isTextInputField(element) || util.isTextAreaField(element)) {
             return (element.value === "") ? null : element.value;
         } else {
-            alert("ERROR: Unhandled field type");
-            return null;
+            throw new Error(chrome.i18n.getMessage("unhandledFieldTypeError"));
         }
     }
 
@@ -116,12 +115,8 @@ var main = (function () {
 
     function packEpub() {
         let metaInfo = metaInfoFromContorls();
-        try {
-            let epub = new EpubPacker(metaInfo);
-            epub.assembleAndSave(metaInfo.fileName, parser.epubItemSupplier());
-        } catch (error) {
-            alert("Error packing EPUB. Error: " + error.stack);
-        }
+        let epub = new EpubPacker(metaInfo);
+        epub.assembleAndSave(metaInfo.fileName, parser.epubItemSupplier());
     }
 
     function getActiveTabDOM(tabId) {
