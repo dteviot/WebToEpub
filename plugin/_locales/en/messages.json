@@ -3,6 +3,18 @@
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."
 	},
+	"noChaptersFoundAndFetchClicked": {
+		"message": "No chapters found.",
+		"description": "Warning message.  Developer has clicked 'Fetch Chapters' when there are none."
+	},
+	"noImagesFound": {
+		"message": "No images found.",
+		"description": "Warning message.  Developer has clicked 'Fetch Images' when there are none."
+	},
+	"noParserFound": {
+		"message": "No parser found for this URL.",
+		"description": "Warning message when can't figure out how to extract info from web page."
+	},
 	"unhandledFieldTypeError": {
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."

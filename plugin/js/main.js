@@ -43,7 +43,7 @@ var main = (function () {
                 parser.populateUI(dom);
                 parser.onLoadFirstPage(url, dom);
             } catch (error) {
-                alert("Error parsing HTML: " + error.stack);
+                showErrorMessage(error);
             }
         }
     }
@@ -109,7 +109,7 @@ var main = (function () {
         parser.fetchContent().then(function () {
             packEpub();
         }).catch(function (err) {
-            alert(err);
+            showErrorMessage(err);
         });
     }
 
@@ -170,7 +170,7 @@ var main = (function () {
     function setParser(url) {
         parser = parserFactory.fetch(url);
         if (parser === undefined) {
-            alert("No parser found for this URL.");
+            showErrorMessage(chrome.i18n.getMessage("noParserFound"));
             return false;
         }
         getLoadAndAnalyseButton().hidden = true;
@@ -227,9 +227,8 @@ var main = (function () {
             populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
-            // ToDo, implement error handler.
             getLoadAndAnalyseButton().disabled = false;
-            alert(error);
+            showErrorMessage(error);
         });
     }
 
@@ -305,6 +304,7 @@ var main = (function () {
             document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
             document.getElementById("resetButton").onclick = resetUI;
             getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+            window.showErrorMessage = showErrorMessage;
             populateControls();
         } else {
             openTabWindow();

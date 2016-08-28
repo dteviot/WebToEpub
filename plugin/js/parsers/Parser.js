@@ -241,14 +241,12 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
             that.getUnselectAllUrlsButton().onclick = ( e=> that.setAllUrlsSelectState(false));
         }
         that.chapters = chapters;
-    }).catch(function(error) {
-        alert(error)
     });
 }
 
 Parser.prototype.onFetchChaptersClicked = function () {
     if (0 == this.chapters.length) {
-        alert("No chapters found.");
+        showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
     } else {
         this.getFetchContentButton().disabled = true;
         this.fetchChapters();
@@ -330,7 +328,7 @@ Parser.prototype.packRawChapters = function() {
     zipFile.generateAsync({ type: "blob" }).then(function(content) {
         EpubPacker.save(content, "raw.zip");
     }).catch(function(error) {
-        alert(error);
+        showErrorMessage(error);
     });
 }
 

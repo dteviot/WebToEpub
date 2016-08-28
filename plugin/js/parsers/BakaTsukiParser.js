@@ -382,7 +382,7 @@ BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) {
 BakaTsukiParser.prototype.onFetchImagesClicked = function () {
     let that = this;
     if (0 == that.imageCollector.images.size) {
-        alert("No images found.");
+        showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
     } else {
         that.getFetchContentButton().disabled = true;
         that.fetchContent();
