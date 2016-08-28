@@ -237,48 +237,48 @@ QUnit.test("replaceImageTags", function (assert) {
            "<div>" +
              "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
-                    "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\"/>"+
+                    "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" width=\"200\" height=\"100\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
              "</div>"+
            "</div>"+
            "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 300\">" +
-                    "<image xlink:href=\"../Images/0001_BTS_vol_01_000b.png\" height=\"300\" width=\"400\"/>"+
+                    "<image xlink:href=\"../Images/0001_BTS_vol_01_000b.png\" width=\"400\" height=\"300\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000b.png</desc>"+
                 "</svg>"+
             "</div>"+
            "<div class=\"thumbinner\">T1</div>" +
            "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 200 100\">" +
-                    "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" height=\"100\" width=\"200\"/>"+
+                    "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" width=\"200\" height=\"100\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
             "</div>"+
             "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 20 10\">" +
-                    "<image xlink:href=\"../Images/0002_BTS_V01_Cover.jpg\" height=\"10\" width=\"20\"/>"+
+                    "<image xlink:href=\"../Images/0002_BTS_V01_Cover.jpg\" width=\"20\" height=\"10\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg</desc>"+
                 "</svg>"+
              "</div>"+
              "<div class=\"rating-section\">" +
              "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 2 1\">" +
-                    "<image xlink:href=\"../Images/0003_star_on.gif\" height=\"1\" width=\"2\"/>"+
+                    "<image xlink:href=\"../Images/0003_star_on.gif\" width=\"2\" height=\"1\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif</desc>"+
                 "</svg>"+
              "</div>"+
              "</div>" +
              "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 2 1\">" +
-                    "<image xlink:href=\"../Images/0003_star_on.gif\" height=\"1\" width=\"2\"/>"+
+                    "<image xlink:href=\"../Images/0003_star_on.gif\" width=\"2\" height=\"1\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif</desc>"+
                 "</svg>"+
              "</div>"+
              "<p></p>"+
              "<div class=\"svg_outer svg_inner\">"+
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 2 1\">" +
-                    "<image xlink:href=\"../Images/0003_star_on.gif\" height=\"1\" width=\"2\"/>"+
+                    "<image xlink:href=\"../Images/0003_star_on.gif\" width=\"2\" height=\"1\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif</desc>"+
                 "</svg>"+
              "</div>"+

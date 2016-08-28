@@ -49,8 +49,8 @@ var util = (function () {
         let newImage = doc.createElementNS(svg_ns,"image");
         svg.appendChild(newImage);
         newImage.setAttributeNS(xlink_ns, "xlink:href", util.makeRelative(href));
-        newImage.setAttributeNS(null, "height", height);
         newImage.setAttributeNS(null, "width", width);
+        newImage.setAttributeNS(null, "height", height);
         if (includeImageSourceUrl) {
             let desc = doc.createElementNS(svg_ns,"desc");
             svg.appendChild(desc);
