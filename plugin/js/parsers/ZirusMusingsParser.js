@@ -23,8 +23,10 @@ class ZirusMusingsParser extends Parser {
     }
 
     isChapterHref(link) {
-        return (link.hostname !== "ncode.syosetu.com") &&
-            (link.href != "https://wordpress.com/about-these-ads/");
+        let hostname = link.hostname;
+        return (hostname === "pirateyoshi.wordpress.com") ||
+            (hostname === "zirusmusings.com") ||
+            (hostname === "imgur.com");
     }
 
     getChapterArc(link) {
