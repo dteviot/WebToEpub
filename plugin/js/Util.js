@@ -481,6 +481,14 @@ var util = (function () {
            ((element.type === "text") || (element.type === "url"));
     }
 
+    /**
+    * @todo: replace with something better
+    *  for time being, just show to user.
+    */
+    var logError = function(error) {
+        window.showErrorMessage(error);
+    }
+
     // allow disabling loging from one place
     var log = function(arg) {
         // ToDo: uncomment this for debug logging
@@ -507,6 +515,7 @@ var util = (function () {
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
         log: log,
+        logError: logError,
         extractHostName: extractHostName,
         addToDocBody: addToDocBody,
         setBaseTag: setBaseTag,

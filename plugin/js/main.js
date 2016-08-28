@@ -16,6 +16,7 @@ var main = (function () {
     let initalWebPage = null;
     let parser = null;
     let userPreferences = null;
+    let errorMessageQueue = [];
 
     // register listener that is invoked when script injected into HTML sends its results
     try {
@@ -267,17 +268,39 @@ var main = (function () {
     }
 
     function showErrorMessage(msg) {
-        // hide all sections but "error"
-        // rembering their current state
+        // if already showing an error message, queue the new one to display
+        // when currently showing is closed.
+        errorMessageQueue = [msg].concat(errorMessageQueue);
+        if (1 < errorMessageQueue.length) {
+            return;
+        };
+
         let sectionNames = ["errorSection", "inputSection", "imageSection", "coverUrlSection", "outputSection"];
+        let sections = hideNonErrorSectionsSavingVisibility(sectionNames);
+        getErrorSection().hidden = false;
+
+        setErrorMessageText(msg);
+        document.getElementById("errorButtonOk").onclick = function () {
+            errorMessageQueue.pop();
+            if (errorMessageQueue.length === 0) {
+                restoreSectionVisibility(sections);
+            } else {
+                setErrorMessageText(errorMessageQueue[errorMessageQueue.length - 1]);
+            };
+        };
+    }
+
+    function hideNonErrorSectionsSavingVisibility(sectionNames) {
         let sections = new Map();
         for(let name of sectionNames) {
             let section = document.getElementById(name);
             sections.set(section, section.hidden);
             section.hidden = true;
-        }
-        getErrorSection().hidden = false;
+        };
+        return sections;
+    }
 
+    function setErrorMessageText(msg) {
         let textRow = document.getElementById("errorMessageText");
         if (typeof (msg) === "string") {
             textRow.innerText = msg ;
@@ -285,11 +308,12 @@ var main = (function () {
             // assume msg is some sort of error object
             textRow.innerText = msg.message + " " + msg.stack;
         }
-        document.getElementById("errorButtonOk").onclick = function () {
-            for(let [key,value] of sections) {
-                key.hidden = value;
-            }
-        }
+    }
+
+    function restoreSectionVisibility(sections) {
+        for(let [key,value] of sections) {
+            key.hidden = value;
+        };
     }
 
     // actions to do when window opened

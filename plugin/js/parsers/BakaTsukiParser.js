@@ -398,7 +398,7 @@ BakaTsukiParser.prototype.fetchContent = function () {
             main.getPackEpubButton().disabled = false;
             that.getFetchContentButton().disabled = false;
         }).catch(function (err) {
-            alert(err);
+            util.logError(err);
         });
 }
 

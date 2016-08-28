@@ -281,7 +281,7 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     }).catch(function(error) {
         // ToDo, implement error handler.
         that.imagesToPack.push(imageInfo);
-        alert(error);
+        util.logError(error);
     });
 }
 

@@ -298,7 +298,7 @@ Parser.prototype.fetchChapters = function() {
         that.getFetchContentButton().disabled = false;
         main.getPackEpubButton().disabled = false;
     }).catch(function (err) {
-        alert(err);
+        util.logError(err);
     })
     return sequence;
 }
