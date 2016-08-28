@@ -20,6 +20,18 @@
             height: 300px;
         }
     </style>
+    <section id="errorSection" hidden>
+        <table id="errorSectionTable">
+            <tr id="errorMessageRow">
+                <td id="errorMessageText" />
+            </tr>
+            <tr>
+                <td>
+                    <button id=errorButtonOk>OK</button>
+                </td>
+            </tr>
+        </table>
+    </section>
     <section id="inputSection">
         <table id="inputTable">
             <tr>
@@ -117,7 +129,7 @@
             <table id=imagesTable></table>
         </div>
     </section>
-    <section id="coverUrlSection">
+    <section id="coverUrlSection" hidden>
         <p>
             Cover Image URL: <input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
         </p>

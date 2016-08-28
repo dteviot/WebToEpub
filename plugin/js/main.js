@@ -263,6 +263,36 @@ var main = (function () {
         document.getElementById("fetchProgress").value = 0;
     }
 
+    function getErrorSection() {
+        return document.getElementById("errorSection");
+    }
+
+    function showErrorMessage(msg) {
+        // hide all sections but "error"
+        // rembering their current state
+        let sectionNames = ["errorSection", "inputSection", "imageSection", "coverUrlSection", "outputSection"];
+        let sections = new Map();
+        for(let name of sectionNames) {
+            let section = document.getElementById(name);
+            sections.set(section, section.hidden);
+            section.hidden = true;
+        }
+        getErrorSection().hidden = false;
+
+        let textRow = document.getElementById("errorMessageText");
+        if (typeof (msg) === "string") {
+            textRow.innerText = msg ;
+        } else {
+            // assume msg is some sort of error object
+            textRow.innerText = msg.message + " " + msg.stack;
+        }
+        document.getElementById("errorButtonOk").onclick = function () {
+            for(let [key,value] of sections) {
+                key.hidden = value;
+            }
+        }
+    }
+
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
