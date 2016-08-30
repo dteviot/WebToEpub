@@ -165,6 +165,15 @@ var util = (function () {
         };
     }
 
+    var removeUnwantedWordpressElements = function(element) {
+        let that = this;
+        let isUnwantedDiv = function(div) {
+            return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
+        };
+        util.removeElements(util.getElements(element, "div",  e => isUnwantedDiv(e)));
+        util.removeElements(util.getElements(element, "ul",  e => e.className === "post-categories"));
+    }
+
     var prepForConvertToXhtml = function(element) {
         this.replaceCenterTags(element);
         this.replaceUnderscoreTags(element);
@@ -527,6 +536,7 @@ var util = (function () {
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
         removeEventHandlers: removeEventHandlers,
+        removeUnwantedWordpressElements: removeUnwantedWordpressElements,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,

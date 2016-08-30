@@ -76,17 +76,13 @@ class ZirusMusingsParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
 
-        util.removeElements(that.getElements(element, "div", div => that.isUnwantedDiv(div)));
+        util.removeUnwantedWordpressElements(element);
 
         // remove the previous | TOC | Next hyperlinks
         let toc = that.findTocElement(element);
         if (toc !== null) {
             util.removeNode(toc.parentNode);
         };
-    }
-
-    isUnwantedDiv(div) {
-        return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
     }
 
     findTocElement(div) {
