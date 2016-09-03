@@ -19,6 +19,15 @@
             overflow: scroll;
             height: 300px;
         }
+
+        table.chapterList {
+            width: 100%;
+        }
+
+        input.fullWidth {
+            width:100%;
+            box-sizing:border-box;
+        }
     </style>
     <section id="errorSection" hidden>
         <table id="errorSectionTable">
@@ -138,7 +147,7 @@
         <div class="scrollingtable">
             <button id=selectAllUrlsButton>Select All</button>
             <button id=unselectAllUrlsButton>Unselect All</button>
-            <table id=chapterUrlsTable>
+            <table id=chapterUrlsTable class="chapterList">
                 <tr>
                     <th align=left>Include?</th>
                     <th align=left>Title</th>

@@ -219,6 +219,7 @@ Parser.prototype.appendInputTextToRow = function (row, chapter) {
     let input = document.createElement("input");
     input.type = "text";
     input.value = chapter.title;
+    input.className = "fullWidth";
     input.addEventListener('blur', function(e) { chapter.title = input.value; },  true);
     col.appendChild(input);
     row.appendChild(col);
