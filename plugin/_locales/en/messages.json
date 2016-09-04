@@ -1,4 +1,148 @@
 {
+	"__MSG_button_Advanced_Options__": {
+		"message": "Advanced Options",
+		"description": "Label on button to toggle showing 'Advanced Options'"
+	},
+	"__MSG_button_error_OK__": {
+		"message": "OK",
+		"description": "Label on 'OK' button when show error"
+	},
+	"__MSG_button_Fetch_Chapters__": {
+		"message": "Fetch Chapters",
+		"description": "Label on 'Fetch Chapters' button under 'Developer Stuff'"
+	},
+	"__MSG_button_Fetch_Images__": {
+		"message": "Fetch Images",
+		"description": "Label on 'Fetch Images' button under 'Developer Stuff'"
+	},
+	"__MSG_button_load_and_analyse__": {
+		"message": "Load and Analyse",
+		"description": "Label on button to try loading url given by 'Starting URL'"
+	},
+	"__MSG_button_Pack_EPUB__": {
+		"message": "Pack EPUB",
+		"description": "Label on button to create the EPUB"
+	},
+	"__MSG_button_Pack_Raw_Chapters__": {
+		"message": "Pack Raw Chapters",
+		"description": "Label on 'Pack Raw Chapters' button under 'Developer Stuff'"
+	},
+	"__MSG_button_Reset__": {
+		"message": "Reset",
+		"description": "Label on button that clears the dialog"
+	},
+	"__MSG_button_Reload__": {
+		"message": "Reload",
+		"description": "Label on 'Reload' button under 'Developer Stuff'"
+	},
+	"__MSG_button_Reset_stylesheet__": {
+		"message": "Reset stylesheet to default",
+		"description": "Label on button to remove all changes to stylesheet and set to default value"
+	},
+	"__MSG_button_Select_All__": {
+		"message": "Select All",
+		"description": "Label on button to set all chapters to selected"
+	},
+	"__MSG_button_Unselect_All__": {
+		"message": "Unselect All",
+		"description": "Label on button to unselect all chapters"
+	},
+	"__MSG_column_Include__": {
+		"message": "Include?",
+		"description": "The 'include this chapter' checkbox column in the table of chapters."
+	},
+	"__MSG_column_Loaded__": {
+		"message": "Loaded?",
+		"description": "The 'has chapter been loaded?' column in the table of chapters."
+	},
+	"__MSG_column_Title__": {
+		"message": "Title",
+		"description": "The 'name of chapter' column in the table of chapters."
+	},
+	"__MSG_column_URL__": {
+		"message": "URL",
+		"description": "The 'URL to get chapter frorm' column in the table of chapters."
+	},
+	"__MSG_label_Author__": {
+		"message": "Author",
+		"description": "Label in front input for novel's Author"
+	},
+	"__MSG_label_Cover_from_URL__": {
+		"message": "Cover from URL:",
+		"description": "Label for checkbox to toggle between picking cover image from list or with a URL"
+	},
+	"__MSG_label_Cover_Image_URL__": {
+		"message": "Cover Image URL:",
+		"description": "Label for input to give cover image as URL"
+	},
+	"__MSG_label_File_Author_as__": {
+		"message": "File Author as",
+		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
+	},
+	"__MSG_label_Filename__": {
+		"message": "Filename",
+		"description": "Label in front input for file to save EPUB as"
+	},
+	"__MSG_label_Always_Open_as_Tab__": {
+		"message": "Always Open as Tab",
+		"description": "Label for checkbox to get extension to open as popup or tab (in Advanced settings)."
+	},
+	"__MSG_label_Developer_Stuff__": {
+		"message": "Developer Stuff:",
+		"description": "Label for checkbox to show/hide buttons for developer testing (in Advanced settings)."
+	},
+	"__MSG_label_Fetch_Highest_Resolution_Images__": {
+		"message": "Fetch Highest Resolution Images",
+		"description": "Label for checkbox to get EPUB to include highest resolution images available (in Advanced settings)."
+	},
+	"__MSG_label_Include_URL_of_Images__": {
+		"message": "Include URL of Images",
+		"description": "Label for checkbox to record source URL of images into EPUB (in Advanced settings)."
+	},
+	"__MSG_label_Language__": {
+		"message": "Language",
+		"description": "Label in front input for language EPUB will be in"
+	},
+	"__MSG_label_Remove_Duplicate_Images__": {
+		"message": "Remove Duplicate Images:",
+		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
+	},
+	"__MSG_label_Series__": {
+		"message": "Series",
+		"description": "Label in front input for series Novel is part of"
+	},
+	"__MSG_label_Starting_URL__": {
+		"message": "Starting URL",
+		"description": "Label in front of 'URL' input"
+	},
+	"__MSG_label_Stylesheet__": {
+		"message": "Stylesheet:",
+		"description": "Label in front of edit field for setting the stylesheet (in Advanced settings)."
+	},
+	"__MSG_label_Title__": {
+		"message": "Title",
+		"description": "Label in front of input for Novel's title."
+	},
+	"__MSG_label_Translator__": {
+		"message": "Translator",
+		"description": "Label in front of input for Translator (in Advanced settings)."
+	},
+	"__MSG_label_Volume__": {
+		"message": "Volume",
+		"description": "Label in front of input for novel's position in series."
+	},
+	"defaultAuthor": {
+		"message": "No author supplied",
+		"description": "Default author value to use when one is not supplied"
+	},
+	"defaultTitle": {
+		"message": "No title supplied",
+		"description": "Default UUID value to use when one is not supplied"
+	},
+	"defaultUUID": {
+		"message": "No UUID supplied",
+		"description": "Default UUID value to use when one is not supplied"
+	},
 	"noChaptersFound": {
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."
@@ -11,9 +155,17 @@
 		"message": "No images found.",
 		"description": "Warning message.  Developer has clicked 'Fetch Images' when there are none."
 	},
+	"noImagesFoundLabel": {
+		"message": "No images found",
+		"description": "Text put in images table when no images are found."
+	},
 	"noParserFound": {
 		"message": "No parser found for this URL.",
 		"description": "Warning message when can't figure out how to extract info from web page."
+	},
+	"setCover": {
+		"message": "Set Cover",
+		"description": "Label for checkboxes used to select the cover image."
 	},
 	"unhandledFieldTypeError": {
 		"message": "ERROR: Unhandled field type.",

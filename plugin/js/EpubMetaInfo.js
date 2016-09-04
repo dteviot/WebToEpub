@@ -15,9 +15,14 @@
 */
 class EpubMetaInfo {
     constructor () {
+        // ToDo, fix this, currently fails unit tests on Firefox
+        // this.uuid = chrome.i18n.getMessage("defaultUUID");
+        // this.title = chrome.i18n.getMessage("defaultTitle");
+        // this.author = chrome.i18n.getMessage("defaultAuthor");
         this.uuid = "No UUID supplied";
         this.title = "No title supplied";
         this.author = "No author supplied";
+
         this.language = "en";
         this.fileName = "web.epub";
         this.seriesName = null;

@@ -313,10 +313,32 @@ var main = (function () {
         };
     }
 
+    function localize(element) {
+        let localized = chrome.i18n.getMessage(element.innerText);
+        if (!util.isNullOrEmpty(localized)) {
+            element.innerText = localized;
+        };
+    }
+
+    function localizeHtmlPage()
+    {
+        let isLocalizeable = function(e) { return e.innerText.startsWith("__MSG_"); };
+        for(let button of util.getElements(document, "button", b => isLocalizeable(b))) {
+            localize(button);
+        };
+        for(let label of util.getElements(document, "td", b => isLocalizeable(b))) {
+            localize(label);
+        };
+        for(let label of util.getElements(document, "th", b => isLocalizeable(b))) {
+            localize(label);
+    };
+    }
+
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
         if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab) {
+            localizeHtmlPage();
             // add onClick event handlers
             getPackEpubButton().onclick = fetchContentAndPackEpub;
             document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;

@@ -36,7 +36,7 @@
             </tr>
             <tr>
                 <td>
-                    <button id=errorButtonOk>OK</button>
+                    <button id=errorButtonOk>__MSG_button_error_OK__</button>
                 </td>
             </tr>
         </table>
@@ -44,82 +44,82 @@
     <section id="inputSection">
         <table id="inputTable">
             <tr>
-                <td>Starting URL</td>
+                <td>__MSG_label_Starting_URL__</td>
                 <td><input id="startingUrlInput" type="url" name="startingUrlInput" size="80" />
-                    <button id=loadAndAnalyseButton>Load and Analyse</button>
+                    <button id=loadAndAnalyseButton>__MSG_button_load_and_analyse__</button>
                 </td>
             </tr>
             <tr>
-                <td>Title</td>
+                <td>__MSG_label_Title__</td>
                 <td><input id="titleInput" type="text" name="titleInput" size="80" /></td>
             </tr>
             <tr id="seriesRow" hidden>
-                <td>Series</td>
+                <td>__MSG_label_Series__</td>
                 <td><input id="seriesNameInput" type="text" name="titleInput" size="80" /></td>
             </tr>
             <tr id="volumeRow" hidden>
-                <td>Volume</td>
+                <td>__MSG_label_Volume__</td>
                 <td><input id="seriesIndexInput" type="text" name="titleInput" size="80" /></td>
             </tr>
             <tr>
-                <td>Author</td>
+                <td>__MSG_label_Author__</td>
                 <td><input id="authorInput" type="text" name="authorInput" size="80" /></td>
             </tr>
             <tr>
-                <td>Language</td>
+                <td>__MSG_label_Language__</td>
                 <td><input id="languageInput" type="text" name="languageInput" size="80" /></td>
             </tr>
             <tr>
-                <td>Filename</td>
+                <td>__MSG_label_Filename__</td>
                 <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
             </tr>
         </table>
-        <button id=packEpubButton>Pack EPUB</button>
+        <button id=packEpubButton>__MSG_button_Pack_EPUB__</button>
         <progress id=fetchProgress value="0" max="1"></progress>
-        <button id=advancedOptionsButton>Advanced Options</button>
+        <button id=advancedOptionsButton>__MSG_button_Advanced_Options__</button>
         <section hidden id="advancedOptionsSection">
             <div class="scrollingtable">
                 <table id="advancedOptionsTable">
                     <tr id="translatorRow" hidden>
-                        <td>Translator</td>
+                        <td>__MSG_label_Translator__</td>
                         <td><input id="translatorInput" type="text" name="translatorInput" size="80" /></td>
                     </tr>
                     <tr id="fileAuthorAsRow" hidden>
-                        <td>File Author as</td>
+                        <td>__MSG_label_File_Author_as__</td>
                         <td><input id="fileAuthorAsInput" type="text" name="fileAuthorAsInput" size="80"></td>
                     </tr>
                     <tr id="styleSheetRow">
-                        <td>Stylesheet:</td>
+                        <td>__MSG_label_Stylesheet__</td>
                         <td><textarea id="stylesheetInput" rows="6" cols="70"></textarea></td>
                     </tr>
                     <tr id="stylesheetToDefaultRow">
                         <td></td>
-                        <td><button id=stylesheetToDefaultButton>Reset stylesheet to default</button></td>
+                        <td><button id=stylesheetToDefaultButton>__MSG_button_Reset_stylesheet__</button></td>
                     </tr>
                     <tr id="includeImageSourceUrlRow">
                         <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="true"></td>
-                        <td>Include URL of Images</td>
+                        <td>__MSG_label_Include_URL_of_Images__</td>
                     </tr>
                     <tr id="higestResolutionImagesRow" hidden>
                         <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
-                        <td>Fetch Highest Resolution Images</td>
+                        <td>__MSG_label_Fetch_Highest_Resolution_Images__</td>
                     </tr>
                     <tr id="alwaysOpenAsTabRow">
                         <td><input id="alwaysOpenAsTabInput" type="checkbox" name="alwaysOpenAsTabInput" value="false"></td>
-                        <td>Always Open as Tab</td>
+                        <td>__MSG_label_Always_Open_as_Tab__</td>
                     </tr>
                     <tr id="resetRow">
                         <td></td>
-                        <td><button id=resetButton>Reset</button></td>
+                        <td><button id=resetButton>__MSG_button_Reset__</button></td>
                     </tr>
                     <tr id="developerStuffRow">
-                        <td>Developer Stuff:</td>
+                        <td>__MSG_label_Developer_Stuff__</td>
                         <td>
                             <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
-                            <button id=reloadButton hidden>Reload</button>
-                            <button id=packRawButton hidden>Pack Raw Chapters</button>
-                            <button id=fetchChaptersButton hidden>Fetch Chapters</button>
-                            <button id=fetchImagesButton hidden>Fetch Images</button>
+                            <button id=reloadButton hidden>__MSG_button_Reload__</button>
+                            <button id=packRawButton hidden>__MSG_button_Pack_Raw_Chapters__</button>
+                            <button id=fetchChaptersButton hidden>__MSG_button_Fetch_Chapters__</button>
+                            <button id=fetchImagesButton hidden>__MSG_button_Fetch_Images__</button>
                         </td>
                     </tr>
                 </table>
@@ -128,31 +128,38 @@
     </section>
     <section id="testSection"></section>
     <section hidden id="imageSection">
-        <p>
-            Remove Duplicate Images: <input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false">
-        </p>
-        <p>
-            Cover from URL: <input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false">
-        </p>
+        <table id="imageOptionsTable">
+            <tr id="duplicateImagesRow">
+                <td>__MSG_label_Remove_Duplicate_Images__</td>
+                <td><input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false"></td>
+            </tr>
+            <tr id="coverFromUrlRow">
+                <td>__MSG_label_Cover_from_URL__</td>
+                <td><input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false"></td>
+            </tr>
+        </table>
         <div id="imagesTableDiv" class="scrollingtable">
             <table id=imagesTable></table>
         </div>
     </section>
     <section id="coverUrlSection" hidden>
-        <p>
-            Cover Image URL: <input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
-        </p>
+        <table id="imageOptionsTable">
+            <tr id="CoverImageUrlRow">
+                <td>__MSG_label_Cover_Image_URL__</td>
+                <td><input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70"></td>
+            </tr>
+        </table>
     </section>
     <section id="outputSection">
         <div class="scrollingtable">
-            <button id=selectAllUrlsButton>Select All</button>
-            <button id=unselectAllUrlsButton>Unselect All</button>
+            <button id=selectAllUrlsButton>__MSG_button_Select_All__</button>
+            <button id=unselectAllUrlsButton>__MSG_button_Unselect_All__</button>
             <table id=chapterUrlsTable class="chapterList">
                 <tr>
-                    <th align=left>Include?</th>
-                    <th align=left>Title</th>
-                    <th align=left>Loaded?</th>
-                    <th align=left>URL</th>
+                    <th align=left>__MSG_column_Include__</th>
+                    <th align=left>__MSG_column_Title__</th>
+                    <th align=left>__MSG_column_Loaded__</th>
+                    <th align=left>__MSG_column_URL__</th>
                 </tr>
             </table>
         </div>

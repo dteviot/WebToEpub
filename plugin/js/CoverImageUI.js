@@ -40,7 +40,7 @@ class CoverImageUI {
         let imagesTable = CoverImageUI.getImageTableElement();
         let checkBoxIndex = 0;
         if (0 === images.length) {
-            imagesTable.parentElement.appendChild(document.createTextNode("No images found"));
+            imagesTable.parentElement.appendChild(document.createTextNode(chrome.i18n.getMessage("noImagesFoundLabel")));
         }
         else {
             images.forEach(function (imageInfo) {
@@ -72,7 +72,7 @@ class CoverImageUI {
         checkbox.id = "setCoverCheckBox" + checkBoxIndex;
         checkbox.onclick = function() { CoverImageUI.onImageClicked(checkbox.id, sourceUrl); };
         label.appendChild(checkbox);
-        label.appendChild(document.createTextNode("Set Cover"));
+        label.appendChild(document.createTextNode(chrome.i18n.getMessage("setCover")));
 
         // default to first image as cover image
         if (checkBoxIndex === 0) {
