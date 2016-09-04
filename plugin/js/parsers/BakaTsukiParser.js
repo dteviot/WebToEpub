@@ -10,6 +10,7 @@ parserFactory.register("www.baka-tsuki.org", function() {
 class BakaTsukiImageCollector extends ImageCollector {
     constructor() {
         super();
+        this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
     }
 
     onUserPreferencesUpdate(userPreferences) {
@@ -18,7 +19,7 @@ class BakaTsukiImageCollector extends ImageCollector {
             this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
         } else {
             this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
-        }
+        };
     }
 
     getHighestResImageUrlFromImagePage(dom) {
@@ -39,6 +40,8 @@ class BakaTsukiImageCollector extends ImageCollector {
         }
     }
 }
+
+//==============================================================
 
 class BakaTsukiParser extends Parser{
     constructor(imageCollector) {
@@ -160,6 +163,7 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
 
 BakaTsukiParser.prototype.populateUI = function (dom) {
     let that = this;
+    document.getElementById("higestResolutionImagesRow").hidden = false; 
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
     document.getElementById("translatorRow").hidden = false;

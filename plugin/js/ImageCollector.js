@@ -250,7 +250,7 @@ class ImageCollector {
 
     fetchImage(imageInfo, progressIndicator) {
         let that = this;
-        return HttpClient.wrapFetch(imageInfo.wrappingUrl).then(function (xhr) {
+        return HttpClient.wrapFetch(that.initialUrlToTry(imageInfo)).then(function (xhr) {
             return that.findImageFileUrl(xhr, imageInfo);
         }).then(function (xhr) {
             imageInfo.mediaType = xhr.contentType;
@@ -287,6 +287,30 @@ class ImageCollector {
 
     imagesToPackInEpub() {
         return this.imagesToPack;
+    }
+
+    /*
+    *  Hook point to allow picking between high and low res images.
+    */
+    initialUrlToTry(imageInfo) {
+        return imageInfo.wrappingUrl;
+    }
+}
+
+//==============================================================
+
+class VariableSizeImageCollector extends ImageCollector {
+    constructor() {
+        super();
+    }
+
+    onUserPreferencesUpdate(userPreferences) {
+        super.onUserPreferencesUpdate(userPreferences);
+        if (userPreferences.higestResolutionImages) {
+            this.initialUrlToTry = (imageInfo) => imageInfo.wrappingUrl;
+        } else {
+            this.initialUrlToTry = (imageInfo) => imageInfo.sourceUrl;
+        };
     }
 }
 

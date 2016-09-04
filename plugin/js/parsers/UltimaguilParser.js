@@ -3,11 +3,11 @@
 */
 "use strict";
 
-parserFactory.register("ultimaguil.org", function() { return new UltimaguilParser() });
+parserFactory.register("ultimaguil.org", function() { return new UltimaguilParser(new VariableSizeImageCollector()) });
 
 class UltimaguilParser extends Parser {
-    constructor() {
-        super();
+    constructor(imageCollector) {
+        super(imageCollector);
     }
 
     getChapterUrls(dom) {
@@ -37,6 +37,7 @@ class UltimaguilParser extends Parser {
 
     populateUI(dom) {
         super.populateUI(dom);
+        document.getElementById("higestResolutionImagesRow").hidden = false; 
         CoverImageUI.showCoverImageUrlInput(true);
     }
 
