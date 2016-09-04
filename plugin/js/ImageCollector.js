@@ -154,135 +154,140 @@ class ImageCollector {
     selectImageUrlFromHtmlImagesPage(html) {
         return null;
     }
-}
 
-// get URL of page that holds all copies of this image
-ImageCollector.prototype.extractWrappingUrl = function (element) {
-    if (element.tagName.toLowerCase() === "img") {
-        return element.src;
-    }
-    return (element.tagName.toLowerCase() === "a") ? element.href : element.getElementsByTagName("a")[0].href;
-}
 
-// get src value of <img> element
-ImageCollector.prototype.extractImageSrc = function (element) {
-    return (element.tagName.toLowerCase() === "img") ?  element.src : element.getElementsByTagName("img")[0].src;
-}
-
-ImageCollector.prototype.makeImageTagReplacer = function (element) {
-    let that = this;
-    let wrappingElement = that.findImageWrappingElement(element);
-    let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-    return new ImageTagReplacer(wrappingElement, wrappingUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
-}
-
-ImageCollector.prototype.findImageWrappingElement = function (element) {
-    let that = this;
-
-    // find "highest" element that is wrapping an image element
-    let parent = element.parentElement;
-    if ((parent === null) || (parent.tagName.toLowerCase() !== "a")) {
-        // image not wrapped in hyperlink, so just return the image itself
-        return element;
-    }
-    while (parent != null) {
-        if (that.isImageWrapperElement(parent)) {
-            return parent;
+    // get URL of page that holds all copies of this image
+    extractWrappingUrl(element) {
+        if (element.tagName.toLowerCase() === "img") {
+            return element.src;
         }
-        parent = parent.parentElement;
+        return (element.tagName.toLowerCase() === "a") ? element.href : element.getElementsByTagName("a")[0].href;
     }
 
-    // assume all images are wrapped in at least a href
-    return element.parentElement;
-}
+    // get src value of <img> element
+    extractImageSrc(element) {
+        return (element.tagName.toLowerCase() === "img") ?  element.src : element.getElementsByTagName("img")[0].src;
+    }
 
-ImageCollector.prototype.isImageWrapperElement = function (element) {
-    return ((element.tagName.toLowerCase() === "div") &&
-        ((element.className === "thumb tright") || (element.className === "floatright") ||
-        (element.className === "thumb") || (element.className === "floatleft")));
-}
-
-ImageCollector.prototype.findImagesUsedInDocument = function (content) {
-    let that = this;
-    for(let currentNode of util.getElements(content, "img")) {
-        let src = currentNode.src;
-        let wrappingElement = that.findImageWrappingElement(currentNode);
+    makeImageTagReplacer(element) {
+        let that = this;
+        let wrappingElement = that.findImageWrappingElement(element);
         let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-        let existing = that.imageInfoByUrl(wrappingUrl);
-        if(existing == null){
-            that.addImageInfo(wrappingUrl, src, false);
-        } else {
-            existing.isOutsideGallery = true;
-        };
-    };
-}
-
-/**  Update image tags, point to image file in epub
-* @param {element} element containing <img> tags to update
-*/
-ImageCollector.prototype.replaceImageTags = function (element) {
-    let that = this;
-    let converters = [];
-    for(let currentNode of util.getElements(element, "img")) {
-        converters.push(that.makeImageTagReplacer(currentNode));
-    };
-    converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
-}
-
-ImageCollector.prototype.getImageDimensions = function(imageInfo) {
-    return new Promise(function(resolve, reject){
-        let img = new Image();
-        img.onload = function() {
-            imageInfo.height = img.height;
-            imageInfo.width = img.width;
-            resolve();
-        }
-        img.onerror = function(){
-            // If the image gives an error then set a general height and width
-            imageInfo.height = 1200;
-            imageInfo.width = 1600;
-            resolve();
-        }
-        // start downloading image after event handlers are set
-        img.src = imageInfo.sourceUrl;
-    });
-}
-
-ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
-    let that = this;
-    return HttpClient.wrapFetch(imageInfo.wrappingUrl).then(function (xhr) {
-        imageInfo.sourceUrl = that.findImageFileUrl(xhr, imageInfo);
-        return that.getImageDimensions(imageInfo);
-    }).then(function () {
-        return HttpClient.wrapFetch(imageInfo.sourceUrl);
-    }).then(function (xhr) {
-        imageInfo.mediaType = xhr.contentType;
-        imageInfo.arraybuffer = xhr.arrayBuffer;
-        progressIndicator();
-        that.addToPackList(imageInfo)
-    }).catch(function(error) {
-        // ToDo, implement error handler.
-        that.imagesToPack.push(imageInfo);
-        util.logError(error);
-    });
-}
-
-ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
-    let that = this;
-    // with Baka-Tsuki, the link wrapping the image will return an HTML
-    // page with a set of images.  We need to pick the desired image
-    if (xhr.isHtml()) {
-        // find URL of wanted image file on html page
-        let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
-        return (temp == null) ? imageInfo.sourceUrl : temp;
-    } else {
-        // page wasn't HTML, so assume is actual image
-        return imageInfo.wrappingUrl;
+        return new ImageTagReplacer(wrappingElement, wrappingUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
     }
-}
 
-ImageCollector.prototype.imagesToPackInEpub = function() {
-    return this.imagesToPack;
+    findImageWrappingElement(element) {
+        let that = this;
+
+        // find "highest" element that is wrapping an image element
+        let parent = element.parentElement;
+        if ((parent === null) || (parent.tagName.toLowerCase() !== "a")) {
+            // image not wrapped in hyperlink, so just return the image itself
+            return element;
+        }
+        while (parent != null) {
+            if (that.isImageWrapperElement(parent)) {
+                return parent;
+            }
+            parent = parent.parentElement;
+        }
+
+        // assume all images are wrapped in at least a href
+        return element.parentElement;
+    }
+
+    isImageWrapperElement(element) {
+        return ((element.tagName.toLowerCase() === "div") &&
+            ((element.className === "thumb tright") || (element.className === "floatright") ||
+            (element.className === "thumb") || (element.className === "floatleft")));
+    }
+
+    findImagesUsedInDocument(content) {
+        let that = this;
+        for(let currentNode of util.getElements(content, "img")) {
+            let src = currentNode.src;
+            let wrappingElement = that.findImageWrappingElement(currentNode);
+            let wrappingUrl = that.extractWrappingUrl(wrappingElement);
+            let existing = that.imageInfoByUrl(wrappingUrl);
+            if(existing == null){
+                that.addImageInfo(wrappingUrl, src, false);
+            } else {
+                existing.isOutsideGallery = true;
+            };
+        };
+    }
+
+    /**  Update image tags, point to image file in epub
+    * @param {element} element containing <img> tags to update
+    */
+    replaceImageTags(element) {
+        let that = this;
+        let converters = [];
+        for(let currentNode of util.getElements(element, "img")) {
+            converters.push(that.makeImageTagReplacer(currentNode));
+        };
+        converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
+    }
+
+    getImageDimensions(imageInfo) {
+        return new Promise(function(resolve, reject){
+            let img = new Image();
+            img.onload = function() {
+                imageInfo.height = img.height;
+                imageInfo.width = img.width;
+                resolve();
+            }
+            img.onerror = function(){
+                // If the image gives an error then set a general height and width
+                imageInfo.height = 1200;
+                imageInfo.width = 1600;
+                resolve();
+            }
+            // start downloading image after event handlers are set
+            img.src = imageInfo.sourceUrl;
+        });
+    }
+
+    fetchImage(imageInfo, progressIndicator) {
+        let that = this;
+        return HttpClient.wrapFetch(imageInfo.wrappingUrl).then(function (xhr) {
+            return that.findImageFileUrl(xhr, imageInfo);
+        }).then(function (xhr) {
+            imageInfo.mediaType = xhr.contentType;
+            imageInfo.arraybuffer = xhr.arrayBuffer;
+            return that.getImageDimensions(imageInfo);
+        }).then(function () {
+            progressIndicator();
+            that.addToPackList(imageInfo)
+        }).catch(function(error) {
+            // ToDo, implement error handler.
+            that.imagesToPack.push(imageInfo);
+            util.logError(error);
+        });
+    }
+
+    findImageFileUrl(xhr, imageInfo) {
+        let that = this;
+        // with Baka-Tsuki, the link wrapping the image will return an HTML
+        // page with a set of images.  We need to pick the desired image
+        if (xhr.isHtml()) {
+            // find URL of wanted image file on html page
+            // if we can't find one, just use the original image.
+            let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
+            if (temp != null) {
+                imageInfo.sourceUrl = temp;
+            }
+            return HttpClient.wrapFetch(imageInfo.sourceUrl);
+        } else {
+            // page wasn't HTML, so assume is actual image
+            imageInfo.sourceUrl = xhr.response.url;
+            return Promise.resolve(xhr);
+        }
+    }
+
+    imagesToPackInEpub() {
+        return this.imagesToPack;
+    }
 }
 
 //==============================================================
