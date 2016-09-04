@@ -267,15 +267,14 @@ ImageCollector.prototype.getImageDimensions = function(imageInfo) {
 
 ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
     let that = this;
-    let client = new HttpClient();
-    return client.fetchHtml(imageInfo.wrappingUrl).then(function (xhr) {
+    return HttpClient.wrapFetch(imageInfo.wrappingUrl).then(function (xhr) {
         imageInfo.sourceUrl = that.findImageFileUrl(xhr, imageInfo);
         return that.getImageDimensions(imageInfo);
     }).then(function () {
-        return client.fetchBinary(imageInfo.sourceUrl);
+        return HttpClient.wrapFetch(imageInfo.sourceUrl);
     }).then(function (xhr) {
-        imageInfo.mediaType = xhr.getResponseHeader("Content-Type");
-        imageInfo.arraybuffer = xhr.response;
+        imageInfo.mediaType = xhr.contentType;
+        imageInfo.arraybuffer = xhr.arrayBuffer;
         progressIndicator();
         that.addToPackList(imageInfo)
     }).catch(function(error) {
@@ -287,8 +286,7 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
 
 ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
     let that = this;
-    let contentType = xhr.getResponseHeader("Content-Type");
-    if (contentType.startsWith("text/html")) {
+    if (xhr.isHtml()) {
         // find URL of wanted image file on html page
         let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
         return (temp == null) ? imageInfo.sourceUrl : temp;

@@ -267,7 +267,6 @@ Parser.prototype.setUiToShowLoadingProgress = function(length) {
 
 Parser.prototype.fetchChapters = function() {
     let that = this;
-    let client = new HttpClient();
 
     let pagesToFetch = that.chapters.filter(c => c.isIncludeable);
     if (pagesToFetch.length === 0) {
@@ -276,9 +275,6 @@ Parser.prototype.fetchChapters = function() {
 
     this.setUiToShowLoadingProgress(pagesToFetch.length);
 
-    // for testing, uncomment the following line
-    // that.FakeNetworkActivity(client);
-
     var sequence = Promise.resolve();
 
     that.imageCollector.reset();
@@ -286,7 +282,7 @@ Parser.prototype.fetchChapters = function() {
 
     pagesToFetch.forEach(function(chapter) {
         sequence = sequence.then(function () {
-            return client.fetchHtml(chapter.sourceUrl);
+            return HttpClient.wrapFetch(chapter.sourceUrl);
         }).then(function (xhr) {
             chapter.rawDom = xhr.responseXML;
             that.updateLoadState(chapter);
@@ -331,15 +327,6 @@ Parser.prototype.packRawChapters = function() {
     }).catch(function(error) {
         showErrorMessage(error);
     });
-}
-
-Parser.prototype.FakeNetworkActivity = function(client) {
-    client.sendRequest = function (xhr) { xhr.onload.call() };
-    client.oldOnLoadHtml = client.onLoadHtml;
-    client.onLoadHtml = function (url, xhr, event, onHtlmReceived, resolve, reject) {
-        xhr = testFunctions.fakeArchiveOfOurOwnXmlHttpResponse();
-        client.oldOnLoadHtml(url, xhr, event, onHtlmReceived, resolve, reject);
-    };
 }
 
 Parser.prototype.extractLanguage = function(dom) {

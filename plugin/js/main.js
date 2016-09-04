@@ -223,8 +223,7 @@ var main = (function () {
         // load page via XmlHTTPRequest
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
-        let client = new HttpClient();
-        return client.fetchHtml(url).then(function (xhr) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
             populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
