@@ -15,7 +15,6 @@ class ImageCollector {
         this.removeDuplicateImages = false;
         this.reset();
         this.includeImageSourceUrl = true;
-        this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
     }
 
     // An "image collector" with no images
@@ -86,11 +85,6 @@ class ImageCollector {
     onUserPreferencesUpdate(userPreferences) {
         this.removeDuplicateImages = userPreferences.removeDuplicateImages;
         this.includeImageSourceUrl = userPreferences.includeImageSourceUrl;
-        if (userPreferences.higestResolutionImages) {
-            this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
-        } else {
-            this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
-        }
     }
 
     numberOfImagesToFetch() {
@@ -152,6 +146,13 @@ class ImageCollector {
     static toHex(i) {
         let s = '00000000' + i.toString(16);
         return s.substring(s.length - 8);
+    }
+
+    /*
+    *  Hook point for Baka-Tsuki to select image to fetch
+    */
+    selectImageUrlFromHtmlImagesPage(html) {
+        return null;
     }
 }
 
@@ -228,24 +229,6 @@ ImageCollector.prototype.replaceImageTags = function (element) {
     converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
 }
 
-ImageCollector.prototype.getImageUrlFromImagePage = function(dom, className) {
-    let div = util.getElement(dom, "div", e => (e.className === className));
-    if (div === null) {
-        return null;
-    } else {
-        let link = util.getElement(div, "a");
-        return (link === null) ? null : link.href;
-    }
-}
-
-ImageCollector.prototype.getHighestResImageUrlFromImagePage = function(dom) {
-    return this.getImageUrlFromImagePage(dom, "fullMedia");
-}
-
-ImageCollector.prototype.getReducedResImageUrlFromImagePage = function(dom) {
-    return this.getImageUrlFromImagePage(dom, "fullImageLink");
-}
-
 ImageCollector.prototype.getImageDimensions = function(imageInfo) {
     return new Promise(function(resolve, reject){
         let img = new Image();
@@ -286,6 +269,8 @@ ImageCollector.prototype.fetchImage = function(imageInfo, progressIndicator) {
 
 ImageCollector.prototype.findImageFileUrl = function(xhr, imageInfo) {
     let that = this;
+    // with Baka-Tsuki, the link wrapping the image will return an HTML
+    // page with a set of images.  We need to pick the desired image
     if (xhr.isHtml()) {
         // find URL of wanted image file on html page
         let temp = that.selectImageUrlFromImagePage(xhr.responseXML);

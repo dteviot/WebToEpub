@@ -7,36 +7,35 @@
 // class SonakoImageCollector  (derives from ImageCollector)
 //-----------------------------------------------------------------------------
 
-class SonakoImageCollector extends ImageCollector {
+class SonakoImageCollector extends BakaTsukiImageCollector {
     constructor() {
         super();
     }
-}
 
-//  Assume all images can be found on a web page with URL
-//  http://sonako.wikia.com/wiki/File:{data-image-name}
-//  where {data-image-name} is data-image-name element of the img tag.
-//
-SonakoImageCollector.prototype.extractWrappingUrl = function (element) {
-    let tagName = element.tagName.toLowerCase();
-    if (tagName === "a") {
-        return element.href;
+    //  Assume all images can be found on a web page with URL
+    //  http://sonako.wikia.com/wiki/File:{data-image-name}
+    //  where {data-image-name} is data-image-name element of the img tag.
+    //
+    extractWrappingUrl(element) {
+        let tagName = element.tagName.toLowerCase();
+        if (tagName === "a") {
+            return element.href;
+        }
+        let link = util.getElement(element, "a");
+        if (link !== null) {
+            return link.href;
+        };
+        let img = (tagName === "img") ? element : util.getElement(element, "img");
+        let dataImageName = img.getAttribute("data-image-name");
+
+        // ToDo, use utilresolveRelativeUrl() rather than string concatanation
+        return (dataImageName === null) ? img.src : "http://sonako.wikia.com/wiki/File:" + dataImageName;
     }
-    let link = util.getElement(element, "a");
-    if (link !== null) {
-        return link.href;
-    };
-    let img = (tagName === "img") ? element : util.getElement(element, "img");
-    let dataImageName = img.getAttribute("data-image-name");
 
-    // ToDo, use utilresolveRelativeUrl() rather than string concatanation
-    return (dataImageName === null) ? img.src : "http://sonako.wikia.com/wiki/File:" + dataImageName;
+    isImageWrapperElement(element) {
+        return (element.tagName === "FIGURE") ||  super.isImageWrapperElement(element);
+    }
 }
-
-SonakoImageCollector.prototype.isImageWrapperElement = function (element) {
-    return (element.tagName === "FIGURE") ||  ImageCollector.prototype.isImageWrapperElement(element);
-}
-
 
 //-----------------------------------------------------------------------------
 // class SonakoParser

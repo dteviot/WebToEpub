@@ -4,8 +4,41 @@
 "use strict";
 
 parserFactory.register("www.baka-tsuki.org", function() { 
-    return new BakaTsukiParser(new ImageCollector()) 
+    return new BakaTsukiParser(new BakaTsukiImageCollector()) 
 });
+
+class BakaTsukiImageCollector extends ImageCollector {
+    constructor() {
+        super();
+    }
+
+    onUserPreferencesUpdate(userPreferences) {
+        super.onUserPreferencesUpdate(userPreferences);
+        if (userPreferences.higestResolutionImages) {
+            this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
+        } else {
+            this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
+        }
+    }
+
+    getHighestResImageUrlFromImagePage(dom) {
+        return this.getImageUrlFromImagePage(dom, "fullMedia");
+    }
+
+    getReducedResImageUrlFromImagePage(dom) {
+        return this.getImageUrlFromImagePage(dom, "fullImageLink");
+    }
+
+    getImageUrlFromImagePage(dom, className) {
+        let div = util.getElement(dom, "div", e => (e.className === className));
+        if (div === null) {
+            return null;
+        } else {
+            let link = util.getElement(div, "a");
+            return (link === null) ? null : link.href;
+        }
+    }
+}
 
 class BakaTsukiParser extends Parser{
     constructor(imageCollector) {
