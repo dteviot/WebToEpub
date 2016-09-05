@@ -22,16 +22,18 @@ class BakaTsukiImageCollector extends ImageCollector {
         };
     }
 
-    getHighestResImageUrlFromImagePage(dom) {
-        return this.getImageUrlFromImagePage(dom, "fullMedia");
-    }
-
     getReducedResImageUrlFromImagePage(dom) {
-        return this.getImageUrlFromImagePage(dom, "fullImageLink");
+        let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
+        if (div === null) {
+            return null;
+        } else {
+            let img = util.getElement(div, "img");
+            return (img === null) ? null : util.resolveRelativeUrl(dom.baseURI, img.src);
+        }
     }
 
-    getImageUrlFromImagePage(dom, className) {
-        let div = util.getElement(dom, "div", e => (e.className === className));
+    getHighestResImageUrlFromImagePage(dom) {
+        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
         if (div === null) {
             return null;
         } else {
