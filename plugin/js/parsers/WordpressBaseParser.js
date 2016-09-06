@@ -6,6 +6,7 @@
 parserFactory.register("shalvationtranslations.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("frostfire10.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("isekaicyborg.wordpress.com", function() { return new WordpressBaseParser() });
+parserFactory.register("moonbunnycafe.com", function() { return new WordpressBaseParser() });
 
 class WordpressBaseParser extends Parser {
     constructor() {
