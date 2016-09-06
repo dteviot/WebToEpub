@@ -20,14 +20,6 @@ class HellpingParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    extractTitle(dom) {
-        return "<unknown>";
-    }
-
-    extractAuthor(dom) {
-        return "<unknown>";
-    }
-
     findContent(dom) {
         return util.getElement(dom, "div", e => e.className === "page-body");
     }

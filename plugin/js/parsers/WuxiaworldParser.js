@@ -44,10 +44,6 @@ class WuxiaworldParser extends Parser {
         return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:locale")).getAttribute("content");
     };
 
-    extractAuthor(dom) {
-        return "<unknown>";
-    }
-
     // find the node(s) holding the story content
     findContent(dom) {
         let that = this;

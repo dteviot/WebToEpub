@@ -20,14 +20,6 @@ class WordpressBaseParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    extractTitle(dom) {
-        return "<unknown>";
-    }
-
-    extractAuthor(dom) {
-        return "<unknown>";
-    }
-
     // find the node(s) holding the story content
     findContent(dom) {
         let that = this;

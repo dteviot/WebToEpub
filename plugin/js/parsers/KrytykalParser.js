@@ -20,14 +20,6 @@ class KrytykalParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    extractTitle(dom) {
-        return "<unknown>";
-    }
-
-    extractAuthor(dom) {
-        return "<unknown>";
-    }
-
     findContent(dom) {
         let div = util.getElement(dom, "div", e => e.id === "content");
         return (div === null) ? null : util.getElement(div, "article");

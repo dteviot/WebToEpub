@@ -114,6 +114,33 @@ class Parser {
         }
         return items;
     }
+
+    /**
+    * default implementation, use the <title> element
+    */
+    extractTitle(dom) {
+        return util.getElement(dom, "title").innerText.trim();
+    };
+
+    /**
+    * default implementation
+    */
+    extractAuthor(dom) {
+        return "<unknown>";
+    }
+
+    /**
+    * default implementation, if HTML doesn't have language, default to english
+    */
+    extractLanguage(dom) {
+        return "en";
+    }
+
+    /**
+    * default implementation, Derived classes will override
+    */
+    extractSeriesInfo(dom, metaInfo) {
+    }
 }
 
 Parser.prototype.getEpubMetaInfo = function (dom){
@@ -327,13 +354,4 @@ Parser.prototype.packRawChapters = function() {
     }).catch(function(error) {
         showErrorMessage(error);
     });
-}
-
-Parser.prototype.extractLanguage = function(dom) {
-    // if HTML doesn't have language, default to english
-    return "en";
-};
-
-Parser.prototype.extractSeriesInfo = function(dom, metaInfo) {
-    // Derived classes will override
 }

@@ -269,12 +269,6 @@ var util = (function () {
         };
     }
 
-    // copied from http://stackoverflow.com/questions/2880957/detect-inline-block-type-of-a-dom-element
-    var getDisplayType = function(element) {
-        var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
-        return cStyle.display;
-    }
-
     var isNodeInTag = function(tags, node) {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return false;

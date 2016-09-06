@@ -331,7 +331,7 @@ var main = (function () {
         };
         for(let label of util.getElements(document, "th", b => isLocalizeable(b))) {
             localize(label);
-    };
+        };
     }
 
     // actions to do when window opened
