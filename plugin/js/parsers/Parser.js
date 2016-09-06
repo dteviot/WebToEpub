@@ -130,10 +130,12 @@ class Parser {
     }
 
     /**
-    * default implementation, if HTML doesn't have language, default to english
+    * default implementation, a number of sites use jetpack tags
+    * but if not available, default to English
     */
     extractLanguage(dom) {
-        return "en";
+        let locale = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:locale"));
+        return (locale === null) ? "en" : locale.getAttribute("content");
     }
 
     /**

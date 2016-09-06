@@ -26,10 +26,6 @@ class GravityTalesParser extends Parser {
         return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
     }
 
-    extractLanguage(dom) {
-        return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:locale")).getAttribute("content");
-    };
-
     // find the node(s) holding the story content
     findContent(dom) {
         return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
