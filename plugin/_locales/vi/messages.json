@@ -1,0 +1,174 @@
+{
+    "__MSG_button_Advanced_Options__": {
+        "message": "Tùy Chọn Nâng Cao",
+        "description": ""
+    },
+    "__MSG_button_error_OK__": {
+        "message": "OK",
+        "description": ""
+    },
+    "__MSG_button_Fetch_Chapters__": {
+        "message": "Tải Chương",
+        "description": ""
+    },
+    "__MSG_button_Fetch_Images__": {
+        "message": "Tải Ảnh",
+        "description": ""
+    },
+    "__MSG_button_load_and_analyse__": {
+        "message": "Tải và Phân Tích",
+        "description": ""
+    },
+    "__MSG_button_Pack_EPUB__": {
+        "message": "Đóng gói EPUB",
+        "description": ""
+    },
+    "__MSG_button_Pack_Raw_Chapters__": {
+        "message": "Đóng gói Chương nguyên bản",
+        "description": ""
+    },
+    "__MSG_button_Reset__": {
+        "message": "Cài đặt về ban đầu",
+        "description": ""
+    },
+    "__MSG_button_Reload__": {
+        "message": "Tải Lại",
+        "description": ""
+    },
+    "__MSG_button_Reset_stylesheet__": {
+        "message": "Thiết đặt stylesheet về mặc định",
+        "description": ""
+    },
+    "__MSG_button_Select_All__": {
+        "message": "Chọn Tất Cả",
+        "description": ""
+    },
+    "__MSG_button_Unselect_All__": {
+        "message": "Bỏ Chọn Tất Cả",
+        "description": ""
+    },
+    "__MSG_column_Include__": {
+        "message": "Bao gồm?",
+        "description": ""
+    },
+    "__MSG_column_Loaded__": {
+        "message": "Đã tải?",
+        "description": ""
+    },
+    "__MSG_column_Title__": {
+        "message": "Tiêu đề",
+        "description": ""
+    },
+    "__MSG_column_URL__": {
+        "message": "Đường dẫn",
+        "description": ""
+    },
+    "__MSG_label_Author__": {
+        "message": "Tác Giả",
+        "description": ""
+    },
+    "__MSG_label_Cover_from_URL__": {
+        "message": "Ảnh bìa từ đường dẫn:",
+        "description": ""
+    },
+    "__MSG_label_Cover_Image_URL__": {
+        "message": "Đường dẫn ảnh bìa:",
+        "description": ""
+    },
+    "__MSG_label_File_Author_as__": {
+        "message": "Tên tác giả cho tập tin",
+        "description": ""
+    },
+    "__MSG_label_Filename__": {
+        "message": "Tên tập tin",
+        "description": ""
+    },
+    "__MSG_label_Always_Open_as_Tab__": {
+        "message": "Luôn mở trong Tab mới",
+        "description": ""
+    },
+    "__MSG_label_Developer_Stuff__": {
+        "message": "Dành Cho Lập Trình Viên:",
+        "description": ""
+    },
+    "__MSG_label_Fetch_Highest_Resolution_Images__": {
+        "message": "Tải Ảnh Độ Phân Giải Cao Nhất",
+        "description": ""
+    },
+    "__MSG_label_Include_URL_of_Images__": {
+        "message": "Bao gồm Đường dẫn của Ảnh",
+        "description": ""
+    },
+    "__MSG_label_Language__": {
+        "message": "Ngôn Ngữ",
+        "description": ""
+    },
+    "__MSG_label_Remove_Duplicate_Images__": {
+        "message": "Loại Bỏ Ảnh Trùng Lặp:",
+        "description": ""
+    },
+    "__MSG_label_Series__": {
+        "message": "Bộ Truyện",
+        "description": """
+    },
+    "__MSG_label_Starting_URL__": {
+        "message": "Đường Dẫn Bắt Đầu",
+        "description": ""
+    },
+    "__MSG_label_Stylesheet__": {
+        "message": "Stylesheet:",
+        "description": ""
+    },
+    "__MSG_label_Title__": {
+        "message": "Tiêu đề",
+        "description": ""
+    },
+    "__MSG_label_Translator__": {
+        "message": "Dịch Giả",
+        "description": ""
+    },
+    "__MSG_label_Volume__": {
+        "message": "Tập",
+        "description": ""
+    },
+    "defaultAuthor": {
+        "message": "Tên Tác Giả Không Được Cấp",
+        "description": ""
+    },
+    "defaultTitle": {
+        "message": "Tiêu Đề Không Được Cấp",
+        "description": ""
+    },
+    "defaultUUID": {
+        "message": "UUID Không Được Cấp",
+        "description": ""
+    },
+    "noChaptersFound": {
+        "message": "Không tìm thấy chương. Có thể đây không phải một trang thuộc bộ truyện.",
+        "description": ""
+    },
+    "noChaptersFoundAndFetchClicked": {
+        "message": "Không tìm thấy chương.",
+        "description": ""
+    },
+    "noImagesFound": {
+        "message": "Không tìm thấy ảnh.",
+        "description": ""
+    },
+    "noImagesFoundLabel": {
+        "message": "Không tìm thấy ảnh",
+        "description": ""
+    },
+    "noParserFound": {
+        "message": "Không tìm thấy parser cho đường dẫn này.",
+        "description": ""
+    },
+    "setCover": {
+        "message": "Đăt Ảnh Bìa",
+        "description": ""
+    },
+    "unhandledFieldTypeError": {
+        "message": "Lỗi: Unhandled field type.",
+        "description": ""
+    }
+}
