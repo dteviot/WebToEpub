@@ -4,10 +4,19 @@
 "use strict";
 
 parserFactory.register("hellping.org", function() { return new HellpingParser() });
+parserFactory.registerRule(
+    function(url) { return HellpingParser.isParsable(url) }, 
+    function() { return new HellpingParser() }
+);
 
 class HellpingParser extends Parser {
     constructor() {
         super();
+    }
+
+    static isParsable(url) {
+        // nanodesu URLs have hostnames like '*thetranslation.wordpress.com'
+        return util.extractHostName(url).indexOf("thetranslation.wordpress.com") != -1;
     }
 
     getChapterUrls(dom) {
@@ -38,6 +47,22 @@ class HellpingParser extends Parser {
 
     findChapterTitle(dom) {
         return util.getElement(dom, "h2", e => (e.className === "page-title"));
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let that = this;
+        super.removeUnwantedElementsFromContentElement(element);
+        that.removeNextAndPreviousChapterHyperlinks(element);
+        util.removeUnwantedWordpressElements(element);
+        util.removeLeadingWhiteSpace(element);
+    }
+
+    findParentNodeOfChapterLinkToRemoveAt(link) {
+        let toRemove = link;
+        if (toRemove.parentNode.tagName.toLowerCase() === "p") {
+            toRemove = toRemove.parentNode;
+        };
+        return toRemove;
     }
 
     populateUI(dom) {
