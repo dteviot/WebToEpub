@@ -49,9 +49,19 @@ class EpubPacker {
             "cancelable": false
         });
         var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        let dataUrl = URL.createObjectURL(blob);
+        a.href = dataUrl;
         a.download = fileName;
         a.dispatchEvent(clickEvent);
+        EpubPacker.scheduleDataUrlForDisposal(dataUrl);
+    }
+
+    static scheduleDataUrlForDisposal(dataUrl) {
+        // there is no download finished event, so best 
+        // we can do is release the URL at arbitary time in future
+        let oneMinute = 60 * 1000;
+        let disposeUrl = function() { URL.revokeObjectURL(dataUrl); };
+        setTimeout(disposeUrl, oneMinute);
     }
 
     // every EPUB must have a mimetype and a container.xml file
