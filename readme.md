@@ -4,9 +4,18 @@
 A simple Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
 Also works with 
 * ArchiveOfOurOwn.org
+* blogspot (some)
 * mugglenet.com
 * FanFiction.net
+* gravitytales.com
+* hellping.org
+* krytykal.org
+* moonbunnycafe.com
+* nanodesu (some of the *thetranslation.wordpress.com sites)
+* readlightnovel.com
 * royalroadl.com 
+* shikkakutranslations.org
+* sonako.org
 * wuxiaworld.com
 
 Credits

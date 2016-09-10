@@ -11,7 +11,7 @@
 <li>Fetch initial file from web.  Investigate WebView.</li>
 <li><strike>Parse file for content (chapter) URLs</strike></li>
 <li><strike>Fetch the chapter HTML documents</strike></li>
-<li>Extract wanted text from documents and repackage. Strip javascript, comments, stylesheets</li>
+<li><strike>Extract wanted text from documents and repackage. Strip javascript, comments, stylesheets</strike></li>
 <li><strike>Phase 1, strip &lt;img&gt; tags</strike></li>
 <li><strike>Generate content.opf</strike></li>
 <li><strike>Generate Nested ToC</strike></li>
@@ -42,14 +42,11 @@
 <li>Get a better icon</li>
 <li>When fix footnotes, Hyperlink can be hash only.</li>
 <li>Replace Developer Stuff buttons "Pack Raw Chapters" and "Fetch Chapters" with single "Fetch and Save Raw".</li>
-<li>Rework Parser.fetchChapters() should really load the images associated with each page after relevant page, rather than all at the end. Although this leaves question of when to fetch cover image, if one is wanted.</li>
 <li>EpubPacker.save() needs to get rid of object created by createObjectURL() when we're done with it.</li>
 <li>Improve HTML to XHTML conversion and packaging to ePUB.
 <ul>
-<li>Replace &lt;center&gt; tags, they're not legal XHTML.</li>
 <li>Detect and fix up hypterlinks to same page.</li>
 <li>Remove any id attributes that are no longer needed</li>
-<li>Strip iframe elements</li>
 </ul></li>
 <li>fate:zero chapter 3, generates a lot of epubcheck warnings. Looks like it may have different formatting for translator notes.</li>
 </ul>
@@ -87,6 +84,9 @@
 <li><strike>Get BakaTsukiEpubItemSupplier ctor to call EpubItemSupplier ctor?</strike></li>
 <li></strike>Unify EpubItemSupplier (which uses chapters) and BakaTsukiItemSupplier (which uses EpubItem). Get EpubItemSupplier to use EpubItem.  Also EpubItem/BaskTsukiEpubItem</strike></li>
 <li><strike>Update instructions</strike></li>
+<li><strike>Rework Parser.fetchChapters() should really load the images associated with each page after relevant page, rather than all at the end. Although this leaves question of when to fetch cover image, if one is wanted.</strike></li>
+<li><strike>Strip iframe elements</strike></li>
+<li><strike>Replace &lt;center&gt; tags, they're not legal XHTML.</strike></li>
 <li><strike></strike></li>
 <li><strike></strike></li>
 </ul>
