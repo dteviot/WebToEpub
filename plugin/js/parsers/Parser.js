@@ -58,6 +58,7 @@ class Parser {
         util.removeScriptableElements(element);
         util.removeComments(element);
         util.removeElements(util.getElements(element, "noscript"));
+        util.removeUnwantedWordpressElements(element);
     };
 
     customRawDomToContentStep(chapter, content) {

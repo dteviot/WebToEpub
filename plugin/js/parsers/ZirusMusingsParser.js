@@ -76,8 +76,6 @@ class ZirusMusingsParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
 
-        util.removeUnwantedWordpressElements(element);
-
         // remove the previous | TOC | Next hyperlinks
         let toc = that.findTocElement(element);
         if (toc !== null) {

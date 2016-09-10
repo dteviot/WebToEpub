@@ -55,7 +55,6 @@ class BlogspotParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
         that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeUnwantedWordpressElements(element);
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

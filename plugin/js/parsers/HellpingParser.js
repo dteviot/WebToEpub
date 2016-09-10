@@ -50,7 +50,6 @@ class HellpingParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
         that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeUnwantedWordpressElements(element);
         util.removeLeadingWhiteSpace(element);
     }
 

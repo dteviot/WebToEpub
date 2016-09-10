@@ -31,13 +31,22 @@ class GravityTalesParser extends Parser {
         return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        let that = this;
-        super.removeUnwantedElementsFromContentElement(element);
+    customRawDomToContentStep(chapter, content) {
+        this.removeNextAndPreviousChapterHyperlinks(content);
+        util.removeLeadingWhiteSpace(content);
+        this.addTitleToContent(chapter.rawDom, content);
+    }
 
-        that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeUnwantedWordpressElements(element);
-        util.removeLeadingWhiteSpace(element);
+    addTitleToContent(dom, content) {
+        let that = this;
+        let title = that.findChapterTitle(dom);
+        if (title !== null) {
+            content.insertBefore(title, content.firstChild);
+        };
+    }
+
+    findChapterTitle(dom) {
+        return util.getElement(dom, "h1", e => (e.className === "entry-title"));
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

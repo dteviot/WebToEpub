@@ -33,7 +33,6 @@ class WordpressBaseParser extends Parser {
         super.removeUnwantedElementsFromContentElement(element);
 
         that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeUnwantedWordpressElements(element);
         util.removeLeadingWhiteSpace(element);
     }
 
