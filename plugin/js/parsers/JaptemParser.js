@@ -31,11 +31,7 @@ class JaptemParser extends Parser {
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
-        let toRemove = link;
-        if (toRemove.parentNode.tagName.toLowerCase() === "h2") {
-            toRemove = toRemove.parentNode;
-        };
-        return toRemove;
+        return util.moveIfParent(link, "h2");
     }
 
     populateUI(dom) {

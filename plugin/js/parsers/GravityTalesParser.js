@@ -42,15 +42,9 @@ class GravityTalesParser extends Parser {
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
         // "previous" chapter may be immediate child of <p> tag to remove
-        // "next" chapter has a <span> tag wrapping it, then the maybe a <p> tag
-        let toRemove = link;
-        if (toRemove.parentNode.tagName.toLowerCase() === "strong") {
-            toRemove = link.parentNode;
-        };
-        if (toRemove.parentNode.tagName.toLowerCase() === "p") {
-            toRemove = toRemove.parentNode;
-        };
-        return toRemove;
+        // "next" chapter has a <strong> tag wrapping it, then the maybe a <p> tag
+        let toRemove = util.moveIfParent(link, "strong");
+        return util.moveIfParent(toRemove, "p");
     }
 
     populateUI(dom) {

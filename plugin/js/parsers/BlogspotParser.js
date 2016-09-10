@@ -1,24 +1,21 @@
 /*
-  parses hellping.org
+  parses *.blogspot.*
 */
 "use strict";
 
-parserFactory.register("hellping.org", function() { return new HellpingParser() });
-
-// nanodesu URLs have hostnames like '*thetranslation.wordpress.com'
 parserFactory.registerRule(
-    function(url) { return util.extractHostName(url).endsWith("thetranslation.wordpress.com") != -1; }, 
-    function() { return new HellpingParser() }
+    function(url) { return util.extractHostName(url).indexOf(".blogspot.") != -1 }, 
+    function() { return new BlogspotParser() }
 );
 
-class HellpingParser extends Parser {
+class BlogspotParser extends Parser {
     constructor() {
         super();
     }
 
     getChapterUrls(dom) {
         let that = this;
-        let menu = util.getElement(dom, "ul", e => e.id === "nav");
+        let menu = that.findContent(dom);
         let chapters = [];
         if (menu !== null) {
             chapters = util.hyperlinksToChapterList(menu);
@@ -27,7 +24,11 @@ class HellpingParser extends Parser {
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className === "page-body");
+        let content = util.getElement(dom, "div", e => e.className.startsWith("post-body"));
+        if (content == null) {
+            content = util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
+        }
+        return content;
     }
 
     customRawDomToContentStep(chapter, content) {
@@ -43,7 +44,11 @@ class HellpingParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h2", e => (e.className === "page-title"));
+        let title = util.getElement(dom, "h3", e => e.className.startsWith("post-title"));
+        if (title == null) {
+            title = util.getElement(dom, "h1", e => e.className.startsWith("entry-title"));
+        }
+        return title;
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -51,11 +56,11 @@ class HellpingParser extends Parser {
         super.removeUnwantedElementsFromContentElement(element);
         that.removeNextAndPreviousChapterHyperlinks(element);
         util.removeUnwantedWordpressElements(element);
-        util.removeLeadingWhiteSpace(element);
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
-        return util.moveIfParent(link, "p");
+        let toRemove = util.moveIfParent(link, "span");
+        return util.moveIfParent(toRemove, "div");
     }
 
     populateUI(dom) {

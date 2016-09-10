@@ -452,6 +452,21 @@ var util = (function () {
         return (elements.length === 0) ? null : elements[0];
     }
 
+    /**
+    *   Used in removeNextAndPreviousChapterHyperlinks()
+    *   Basically, we want to remove all elements related to the hyperlink
+    *   So we want to remove the parent element.  However need to be be careful
+    *   we don't go so high we wipe out the entire document
+    */
+    var moveIfParent = function(element, parentTag) {
+       let parent = element.parentNode;
+       if ((parent.tagName.toLowerCase() === parentTag) &&
+           (parent.innerText.length  < 200)) {
+           return parent;
+       }
+       return element;
+    }
+    
     var safeForFileName = function (title) {
         if(title) {
             // Allow only a-z regardless of case and numbers as well as hyphens and underscores; replace spaces with underscores
@@ -559,6 +574,7 @@ var util = (function () {
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,
         getElements: getElements,
+        moveIfParent: moveIfParent,
         safeForFileName: safeForFileName,
         styleSheetFileName: styleSheetFileName,
         isStringWhiteSpace: isStringWhiteSpace,

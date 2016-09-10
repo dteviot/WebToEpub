@@ -39,14 +39,8 @@ class WordpressBaseParser extends Parser {
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
         // "next" and "previous" chapter links may be inside <strong> then <p> tag
-        let toRemove = link;
-        if (toRemove.parentNode.tagName.toLowerCase() === "strong") {
-            toRemove = link.parentNode;
-        };
-        if (toRemove.parentNode.tagName.toLowerCase() === "p") {
-            toRemove = toRemove.parentNode;
-        };
-        return toRemove;
+        let toRemove = util.moveIfParent(link, "strong");
+        return util.moveIfParent(toRemove, "p");
     }
 
     customRawDomToContentStep(chapter, content) {
