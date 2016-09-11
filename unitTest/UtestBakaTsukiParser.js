@@ -38,7 +38,7 @@ QUnit.test("getEpubMetaInfo", function (assert) {
     let parser = new BakaTsukiParser();
     let metaInfo = parser.getEpubMetaInfo(syncLoadBakaTsukiSampleDoc());
     equal(metaInfo.title, "Web to Epub");
-    equal(metaInfo.author, "<Unknown>");
+    equal(metaInfo.author, "<unknown>");
     equal(metaInfo.language, "en");
     equal(metaInfo.seriesName, "Web to Epub");
     equal(metaInfo.seriesIndex, "103");

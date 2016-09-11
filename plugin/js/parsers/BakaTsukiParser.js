@@ -256,7 +256,6 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
 }
 
 BakaTsukiParser.prototype.stripWidthStyle = function (element) {
-    let that = this;
     let style = element.getAttribute("style");
     if (style !== null && style.startsWith("width: ")) {
         element.removeAttribute("style");
@@ -296,7 +295,6 @@ BakaTsukiParser.prototype.nodeNeedsToBeFlattened = function (node) {
 }
 
 BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
-    let that = this;
     let walker = document.createTreeWalker(node); 
     let count = 0;
     do {

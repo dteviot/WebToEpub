@@ -17,7 +17,6 @@ class HellpingParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let menu = util.getElement(dom, "ul", e => e.id === "nav");
         let chapters = [];
         if (menu !== null) {

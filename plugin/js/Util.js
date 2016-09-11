@@ -249,7 +249,7 @@ var util = (function () {
     var isBlockElementInside = function(inlineElement) {
         let walker = inlineElement.ownerDocument.createTreeWalker(inlineElement, NodeFilter.SHOW_ELEMENT);
         let element = null;
-        while (element = walker.nextNode()) {
+        while ((element = walker.nextNode())) {
             if (util.isBlockElement(element)) {
                 return true;
             };
@@ -294,7 +294,7 @@ var util = (function () {
         let hashes = util.getAllHyperlinkHashes(contentElement);
         let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
         let element = null;
-        while (element = walker.nextNode()) {
+        while ((element = walker.nextNode())) {
             if ((element.id !== "") && !hashes.has(element.id)) {
                 element.removeAttribute("id");
             }

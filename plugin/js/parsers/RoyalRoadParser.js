@@ -107,7 +107,7 @@ class RoyalRoadParser extends Parser{
             false
         );
         let node = null;
-        while (node = walker.nextNode()) {
+        while ((node = walker.nextNode())) {
             util.removeNode(node);
         };
     }
