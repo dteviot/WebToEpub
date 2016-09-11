@@ -40,7 +40,7 @@ class ImageCollector {
         let imageInfo = null;
         let index = this.urlIndex.get(sourceUrl);
         if (index !== undefined) {
-             imageInfo = that.imageInfoList[index];
+            imageInfo = that.imageInfoList[index];
         } else {
             index = this.urlIndex.get(wrappingUrl);
             if (index !== undefined) {
@@ -144,7 +144,7 @@ class ImageCollector {
     * @private
     */
     static toHex(i) {
-        let s = '00000000' + i.toString(16);
+        let s = "00000000" + i.toString(16);
         return s.substring(s.length - 8);
     }
 

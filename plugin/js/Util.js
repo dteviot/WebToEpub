@@ -68,11 +68,11 @@ var util = (function () {
 
     var resolveRelativeUrl = function(baseUrl, relativeUrl) {
         // Assumes parent document has a <base> element
-        let base = document.getElementsByTagName('base')[0];
+        let base = document.getElementsByTagName("base")[0];
         let oldHref = base.href;
 
         // this gets the browser to do the work for us
-        let resolver = document.createElement('a');
+        let resolver = document.createElement("a");
         base.href = baseUrl;
         resolver.href = relativeUrl;
         let resolvedUrl = resolver.href;  
@@ -166,7 +166,6 @@ var util = (function () {
     }
 
     var removeUnwantedWordpressElements = function(element) {
-        let that = this;
         let isUnwantedDiv = function(div) {
             return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
         };
@@ -305,15 +304,15 @@ var util = (function () {
     var getAllHyperlinkHashes = function(element) {
         // ToDo: should exclude hyperlinks that don't point to this page
         let hashes = new Set();
-        for(let link of util.getElements(element, "a", e => e.href.indexOf('#') != -1)) {
+        for(let link of util.getElements(element, "a", e => e.href.indexOf("#") != -1)) {
             hashes.add(util.extractHashFromUri(link.href));
         }
         return hashes;
     }
 
     var extractHashFromUri = function(uri) {
-        let index = uri.indexOf('#');
-        return (index === -1) ? null : uri.substring(uri.indexOf('#') + 1);
+        let index = uri.indexOf("#");
+        return (index === -1) ? null : uri.substring(uri.indexOf("#") + 1);
     }
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
@@ -384,7 +383,7 @@ var util = (function () {
 
     var normalizeUrl = function(url) {
         // remove trailing '/'
-        return (url[url.length - 1] === '/') ? url.substring(0, url.length - 1) : url;
+        return (url[url.length - 1] === "/") ? url.substring(0, url.length - 1) : url;
     }
 
     var hyperLinkToChapter = function(link, newArc) {
@@ -459,18 +458,18 @@ var util = (function () {
     *   we don't go so high we wipe out the entire document
     */
     var moveIfParent = function(element, parentTag) {
-       let parent = element.parentNode;
-       if ((parent.tagName.toLowerCase() === parentTag) &&
-           (parent.innerText.length  < 200)) {
-           return parent;
-       }
-       return element;
+        let parent = element.parentNode;
+        if ((parent.tagName.toLowerCase() === parentTag) &&
+            (parent.innerText.length  < 200)) {
+            return parent;
+        }
+        return element;
     }
     
     var safeForFileName = function (title) {
         if(title) {
             // Allow only a-z regardless of case and numbers as well as hyphens and underscores; replace spaces with underscores
-            title = title.replace(/ /gi, '_').replace(/([^a-z0-9_\-]+)/gi, '');
+            title = title.replace(/ /gi, "_").replace(/([^a-z0-9_\-]+)/gi, "");
             // There is technically a 255 character limit in windows for file paths. 
             // So we will allow files to have 20 characters and when they go over we split them 
             // we then truncate the middle so that the file name is always different
@@ -515,7 +514,6 @@ var util = (function () {
 
     // This is for Unit Testing only
     function syncLoadSampleDoc(fileName, url) {
-        let that = this;
         let xhr = new XMLHttpRequest();
         xhr.open("GET", fileName, false);
         xhr.send(null);

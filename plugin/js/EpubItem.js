@@ -54,7 +54,7 @@ class EpubItem {
     // H1 = 0, H2 = 1, etc
     tagNameToTocDepth(tagName) {
         // ToDo: assert that tagName in range <h1> ... <h4>
-        return tagName[1] - '1';
+        return tagName[1] - "1";
     }
 }
 
@@ -118,7 +118,6 @@ class ImageInfo extends EpubItem {
     constructor(wrappingUrl, index, sourceUrl) {
         super(sourceUrl);
         // ToDo:  This will need to derive from EpubItem
-        let that = this;
         super.index = index;
         super.isInSpine = false;
         this.wrappingUrl = wrappingUrl;

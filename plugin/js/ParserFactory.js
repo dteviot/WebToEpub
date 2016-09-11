@@ -15,7 +15,7 @@ class ParserFactory{
     }
 
     static stripWebArchive(url) {
-        var hostName = url.split('://');
+        var hostName = url.split("://");
         return hostName[2] ? "https://" + hostName[2] : url; 
     }
 

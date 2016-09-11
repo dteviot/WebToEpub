@@ -104,7 +104,6 @@ class BakaTsukiParser extends Parser{
 
     static indexEpubItems(epubItems, startAt) {
         // ToDo: when have image files, this will probably need to be redone.
-        let that = this;
         let index = startAt;
         for(let epubItem of  epubItems) {
             epubItem.setIndex(index);
@@ -117,11 +116,6 @@ BakaTsukiParser.prototype.extractTitle = function(dom) {
     return this.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
 };
 
-BakaTsukiParser.prototype.extractAuthor = function(dom) {
-    // HTML doesn't have author.
-    return "<Unknown>";
-};
-
 BakaTsukiParser.prototype.extractLanguage = function(dom) {
     return this.getElement(dom, "html").getAttribute("lang");
 };
@@ -130,7 +124,7 @@ BakaTsukiParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
     // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
     let that = this;
     let title = util.getElement(dom, "title").innerText.trim();
-    let splitIndex = title.indexOf(':');
+    let splitIndex = title.indexOf(":");
     if (0 < splitIndex) {
         metaInfo.seriesName = title.substring(0, splitIndex);
         metaInfo.seriesIndex = that.extractVolumeIndex(title.substring(splitIndex));
@@ -140,7 +134,7 @@ BakaTsukiParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
 BakaTsukiParser.prototype.extractVolumeIndex = function(volumeString) {
     let volumeIndex = "";
     for(let ch of volumeString) {
-        if (('0' <= ch) && (ch <= '9')) {
+        if (("0" <= ch) && (ch <= "9")) {
             volumeIndex += ch;
         };
     };    
@@ -401,19 +395,17 @@ BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, target
 }
 
 BakaTsukiParser.prototype.recordTarget = function(node, targets, zipHref) {
-    let that = this;
     if (node.id != "") {
         targets.set(node.id, zipHref);
     };
 }
 
 BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) {
-    let that = this;
     if (node.tagName === "A") {
         let targetId = util.extractHashFromUri(node.href);
         let targetZipHref = targets.get(targetId);
         if (targetZipHref != null) {
-            node.href = targetZipHref + '#' + targetId;
+            node.href = targetZipHref + "#" + targetId;
         }
     }
 }

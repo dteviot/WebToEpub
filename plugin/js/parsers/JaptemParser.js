@@ -11,7 +11,6 @@ class JaptemParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let menu = this.findContent(dom);
         let chapters = [];
         if (menu !== null) {

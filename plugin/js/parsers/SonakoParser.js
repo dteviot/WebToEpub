@@ -53,11 +53,6 @@ SonakoParser.prototype.extractTitle = function(dom) {
     return util.getElement(dom, "title").innerText;
 };
 
-SonakoParser.prototype.extractAuthor = function(dom) {
-    // HTML doesn't have author.
-    return "<Unknown>";
-};
-
 SonakoParser.prototype.extractLanguage = function(dom) {
     // ToDo find language
     return "vi-VN";
@@ -105,7 +100,6 @@ SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (elem
 
 // remove the "Width" style from the Gallery items, so images can take full screen.
 SonakoParser.prototype.stripGalleryImageWidthStyle = function (element) {
-    let that = this;
     for(let item of util.getElements(element, "div", e => (e.className === "wikia-gallery-item"))) {
         item.removeAttribute("style");
     }

@@ -23,7 +23,6 @@ class WordpressBaseParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
         let div = util.getElement(dom, "div", e => e.className === "entry-content");
         return div;
     }

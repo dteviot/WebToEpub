@@ -47,13 +47,8 @@ class ZirusMusingsParser extends Parser {
         return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
     }
 
-    extractAuthor(dom) {
-        return "<unknown>";
-    }
-
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
 
         // Ziru's Musings has links to imgur galleries.
         // So when one of them, create whole new page and return link to that.
@@ -73,11 +68,10 @@ class ZirusMusingsParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let that = this;
         super.removeUnwantedElementsFromContentElement(element);
 
         // remove the previous | TOC | Next hyperlinks
-        let toc = that.findTocElement(element);
+        let toc = this.findTocElement(element);
         if (toc !== null) {
             util.removeNode(toc.parentNode);
         };

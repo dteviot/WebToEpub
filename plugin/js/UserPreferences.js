@@ -125,7 +125,7 @@ class UserPreferences {
         that.getIncludeImageSourceUrlUiControl().onclick = () => that.readFromUi();
         that.getHigestResolutionImagesUiControl().onclick = () => that.readFromUi();
         that.getAlwaysOpenAsTabUiControl().onclick = () => that.readFromUi();
-        that.getStylesheetUiControl().addEventListener('blur', (e) => that.readFromUi(), true);
+        that.getStylesheetUiControl().addEventListener("blur", (e) => that.readFromUi(), true);
 
         that.notifyObserversOfChange();
     }

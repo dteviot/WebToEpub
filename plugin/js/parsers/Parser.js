@@ -99,8 +99,8 @@ class Parser {
         };
 
         for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
-           .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
-           util.removeNode(unwanted);
+            .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
+            util.removeNode(unwanted);
         };
     }
 
@@ -250,7 +250,7 @@ Parser.prototype.appendInputTextToRow = function (row, chapter) {
     input.type = "text";
     input.value = chapter.title;
     input.className = "fullWidth";
-    input.addEventListener('blur', function(e) { chapter.title = input.value; },  true);
+    input.addEventListener("blur", function(e) { chapter.title = input.value; },  true);
     col.appendChild(input);
     row.appendChild(col);
 }
@@ -289,7 +289,6 @@ Parser.prototype.fetchContent = function () {
 }
 
 Parser.prototype.setUiToShowLoadingProgress = function(length) {
-    let that = this;
     main.getPackEpubButton().disabled = true;
     this.getProgressBar().max = length + 1;
     this.getProgressBar().value = 1;

@@ -42,7 +42,6 @@ class WuxiaworldParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
         let div = util.getElement(dom, "div", e => e.getAttribute("itemprop") === "articleBody");
         return div;
     }

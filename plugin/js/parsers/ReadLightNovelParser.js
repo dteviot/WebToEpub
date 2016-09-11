@@ -93,7 +93,6 @@ class ReadLightNovelParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
         return util.getElement(dom, "div", e => e.className === "chapter-content");
     }
 

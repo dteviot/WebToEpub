@@ -48,7 +48,7 @@ class EpubPacker {
             "bubbles": true,
             "cancelable": false
         });
-        var a = document.createElement('a');
+        var a = document.createElement("a");
         let dataUrl = URL.createObjectURL(blob);
         a.href = dataUrl;
         a.download = fileName;
@@ -250,7 +250,6 @@ class EpubPacker {
     }
 
     packXhtmlFiles(zipFile, epubItemSupplier) {
-        let that = this;
         let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
             zipFile.file(file.getZipHref(), file.fileContentForEpub(), zipOptions);

@@ -25,7 +25,6 @@ class RoyalRoadParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
         let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
         return content;
     }

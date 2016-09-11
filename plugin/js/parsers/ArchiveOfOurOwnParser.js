@@ -25,7 +25,7 @@ ArchiveOfOurOwnParser.prototype.getChapterUrls = function (dom) {
 ArchiveOfOurOwnParser.prototype.optionToChapterInfo = function (baseUrl, optionElement) {
     let relativeUrl = optionElement.getAttribute("value");
     return {
-        sourceUrl: util.resolveRelativeUrl(baseUrl, relativeUrl) + '?view_adult=true',
+        sourceUrl: util.resolveRelativeUrl(baseUrl, relativeUrl) + "?view_adult=true",
         title: optionElement.innerText
     };
 };

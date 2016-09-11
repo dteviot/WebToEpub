@@ -11,7 +11,6 @@ class UltimaguilParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let chapters = util.hyperlinksToChapterList(dom);
         return Promise.resolve(chapters);
     }
@@ -30,7 +29,6 @@ class UltimaguilParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let that = this;
         let div = util.getElement(dom, "div", d => d.id === "inside");
         return div;
     }
@@ -79,7 +77,6 @@ class UltimaguilParser extends Parser {
      *  "flatten" content.  Chapter parts may be <div> sections after the read_content span
     */
     flattenContent(content) {
-        let that = this;
         let read_content = util.getElement(content, "span", c => c.id === "read_content");
         if (read_content !== null) {
             let parent = read_content.parentElement;
@@ -103,8 +100,8 @@ class UltimaguilParser extends Parser {
         for(let header of util.getElements(content, "h2")) {
             let link = util.getElement(header, "a");
             if (link !== null) {
-               header.appendChild(document.createTextNode(link.innerText));
-               util.removeNode(link);
+                header.appendChild(document.createTextNode(link.innerText));
+                util.removeNode(link);
             };
         };
     }

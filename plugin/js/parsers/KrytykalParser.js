@@ -11,7 +11,6 @@ class KrytykalParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let menu = util.getElement(dom, "div", e => e.className === "nav-menu");
         let chapters = [];
         if (menu !== null) {

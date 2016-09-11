@@ -8,7 +8,6 @@ class HttpClient {
     }
 
     static wrapFetch(url) {
-        let that = this;
         let state = {
             isHtml: function () { return this.contentType.startsWith("text/html"); }
         };

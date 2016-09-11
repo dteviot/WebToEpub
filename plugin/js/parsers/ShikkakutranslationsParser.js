@@ -11,7 +11,6 @@ class ShikkakutranslationsParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let menu = util.getElement(dom, "div", e => e.className === "menu-header");
         let chapters = [];
         if (menu !== null) {
