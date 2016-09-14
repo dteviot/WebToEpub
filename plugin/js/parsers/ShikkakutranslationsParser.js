@@ -1,13 +1,38 @@
 /*
-  parses *.blogspot.*
+  parses shikkakutranslations.org
 */
 "use strict";
 
 parserFactory.register( "shikkakutranslations.org", function() { return new ShikkakutranslationsParser() });
 
-class ShikkakutranslationsParser extends Parser {
+class ShikkakutranslationsImageCollector extends ImageCollector {
     constructor() {
         super();
+    }
+
+    selectImageUrlFromImagePage(dom) {
+        let div = util.getElement(dom, "div", e => (e.className === "the_attachment"));
+        if (div !== null) {
+            let img = util.getElement(div, "img");
+            if (img !== null) {
+                let src = util.resolveRelativeUrl(dom.baseURI, img.src);
+                return util.removeQueryFromUrl(src);
+            }
+        }
+        return null;
+    }
+
+    isImageWrapperElement(element) {
+        return ((element.tagName.toLowerCase() === "div") && element.className.startsWith("gallery-group")) ||
+            super.isImageWrapperElement(element);
+    }
+}
+
+//==============================================================
+
+class ShikkakutranslationsParser extends Parser {
+    constructor() {
+        super(new ShikkakutranslationsImageCollector());
     }
 
     getChapterUrls(dom) {
@@ -20,7 +45,7 @@ class ShikkakutranslationsParser extends Parser {
     }
 
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => e.className.startsWith("content-body"));
+        let content = util.getElement(dom, "div", e => (e.id === "content-body"));
         if (content !== null) {
             content = util.getElement(content, "div", e => e.className === "entry");
         }
@@ -29,6 +54,10 @@ class ShikkakutranslationsParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         this.addTitleToContent(chapter.rawDom, content);
+        // remove width style from image gallery
+        for(let g of util.getElements(content, "div", e => e.className.startsWith("gallery-row"))) {
+            g.style = null;
+        }
     }
 
     addTitleToContent(dom, content) {
@@ -47,6 +76,16 @@ class ShikkakutranslationsParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
         that.removeNextAndPreviousChapterHyperlinks(element);
+    }
+
+    removeNextAndPreviousChapterHyperlinks(element) {
+        // override default, just remove all hyperlinks
+        // due to links in chapters not matching links in menu.
+        let that = this;
+        util.getElements(element, "a")
+            .filter(l => util.getElements(l, "img").length === 0)
+            .map(l => that.findParentNodeOfChapterLinkToRemoveAt(l))
+            .forEach(u => util.removeNode(u));
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

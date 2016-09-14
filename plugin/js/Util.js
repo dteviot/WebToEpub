@@ -88,6 +88,11 @@ var util = (function () {
         return parser.hostname;
     };
 
+    var removeQueryFromUrl = function(url) {
+        let index = url.indexOf("?");
+        return (0 <= index) ? url.substring(0, index) : url;
+    }
+   
     var addToDocBody = function (dom, contentToAdd) {
         dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
     }
@@ -533,6 +538,7 @@ var util = (function () {
         log: log,
         logError: logError,
         extractHostName: extractHostName,
+        removeQueryFromUrl: removeQueryFromUrl,
         addToDocBody: addToDocBody,
         setBaseTag: setBaseTag,
         removeNode: removeNode,
