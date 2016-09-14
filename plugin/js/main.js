@@ -121,7 +121,7 @@ var main = (function () {
     }
 
     function getActiveTabDOM(tabId) {
-        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js" },
+        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
             function (result) {
                 if (chrome.runtime.lastError) {
                     util.log(chrome.runtime.lastError.message);
