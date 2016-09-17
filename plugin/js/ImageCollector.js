@@ -51,7 +51,7 @@ class ImageCollector {
             index = that.imageInfoList.length;
             imageInfo = new ImageInfo(wrappingUrl, index, sourceUrl);
             this.imageInfoList.push(imageInfo);
-            if (!!fetchFirst) {
+            if (fetchFirst) {
                 that.imagesToFetch = [imageInfo].concat(that.imagesToFetch);
             } else {
                 this.imagesToFetch.push(imageInfo);

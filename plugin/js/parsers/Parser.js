@@ -277,7 +277,7 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
 
 Parser.prototype.onFetchChaptersClicked = function () {
     if (0 == this.chapters.length) {
-        showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
+        window.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
     } else {
         this.getFetchContentButton().disabled = true;
         this.fetchChapters();
@@ -354,6 +354,6 @@ Parser.prototype.packRawChapters = function() {
     zipFile.generateAsync({ type: "blob" }).then(function(content) {
         EpubPacker.save(content, "raw.zip");
     }).catch(function(error) {
-        showErrorMessage(error);
+        window.showErrorMessage(error);
     });
 }

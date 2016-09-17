@@ -376,7 +376,7 @@ var util = (function () {
                 } else {
                     currentArc = arc;
                     return currentArc;
-                };
+                }
             };
             return currentArc;
         }
