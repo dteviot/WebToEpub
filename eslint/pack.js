@@ -1,40 +1,27 @@
 // simple node.js script to pack the files making up WebToEpub into single file
 "use strict";
 
-var fs = require('fs')
+var fs = require('fs');
+var DOMParser = require('xmldom').DOMParser;
 
-var fileList = [
-    "../plugin/js/UserPreferences.js",
-    "../plugin/js/EpubMetaInfo.js",
-    "../plugin/js/Util.js",
-    "../plugin/js/HttpClient.js",
-    "../plugin/js/EpubItem.js",
-    "../plugin/js/ParserFactory.js",
-    "../plugin/js/ImageCollector.js",
-    "../plugin/js/parsers/Parser.js",
-    "../plugin/js/parsers/ArchiveOfOurOwnParser.js",
-    "../plugin/js/parsers/BakaTsukiParser.js",
-    "../plugin/js/parsers/BlogspotParser.js",
-    "../plugin/js/parsers/FanFictionParser.js",
-    "../plugin/js/parsers/GravityTalesParser.js",
-    "../plugin/js/parsers/HellpingParser.js",
-    "../plugin/js/parsers/JaptemParser.js",
-    "../plugin/js/parsers/KrytykalParser.js",
-    "../plugin/js/parsers/MuggleNetParser.js",
-    "../plugin/js/parsers/ReadLightNovelParser.js",
-    "../plugin/js/parsers/RoyalRoadParser.js",
-    "../plugin/js/parsers/ShikkakutranslationsParser.js",
-    "../plugin/js/parsers/UltimaguilParser.js",
-    "../plugin/js/parsers/WordpressBaseParser.js",
-    "../plugin/js/parsers/WuxiaworldParser.js",
-    "../plugin/js/parsers/ZirusMusingsParser.js",
-    "../plugin/js/EpubItemSupplier.js",
-    "../plugin/js/CoverImageUI.js",
-    "../plugin/js/parsers/SonakoParser.js",
-    "../plugin/js/EpubPacker.js",
-    "../plugin/js/testFunctions.js",
-    "../plugin/js/main.js"
-];
+var extractFileListFromHtml = function(htmlAsString) {
+    let dom = new DOMParser().parseFromString(htmlAsString, "text/html");
+    if (dom != null) {
+        return Array.prototype.slice.apply(dom.getElementsByTagName("script"))
+            .map(e => "../plugin/" + e.getAttribute("src"));
+    }
+    return [];
+}
+
+var getFileList = function(fileName) {
+    return readFilePromise(fileName).then(function(data) {
+        return extractFileListFromHtml(data.toString());
+    });
+}
+
+var adjustedFileListForEslint = function(fileList) {
+    return fileList.filter(e => e !== "../plugin/jszip/dist/jszip.min.js");
+}
 
 // wrap readFile in a promise
 var readFilePromise = function(fileName) {
@@ -75,8 +62,12 @@ var makeIndexLine = function(fileName, startIndex, count) {
 
 // do the work
 var loadedFiles = [];
-readAllFiles(fileList, loadedFiles)
-    .then(function (data) {
+
+getFileList("../plugin/popup.html").then(function(fileList) {
+        fileList =  adjustedFileListForEslint(fileList);
+        console.log(fileList);
+        return readAllFiles(fileList, loadedFiles);
+    }).then(function (data) {
         let temp = "";
         let lineCount = 0;
         let index = "";
