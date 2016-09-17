@@ -20,7 +20,7 @@ var getFileList = function(fileName) {
 }
 
 var adjustedFileListForEslint = function(fileList) {
-    return fileList.filter(e => e !== "../plugin/jszip/dist/jszip.min.js");
+    return [ "polyfillEslint.js" ].concat(fileList.filter(e => e !== "../plugin/jszip/dist/jszip.min.js"));
 }
 
 // wrap readFile in a promise
