@@ -151,7 +151,7 @@ class ImageCollector {
     /*
     *  Hook point for Baka-Tsuki to select image to fetch
     */
-    selectImageUrlFromHtmlImagesPage(html) {
+    selectImageUrlFromHtmlImagesPage(html) {  // eslint-disable-line no-unused-vars
         return null;
     }
 
@@ -230,7 +230,7 @@ class ImageCollector {
     }
 
     getImageDimensions(imageInfo) {
-        return new Promise(function(resolve, reject){
+        return new Promise(function(resolve, reject){ // eslint-disable-line no-unused-vars
             let img = new Image();
             img.onload = function() {
                 imageInfo.height = img.height;

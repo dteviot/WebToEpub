@@ -53,12 +53,12 @@ SonakoParser.prototype.extractTitle = function(dom) {
     return util.getElement(dom, "title").innerText;
 };
 
-SonakoParser.prototype.extractLanguage = function(dom) {
+SonakoParser.prototype.extractLanguage = function(dom) {   // eslint-disable-line no-unused-vars
     // ToDo find language
     return "vi-VN";
 };
 
-SonakoParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
+SonakoParser.prototype.extractSeriesInfo = function(dom, metaInfo) {   // eslint-disable-line no-unused-vars
     // This parser does not currently support this functionality
 }
 

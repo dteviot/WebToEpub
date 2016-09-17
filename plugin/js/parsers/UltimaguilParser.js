@@ -15,15 +15,15 @@ class UltimaguilParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    extractTitle(dom) {
+    extractTitle(dom) {   // eslint-disable-line no-unused-vars
         return "Twintails";
     }
 
-    extractLanguage(dom) {
+    extractLanguage(dom) {   // eslint-disable-line no-unused-vars
         return "en";
     };
 
-    extractAuthor(dom) {
+    extractAuthor(dom) {   // eslint-disable-line no-unused-vars
         return "Mizusawa Yume";
     }
 

@@ -157,7 +157,7 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     that.populateImageTable();
 };
 
-BakaTsukiParser.prototype.populateUI = function (dom) {
+BakaTsukiParser.prototype.populateUI = function (dom) {  // eslint-disable-line no-unused-vars
     document.getElementById("higestResolutionImagesRow").hidden = false; 
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
@@ -397,7 +397,7 @@ BakaTsukiParser.prototype.recordTarget = function(node, targets, zipHref) {
     };
 }
 
-BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) {
+BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) { // eslint-disable-line no-unused-vars
     if (node.tagName === "A") {
         let targetId = util.extractHashFromUri(node.href);
         let targetZipHref = targets.get(targetId);
@@ -431,14 +431,14 @@ BakaTsukiParser.prototype.fetchContent = function () {
 }
 
 BakaTsukiParser.prototype.updateProgressBarOneStep = function() {
-    this.updateLoadState(false);
+    this.updateLoadState();
 }
 
 /*
    Show progress,
    finished  true if have loaded all images, false if only loaded a single image
 */
-BakaTsukiParser.prototype.updateLoadState = function(finished) {
+BakaTsukiParser.prototype.updateLoadState = function() {
     let that = this;
     that.getProgressBar().value += 1;
 }

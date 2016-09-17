@@ -14,7 +14,7 @@ class ZirusMusingsParser extends Parser {
         let that = this;
         let content = that.findContent(dom);
 
-        let getChapterArc = function(link) { return null; }
+        let getChapterArc = undefined;
         if (dom.baseURI === "https://zirusmusings.com/ldm-toc/") {
             getChapterArc = that.getChapterArc;
         } 

@@ -61,7 +61,7 @@ class Parser {
         util.removeUnwantedWordpressElements(element);
     };
 
-    customRawDomToContentStep(chapter, content) {
+    customRawDomToContentStep(chapter, content) { // eslint-disable-line no-unused-vars
         // override for any custom processing
     }
 
@@ -125,7 +125,7 @@ class Parser {
     /**
     * default implementation
     */
-    extractAuthor(dom) {
+    extractAuthor(dom) {  // eslint-disable-line no-unused-vars
         return "<unknown>";
     }
 
@@ -141,7 +141,7 @@ class Parser {
     /**
     * default implementation, Derived classes will override
     */
-    extractSeriesInfo(dom, metaInfo) {
+    extractSeriesInfo(dom, metaInfo) {  // eslint-disable-line no-unused-vars
     }
 }
 

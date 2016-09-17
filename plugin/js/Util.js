@@ -512,7 +512,7 @@ var util = (function () {
     }
 
     // allow disabling loging from one place
-    var log = function(arg) {
+    var log = function(arg) { // eslint-disable-line no-unused-vars
         // ToDo: uncomment this for debug logging
         // console.log(arg);
     }

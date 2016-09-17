@@ -21,7 +21,7 @@ var main = (function () {
     // register listener that is invoked when script injected into HTML sends its results
     try {
         // note, this will throw if not running as an extension.
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {   // eslint-disable-line no-unused-vars
             if (request.messageType == "ParseResults") {
                 util.log("addListener");
                 util.log(request);
@@ -122,7 +122,7 @@ var main = (function () {
 
     function getActiveTabDOM(tabId) {
         chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
-            function (result) {
+            function (result) {   // eslint-disable-line no-unused-vars
                 if (chrome.runtime.lastError) {
                     util.log(chrome.runtime.lastError.message);
                 };
