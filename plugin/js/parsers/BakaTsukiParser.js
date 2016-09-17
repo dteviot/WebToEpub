@@ -158,14 +158,13 @@ BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
 };
 
 BakaTsukiParser.prototype.populateUI = function (dom) {
-    let that = this;
     document.getElementById("higestResolutionImagesRow").hidden = false; 
     document.getElementById("imageSection").hidden = false;
     document.getElementById("outputSection").hidden = true;
     document.getElementById("translatorRow").hidden = false;
     document.getElementById("fileAuthorAsRow").hidden = false;
-    that.getFetchContentButton().onclick = (e => that.onFetchImagesClicked());
-    document.getElementById("coverFromUrlCheckboxInput").onclick = (e => that.populateImageTable());
+    this.getFetchContentButton().onclick = this.onFetchImagesClicked.bind(this);
+    document.getElementById("coverFromUrlCheckboxInput").onclick = this.populateImageTable.bind(this);
 };
 
 BakaTsukiParser.prototype.epubItemSupplier = function () {
@@ -410,7 +409,7 @@ BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) {
 
 BakaTsukiParser.prototype.onFetchImagesClicked = function () {
     let that = this;
-    if (0 == that.imageCollector.images.size) {
+    if (0 == that.imageCollector.imageInfoList.length) {
         window.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
     } else {
         that.getFetchContentButton().disabled = true;

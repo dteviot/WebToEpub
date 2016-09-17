@@ -120,13 +120,12 @@ class UserPreferences {
     }
 
     hookupUi() {
-        let that = this;
-        that.getRemoveDuplicateImagesUiControl().onclick = () => that.readFromUi();
-        that.getIncludeImageSourceUrlUiControl().onclick = () => that.readFromUi();
-        that.getHigestResolutionImagesUiControl().onclick = () => that.readFromUi();
-        that.getAlwaysOpenAsTabUiControl().onclick = () => that.readFromUi();
-        that.getStylesheetUiControl().addEventListener("blur", (e) => that.readFromUi(), true);
+        this.getRemoveDuplicateImagesUiControl().onclick = this.readFromUi.bind(this);
+        this.getIncludeImageSourceUrlUiControl().onclick = this.readFromUi.bind(this);
+        this.getHigestResolutionImagesUiControl().onclick = this.readFromUi.bind(this);
+        this.getAlwaysOpenAsTabUiControl().onclick = this.readFromUi.bind(this);
+        this.getStylesheetUiControl().addEventListener("blur", this.readFromUi.bind(this), true);
 
-        that.notifyObserversOfChange();
+        this.notifyObserversOfChange();
     }
 }

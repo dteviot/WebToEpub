@@ -66,10 +66,9 @@ class Parser {
     }
 
     populateUI(dom) {
-        let that = this;
-        that.getFetchContentButton().onclick = (e => that.onFetchChaptersClicked());
-        document.getElementById("packRawButton").onclick = (e => that.packRawChapters());
-        let coverUrl = that.findCoverImageUrl(dom);
+        this.getFetchContentButton().onclick = this.onFetchChaptersClicked.bind(this);
+        document.getElementById("packRawButton").onclick = this.packRawChapters.bind(this);
+        let coverUrl = this.findCoverImageUrl(dom);
         if (!util.isNullOrEmpty(coverUrl)) {
             CoverImageUI.setCoverImageUrl(coverUrl);
         };
@@ -250,7 +249,7 @@ Parser.prototype.appendInputTextToRow = function (row, chapter) {
     input.type = "text";
     input.value = chapter.title;
     input.className = "fullWidth";
-    input.addEventListener("blur", function(e) { chapter.title = input.value; },  true);
+    input.addEventListener("blur", function() { chapter.title = input.value; },  true);
     col.appendChild(input);
     row.appendChild(col);
 }
@@ -268,8 +267,8 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
                 that.updateLoadState(chapters[0]);
             }
             that.getProgressBar().value = 0;
-            that.getSelectAllUrlsButton().onclick = (e => that.setAllUrlsSelectState(true));
-            that.getUnselectAllUrlsButton().onclick = ( e=> that.setAllUrlsSelectState(false));
+            that.getSelectAllUrlsButton().onclick = that.setAllUrlsSelectState.bind(that, true);
+            that.getUnselectAllUrlsButton().onclick = that.setAllUrlsSelectState.bind(that, false);
         }
         that.chapters = chapters;
     });
