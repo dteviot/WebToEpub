@@ -274,7 +274,7 @@ var main = (function () {
             return;
         };
 
-        let sections = hideNonErrorSectionsSavingVisibility();
+        let sections = hideAllSectionsSavingVisibility();
         getErrorSection().hidden = false;
 
         setErrorMessageText(msg);
@@ -288,7 +288,7 @@ var main = (function () {
         };
     }
 
-    function hideNonErrorSectionsSavingVisibility() {
+    function hideAllSectionsSavingVisibility() {
         let sections = new Map();
         for(let section of util.getElements(document, "section")) {
             sections.set(section, section.hidden);

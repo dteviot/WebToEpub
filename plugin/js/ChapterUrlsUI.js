@@ -2,15 +2,18 @@
 
 /** Class that handles UI for selecting (chapter) URLs to fetch */
 class ChapterUrlsUI {
-    constructor() {
+    constructor(parser) {
+        this.usingTable = true;
+        this.parser = parser;
     }
 
-    static connectButtonHandlers() {
+    connectButtonHandlers() {
         ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
         ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
+        ChapterUrlsUI.getEditChapterUrlsButton().onclick = this.onEditChapterUrls.bind(this);
     }
 
-    static populateChapterUrlsTable(chapters) {
+    populateChapterUrlsTable(chapters) {
         ChapterUrlsUI.clearChapterUrlsTable();
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         chapters.forEach(function (chapter) {
@@ -49,6 +52,20 @@ class ChapterUrlsUI {
     */
     static getUnselectAllUrlsButton() {
         return document.getElementById("unselectAllUrlsButton");
+    }
+
+    /** 
+    * @private
+    */
+    static getEditChapterUrlsButton() {
+        return document.getElementById("editChaptersUrlsButton");
+    }
+
+    /** 
+    * @private
+    */
+    static getEditChaptersUrlsInput() {
+        return document.getElementById("editChaptersUrlsInput");
     }
 
     /** 
@@ -102,5 +119,82 @@ class ChapterUrlsUI {
         col.style.whiteSpace = "nowrap";
         row.appendChild(col);
         return col;
+    }
+
+    /** 
+    * @private
+    */
+    onEditChapterUrls() {
+        if (this.usingTable) {
+            this.setEditInputMode();
+        } else {
+            this.setTableMode();
+        }
+    }
+
+    /** 
+    * @private
+    */
+    setVisibileUI(toTable) {
+        // toggle mode
+        ChapterUrlsUI.getEditChaptersUrlsInput().hidden = toTable;
+        ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
+        document.getElementById("inputSection").hidden = !toTable;
+        document.getElementById("coverUrlSection").hidden = !toTable;
+        ChapterUrlsUI.getSelectAllUrlsButton().hidden = !toTable;
+        ChapterUrlsUI.getUnselectAllUrlsButton().hidden = !toTable;
+    }
+
+    /** 
+    * @private
+    */
+    setTableMode() {
+        try {
+            let chapters = this.htmlToChapters(ChapterUrlsUI.getEditChaptersUrlsInput().value);
+            this.parser.chapters = chapters;
+            this.populateChapterUrlsTable(chapters);
+            this.usingTable = true;
+            this.setVisibileUI(this.usingTable);
+        } catch (err) {
+            window.showErrorMessage(err);
+        }
+    }
+
+    /** 
+    * @private
+    */
+    htmlToChapters(innerHtml) {
+        let html = "<html><head><title></title><body>" + innerHtml + "</body></html>";
+        let doc = new DOMParser().parseFromString(html, "text/html");
+        let body = doc.getElementsByTagName("body")[0];
+        return util.hyperlinksToChapterList(body);
+    }
+
+    /** 
+    * @private
+    */
+    setEditInputMode() {
+        this.usingTable = false;
+        this.setVisibileUI(this.usingTable);
+        let input = ChapterUrlsUI.getEditChaptersUrlsInput();
+        input.rows = Math.max(this.parser.chapters.length, 20);
+        input.value = this.chaptersToHTML(this.parser.chapters);
+    }
+
+    chaptersToHTML(chapters) {
+        let doc = new DOMParser().parseFromString("<html><head><title></title><body></body></html>", "text/html");
+        let body = doc.getElementsByTagName("body")[0];
+        for(let chapter of chapters.filter(c => c.isIncludeable)) {
+            body.appendChild(this.makeLink(doc, chapter));
+            body.appendChild(doc.createTextNode("\r"));
+        }
+        return body.innerHTML;
+    }
+
+    makeLink(doc, chapter) {
+        let link = doc.createElement("a");
+        link.href = chapter.sourceUrl;
+        link.appendChild(doc.createTextNode(chapter.title));
+        return link;
     }
 }

@@ -191,16 +191,17 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     
     // returns promise, because may need to fetch additional pages to find list of chapters
     that.getChapterUrls(firstPageDom).then(function(chapters) {
-        ChapterUrlsUI.populateChapterUrlsTable(chapters);
+        let chapterUrlsUI = new ChapterUrlsUI(that);
+        chapterUrlsUI.populateChapterUrlsTable(chapters);
         if (0 < chapters.length) {
             if (chapters[0].sourceUrl === url) {
                 chapters[0].rawDom = firstPageDom;
                 that.updateLoadState(chapters[0]);
             }
             that.getProgressBar().value = 0;
-            ChapterUrlsUI.connectButtonHandlers();
         }
         that.chapters = chapters;
+        chapterUrlsUI.connectButtonHandlers();
     });
 }
 

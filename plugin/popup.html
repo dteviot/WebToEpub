@@ -24,8 +24,9 @@
             width: 100%;
         }
 
-        input.fullWidth {
+        textarea.allSpace {
             width:100%;
+            height:100%;
             box-sizing:border-box;
         }
     </style>
@@ -151,17 +152,19 @@
         </table>
     </section>
     <section id="outputSection">
-        <div class="scrollingtable">
-            <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
-            <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
-            <table id="chapterUrlsTable" class=" chapterlist">
-                <tr>
-                    <th align="left">__MSG_column_Include__</th>
-                    <th align="left">__MSG_column_Title__</th>
-                    <th align="left">__MSG_column_Loaded__</th>
-                    <th align="left">__MSG_column_URL__</th>
-                </tr>
-            </table>
+        <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
+        <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
+        <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
+        <table id="chapterUrlsTable" class=" chapterlist">
+            <tr>
+                <th align="left">__MSG_column_Include__</th>
+                <th align="left">__MSG_column_Title__</th>
+                <th align="left">__MSG_column_Loaded__</th>
+                <th align="left">__MSG_column_URL__</th>
+            </tr>
+        </table>
+        <div>
+            <textarea id="editChaptersUrlsInput" hidden class="allSpace" rows="20"></textarea>
         </div>
     </section>
     <!-- scripts go here -->
