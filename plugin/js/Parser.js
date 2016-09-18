@@ -13,29 +13,6 @@ class Parser {
         this.imageCollector.onUserPreferencesUpdate(userPreferences);
     }
 
-    getChapterUrlsTable() {
-        return document.getElementById("chapterUrlsTable");
-    }
-
-    getSelectAllUrlsButton() {
-        return document.getElementById("selectAllUrlsButton");
-    }
-
-    getUnselectAllUrlsButton() {
-        return document.getElementById("unselectAllUrlsButton");
-    }
-
-    setAllUrlsSelectState(select) {
-        let linksTable = this.getChapterUrlsTable();
-        for(let row of linksTable.children) {
-            let input = util.getElement(row, "input", i => i.type === "checkbox");
-            if ((input !== null) && (input.checked !== select)) {
-                input.checked = select;
-                input.onclick();
-            }
-        }
-    }
-
     isChapterPackable(chapter) {
         return (chapter.rawDom != null) && (chapter.isIncludeable);
     }
@@ -208,67 +185,20 @@ Parser.prototype.chaptersToEpubItems = function (chapters) {
     return epubItems;
 }
 
-Parser.prototype.appendColumnDataToRow = function (row, textData) {
-    let col = document.createElement("td");
-    col.innerText = textData;
-    col.style.whiteSpace = "nowrap";
-    row.appendChild(col);
-    return col;
-}
-
-Parser.prototype.populateChapterUrls = function (chapters) {
-    let that = this;
-    let linksTable = that.getChapterUrlsTable();
-    while (linksTable.children.length > 1) {
-        linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
-    }
-    chapters.forEach(function (chapter) {
-        let row = document.createElement("tr");
-        that.appendCheckBoxToRow(row, chapter);
-        that.appendInputTextToRow(row, chapter);
-        chapter.stateColumn = that.appendColumnDataToRow(row, "No");
-        that.appendColumnDataToRow(row, chapter.sourceUrl);
-        linksTable.appendChild(row);
-    });
-}
-
-Parser.prototype.appendCheckBoxToRow = function (row, chapter) {
-    let col = document.createElement("td");
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    chapter.isIncludeable = true;
-    checkbox.checked = chapter.isIncludeable;
-    checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
-    col.appendChild(checkbox);
-    row.appendChild(col);
-}
-
-Parser.prototype.appendInputTextToRow = function (row, chapter) {
-    let col = document.createElement("td");
-    let input = document.createElement("input");
-    input.type = "text";
-    input.value = chapter.title;
-    input.className = "fullWidth";
-    input.addEventListener("blur", function() { chapter.title = input.value; },  true);
-    col.appendChild(input);
-    row.appendChild(col);
-}
-
 // called when plugin has obtained the first web page
 Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     let that = this;
     
     // returns promise, because may need to fetch additional pages to find list of chapters
     that.getChapterUrls(firstPageDom).then(function(chapters) {
-        that.populateChapterUrls(chapters);
+        ChapterUrlsUI.populateChapterUrlsTable(chapters);
         if (0 < chapters.length) {
             if (chapters[0].sourceUrl === url) {
                 chapters[0].rawDom = firstPageDom;
                 that.updateLoadState(chapters[0]);
             }
             that.getProgressBar().value = 0;
-            that.getSelectAllUrlsButton().onclick = that.setAllUrlsSelectState.bind(that, true);
-            that.getUnselectAllUrlsButton().onclick = that.setAllUrlsSelectState.bind(that, false);
+            ChapterUrlsUI.connectButtonHandlers();
         }
         that.chapters = chapters;
     });

@@ -1,0 +1,106 @@
+"use strict";
+
+/** Class that handles UI for selecting (chapter) URLs to fetch */
+class ChapterUrlsUI {
+    constructor() {
+    }
+
+    static connectButtonHandlers() {
+        ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
+        ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
+    }
+
+    static populateChapterUrlsTable(chapters) {
+        ChapterUrlsUI.clearChapterUrlsTable();
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        chapters.forEach(function (chapter) {
+            let row = document.createElement("tr");
+            ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
+            ChapterUrlsUI.appendInputTextToRow(row, chapter);
+            chapter.stateColumn = ChapterUrlsUI.appendColumnDataToRow(row, "No");
+            ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
+            linksTable.appendChild(row);
+        });
+    }
+
+    static clearChapterUrlsTable() {
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        while (linksTable.children.length > 1) {
+            linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
+        }
+    }
+
+    /** 
+    * @private
+    */
+    static getChapterUrlsTable() {
+        return document.getElementById("chapterUrlsTable");
+    }
+
+    /** 
+    * @private
+    */
+    static getSelectAllUrlsButton() {
+        return document.getElementById("selectAllUrlsButton");
+    }
+
+    /** 
+    * @private
+    */
+    static getUnselectAllUrlsButton() {
+        return document.getElementById("unselectAllUrlsButton");
+    }
+
+    /** 
+    * @private
+    */
+    static setAllUrlsSelectState(select) {
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        for(let row of linksTable.children) {
+            let input = util.getElement(row, "input", i => i.type === "checkbox");
+            if ((input !== null) && (input.checked !== select)) {
+                input.checked = select;
+                input.onclick();
+            }
+        }
+    }
+
+    /** 
+    * @private
+    */
+    static appendCheckBoxToRow(row, chapter) {
+        let col = document.createElement("td");
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        chapter.isIncludeable = true;
+        checkbox.checked = chapter.isIncludeable;
+        checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
+        col.appendChild(checkbox);
+        row.appendChild(col);
+    }
+
+    /** 
+    * @private
+    */
+    static appendInputTextToRow(row, chapter) {
+        let col = document.createElement("td");
+        let input = document.createElement("input");
+        input.type = "text";
+        input.value = chapter.title;
+        input.className = "fullWidth";
+        input.addEventListener("blur", function() { chapter.title = input.value; },  true);
+        col.appendChild(input);
+        row.appendChild(col);
+    }
+
+    /** 
+    * @private
+    */
+    static appendColumnDataToRow(row, textData) {
+        let col = document.createElement("td");
+        col.innerText = textData;
+        col.style.whiteSpace = "nowrap";
+        row.appendChild(col);
+        return col;
+    }
+}
