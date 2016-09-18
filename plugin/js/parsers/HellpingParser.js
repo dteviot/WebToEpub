@@ -7,7 +7,7 @@ parserFactory.register("hellping.org", function() { return new HellpingParser() 
 
 // nanodesu URLs have hostnames like '*thetranslation.wordpress.com'
 parserFactory.registerRule(
-    function(url) { return util.extractHostName(url).endsWith("thetranslation.wordpress.com") != -1; }, 
+    function(url) { return util.extractHostName(url).endsWith("thetranslation.wordpress.com"); }, 
     function() { return new HellpingParser() }
 );
 
