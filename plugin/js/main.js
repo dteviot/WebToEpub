@@ -259,6 +259,7 @@ var main = (function () {
         populateMetaInfo(metaInfo);
         getLoadAndAnalyseButton().hidden = false;
         main.getPackEpubButton().disabled = false;
+        ChapterUrlsUI.clearChapterUrlsTable();
         document.getElementById("fetchProgress").value = 0;
     }
 
