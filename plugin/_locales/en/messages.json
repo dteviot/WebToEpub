@@ -3,6 +3,10 @@
 		"message": "Advanced Options",
 		"description": "Label on button to toggle showing 'Advanced Options'"
 	},
+	"__MSG_button_Apply_Changes__": {
+		"message": "Apply Changes",
+		"description": "Label on button to end manually editing list of URLs to fetch"
+	},
 	"__MSG_button_Edit_Chapter_Urls__": {
 		"message": "Edit Chapter URLs",
 		"description": "Label on button to allow manually editing list of URLs to fetch"

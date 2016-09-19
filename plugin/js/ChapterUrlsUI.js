@@ -3,14 +3,14 @@
 /** Class that handles UI for selecting (chapter) URLs to fetch */
 class ChapterUrlsUI {
     constructor(parser) {
-        this.usingTable = true;
         this.parser = parser;
     }
 
     connectButtonHandlers() {
         ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
         ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
-        ChapterUrlsUI.getEditChapterUrlsButton().onclick = this.onEditChapterUrls.bind(this);
+        ChapterUrlsUI.getEditChapterUrlsButton().onclick = this.setEditInputMode.bind(this);
+        ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
     }
 
     populateChapterUrlsTable(chapters) {
@@ -59,6 +59,13 @@ class ChapterUrlsUI {
     */
     static getEditChapterUrlsButton() {
         return document.getElementById("editChaptersUrlsButton");
+    }
+
+    /** 
+    * @private
+    */
+    static getApplyChangesButton() {
+        return document.getElementById("applyChangesButton");
     }
 
     /** 
@@ -124,17 +131,6 @@ class ChapterUrlsUI {
     /** 
     * @private
     */
-    onEditChapterUrls() {
-        if (this.usingTable) {
-            this.setEditInputMode();
-        } else {
-            this.setTableMode();
-        }
-    }
-
-    /** 
-    * @private
-    */
     setVisibileUI(toTable) {
         // toggle mode
         ChapterUrlsUI.getEditChaptersUrlsInput().hidden = toTable;
@@ -143,6 +139,8 @@ class ChapterUrlsUI {
         document.getElementById("coverUrlSection").hidden = !toTable;
         ChapterUrlsUI.getSelectAllUrlsButton().hidden = !toTable;
         ChapterUrlsUI.getUnselectAllUrlsButton().hidden = !toTable;
+        ChapterUrlsUI.getEditChapterUrlsButton().hidden = !toTable;
+        ChapterUrlsUI.getApplyChangesButton().hidden = toTable;
     }
 
     /** 
