@@ -3,6 +3,14 @@
         "message": "Tùy Chọn Nâng Cao",
         "description": ""
     },
+    "__MSG_button_Apply_Changes__": {
+        "message": "Áp Dụng Thay Đổ",
+        "description": ""
+    },
+    "__MSG_button_Edit_Chapter_Urls__": {
+        "message": "Chỉnh sửa Đường dẫn của Chương",
+        "description": ""
+    },
     "__MSG_button_error_OK__": {
         "message": "OK",
         "description": ""
