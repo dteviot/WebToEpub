@@ -295,6 +295,16 @@ class ImageCollector {
     initialUrlToTry(imageInfo) {
         return imageInfo.wrappingUrl;
     }
+
+    /**
+    *  Derived classess will override
+    *  Base version tells user there's a problem
+    */
+    selectImageUrlFromImagePage(dom) {
+        let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
+        window.showErrorMessage(errorMsg);
+        return null;
+    }
 }
 
 //==============================================================

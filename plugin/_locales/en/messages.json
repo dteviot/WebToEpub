@@ -151,6 +151,15 @@
 		"message": "No UUID supplied",
 		"description": "Default UUID value to use when one is not supplied"
 	},
+	"gotHtmlExpectedImageWarning": {
+		"message": "Fetch of URL '$url$' returned HTML, expected an image.",
+		"description": "Warning message when try to fetch an image and instead get HTML",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
+	},
 	"noChaptersFound": {
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."

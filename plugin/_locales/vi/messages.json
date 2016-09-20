@@ -151,6 +151,15 @@
         "message": "UUID Không Được Cấp",
         "description": ""
     },
+    "gotHtmlExpectedImageWarning": {
+        "message": "Tải trang từ đường dẫn '$url$' trả kết quả lại là HTML, có thể chỉ là hình ảnh",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
+    },
     "noChaptersFound": {
         "message": "Không tìm thấy chương. Có thể đây không phải một trang thuộc bộ truyện.",
         "description": ""
