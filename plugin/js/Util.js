@@ -170,6 +170,26 @@ var util = (function () {
         };
     }
 
+    var removeHeightAndWidthStyleFromParents = function(element) {
+        let parent = element.parentElement;
+        while ((parent != null) && (parent.tagName.toLowerCase() !== "body")) {
+            util.removeHeightAndWidthStyle(parent);
+            parent = parent.parentElement;
+        }
+    }
+
+    var removeHeightAndWidthStyle = function(element) {
+        let style = element.style;
+        if ((style.width !== "") || (style.height !== "")) {
+            style.width = null;
+            style.height = null;
+            if (style.length === 0) {
+                // avoid a style="" attribute in element
+                element.removeAttribute("style");
+            }
+        }
+    }
+
     var removeUnwantedWordpressElements = function(element) {
         let isUnwantedDiv = function(div) {
             return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
@@ -549,6 +569,8 @@ var util = (function () {
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
         removeEventHandlers: removeEventHandlers,
+        removeHeightAndWidthStyleFromParents: removeHeightAndWidthStyleFromParents,
+        removeHeightAndWidthStyle: removeHeightAndWidthStyle,
         removeUnwantedWordpressElements: removeUnwantedWordpressElements,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,

@@ -238,9 +238,6 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     // move images out of the <ul> gallery
     let garbage = new Set();
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
-        for(let d of util.getElements(listItem, "div")) {
-            that.stripWidthStyle(d);
-        }
         util.removeElements(that.getElements(listItem, "div", e => (e.className === "gallerytext")));
 
         let gallery = listItem.parentNode;
@@ -251,13 +248,6 @@ BakaTsukiParser.prototype.stripGalleryBox = function (element) {
     // throw away rest of gallery  (note sometimes there are multiple galleries)
     for(let node of garbage) {
         util.removeNode(node);
-    }
-}
-
-BakaTsukiParser.prototype.stripWidthStyle = function (element) {
-    let style = element.getAttribute("style");
-    if (style !== null && style.startsWith("width: ")) {
-        element.removeAttribute("style");
     }
 }
 

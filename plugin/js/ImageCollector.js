@@ -374,6 +374,7 @@ class ImageTagReplacer {
         };
         let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
         nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
+        util.removeHeightAndWidthStyleFromParents(newImage);
         util.removeNode(that.wrappingElement);
     }
 

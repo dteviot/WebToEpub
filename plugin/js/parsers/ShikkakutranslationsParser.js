@@ -54,10 +54,6 @@ class ShikkakutranslationsParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         this.addTitleToContent(chapter.rawDom, content);
-        // remove width style from image gallery
-        for(let g of util.getElements(content, "div", e => e.className.startsWith("gallery-row"))) {
-            g.style = null;
-        }
     }
 
     addTitleToContent(dom, content) {

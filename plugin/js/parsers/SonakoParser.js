@@ -87,8 +87,6 @@ SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (elem
     // hyperlinks that allow editing text
     util.removeElements(that.getElements(element, "span", e => (e.className === "editsection")));
 
-    that.stripGalleryImageWidthStyle(element);
-
     // fix source for delay loaded image tags
     for(let img of util.getElements(element, "img", e => e.src.startsWith("data:image"))) {
         let href = img.getAttribute("data-src");
@@ -97,10 +95,3 @@ SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (elem
         };
     };
 };
-
-// remove the "Width" style from the Gallery items, so images can take full screen.
-SonakoParser.prototype.stripGalleryImageWidthStyle = function (element) {
-    for(let item of util.getElements(element, "div", e => (e.className === "wikia-gallery-item"))) {
-        item.removeAttribute("style");
-    }
-}

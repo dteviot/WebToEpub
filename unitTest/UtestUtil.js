@@ -258,3 +258,11 @@ test("removeEventHandlers", function (assert) {
     let link = dom.getElementById("fnref-63064-1");
     assert.equal(link.outerHTML, "<a href=\"#fn-63064-1\" id=\"fnref-63064-1\">1</a>");
 });
+
+QUnit.test("removeHeightAndWidthStyle", function (assert) {
+    let html = "<p style=\"width:100%;height:100%;color:rgb(153, 153, 153);\"></p>";
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    let p = doc.getElementsByTagName("p")[0];
+    util.removeHeightAndWidthStyle(p);
+    assert.equal(p.outerHTML, "<p style=\"color: rgb(153, 153, 153);\"></p>");
+});
