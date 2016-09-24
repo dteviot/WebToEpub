@@ -61,7 +61,7 @@ class ZirusMusingsParser extends Parser {
             }
             return ZirusMusingsParser.constructStandardHtmForImgur(imagesList);
         } else {
-            let article = util.getElement(dom, "article", e => e.clasName !== "comment-body");
+            let article = util.getElement(dom, "article", e => e.className !== "comment-body");
             let div = util.getElement(article, "div");
             return div;
         }
