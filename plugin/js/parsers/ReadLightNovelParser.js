@@ -96,13 +96,29 @@ class ReadLightNovelParser extends Parser {
         return util.getElement(dom, "div", e => e.className === "chapter-content");
     }
 
+    customRawDomToContentStep(chapter, content) {
+        util.removeLeadingWhiteSpace(content);
+        this.addTitleToContent(chapter.rawDom, content);
+    }
+
+    addTitleToContent(dom, content) {
+        let title = this.findChapterTitle(dom);
+        if (title !== null) {
+            let newTitle = dom.createElement("h1");
+            newTitle.innerText = title.innerText;
+            content.insertBefore(newTitle, content.firstChild);
+        };
+    }
+
+    findChapterTitle(dom) {
+        return util.getElement(dom, "h1");
+    }
+
     removeUnwantedElementsFromContentElement(element) {
-        let that = this;
         super.removeUnwantedElementsFromContentElement(element);
         util.removeElements(util.getElements(element, "div", e => e.className === "row"));
         util.removeElements(util.getElements(element, "img", e => e.src.indexOf("/magnify-clip.png") !== -1));
-        that.removeShareThisLinks(element);
-        util.removeLeadingWhiteSpace(element);
+        this.removeShareThisLinks(element);
     }
 
     removeShareThisLinks(element) {

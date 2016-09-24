@@ -206,6 +206,8 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
         }
         that.chapters = chapters;
         chapterUrlsUI.connectButtonHandlers();
+    }).catch(function (err) {
+        window.showErrorMessage(err);
     });
 }
 
