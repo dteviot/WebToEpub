@@ -266,3 +266,12 @@ QUnit.test("removeHeightAndWidthStyle", function (assert) {
     util.removeHeightAndWidthStyle(p);
     assert.equal(p.outerHTML, "<p style=\"color: rgb(153, 153, 153);\"></p>");
 });
+
+QUnit.test("isElementWhiteSpace", function (assert) {
+    let html = "<html><head><title></title></head><body><!-- c -->text<div></div></body></html>";
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    let body = util.getElement(doc, "body");
+    assert.ok(util.isElementWhiteSpace(body.childNodes[0]));
+    assert.ok(!util.isElementWhiteSpace(body.childNodes[1]));
+    assert.ok(util.isElementWhiteSpace(body.childNodes[2]));
+});
