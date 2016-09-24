@@ -8,7 +8,7 @@ function makeDummyXhtmlFile(title) {
     content.className = "userstuff module";
     xhtml.getElementsByTagName("body")[0].appendChild(content);
     let h1 = xhtml.createElement("h1");
-    h1.InnerText = title;
+    h1.innerText = title;
     content.appendChild(h1);
     return xhtml;
 }
@@ -190,11 +190,13 @@ test("buildTableOfContents", function (assert) {
 
 test("buildNestedTableOfContents", function (assert) {
     let epubItemSupplier = makeEpubItemSupplier();
+    let doc = new DOMParser().parseFromString("<html><head><title></title><body><div></div><div></div></body></html>", "text/html");
+    let body = util.getElement(doc, "body");
     let epubItems = [];
-    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "C1", newArc: null }, null, 0));
-    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C1", newArc: "A1" }, null, 1));
-    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C2", newArc: null }, null, 2));
-    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A2C1", newArc: "A2" }, null, 3));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "C1", newArc: null }, body, 0));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C1", newArc: "A1" }, body, 1));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C2", newArc: null }, body, 2));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A2C1", newArc: "A2" }, body, 3));
 
     epubItemSupplier.epubItems = epubItems;
     let buildTableOfContents = makePacker().buildTableOfContents(epubItemSupplier);

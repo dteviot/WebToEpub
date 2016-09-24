@@ -439,10 +439,10 @@ var util = (function () {
 
     var isElementWhiteSpace = function(element) {
         switch (element.nodeType) {
-            case Node.TEXT_NODE:
-                return util.isStringWhiteSpace(element.textContent);
-            case Node.COMMENT_NODE:
-                return true;
+        case Node.TEXT_NODE:
+            return util.isStringWhiteSpace(element.textContent);
+        case Node.COMMENT_NODE:
+            return true;
         }
         if ((element.tagName === "IMG") || (element.tagName === "image")) {
             return false;

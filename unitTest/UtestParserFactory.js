@@ -11,9 +11,9 @@ QUnit.test("basicFetchWorks", function (assert) {
     assert.ok(parser instanceof FanFictionParser );
 });
 
-QUnit.test("unknownUrlReturnsNull", function (assert) {
+QUnit.test("unknownUrlReturnsDefaultParser", function (assert) {
     let parser = parserFactory.fetch("http://unknown.org/works/123456/chapters/9876543");
-    assert.ok(parser === undefined);
+    assert.ok(parser instanceof DefaultParser);
 });
 
 QUnit.test("cantRegisterDuplicateUrls", function (assert) {

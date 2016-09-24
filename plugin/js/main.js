@@ -333,6 +333,9 @@ var main = (function () {
         for(let label of util.getElements(document, "th", b => isLocalizeable(b))) {
             localize(label);
         };
+        for(let label of util.getElements(document, "option", b => isLocalizeable(b))) {
+            localize(label);
+        };
     }
 
     // actions to do when window opened

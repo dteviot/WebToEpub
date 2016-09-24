@@ -28,6 +28,10 @@ class Parser {
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
+        if (util.isElementWhiteSpace(content)) {
+            let errorMsg = chrome.i18n.getMessage("warningNoVisibleContent", [chapter.sourceUrl]);
+            window.showErrorMessage(errorMsg);
+        }
         return content;
     }
 
@@ -246,6 +250,11 @@ Parser.prototype.fetchChapters = function() {
             chapter.rawDom = xhr.responseXML;
             that.updateLoadState(chapter);
             let content = that.findContent(chapter.rawDom);
+            if (content == null) {
+                chapter.isIncludeable = false;
+                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [chapter.sourceUrl]);
+                throw new Error(errorMsg);
+            }
             that.imageCollector.findImagesUsedInDocument(content);
             return that.imageCollector.fetchImages(() => { });
         }); 

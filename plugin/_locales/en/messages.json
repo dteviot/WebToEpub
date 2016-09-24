@@ -87,6 +87,10 @@
 		"message": "File Author as",
 		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
 	},
+	"__MSG_label_Element_With_Chapter_Content__": {
+		"message": "Element with Chapter Content:",
+		"description": "Label in front input for type of element holding each chapter's content"
+	},
 	"__MSG_label_Filename__": {
 		"message": "Filename",
 		"description": "Label in front input for file to save EPUB as"
@@ -139,6 +143,26 @@
 		"message": "Volume",
 		"description": "Label in front of input for novel's position in series."
 	},
+	"__MSG_option_Class_Is__": {
+		"message": "Class is",
+		"description": "Content is element of specified class."
+	},
+	"__MSG_option_Class_Starts_With__": {
+		"message": "Class Starts With",
+		"description": "Content is element having a class name starting with."
+	},
+	"__MSG_option_First_Found__": {
+		"message": "First Found",
+		"description": "Content is first element of specified type found."
+	},
+	"__MSG_option_ID_Is__": {
+		"message": "ID is",
+		"description": "Content is element with specified ID."
+	},
+	"__MSG_option_ID_Starts_With__": {
+		"message": "ID Starts With",
+		"description": "Content is element having an ID starting with."
+	},
 	"defaultAuthor": {
 		"message": "No author supplied",
 		"description": "Default author value to use when one is not supplied"
@@ -150,6 +174,15 @@
 	"defaultUUID": {
 		"message": "No UUID supplied",
 		"description": "Default UUID value to use when one is not supplied"
+	},
+	"errorContentNotFound": {
+		"message": "Could not find content element for web page '$url$'.",
+		"description": "Warning message when can't find content element for a web page",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
 	},
 	"gotHtmlExpectedImageWarning": {
 		"message": "Fetch of URL '$url$' returned HTML, expected an image.",
@@ -177,7 +210,7 @@
 		"description": "Text put in images table when no images are found."
 	},
 	"noParserFound": {
-		"message": "No parser found for this URL.",
+		"message": "No parser found for this URL.  Default parser will be used.  You will need to specify how to obtain content for each chapter.",
 		"description": "Warning message when can't figure out how to extract info from web page."
 	},
 	"setCover": {
@@ -187,5 +220,14 @@
 	"unhandledFieldTypeError": {
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
+	},
+	"warningNoVisibleContent": {
+		"message": "Warning, content element for web page '$url$' has no visible content.",
+		"description": "Warning message when content element for a page has nothing viewable",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
 	}
 }

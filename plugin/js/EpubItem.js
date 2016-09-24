@@ -78,7 +78,7 @@ class ChapterEpubItem extends EpubItem {
     constructor(chapter, content, index) {
         super(chapter.sourceUrl);
         super.setIndex(index);
-        this.elements = [ content ];
+        this.elements = Array.prototype.slice.apply(content.children);
         this.chapterTitle = chapter.title;
         this.newArc = chapter.newArc;
     }

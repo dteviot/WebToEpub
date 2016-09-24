@@ -45,13 +45,17 @@ class ParserFactory{
         }
         let hostName = ParserFactory.stripLeadingWww(util.extractHostName(url));
         let constructor = this.parsers.get(hostName);
-        // no exact match found, see if any parser is willing to handle the URL
-        if (constructor === undefined) {
-            for (let pair of this.parserRules.filter(p => p.test(url))) {
-                return pair.constructor();
-            }
+        if (constructor !== undefined) {
+            return constructor();
         }
-        return (constructor === undefined) ? undefined : constructor();
+
+        // no exact match found, see if any parser is willing to handle the URL
+        for (let pair of this.parserRules.filter(p => p.test(url))) {
+            return pair.constructor();
+        }
+
+        // still no parser found, fall back to default
+        return new DefaultParser();
     }
 }
 
