@@ -12,9 +12,8 @@
 */
 class ImageCollector {
     constructor() {
-        this.removeDuplicateImages = false;
         this.reset();
-        this.includeImageSourceUrl = true;
+        this.userPreferences = null;
     }
 
     // An "image collector" with no images
@@ -83,8 +82,7 @@ class ImageCollector {
     }
 
     onUserPreferencesUpdate(userPreferences) {
-        this.removeDuplicateImages = userPreferences.removeDuplicateImages;
-        this.includeImageSourceUrl = userPreferences.includeImageSourceUrl;
+        this.userPreferences = userPreferences;
     }
 
     numberOfImagesToFetch() {
@@ -173,7 +171,7 @@ class ImageCollector {
         let that = this;
         let wrappingElement = that.findImageWrappingElement(element);
         let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-        return new ImageTagReplacer(wrappingElement, wrappingUrl, that.removeDuplicateImages, that.includeImageSourceUrl);
+        return new ImageTagReplacer(wrappingElement, wrappingUrl, that.userPreferences);
     }
 
     findImageWrappingElement(element) {
@@ -332,14 +330,12 @@ class ImageTagReplacer {
      * Record details of element to replace
      * @param {element} wrappingElement the outermost parent element of the <img> tag to remove.
      * @param {string} wrappingUrl url of image being replaced
-     * @param {bool} removeDuplicateImages - Remove images from gallery that appear elsewhere?
-     * @param {bool} includeImageSourceUrl - Include the image's orignal URL as a svc <desc>?
+     * @param {userPreferences} userPreferences - user's configuration options
      */
-    constructor(wrappingElement, wrappingUrl, removeDuplicateImages, includeImageSourceUrl) {
+    constructor(wrappingElement, wrappingUrl, userPreferences) {
         this.wrappingElement = wrappingElement;
         this.wrappingUrl = wrappingUrl;
-        this.removeDuplicateImages = removeDuplicateImages;
-        this.includeImageSourceUrl = includeImageSourceUrl
+        this.userPreferences = userPreferences;
     }
 
     /**
@@ -372,7 +368,7 @@ class ImageTagReplacer {
         if (parent.tagName.toLowerCase() === "p") {
             nodeAfter = parent;
         };
-        let newImage = imageInfo.createImageElement(that.includeImageSourceUrl);
+        let newImage = imageInfo.createImageElement(that.userPreferences);
         nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
         util.removeHeightAndWidthStyleFromParents(newImage);
         util.removeNode(that.wrappingElement);
@@ -383,7 +379,8 @@ class ImageTagReplacer {
      */
     isDuplicateImageToRemove(imageInfo) {
         let that = this;
-        return that.removeDuplicateImages && that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
+        return that.userPreferences.removeDuplicateImages && 
+            that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
     }
 
     /**

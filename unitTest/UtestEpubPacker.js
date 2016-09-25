@@ -307,10 +307,13 @@ test("UnwindNavPointParentElementsStack", function (assert) {
 test("makeCoverImageXhtmlFile", function (assert) {
     let imageInfo = new ImageInfo("http://dummy/cover.png", 0, "http://dummy/cover.png");
     imageInfo.width = 400;
-    imageInfo.height = 200;
+    imageInfo.height = 600;
     imageInfo.isCover = true;
     let dummyImageCollector = {
-        includeImageSourceUrl: true,
+        userPreferences: {
+            includeImageSourceUrl: true,
+            useSvgForImages: true
+        },
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
@@ -328,8 +331,8 @@ test("makeCoverImageXhtmlFile", function (assert) {
             "</head>" +
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
-                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
-                        "<image xlink:href=\"../Images/0000_cover.png\" width=\"400\" height=\"200\"/>" +
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 600\">" +
+                        "<image xlink:href=\"../Images/0000_cover.png\" width=\"400\" height=\"600\"/>" +
                         "<desc>http://dummy/cover.png</desc>" + 
                     "</svg>" +
                 "</div>" +
@@ -338,13 +341,48 @@ test("makeCoverImageXhtmlFile", function (assert) {
     );
 });
 
+test("makeCoverImageXhtmlFileAsImg", function (assert) {
+    let imageInfo = new ImageInfo("http://dummy/cover.png", 0, "http://dummy/cover.png");
+    imageInfo.width = 400;
+    imageInfo.height = 600;
+    imageInfo.isCover = true;
+    let dummyImageCollector = {
+        userPreferences: {
+            includeImageSourceUrl: true,
+            useSvgForImages: false
+        },
+        coverImageInfo: imageInfo,
+        imagesToPackInEpub: function () { return []; }
+    };
+    let itemSupplier = new EpubItemSupplier(null, [], dummyImageCollector);
+    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
+    
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+            "<head>" +
+                "<title></title>" +
+                "<link href=\"../Styles/stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />" +
+            "</head>" +
+            "<body>" +
+                "<div><img src=\"../Images/0000_cover.png\" alt=\"\" /><!--  http://dummy/cover.png  --></div>" +
+            "</body>" +
+        "</html>"
+    );
+});
+
 test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
     let imageInfo = new ImageInfo("http://dummy/cover.png", 0, "http://dummy/cover.png");
     imageInfo.width = 400;
-    imageInfo.height = 200;
+    imageInfo.height = 600;
     imageInfo.isCover = true;
     let dummyImageCollector = {
-        includeImageSourceUrl: false,
+        userPreferences: {
+            includeImageSourceUrl: false,
+            useSvgForImages: true
+        },
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
@@ -362,8 +400,8 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
             "</head>" +
             "<body>" +
                "<div class=\"svg_outer svg_inner\">" +
-                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 200\">" +
-                        "<image xlink:href=\"../Images/0000_cover.png\" width=\"400\" height=\"200\"/>" +
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" height=\"99%\" width=\"100%\" version=\"1.1\" preserveAspectRatio=\"xMidYMid meet\" viewBox=\"0 0 400 600\">" +
+                        "<image xlink:href=\"../Images/0000_cover.png\" width=\"400\" height=\"600\"/>" +
                         "<!--  http://dummy/cover.png  -->" +
                     "</svg>" +
                 "</div>" +

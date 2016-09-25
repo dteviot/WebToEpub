@@ -150,92 +150,115 @@ class ImageInfo extends EpubItem {
     fileContentForEpub() {
         return this.arraybuffer;
     }
-}
 
-ImageInfo.prototype.findImageSuffix = function(wrappingUrl) {
-    let that = this;
-    let suffix = "";
-    let fileName = that.extractImageFileNameFromUrl(wrappingUrl)
-    if (fileName != null) {
-        let index = fileName.lastIndexOf(".");
-        suffix = fileName.substring(index + 1);
+    findImageSuffix(wrappingUrl) {
+        let that = this;
+        let suffix = "";
+        let fileName = that.extractImageFileNameFromUrl(wrappingUrl)
+        if (fileName != null) {
+            let index = fileName.lastIndexOf(".");
+            suffix = fileName.substring(index + 1);
+        }
+
+        // if can't find suffix from file, use the media type
+        if (fileName == null) {
+            let split = that.mediaType.split("/");
+            suffix = split[split.length - 1];
+        };
+        return suffix;
     }
 
-    // if can't find suffix from file, use the media type
-    if (fileName == null) {
-        let split = that.mediaType.split("/");
-        suffix = split[split.length - 1];
-    };
-    return suffix;
-}
+    // assume image URL looks like one one of the following
+    // https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
+    // https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427
+    // https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
 
-// assume image URL looks like one one of the following
-// https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
-// https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427
-// https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
-
-// http://sonako.wikia.com/wiki/File:Date4_000c.png
-// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
-// http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
-ImageInfo.prototype.extractImageFileNameFromUrl = function(url) {
-    let that = this;
-    let temp = url;
+    // http://sonako.wikia.com/wiki/File:Date4_000c.png
+    // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
+    // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
+    extractImageFileNameFromUrl(url) {
+        let that = this;
+        let temp = url;
     
-    // remove everything after hash
-    let index = url.indexOf("#");
-    if (0 <= index) {
-        temp = url.substring(0, index);
+        // remove everything after hash
+        let index = url.indexOf("#");
+        if (0 <= index) {
+            temp = url.substring(0, index);
+        }
+
+        // make sure it's long enough to be a url
+        if (9 < temp.length) {
+
+            // remove protocol, hostname and port, make sure there's a pathname left
+            temp = temp.substring(8);
+            index = temp.indexOf("/");
+            if ((0 <= index) && (index < temp.length - 2)) {
+                temp = temp.substring(index + 1);
+
+                // break into pieces and take last piece that looks like an image filename
+                let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => that.isImageFileNameCandidate(s));
+                if (0 < fileNames.length) {
+                    return fileNames[fileNames.length - 1];
+                }
+            }
+        } 
+    
+        // if get here, nothing found
+        return undefined;
     }
 
-    // make sure it's long enough to be a url
-    if (9 < temp.length) {
+    // Crude. If string has '.' and is not a .php or .html, 
+    // and there's at least 3 characters after the '.'
+    // assume it's an image filename
+    isImageFileNameCandidate(candidate) {
+        let lowerString = candidate.toLowerCase();
+        return (4 < lowerString.length) &&
+            (lowerString.indexOf(".") !== -1) &&
+            (lowerString.indexOf(".html") === -1) &&
+            (lowerString.indexOf(".php") === -1) &&
+            (4 <= (lowerString.length - lowerString.lastIndexOf(".")));
+    }
 
-        // remove protocol, hostname and port, make sure there's a pathname left
-        temp = temp.substring(8);
-        index = temp.indexOf("/");
-        if ((0 <= index) && (index < temp.length - 2)) {
-            temp = temp.substring(index + 1);
-
-            // break into pieces and take last piece that looks like an image filename
-            let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => that.isImageFileNameCandidate(s));
-            if (0 < fileNames.length) {
-                return fileNames[fileNames.length - 1];
+    getImageName(page) {
+        let that = this;
+        if(page){
+            var name = that.extractImageFileNameFromUrl(page);
+            if(name){
+                return name.split(/\./gi)[0];
             }
         }
-    } 
-    
-    // if get here, nothing found
-    return undefined;
-}
+        // This is actually wise to do now.
+        return undefined;
+    }
 
-// Crude. If string has '.' and is not a .php or .html, 
-// and there's at least 3 characters after the '.'
-// assume it's an image filename
-ImageInfo.prototype.isImageFileNameCandidate = function(candidate) {
-    let lowerString = candidate.toLowerCase();
-    return (4 < lowerString.length) &&
-        (lowerString.indexOf(".") !== -1) &&
-        (lowerString.indexOf(".html") === -1) &&
-        (lowerString.indexOf(".php") === -1) &&
-        (4 <= (lowerString.length - lowerString.lastIndexOf(".")));
-}
-
-ImageInfo.prototype.getImageName = function (page) {
-    let that = this;
-    if(page){
-        var name = that.extractImageFileNameFromUrl(page);
-        if(name){
-            return name.split(/\./gi)[0];
+    createImageElement(userPreferences) {
+        if (this.isSvgImageUsedHere(userPreferences)) {
+            return util.createSvgImageElement(this.getZipHref(), this.width, this.height, 
+                this.wrappingUrl, userPreferences.includeImageSourceUrl);
+        } else {
+            return this.createImgImageElement(this.getZipHref(), this.wrappingUrl);
         }
     }
-    // This is actually wise to do now.
-    return undefined;
-}
 
-ImageInfo.prototype.createImageElement = function(includeImageSourceUrl) {
-    let that = this;
-    return util.createSvgImageElement(that.getZipHref(), that.width, that.height, 
-        that.wrappingUrl, includeImageSourceUrl);
+    isSvgImageUsedHere(userPreferences) {
+        const MIN_SVG_IMAGE_DIMENSION = 300;
+        return userPreferences.useSvgForImages &&
+            MIN_SVG_IMAGE_DIMENSION <= this.width &&
+            MIN_SVG_IMAGE_DIMENSION <= this.height;
+    }
+
+    createImgImageElement(src, origin) {
+        let doc = util.createEmptyXhtmlDoc();
+        let body = doc.getElementsByTagName("body")[0];
+        let div = doc.createElementNS(util.XMLNS, "div");
+        body.appendChild(div);
+        var img = document.createElementNS(util.XMLNS,"img");
+        img.src = util.makeRelative(src);
+        img.alt = "";
+        div.appendChild(img);
+        div.appendChild(doc.createComment("  " + origin + "  "));
+        return div;
+    }
 }
 
 ImageInfo.prototype.chapterInfo = function*() {

@@ -11,6 +11,7 @@ class UserPreferences {
         this.higestResolutionImages = true;
         this.alwaysOpenAsTab = true;
         this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();
+        this.useSvgForImages = true;
 
         this.observers = [];
     };
@@ -22,6 +23,7 @@ class UserPreferences {
         newPreferences.readBooleanFromLocalStorage("higestResolutionImages");
         newPreferences.readBooleanFromLocalStorage("alwaysOpenAsTab");
         newPreferences.readStringFromLocalStorage("styleSheet");
+        newPreferences.readBooleanFromLocalStorage("useSvgForImages");
         return newPreferences;
     }
 
@@ -32,6 +34,7 @@ class UserPreferences {
         that.writeFieldToLocalStorage("higestResolutionImages");
         that.writeFieldToLocalStorage("alwaysOpenAsTab");
         that.writeFieldToLocalStorage("styleSheet");
+        that.writeFieldToLocalStorage("useSvgForImages");
     }
 
     addObserver(observer) {
@@ -77,6 +80,7 @@ class UserPreferences {
         that.higestResolutionImages = that.getHigestResolutionImagesUiControl().checked;
         that.alwaysOpenAsTab = that.getAlwaysOpenAsTabUiControl().checked;
         that.styleSheet = that.getStylesheetUiControl().value;
+        that.useSvgForImages = that.getUseSvgForImagesUiControl().checked;
 
         that.writeToLocalStorage();
 
@@ -97,6 +101,7 @@ class UserPreferences {
         that.getHigestResolutionImagesUiControl().checked = that.higestResolutionImages;
         that.getAlwaysOpenAsTabUiControl().checked = that.alwaysOpenAsTab;
         that.getStylesheetUiControl().value = that.styleSheet;
+        that.getUseSvgForImagesUiControl().checked = that.useSvgForImages;
     }
 
     getRemoveDuplicateImagesUiControl() {
@@ -119,12 +124,18 @@ class UserPreferences {
         return document.getElementById("stylesheetInput");
     }
 
+    getUseSvgForImagesUiControl() {
+        return document.getElementById("useSvgForImagesInput");
+    }
+
     hookupUi() {
-        this.getRemoveDuplicateImagesUiControl().onclick = this.readFromUi.bind(this);
-        this.getIncludeImageSourceUrlUiControl().onclick = this.readFromUi.bind(this);
-        this.getHigestResolutionImagesUiControl().onclick = this.readFromUi.bind(this);
-        this.getAlwaysOpenAsTabUiControl().onclick = this.readFromUi.bind(this);
-        this.getStylesheetUiControl().addEventListener("blur", this.readFromUi.bind(this), true);
+        let readFromUi = this.readFromUi.bind(this);
+        this.getRemoveDuplicateImagesUiControl().onclick = readFromUi;
+        this.getIncludeImageSourceUrlUiControl().onclick = readFromUi;
+        this.getHigestResolutionImagesUiControl().onclick = readFromUi;
+        this.getAlwaysOpenAsTabUiControl().onclick = readFromUi;
+        this.getStylesheetUiControl().addEventListener("blur", readFromUi, true);
+        this.getUseSvgForImagesUiControl().onclick = readFromUi;
 
         this.notifyObserversOfChange();
     }

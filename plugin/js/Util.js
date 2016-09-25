@@ -10,32 +10,30 @@
 var util = (function () {
 
     var createEmptyXhtmlDoc = function() {
-        let ns = "http://www.w3.org/1999/xhtml";
-        let doc = document.implementation.createDocument(ns, "", null);
+        let doc = document.implementation.createDocument(util.XMLNS, "", null);
         util.addXhtmlDocTypeToStart(doc);
-        let htmlNode = doc.createElementNS(ns, "html");
+        let htmlNode = doc.createElementNS(util.XMLNS, "html");
         doc.appendChild(htmlNode);
-        let head = doc.createElementNS(ns, "head");
+        let head = doc.createElementNS(util.XMLNS, "head");
         htmlNode.appendChild(head);
-        head.appendChild(doc.createElementNS(ns, "title"));
-        let style = doc.createElementNS(ns, "link");
+        head.appendChild(doc.createElementNS(util.XMLNS, "title"));
+        let style = doc.createElementNS(util.XMLNS, "link");
         head.appendChild(style);
         style.setAttribute("href", util.makeRelative(util.styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
-        let body = doc.createElementNS(ns, "body");
+        let body = doc.createElementNS(util.XMLNS, "body");
         htmlNode.appendChild(body);
         return doc;
     }
 
     var createSvgImageElement = function (href, width, height, origin, includeImageSourceUrl) {
-        let xmlns = "http://www.w3.org/1999/xhtml";
         let svg_ns = "http://www.w3.org/2000/svg";
         let xlink_ns = "http://www.w3.org/1999/xlink";
         let that = this;
         let doc = that.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
-        let div = doc.createElementNS(xmlns, "div");
+        let div = doc.createElementNS(util.XMLNS, "div");
         div.className = "svg_outer svg_inner";
         body.appendChild(div);
         var svg = document.createElementNS(svg_ns,"svg");
@@ -555,6 +553,7 @@ var util = (function () {
     }
 
     return {
+        XMLNS: "http://www.w3.org/1999/xhtml",
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,

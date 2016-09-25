@@ -45,8 +45,8 @@ EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
     let that = this;
     let doc = util.createEmptyXhtmlDoc();
     let body = doc.getElementsByTagName("body")[0];
-    let includeImageSourceUrl = that.imageCollector.includeImageSourceUrl;
-    body.appendChild(that.coverImageInfo.createImageElement(includeImageSourceUrl));
+    let userPreferences = that.imageCollector.userPreferences;
+    body.appendChild(that.coverImageInfo.createImageElement(userPreferences));
     return util.xmlToString(doc);
 }
 

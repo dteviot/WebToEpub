@@ -172,7 +172,7 @@ test("fixBlockTagsNestedInInlineTags", function (assert) {
 });
 
 test("extractHostName", function (assert) {
-    let hostName = util.extractHostName("http://www.w3.org/1999/xhtml");
+    let hostName = util.extractHostName(util.XMLNS);
     assert.equal(hostName, "www.w3.org");
 });
 
