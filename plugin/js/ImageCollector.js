@@ -274,6 +274,7 @@ class ImageCollector {
             let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
             if (temp != null) {
                 imageInfo.sourceUrl = temp;
+                this.urlIndex.set(temp, imageInfo.index);
             }
             return HttpClient.wrapFetch(imageInfo.sourceUrl);
         } else {
