@@ -260,6 +260,7 @@ var main = (function () {
         getLoadAndAnalyseButton().hidden = false;
         main.getPackEpubButton().disabled = false;
         ChapterUrlsUI.clearChapterUrlsTable();
+        CoverImageUI.clearUI();
         document.getElementById("fetchProgress").value = 0;
     }
 

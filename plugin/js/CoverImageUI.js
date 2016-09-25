@@ -13,7 +13,7 @@ class CoverImageUI {
     */
     static getCoverImageUrl() {
         let url = CoverImageUI.getCoverImageUrlInput().value;
-        return ((url === null) || (url.trim === "")) ? null : url;
+        return util.isNullOrEmpty(url) ? null : url;
     }
 
     /** toggle visibility of the Cover Image URL input control
@@ -22,6 +22,12 @@ class CoverImageUI {
     static showCoverImageUrlInput(visible) {
         document.getElementById("coverUrlSection").hidden = !visible;
         document.getElementById("imagesTableDiv").hidden = visible;
+    }
+
+    /** clear all UI elements associated with selecting the Cover Image */
+    static clearUI() {
+        CoverImageUI.clearImageTable();
+        CoverImageUI.setCoverImageUrl(null);
     }
 
     /** remove all images from the table of images to pick from */
