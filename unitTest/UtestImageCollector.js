@@ -128,3 +128,30 @@ QUnit.test("removeDuplicateImages", function (assert) {
     assert.equal(imagesToPack[1].sourceUrl, "http://test.com/bmp2.jpg");
     assert.equal(imageCollector.urlIndex.get("http://test.com/bmp2.jpg"), 2);
 });
+
+QUnit.test("removeSizeParamsFromQuery", function (assert) {
+    assert.equal(ImageCollector.removeSizeParamsFromQuery(""), "");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1"), "?a=1");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&z=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1"), "");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1"), "?a=1");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1&z=2"), "?z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&w=2&z=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2&w=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2"), "?a=1&z=2");
+});
+
+QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
+    let out = ImageCollector.removeSizeParamsFromWordPressQuery("http://unlimitednovelfailures.mangamatters.com/wp-content/uploads/2015/05/img004b.jpg?h=20");
+    assert.equal(out, "http://unlimitednovelfailures.mangamatters.com/wp-content/uploads/2015/05/img004b.jpg?h=20");
+
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?w=500&h=715");
+    assert.equal(out, "https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg");
+
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://bibliathetranslation.files.wordpress.com/2016/01/00001.jpg");
+    assert.equal(out, "https://bibliathetranslation.files.wordpress.com/2016/01/00001.jpg");
+
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&w=500&h=715&z=5");
+    assert.equal(out, "https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&z=5");
+});

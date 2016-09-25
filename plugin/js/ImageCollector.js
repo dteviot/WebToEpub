@@ -292,7 +292,28 @@ class ImageCollector {
     *  Hook point to allow picking between high and low res images.
     */
     initialUrlToTry(imageInfo) {
-        return imageInfo.wrappingUrl;
+        return ImageCollector.removeSizeParamsFromWordPressQuery(imageInfo.wrappingUrl);
+    }
+
+    static removeSizeParamsFromWordPressQuery(url) {
+        let urlParser= document.createElement("a");
+        urlParser.href = url;
+        if (urlParser.hostname.endsWith("files.wordpress.com")) {
+            let index = url.indexOf("?");
+            if (0 < index) {
+                let query = url.substring(index + 1);
+                return url.substring(0, index) + 
+                    ImageCollector.removeSizeParamsFromQuery(query);
+            }
+        }
+        return url;
+    }
+
+    static removeSizeParamsFromQuery(query) {
+        let newQuery = query.split('&')
+            .filter(s => (s !== "") && !s.startsWith("w=") && !s.startsWith("h="))
+            .join("&");
+        return (newQuery === "") ? "" : "?" + newQuery;
     }
 
     /**

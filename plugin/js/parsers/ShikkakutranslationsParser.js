@@ -16,7 +16,7 @@ class ShikkakutranslationsImageCollector extends ImageCollector {
             let img = util.getElement(div, "img");
             if (img !== null) {
                 let src = util.resolveRelativeUrl(dom.baseURI, img.src);
-                return util.removeQueryFromUrl(src);
+                return ImageCollector.removeSizeParamsFromWordPressQuery(src);
             }
         }
         return null;
