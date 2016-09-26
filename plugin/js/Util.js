@@ -343,6 +343,98 @@ var util = (function () {
         return link.href.startsWith(baseUri) && (link.href.indexOf("#") != -1);
     }
 
+    var findPrimaryFontColourAndSize = function(element) {
+        let characterCountForElement = function(element) {
+            let count = 0;
+            let child = element.firstChild
+            while (child) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    count += child.nodeValue.length;
+                }
+                child = child.nextSibling;
+            }
+            return count;
+        }
+
+        let findMaxCount = function(map) {
+            let maxPair = [ undefined, 0 ];
+            for(let pair of map) {
+                if (maxPair[1] <= pair[1]) {
+                    maxPair = pair;
+                }
+            }
+            return maxPair[0];
+        }
+ 
+        let mergeStyles = function(parentStyle, currentStyle) {
+            let color = parentStyle.color;
+            let fontSize = parentStyle.fontSize;
+            if (currentStyle.color != "") {
+                color = currentStyle.color;
+            }
+            if (currentStyle.fontSize != "") {
+                fontSize = currentStyle.fontSize;
+            }
+            return { color: color, fontSize: fontSize };
+        } 
+
+        let updateStat = function(stats, mergedStyle, field, count) {
+            let map = stats[field];
+            let key = mergedStyle[field];
+            let total = map.get(key);
+            if (total === undefined) {
+                total = 0;
+            }
+            map.set(key, total + count);
+        } 
+
+        let updateStats = function(stats, mergedStyle, element) {
+            let count = characterCountForElement(element);
+            updateStat(stats, mergedStyle, "color", count);
+            updateStat(stats, mergedStyle, "fontSize", count);
+        } 
+
+        let walk = function(element, stats, parentStyle) {
+            let mergedStyle = mergeStyles(parentStyle, element.style);
+            updateStats(stats, mergedStyle, element);
+            for(let i = 0; i < element.childElementCount; ++i) {
+                walk(element.children[i], stats, mergedStyle);
+            }
+        }  
+
+        let stats = { color: new Map(), fontSize: new Map() };
+        let initialStyle = { color: undefined, fontSize: undefined };
+        walk(element, stats, initialStyle);
+        return { color: findMaxCount(stats.color), fontSize: findMaxCount(stats.fontSize) };
+    }
+
+    /**
+    *  Remove specified inline style value from element and its descendants
+    */
+    var removeStyleValue = function(element, styleName, value) {
+        if (value === undefined) {
+            return;
+        }
+        let walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_ELEMENT);
+        do {
+            let node = walker.currentNode;
+            let style = node.style;
+            if (style[styleName] === value) {
+                style[styleName] = null;
+                if (style.length === 0) {
+                    node.removeAttribute("style");
+                }
+            }
+        }while (walker.nextNode());
+    }
+
+    /** If web page is using custom font color or size, set to default */
+    var setStyleToDefault = function(element) {
+        let primary = util.findPrimaryFontColourAndSize(element);
+        util.removeStyleValue(element, "color", primary.color);
+        util.removeStyleValue(element, "fontSize", primary.fontSize);
+    }
+
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
     var removeUnusedHeadingLevels = function(contentElement) {
         let tags = [ "h1", "h2", "h3", "h4", "h5", "h6" ];
@@ -598,6 +690,9 @@ var util = (function () {
         extractHashFromUri: extractHashFromUri,
         makeHyperlinksRelative: makeHyperlinksRelative, 
         isLocalHyperlink: isLocalHyperlink,
+        findPrimaryFontColourAndSize: findPrimaryFontColourAndSize,
+        removeStyleValue: removeStyleValue,
+        setStyleToDefault: setStyleToDefault,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
         isNullOrEmpty: isNullOrEmpty,
         wrapRawTextNode: wrapRawTextNode,

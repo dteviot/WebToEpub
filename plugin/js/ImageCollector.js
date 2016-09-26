@@ -310,7 +310,7 @@ class ImageCollector {
     }
 
     static removeSizeParamsFromQuery(query) {
-        let newQuery = query.split('&')
+        let newQuery = query.split("&")
             .filter(s => (s !== "") && !s.startsWith("w=") && !s.startsWith("h="))
             .join("&");
         return (newQuery === "") ? "" : "?" + newQuery;

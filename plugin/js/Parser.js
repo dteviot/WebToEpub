@@ -27,6 +27,7 @@ class Parser {
         util.removeUnusedHeadingLevels(content);
         util.removeUnneededIds(content);
         util.makeHyperlinksRelative(chapter.rawDom.baseURI, content);
+        util.setStyleToDefault(content);
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);

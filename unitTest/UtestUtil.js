@@ -324,3 +324,44 @@ QUnit.test("isElementWhiteSpace", function (assert) {
     assert.ok(!util.isElementWhiteSpace(body.childNodes[1]));
     assert.ok(util.isElementWhiteSpace(body.childNodes[2]));
 });
+
+test("findPrimaryFontColourAndSize", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title>" +
+            "</head>" +
+            "<body>" +
+            "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
+            "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+
+    let acutal = util.findPrimaryFontColourAndSize(dom.body);
+    assert.equal(acutal.color, "rgb(153, 153, 153)");
+    assert.equal(acutal.fontSize, undefined);
+});
+
+test("removeStyleValue", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title>" +
+            "</head>" +
+            "<body>" +
+            "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
+            "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+
+    util.removeStyleValue(dom.body, "fontSize", "10pt");
+    assert.equal(dom.body.innerHTML,
+            "<div><p>1234</p></div>" +
+            "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>" 
+    );
+    util.removeStyleValue(dom.body, "color", "rgb(17, 17, 17)");
+    assert.equal(dom.body.innerHTML,
+            "<div><p>1234</p></div>" +
+            "<div style=\"color:#999999\">0<p>1234</p>5678<p>1</p></div>"
+    );
+});
