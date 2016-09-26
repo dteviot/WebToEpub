@@ -365,3 +365,12 @@ test("removeStyleValue", function (assert) {
             "<div style=\"color:#999999\">0<p>1234</p>5678<p>1</p></div>"
     );
 });
+
+test("createComment", function (assert) {
+    let dom = new DOMParser().parseFromString("<html><head><title></title></head><body></body></html>", "text/html");
+    let actual = util.createComment(dom, "http://2.bp.blogspot.com/--pvHycyNQB0/VLJkOS9q57I/AAAAAAAAA-4/pyI5zkbZNsA/s1600/Haken.no.Kouki.Altina.full.1568363.jpg");
+    assert.equal(actual.nodeValue, "  http://2.bp.blogspot.com/%2D%2DpvHycyNQB0/VLJkOS9q57I/AAAAAAAAA-4/pyI5zkbZNsA/s1600/Haken.no.Kouki.Altina.full.1568363.jpg  ");
+
+    actual = util.createComment(dom, "http://2.bp.blogspot.com/-.--.---.----.-----");
+    assert.equal(actual.nodeValue, "  http://2.bp.blogspot.com/-.%2D%2D.%2D%2D-.%2D%2D%2D%2D.%2D%2D%2D%2D-  ");
+});

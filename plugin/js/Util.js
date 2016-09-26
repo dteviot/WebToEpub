@@ -54,7 +54,7 @@ var util = (function () {
             svg.appendChild(desc);
             desc.appendChild(document.createTextNode(origin));
         } else {
-            svg.appendChild(doc.createComment("  " + origin + "  "));
+            svg.appendChild(util.createComment(doc, origin));
         }
         return div;
     }
@@ -514,6 +514,12 @@ var util = (function () {
         };
     }
 
+    var createComment = function(doc, content) {
+        // comments are not allowed to contain a double hyphen
+        let escaped = content.replace(/--/g, "%2D%2D");
+        return doc.createComment("  " + escaped + "  ");
+    }
+
     var addXmlDeclarationToStart = function(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
@@ -699,6 +705,7 @@ var util = (function () {
         hyperlinksToChapterList: hyperlinksToChapterList,
         normalizeUrl: normalizeUrl,
         hyperLinkToChapter: hyperLinkToChapter,
+        createComment: createComment,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
         getElement: getElement,

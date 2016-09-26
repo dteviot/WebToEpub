@@ -256,7 +256,7 @@ class ImageInfo extends EpubItem {
         img.src = util.makeRelative(src);
         img.alt = "";
         div.appendChild(img);
-        div.appendChild(doc.createComment("  " + origin + "  "));
+        div.appendChild(util.createComment(doc, origin));
         return div;
     }
 }
