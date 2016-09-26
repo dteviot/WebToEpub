@@ -290,22 +290,17 @@ var util = (function () {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return false;
         } else {
-            return tags.indexOf("," + node.tagName.toLowerCase() + ",") !== -1;
+            let tagName = node.tagName.toLowerCase();
+            return tags.some(t => t === tagName);
         }
     }
 
     var isInlineElement = function(node) {
-        // ugly, but we're treating <u> and <s> as inline (they are not)
-        let inlineTags = ",b,big,i,small,tt,abbr,acronym,cite,code,dfn,em,kbd,strong,samp,time,var,"+
-        "a,bdo,br,img,map,object,q,script,span,sub,sup,button,input,label,select,textarea,u,s,";
-        return this.isNodeInTag(inlineTags, node);
+        return this.isNodeInTag(util.INLINE_ELEMENTS, node);
     }
 
     var isBlockElement = function(node) {
-        let blockTags = ",address,article,aside,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,"+
-        "footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,li,main,nav,"+
-        "noscript,ol,output,p,pre,section,table,tfoot,ul,video,";
-        return this.isNodeInTag(blockTags, node);
+        return this.isNodeInTag(util.BLOCK_ELEMENTS, node);
     }
 
     var removeUnneededIds = function(contentElement) {
@@ -657,6 +652,19 @@ var util = (function () {
 
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
+
+        // ugly, but we're treating <u> and <s> as inline (they are not)
+        INLINE_ELEMENTS: ["b","big","i","small","tt","abbr","acronym","cite",
+            "code","dfn","em","kbd","strong","samp","time","var", "a","bdo",
+            "br","img","map","object","q","script","span","sub","sup",
+            "button","input","label","select","textarea","u","s"],
+
+        BLOCK_ELEMENTS: ["address","article","aside","blockquote","canvas",
+            "dd","div","dl","fieldset","figcaption","figure","footer",
+            "form","h1","h2","h3","h4","h5","h6","header","hgroup","hr",
+            "li","main","nav","noscript","ol","output","p","pre",
+            "section","table","tfoot","ul","video"],
+
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
