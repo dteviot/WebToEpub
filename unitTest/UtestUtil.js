@@ -105,6 +105,55 @@ test("removeUnneededIds", function (assert) {
     );
 });
 
+test("makeHyperlinksRelative", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html>" +
+            "<head><title></title>" +
+            "</head>" +
+            "<body>" +
+            "<h2><span id=\"Life.0\">Life.0</span></h2>" +
+            "<sup id=\"cite_ref-1\" class=\"reference\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
+            "</sup>" +
+            "<sup id=\"cite_ref-2\" class=\"reference\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-2\">[1]</a>" +
+            "</sup>" +
+            "<ol>" +
+            "<li id=\"cite_note-1\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-1\"></a>" +
+            "</li>" +
+            "<li id=\"cite_note-3\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-3\"></a>" +
+            "</li>" +
+            "</ol>" +
+            "</body>" +
+        "</html>",
+        "text/html");
+
+    util.setBaseTag("https://www.baka-tsuki.org/project/test:Volume_1", dom);
+    let content = dom.body.cloneNode(true);
+    util.removeUnneededIds(content);
+    util.makeHyperlinksRelative("https://www.baka-tsuki.org/project/test:Volume_1", content);
+
+    assert.equal(content.innerHTML,
+        "<h2><span>Life.0</span></h2>" +
+        "<sup id=\"cite_ref-1\" class=\"reference\">" +
+            "<a href=\"#cite_note-1\">[1]</a>" +
+        "</sup>" +
+        "<sup class=\"reference\">" +
+            "<a href=\"#cite_note-2\">[1]</a>" +
+        "</sup>" +
+        "<ol>" +
+        "<li id=\"cite_note-1\">" +
+            "<a href=\"#cite_ref-1\"></a>" +
+        "</li>" +
+        "<li>" +
+            "<a href=\"#cite_ref-3\"></a>" +
+        "</li>" +
+        "</ol>"
+    );
+});
+
 test("removeUnusedHeadingLevels", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<html>" +

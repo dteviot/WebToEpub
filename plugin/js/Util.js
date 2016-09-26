@@ -330,7 +330,17 @@ var util = (function () {
 
     var extractHashFromUri = function(uri) {
         let index = uri.indexOf("#");
-        return (index === -1) ? null : uri.substring(uri.indexOf("#") + 1);
+        return (index === -1) ? null : uri.substring(index + 1);
+    }
+
+    var makeHyperlinksRelative = function(baseUri, content) {
+        for(let link of util.getElements(content, "a", e => this.isLocalHyperlink(baseUri, e))) {
+            link.href = "#" + this.extractHashFromUri(link.href);
+        }
+    }
+
+    var isLocalHyperlink = function(baseUri, link) {
+        return link.href.startsWith(baseUri) && (link.href.indexOf("#") != -1);
     }
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
@@ -586,6 +596,8 @@ var util = (function () {
         removeUnneededIds: removeUnneededIds,
         getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
+        makeHyperlinksRelative: makeHyperlinksRelative, 
+        isLocalHyperlink: isLocalHyperlink,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
         isNullOrEmpty: isNullOrEmpty,
         wrapRawTextNode: wrapRawTextNode,

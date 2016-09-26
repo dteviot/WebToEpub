@@ -25,6 +25,8 @@ class Parser {
         util.fixBlockTagsNestedInInlineTags(content);
         that.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
+        util.removeUnneededIds(content);
+        util.makeHyperlinksRelative(chapter.rawDom.baseURI, content);
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
