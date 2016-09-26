@@ -29,8 +29,12 @@
             height:100%;
             box-sizing:border-box;
         }
+
+        section.minWidth {
+            min-width: 600px;
+        }
     </style>
-    <section id="errorSection" hidden>
+    <section id="errorSection" class="minWidth" hidden>
         <table id="errorSectionTable">
             <tr id="errorMessageRow">
                 <td id="errorMessageText" />
@@ -181,7 +185,7 @@
             </tr>
         </table>
     </section>
-    <section id="outputSection">
+    <section id="outputSection" class="minWidth">
         <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
         <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
         <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
