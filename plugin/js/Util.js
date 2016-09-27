@@ -491,7 +491,7 @@ var util = (function () {
             return currentArc;
         }
 
-        let chaptersList = this.getElements(contentElement, "a", a => includeLink(a))
+        let chaptersList = util.getElements(contentElement, "a", a => includeLink(a))
             .map(link => util.hyperLinkToChapter(link, newArcValueForChapter(link)));
         return chaptersList;
     }

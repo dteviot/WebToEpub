@@ -12,7 +12,7 @@ class RoyalRoadParser extends Parser{
 
     getChapterUrls(dom) {
         let that = this;
-        return Promise.resolve(that.getElements(dom, "li", e => (e.className === "chapter")).map(element => that.elementToChapterInfo(element)));
+        return Promise.resolve(util.getElements(dom, "li", e => (e.className === "chapter")).map(element => that.elementToChapterInfo(element)));
     }
 
     elementToChapterInfo(chapterElement) {

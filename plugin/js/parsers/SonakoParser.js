@@ -64,28 +64,27 @@ SonakoParser.prototype.extractSeriesInfo = function(dom, metaInfo) {   // eslint
 
 // find the node(s) holding the story content
 SonakoParser.prototype.findContent = function (dom) {
-    return this.getElement(dom, "div", e => (e.className.startsWith("mw-content-ltr")));
+    return util.getElement(dom, "div", e => (e.className.startsWith("mw-content-ltr")));
 };
 
 SonakoParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
-    let that = this;
-    util.removeElements(that.getElements(element, "script"));
-    util.removeElements(that.getElements(element, "noscript"));
+    util.removeElements(util.getElements(element, "script"));
+    util.removeElements(util.getElements(element, "noscript"));
 
     // discard table of contents (will generate one from tags later)
-    util.removeElements(that.getElements(element, "div", e => (e.id === "toc-wrapper")));
-    util.removeElements(that.getElements(element, "a", e => (e.className === "toc-link")));
+    util.removeElements(util.getElements(element, "div", e => (e.id === "toc-wrapper")));
+    util.removeElements(util.getElements(element, "a", e => (e.className === "toc-link")));
 
-    util.removeElements(that.getElements(element, "a", e => e.className.startsWith("wikia-photogallery-add")));
-    util.removeElements(that.getElements(element, "div", e => (e.className ==="print-no")));
-    util.removeElements(that.getElements(element, "div", e => (e.id.startsWith("INCONTENT"))));
+    util.removeElements(util.getElements(element, "a", e => e.className.startsWith("wikia-photogallery-add")));
+    util.removeElements(util.getElements(element, "div", e => (e.className ==="print-no")));
+    util.removeElements(util.getElements(element, "div", e => (e.id.startsWith("INCONTENT"))));
 
 
     util.removeComments(element);
-    util.removeElements(that.getElements(element, "table"));
+    util.removeElements(util.getElements(element, "table"));
 
     // hyperlinks that allow editing text
-    util.removeElements(that.getElements(element, "span", e => (e.className === "editsection")));
+    util.removeElements(util.getElements(element, "span", e => (e.className === "editsection")));
 
     // fix source for delay loaded image tags
     for(let img of util.getElements(element, "img", e => e.src.startsWith("data:image"))) {

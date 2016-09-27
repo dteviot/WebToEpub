@@ -148,14 +148,6 @@ Parser.prototype.singleChapterStory = function (baseUrl, dom) {
     }];
 }
 
-Parser.prototype.getElements = function(dom, tagName, filter) {
-    return util.getElements(dom, tagName, filter);
-}
-
-Parser.prototype.getElement = function(dom, tagName, filter) {
-    return util.getElement(dom, tagName, filter);
-}
-
 Parser.prototype.getBaseUrl = function (dom) {
     return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
 }

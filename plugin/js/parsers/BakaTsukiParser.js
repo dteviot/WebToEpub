@@ -113,11 +113,11 @@ class BakaTsukiParser extends Parser{
 }
 
 BakaTsukiParser.prototype.extractTitle = function(dom) {
-    return this.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
+    return util.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
 };
 
 BakaTsukiParser.prototype.extractLanguage = function(dom) {
-    return this.getElement(dom, "html").getAttribute("lang");
+    return util.getElement(dom, "html").getAttribute("lang");
 };
 
 BakaTsukiParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
@@ -143,7 +143,7 @@ BakaTsukiParser.prototype.extractVolumeIndex = function(volumeString) {
 
 // find the node(s) holding the story content
 BakaTsukiParser.prototype.findContent = function (dom) {
-    return this.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
+    return util.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
 };
 
 // called when plugin has obtained the first web page
@@ -186,10 +186,10 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
     util.removeScriptableElements(element);
 
     // discard table of contents (will generate one from tags later)
-    util.removeElements(that.getElements(element, "div", e => (e.id === "toc")));
+    util.removeElements(util.getElements(element, "div", e => (e.id === "toc")));
 
     // remove "Jump Up" text that appears beside the up arrow from translator notes
-    util.removeElements(that.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
+    util.removeElements(util.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
 
     util.removeUnneededIds(element);
 
@@ -197,7 +197,7 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
     that.removeUnwantedTable(element);
 
     // hyperlinks that allow editing text
-    util.removeElements(that.getElements(element, "span", e => (e.className === "mw-editsection")));
+    util.removeElements(util.getElements(element, "span", e => (e.className === "mw-editsection")));
 };
 
 // There's a table at end of content, with links to other stories on Baka Tsuki.
@@ -205,7 +205,7 @@ BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (e
 BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
     // sometimes the target table has other tables nested in it.
     let that = this;
-    let tables = that.getElements(element, "table");
+    let tables = util.getElements(element, "table");
     if (0 < tables.length) {
         let endTable = tables[tables.length - 1];
         let node = endTable;
@@ -233,12 +233,11 @@ BakaTsukiParser.prototype.replaceImageTags = function (element) {
 
 // remove gallery text and move images out of the gallery box so images can take full screen.
 BakaTsukiParser.prototype.stripGalleryBox = function (element) {
-    let that = this;
 
     // move images out of the <ul> gallery
     let garbage = new Set();
     for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
-        util.removeElements(that.getElements(listItem, "div", e => (e.className === "gallerytext")));
+        util.removeElements(util.getElements(listItem, "div", e => (e.className === "gallerytext")));
 
         let gallery = listItem.parentNode;
         garbage.add(gallery);
