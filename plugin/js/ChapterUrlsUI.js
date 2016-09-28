@@ -13,7 +13,7 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
     }
 
-    populateChapterUrlsTable(chapters) {
+    populateChapterUrlsTable(chapters, userPreferences) {
         ChapterUrlsUI.clearChapterUrlsTable();
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         chapters.forEach(function (chapter) {
@@ -24,6 +24,7 @@ class ChapterUrlsUI {
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
         });
+        ChapterUrlsUI.resizeTitleColumnToFit(linksTable, userPreferences.alwaysOpenAsTab);
     }
 
     static clearChapterUrlsTable() {
@@ -115,6 +116,17 @@ class ChapterUrlsUI {
         input.addEventListener("blur", function() { chapter.title = input.value; },  true);
         col.appendChild(input);
         row.appendChild(col);
+    }
+
+    /** @private */
+    static resizeTitleColumnToFit(linksTable, openAsTab) {
+        let inputs = util.getElements(linksTable, "input", i => i.type === "text"); 
+        let width = inputs.reduce((acc, element) => Math.max(acc, element.value.length), 0);
+        if (!openAsTab) {
+            // if open as popup, don't allow column to be more than 1/2 window width
+            width = Math.min(width, 40);
+        }
+        inputs.forEach(i => i.size = width); 
     }
 
     /** 

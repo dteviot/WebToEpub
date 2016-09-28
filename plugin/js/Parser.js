@@ -7,9 +7,11 @@ class Parser {
     constructor(imageCollector) {
         this.chapters = [];
         this.imageCollector = imageCollector || new ImageCollector();
+        this.userPreferences = null;
     }
 
     onUserPreferencesUpdate(userPreferences) {
+        this.userPreferences = userPreferences;
         this.imageCollector.onUserPreferencesUpdate(userPreferences);
     }
 
@@ -191,7 +193,7 @@ Parser.prototype.onLoadFirstPage = function (url, firstPageDom) {
     // returns promise, because may need to fetch additional pages to find list of chapters
     that.getChapterUrls(firstPageDom).then(function(chapters) {
         let chapterUrlsUI = new ChapterUrlsUI(that);
-        chapterUrlsUI.populateChapterUrlsTable(chapters);
+        chapterUrlsUI.populateChapterUrlsTable(chapters, that.userPreferences);
         if (0 < chapters.length) {
             if (chapters[0].sourceUrl === url) {
                 chapters[0].rawDom = firstPageDom;
