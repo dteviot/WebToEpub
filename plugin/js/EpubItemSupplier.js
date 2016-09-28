@@ -16,40 +16,41 @@ class EpubItemSupplier {
         let that = this;
         this.coverImageId = () => that.coverImageInfo.getId();
     };
-}
 
-// used to populate manifest
-EpubItemSupplier.prototype.manifestItems = function() {
-    return this.epubItems;
-}
 
-// used to populate spine
-EpubItemSupplier.prototype.spineItems = function() {
-    return this.epubItems.filter(item => item.isInSpine);
-}
+    // used to populate manifest
+    manifestItems() {
+        return this.epubItems;
+    }
 
-// used to populate Zip file itself
-EpubItemSupplier.prototype.files = function() {
-    return this.epubItems;
-}
+    // used to populate spine
+    spineItems() {
+        return this.epubItems.filter(item => item.isInSpine);
+    }
 
-// used to populate table of contents
-EpubItemSupplier.prototype.chapterInfo = function*() {
-    let that = this;
-    for(let epubItem of that.epubItems) {
-        yield* epubItem.chapterInfo();
-    };
-}
+    // used to populate Zip file itself
+    files() {
+        return this.epubItems;
+    }
 
-EpubItemSupplier.prototype.makeCoverImageXhtmlFile = function() {
-    let that = this;
-    let doc = util.createEmptyXhtmlDoc();
-    let body = doc.getElementsByTagName("body")[0];
-    let userPreferences = that.imageCollector.userPreferences;
-    body.appendChild(that.coverImageInfo.createImageElement(userPreferences));
-    return util.xmlToString(doc);
-}
+    // used to populate table of contents
+    *chapterInfo() {
+        let that = this;
+        for(let epubItem of that.epubItems) {
+            yield* epubItem.chapterInfo();
+        };
+    }
 
-EpubItemSupplier.prototype.hasCoverImageFile = function() {
-    return (this.coverImageInfo != null);
+    makeCoverImageXhtmlFile() {
+        let that = this;
+        let doc = util.createEmptyXhtmlDoc();
+        let body = doc.getElementsByTagName("body")[0];
+        let userPreferences = that.imageCollector.userPreferences;
+        body.appendChild(that.coverImageInfo.createImageElement(userPreferences));
+        return util.xmlToString(doc);
+    }
+
+    hasCoverImageFile() {
+        return (this.coverImageInfo != null);
+    }
 }

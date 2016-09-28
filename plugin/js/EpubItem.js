@@ -56,19 +56,19 @@ class EpubItem {
         // ToDo: assert that tagName in range <h1> ... <h4>
         return tagName[1] - "1";
     }
-}
 
-EpubItem.prototype.chapterInfo = function*() {
-    let that = this;
-    for(let element of that.elements) {
-        if (util.isHeaderTag(element)) {
-            yield {
-                depth: this.tagNameToTocDepth(element.tagName),
-                title: element.textContent,
-                src: that.getZipHref()
+    *chapterInfo() {
+        let that = this;
+        for(let element of that.elements) {
+            if (util.isHeaderTag(element)) {
+                yield {
+                    depth: this.tagNameToTocDepth(element.tagName),
+                    title: element.textContent,
+                    src: that.getZipHref()
+                };
             };
         };
-    };
+    }
 }
 
 //==============================================================
@@ -82,23 +82,23 @@ class ChapterEpubItem extends EpubItem {
         this.chapterTitle = chapter.title;
         this.newArc = chapter.newArc;
     }
-}
 
-ChapterEpubItem.prototype.chapterInfo = function*() {
-    let that = this;
-    if (that.newArc !== null) {
-        yield {
-            depth: 0,
-            title: that.newArc,
-            src: that.getZipHref()
+    *chapterInfo() {
+        let that = this;
+        if (that.newArc !== null) {
+            yield {
+                depth: 0,
+                title: that.newArc,
+                src: that.getZipHref()
+            }
         }
-    }
 
-    if (typeof (that.chapterTitle) !== "undefined") {
-        yield {
-            depth: 1,
-            title: that.chapterTitle,
-            src: that.getZipHref()
+        if (typeof (that.chapterTitle) !== "undefined") {
+            yield {
+                depth: 1,
+                title: that.chapterTitle,
+                src: that.getZipHref()
+            }
         }
     }
 }
@@ -259,9 +259,8 @@ class ImageInfo extends EpubItem {
         div.appendChild(util.createComment(doc, origin));
         return div;
     }
-}
 
-ImageInfo.prototype.chapterInfo = function*() {
-    // images do not appear in table of contents
+    *chapterInfo() {
+        // images do not appear in table of contents
+    }
 }
-

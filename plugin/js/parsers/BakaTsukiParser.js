@@ -110,329 +110,327 @@ class BakaTsukiParser extends Parser{
             ++index;
         };
     }
-}
 
-BakaTsukiParser.prototype.extractTitle = function(dom) {
-    return util.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
-};
+    extractTitle(dom) {
+        return util.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
+    }
 
-BakaTsukiParser.prototype.extractLanguage = function(dom) {
-    return util.getElement(dom, "html").getAttribute("lang");
-};
+    extractLanguage(dom) {
+        return util.getElement(dom, "html").getAttribute("lang");
+    }
 
-BakaTsukiParser.prototype.extractSeriesInfo = function(dom, metaInfo) {
-    // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
-    let that = this;
-    let title = util.getElement(dom, "title").innerText.trim();
-    let splitIndex = title.indexOf(":");
-    if (0 < splitIndex) {
-        metaInfo.seriesName = title.substring(0, splitIndex);
-        metaInfo.seriesIndex = that.extractVolumeIndex(title.substring(splitIndex));
-    };
-}
-
-BakaTsukiParser.prototype.extractVolumeIndex = function(volumeString) {
-    let volumeIndex = "";
-    for(let ch of volumeString) {
-        if (("0" <= ch) && (ch <= "9")) {
-            volumeIndex += ch;
+    extractSeriesInfo(dom, metaInfo) {
+        // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
+        let that = this;
+        let title = util.getElement(dom, "title").innerText.trim();
+        let splitIndex = title.indexOf(":");
+        if (0 < splitIndex) {
+            metaInfo.seriesName = title.substring(0, splitIndex);
+            metaInfo.seriesIndex = that.extractVolumeIndex(title.substring(splitIndex));
         };
-    };    
-    return volumeIndex;
-}
+    }
 
-// find the node(s) holding the story content
-BakaTsukiParser.prototype.findContent = function (dom) {
-    return util.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
-};
-
-// called when plugin has obtained the first web page
-BakaTsukiParser.prototype.onLoadFirstPage = function (url, firstPageDom) {
-    let that = this;
-    that.firstPageDom = firstPageDom;
-
-    let content = that.findContent(that.firstPageDom).cloneNode(true);
-    that.removeUnwantedElementsFromContentElement(content);
-    that.imageCollector.findImagesUsedInDocument(content);
-    that.populateImageTable();
-};
-
-BakaTsukiParser.prototype.populateUI = function (dom) {  // eslint-disable-line no-unused-vars
-    document.getElementById("higestResolutionImagesRow").hidden = false; 
-    document.getElementById("imageSection").hidden = false;
-    document.getElementById("outputSection").hidden = true;
-    document.getElementById("translatorRow").hidden = false;
-    document.getElementById("fileAuthorAsRow").hidden = false;
-    this.getFetchContentButton().onclick = this.onFetchImagesClicked.bind(this);
-    document.getElementById("coverFromUrlCheckboxInput").onclick = this.populateImageTable.bind(this);
-};
-
-BakaTsukiParser.prototype.epubItemSupplier = function () {
-    let that = this;
-    let content = that.findContent(that.firstPageDom).cloneNode(true);
-    that.removeUnwantedElementsFromContentElement(content);
-    util.fixBlockTagsNestedInInlineTags(content);
-    that.replaceImageTags(content);
-    util.removeUnusedHeadingLevels(content);
-    util.prepForConvertToXhtml(content);
-    util.removeEmptyDivElements(content);
-    let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
-    that.fixupInternalHyperLinks(epubItems);
-    return new EpubItemSupplier(that, epubItems, that.imageCollector);
-}
-
-BakaTsukiParser.prototype.removeUnwantedElementsFromContentElement = function (element) {
-    let that = this;
-    util.removeScriptableElements(element);
-
-    // discard table of contents (will generate one from tags later)
-    util.removeElements(util.getElements(element, "div", e => (e.id === "toc")));
-
-    // remove "Jump Up" text that appears beside the up arrow from translator notes
-    util.removeElements(util.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
-
-    util.removeUnneededIds(element);
-
-    util.removeComments(element);
-    that.removeUnwantedTable(element);
-
-    // hyperlinks that allow editing text
-    util.removeElements(util.getElements(element, "span", e => (e.className === "mw-editsection")));
-};
-
-// There's a table at end of content, with links to other stories on Baka Tsuki.
-// It's not wanted in the EPUB
-BakaTsukiParser.prototype.removeUnwantedTable = function (element) {
-    // sometimes the target table has other tables nested in it.
-    let that = this;
-    let tables = util.getElements(element, "table");
-    if (0 < tables.length) {
-        let endTable = tables[tables.length - 1];
-        let node = endTable;
-        while (node.parentNode != null) {
-            node = node.parentNode;
-            if (node.tagName === "TABLE") {
-                endTable = node;
+    extractVolumeIndex(volumeString) {
+        let volumeIndex = "";
+        for(let ch of volumeString) {
+            if (("0" <= ch) && (ch <= "9")) {
+                volumeIndex += ch;
             };
-        };
-        if (that.isTableContainsHyperLinks(endTable)) {
-            util.removeNode(endTable);
-        };
-    }
-}
-
-BakaTsukiParser.prototype.isTableContainsHyperLinks = function(tableElement) {
-    return util.getElement(tableElement, "a") !== null;
-}
-
-BakaTsukiParser.prototype.replaceImageTags = function (element) {
-    let that = this;
-    that.stripGalleryBox(element);
-    that.imageCollector.replaceImageTags(element);
-}
-
-// remove gallery text and move images out of the gallery box so images can take full screen.
-BakaTsukiParser.prototype.stripGalleryBox = function (element) {
-
-    // move images out of the <ul> gallery
-    let garbage = new Set();
-    for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
-        util.removeElements(util.getElements(listItem, "div", e => (e.className === "gallerytext")));
-
-        let gallery = listItem.parentNode;
-        garbage.add(gallery);
-        gallery.parentNode.insertBefore(listItem.firstChild, gallery);
+        };    
+        return volumeIndex;
     }
 
-    // throw away rest of gallery  (note sometimes there are multiple galleries)
-    for(let node of garbage) {
-        util.removeNode(node);
+    findContent(dom) {
+        return util.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
     }
-}
 
-BakaTsukiParser.prototype.splitContentIntoSections = function (content, sourceUrl) {
-    let that = this;
-    that.flattenContent(content);
-    let epubItems = BakaTsukiParser.splitContentOnHeadingTags(content, sourceUrl);
-    epubItems = that.consolidateEpubItems(epubItems);
-    epubItems = that.discardEpubItemsWithNoVisibleContent(epubItems);
-    BakaTsukiParser.indexEpubItems(epubItems, 0);
-    return epubItems;
-}
+    onLoadFirstPage(url, firstPageDom) {
+        let that = this;
+        that.firstPageDom = firstPageDom;
 
-BakaTsukiParser.prototype.flattenContent = function (content) {
-    // most pages have all header tags as immediate children of the content element
-    // where this is not the case, flatten them so that they are.
-    let that = this;
-    for(let i = 0; i < content.childNodes.length; ++i) {
-        let node = content.childNodes[i];
-        if (that.nodeNeedsToBeFlattened(node)) {
-            for(let j = node.childNodes.length - 1; 0 <= j; --j) {
-                that.insertAfter(node, node.childNodes[j]);
-            }
+        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        that.removeUnwantedElementsFromContentElement(content);
+        that.imageCollector.findImagesUsedInDocument(content);
+        that.populateImageTable();
+    }
+
+    populateUI(dom) {  // eslint-disable-line no-unused-vars
+        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("imageSection").hidden = false;
+        document.getElementById("outputSection").hidden = true;
+        document.getElementById("translatorRow").hidden = false;
+        document.getElementById("fileAuthorAsRow").hidden = false;
+        this.getFetchContentButton().onclick = this.onFetchImagesClicked.bind(this);
+        document.getElementById("coverFromUrlCheckboxInput").onclick = this.populateImageTable.bind(this);
+    }
+
+    epubItemSupplier() {
+        let that = this;
+        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        that.removeUnwantedElementsFromContentElement(content);
+        util.fixBlockTagsNestedInInlineTags(content);
+        that.replaceImageTags(content);
+        util.removeUnusedHeadingLevels(content);
+        util.prepForConvertToXhtml(content);
+        util.removeEmptyDivElements(content);
+        let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
+        that.fixupInternalHyperLinks(epubItems);
+        return new EpubItemSupplier(that, epubItems, that.imageCollector);
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let that = this;
+        util.removeScriptableElements(element);
+
+        // discard table of contents (will generate one from tags later)
+        util.removeElements(util.getElements(element, "div", e => (e.id === "toc")));
+
+        // remove "Jump Up" text that appears beside the up arrow from translator notes
+        util.removeElements(util.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
+
+        util.removeUnneededIds(element);
+
+        util.removeComments(element);
+        that.removeUnwantedTable(element);
+
+        // hyperlinks that allow editing text
+        util.removeElements(util.getElements(element, "span", e => (e.className === "mw-editsection")));
+    }
+
+    // There's a table at end of content, with links to other stories on Baka Tsuki.
+    // It's not wanted in the EPUB
+    removeUnwantedTable(element) {
+        // sometimes the target table has other tables nested in it.
+        let that = this;
+        let tables = util.getElements(element, "table");
+        if (0 < tables.length) {
+            let endTable = tables[tables.length - 1];
+            let node = endTable;
+            while (node.parentNode != null) {
+                node = node.parentNode;
+                if (node.tagName === "TABLE") {
+                    endTable = node;
+                };
+            };
+            if (that.isTableContainsHyperLinks(endTable)) {
+                util.removeNode(endTable);
+            };
+        }
+    }
+
+    isTableContainsHyperLinks(tableElement) {
+        return util.getElement(tableElement, "a") !== null;
+    }
+
+    replaceImageTags(element) {
+        let that = this;
+        that.stripGalleryBox(element);
+        that.imageCollector.replaceImageTags(element);
+    }
+
+    // remove gallery text and move images out of the gallery box so images can take full screen.
+    stripGalleryBox(element) {
+
+        // move images out of the <ul> gallery
+        let garbage = new Set();
+        for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
+            util.removeElements(util.getElements(listItem, "div", e => (e.className === "gallerytext")));
+
+            let gallery = listItem.parentNode;
+            garbage.add(gallery);
+            gallery.parentNode.insertBefore(listItem.firstChild, gallery);
+        }
+
+        // throw away rest of gallery  (note sometimes there are multiple galleries)
+        for(let node of garbage) {
             util.removeNode(node);
+        }
+    }
+
+    splitContentIntoSections(content, sourceUrl) {
+        let that = this;
+        that.flattenContent(content);
+        let epubItems = BakaTsukiParser.splitContentOnHeadingTags(content, sourceUrl);
+        epubItems = that.consolidateEpubItems(epubItems);
+        epubItems = that.discardEpubItemsWithNoVisibleContent(epubItems);
+        BakaTsukiParser.indexEpubItems(epubItems, 0);
+        return epubItems;
+    }
+
+    flattenContent(content) {
+        // most pages have all header tags as immediate children of the content element
+        // where this is not the case, flatten them so that they are.
+        let that = this;
+        for(let i = 0; i < content.childNodes.length; ++i) {
+            let node = content.childNodes[i];
+            if (that.nodeNeedsToBeFlattened(node)) {
+                for(let j = node.childNodes.length - 1; 0 <= j; --j) {
+                    that.insertAfter(node, node.childNodes[j]);
+                }
+                util.removeNode(node);
+                --i;
+            }
+        }
+    }
+
+    nodeNeedsToBeFlattened(node) {
+        let that = this;
+        let numHeaders = that.numberOfHeaderTags(node);
+        return ((1 < numHeaders) || ((numHeaders === 1) && !BakaTsukiParser.isChapterStart(node)));
+    }
+
+    numberOfHeaderTags(node) {
+        let walker = document.createTreeWalker(node); 
+        let count = 0;
+        do {
+            if (BakaTsukiParser.isChapterStart(walker.currentNode)) {
+                ++count;
+            };
+        } while (walker.nextNode());
+        return count;
+    }
+
+    insertAfter(atNode, nodeToInsert) {
+        let nextSibling = atNode.nextSibling;
+        if (nextSibling != null) {
+            atNode.parentNode.insertBefore(nodeToInsert, nextSibling);
+        } else {
+            atNode.parentNode.appendChild(nodeToInsert);
+        }
+    }
+
+    // If a epubItem only holds a heading element, combine with following epubItem.
+    // e.g. We're dealing with <h1> followed by <h2>
+    consolidateEpubItems(epubItems) {
+        let newEpubItems = [ epubItems[epubItems.length - 1] ];
+        let i = epubItems.length - 2;
+        while (0 <= i) {
+            let epubItem = epubItems[i];
+            if (epubItem.elements.length === 1) {
+                newEpubItems[0].elements.unshift(epubItem.elements[0]);
+            } else {
+                newEpubItems.unshift(epubItem);
+            }
             --i;
         }
-    }
-}
-
-BakaTsukiParser.prototype.nodeNeedsToBeFlattened = function (node) {
-    let that = this;
-    let numHeaders = that.numberOfHeaderTags(node);
-    return ((1 < numHeaders) || ((numHeaders === 1) && !BakaTsukiParser.isChapterStart(node)));
-}
-
-BakaTsukiParser.prototype.numberOfHeaderTags = function (node) {
-    let walker = document.createTreeWalker(node); 
-    let count = 0;
-    do {
-        if (BakaTsukiParser.isChapterStart(walker.currentNode)) {
-            ++count;
-        };
-    } while (walker.nextNode());
-    return count;
-}
-
-BakaTsukiParser.prototype.insertAfter = function (atNode, nodeToInsert) {
-    let nextSibling = atNode.nextSibling;
-    if (nextSibling != null) {
-        atNode.parentNode.insertBefore(nodeToInsert, nextSibling);
-    } else {
-        atNode.parentNode.appendChild(nodeToInsert);
-    }
-}
-
-// If a epubItem only holds a heading element, combine with following epubItem.
-// e.g. We're dealing with <h1> followed by <h2>
-BakaTsukiParser.prototype.consolidateEpubItems = function (epubItems) {
-    let newEpubItems = [ epubItems[epubItems.length - 1] ];
-    let i = epubItems.length - 2;
-    while (0 <= i) {
-        let epubItem = epubItems[i];
-        if (epubItem.elements.length === 1) {
-            newEpubItems[0].elements.unshift(epubItem.elements[0]);
-        } else {
-            newEpubItems.unshift(epubItem);
-        }
-        --i;
-    }
-    return newEpubItems;
-}
-
-BakaTsukiParser.prototype.discardEpubItemsWithNoVisibleContent = function(epubItems) {
-    let that = this;
-    return epubItems.filter(item => that.hasVisibleContent(item.elements));
-}
-
-BakaTsukiParser.prototype.hasVisibleContent = function(elements) {
-    for (let element of elements) {
-        if (!util.isElementWhiteSpace(element)) {
-            return true;
-        }
+        return newEpubItems;
     }
 
-    // if get here, no visible content
-    return false;
-}
+    discardEpubItemsWithNoVisibleContent(epubItems) {
+        let that = this;
+        return epubItems.filter(item => that.hasVisibleContent(item.elements));
+    }
 
-BakaTsukiParser.prototype.fixupInternalHyperLinks = function(epubItems) {
-    let targets = this.findLinkTargets(epubItems);
-    this.findAndFixHyperLinks(epubItems, targets);
-}
-
-BakaTsukiParser.prototype.findLinkTargets = function(epubItems) {
-    let that = this;
-    let targets = new Map();
-    that.walkEpubItemsWithElements(
-        epubItems, 
-        targets,
-        that.recordTarget
-    );
-    return targets;
-}
-
-BakaTsukiParser.prototype.findAndFixHyperLinks = function(epubItems, targets) {
-    let that = this;
-    that.walkEpubItemsWithElements(
-        epubItems, 
-        targets,
-        that.fixHyperlink
-    );
-}
-
-BakaTsukiParser.prototype.walkEpubItemsWithElements = function(epubItems, targets, processFoundNode) {
-    let that = this;
-    for(let epubItem of epubItems) {
-        for(let element of epubItem.elements) {
-            let walker = document.createTreeWalker(
-                element, 
-                NodeFilter.SHOW_ELEMENT
-            );
-            
-            // assume first header tag we find is title of the chapter.
-            if(util.isHeaderTag(element) && (epubItem.chapterTitle === null)){
-                epubItem.chapterTitle = element.textContent;
+    hasVisibleContent(elements) {
+        for (let element of elements) {
+            if (!util.isElementWhiteSpace(element)) {
+                return true;
             }
-            do {
-                processFoundNode.apply(that, [walker.currentNode, targets, util.makeRelative(epubItem.getZipHref())]);
-            } while (walker.nextNode());
+        }
+
+        // if get here, no visible content
+        return false;
+    }
+
+    fixupInternalHyperLinks(epubItems) {
+        let targets = this.findLinkTargets(epubItems);
+        this.findAndFixHyperLinks(epubItems, targets);
+    }
+
+    findLinkTargets(epubItems) {
+        let that = this;
+        let targets = new Map();
+        that.walkEpubItemsWithElements(
+            epubItems, 
+            targets,
+            that.recordTarget
+        );
+        return targets;
+    }
+
+    findAndFixHyperLinks(epubItems, targets) {
+        let that = this;
+        that.walkEpubItemsWithElements(
+            epubItems, 
+            targets,
+            that.fixHyperlink
+        );
+    }
+
+    walkEpubItemsWithElements(epubItems, targets, processFoundNode) {
+        let that = this;
+        for(let epubItem of epubItems) {
+            for(let element of epubItem.elements) {
+                let walker = document.createTreeWalker(
+                    element, 
+                    NodeFilter.SHOW_ELEMENT
+                );
+                
+                // assume first header tag we find is title of the chapter.
+                if(util.isHeaderTag(element) && (epubItem.chapterTitle === null)){
+                    epubItem.chapterTitle = element.textContent;
+                }
+                do {
+                    processFoundNode.apply(that, [walker.currentNode, targets, util.makeRelative(epubItem.getZipHref())]);
+                } while (walker.nextNode());
+            };
         };
-    };
-}
+    }
 
-BakaTsukiParser.prototype.recordTarget = function(node, targets, zipHref) {
-    if (node.id != "") {
-        targets.set(node.id, zipHref);
-    };
-}
+    recordTarget(node, targets, zipHref) {
+        if (node.id != "") {
+            targets.set(node.id, zipHref);
+        };
+    }
 
-BakaTsukiParser.prototype.fixHyperlink = function(node, targets, unused) { // eslint-disable-line no-unused-vars
-    if (node.tagName === "A") {
-        let targetId = util.extractHashFromUri(node.href);
-        let targetZipHref = targets.get(targetId);
-        if (targetZipHref != null) {
-            node.href = targetZipHref + "#" + targetId;
+    fixHyperlink(node, targets, unused) { // eslint-disable-line no-unused-vars
+        if (node.tagName === "A") {
+            let targetId = util.extractHashFromUri(node.href);
+            let targetZipHref = targets.get(targetId);
+            if (targetZipHref != null) {
+                node.href = targetZipHref + "#" + targetId;
+            }
         }
     }
-}
 
-BakaTsukiParser.prototype.onFetchImagesClicked = function () {
-    let that = this;
-    if (0 == that.imageCollector.imageInfoList.length) {
-        window.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
-    } else {
-        that.getFetchContentButton().disabled = true;
-        that.fetchContent();
+    onFetchImagesClicked() {
+        let that = this;
+        if (0 == that.imageCollector.imageInfoList.length) {
+            window.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
+        } else {
+            that.getFetchContentButton().disabled = true;
+            that.fetchContent();
+        }
     }
-}
 
-BakaTsukiParser.prototype.fetchContent = function () {
-    let that = this;
-    that.rebuildImagesToFetch();
-    this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
-    return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
-        .then(function() {
-            main.getPackEpubButton().disabled = false;
-            that.getFetchContentButton().disabled = false;
-        }).catch(function (err) {
-            util.logError(err);
-        });
-}
+    fetchContent() {
+        let that = this;
+        that.rebuildImagesToFetch();
+        this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
+        return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
+            .then(function() {
+                main.getPackEpubButton().disabled = false;
+                that.getFetchContentButton().disabled = false;
+            }).catch(function (err) {
+                util.logError(err);
+            });
+    }
 
-BakaTsukiParser.prototype.updateProgressBarOneStep = function() {
-    this.updateLoadState();
-}
+    updateProgressBarOneStep() {
+        this.updateLoadState();
+    }
 
-/*
-   Show progress,
-   finished  true if have loaded all images, false if only loaded a single image
-*/
-BakaTsukiParser.prototype.updateLoadState = function() {
-    let that = this;
-    that.getProgressBar().value += 1;
-}
+    /*
+    Show progress,
+    finished  true if have loaded all images, false if only loaded a single image
+    */
+    updateLoadState() {
+        let that = this;
+        that.getProgressBar().value += 1;
+    }
 
 
-BakaTsukiParser.prototype.getFetchContentButton = function() {
-    return document.getElementById("fetchImagesButton");
+    getFetchContentButton() {
+        return document.getElementById("fetchImagesButton");
+    }
 }
