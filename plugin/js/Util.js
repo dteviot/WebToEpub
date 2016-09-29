@@ -128,7 +128,7 @@ var util = (function () {
 
     // discard empty divs created when moving elements
     var removeEmptyDivElements = function(element) {
-        util.removeElements(util.getElements(element, "div", e => util.isStringWhiteSpace(e.innerHTML)));
+        util.removeElements(util.getElements(element, "div", e => util.isElementWhiteSpace(e)));
     }
 
     var removeTrailingWhiteSpace = function(element) {

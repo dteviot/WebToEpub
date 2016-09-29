@@ -11,13 +11,14 @@ test("removeEmptyDivElements", function (assert) {
                 "<div><h1>H1</h1></div>" +
                 "<div><div></div></div>" +
                 "<div>    \n\n\n</div>" +
+                "<div><img src=\"http://dumy.com/img.jpg\"></div>" +
             "</body>" +
         "</html>",
         "text/html");
-    let content = dom.body.cloneNode(true);
+    let content = dom.body;
     util.removeEmptyDivElements(content);
 
-    assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div></div>");
+    assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div><img src=\"http://dumy.com/img.jpg\"></div>");
 });
 
 test("removeScriptableElements", function (assert) {
