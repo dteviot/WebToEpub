@@ -321,9 +321,16 @@ class ImageCollector {
     *  Base version tells user there's a problem
     */
     selectImageUrlFromImagePage(dom) {
-        let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
-        window.showErrorMessage(errorMsg);
-        return null;
+        // try mediawkiki format
+        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
+        if (div !== null) {
+            let link = util.getElement(div, "a");
+            return (link === null) ? null : link.href;
+        } else {
+            let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
+            window.showErrorMessage(errorMsg);
+            return null;
+        }
     }
 }
 
