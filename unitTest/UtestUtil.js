@@ -315,6 +315,11 @@ QUnit.test("removeHeightAndWidthStyle", function (assert) {
     let p = doc.getElementsByTagName("p")[0];
     util.removeHeightAndWidthStyle(p);
     assert.equal(p.outerHTML, "<p style=\"color: rgb(153, 153, 153);\"></p>");
+    html = "<div width=\"1px\" height=\"1px\" style=\"color:rgb(153, 153, 153);\"></div>";
+    doc = new DOMParser().parseFromString(html, "text/html");
+    p = doc.getElementsByTagName("div")[0];
+    util.removeHeightAndWidthStyle(p);
+    assert.equal(p.outerHTML, "<div style=\"color:rgb(153, 153, 153);\"></div>");
 });
 
 QUnit.test("isElementWhiteSpace", function (assert) {

@@ -181,6 +181,8 @@ var util = (function () {
                 element.removeAttribute("style");
             }
         }
+        element.removeAttribute("width");
+        element.removeAttribute("height");
     }
 
     var removeUnwantedWordpressElements = function(element) {
