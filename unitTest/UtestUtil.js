@@ -331,7 +331,7 @@ QUnit.test("isElementWhiteSpace", function (assert) {
     assert.ok(util.isElementWhiteSpace(body.childNodes[2]));
 });
 
-test("findPrimaryFontColourAndSize", function (assert) {
+test("findPrimaryStyleSettings", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<html>" +
             "<head><title></title>" +
@@ -343,9 +343,10 @@ test("findPrimaryFontColourAndSize", function (assert) {
         "</html>",
         "text/html");
 
-    let acutal = util.findPrimaryFontColourAndSize(dom.body);
-    assert.equal(acutal.color, "rgb(153, 153, 153)");
-    assert.equal(acutal.fontSize, undefined);
+    let styleProperties = ["color", "fontSize"];
+    let acutal = util.findPrimaryStyleSettings(dom.body, styleProperties);
+    assert.equal(acutal[0], "rgb(153, 153, 153)");
+    assert.equal(acutal[1], undefined);
 });
 
 test("removeStyleValue", function (assert) {

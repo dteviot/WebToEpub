@@ -340,7 +340,7 @@ var util = (function () {
         return link.href.startsWith(baseUri) && (link.href.indexOf("#") != -1);
     }
 
-    var findPrimaryFontColourAndSize = function(element) {
+    var findPrimaryStyleSettings = function(element, styleProperties) {
         let characterCountForElement = function(element) {
             let count = 0;
             let child = element.firstChild
@@ -363,21 +363,12 @@ var util = (function () {
             return maxPair[0];
         }
  
-        let mergeStyles = function(parentStyle, currentStyle) {
-            let color = parentStyle.color;
-            let fontSize = parentStyle.fontSize;
-            if (currentStyle.color != "") {
-                color = currentStyle.color;
-            }
-            if (currentStyle.fontSize != "") {
-                fontSize = currentStyle.fontSize;
-            }
-            return { color: color, fontSize: fontSize };
+        let mergeStyles = function(parentStyle, currentStyle, styleProperty) {
+            let c = currentStyle[styleProperty];
+            return c != "" ? c : parentStyle; 
         } 
 
-        let updateStat = function(stats, mergedStyle, field, count) {
-            let map = stats[field];
-            let key = mergedStyle[field];
+        let updateStat = function(map, key, count) {
             let total = map.get(key);
             if (total === undefined) {
                 total = 0;
@@ -385,24 +376,24 @@ var util = (function () {
             map.set(key, total + count);
         } 
 
-        let updateStats = function(stats, mergedStyle, element) {
+        let walk = function(element, stats, parentStyle, styleProperties) {
+            let mergedStyle = [];
             let count = characterCountForElement(element);
-            updateStat(stats, mergedStyle, "color", count);
-            updateStat(stats, mergedStyle, "fontSize", count);
-        } 
-
-        let walk = function(element, stats, parentStyle) {
-            let mergedStyle = mergeStyles(parentStyle, element.style);
-            updateStats(stats, mergedStyle, element);
+            for(let i = 0; i < styleProperties.length; ++i) {
+                let merged = mergeStyles(parentStyle[i], element.style, styleProperties[i]);
+                updateStat(stats[i], merged, count);
+                mergedStyle.push(merged);
+            }
             for(let i = 0; i < element.childElementCount; ++i) {
-                walk(element.children[i], stats, mergedStyle);
+                walk(element.children[i], stats, mergedStyle, styleProperties);
             }
         }  
 
-        let stats = { color: new Map(), fontSize: new Map() };
-        let initialStyle = { color: undefined, fontSize: undefined };
-        walk(element, stats, initialStyle);
-        return { color: findMaxCount(stats.color), fontSize: findMaxCount(stats.fontSize) };
+        let stats = styleProperties.map(s => new Map());
+        let initialStyle = styleProperties.map(s => undefined);
+        
+        walk(element, stats, initialStyle, styleProperties);
+        return stats.map(s => findMaxCount(s));
     }
 
     /**
@@ -427,9 +418,11 @@ var util = (function () {
 
     /** If web page is using custom font color or size, set to default */
     var setStyleToDefault = function(element) {
-        let primary = util.findPrimaryFontColourAndSize(element);
-        util.removeStyleValue(element, "color", primary.color);
-        util.removeStyleValue(element, "fontSize", primary.fontSize);
+        let styleProperties = ["color", "fontSize"];
+        let primary = util.findPrimaryStyleSettings(element, styleProperties);
+        for(let i = 0; i < styleProperties.length; ++i) {
+            util.removeStyleValue(element, styleProperties[i], primary[i]);
+        }
     }
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
@@ -706,7 +699,7 @@ var util = (function () {
         extractHashFromUri: extractHashFromUri,
         makeHyperlinksRelative: makeHyperlinksRelative, 
         isLocalHyperlink: isLocalHyperlink,
-        findPrimaryFontColourAndSize: findPrimaryFontColourAndSize,
+        findPrimaryStyleSettings: findPrimaryStyleSettings,
         removeStyleValue: removeStyleValue,
         setStyleToDefault: setStyleToDefault,
         removeUnusedHeadingLevels: removeUnusedHeadingLevels,
