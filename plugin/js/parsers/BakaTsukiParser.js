@@ -231,9 +231,14 @@ class BakaTsukiParser extends Parser{
     // remove gallery text and move images out of the gallery box so images can take full screen.
     stripGalleryBox(element) {
 
+        let galleryBoxes = util.getElements(element, "li", e => (e.className === "gallerybox"));
+        if (0 < galleryBoxes.length) {
+            BakaTsukiParser.removeTextBeforeGallery(galleryBoxes[0].parentNode);        
+        }
+
         // move images out of the <ul> gallery
         let garbage = new Set();
-        for(let listItem of util.getElements(element, "li", e => (e.className === "gallerybox"))) {
+        for(let listItem of galleryBoxes) {
             util.removeElements(util.getElements(listItem, "div", e => (e.className === "gallerytext")));
 
             let gallery = listItem.parentNode;
@@ -244,6 +249,17 @@ class BakaTsukiParser extends Parser{
         // throw away rest of gallery  (note sometimes there are multiple galleries)
         for(let node of garbage) {
             util.removeNode(node);
+        }
+    }
+
+    static removeTextBeforeGallery(gallery) {
+        let previous = gallery.previousElementSibling; 
+        while ((previous != null) && !util.isHeaderTag(previous)) {
+            let temp = previous.previousElementSibling;
+            if (previous.tagName.toLowerCase() === "p") {
+                util.removeNode(previous);
+            }
+            previous = temp;
         }
     }
 

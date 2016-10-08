@@ -161,10 +161,32 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
         "</x>");
 });
 
+QUnit.test("removeTextBeforeGallery", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html><head><title></title></head><body>" +
+           "<p>misc text</p>" +
+           "<h2>Image Gallery</h2>" +
+           "<p>misc text 2</p>" +
+           "<div></div>" +
+           "<ul class=\"gallery mw-gallery-traditional\"></ul>" +
+        "</body></html>",
+        "text/html"
+    );
+
+    let gallery = dom.getElementsByTagName("ul")[0];
+    BakaTsukiParser.removeTextBeforeGallery(gallery);
+    assert.equal(dom.body.innerHTML,
+        "<p>misc text</p>" +
+        "<h2>Image Gallery</h2>" +
+        "<div></div>" +
+        "<ul class=\"gallery mw-gallery-traditional\"></ul>");
+});
+           
 QUnit.test("replaceImageTags", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<x>" +
            "<div></div>" +
+           "<p>misc text</p>" +
            "<ul class=\"gallery mw-gallery-traditional\">"+
                "<li class=\"gallerybox\" style=\"width: 155px\"><div style=\"width: 155px\">" +
                    "<div class=\"thumb\">" +
