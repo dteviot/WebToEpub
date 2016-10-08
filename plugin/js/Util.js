@@ -389,8 +389,8 @@ var util = (function () {
             }
         }  
 
-        let stats = styleProperties.map(s => new Map());
-        let initialStyle = styleProperties.map(s => undefined);
+        let stats = styleProperties.map(() => new Map());
+        let initialStyle = styleProperties.map(() => undefined);
         
         walk(element, stats, initialStyle, styleProperties);
         return stats.map(s => findMaxCount(s));
