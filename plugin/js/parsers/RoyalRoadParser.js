@@ -36,7 +36,6 @@ class RoyalRoadParser extends Parser{
     removeUnwantedElementsFromContentElement(content) {
         let that = this;
         that.removeNavigationBox(content);
-        that.stripStyle(content);
 
         // get rid of donation request at end of chapters
         util.removeElements(util.getElements(content, "div", e => e.className === "thead"));
@@ -62,13 +61,6 @@ class RoyalRoadParser extends Parser{
             }
         }
         return null;
-    }
-
-    stripStyle(element) {
-        let walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT);
-        do {
-            walker.currentNode.removeAttribute("style");
-        } while(walker.nextNode());
     }
 
     extractTextFromPage(dom, tagName, filter) {
