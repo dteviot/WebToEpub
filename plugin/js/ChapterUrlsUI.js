@@ -162,7 +162,7 @@ class ChapterUrlsUI {
         try {
             let chapters = this.htmlToChapters(ChapterUrlsUI.getEditChaptersUrlsInput().value);
             this.parser.chapters = chapters;
-            this.populateChapterUrlsTable(chapters);
+            this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
             this.usingTable = true;
             this.setVisibileUI(this.usingTable);
         } catch (err) {
