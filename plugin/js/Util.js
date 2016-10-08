@@ -427,12 +427,11 @@ var util = (function () {
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
     var removeUnusedHeadingLevels = function(contentElement) {
-        let tags = [ "h1", "h2", "h3", "h4", "h5", "h6" ];
-        let usedHeadings = tags.map(tag => util.getElements(contentElement, tag))
+        let usedHeadings = util.HEADER_TAGS.map(tag => util.getElements(contentElement, tag))
             .filter(headings => 0 < headings.length);
         for(let i = 0; i < usedHeadings.length; ++i) {
             for(let element of usedHeadings[i]) {
-                let replacement = element.ownerDocument.createElement(tags[i]);
+                let replacement = element.ownerDocument.createElement(util.HEADER_TAGS[i]);
                 util.convertElement(element, replacement);
             }
         }
@@ -545,8 +544,11 @@ var util = (function () {
     }
 
     var isHeaderTag = function(node) {
-        return (node.tagName === "H1") || (node.tagName === "H2") 
-            || (node.tagName === "H3") || (node.tagName === "H4")
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return false;
+        }
+        let tag = node.tagName.toLowerCase(); 
+        return util.HEADER_TAGS.some(t => tag === t);
     }
 
     var xmlToString = function(dom) {
@@ -659,6 +661,8 @@ var util = (function () {
             "form","h1","h2","h3","h4","h5","h6","header","hgroup","hr",
             "li","main","nav","noscript","ol","output","p","pre",
             "section","table","tfoot","ul","video"],
+
+        HEADER_TAGS: ["h1", "h2", "h3", "h4", "h5", "h6" ],
 
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,

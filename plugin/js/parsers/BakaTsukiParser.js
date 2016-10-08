@@ -280,7 +280,7 @@ class BakaTsukiParser extends Parser{
     }
 
     numberOfHeaderTags(node) {
-        let walker = document.createTreeWalker(node); 
+        let walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT); 
         let count = 0;
         do {
             if (BakaTsukiParser.isChapterStart(walker.currentNode)) {
