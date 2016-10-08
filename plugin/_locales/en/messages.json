@@ -7,6 +7,10 @@
 		"message": "Apply Changes",
 		"description": "Label on button to end manually editing list of URLs to fetch"
 	},
+	"__MSG_button_Clear_Url__": {
+		"message": "Clear URL",
+		"description": "Label on button to erase the Cover Image URL text"
+	},
 	"__MSG_button_Edit_Chapter_Urls__": {
 		"message": "Edit Chapter URLs",
 		"description": "Label on button to allow manually editing list of URLs to fetch"

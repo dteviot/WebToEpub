@@ -339,6 +339,10 @@ var main = (function () {
         };
     }
 
+    function clearCoverUrl() {
+        CoverImageUI.setCoverImageUrl(null);
+    }
+
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
@@ -351,6 +355,7 @@ var main = (function () {
             document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
             document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
             document.getElementById("resetButton").onclick = resetUI;
+            document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
             getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
             window.showErrorMessage = showErrorMessage;
             populateControls();
