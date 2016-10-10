@@ -87,6 +87,10 @@
         "message": "Tên tác giả cho tập tin",
         "description": ""
     },
+    "__MSG_label_Element_With_Chapter_Content__": {
+        "message": "Phần Tử chứa Nội dung Chương:",
+        "description": ""
+    },
     "__MSG_label_Filename__": {
         "message": "Tên tập tin",
         "description": ""
@@ -135,8 +139,32 @@
         "message": "Dịch Giả",
         "description": ""
     },
+    "__MSG_label_Use_SVG_for_Images__": {
+        "message": "Sử dụng <svg> cho hình ảnh",
+        "description": ""
+    },
     "__MSG_label_Volume__": {
         "message": "Tập",
+        "description": ""
+    },
+    "__MSG_option_Class_Is__": {
+        "message": "Class là",
+        "description": ""
+    },
+    "__MSG_option_Class_Starts_With__": {
+        "message": "Class Bắt Đầu Vớ",
+        "description": ""
+    },
+    "__MSG_option_First_Found__": {
+        "message": "Đầu Tiên Tìm Thấy",
+        "description": ""
+    },
+    "__MSG_option_ID_Is__": {
+        "message": "ID là",
+        "description": ""
+    },
+    "__MSG_option_ID_Starts_With__": {
+        "message": "ID Bắt Đầu Với",
         "description": ""
     },
     "defaultAuthor": {
@@ -150,6 +178,15 @@
     "defaultUUID": {
         "message": "UUID Không Được Cấp",
         "description": ""
+    },
+    "errorContentNotFound": {
+        "message": "Không thể tìm thấy nội dung trang cho trang web '$url$'",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
     },
     "gotHtmlExpectedImageWarning": {
         "message": "Tải trang từ đường dẫn '$url$' trả kết quả lại là HTML, có thể chỉ là hình ảnh",
@@ -177,7 +214,7 @@
         "description": ""
     },
     "noParserFound": {
-        "message": "Không tìm thấy parser cho đường dẫn này.",
+        "message": "Không tìm thấy parser nào cho đường dẫn này.  Parser mặc định sẽ được sử dụng.  Bạn sẽ cần phải tự xác định cách thức lấy nội dung trang cho từng chương.",
         "description": ""
     },
     "setCover": {
@@ -187,5 +224,14 @@
     "unhandledFieldTypeError": {
         "message": "Lỗi: Unhandled field type.",
         "description": ""
+    },
+    "warningNoVisibleContent": {
+        "message": "Cảnh báo, nội dung trang cho trang web '$url$' không có nội dung nào có thể nhìn thấy.",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
     }
 }
