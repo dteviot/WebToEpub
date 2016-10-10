@@ -96,3 +96,12 @@ WebToEpub uses the following libraries:
 * Set it to false
 * Load unitTest/Tests.html
 * (Remember to reset security.fileuri.strict_origin_policy to true when done.
+
+### To run eslint (and build the plugins)
+* Install Node.js (if not already installed)
+* Use Node.js to run eslint/pack.js
+* This will produce 3 files in the eslint directory.
+** WebToEpub0.0.0.x.xpi   (Firefox version of plug-in.)
+** WebToEpub0.0.0.x.zip   (Chrome version of plug-in.)
+** packed.js  (All javascript files packaged into single file, for eslint to examine.)
+* Command line for eslint is "eslint packed.js > error.txt"
