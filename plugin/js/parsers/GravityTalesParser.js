@@ -13,6 +13,12 @@ class GravityTalesParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let content = that.findContent(dom);
+        if (content === null) {
+            content = util.getElement(dom, "chapters");
+        }
+        if (content === null) {
+            content = dom.body;
+        }
         let chapters = util.hyperlinksToChapterList(content, that.isChapterHref);
         return Promise.resolve(chapters);
     }
@@ -23,7 +29,8 @@ class GravityTalesParser extends Parser {
     }
 
     extractTitle(dom) {
-        return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
+        let title = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title"));
+        return (title === null) ? util.getElement(dom, "h3").innerText : title.getAttribute("content");
     }
 
     // find the node(s) holding the story content
@@ -46,7 +53,8 @@ class GravityTalesParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h1", e => (e.className === "entry-title"));
+        let title = util.getElement(dom, "h1", e => (e.className === "entry-title"));
+        return (title === null) ? util.getElement(dom, "h3") : title;
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
