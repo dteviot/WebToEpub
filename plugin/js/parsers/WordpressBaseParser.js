@@ -7,6 +7,7 @@ parserFactory.register("shalvationtranslations.wordpress.com", function() { retu
 parserFactory.register("frostfire10.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("isekaicyborg.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("moonbunnycafe.com", function() { return new WordpressBaseParser() });
+parserFactory.register("raisingthedead.ninja", function() { return new WordpressBaseParser() });
 
 class WordpressBaseParser extends Parser {
     constructor() {
@@ -54,8 +55,7 @@ class WordpressBaseParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        let header = util.getElement(dom, "header", e => (e.className === "entry-header"));
-        return (header === null) ? null : util.getElement(header, "h1");
+        return util.getElement(dom, "h1", e => (e.className === "entry-title"));
     }
 
     populateUI(dom) {
