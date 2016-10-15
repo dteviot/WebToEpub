@@ -21,7 +21,8 @@ class HttpClient {
 
     static checkResponseAndGetData(state, response) {
         if(!response.ok) {
-            return Promise.reject(new Error("Fetch of '" + response.url + "' failed with network error " + response.status));
+            let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
+            return Promise.reject(new Error(errorMsg));
         } else {
             state.response = response;
             state.contentType = response.headers.get("content-type");
@@ -43,5 +44,18 @@ class HttpClient {
 
     static responseToBinary(state, data) {
         state.arrayBuffer = data;
+    }
+
+    static fetchJson(url) {
+        return fetch(url).then(function (response) {
+            if (!response.ok) {
+                let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
+                return Promise.reject(new Error(errorMsg));
+            } else {
+                return response.text();
+            }
+        }).then(function (text) {
+            return JSON.parse(text);
+        });
     }
 }

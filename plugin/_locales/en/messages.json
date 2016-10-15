@@ -201,6 +201,18 @@
 			}
 		}
 	},
+	"htmlFetchFailed": {
+		"message": "Fetch of URL '$url$' failed with network error $err$.",
+		"description": "Error message when fetch of a web page fails.",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			},
+			"err": {
+			    "content": "$2"
+			}
+		}
+	},
 	"noChaptersFound": {
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."
