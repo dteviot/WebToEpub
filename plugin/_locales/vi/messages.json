@@ -7,6 +7,10 @@
         "message": "Áp Dụng Thay Đổ",
         "description": ""
     },
+    "__MSG_button_Clear_Url__": {
+        "message": "Xóa Đường Dẫn",
+        "description": ""
+    },
     "__MSG_button_Edit_Chapter_Urls__": {
         "message": "Chỉnh sửa Đường dẫn của Chương",
         "description": ""
@@ -194,6 +198,18 @@
         "placeholders": {
             "url": {
                 "content": "$1"
+            }
+        }
+    },
+    "htmlFetchFailed": {
+        "message": "Tải trang từ đường dẫn '$url$' bị lỗi do lỗi mạng $err$",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            },
+            "err": {
+                "content": "$2"
             }
         }
     },
