@@ -11,8 +11,12 @@ class RoyalRoadParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let that = this;
-        return Promise.resolve(util.getElements(dom, "li", e => (e.className === "chapter")).map(element => that.elementToChapterInfo(element)));
+        let table = util.getElement(dom, "table", e => e.id === "chapters");
+        let chapters = [];
+        if (table !== null) {
+            chapters = util.hyperlinksToChapterList(table);
+        }
+        return Promise.resolve(chapters);
     }
 
     elementToChapterInfo(chapterElement) {
@@ -25,7 +29,7 @@ class RoyalRoadParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => (e.className === "post_body scaleimages") );
+        let content = util.getElement(dom, "div", e => (e.className === "portlet-body"));
         return content;
     }
 
@@ -35,32 +39,18 @@ class RoyalRoadParser extends Parser{
 
     removeUnwantedElementsFromContentElement(content) {
         let that = this;
-        that.removeNavigationBox(content);
-
-        // get rid of donation request at end of chapters
-        util.removeElements(util.getElements(content, "div", e => e.className === "thead"));
-
-        // remove links to get rid of the "Read this chapter using beta fiction reader"
-        util.removeElements(util.getElements(content, "a").filter(a => util.getElements(a, "img").length === 0));
         that.removeOlderChapterNavJunk(content);
-        super.removeUnwantedElementsFromContentElement(content);
-    }
 
-    removeNavigationBox(element) {
-        let navigationBox = this.findNavigationBox(element);
-        if (navigationBox !== null) {
-            util.removeNode(navigationBox);
-        }
-    }
-
-    findNavigationBox(element) {
-        for(let navigationBox of util.getElements(element, "div", e => (e.className === "post-content"))) {
-            let navLinks = util.getElements(navigationBox, "a", e2 => (e2.className === "chapterNav"));
-            if (0 < navLinks.length) {
-                return navigationBox;
+        // only keep the <div class="chapter-inner" elements of content
+        for(let i = content.childElementCount - 1; 0 <= i; --i) {
+            let child = content.children[i];
+            let tagName = child.tagName.toLowerCase();
+            if ((tagName !== "h1") && ((tagName !== "div") || !child.className.startsWith("chapter-inner"))) {
+                util.removeNode(child);
             }
         }
-        return null;
+
+        super.removeUnwantedElementsFromContentElement(content);
     }
 
     extractTextFromPage(dom, tagName, filter) {
@@ -69,11 +59,11 @@ class RoyalRoadParser extends Parser{
     }
 
     extractTitle(dom) {
-        return this.extractTextFromPage(dom, "h1", e=> (e.className === "fiction-title"));
+        return this.extractTextFromPage(dom, "h2", e=> (e.getAttribute("property") === "name"));
     }
 
     extractAuthor(dom) {
-        let author = this.extractTextFromPage(dom, "span", e=> (e.className === "author"));
+        let author = this.extractTextFromPage(dom, "h4", e=> (e.getAttribute("property") === "author"));
         return author.startsWith("by ") ? author.substring(3) : author;
     }
 
@@ -81,15 +71,15 @@ class RoyalRoadParser extends Parser{
         let that = this;
         let titleText = that.findChapterTitle(dom);
         if (titleText !== "") {
-            let title = dom.createElement("h3");
+            let title = dom.createElement("h1");
             title.appendChild(dom.createTextNode(titleText));
             content.insertBefore(title, content.firstChild);
         };
     }
 
     findChapterTitle(dom) {
-        let title = util.getElement(dom, "div", e => (e.className === "ccgtheadposttitle"));
-        return (title === null) ? "" : title.innerText.trim();
+        let title = util.getElement(dom, "h2"); 
+        return (title === null) ? dom.title : title.innerText.trim();
     }
 
     removeOlderChapterNavJunk(content) {
@@ -111,7 +101,7 @@ class RoyalRoadParser extends Parser{
 
     findCoverImageUrl(dom) {
         if (dom != null) {
-            let cover = util.getElement(dom, "img", e => e.className === "cover");
+            let cover = util.getElement(dom, "img", e => e.className.startsWith("img-offset"));
             if (cover !== null) {
                 return cover.src;
             };
