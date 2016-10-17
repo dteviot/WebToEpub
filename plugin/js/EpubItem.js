@@ -5,8 +5,8 @@
       sourceUrl: where the html came from
       id:  the id value in the content.opf file
 
-      optional elements:
-      elements:  list of elements that make up the content (if it's XHTML content)
+      optional members:
+      nodes:  list of nodes that make up the content (if it's XHTML content)
 */
 "use strict";
 
@@ -44,8 +44,8 @@ class EpubItem {
         let that = this;
         let doc = util.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
-        for(let element of that.elements) {
-            body.appendChild(doc.importNode(element, true));
+        for(let node of that.nodes) {
+            body.appendChild(doc.importNode(node, true));
         };
         return doc;
     }
@@ -59,7 +59,7 @@ class EpubItem {
 
     *chapterInfo() {
         let that = this;
-        for(let element of that.elements) {
+        for(let element of that.nodes) {
             if (util.isHeaderTag(element)) {
                 yield {
                     depth: this.tagNameToTocDepth(element.tagName),
@@ -78,7 +78,7 @@ class ChapterEpubItem extends EpubItem {
     constructor(chapter, content, index) {
         super(chapter.sourceUrl);
         super.setIndex(index);
-        this.elements = Array.prototype.slice.apply(content.children);
+        this.nodes = Array.prototype.slice.apply(content.childNodes);
         this.chapterTitle = chapter.title;
         this.newArc = chapter.newArc;
     }
@@ -117,7 +117,6 @@ class ChapterEpubItem extends EpubItem {
 class ImageInfo extends EpubItem {
     constructor(wrappingUrl, index, sourceUrl) {
         super(sourceUrl);
-        // ToDo:  This will need to derive from EpubItem
         super.index = index;
         super.isInSpine = false;
         this.wrappingUrl = wrappingUrl;

@@ -68,16 +68,16 @@ class BakaTsukiParser extends Parser{
 
     static splitContentOnHeadingTags(content, sourceUrl) {
         let epubItems = [];
-        let elementsInItem = [];
+        let nodesInItem = [];
         for(let i = 0; i < content.childNodes.length; ++i) {
             let node = util.wrapRawTextNode(content.childNodes[i]);
             if (BakaTsukiParser.isChapterStart(node)) {
-                BakaTsukiParser.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
-                elementsInItem = [];
+                BakaTsukiParser.appendToEpubItems(epubItems, nodesInItem, sourceUrl);
+                nodesInItem = [];
             };
-            elementsInItem.push(node);
+            nodesInItem.push(node);
         };
-        BakaTsukiParser.appendToEpubItems(epubItems, elementsInItem, sourceUrl);
+        BakaTsukiParser.appendToEpubItems(epubItems, nodesInItem, sourceUrl);
         return epubItems;
     }
 
@@ -85,19 +85,19 @@ class BakaTsukiParser extends Parser{
         return util.isHeaderTag(node);
     }
 
-    static appendToEpubItems(epubItems, elementsInItem, sourceUrl) {
-        BakaTsukiParser.removeTrailingWhiteSpace(elementsInItem);
-        if (0 < elementsInItem.length) {
+    static appendToEpubItems(epubItems, nodesInItem, sourceUrl) {
+        BakaTsukiParser.removeTrailingWhiteSpace(nodesInItem);
+        if (0 < nodesInItem.length) {
             let epubItem = new EpubItem(sourceUrl);
-            epubItem.elements = elementsInItem;
+            epubItem.nodes = nodesInItem;
             epubItems.push(epubItem);
         };
     }
 
-    static removeTrailingWhiteSpace(elementsInItem) {
-        let i = elementsInItem.length - 1;
-        while ((0 <= i) && util.isElementWhiteSpace(elementsInItem[i])) {
-            elementsInItem.pop();
+    static removeTrailingWhiteSpace(nodesInItem) {
+        let i = nodesInItem.length - 1;
+        while ((0 <= i) && util.isElementWhiteSpace(nodesInItem[i])) {
+            nodesInItem.pop();
             --i;
         };
     }
@@ -322,8 +322,8 @@ class BakaTsukiParser extends Parser{
         let i = epubItems.length - 2;
         while (0 <= i) {
             let epubItem = epubItems[i];
-            if (epubItem.elements.length === 1) {
-                newEpubItems[0].elements.unshift(epubItem.elements[0]);
+            if (epubItem.nodes.length === 1) {
+                newEpubItems[0].nodes.unshift(epubItem.nodes[0]);
             } else {
                 newEpubItems.unshift(epubItem);
             }
@@ -334,12 +334,12 @@ class BakaTsukiParser extends Parser{
 
     discardEpubItemsWithNoVisibleContent(epubItems) {
         let that = this;
-        return epubItems.filter(item => that.hasVisibleContent(item.elements));
+        return epubItems.filter(item => that.hasVisibleContent(item.nodes));
     }
 
-    hasVisibleContent(elements) {
-        for (let element of elements) {
-            if (!util.isElementWhiteSpace(element)) {
+    hasVisibleContent(nodes) {
+        for (let node of nodes) {
+            if (!util.isElementWhiteSpace(node)) {
                 return true;
             }
         }
@@ -376,7 +376,7 @@ class BakaTsukiParser extends Parser{
     walkEpubItemsWithElements(epubItems, targets, processFoundNode) {
         let that = this;
         for(let epubItem of epubItems) {
-            for(let element of epubItem.elements) {
+            for(let element of epubItem.nodes.filter(e => e.nodeType === Node.ELEMENT_NODE)) {
                 let walker = document.createTreeWalker(
                     element, 
                     NodeFilter.SHOW_ELEMENT

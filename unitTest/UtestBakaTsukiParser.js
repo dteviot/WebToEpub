@@ -381,30 +381,30 @@ QUnit.test("splitContentIntoSections", function (assert) {
     let parser = new BakaTsukiParser();
     let epubItems = parser.splitContentIntoSections(dom.body.firstChild);
     assert.equal(epubItems.length, 3);
-    assert.equal(epubItems[0].elements.length, 2);
-    assert.equal(epubItems[1].elements.length, 4);
-    assert.equal(epubItems[2].elements.length, 3);
+    assert.equal(epubItems[0].nodes.length, 2);
+    assert.equal(epubItems[1].nodes.length, 4);
+    assert.equal(epubItems[2].nodes.length, 3);
 
-    let elements = epubItems[0].elements;
-    assert.equal(elements[0].outerHTML, "<h1>H1.1</h1>");
-    assert.equal(elements[1].outerHTML, "<p>text1</p>");
+    let nodes = epubItems[0].nodes;
+    assert.equal(nodes[0].outerHTML, "<h1>H1.1</h1>");
+    assert.equal(nodes[1].outerHTML, "<p>text1</p>");
 
-    elements = epubItems[1].elements;
-    assert.equal(elements[0].outerHTML, "<h1>H1.2</h1>");
-    assert.equal(elements[1].outerHTML, "<h2>H2.2</h2>");
-    assert.equal(elements[2].outerHTML, "<p>text2</p>");
-    assert.equal(elements[3].outerHTML, "<p>text3</p>");
+    nodes = epubItems[1].nodes;
+    assert.equal(nodes[0].outerHTML, "<h1>H1.2</h1>");
+    assert.equal(nodes[1].outerHTML, "<h2>H2.2</h2>");
+    assert.equal(nodes[2].outerHTML, "<p>text2</p>");
+    assert.equal(nodes[3].outerHTML, "<p>text3</p>");
 
-    elements = epubItems[2].elements;
-    assert.equal(elements[0].outerHTML, "<h1>H1.3</h1>");
-    assert.equal(elements[1].outerHTML, "<h2>H2.3</h2>");
-    assert.equal(elements[2].outerHTML, "<h3>H2.3</h3>");
+    nodes = epubItems[2].nodes;
+    assert.equal(nodes[0].outerHTML, "<h1>H1.3</h1>");
+    assert.equal(nodes[1].outerHTML, "<h2>H2.3</h2>");
+    assert.equal(nodes[2].outerHTML, "<h3>H2.3</h3>");
 });
 
 function fetchHrefForId(epubItems, id) {
     for(let epubItem of epubItems) {
-        for(let element of epubItem.elements) {
-            let walker = document.createTreeWalker(element);
+        for(let startNode of epubItem.nodes) {
+            let walker = document.createTreeWalker(startNode);
             do {
                 let node = walker.currentNode;
                 if (node.id === id) {
