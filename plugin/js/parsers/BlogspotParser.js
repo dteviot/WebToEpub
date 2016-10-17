@@ -14,8 +14,7 @@ class BlogspotParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
-        let menu = that.findContent(dom);
+        let menu = this.findContent(dom);
         let chapters = [];
         if (menu !== null) {
             chapters = util.hyperlinksToChapterList(menu);
@@ -37,8 +36,7 @@ class BlogspotParser extends Parser {
     }
 
     addTitleToContent(dom, content) {
-        let that = this;
-        let title = that.findChapterTitle(dom);
+        let title = this.findChapterTitle(dom);
         if (title !== null) {
             content.insertBefore(title, content.firstChild);
         };
@@ -53,9 +51,8 @@ class BlogspotParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let that = this;
         super.removeUnwantedElementsFromContentElement(element);
-        that.removeNextAndPreviousChapterHyperlinks(element);
+        this.removeNextAndPreviousChapterHyperlinks(element);
     }
 
     /**
