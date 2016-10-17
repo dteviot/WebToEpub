@@ -38,9 +38,6 @@ class RoyalRoadParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(content) {
-        let that = this;
-        that.removeOlderChapterNavJunk(content);
-
         // only keep the <div class="chapter-inner" elements of content
         for(let i = content.childElementCount - 1; 0 <= i; --i) {
             let child = content.children[i];
@@ -49,8 +46,14 @@ class RoyalRoadParser extends Parser{
                 util.removeNode(child);
             }
         }
+        this.removeNextAndPreviousChapterHyperlinks(content);
 
         super.removeUnwantedElementsFromContentElement(content);
+    }
+
+    removeNextAndPreviousChapterHyperlinks(content) {
+        util.removeElements(util.getElements(content, "a", a => a.hostname === "www.royalroadl.com"));
+        this.removeOlderChapterNavJunk(content);
     }
 
     extractTextFromPage(dom, tagName, filter) {
@@ -68,8 +71,7 @@ class RoyalRoadParser extends Parser{
     }
 
     addTitleToContent(dom, content) {
-        let that = this;
-        let titleText = that.findChapterTitle(dom);
+        let titleText = this.findChapterTitle(dom);
         if (titleText !== "") {
             let title = dom.createElement("h1");
             title.appendChild(dom.createTextNode(titleText));
