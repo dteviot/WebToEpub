@@ -61,14 +61,7 @@ class BlogspotParser extends Parser {
     *  no 'o' namespace
     */
     replaceWeirdPElements(content) {
-        for(let weird of util.getElements(content, "O:P")) {
-            let newNode = content.ownerDocument.createElement("p");
-            let previous = weird.previousSibling;
-            if ((previous != null) && (previous.nodeType === Node.TEXT_NODE)) {
-                newNode.appendChild(previous);
-            }
-            weird.parentElement.replaceChild(newNode, weird);
-        }
+        util.removeElements(util.getElements(content, "O:P"));
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
