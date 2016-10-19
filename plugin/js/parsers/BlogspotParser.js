@@ -3,6 +3,7 @@
 */
 "use strict";
 
+parserFactory.register("sousetsuka.com", function() { return new BlogspotParser() });
 parserFactory.registerRule(
     function(url) { return util.extractHostName(url).indexOf(".blogspot.") != -1 }, 
     function() { return new BlogspotParser() }

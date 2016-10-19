@@ -8,6 +8,7 @@ parserFactory.register("frostfire10.wordpress.com", function() { return new Word
 parserFactory.register("isekaicyborg.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("moonbunnycafe.com", function() { return new WordpressBaseParser() });
 parserFactory.register("raisingthedead.ninja", function() { return new WordpressBaseParser() });
+parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
 
 class WordpressBaseParser extends Parser {
     constructor() {
