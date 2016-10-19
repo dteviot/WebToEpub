@@ -11,12 +11,16 @@ class RoyalRoadParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let table = util.getElement(dom, "table", e => e.id === "chapters");
-        let chapters = [];
-        if (table !== null) {
-            chapters = util.hyperlinksToChapterList(table);
-        }
-        return Promise.resolve(chapters);
+        // Page in browser has links reduced to "Number of links to show"
+        // Fetch new page to get all chapter links.
+        return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
+            let table = util.getElement(xhr.responseXML, "table", e => e.id === "chapters");
+            let chapters = [];
+            if (table !== null) {
+                chapters = util.hyperlinksToChapterList(table);
+            }
+            return chapters;
+        });
     }
 
     elementToChapterInfo(chapterElement) {
