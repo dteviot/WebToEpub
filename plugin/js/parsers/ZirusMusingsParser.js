@@ -53,7 +53,7 @@ class ZirusMusingsParser extends Parser {
         // Ziru's Musings has links to imgur galleries.
         // So when one of them, create whole new page and return link to that.
         // ToDo: Fix this ugly hack.
-        let host = util.extractHostName(dom.documentURI).toLowerCase();
+        let host = util.extractHostName(dom.baseURI).toLowerCase();
         if (host === "imgur.com") {
             let imagesList = ZirusMusingsParser.findImagesList(dom);
             if (imagesList == null) {
