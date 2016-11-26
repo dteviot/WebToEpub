@@ -15,8 +15,9 @@ Also works with
 * readlightnovel.com
 * royalroadl.com 
 * shikkakutranslations.org
-* sonako.org
+* sonako.wikia.com
 * wuxiaworld.com
+* and many other sites
 
 Credits
 * Firefox mod by Markus Vieth
@@ -39,6 +40,21 @@ Credits
 * Check story details are correct.
 * Click the "Pack EPUB" button.
 * Wait for progress bar to finish (indicating the additional chapters are being downloaded) and the generated EPUB to be placed in your downloads directory.
+
+## How to use for site that there is no specific parser for:
+* Examine the HTML of a chapter the web page and find the tag holding the content.  Take note of:
+** Type: `<div>` or `<article>`
+** id (if present)
+** class (if present and id not present)
+* Browse to page that has urls for the chapters you want to fetch.
+* Click on the WebToEpub icon on top right of the window.
+* When warning "No parser found for this URL. Default parser will be used. You will need to specify how to obtain content for each chapter." appears, click "OK".
+* Select the URLs to the chapters you want.
+* Above the "Pack EPUB" button set 
+** the `<body>` drop down to type of the tag holding the content you found in the first step.  Note, if it's neither `<div>` or `<article>` leave value as `<body>`.
+** next drop down to one of `<Class Starts with>`, `<Class is>`, `<id starts with>` or `<id is>`
+** the text box to the value of the id or class
+* Click "Pack EPUB"
 
 ## How to install 
 ### from Chrome Web Store
@@ -99,6 +115,7 @@ WebToEpub uses the following libraries:
 
 ### To run eslint (and build the plugins)
 * Install Node.js (if not already installed)
+* Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (needed by pack.js)
 * Use Node.js to run eslint/pack.js
 * This will produce 3 files in the eslint directory.
 ** WebToEpub0.0.0.x.xpi   (Firefox version of plug-in.)
