@@ -1,5 +1,5 @@
 /*
-  parses *.blogspot.*
+  parses xianxiaworld.net
 */
 "use strict";
 
