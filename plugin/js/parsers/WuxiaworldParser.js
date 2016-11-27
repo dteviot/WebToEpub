@@ -49,9 +49,6 @@ class WuxiaworldParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
-
-        that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeLeadingWhiteSpace(element);
         that.removeEmoji(element);
     }
 

@@ -44,11 +44,6 @@ class BlogspotParser extends Parser {
         return title;
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        super.removeUnwantedElementsFromContentElement(element);
-        this.removeNextAndPreviousChapterHyperlinks(element);
-    }
-
     /**
     *  http://skythewood.blogspot.com/ has <o:p> nodes
     *  I think they're supposed to be <p> nodes, but there's

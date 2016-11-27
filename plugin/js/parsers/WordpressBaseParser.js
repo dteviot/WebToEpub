@@ -40,14 +40,6 @@ class WordpressBaseParser extends Parser {
         return WordpressBaseParser.FindContentElement(dom);
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        let that = this;
-        super.removeUnwantedElementsFromContentElement(element);
-
-        that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeLeadingWhiteSpace(element);
-    }
-
     findParentNodeOfChapterLinkToRemoveAt(link) {
         // "next" and "previous" chapter links may be inside <strong> then <p> tag
         let toRemove = util.moveIfParent(link, "strong");

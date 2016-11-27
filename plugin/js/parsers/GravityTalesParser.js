@@ -42,10 +42,6 @@ class GravityTalesParser extends Parser {
         return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
     }
 
-    customRawDomToContentStep(chapter, content) {
-        this.removeNextAndPreviousChapterHyperlinks(content);
-    }
-
     findChapterTitle(dom) {
         let title = util.getElement(dom, "h1", e => (e.className === "entry-title"));
         return (title === null) ? util.getElement(dom, "h3") : title;

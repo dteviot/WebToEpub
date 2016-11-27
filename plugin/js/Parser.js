@@ -61,6 +61,7 @@ class Parser {
         util.removeComments(element);
         util.removeElements(util.getElements(element, "noscript"));
         util.removeUnwantedWordpressElements(element);
+        this.removeNextAndPreviousChapterHyperlinks(element);
         util.removeLeadingWhiteSpace(element);
     };
 
@@ -94,16 +95,18 @@ class Parser {
     }
 
     removeNextAndPreviousChapterHyperlinks(element) {
-        let that = this;
-        let chapterLinks = new Set();
-        for(let c of that.chapters) { 
-            chapterLinks.add(util.normalizeUrl(c.sourceUrl));
-        };
+        if (this.findParentNodeOfChapterLinkToRemoveAt != null) {
+            let that = this;
+            let chapterLinks = new Set();
+            for(let c of that.chapters) { 
+                chapterLinks.add(util.normalizeUrl(c.sourceUrl));
+            };
 
-        for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
-            .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
-            util.removeNode(unwanted);
-        };
+            for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
+                .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
+                util.removeNode(unwanted);
+            };
+        }
     }
 
     /**

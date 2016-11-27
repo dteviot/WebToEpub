@@ -34,13 +34,6 @@ class HellpingParser extends Parser {
         return util.getElement(dom, "h2", e => (e.className === "page-title"));
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        let that = this;
-        super.removeUnwantedElementsFromContentElement(element);
-        that.removeNextAndPreviousChapterHyperlinks(element);
-        util.removeLeadingWhiteSpace(element);
-    }
-
     findParentNodeOfChapterLinkToRemoveAt(link) {
         return util.moveIfParent(link, "p");
     }

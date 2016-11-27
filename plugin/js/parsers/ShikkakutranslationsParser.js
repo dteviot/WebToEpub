@@ -56,12 +56,6 @@ class ShikkakutranslationsParser extends Parser {
         return util.getElement(dom, "h1", e => e.className.startsWith("page-title"));
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        let that = this;
-        super.removeUnwantedElementsFromContentElement(element);
-        that.removeNextAndPreviousChapterHyperlinks(element);
-    }
-
     removeNextAndPreviousChapterHyperlinks(element) {
         // override default, just remove all hyperlinks
         // due to links in chapters not matching links in menu.

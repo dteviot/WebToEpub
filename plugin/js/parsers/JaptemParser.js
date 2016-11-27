@@ -23,12 +23,6 @@ class JaptemParser extends Parser {
         return util.getElement(dom, "div", e => e.className === "post-content");
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        let that = this;
-        super.removeUnwantedElementsFromContentElement(element);
-        that.removeNextAndPreviousChapterHyperlinks(element);
-    }
-
     findParentNodeOfChapterLinkToRemoveAt(link) {
         return util.moveIfParent(link, "h2");
     }
