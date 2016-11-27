@@ -10,6 +10,14 @@ parserFactory.register("moonbunnycafe.com", function() { return new WordpressBas
 parserFactory.register("raisingthedead.ninja", function() { return new WordpressBaseParser() });
 parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
 
+parserFactory.registerRule(
+    function(url, dom) {
+        return (WordpressBaseParser.FindContentElement(dom) != null) &&
+            (WordpressBaseParser.findChapterTitleElement(dom) != null); 
+    }, 
+    function() { return new WordpressBaseParser() }
+);
+
 class WordpressBaseParser extends Parser {
     constructor() {
         super();
@@ -23,10 +31,13 @@ class WordpressBaseParser extends Parser {
         return Promise.resolve(chapters);
     }
 
+    static FindContentElement(dom) {
+        return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
+    }
+
     // find the node(s) holding the story content
     findContent(dom) {
-        let div = util.getElement(dom, "div", e => e.className === "entry-content");
-        return div;
+        return WordpressBaseParser.FindContentElement(dom);
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -43,8 +54,16 @@ class WordpressBaseParser extends Parser {
         return util.moveIfParent(toRemove, "p");
     }
 
+    static findChapterTitleElement(dom) {
+        let elements = dom.getElementsByClassName("entry-title");
+        if (elements.length === 0) {
+            elements = dom.getElementsByClassName("page-title");
+        }
+        return (elements.length === 0) ? null : elements[0];
+    }
+
     findChapterTitle(dom) {
-        return util.getElement(dom, "h1", e => (e.className === "entry-title"));
+        return WordpressBaseParser.findChapterTitleElement(dom);
     }
 
     populateUI(dom) {

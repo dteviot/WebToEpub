@@ -36,7 +36,7 @@ var main = (function () {
 
     // extract urls from DOM and populate control
     function processInitialHtml(url, dom) {
-        if (setParser(url)) {
+        if (setParser(url, dom)) {
             try {
                 userPreferences.addObserver(parser);
                 let metaInfo = parser.getEpubMetaInfo(dom);
@@ -168,8 +168,8 @@ var main = (function () {
         processInitialHtml(url, initalWebPage);
     }
 
-    function setParser(url) {
-        parser = parserFactory.fetch(url);
+    function setParser(url, dom) {
+        parser = parserFactory.fetch(url, dom);
         if (parser === undefined) {
             showErrorMessage(chrome.i18n.getMessage("noParserFound"));
             return false;

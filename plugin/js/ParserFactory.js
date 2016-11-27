@@ -39,7 +39,7 @@ class ParserFactory{
         this.parserRules.push( {test: test, constructor: constructor } );
     }
 
-    fetch(url) {
+    fetch(url, dom) {
         if (ParserFactory.isWebArchive(url)) {
             url = ParserFactory.stripWebArchive(url);
         }
@@ -49,8 +49,8 @@ class ParserFactory{
             return constructor();
         }
 
-        // no exact match found, see if any parser is willing to handle the URL
-        for (let pair of this.parserRules.filter(p => p.test(url))) {
+        // no exact match found, see if any parser is willing to handle the URL and/or DOM
+        for (let pair of this.parserRules.filter(p => p.test(url, dom))) {
             return pair.constructor();
         }
 
