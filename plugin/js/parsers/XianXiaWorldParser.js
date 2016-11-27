@@ -4,10 +4,10 @@
 "use strict";
 
 parserFactory.register("xianxiaworld.net", function() { 
-    return new ZianXiaWorldParser() 
+    return new XianXiaWorldParser() 
 });
 
-class ZianXiaWorldParser extends Parser {
+class XianXiaWorldParser extends Parser {
     constructor() {
         super();
     }
