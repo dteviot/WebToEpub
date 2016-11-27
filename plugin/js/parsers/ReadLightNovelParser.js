@@ -96,20 +96,6 @@ class ReadLightNovelParser extends Parser {
         return util.getElement(dom, "div", e => e.className === "chapter-content");
     }
 
-    customRawDomToContentStep(chapter, content) {
-        util.removeLeadingWhiteSpace(content);
-        this.addTitleToContent(chapter.rawDom, content);
-    }
-
-    addTitleToContent(dom, content) {
-        let title = this.findChapterTitle(dom);
-        if (title !== null) {
-            let newTitle = dom.createElement("h1");
-            newTitle.innerText = title.innerText;
-            content.insertBefore(newTitle, content.firstChild);
-        };
-    }
-
     findChapterTitle(dom) {
         return util.getElement(dom, "h1");
     }

@@ -52,18 +52,6 @@ class ShikkakutranslationsParser extends Parser {
         return content;
     }
 
-    customRawDomToContentStep(chapter, content) {
-        this.addTitleToContent(chapter.rawDom, content);
-    }
-
-    addTitleToContent(dom, content) {
-        let that = this;
-        let title = that.findChapterTitle(dom);
-        if (title !== null) {
-            content.insertBefore(title, content.firstChild);
-        };
-    }
-
     findChapterTitle(dom) {
         return util.getElement(dom, "h1", e => e.className.startsWith("page-title"));
     }

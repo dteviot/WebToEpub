@@ -24,6 +24,7 @@ class Parser {
         let content = that.findContent(chapter.rawDom);
         that.customRawDomToContentStep(chapter, content);
         that.removeUnwantedElementsFromContentElement(content);
+        this.addTitleToContent(chapter, content);
         util.fixBlockTagsNestedInInlineTags(content);
         that.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
@@ -40,11 +41,27 @@ class Parser {
         return content;
     }
 
+    addTitleToContent(chapter, content) {
+        let title = this.findChapterTitle(chapter.rawDom);
+        if (title !== null) {
+            content.insertBefore(title, content.firstChild);
+        };
+    }
+
+    /**
+     * Element with title of an individual chapter
+     * Override when chapter title not in content element
+    */
+    findChapterTitle(dom) {   // eslint-disable-line no-unused-vars
+        return null;
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeScriptableElements(element);
         util.removeComments(element);
         util.removeElements(util.getElements(element, "noscript"));
         util.removeUnwantedWordpressElements(element);
+        util.removeLeadingWhiteSpace(element);
     };
 
     customRawDomToContentStep(chapter, content) { // eslint-disable-line no-unused-vars

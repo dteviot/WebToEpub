@@ -38,17 +38,6 @@ class XianXiaWorldParser extends Parser {
         return (author === null ) ? super.extractAuthor(dom) : author.getAttribute("content");
     }
 
-    customRawDomToContentStep(chapter, content) {
-        this.addTitleToContent(chapter.rawDom, content);
-    }
-
-    addTitleToContent(dom, content) {
-        let title = this.findChapterTitle(dom);
-        if (title !== null) {
-            content.insertBefore(title, content.firstChild);
-        };
-    }
-
     findChapterTitle(dom) {
         return util.getElement(dom, "h1");
     }

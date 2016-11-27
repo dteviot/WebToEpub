@@ -32,15 +32,7 @@ class BlogspotParser extends Parser {
     }
 
     customRawDomToContentStep(chapter, content) {
-        this.addTitleToContent(chapter.rawDom, content);
         this.replaceWeirdPElements(content);
-    }
-
-    addTitleToContent(dom, content) {
-        let title = this.findChapterTitle(dom);
-        if (title !== null) {
-            content.insertBefore(title, content.firstChild);
-        };
     }
 
     findChapterTitle(dom) {

@@ -37,10 +37,6 @@ class RoyalRoadParser extends Parser{
         return content;
     }
 
-    customRawDomToContentStep(chapter, content) {
-        this.addTitleToContent(chapter.rawDom, content);
-    }
-
     removeUnwantedElementsFromContentElement(content) {
         // only keep the <div class="chapter-inner" elements of content
         for(let i = content.childElementCount - 1; 0 <= i; --i) {
@@ -74,11 +70,11 @@ class RoyalRoadParser extends Parser{
         return author.startsWith("by ") ? author.substring(3) : author;
     }
 
-    addTitleToContent(dom, content) {
-        let titleText = this.findChapterTitle(dom);
+    addTitleToContent(chapter, content) {
+        let titleText = this.findChapterTitle(chapter.rawDom);
         if (titleText !== "") {
-            let title = dom.createElement("h1");
-            title.appendChild(dom.createTextNode(titleText));
+            let title = chapter.rawDom.createElement("h1");
+            title.appendChild(chapter.rawDom.createTextNode(titleText));
             content.insertBefore(title, content.firstChild);
         };
     }

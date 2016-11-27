@@ -44,16 +44,6 @@ class GravityTalesParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         this.removeNextAndPreviousChapterHyperlinks(content);
-        util.removeLeadingWhiteSpace(content);
-        this.addTitleToContent(chapter.rawDom, content);
-    }
-
-    addTitleToContent(dom, content) {
-        let that = this;
-        let title = that.findChapterTitle(dom);
-        if (title !== null) {
-            content.insertBefore(title, content.firstChild);
-        };
     }
 
     findChapterTitle(dom) {
