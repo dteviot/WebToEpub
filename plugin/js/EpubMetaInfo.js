@@ -70,6 +70,23 @@ class EpubMetaInfo {
         "   padding-left: 8%;\r"+
         "}\r"+
 
+        "body {\r"+
+        "  margin: 2%;\r"+
+        "}\r"+
+
+        //Breaks extremely long words, screams, wails etc to fit viewer window.
+        "p {\r"+
+        "  overflow-wrap: break-word;\r"+
+        "}\r"+
+
+        // Prevent texts inside mutliple definition list tags going outside viewer window.
+        // Example https://www.baka-tsuki.org/project/index.php?title=The_Unexplored_Summon_Blood_Sign:Volume2_Opening2
+        // It looks okay in a browser but in devices with small screen, it's almost unreadable.
+        "dd, dt, dl {\r"+
+        "  padding: 0;\r"+
+        "  margin: 0;\r"+
+        "}\r"+
+
         // In case there are images in img tags. It's up to you
         "img {\r"+
         "   display: block;\r"+
