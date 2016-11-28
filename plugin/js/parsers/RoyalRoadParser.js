@@ -33,8 +33,10 @@ class RoyalRoadParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => (e.className === "portlet-body"));
-        return content;
+        return util.getElement(dom, "div", 
+            e => (e.className === "portlet-body") &&
+            (util.getElement(e, "div", c => c.className.startsWith("chapter-inner")) !== null)
+        );
     }
 
     removeUnwantedElementsFromContentElement(content) {
