@@ -46,15 +46,18 @@ Credits
     * Type: `<div>` or `<article>`
     * id (if present)
     * class (if present and id not present)
-* Browse to page that has urls for the chapters you want to fetch.
+* Browse to page that has URLs for the chapters you want to fetch.
 * Click on the WebToEpub icon on top right of the window.
 * When warning "No parser found for this URL. Default parser will be used. You will need to specify how to obtain content for each chapter." appears, click "OK".
 * Select the URLs to the chapters you want.
 * Above the "Pack EPUB" button set 
     * the `<body>` drop down to type of the tag holding the content you found in the first step.  Note, if it's neither `<div>` or `<article>` leave value as `<body>`.
-    * next drop down to one of `<Class Starts with>`, `<Class is>`, `<id starts with>` or `<id is>`
+    * next drop down to one of `<Class Starts With>`, `<Class is>`, `<ID Starts With>` or `<ID is>`
     * the text box to the value of the id or class
 * Click "Pack EPUB"
+
+## How to create Parsers for new sites
+For details on how to extend, see http://www.codeproject.com/Articles/1060680/Web-to-EPUB-Extension-for-Chrome.
 
 ## How to install 
 ### from Chrome Web Store
@@ -69,27 +72,25 @@ Credits
 
 ## How to install from Source
 ### Chrome
-* Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-* Unpack zip file and copy content to a "plugin" directory where you want to keep it.
-* Create a "jszip\dist" directory under the "plugin" directory.
-* Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-* Extract jszip.min.js from the jszip library and copy to the jszip\dist directory from previous step.
-* Open Chrome and type "chrome://extensions" into the browser.
-* Make sure "Developer Mode" at the top of the page is checked.
-* Press the "Load unpacked extension.." button and browse to the "plugin" folder from step 2.
-
-For details on how to extend, see http://www.codeproject.com/Articles/1060680/Web-to-EPUB-Extension-for-Chrome.
+1. Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+2. Unpack zip file and move the "plugin" directory to the location you want to keep it.
+3. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
+4. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+5. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 3.
+6. Open Chrome and type "chrome://extensions" into the browser.
+7. Make sure "Developer Mode" at the top of the page is checked.
+8. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
 
 ### Firefox
-* Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
-* Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-* Unpack zip file and copy content to a "plugin" directory where you want to keep it.
-* Create a "jszip\dist" directory under the "plugin" directory.
-* Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-* Extract jszip.min.js from the jszip library and copy to the jszip\dist directory from previous step.
-* Open Firefox and type "about:debugging" into the URL bar.
-* Click "Load Temporary Add-on".
-* Open the plugin directory and select manifest.json.
+1. Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
+2. Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+3. Unpack zip file and move the "plugin" directory to the location you want to keep it.
+4. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
+5. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+6. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
+7. Open Firefox and type "about:debugging" into the URL bar.
+8. Click "Load Temporary Add-on".
+9. Open the "plugin" directory from step 3 and select manifest.json.
 
 ## License information
 Licenced under GPLv3.
@@ -115,10 +116,10 @@ WebToEpub uses the following libraries:
 
 ### To run eslint (and build the plugins)
 * Install Node.js (if not already installed)
-* Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (needed by pack.js)
+* Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (Needed by pack.js)
 * Use Node.js to run eslint/pack.js
 * This will produce 3 files in the eslint directory.
     * WebToEpub0.0.0.x.xpi   (Firefox version of plug-in.)
     * WebToEpub0.0.0.x.zip   (Chrome version of plug-in.)
-    * packed.js  (All javascript files packaged into single file, for eslint to examine.)
+    * packed.js  (All JavaScript files packaged into single file, for eslint to examine.)
 * Command line for eslint is "eslint packed.js > error.txt"
