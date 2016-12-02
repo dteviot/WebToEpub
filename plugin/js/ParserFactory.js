@@ -11,7 +11,14 @@ class ParserFactory{
     }
 
     static isWebArchive(url) {
-        return util.extractHostName(url).startsWith("web.archive.org");
+        let host = util.extractHostName(url);
+        let subs = ["web", "web-beta"];
+        for (let sub of subs) {
+            if (host.startsWith(sub + ".archive.org")) {
+               return true;
+            }
+        }
+        return false;
     }
 
     static stripWebArchive(url) {
