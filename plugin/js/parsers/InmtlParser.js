@@ -60,6 +60,19 @@ class InmtlParser extends Parser {
         CoverImageUI.showCoverImageUrlInput(true);
     }
 
+    findCoverImageUrl(dom) {
+        if (dom != null) {
+            let div = util.getElement(dom, "div", e => e.className.startsWith("jumbotron novel"));
+            if (div !== null) { 
+                let cover = util.getElement(div, "img");
+                if (cover !== null) {
+                    return cover.src;
+                };
+            };
+        };
+        return null;
+    }
+
     static findVolumesList(dom) {
         let startString = "lnmtl.volumes = ";
         let scriptElement = util.getElement(dom, "script", e => 0 <= e.innerText.indexOf(startString));
