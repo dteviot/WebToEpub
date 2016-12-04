@@ -3,18 +3,18 @@
 */
 "use strict";
 
-parserFactory.register("lnmtl.com", function() { return new InmtlParser() });
+parserFactory.register("lnmtl.com", function() { return new LnmtlParser() });
 
-class InmtlParser extends Parser {
+class LnmtlParser extends Parser {
     constructor() {
         super();
     }
 
     getChapterUrls(dom) {
-        let volumesList = InmtlParser.findVolumesList(dom);
+        let volumesList = LnmtlParser.findVolumesList(dom);
         if (volumesList.length !== 0) {
-            return InmtlParser.fetchChapterLists(volumesList, HttpClient.fetchJson).then(function (lists) {
-                return InmtlParser.mergeChapterLists(lists); 
+            return LnmtlParser.fetchChapterLists(volumesList, HttpClient.fetchJson).then(function (lists) {
+                return LnmtlParser.mergeChapterLists(lists); 
             });
         };
 
@@ -88,23 +88,23 @@ class InmtlParser extends Parser {
 
     static fetchChapterLists(volumesList, fetchJson) {
         return Promise.all(
-            volumesList.map(volume => InmtlParser.fetchChapterListsForVolume(volume, fetchJson))
+            volumesList.map(volume => LnmtlParser.fetchChapterListsForVolume(volume, fetchJson))
         );
     }
 
     static fetchChapterListsForVolume(volumeInfo, fetchJson) {
-        let restUrl = InmtlParser.makeChapterListUrl(volumeInfo.id, 1);
+        let restUrl = LnmtlParser.makeChapterListUrl(volumeInfo.id, 1);
         return fetchJson(restUrl).then(function (firstPage) {
             // build list of pages to fetch, noting we've already got the first page
             let pagesForVolume = [{url: null, firstPage: firstPage}];
             for( let i = 2; i <= firstPage.last_page; ++i) {
-                let url = InmtlParser.makeChapterListUrl(volumeInfo.id, i);
+                let url = LnmtlParser.makeChapterListUrl(volumeInfo.id, i);
                 pagesForVolume.push({url: url});
             };
 
             // fetch them
             return Promise.all(
-                pagesForVolume.map(page => InmtlParser.fetchPage(page, fetchJson))
+                pagesForVolume.map(page => LnmtlParser.fetchPage(page, fetchJson))
             );
         })
     }

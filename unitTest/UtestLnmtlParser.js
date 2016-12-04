@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestInmtlParser");
+module("UtestLnmtlParser");
 
 test("customRawDomToContentStep", function (assert) {
     let dom = new DOMParser().parseFromString(
@@ -14,7 +14,7 @@ test("customRawDomToContentStep", function (assert) {
         "</div></body></html>",
         "text/html");
     
-    let parser = new InmtlParser();
+    let parser = new LnmtlParser();
     let content = parser.findContent(dom); 
     parser.customRawDomToContentStep(null, content);
     let actual = dom.getElementsByTagName("p");
@@ -69,7 +69,7 @@ function fetchJsonStubInmtl(url) {
 
 test("fetchChapterListsForVolume", function (assert) {
     let done = assert.async(); 
-    InmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl).then(
+    LnmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl).then(
         function(actual) {
             assert.deepEqual(actual, pagesListsInmtl[0]); 
             done();
@@ -79,7 +79,7 @@ test("fetchChapterListsForVolume", function (assert) {
 
 test("fetchChapterLists", function (assert) {
     let done = assert.async(); 
-    InmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl).then(
+    LnmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl).then(
         function(actual) {
             assert.deepEqual(actual, pagesListsInmtl); 
             done();
@@ -88,7 +88,7 @@ test("fetchChapterLists", function (assert) {
 });
 
 test("mergeChapterLists", function (assert) {
-    let actual = InmtlParser.mergeChapterLists(pagesListsInmtl);
+    let actual = LnmtlParser.mergeChapterLists(pagesListsInmtl);
     assert.equal(actual.length, 8);
     assert.deepEqual(actual[2],  {sourceUrl: "http://lnmtl.com/chapter/the-magus-era-chapter-3", title: "#3: V1-C3", newArc: null}); 
 });
