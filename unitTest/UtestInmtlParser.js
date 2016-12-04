@@ -21,3 +21,74 @@ test("customRawDomToContentStep", function (assert) {
     assert.equal(actual.length, 1);
     assert.equal(actual[0].outerHTML, "<p>Liangzhu loudly discussing politics hall, once the highest authority organization of alien race, now everywhere a sun soldier has scurried about, everywhere sun war disasters fly.</p>");
 });
+
+let volumesListInmtl = [
+    {id: 1},
+    {id: 2}
+];
+
+let pagesListsInmtl = [
+    [
+        { "current_page": 1, last_page: 2,
+            data: [
+                {title: "V1-C1", number: 1, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-1" }, 
+                {title: "V1-C2", number: 2, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-2" }, 
+            ]
+        },
+        { "current_page": 2, last_page: 2,
+            data: [
+                {title: "V1-C3", number: 3, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-3" }, 
+                {title: "V1-C4", number: 4, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-4" }, 
+            ]
+        }
+    ],
+    [
+        { "current_page": 1, last_page: 2,
+            data: [
+                {title: "V2-C1", number: 5, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-5" }, 
+                {title: "V2-C2", number: 6, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-6" }, 
+            ]
+        },
+        { "current_page": 2, last_page: 2,
+            data: [
+                {title: "V2-C3", number: 7, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-7" }, 
+                {title: "V2-C4", number: 8, site_url:"http://lnmtl.com/chapter/the-magus-era-chapter-8" }, 
+            ]
+        }
+    ]
+]
+
+function fetchJsonStubInmtl(url) {
+    let lookup = new Map();
+    lookup.set("http://lnmtl.com/chapter?page=1&volumeId=1", pagesListsInmtl[0][0]);
+    lookup.set("http://lnmtl.com/chapter?page=2&volumeId=1", pagesListsInmtl[0][1]);
+    lookup.set("http://lnmtl.com/chapter?page=1&volumeId=2", pagesListsInmtl[1][0]);
+    lookup.set("http://lnmtl.com/chapter?page=2&volumeId=2", pagesListsInmtl[1][1]);
+    return Promise.resolve(lookup.get(url));
+}
+
+test("fetchChapterListsForVolume", function (assert) {
+    let done = assert.async(); 
+    InmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl).then(
+        function(actual) {
+            assert.deepEqual(actual, pagesListsInmtl[0]); 
+            done();
+        }
+    );
+});
+
+test("fetchChapterLists", function (assert) {
+    let done = assert.async(); 
+    InmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl).then(
+        function(actual) {
+            assert.deepEqual(actual, pagesListsInmtl); 
+            done();
+        }
+    );
+});
+
+test("mergeChapterLists", function (assert) {
+    let actual = InmtlParser.mergeChapterLists(pagesListsInmtl);
+    assert.equal(actual.length, 8);
+    assert.deepEqual(actual[2],  {sourceUrl: "http://lnmtl.com/chapter/the-magus-era-chapter-3", title: "#3: V1-C3", newArc: null}); 
+});
