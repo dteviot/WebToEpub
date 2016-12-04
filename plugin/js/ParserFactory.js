@@ -15,7 +15,7 @@ class ParserFactory{
         let subs = ["web", "web-beta"];
         for (let sub of subs) {
             if (host.startsWith(sub + ".archive.org")) {
-               return true;
+                return true;
             }
         }
         return false;
