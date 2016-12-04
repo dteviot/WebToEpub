@@ -31,6 +31,10 @@ class InmtlParser extends Parser {
         return util.getElement(dom, "div", e => e.className.startsWith("chapter-body"));
     }
 
+    findChapterTitle(dom) {
+        return util.getElement(dom, "h3", e => (e.className === "dashhead-title"));
+    }
+
     customRawDomToContentStep(chapter, content) {
         let sentences = util.getElements(content, "sentence");
         for(let s of sentences) {
