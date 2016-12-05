@@ -5,8 +5,10 @@
 
 parserFactory.register("sousetsuka.com", function() { return new BlogspotParser() });
 parserFactory.registerRule(
-    function(url, dom) { // eslint-disable-line no-unused-vars
-        return util.extractHostName(url).indexOf(".blogspot.") != -1 }, 
+    function(url, dom) {
+        return (util.extractHostName(url).indexOf(".blogspot.") != -1) ||
+            (BlogspotParser.FindContentElement(dom) != null); 
+    }, 
     function() { return new BlogspotParser() }
 );
 
@@ -24,8 +26,12 @@ class BlogspotParser extends Parser {
         return Promise.resolve(chapters);
     }
 
+    static FindContentElement(dom) {
+        return util.getElement(dom, "div", e => e.className.startsWith("post-body"));
+    }
+
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => e.className.startsWith("post-body"));
+        let content = BlogspotParser.FindContentElement(dom);
         if (content == null) {
             content = util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
         }
