@@ -178,11 +178,12 @@ class ImageCollector {
         let that = this;
 
         // find "highest" element that is wrapping an image element
-        let parent = element.parentElement;
-        if ((parent === null) || (parent.tagName.toLowerCase() !== "a")) {
+        let link = this.findWrappingLink(element);
+        if (link === null) {
             // image not wrapped in hyperlink, so just return the image itself
             return element;
         }
+        let parent = link;
         while (parent != null) {
             if (that.isImageWrapperElement(parent)) {
                 return parent;
@@ -191,7 +192,18 @@ class ImageCollector {
         }
 
         // assume all images are wrapped in at least a href
-        return element.parentElement;
+        return link;
+    }
+
+    findWrappingLink(element) {
+        let link = element.parentElement;
+        while (link !== null) {
+            if (link.tagName.toLowerCase() === "a") {
+                return link;
+            }
+            link = link.parentElement;
+        }
+        return link;
     }
 
     isImageWrapperElement(element) {

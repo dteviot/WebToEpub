@@ -155,3 +155,45 @@ QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
     out = ImageCollector.removeSizeParamsFromWordPressQuery("https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&w=500&h=715&z=5");
     assert.equal(out, "https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&z=5");
 });
+
+QUnit.test("findImageWrappingElement", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html><head><title></title></head><body><div>" +
+            // image with no wrapper
+            "<img id=\"i001\" src=\"https://www.baka-tsuki.org/img001.jpg\" >" +
+
+            // image with just <a> wrapper
+            "<a id=\"a002\" href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                "<img id=\"i002\" src=\"https://www.baka-tsuki.org/img002.jpg\" >" +
+            "</a>" +
+
+            // image with just thumb <div> wrapper
+            "<div id=\"a003\" class=\"thumb\">" +
+                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                    "<img id=\"i003\" src=\"https://www.baka-tsuki.org/img003.jpg\" >" +
+                "</a>" +
+            "</div>" +
+
+            // image with <span> before <a>
+            "<a id=\"a004\" href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
+                "<span>" +
+                "<img id=\"i004\" src=\"https://www.baka-tsuki.org/img004.jpg\" >" +
+                "</span>" +
+            "</a>" +
+        "<div></body></html>",
+        "text/html"
+    );
+
+    let imageCollector = new ImageCollector();
+    let wrapper = imageCollector.findImageWrappingElement(dom.getElementById("i001"));
+    assert.equal(wrapper.id, "i001");
+
+    wrapper = imageCollector.findImageWrappingElement(dom.getElementById("i002"));
+    assert.equal(wrapper.id, "a002");
+    
+    wrapper = imageCollector.findImageWrappingElement(dom.getElementById("i003"));
+    assert.equal(wrapper.id, "a003");
+
+    wrapper = imageCollector.findImageWrappingElement(dom.getElementById("i004"));
+    assert.equal(wrapper.id, "a004");
+});
