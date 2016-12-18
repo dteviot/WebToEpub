@@ -12,7 +12,11 @@ QUnit.test("basicFetchWorks", function (assert) {
 });
 
 QUnit.test("unknownUrlReturnsDefaultParser", function (assert) {
-    let parser = parserFactory.fetch("http://unknown.org/works/123456/chapters/9876543");
+    let dom = new DOMParser().parseFromString(
+        "<html><head><title></title></head><body><div></div></body></html>",
+        "text/html"
+    );
+    let parser = parserFactory.fetch("http://unknown.org/works/123456/chapters/9876543", dom);
     assert.ok(parser instanceof DefaultParser);
 });
 

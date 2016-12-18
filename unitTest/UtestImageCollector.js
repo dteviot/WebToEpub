@@ -180,7 +180,7 @@ QUnit.test("findImageWrappingElement", function (assert) {
                 "<img id=\"i004\" src=\"https://www.baka-tsuki.org/img004.jpg\" >" +
                 "</span>" +
             "</a>" +
-        "<div></body></html>",
+        "</div></body></html>",
         "text/html"
     );
 
