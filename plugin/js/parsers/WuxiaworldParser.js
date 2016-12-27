@@ -59,6 +59,10 @@ class WuxiaworldParser extends Parser {
         return util.moveIfParent(toRemove, "p");
     }
 
+    findChapterTitle(dom) {
+        return WordpressBaseParser.findChapterTitleElement(dom);
+    }
+
     removeEmoji(contentElement) {
         for(let img of util.getElements(contentElement, "img", i => i.className === "emoji")) {
             let text = img.getAttribute("alt") || "back to reference";
