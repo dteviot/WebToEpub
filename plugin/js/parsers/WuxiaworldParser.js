@@ -67,7 +67,7 @@ class WuxiaworldParser extends Parser {
         for(let img of util.getElements(contentElement, "img", i => i.className === "emoji")) {
             let text = img.getAttribute("alt") || "back to reference";
             let textNode = contentElement.ownerDocument.createTextNode(text);
-            img.parentNode.replaceChild(textNode, img);
+            img.replaceWith(textNode);
         }
     }
 

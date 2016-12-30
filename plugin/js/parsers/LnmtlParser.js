@@ -50,7 +50,7 @@ class LnmtlParser extends Parser {
             } else {
                 let p = s.ownerDocument.createElement("p");
                 p.innerText = s.innerText;
-                s.parentNode.replaceChild(p, s);
+                s.replaceWith(p);
             }
         } 
     }

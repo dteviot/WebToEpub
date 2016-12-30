@@ -49,7 +49,7 @@ class SonakoParser extends BakaTsukiParser {
     }
 
     extractTitle(dom) {
-        return util.getElement(dom, "title").innerText;
+        return dom.title;
     }
 
     extractLanguage(dom) {   // eslint-disable-line no-unused-vars

@@ -461,7 +461,7 @@ test("replaceInvalidElements", function (assert) {
 
     let xhtml = util.createEmptyXhtmlDoc();
     let body = xhtml.getElementsByTagName("body")[0];
-    body.parentNode.replaceChild(content, body);
+    body.replaceWith(content);
 
     assert.equal(xhtml.getElementsByTagName("body")[0].outerHTML, 
         "<body xmlns=\"http://www.w3.org/1999/xhtml\"><p>SomeText</p><br /><p>More</p></body>");

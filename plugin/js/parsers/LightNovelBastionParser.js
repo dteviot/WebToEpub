@@ -25,7 +25,7 @@ class LightNovelBastionParser extends Parser {
 
     findChapterTitle(dom) {
         let titleDiv = dom.createElement("div");
-        let titleText = util.getElement(dom, "title").textContent;
+        let titleText = dom.title;
         if (titleText !== "") {
             let title = dom.createElement("h1");
             title.appendChild(dom.createTextNode(titleText));

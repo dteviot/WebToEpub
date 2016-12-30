@@ -122,7 +122,7 @@ class BakaTsukiParser extends Parser{
     extractSeriesInfo(dom, metaInfo) {
         // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
         let that = this;
-        let title = util.getElement(dom, "title").innerText.trim();
+        let title = dom.title.trim();
         let splitIndex = title.indexOf(":");
         if (0 < splitIndex) {
             metaInfo.seriesName = title.substring(0, splitIndex);

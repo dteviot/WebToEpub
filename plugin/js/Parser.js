@@ -125,7 +125,7 @@ class Parser {
     * default implementation, use the <title> element
     */
     extractTitle(dom) {
-        return util.getElement(dom, "title").innerText.trim();
+        return dom.title.trim();
     };
 
     /**

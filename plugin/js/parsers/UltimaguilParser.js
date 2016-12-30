@@ -64,7 +64,7 @@ class UltimaguilParser extends Parser {
             let h3 = document.createElement("h2");
             let link = util.getElement(midpart, "a");
             h3.appendChild(document.createTextNode(link.getAttribute("title")));
-            parent.parentElement.replaceChild(h3, parent);
+            parent.replaceWith(h3);
         };
     }
 
