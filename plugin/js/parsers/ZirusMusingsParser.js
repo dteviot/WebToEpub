@@ -53,13 +53,8 @@ class ZirusMusingsParser extends Parser {
         // Ziru's Musings has links to imgur galleries.
         // So when one of them, create whole new page and return link to that.
         // ToDo: Fix this ugly hack.
-        let host = util.extractHostName(dom.baseURI).toLowerCase();
-        if (host === "imgur.com") {
-            let imagesList = ZirusMusingsParser.findImagesList(dom);
-            if (imagesList == null) {
-                imagesList = [];
-            }
-            return ZirusMusingsParser.constructStandardHtmForImgur(imagesList);
+        if (ImgurParser.isImgurGallery(dom)) {
+            return ImgurParser.convertGalleryToConventionalForm(dom);
         } else {
             let article = util.getElement(dom, "article", e => e.className !== "comment-body");
             let div = util.getElement(article, "div", e => e.className.startsWith("entry-content"));
@@ -79,35 +74,6 @@ class ZirusMusingsParser extends Parser {
 
     findTocElement(div) {
         return util.getElement(div, "a", a => (0 < a.href.indexOf("toc/")));
-    }
-
-    static constructStandardHtmForImgur(imagesList) {
-        let doc = document.implementation.createHTMLDocument();
-        let div = doc.createElement("div");
-        doc.body.appendChild(div);
-        for(let item of imagesList) {
-            let img = doc.createElement("img");
-            // ToDo: use real image to build URI
-            img.src = "http://i.imgur.com/" + item.hash + item.ext;
-            div.appendChild(img);
-        };
-        return div;
-    }
-
-    static findImagesList(dom) {
-        // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
-        // Obviously this will break each time imgur change their scripts.
-        for(let script of util.getElements(dom, "script")) {
-            let text = script.innerHTML;
-            let index = text.indexOf("\"images\":[{\"hash\"");
-            if (index !== -1) {
-                text = text.substring(index + 9);
-                let endIndex = text.indexOf("}]");
-                if (endIndex !== -1) {
-                    return JSON.parse(text.substring(0, endIndex + 2));
-                }
-            }
-        }
     }
 
     populateUI(dom) {

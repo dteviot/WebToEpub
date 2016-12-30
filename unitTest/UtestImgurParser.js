@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("ZirusMusingsParser");
+module("UtestImgurParser");
 
 
 test("constructStandardHtmForImgur", function (assert) {
@@ -9,7 +9,7 @@ test("constructStandardHtmForImgur", function (assert) {
         { hash: "pic1", ext: ".png" },
         { hash: "pic2", ext: ".jpg" }
     ];
-    let div = ZirusMusingsParser.constructStandardHtmForImgur(imagesList);
+    let div = ImgurParser.constructStandardHtmForImgur(imagesList);
     let images = util.getElements(div, "img");
     assert.equal(images.length, 2)
     assert.equal(images[0].outerHTML, "<img src=\"http://i.imgur.com/pic1.png\">");
