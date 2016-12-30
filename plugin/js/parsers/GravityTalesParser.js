@@ -14,7 +14,7 @@ class GravityTalesParser extends Parser {
         let that = this;
         let novelId = GravityTalesParser.getNovelId(dom);
         if (novelId !== null) {
-            return GravityTalesParser.fetchChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
+            return GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
         }
         let content = that.findContent(dom);
         if (content === null) {
@@ -79,7 +79,7 @@ class GravityTalesParser extends Parser {
         return param.split("=").map(s => s.trim());
     }
 
-    static fetchChapters(novelId, baseUri, fetchJson) {
+    static fetchUrlsOfChapters(novelId, baseUri, fetchJson) {
         let chapterGroupsUrl = `https://gravitytales.com/Novels/GetChapterGroups/${novelId}`;
         return fetchJson(chapterGroupsUrl).then(function (json) {
             return Promise.all(

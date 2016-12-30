@@ -70,9 +70,9 @@ test("fetchChapterListForGroup", function (assert) {
     );
 });
 
-test("fetchChapters", function (assert) {
+test("fetchUrlsOfChapters", function (assert) {
     let done = assert.async(); 
-    GravityTalesParser.fetchChapters(1, baseUri, fetchJsonStub).then(
+    GravityTalesParser.fetchUrlsOfChapters(1, baseUri, fetchJsonStub).then(
         function(actual) {
             assert.deepEqual(actual, expectedFinalChapters); 
             done();
