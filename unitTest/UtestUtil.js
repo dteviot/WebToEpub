@@ -4,17 +4,12 @@
 module("UtestUtil");
 
 test("removeEmptyDivElements", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<div><h1>H1</h1></div>" +
-                "<div><div></div></div>" +
-                "<div>    \n\n\n</div>" +
-                "<div><img src=\"http://dumy.com/img.jpg\"></div>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<div><h1>H1</h1></div>" +
+        "<div><div></div></div>" +
+        "<div>    \n\n\n</div>" +
+        "<div><img src=\"http://dumy.com/img.jpg\"></div>"
+    );
     let content = dom.body;
     util.removeEmptyDivElements(content);
 
@@ -22,17 +17,12 @@ test("removeEmptyDivElements", function (assert) {
 });
 
 test("removeScriptableElements", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<div><h1>H1</h1></div>" +
-                "<iframe title=\"VisualDNA Analytics\" width=\"0\" height=\"0\" aria-hidden=\"true\" src=\"./Wikia_files/saved_resource.html\" style=\"display: none;\"></iframe>" +
-                "<script src=\"./expansion_embed.js\"></script>"+
-                "<div>    \n\n\n</div>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<div><h1>H1</h1></div>" +
+        "<iframe title=\"VisualDNA Analytics\" width=\"0\" height=\"0\" aria-hidden=\"true\" src=\"./Wikia_files/saved_resource.html\" style=\"display: none;\"></iframe>" +
+        "<script src=\"./expansion_embed.js\"></script>"+
+        "<div>    \n\n\n</div>"
+    );
     let content = dom.body.cloneNode(true);
     util.removeScriptableElements(content);
 
@@ -40,15 +30,10 @@ test("removeScriptableElements", function (assert) {
 });
 
 test("prepForConvertToXhtml", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<p>Normal <u id=\"test1\">underline <i>italic</i></u></p>" +
-            "<center>X			X</center>"+
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<p>Normal <u id=\"test1\">underline <i>italic</i></u></p>" +
+        "<center>X			X</center>"
+    );
     let content = dom.body.cloneNode(true);
     util.prepForConvertToXhtml(content);
 
@@ -62,28 +47,23 @@ test("prepForConvertToXhtml", function (assert) {
 });
 
 test("removeUnneededIds", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<h2><span id=\"Life.0\">Life.0</span></h2>" +
-            "<sup id=\"cite_ref-1\" class=\"reference\">"+
-                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
-            "</sup>" +
-            "<sup id=\"cite_ref-2\" class=\"reference\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
-            "</sup>" +
-            "<ol>" +
-            "<li id=\"cite_note-1\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
-            "</li>"+
-            "<li id=\"cite_note-3\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
-            "</li>" +
-            "</ol>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<h2><span id=\"Life.0\">Life.0</span></h2>" +
+        "<sup id=\"cite_ref-1\" class=\"reference\">"+
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
+        "</sup>" +
+        "<sup id=\"cite_ref-2\" class=\"reference\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
+        "</sup>" +
+        "<ol>" +
+        "<li id=\"cite_note-1\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
+        "</li>"+
+        "<li id=\"cite_note-3\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
+        "</li>" +
+        "</ol>"
+    );
     let content = dom.body.cloneNode(true);
     util.removeUnneededIds(content);
 
@@ -107,29 +87,23 @@ test("removeUnneededIds", function (assert) {
 });
 
 test("makeHyperlinksRelative", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title>" +
-            "</head>" +
-            "<body>" +
-            "<h2><span id=\"Life.0\">Life.0</span></h2>" +
-            "<sup id=\"cite_ref-1\" class=\"reference\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
-            "</sup>" +
-            "<sup id=\"cite_ref-2\" class=\"reference\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-2\">[1]</a>" +
-            "</sup>" +
-            "<ol>" +
-            "<li id=\"cite_note-1\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-1\"></a>" +
-            "</li>" +
-            "<li id=\"cite_note-3\">" +
-                "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-3\"></a>" +
-            "</li>" +
-            "</ol>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<h2><span id=\"Life.0\">Life.0</span></h2>" +
+        "<sup id=\"cite_ref-1\" class=\"reference\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
+        "</sup>" +
+        "<sup id=\"cite_ref-2\" class=\"reference\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-2\">[1]</a>" +
+        "</sup>" +
+        "<ol>" +
+        "<li id=\"cite_note-1\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-1\"></a>" +
+        "</li>" +
+        "<li id=\"cite_note-3\">" +
+            "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_ref-3\"></a>" +
+        "</li>" +
+        "</ol>"
+    );
 
     util.setBaseTag("https://www.baka-tsuki.org/project/test:Volume_1", dom);
     let content = dom.body.cloneNode(true);
@@ -156,61 +130,41 @@ test("makeHyperlinksRelative", function (assert) {
 });
 
 test("removeUnusedHeadingLevels", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<h2>h2</h2>" +
-            "<h5>h5</h5>" +
-            "<h6>h6</h6>" +
-            "<h2>h2</h2>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<h2>h2</h2>" +
+        "<h5>h5</h5>" +
+        "<h6>h6</h6>" +
+        "<h2>h2</h2>"
+    );
     util.removeUnusedHeadingLevels(dom.body);
 
     assert.equal(dom.body.innerHTML, "<h1>h2</h1><h2>h5</h2><h3>h6</h3><h1>h2</h1>");
 
     // headings are already in order - no change
-    dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<h1>h1</h1>" +
-            "<h2>h2</h2>" +
-            "<h3>h3</h3>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    dom = TestUtils.makeDomWithBody(
+        "<h1>h1</h1>" +
+        "<h2>h2</h2>" +
+        "<h3>h3</h3>"
+    );
     util.removeUnusedHeadingLevels(dom.body);
     assert.equal(dom.body.innerHTML, "<h1>h1</h1><h2>h2</h2><h3>h3</h3>");
 
     // no headings
-    dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<div>h1</div>" +
-            "<p>h2</p>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    dom = TestUtils.makeDomWithBody(
+        "<div>h1</div>" +
+        "<p>h2</p>"
+    );
     util.removeUnusedHeadingLevels(dom.body);
     assert.equal(dom.body.innerHTML, "<div>h1</div><p>h2</p>");
 });
 
 test("fixBlockTagsNestedInInlineTags", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-            "<u><div><p><b>test1</b><a href=\"http://dummy.com\"><img src=\"http://dummy.com\"></a></p></div></u>" +
-            "<u><b><div><p>test2</p></div></b></u>" +
-            "<s><h2><span>test3<a href=\"http://dummy2.com\">dummy2</a></span></h2><p>3</p><p>4</p></s>" +
-            "<i><table><tbody><tr><th>test4Head</th></tr><tr><td>test4Data</td></tr></tbody></table><p>6</p><p>7</p></i>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<u><div><p><b>test1</b><a href=\"http://dummy.com\"><img src=\"http://dummy.com\"></a></p></div></u>" +
+        "<u><b><div><p>test2</p></div></b></u>" +
+        "<s><h2><span>test3<a href=\"http://dummy2.com\">dummy2</a></span></h2><p>3</p><p>4</p></s>" +
+        "<i><table><tbody><tr><th>test4Head</th></tr><tr><td>test4Data</td></tr></tbody></table><p>6</p><p>7</p></i>"
+    );
     util.fixBlockTagsNestedInInlineTags(dom.body);
 
     assert.equal(dom.body.innerHTML,
@@ -227,15 +181,13 @@ test("extractHostName", function (assert) {
 });
 
 test("removeTrailingWhiteSpace", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head>" +
-        "<body><div id=\"content\">" +
+    let dom = TestUtils.makeDomWithBody(
+        "<div id=\"content\">" +
         "Some text <br />\n" +
         "<br />\n" +
         "<hr />\n" +
         "<br />\n" +
-         "</div>\n</body></html>",
-        "text/html"
+         "</div>\n"
     );
 
     let content = dom.getElementById("content");
@@ -245,16 +197,14 @@ test("removeTrailingWhiteSpace", function (assert) {
 
 
 test("removeLeadingWhiteSpace", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head>" +
-        "<body><div id=\"content\">" +
+    let dom = TestUtils.makeDomWithBody(
+        "<div id=\"content\">" +
         "\n  \n" +
         "<br />\n" +
         "<p></p>\n" +
         "<hr />\n" +
          "<p>Chapter 1</p>" +
-         "</div></body></html>",
-        "text/html"
+         "</div>"
     );
 
     let content = dom.getElementById("content");
@@ -263,27 +213,22 @@ test("removeLeadingWhiteSpace", function (assert) {
 });
 
 function dummyWuxiaDocWithArcNames() {
-    return new DOMParser().parseFromString(
-        "<html>" +
-           "<head><title></title></head>" +
-           "<body>" +
-           "<div itemprop=\"articleBody\">" +
-           "<div id=\"target-id8123\" class=\"collapseomatic_content \" style=\"display: none;\">" +
-           "<p><strong>Book 1 Patriarch Reliance</strong><br/>" +
-               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-1/\">Chapter 1: Scholar Meng Hao<br/></a>" +
-               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-2/\">Chapter 2: The Reliance Sect</a><br/>" +
-               "<a href=\"http://www.wuxiaworld.com/wmw-index/wmw-chapter-17/\"><br></a>" +
-           "</div>" +
-           "<div id=\"target-id4879\" class=\"collapseomatic_content \" style=\"display: none;\">" +
-           "<p><strong>Book 2 Cutting Into the Southern Domain</strong><br/>" +
-               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-96/\">Chapter 96: Demonic Jade in a Mountain Valley</a><br/>" +
-               "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-97/\">Chapter 97: Cultivation Breakthrough in a Mountain Valley</a><br/>" +
-           "</div>" +
-           "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-801/\">Chapter 801: We Will Meet Again!</a><br/>" +
-           "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-802/\">Chapter 802: Immortal Ancient Dao Medallion!</a><br/>" +
-           "</div>" +
-           "</body></html>",
-        "text/html"
+    return TestUtils.makeDomWithBody(
+        "<div itemprop=\"articleBody\">" +
+        "<div id=\"target-id8123\" class=\"collapseomatic_content \" style=\"display: none;\">" +
+        "<p><strong>Book 1 Patriarch Reliance</strong><br/>" +
+            "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-1/\">Chapter 1: Scholar Meng Hao<br/></a>" +
+            "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-1-chapter-2/\">Chapter 2: The Reliance Sect</a><br/>" +
+            "<a href=\"http://www.wuxiaworld.com/wmw-index/wmw-chapter-17/\"><br></a>" +
+        "</div>" +
+        "<div id=\"target-id4879\" class=\"collapseomatic_content \" style=\"display: none;\">" +
+        "<p><strong>Book 2 Cutting Into the Southern Domain</strong><br/>" +
+            "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-96/\">Chapter 96: Demonic Jade in a Mountain Valley</a><br/>" +
+            "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-2-chapter-97/\">Chapter 97: Cultivation Breakthrough in a Mountain Valley</a><br/>" +
+        "</div>" +
+        "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-801/\">Chapter 801: We Will Meet Again!</a><br/>" +
+        "<a href=\"http://www.wuxiaworld.com/issth-index/issth-book-6-chapter-802/\">Chapter 802: Immortal Ancient Dao Medallion!</a><br/>" +
+        "</div>"
     );
 }
 
@@ -323,8 +268,7 @@ QUnit.test("removeHeightAndWidthStyle", function (assert) {
 });
 
 QUnit.test("isElementWhiteSpace", function (assert) {
-    let html = "<html><head><title></title></head><body><!-- c -->text<div></div></body></html>";
-    let doc = new DOMParser().parseFromString(html, "text/html");
+    let doc = TestUtils.makeDomWithBody("<!-- c -->text<div></div>");
     let body = util.getElement(doc, "body");
     assert.ok(util.isElementWhiteSpace(body.childNodes[0]));
     assert.ok(!util.isElementWhiteSpace(body.childNodes[1]));
@@ -332,16 +276,10 @@ QUnit.test("isElementWhiteSpace", function (assert) {
 });
 
 test("findPrimaryStyleSettings", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title>" +
-            "</head>" +
-            "<body>" +
-            "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
-            "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
+        "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>"
+    );
 
     let styleProperties = ["color", "fontSize"];
     let acutal = util.findPrimaryStyleSettings(dom.body, styleProperties);
@@ -350,16 +288,10 @@ test("findPrimaryStyleSettings", function (assert) {
 });
 
 test("removeStyleValue", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title>" +
-            "</head>" +
-            "<body>" +
-            "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
-            "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<div style=\"font-size: 10.0pt;\"><p>1234</p></div>" +
+        "<div style=\"color:#999999\">0<p>1234</p>5678<p style=\"color:#111111\">1</p></div>"
+    );
 
     util.removeStyleValue(dom.body, "fontSize", "10pt");
     assert.equal(dom.body.innerHTML,
@@ -374,7 +306,7 @@ test("removeStyleValue", function (assert) {
 });
 
 test("createComment", function (assert) {
-    let dom = new DOMParser().parseFromString("<html><head><title></title></head><body></body></html>", "text/html");
+    let dom = TestUtils.makeDomWithBody("");
     let actual = util.createComment(dom, "http://2.bp.blogspot.com/--pvHycyNQB0/VLJkOS9q57I/AAAAAAAAA-4/pyI5zkbZNsA/s1600/Haken.no.Kouki.Altina.full.1568363.jpg");
     assert.equal(actual.nodeValue, "  http://2.bp.blogspot.com/%2D%2DpvHycyNQB0/VLJkOS9q57I/AAAAAAAAA-4/pyI5zkbZNsA/s1600/Haken.no.Kouki.Altina.full.1568363.jpg  ");
 

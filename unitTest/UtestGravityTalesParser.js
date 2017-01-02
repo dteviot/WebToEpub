@@ -9,20 +9,15 @@ test("splitAtEquals", function (assert) {
 });
 
 test("getNovelId", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head><body>" +
-                "<div id=\"contentElement\" ng-controller=\"Novel\" ng-init=\"novelId = 7; isFollowingNovel = false" +
-                "init-hashscroll before-scroll=\"setReviewPageFromHash('/Novels/GetNovelReviewPage')\"></div>" +
-        "</body></html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<div id=\"contentElement\" ng-controller=\"Novel\" ng-init=\"novelId = 7; isFollowingNovel = false" +
+        "init-hashscroll before-scroll=\"setReviewPageFromHash('/Novels/GetNovelReviewPage')\"></div>"
+    );
     
     let actual = GravityTalesParser.getNovelId(dom);
     assert.equal(actual, 7);
 
-    dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head><body>" +
-        "</body></html>",
-        "text/html");
+    dom = TestUtils.makeDomWithBody("");
     actual = GravityTalesParser.getNovelId(dom);
     assert.equal(actual, null);
 });

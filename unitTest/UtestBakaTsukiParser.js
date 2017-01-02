@@ -162,15 +162,12 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
 });
 
 QUnit.test("removeTextBeforeGallery", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head><body>" +
-           "<p>misc text</p>" +
-           "<h2>Image Gallery</h2>" +
-           "<p>misc text 2</p>" +
-           "<div></div>" +
-           "<ul class=\"gallery mw-gallery-traditional\"></ul>" +
-        "</body></html>",
-        "text/html"
+    let dom = TestUtils.makeDomWithBody(
+        "<p>misc text</p>" +
+        "<h2>Image Gallery</h2>" +
+        "<p>misc text 2</p>" +
+        "<div></div>" +
+        "<ul class=\"gallery mw-gallery-traditional\"></ul>"
     );
 
     let gallery = dom.getElementsByTagName("ul")[0];
@@ -321,8 +318,7 @@ QUnit.test("flattenContent", function (assert) {
 });
 
 QUnit.test("hasNoVisibleContent", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head>" +        
+    let dom = TestUtils.makeDomWithBody(
         "<body><div style=\"display:none;\"></div>"+
         "<div class=\"print-no\">\n"+
         "</div>"+
@@ -330,8 +326,7 @@ QUnit.test("hasNoVisibleContent", function (assert) {
          "<image xlink:href=\"../Images/[0000]Hantuki01 001.jpg\" height=\"597\" width=\"1500\" data-origin=\"http://sonako.wikia.com/wiki/File:Hantuki01 001.jpg\"/>"+
          "</svg>"+
          "<div><div id=\"mb_video_syncad_bottom\" style=\"padding: 5px 0px 0px;\"></div></div><p><br />"+
-         "</p>\n</body></html>",
-        "text/html"
+         "</p>\n"
     );
 
     let elements = new Array();
@@ -416,21 +411,16 @@ function fetchHrefForId(epubItems, id) {
 }
 
 test("fixupInternalHyperLinks", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<h1>H1</h1>" +
-                "<sup id=\"cite_ref-1\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-1\">[1]</a></sup>" +
-                "<h1>H2</h1>" +
-                "<ul><li id=\"cite_note-2\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-2\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
-                "<h1>H3</h1>" +
-                "<sup id=\"cite_ref-2\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-2\">[2]</a></sup>" +
-                "<h1>H4</h1>" +
-                "<ul><li id=\"cite_note-1\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-1\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<h1>H1</h1>" +
+        "<sup id=\"cite_ref-1\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-1\">[1]</a></sup>" +
+        "<h1>H2</h1>" +
+        "<ul><li id=\"cite_note-2\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-2\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>" +
+        "<h1>H3</h1>" +
+        "<sup id=\"cite_ref-2\" class=\"reference\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_note-2\">[2]</a></sup>" +
+        "<h1>H4</h1>" +
+        "<ul><li id=\"cite_note-1\"><span class=\"mw-cite-backlink\"><a href=\"http://www.baka-tsuki.org/project/index.php?title=WebtoEpub#cite_ref-1\"><span class=\"cite-accessibility-label\">Jump up </span>^</a></span> <span class=\"reference-text\"></span></ul>"
+    );
     let parser = new BakaTsukiParser();
     let content = dom.body.cloneNode(true);
     let epubItems = parser.splitContentIntoSections(content, null);
@@ -445,16 +435,11 @@ test("fixupInternalHyperLinks", function (assert) {
 
 // demonstrate Chrome closing <br> tags when convert from HTML to XHTML
 test("replaceInvalidElements", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<p>SomeText</p>" +
-                "<br>" +
-                "<p>More</p>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<p>SomeText</p>" +
+        "<br>" +
+        "<p>More</p>"
+    );
     let parser = new BakaTsukiParser();
     let content = dom.body.cloneNode(true);
     assert.equal(content.outerHTML, "<body><p>SomeText</p><br><p>More</p></body>");

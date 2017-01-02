@@ -157,8 +157,8 @@ QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
 });
 
 QUnit.test("findImageWrappingElement", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html><head><title></title></head><body><div>" +
+    let dom = TestUtils.makeDomWithBody(
+        "<div>" +
             // image with no wrapper
             "<img id=\"i001\" src=\"https://www.baka-tsuki.org/img001.jpg\" >" +
 
@@ -180,8 +180,7 @@ QUnit.test("findImageWrappingElement", function (assert) {
                 "<img id=\"i004\" src=\"https://www.baka-tsuki.org/img004.jpg\" >" +
                 "</span>" +
             "</a>" +
-        "</div></body></html>",
-        "text/html"
+        "</div>"
     );
 
     let imageCollector = new ImageCollector();

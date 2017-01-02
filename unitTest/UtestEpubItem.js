@@ -12,19 +12,14 @@ QUnit.test("tagNameToTocDepth", function (assert) {
 
 
 test("fileContentForEpub", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        "<html>" +
-            "<head><title></title></head>" +
-            "<body>" +
-                "<section>"+
-                    "<p>SomeText</p>" +
-                    "<br>" +
-                    "<p>More</p>" +
-                    "<img src=\"http://dummy.com/imgage.png\">" +
-                "</section>" +
-            "</body>" +
-        "</html>",
-        "text/html");
+    let dom = TestUtils.makeDomWithBody(
+        "<section>"+
+            "<p>SomeText</p>" +
+            "<br>" +
+            "<p>More</p>" +
+            "<img src=\"http://dummy.com/imgage.png\">" +
+        "</section>"
+    );
     let item = new EpubItem("http://dummy.com/imgage.html");
     item.nodes = [ dom.getElementsByTagName("section")[0] ];
     let xhtml = item.fileContentForEpub();
