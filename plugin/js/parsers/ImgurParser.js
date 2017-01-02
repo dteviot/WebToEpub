@@ -46,4 +46,30 @@ class ImgurParser {
             }
         }
     }
+
+    static replaceImgurLinksWithImages(content) {
+        let toReplace = util.getElements(content, "a", ImgurParser.isHyperlinkToReplace);
+        for(let hyperlink of toReplace) {
+            ImgurParser.replaceHyperlinkWithImg(hyperlink);
+        }
+    }
+
+    /** @private */
+    static isHyperlinkToReplace(hyperlink) {
+        // must go to imgur site 
+        let host = hyperlink.hostname;
+        if ((host !== "imgur.com") && (host !== "i.imgur.com")) {
+            return false;
+        }
+
+        // must not contain an image 
+        return (util.getElements(hyperlink, "img").length === 0);
+    }
+
+    /** @private */
+    static replaceHyperlinkWithImg(hyperlink) {
+        let img = hyperlink.ownerDocument.createElement("img");
+        img.src = hyperlink.href;
+        hyperlink.replaceWith(img);
+    }    
 }
