@@ -3,6 +3,11 @@
 */
 "use strict";
 
+parserFactory.registerManualSelect(
+    "Default", 
+    function() { return new DefaultParser() }
+);
+
 class DefaultParser extends Parser {
     constructor() {
         super();

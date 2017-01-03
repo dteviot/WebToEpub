@@ -8,6 +8,8 @@ class ParserFactory{
     constructor() {
         this.parsers = new Map();
         this.parserRules = [];
+        this.manualSelection = [];
+        this.registerManualSelect("", function() { return undefined });
     }
 
     static isWebArchive(url) {
@@ -38,6 +40,10 @@ class ParserFactory{
         };
     }
 
+    registerManualSelect(name, constructor) {
+        this.manualSelection.push({name, constructor});
+    };
+
     /*
     *  @param {function} test predicate that checks if parser can handle URL
     *  @param {function} constructor to obtain parser to handle the URL
@@ -63,6 +69,23 @@ class ParserFactory{
 
         // still no parser found, fall back to default
         return new DefaultParser();
+    }
+
+    populateManualParserSelectionTag(selectTag) {
+        let options = selectTag.options;
+        if (options.length === 0) {
+            for(let p of this.manualSelection) {
+                options.add(new Option(p.name));
+            }
+        }
+    }
+
+    manuallySelectParser(parserName) {
+        for(let m of this.manualSelection) {
+            if (m.name === parserName) {
+                return m.constructor();
+            }
+        }
     }
 }
 

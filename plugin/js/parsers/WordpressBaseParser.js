@@ -18,6 +18,11 @@ parserFactory.registerRule(
     function() { return new WordpressBaseParser() }
 );
 
+parserFactory.registerManualSelect(
+    "Wordpress", 
+    function() { return new WordpressBaseParser() }
+);
+
 class WordpressBaseParser extends Parser {
     constructor() {
         super();

@@ -7,6 +7,11 @@ parserFactory.register("www.baka-tsuki.org", function() {
     return new BakaTsukiParser(new BakaTsukiImageCollector()) 
 });
 
+parserFactory.registerManualSelect(
+    "Baka-Tsuki", 
+    function() { return new BakaTsukiParser(new BakaTsukiImageCollector()) }
+);
+
 class BakaTsukiImageCollector extends ImageCollector {
     constructor() {
         super();

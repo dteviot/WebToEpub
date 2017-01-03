@@ -132,6 +132,7 @@ var main = (function () {
 
     function populateControls() {
         loadUserPreferences();
+        parserFactory.populateManualParserSelectionTag(getManuallySelectParserTag());
         if (isRunningInTabMode()) {
             configureForTabMode();
         } else if (isRunningFromWebPageOrLocalFile()) {
@@ -169,7 +170,12 @@ var main = (function () {
     }
 
     function setParser(url, dom) {
-        parser = parserFactory.fetch(url, dom);
+        let manualSelect = getManuallySelectParserTag().value;
+        if (util.isNullOrEmpty(manualSelect)) {
+            parser = parserFactory.fetch(url, dom);
+        } else {
+            parser = parserFactory.manuallySelectParser(manualSelect);
+        }
         if (parser === undefined) {
             showErrorMessage(chrome.i18n.getMessage("noParserFound"));
             return false;
@@ -343,6 +349,10 @@ var main = (function () {
         CoverImageUI.setCoverImageUrl(null);
     }
 
+    function getManuallySelectParserTag() {
+        return document.getElementById("manuallySelectParserTag");
+    }
+
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
@@ -352,6 +362,7 @@ var main = (function () {
             getPackEpubButton().onclick = fetchContentAndPackEpub;
             document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
             document.getElementById("reloadButton").onclick = populateControls;
+            getManuallySelectParserTag().onchange = populateControls;
             document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
             document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
             document.getElementById("resetButton").onclick = resetUI;

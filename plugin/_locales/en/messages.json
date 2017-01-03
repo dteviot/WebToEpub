@@ -119,6 +119,10 @@
 		"message": "Language",
 		"description": "Label in front input for language EPUB will be in"
 	},
+	"__MSG_label_Manually_Select_Parser__": {
+		"message": "Manually Select Parser:",
+		"description": "Label for menu to change parser (in advanced options section)"
+	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",
 		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"

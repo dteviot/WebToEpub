@@ -10,6 +10,11 @@ parserFactory.registerRule(
     function() { return new WikipediaParser() }
 );
 
+parserFactory.registerManualSelect(
+    "Wikipedia", 
+    function() { return new WikipediaParser() }
+);
+
 class WikipediaParser extends Parser{
     constructor() {
         super();

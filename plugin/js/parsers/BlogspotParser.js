@@ -12,6 +12,11 @@ parserFactory.registerRule(
     function() { return new BlogspotParser() }
 );
 
+parserFactory.registerManualSelect(
+    "Blogspot", 
+    function() { return new BlogspotParser() }
+);
+
 class BlogspotParser extends Parser {
     constructor() {
         super();
