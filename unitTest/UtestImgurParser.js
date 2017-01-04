@@ -36,3 +36,9 @@ QUnit.test("replaceImgurLinksWithImages", function (assert) {
         "</a>"
     );
 });
+
+QUnit.test("dontReplaceImgurGalleryLinksWithImages", function (assert) {
+    let dom = TestUtils.makeDomWithBody("<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>");
+    ImgurParser.replaceImgurLinksWithImages(dom.body);
+    assert.equal(dom.body.innerHTML, "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>");
+});

@@ -62,8 +62,16 @@ class ImgurParser {
             return false;
         }
 
-        // must not contain an image 
-        return (util.getElements(hyperlink, "img").length === 0);
+        if (ImgurParser.linkContainsImageTag(hyperlink)) {
+            return false;
+        }
+
+        return !ImgurParser.isLinkToGallery(hyperlink);
+    }
+
+    /** @private */
+    static linkContainsImageTag(hyperlink) {
+        return (util.getElements(hyperlink, "img").length !== 0);
     }
 
     /** @private */
@@ -71,5 +79,14 @@ class ImgurParser {
         let img = hyperlink.ownerDocument.createElement("img");
         img.src = hyperlink.href;
         hyperlink.replaceWith(img);
-    }    
+    }
+
+    /** @private 
+     * Hack, assume if no extension, it's a gallery
+    */
+    static isLinkToGallery(hyperlink) {
+        let filenames = hyperlink.pathname.split("/");
+        let filename = filenames[filenames.length - 1];
+        return !filename.includes(".");
+    }
 }
