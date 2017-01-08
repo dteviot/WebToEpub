@@ -233,7 +233,7 @@ class ImageInfo extends EpubItem {
     createImageElement(userPreferences) {
         if (this.isSvgImageUsedHere(userPreferences)) {
             return util.createSvgImageElement(this.getZipHref(), this.width, this.height, 
-                this.wrappingUrl, userPreferences.includeImageSourceUrl);
+                this.wrappingUrl, userPreferences.includeImageSourceUrl.value);
         } else {
             return this.createImgImageElement(this.getZipHref(), this.wrappingUrl);
         }
@@ -241,7 +241,7 @@ class ImageInfo extends EpubItem {
 
     isSvgImageUsedHere(userPreferences) {
         const MIN_SVG_IMAGE_DIMENSION = 300;
-        return userPreferences.useSvgForImages &&
+        return userPreferences.useSvgForImages.value &&
             MIN_SVG_IMAGE_DIMENSION <= this.width &&
             MIN_SVG_IMAGE_DIMENSION <= this.height;
     }

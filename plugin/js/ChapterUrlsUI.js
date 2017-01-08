@@ -24,7 +24,7 @@ class ChapterUrlsUI {
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
         });
-        ChapterUrlsUI.resizeTitleColumnToFit(linksTable, userPreferences.alwaysOpenAsTab);
+        ChapterUrlsUI.resizeTitleColumnToFit(linksTable, userPreferences.alwaysOpenAsTab.value);
     }
 
     static clearChapterUrlsTable() {

@@ -20,7 +20,7 @@ class BakaTsukiImageCollector extends ImageCollector {
 
     onUserPreferencesUpdate(userPreferences) {
         super.onUserPreferencesUpdate(userPreferences);
-        if (userPreferences.higestResolutionImages) {
+        if (userPreferences.higestResolutionImages.value) {
             this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
         } else {
             this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage

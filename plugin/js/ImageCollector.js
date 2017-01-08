@@ -355,7 +355,7 @@ class VariableSizeImageCollector extends ImageCollector {
 
     onUserPreferencesUpdate(userPreferences) {
         super.onUserPreferencesUpdate(userPreferences);
-        if (userPreferences.higestResolutionImages) {
+        if (userPreferences.higestResolutionImages.value) {
             this.initialUrlToTry = (imageInfo) => imageInfo.wrappingUrl;
         } else {
             this.initialUrlToTry = (imageInfo) => imageInfo.sourceUrl;
@@ -419,9 +419,8 @@ class ImageTagReplacer {
      * @private
      */
     isDuplicateImageToRemove(imageInfo) {
-        let that = this;
-        return that.userPreferences.removeDuplicateImages && 
-            that.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
+        return this.userPreferences.removeDuplicateImages.value && 
+            this.isElementInImageGallery() && (imageInfo.isOutsideGallery || imageInfo.isCover);
     }
 
     /**

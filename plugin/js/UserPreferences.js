@@ -4,37 +4,117 @@
 
 "use strict";
 
+/** Holds a single preference value for user  */
+class UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        this.storageName = storageName;
+        this.uiElementName = uiElementName;
+        this.value = defaultValue;
+    }
+
+    getUiElement() {
+        return document.getElementById(this.uiElementName);
+    }    
+
+    writeToLocalStorage() {
+        window.localStorage.setItem(this.storageName, this.value);
+    }
+}
+
+class BoolUserPreference extends UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        super(storageName, uiElementName, defaultValue);
+    }
+
+    readFromLocalStorage() {
+        let test = window.localStorage.getItem(this.storageName);
+        if (test !== null) {
+            this.value = (test === "true");
+        }
+    }
+
+    readFromUi() {
+        this.value = this.getUiElement().checked;
+    }
+
+    writeToUi() {
+        this.getUiElement().checked = this.value;
+    }
+
+    hookupUi(readFromUi) {
+        this.getUiElement().onclick = readFromUi;
+    }
+}
+
+class StringUserPreference extends UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        super(storageName, uiElementName, defaultValue);
+    }
+
+    readFromLocalStorage() {
+        let test = window.localStorage.getItem(this.storageName);
+        if (test !== null) {
+            this.value = test;
+        }
+    }
+
+    readFromUi() {
+        this.value = this.getUiElement().value;
+    }
+
+    writeToUi() {
+        this.getUiElement().value = this.value;
+    }
+
+    hookupUi(readFromUi) {
+        this.getUiElement().addEventListener("blur", readFromUi, true);
+    }
+}
+
+/** The collection of all preferences for user  */
 class UserPreferences {
     constructor() {
-        this.removeDuplicateImages = false;
-        this.includeImageSourceUrl = true;
-        this.higestResolutionImages = true;
-        this.alwaysOpenAsTab = true;
-        this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();
-        this.useSvgForImages = true;
+        this.preferences = [];
+        this.addPreference("removeDuplicateImages", "removeDuplicateImages", false);
+        this.addPreference("includeImageSourceUrl", "includeImageSourceUrlCheckboxInput", true);
+        this.addPreference("higestResolutionImages", "higestResolutionImagesCheckboxInput", true);
+        this.addPreference("alwaysOpenAsTab", "alwaysOpenAsTabInput", true);
+        this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
+        this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
 
         this.observers = [];
     };
 
+    /** @private */
+    addPreference(storageName, uiElementName, defaultValue) {
+        if (this[storageName] !== undefined) {
+            throw new Error("Preference " + storageName + " already created.");
+        }
+
+        let preference = null;
+        if (typeof(defaultValue) === "boolean") {
+            preference = new BoolUserPreference(storageName, uiElementName, defaultValue)
+        } else if (typeof(defaultValue) === "string") {
+            preference = new StringUserPreference(storageName, uiElementName, defaultValue)
+        } else {
+            throw new Error("Unknown preference type");
+        }
+        this.preferences.push(preference);
+        this[storageName] = preference;
+    }
+
     static readFromLocalStorage() {
         let newPreferences = new UserPreferences();
-        newPreferences.readBooleanFromLocalStorage("removeDuplicateImages");
-        newPreferences.readBooleanFromLocalStorage("includeImageSourceUrl");
-        newPreferences.readBooleanFromLocalStorage("higestResolutionImages");
-        newPreferences.readBooleanFromLocalStorage("alwaysOpenAsTab");
-        newPreferences.readStringFromLocalStorage("styleSheet");
-        newPreferences.readBooleanFromLocalStorage("useSvgForImages");
+        for(let p of newPreferences.preferences) {
+            p.readFromLocalStorage();
+        }
         return newPreferences;
     }
 
     writeToLocalStorage() {
-        let that = this;
-        that.writeFieldToLocalStorage("removeDuplicateImages");
-        that.writeFieldToLocalStorage("includeImageSourceUrl");
-        that.writeFieldToLocalStorage("higestResolutionImages");
-        that.writeFieldToLocalStorage("alwaysOpenAsTab");
-        that.writeFieldToLocalStorage("styleSheet");
-        that.writeFieldToLocalStorage("useSvgForImages");
+        for(let p of this.preferences) {
+            p.writeToLocalStorage();
+        }
     }
 
     addObserver(observer) {
@@ -42,49 +122,13 @@ class UserPreferences {
         this.notifyObserversOfChange();
     }
 
-    readFieldFromLocalStorage(name) {
-        this.checkNameExists(name);
-        return window.localStorage.getItem(name);
-    }
-
-    readBooleanFromLocalStorage(name) {
-        let test = this.readFieldFromLocalStorage(name);
-        if (test !== null) {
-            this[name] = (test === "true");
-        }
-    }
-
-    readStringFromLocalStorage(name) {
-        let test = this.readFieldFromLocalStorage(name);
-        if (test !== null) {
-            this[name] = test;
-        }
-    }
-
-    checkNameExists(name) {
-        if (typeof(this[name]) === "undefined") {
-            throw new Error("Field (" + name + ") is not known" );
-        }
-    }
-
-    writeFieldToLocalStorage(name) {
-        let that = this;
-        that.checkNameExists(name);
-        window.localStorage.setItem(name, that[name]);
-    }
-
     readFromUi() {
-        let that = this;
-        that.removeDuplicateImages = that.getRemoveDuplicateImagesUiControl().checked;
-        that.includeImageSourceUrl = that.getIncludeImageSourceUrlUiControl().checked;
-        that.higestResolutionImages = that.getHigestResolutionImagesUiControl().checked;
-        that.alwaysOpenAsTab = that.getAlwaysOpenAsTabUiControl().checked;
-        that.styleSheet = that.getStylesheetUiControl().value;
-        that.useSvgForImages = that.getUseSvgForImagesUiControl().checked;
+        for(let p of this.preferences) {
+            p.readFromUi();
+        }
 
-        that.writeToLocalStorage();
-
-        that.notifyObserversOfChange();
+        this.writeToLocalStorage();
+        this.notifyObserversOfChange();
     }
 
     notifyObserversOfChange() {
@@ -95,47 +139,16 @@ class UserPreferences {
     }
 
     writeToUi() {
-        let that = this;
-        that.getRemoveDuplicateImagesUiControl().checked = that.removeDuplicateImages;
-        that.getIncludeImageSourceUrlUiControl().checked = that.includeImageSourceUrl;
-        that.getHigestResolutionImagesUiControl().checked = that.higestResolutionImages;
-        that.getAlwaysOpenAsTabUiControl().checked = that.alwaysOpenAsTab;
-        that.getStylesheetUiControl().value = that.styleSheet;
-        that.getUseSvgForImagesUiControl().checked = that.useSvgForImages;
-    }
-
-    getRemoveDuplicateImagesUiControl() {
-        return document.getElementById("removeDuplicateImages");
-    }
-
-    getIncludeImageSourceUrlUiControl() {
-        return document.getElementById("includeImageSourceUrlCheckboxInput");
-    }
-
-    getHigestResolutionImagesUiControl() {
-        return document.getElementById("higestResolutionImagesCheckboxInput");
-    }
-
-    getAlwaysOpenAsTabUiControl() {
-        return document.getElementById("alwaysOpenAsTabInput");
-    }
-
-    getStylesheetUiControl() {
-        return document.getElementById("stylesheetInput");
-    }
-
-    getUseSvgForImagesUiControl() {
-        return document.getElementById("useSvgForImagesInput");
+        for(let p of this.preferences) {
+            p.writeToUi();
+        }
     }
 
     hookupUi() {
         let readFromUi = this.readFromUi.bind(this);
-        this.getRemoveDuplicateImagesUiControl().onclick = readFromUi;
-        this.getIncludeImageSourceUrlUiControl().onclick = readFromUi;
-        this.getHigestResolutionImagesUiControl().onclick = readFromUi;
-        this.getAlwaysOpenAsTabUiControl().onclick = readFromUi;
-        this.getStylesheetUiControl().addEventListener("blur", readFromUi, true);
-        this.getUseSvgForImagesUiControl().onclick = readFromUi;
+        for(let p of this.preferences) {
+            p.hookupUi(readFromUi);
+        }
 
         this.notifyObserversOfChange();
     }

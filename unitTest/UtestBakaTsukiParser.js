@@ -227,10 +227,10 @@ QUnit.test("replaceImageTags", function (assert) {
     util.setBaseTag("https://www.baka-tsuki.org/project/index.php", dom);
 
     let imageCollector = new ImageCollector();
-    imageCollector.userPreferences = {
-        includeImageSourceUrl: true,
-        useSvgForImages: true
-    };
+    let preferences = new UserPreferences();
+    preferences.includeImageSourceUrl.value = true;
+    preferences.useSvgForImages.value = true;
+    imageCollector.userPreferences = preferences;
     imageCollector.findImagesUsedInDocument(dom.body);
 
     // fake getting image size data

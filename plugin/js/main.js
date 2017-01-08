@@ -91,7 +91,7 @@ var main = (function () {
 
         metaInfo.translator = getValueFromUiField("translatorInput");
         metaInfo.fileAuthorAs = getValueFromUiField("fileAuthorAsInput");
-        metaInfo.styleSheet = userPreferences.styleSheet;
+        metaInfo.styleSheet = userPreferences.styleSheet.value;
 
         return metaInfo;
     }
@@ -356,7 +356,7 @@ var main = (function () {
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
-        if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab) {
+        if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab.value) {
             localizeHtmlPage();
             // add onClick event handlers
             getPackEpubButton().onclick = fetchContentAndPackEpub;

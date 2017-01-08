@@ -40,6 +40,13 @@ function makeEpubItemSupplier(imageCollector) {
     return new EpubItemSupplier(parser, epubItems, imageCollector);
 }
 
+function makeDummyUserPreferences(includeImageSourceUrl, useSvgForImages) {
+    let preferences = new UserPreferences();
+    preferences.includeImageSourceUrl.value = includeImageSourceUrl;
+    preferences.useSvgForImages.value = useSvgForImages;
+    return preferences;
+}
+
 test("buildContentOpf", function (assert) {
     let epubPacker = makePacker();
     epubPacker.metaInfo.seriesName = "BakaSeries";
@@ -310,10 +317,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
     imageInfo.height = 600;
     imageInfo.isCover = true;
     let dummyImageCollector = {
-        userPreferences: {
-            includeImageSourceUrl: true,
-            useSvgForImages: true
-        },
+        userPreferences: makeDummyUserPreferences(true, true),
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
@@ -347,10 +351,7 @@ test("makeCoverImageXhtmlFileAsImg", function (assert) {
     imageInfo.height = 600;
     imageInfo.isCover = true;
     let dummyImageCollector = {
-        userPreferences: {
-            includeImageSourceUrl: true,
-            useSvgForImages: false
-        },
+        userPreferences: makeDummyUserPreferences(true, false),
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
@@ -379,10 +380,7 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
     imageInfo.height = 600;
     imageInfo.isCover = true;
     let dummyImageCollector = {
-        userPreferences: {
-            includeImageSourceUrl: false,
-            useSvgForImages: true
-        },
+        userPreferences: makeDummyUserPreferences(false, true),
         coverImageInfo: imageInfo,
         imagesToPackInEpub: function () { return []; }
     };
