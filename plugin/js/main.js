@@ -194,7 +194,7 @@ var main = (function () {
     }
 
     function onAdvancedOptionsClick() {
-        let section = document.getElementById("advancedOptionsSection");
+        let section =  getAdvancedOptionsSection();
         section.hidden = !section.hidden;
     }
 
@@ -353,21 +353,29 @@ var main = (function () {
         return document.getElementById("manuallySelectParserTag");
     }
 
+    function getAdvancedOptionsSection() {
+        return document.getElementById("advancedOptionsSection");
+    }
+
+    function addOnClickEventHandlers() {
+        getPackEpubButton().onclick = fetchContentAndPackEpub;
+        document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
+        document.getElementById("reloadButton").onclick = populateControls;
+        getManuallySelectParserTag().onchange = populateControls;
+        document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
+        document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
+        document.getElementById("resetButton").onclick = resetUI;
+        document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
+        getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+    }
+
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
         if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab.value) {
             localizeHtmlPage();
-            // add onClick event handlers
-            getPackEpubButton().onclick = fetchContentAndPackEpub;
-            document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
-            document.getElementById("reloadButton").onclick = populateControls;
-            getManuallySelectParserTag().onchange = populateControls;
-            document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
-            document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
-            document.getElementById("resetButton").onclick = resetUI;
-            document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
-            getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+            getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
+            addOnClickEventHandlers();
             window.showErrorMessage = showErrorMessage;
             populateControls();
         } else {

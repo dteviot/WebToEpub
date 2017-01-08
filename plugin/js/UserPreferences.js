@@ -81,6 +81,7 @@ class UserPreferences {
         this.addPreference("alwaysOpenAsTab", "alwaysOpenAsTabInput", true);
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
+        this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
 
         this.observers = [];
     };

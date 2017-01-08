@@ -109,7 +109,6 @@
         <progress id="fetchProgress" value=" 0" max="1"></progress>
         <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
         <section hidden id="advancedOptionsSection">
-            <div class="scrollingtable">
                 <table id="advancedOptionsTable">
                     <tr id="translatorRow" hidden>
                         <td>__MSG_label_Translator__</td>
@@ -135,13 +134,17 @@
                         <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
                         <td>__MSG_label_Fetch_Highest_Resolution_Images__</td>
                     </tr>
+                    <tr id="useSvgForImages">
+                        <td><input id="useSvgForImagesInput" type="checkbox" name="useSvgForImagesInput" value="true"></td>
+                        <td>__MSG_label_Use_SVG_for_Images__</td>
+                    </tr>
                     <tr id="alwaysOpenAsTabRow">
                         <td><input id="alwaysOpenAsTabInput" type="checkbox" name="alwaysOpenAsTabInput" value="false"></td>
                         <td>__MSG_label_Always_Open_as_Tab__</td>
                     </tr>
-                    <tr id="useSvgForImages">
-                        <td><input id="useSvgForImagesInput" type="checkbox" name="useSvgForImagesInput" value="true"></td>
-                        <td>__MSG_label_Use_SVG_for_Images__</td>
+                    <tr id="advancedOptionsVisibleByDefaultRow">
+                        <td><input id="advancedOptionsVisibleByDefaultCheckbox" type="checkbox" name="advancedOptionsVisibleByDefaultCheckbox" value="true"></td>
+                        <td>__MSG_label_Advanced_Options_Visible_By_Default__</td>
                     </tr>
                     <tr>
                         <td>__MSG_label_Manually_Select_Parser__</td>
@@ -164,7 +167,6 @@
                         </td>
                     </tr>
                 </table>
-            </div>
         </section>
     </section>
     <section id="testSection"></section>

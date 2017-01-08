@@ -75,6 +75,10 @@
 		"message": "URL",
 		"description": "The 'URL to get chapter frorm' column in the table of chapters."
 	},
+	"__MSG_label_Advanced_Options_Visible_By_Default__": {
+		"message": "Advanced Options Visible by Default",
+		"description": "Label for checkbox to make Advanced Options visible when UI opens"
+	},
 	"__MSG_label_Author__": {
 		"message": "Author",
 		"description": "Label in front input for novel's Author"
