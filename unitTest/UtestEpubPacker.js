@@ -409,3 +409,13 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
         "</html>"
     );
 });
+
+test("addExtensionIfMissing_notMissing_dontAdd", function (assert) {
+    let actual = EpubPacker.addExtensionIfMissing("web.epub");
+    assert.equal(actual, "web.epub");
+});
+
+test("addExtensionIfMissing_Missing_Added", function (assert) {
+    let actual = EpubPacker.addExtensionIfMissing("web");
+    assert.equal(actual, "web.epub");
+});

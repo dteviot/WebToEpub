@@ -157,7 +157,7 @@ class Parser {
         metaInfo.title = that.extractTitle(dom);
         metaInfo.author = that.extractAuthor(dom);
         metaInfo.language = that.extractLanguage(dom);
-        metaInfo.fileName = that.makeFileName(metaInfo.title);
+        metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title);
         that.extractSeriesInfo(dom, metaInfo);
         return metaInfo;
     }
@@ -173,17 +173,8 @@ class Parser {
         return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
     }
 
-    // Name to save EPUB file as.
-    makeFileName(title) {
-        if (title == null) {
-            return "web.epub";
-        } else {
-            // allow only legal characters within the file name
-            title = util.safeForFileName(title);
-
-            // append suffix
-            return title + ".epub";
-        }
+    makeSaveAsFileNameWithoutExtension(title) {
+        return (title == null)  ? "web" : util.safeForFileName(title);
     }
 
     epubItemSupplier() {

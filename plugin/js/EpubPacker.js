@@ -37,8 +37,13 @@ class EpubPacker {
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
         zipFile.generateAsync({ type: "blob" }).then(function(content) {
-            EpubPacker.save(content, fileName);
+            EpubPacker.save(content, EpubPacker.addExtensionIfMissing(fileName));
         });
+    }
+
+    static addExtensionIfMissing(fileName) {
+        let extension = ".epub";
+        return (fileName.endsWith(extension)) ? fileName : fileName + extension;
     }
 
     // write blob to "Downloads" directory
