@@ -51,7 +51,7 @@ function fetchJsonStub(url) {
     lookup.set("https://gravitytales.com/Novels/GetChapterGroups/1", [{ChapterGroupId:1, Title:"Group 1"},{ChapterGroupId:2,Title:"Group 2"}]);
     lookup.set("https://gravitytales.com/Novels/GetNovelChapters/1?groupId=1&page=0&count=25", {Chapters: expectedChapterLists[0].chapters});
     lookup.set("https://gravitytales.com/Novels/GetNovelChapters/1?groupId=2&page=0&count=25", {Chapters: expectedChapterLists[1].chapters});
-    return Promise.resolve(lookup.get(url));
+    return Promise.resolve({ json: lookup.get(url) });
 }
 
 test("fetchChapterListForGroup", function (assert) {

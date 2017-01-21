@@ -7,55 +7,83 @@ class HttpClient {
     constructor() {
     }
 
+    static makeOptions() {
+        return { credentials: "include" };
+    }
+
     static wrapFetch(url) {
-        let state = {
-            isHtml: function () { return this.contentType.startsWith("text/html"); }
-        };
-        return fetch(url).then(function(response) {
-            return HttpClient.checkResponseAndGetData(state, response);
-        }).then(function(data) {
-            state.addData(state, data);
-            return state;
+        return HttpClient.wrapFetchImpl(url, new FetchResponseHandler());
+    }
+
+    static fetchJson(url) {
+        return HttpClient.wrapFetchImpl(url, new FetchJsonResponseHandler());
+    }
+
+    static wrapFetchImpl(url, handler) {
+        return fetch(url, HttpClient.makeOptions()).then(function(response) {
+            return HttpClient.checkResponseAndGetData(handler, response);
         });
     }
 
-    static checkResponseAndGetData(state, response) {
+    static checkResponseAndGetData(handler, response) {
         if(!response.ok) {
             let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
             return Promise.reject(new Error(errorMsg));
         } else {
-            state.response = response;
-            state.contentType = response.headers.get("content-type");
-            if (state.isHtml()) {
-                state.addData = HttpClient.responseToHtml;
-                return response.text();
-            } else {
-                state.addData = HttpClient.responseToBinary;
-                return response.arrayBuffer();
-            }
+            handler.setResponse(response);
+            return handler.extractContentFromResponse(response);
+        }
+    }
+}
+
+class FetchResponseHandler {
+    isHtml() {
+        return this.contentType.startsWith("text/html");
+    }
+
+    setResponse(response) {
+        this.response = response;
+        this.contentType = response.headers.get("content-type");
+    }
+
+    extractContentFromResponse(response) {
+        if (this.isHtml()) {
+            return this.responseToHtml(response);
+        } else {
+            return this.responseToBinary(response);
         }
     }
 
-    static responseToHtml(state, data) {
-        let html = new DOMParser().parseFromString(data, "text/html");
-        util.setBaseTag(state.response.url, html);
-        state.responseXML = html;
+    responseToHtml(response) {
+        return response.text().then(function(data) {
+            let html = new DOMParser().parseFromString(data, "text/html");
+            util.setBaseTag(this.response.url, html);
+            this.responseXML = html;
+            return this;
+        }.bind(this));
     }
 
-    static responseToBinary(state, data) {
-        state.arrayBuffer = data;
+    responseToBinary(response) {
+        return response.arrayBuffer().then(function(data) {
+            this.arrayBuffer = data;
+            return this;
+        }.bind(this));
     }
 
-    static fetchJson(url) {
-        return fetch(url).then(function (response) {
-            if (!response.ok) {
-                let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
-                return Promise.reject(new Error(errorMsg));
-            } else {
-                return response.text();
-            }
-        }).then(function (text) {
-            return JSON.parse(text);
-        });
+    responseToJson(response) {
+        return response.text().then(function(data) {
+            this.json =  JSON.parse(data);
+            return this;
+        }.bind(this));
+    }
+}
+
+class FetchJsonResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToJson(response);
     }
 }

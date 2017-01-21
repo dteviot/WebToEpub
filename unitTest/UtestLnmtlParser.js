@@ -57,20 +57,31 @@ let pagesListsInmtl = [
     ]
 ]
 
+let expectedLnmplFetchChapterListsOutput = [
+    [
+        {json: pagesListsInmtl[0][0]}, 
+        {json: pagesListsInmtl[0][1]}
+    ],
+    [
+        {json: pagesListsInmtl[1][0]},
+        {json: pagesListsInmtl[1][1]}
+    ]
+];
+
 function fetchJsonStubInmtl(url) {
     let lookup = new Map();
     lookup.set("http://lnmtl.com/chapter?page=1&volumeId=1", pagesListsInmtl[0][0]);
     lookup.set("http://lnmtl.com/chapter?page=2&volumeId=1", pagesListsInmtl[0][1]);
     lookup.set("http://lnmtl.com/chapter?page=1&volumeId=2", pagesListsInmtl[1][0]);
     lookup.set("http://lnmtl.com/chapter?page=2&volumeId=2", pagesListsInmtl[1][1]);
-    return Promise.resolve(lookup.get(url));
+    return Promise.resolve({json: lookup.get(url)});
 }
 
 test("fetchChapterListsForVolume", function (assert) {
     let done = assert.async(); 
     LnmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl).then(
         function(actual) {
-            assert.deepEqual(actual, pagesListsInmtl[0]); 
+            assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput[0]); 
             done();
         }
     );
@@ -80,14 +91,14 @@ test("fetchChapterLists", function (assert) {
     let done = assert.async(); 
     LnmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl).then(
         function(actual) {
-            assert.deepEqual(actual, pagesListsInmtl); 
+            assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput); 
             done();
         }
     );
 });
 
 test("mergeChapterLists", function (assert) {
-    let actual = LnmtlParser.mergeChapterLists(pagesListsInmtl);
+    let actual = LnmtlParser.mergeChapterLists(expectedLnmplFetchChapterListsOutput);
     assert.equal(actual.length, 8);
     assert.deepEqual(actual[2],  {sourceUrl: "http://lnmtl.com/chapter/the-magus-era-chapter-3", title: "#3: V1-C3", newArc: null}); 
 });

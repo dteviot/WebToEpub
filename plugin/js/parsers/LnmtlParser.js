@@ -94,8 +94,9 @@ class LnmtlParser extends Parser {
 
     static fetchChapterListsForVolume(volumeInfo, fetchJson) {
         let restUrl = LnmtlParser.makeChapterListUrl(volumeInfo.id, 1);
-        return fetchJson(restUrl).then(function (firstPage) {
-            let pagesForVolume = [Promise.resolve(firstPage)];
+        return fetchJson(restUrl).then(function (handler) {
+            let firstPage = handler.json;
+            let pagesForVolume = [Promise.resolve(handler)];
             for( let i = 2; i <= firstPage.last_page; ++i) {
                 let url = LnmtlParser.makeChapterListUrl(volumeInfo.id, i);
                 pagesForVolume.push(fetchJson(url));
@@ -112,7 +113,7 @@ class LnmtlParser extends Parser {
         let chapters = [];
         for(let list of lists) {
             for (let page of list) {
-                for(let chapter of page.data) {
+                for(let chapter of page.json.data) {
                     chapters.push({
                         sourceUrl: chapter.site_url,
                         title: "#" + chapter.number + ": " + chapter.title,
