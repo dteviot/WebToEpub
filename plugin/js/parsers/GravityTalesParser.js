@@ -69,7 +69,10 @@ class GravityTalesParser extends Parser {
                 .filter(a => (a.length === 2) && a[0] === "novelId")
                 .map(a => parseInt(a[1]));
         }
-        return (valArray.length === 1) ? valArray[0] : null;
+        if (valArray.length === 1) {
+            return valArray[0];
+        }
+        return GravityTalesParser.searchForNovelIdinScriptTags(dom);
     }
 
     /**
@@ -126,5 +129,33 @@ class GravityTalesParser extends Parser {
             title: title,
             newArc: newArc
         };
+    }
+
+    static searchForNovelIdinScriptTags(dom) {
+        for(let e of util.getElements(dom, "script")) {
+            let novelId = GravityTalesParser.searchForNovelIdinString(e.innerText);
+            if ( novelId !== null) {
+                return novelId;
+            }
+        }
+        return null;
+    }
+
+    static searchForNovelIdinString(s) {
+        let searchFor = "novelId:";
+        let startIndex = s.indexOf(searchFor);
+        if (0 <= startIndex)
+        {
+            let novelId = s.substring(startIndex + searchFor.length);
+            novelId = GravityTalesParser.removeStringAfterChar(novelId, ",");
+            novelId = GravityTalesParser.removeStringAfterChar(novelId, "}").trim();
+            return parseInt(novelId);
+        }
+        return null;
+    }
+
+    static removeStringAfterChar(s, c) {
+        let endIndex = s.indexOf(c);
+        return (0 <= endIndex) ? s.substring(0, endIndex) : s;
     }
 }

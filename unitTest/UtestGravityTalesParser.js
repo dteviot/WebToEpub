@@ -74,3 +74,36 @@ test("fetchUrlsOfChapters", function (assert) {
         }
     );
 });
+
+test("searchForNovelIdinString_idNotPresent", function (assert) {
+    let actual = GravityTalesParser.searchForNovelIdinString("");
+    assert.equal(actual, null);
+});
+
+test("searchForNovelIdinString_idPresent", function (assert) {
+    let actual = GravityTalesParser.searchForNovelIdinString("{ dummy: {a: 0, novelId: 8} }");
+    assert.equal(actual, 8);
+});
+
+test("searchForNovelIdinString_idPresent", function (assert) {
+    let actual = GravityTalesParser.searchForNovelIdinString("{ dummy: {a: 0, novelId: 6, b:{}} }");
+    assert.equal(actual, 6);
+});
+
+test("searchForNovelIdinScriptTags_idNotPresent", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<script src=\"/Scripts/react-bootstrap.min.js\"></script>" +
+        "<script>ReactDOM.render(React.createElement(Components.DonationWidget, {\"novelName\":\"I’m Really a Superstar\",\"novelAbbreviation\":\"IRAS\",\"novelId\":8,\"amountDonated\":8,\"costPerChapter\":70,\"paypalEmail\":\"mysubs2015@gmail.com\",\"novelAuthor\":\"CKtalon\",\"sponsoredQueue\":0,\"userId\":null,\"widgetTitleClass\":\"widget-title\"}), document.getElementById(\"donations_8\"));</script>"
+    );
+    let actual = GravityTalesParser.searchForNovelIdinScriptTags(dom);
+    assert.equal(actual, null);
+});
+
+test("searchForNovelIdinScriptTags_idPresent", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<script src=\"/Scripts/react-bootstrap.min.js\"></script>" +
+        "<script>ReactDOM.render(React.createElement(Components.ChapterGroupList, { novelId: 8, novelSlug: 'im-really-a-superstar' }), document.getElementById(\"chapters\"))</script>"
+    );
+    let actual = GravityTalesParser.searchForNovelIdinScriptTags(dom);
+    assert.equal(actual, 8);
+});
