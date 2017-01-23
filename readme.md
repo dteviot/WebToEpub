@@ -104,7 +104,14 @@ WebToEpub uses the following libraries:
 * Close all running copies of Chrome 
 * Start Chrome with command line argument --allow-file-access-from-files
 * Load unitTest/Tests.html
-* When finished, close all running copies of Chrome
+* If you get **_Failed to read the 'localStorage' property from 'Window': Access is denied for this document_** errors
+    * Type **_chrome://settings/content_** into Chrome's search bar 
+    * Uncheck **_Block third-party cookies and site data_**
+    * Click **_Finished_**
+    * Re-run unit tests
+* When finished with unit tests. 
+    * Restore original value of **_Block third-party cookies and site data_** (if you changed it).
+    * close all running copies of Chrome
 
 ### To run unit tests under Firefox
 * Start Firefox 
