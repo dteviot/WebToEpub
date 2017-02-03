@@ -104,12 +104,10 @@ class RoyalRoadParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
+        let img = null;
         if (dom != null) {
-            let cover = util.getElement(dom, "img", e => e.className.startsWith("img-offset"));
-            if (cover !== null) {
-                return cover.src;
-            };
+            img = util.getElement(dom, "img", e => e.className.startsWith("img-offset"));
         };
-        return null;
+        return (img === null) ? img : img.src;   
     }
 }

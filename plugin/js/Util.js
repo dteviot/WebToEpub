@@ -305,6 +305,17 @@ var util = (function () {
         return this.isNodeInTag(util.BLOCK_ELEMENTS, node);
     }
 
+    var getFirstImgSrc = function(dom, ancestorTag, filter) {
+        let img = null;
+        if (dom != null) {
+            let ancestor = util.getElement(dom, ancestorTag, filter);
+            if (ancestor != null) {
+                img = util.getElement(ancestor, "img");
+            };
+        };
+        return (img === null) ? img : img.src;   
+    }
+
     var removeUnneededIds = function(contentElement) {
         let hashes = util.getAllHyperlinkHashes(contentElement);
         let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
@@ -696,6 +707,7 @@ var util = (function () {
         isNodeInTag: isNodeInTag,
         isInlineElement: isInlineElement,
         isBlockElement: isBlockElement,
+        getFirstImgSrc: getFirstImgSrc,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         removeUnneededIds: removeUnneededIds,

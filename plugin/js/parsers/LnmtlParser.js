@@ -61,16 +61,7 @@ class LnmtlParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        if (dom != null) {
-            let div = util.getElement(dom, "div", e => e.className.startsWith("jumbotron novel"));
-            if (div !== null) { 
-                let cover = util.getElement(div, "img");
-                if (cover !== null) {
-                    return cover.src;
-                };
-            };
-        };
-        return null;
+        return util.getFirstImgSrc(dom, "div", e => e.className.startsWith("jumbotron novel"));
     }
 
     static findVolumesList(dom) {

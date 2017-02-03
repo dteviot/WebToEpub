@@ -66,13 +66,6 @@ class XianXiaWorldParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        let img = null;
-        if (dom != null) {
-            let coverDiv = util.getElement(dom, "div", d => d.id === "fmimg");
-            if (coverDiv != null) {
-                img = util.getElement(coverDiv, "img");
-            };
-        };
-        return (img === null) ? img : img.src;
+        return util.getFirstImgSrc(dom, "div", d => d.id === "fmimg");
     }
 }

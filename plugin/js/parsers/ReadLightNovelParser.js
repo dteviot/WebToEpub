@@ -79,16 +79,7 @@ class ReadLightNovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        if (dom != null) {
-            let coverDiv = util.getElement(dom, "div", d => d.className === "novel-cover");
-            if (coverDiv != null) {
-                let img = util.getElement(coverDiv, "img");
-                if (img != null) {
-                    return img.src;
-                };
-            };
-        };
-        return null;
+        return util.getFirstImgSrc(dom, "div", d => d.className === "novel-cover");
     }
 
     // find the node(s) holding the story content
