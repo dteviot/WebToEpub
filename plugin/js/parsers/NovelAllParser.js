@@ -26,6 +26,11 @@ class NovelAllParser extends Parser{
         return util.getElement(dom.body, "div", e => e.className.startsWith("reading-box"));
     };
 
+    extractAuthor(dom) {
+        let link = util.getElement(dom.body, "a", e => e.search.includes("author"));
+        return (link == null) ? super.extractAuthor(dom) : link.textContent;
+    };
+
     // title of the story
     extractTitle(dom) {
         return util.getElement(dom.body, "h1").textContent;

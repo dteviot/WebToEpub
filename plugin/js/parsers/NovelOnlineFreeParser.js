@@ -31,6 +31,11 @@ class NovelOnlineFreeParser extends Parser{
         return util.getElement(dom.body, "h1").textContent;
     };
 
+    extractAuthor(dom) {
+        let link = util.getElement(dom.body, "a", e => e.pathname.includes("search_author"));
+        return (link == null) ? super.extractAuthor(dom) : link.textContent;
+    };
+
     // individual chapter titles are not inside the content element
     findChapterTitle(dom) {
         return util.getElement(dom.body, "h1");
