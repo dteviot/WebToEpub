@@ -37,7 +37,8 @@ class WuxiaworldParser extends Parser {
     }
 
     extractTitle(dom) {
-        return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
+        let title = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title"));
+        return title === null ? super.extractTitle(dom) : title.getAttribute("content");
     }
 
     // find the node(s) holding the story content
