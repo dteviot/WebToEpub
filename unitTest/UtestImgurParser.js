@@ -53,3 +53,8 @@ QUnit.test("findImagesListPre20170303", function (assert) {
     assert.deepEqual(images, [{hash:"zNuo7hV", ext:".png"},{hash:"bi7LaVD", ext:".png"}]);
 });
 
+QUnit.test("isImgurHostName", function (assert) {
+    assert.equal(true, ImgurParser.isImgurHostName("imgur.com"));
+    assert.equal(true, ImgurParser.isImgurHostName("m.imgur.com"));
+    assert.equal(false, ImgurParser.isImgurHostName("rimgur.com"));
+});

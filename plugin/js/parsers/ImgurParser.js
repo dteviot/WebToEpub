@@ -10,7 +10,11 @@ class ImgurParser {
 
     static isImgurGallery(dom) {
         let host = util.extractHostName(dom.baseURI).toLowerCase();
-        return (host === "imgur.com") || (host === "i.imgur.com");
+        return ImgurParser.isImgurHostName(host);
+    }
+
+    static isImgurHostName(host) {
+        return (host === "imgur.com") || (host.endsWith(".imgur.com"));
     }
 
     static convertGalleryToConventionalForm(dom) {
