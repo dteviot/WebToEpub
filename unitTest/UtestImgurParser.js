@@ -42,3 +42,14 @@ QUnit.test("dontReplaceImgurGalleryLinksWithImages", function (assert) {
     ImgurParser.replaceImgurLinksWithImages(dom.body);
     assert.equal(dom.body.innerHTML, "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>");
 });
+
+QUnit.test("findImagesListPre20170303", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<script>" +
+        "\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]" +
+        "</script>"
+    );
+    let images = ImgurParser.findImagesList(dom);
+    assert.deepEqual(images, [{hash:"zNuo7hV", ext:".png"},{hash:"bi7LaVD", ext:".png"}]);
+});
+
