@@ -36,7 +36,13 @@ class BlogspotParser extends Parser {
     }
 
     findContent(dom) {
-        let content = BlogspotParser.FindContentElement(dom);
+        //---------------------------------------------------
+        // Hack, fix for one of the image galleries for skythewood
+        // ToDo.  Base class to pick parser on per URL basis.
+        if (ImgurParser.isImgurGallery(dom)) {
+            return ImgurParser.convertGalleryToConventionalForm(dom);
+        }        let content = BlogspotParser.FindContentElement(dom);
+        //---------------------------------------------------
         if (content == null) {
             content = util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
         }
