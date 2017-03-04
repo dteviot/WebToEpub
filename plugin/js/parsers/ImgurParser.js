@@ -61,8 +61,7 @@ class ImgurParser {
     /** @private */
     static isHyperlinkToReplace(hyperlink) {
         // must go to imgur site 
-        let host = hyperlink.hostname;
-        if ((host !== "imgur.com") && (host !== "i.imgur.com")) {
+        if (!ImgurParser.isImgurHostName(hyperlink.hostname)) {
             return false;
         }
 
