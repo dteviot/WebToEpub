@@ -254,9 +254,9 @@ class Parser {
 
         pagesToFetch.forEach(function(chapter) {
             sequence = sequence.then(function () {
-                return HttpClient.wrapFetch(chapter.sourceUrl);
-            }).then(function (xhr) {
-                chapter.rawDom = xhr.responseXML;
+                return that.fetchChapter(chapter.sourceUrl);
+            }).then(function (chapterDom) {
+                chapter.rawDom = chapterDom;
                 that.updateLoadState(chapter);
                 let content = that.findContent(chapter.rawDom);
                 if (content == null) {
@@ -275,6 +275,13 @@ class Parser {
             util.logError(err);
         })
         return sequence;
+    }
+
+    // Hook if need to chase hyperlinks in page to get all chapter content
+    fetchChapter(url) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            Promise.resolve(xhr.responseXML);
+        });
     }
 
     updateLoadState(chapter) {

@@ -79,4 +79,13 @@ class TemplateParser extends Parser{
     populateUI(dom) {
     }
     */
+
+    // Optional, supply if need to chase hyperlinks in page to get all chapter content
+    /*
+    fetchChapter(url) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            Promise.resolve(xhr.responseXML);
+        });
+    }
+    */
 }
