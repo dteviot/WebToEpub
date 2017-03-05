@@ -658,6 +658,37 @@ var util = (function () {
         return "OEBPS/Styles/stylesheet.css";
     }
 
+    var findIndexOfClosingQuote = function(s, startIndex) {
+        let index = startIndex + 1;
+        while(index < s.length && (s[index] !== "\""))
+        {
+            index += (s[index] === "\\") ? 2 : 1;
+        }
+        return index;
+    }
+
+    var findIndexOfClosingBracket = function(s, startIndex) {
+        let index = startIndex + 1;
+        let depth = 1;
+        let c = s[index];
+        while ((0 < depth) && (index < s.length)) {
+            if ((c === "]") || (c === "}")) {
+                --depth;
+                if (depth == 0) {
+                    return index;
+                }
+            } else if ((c === "[") || (c === "{")) {
+                ++depth;
+            } else if (c === "\"") {
+                index = util.findIndexOfClosingQuote(s, index);
+            } 
+            ++index;
+            c = s[index];
+        }
+        // unbalanced brackets, return rest of string
+        return s.length - 1;
+    }
+
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
 
@@ -737,6 +768,8 @@ var util = (function () {
         isHeaderTag: isHeaderTag,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
+        findIndexOfClosingQuote: findIndexOfClosingQuote,
+        findIndexOfClosingBracket: findIndexOfClosingBracket, 
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad

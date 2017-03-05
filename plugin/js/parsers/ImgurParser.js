@@ -19,7 +19,7 @@ class ImgurParser {
 
     static convertGalleryToConventionalForm(dom) {
         let imagesList = ImgurParser.findImagesList(dom);
-        return (imagesList == null) ? [] : ImgurParser.constructStandardHtmForImgur(imagesList);
+        return (imagesList == null) ? null : ImgurParser.constructStandardHtmForImgur(imagesList);
     }
 
     static constructStandardHtmForImgur(imagesList) {
@@ -36,40 +36,52 @@ class ImgurParser {
     }
 
     static findImagesList(dom) {
-        // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
-        // Obviously this will break each time imgur change their scripts.
-        for(let script of util.getElements(dom, "script")) {
-            let text = script.innerHTML;
-            let index = text.indexOf("\"images\":[{\"hash\"");
-            if (index !== -1) {
-                text = text.substring(index + 9);
-                let endIndex = text.indexOf("}]");
-                if (endIndex !== -1) {
-                    return JSON.parse(text.substring(0, endIndex + 2));
-                }
+        let json = ImgurParser.findImagesJson(dom);
+        if (json != null) {
+            if (json.album_images != null) {
+                return json.album_images.images;
+            } else {
+                return [ json ];
             }
         }
     }
 
+    static findImagesJson(dom) {
+        // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
+        // Obviously this will break each time imgur change their scripts.
+        for(let script of util.getElements(dom, "script")) {
+            let text = script.innerHTML;
+            let index = text.indexOf("_item:")
+            if (0 <= index) {
+                index = text.indexOf("{", index);
+                if (0 < index) {
+                    let end = util.findIndexOfClosingBracket(text, index);
+                    let jsonString = text.substring(index, end + 1);
+                    return JSON.parse(jsonString);
+                }
+            }
+        };
+        return null;
+    }
+
     static replaceImgurLinksWithImages(content) {
-        let toReplace = util.getElements(content, "a", ImgurParser.isHyperlinkToReplace);
+        let toReplace = util.getElements(content, "a", ImgurParser.isHyperlinkToImgurImage);
         for(let hyperlink of toReplace) {
             ImgurParser.replaceHyperlinkWithImg(hyperlink);
         }
     }
 
     /** @private */
-    static isHyperlinkToReplace(hyperlink) {
-        // must go to imgur site 
-        if (!ImgurParser.isImgurHostName(hyperlink.hostname)) {
-            return false;
-        }
+    static isHyperlinkToImgurImage(hyperlink) {
+        return ImgurParser.isImgurHostName(hyperlink.hostname)
+          && !ImgurParser.linkContainsImageTag(hyperlink)
+          && !ImgurParser.isLinkToGallery(hyperlink);
+    }
 
-        if (ImgurParser.linkContainsImageTag(hyperlink)) {
-            return false;
-        }
-
-        return !ImgurParser.isLinkToGallery(hyperlink);
+    static isHyperlinkToImgurGallery(hyperlink) {
+        return ImgurParser.isImgurHostName(hyperlink.hostname)
+          && !ImgurParser.linkContainsImageTag(hyperlink)
+          && ImgurParser.isLinkToGallery(hyperlink);
     }
 
     /** @private */
@@ -91,5 +103,25 @@ class ImgurParser {
         let filenames = hyperlink.pathname.split("/");
         let filename = filenames[filenames.length - 1];
         return !filename.includes(".");
+    }
+
+    static replaceGalleryHyperlinkWithImages(link, galleryDom) {
+        if (ImgurParser.isImgurGallery(galleryDom)) {
+            let images =  ImgurParser.convertGalleryToConventionalForm(galleryDom);
+            link.replaceWith(images);
+        }       
+    }
+
+    static getGalleryLinksToReplace(dom) {
+        return util.getElements(dom, "a", ImgurParser.isHyperlinkToImgurGallery);
+    }
+
+    static fixupImgurGalleryUrl(url) {
+        let link = document.createElement("a");
+        link.href = url;
+        if (ImgurParser.isHyperlinkToImgurGallery(link) && !url.endsWith("?grid")) {
+            return url + "?grid";
+        }
+        return url;
     }
 }

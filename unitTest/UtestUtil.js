@@ -313,3 +313,30 @@ test("createComment", function (assert) {
     actual = util.createComment(dom, "http://2.bp.blogspot.com/-.--.---.----.-----");
     assert.equal(actual.nodeValue, "  http://2.bp.blogspot.com/-.%2D%2D.%2D%2D-.%2D%2D%2D%2D.%2D%2D%2D%2D-  ");
 });
+
+test("findIndexOfClosingQuote", function (assert) {
+    let test = function(s, startIndex) {
+        let end = util.findIndexOfClosingQuote(s, startIndex);
+        return s.substring(startIndex, end + 1)
+    }
+
+    assert.equal(test("\"simple\"aa", 0), "\"simple\"");
+    assert.equal(test("a\"\\\"nested\\\"\"bb", 1), "\"\\\"nested\\\"\"");
+});
+
+test("findIndexOfClosingBracket", function (assert) {
+    let test = function(startPattern) {
+        let testString = "a{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}";
+        let startIndex = testString.indexOf(startPattern) + startPattern.length;
+        let end = util.findIndexOfClosingBracket(testString, startIndex);
+        let substring = testString.substring(startIndex, end + 1);
+        return substring;
+    }
+
+    assert.equal(test("images\":[", 0), "{\"hash\":\"zNuo7hV\",\"ext\":\".png\"}");
+    assert.equal(test("\"images\":", 0), "[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]");
+    assert.equal(test("_images\":", 0), "{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}");
+    
+    // unbalanced case
+    assert.equal(test("a", 0), "{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}");
+});
