@@ -280,7 +280,7 @@ class Parser {
     // Hook if need to chase hyperlinks in page to get all chapter content
     fetchChapter(url) {
         return HttpClient.wrapFetch(url).then(function (xhr) {
-            Promise.resolve(xhr.responseXML);
+            return Promise.resolve(xhr.responseXML);
         });
     }
 

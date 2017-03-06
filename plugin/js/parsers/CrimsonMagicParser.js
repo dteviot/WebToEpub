@@ -41,6 +41,9 @@ class CrimsonMagicParser extends WordpressBaseParser {
     fetchChapter(url) {
         return HttpClient.wrapFetch(url).then(function (xhr) {
             let dom = xhr.responseXML;
+            if (ImgurParser.isImgurGallery(dom)) {
+                return Promise.resolve(dom);
+            }
             var sequence = Promise.resolve();
             let galleriesToExpand = ImgurParser.getGalleryLinksToReplace(dom);
             galleriesToExpand.forEach(function (link) {
