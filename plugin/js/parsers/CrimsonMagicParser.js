@@ -7,6 +7,7 @@
 
 parserFactory.register("crimsonmagic.me", function() { return new CrimsonMagicParser() });
 parserFactory.register("skythewoodtl.com", function() { return new CrimsonMagicParser() });
+parserFactory.register("bakapervert.wordpress.com", function() { return new CrimsonMagicParser() });
 
 class CrimsonMagicParser extends WordpressBaseParser {
     constructor() {
