@@ -4,7 +4,7 @@
 "use strict";
 
 parserFactory.registerRule(
-    function(url, dom) {
+    function(url, dom) {           // eslint-disable-line no-unused-vars
         return util.extractHostName(url).endsWith(".wixsite.com"); 
     }, 
     function() { return new WixParser() }
@@ -37,7 +37,7 @@ class WixParser extends Parser{
         };
     }    
 
-    findPageRestUrls(json, url) {
+    findPageRestUrls(json) {
         let topology = json.pageList.topology[0];
         this.restUrls = new Map();
         for(let page of json.pageList.pages) {
