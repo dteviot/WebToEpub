@@ -21,6 +21,7 @@ class WixParser extends Parser{
     getChapterUrls(dom) {
         this.mapPageUrltoRestUrl = this.buildMapOfPageUrltoRestUrlWithContent(dom);
         let chapters = util.hyperlinksToChapterList(dom.body);
+        this.mapPageUrlToPageTitle = this.buildMapOfPageUrlsToPageTitles(chapters);
         return Promise.resolve(chapters);
     };
 
@@ -55,6 +56,10 @@ class WixParser extends Parser{
             .reduce((acc, urls) => acc.set(urls.pageUrl, urls.restUrl), new Map());
     }
 
+    buildMapOfPageUrlsToPageTitles(chapters) {
+        return chapters.reduce((acc, c) => acc.set(c.sourceUrl, c.title), new Map());
+    }
+
     findContent(dom) {
         return util.getElement(dom, "div");
     };
@@ -74,7 +79,10 @@ class WixParser extends Parser{
     }
 
     constructDoc(content, url) {
-        let html = "<html><head><title></title><body><div>" + content + "</div></body></html>";
+        let html = "<html><head><title></title><body><div>" +
+            "<h1>" + this.mapPageUrlToPageTitle.get(url) + "</h1>" +
+            content + 
+            "</div></body></html>";
         let doc = new DOMParser().parseFromString(html, "text/html");
         doc.baseUrl = url;
         return doc;
