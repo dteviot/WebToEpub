@@ -1,5 +1,8 @@
 /*
    parser for *.wixsite.com
+   This site unusual as it does not put the content directly in the HTML for each "chapter/page".
+   Instead the javascript in the chapter/page makes an AJAX/REST call to get the content.
+   So, this parser needs to obtain the URL for the AJAX/REST calls for the content and use them.
 */
 "use strict";
 
@@ -15,54 +18,57 @@ class WixParser extends Parser{
         super();
     }
 
-    // returns promise with the URLs of the chapters to fetch
-    // promise is used because may need to fetch the list of URLs from internet
     getChapterUrls(dom) {
-        this.findRestUrls(dom);
+        this.mapPageUrltoRestUrl = this.buildMapOfPageUrltoRestUrlWithContent(dom);
         let chapters = util.hyperlinksToChapterList(dom.body);
         return Promise.resolve(chapters);
     };
 
-    findRestUrls(dom) {
+    buildMapOfPageUrltoRestUrlWithContent(dom) {
+        let json = this.findJsonWithRestUrls(dom);
+        return this.extractRestUrlsFromJson(json);
+    }
+
+    findJsonWithRestUrls(dom) {
         for(let script of util.getElements(dom, "script")) {
             let text = script.innerHTML;
             let index = text.indexOf("var publicModel = {")
             if (0 <= index) {
                 index = text.indexOf("{", index);
                 let end = util.findIndexOfClosingBracket(text, index);
-                let json = JSON.parse(text.substring(index, end + 1));
-                this.findPageRestUrls(json);
-                return;
+                return JSON.parse(text.substring(index, end + 1));
             }
         };
     }    
 
-    findPageRestUrls(json) {
+    extractRestUrlsFromJson(json) {
         let topology = json.pageList.topology[0];
-        this.restUrls = new Map();
-        for(let page of json.pageList.pages) {
-            this.restUrls.set(
-                json.externalBaseUrl + "/" + page.pageUriSEO, 
-                topology.baseUrl + topology.parts.replace("{filename}",  page.pageJsonFileName)
-            )
-        }
+        let urlsFromPage = function(page) {
+            return { 
+                pageUrl: json.externalBaseUrl + "/" + page.pageUriSEO,
+                restUrl: topology.baseUrl + 
+                    topology.parts.replace("{filename}",  page.pageJsonFileName)
+            };
+        };
+        return json.pageList.pages
+            .map(page => urlsFromPage(page))
+            .reduce((acc, urls) => acc.set(urls.pageUrl, urls.restUrl), new Map());
     }
 
-    // returns the element holding the story content in a chapter
     findContent(dom) {
         return util.getElement(dom, "div");
     };
 
     fetchChapter(url) {
         let that = this;
-        let restUrl = this.restUrls.get(url);
+        let restUrl = this.mapPageUrltoRestUrl.get(url);
         return HttpClient.fetchJson(restUrl).then(function (handler) {
-            let content = that.findContextInJson(handler.json);
+            let content = that.findContentInJson(handler.json);
             return Promise.resolve(that.constructDoc(content, url));
         });
     }
     
-    findContextInJson(json) {
+    findContentInJson(json) {
         let wantedComponentName = json.structure.components[0].dataQuery.substring(1);
         return json.data.document_data[wantedComponentName].text;
     }
