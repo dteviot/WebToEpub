@@ -131,15 +131,17 @@ QUnit.test("removeDuplicateImages", function (assert) {
 
 QUnit.test("removeSizeParamsFromQuery", function (assert) {
     assert.equal(ImageCollector.removeSizeParamsFromQuery(""), "");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1"), "?a=1");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&z=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1"), "a=1");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&z=2"), "a=1&z=2");
     assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1"), "");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1"), "?a=1");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1&z=2"), "?z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2"), "?a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&w=2&z=2"), "?a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2&w=2"), "?a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2"), "?a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1"), "a=1");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1&z=2"), "z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2"), "a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&w=2&z=2"), "a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2&w=2"), "a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2"), "a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2&resize=615%2C907"), "a=1&z=2");
+    assert.equal(ImageCollector.removeSizeParamsFromQuery("resize=615%2C907&w=2&a=1&h=1&z=2"), "a=1&z=2");
 });
 
 QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
@@ -154,6 +156,15 @@ QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
 
     out = ImageCollector.removeSizeParamsFromWordPressQuery("https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&w=500&h=715&z=5");
     assert.equal(out, "https://bibliathetranslation.files.wordpress.com/2015/12/81welmj3wxl-_sl1500_.jpg?a=1&z=5");
+
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://i2.wp.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?resize=615 907&ssl=1");
+    assert.equal(out, "https://i2.wp.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?ssl=1");
+
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://i2.wp.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?resize=615%2C907&ssl=1");
+    assert.equal(out, "https://i2.wp.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?ssl=1");
+    
+    out = ImageCollector.removeSizeParamsFromWordPressQuery("https://i2.wp2.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?resize=615%2C907&ssl=1");
+    assert.equal(out, "https://i2.wp2.com/shintranslations.com/wp-content/uploads/2015/07/blushing-tiera.png?resize=615%2C907&ssl=1");
 });
 
 QUnit.test("findImageWrappingElement", function (assert) {

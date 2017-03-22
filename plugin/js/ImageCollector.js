@@ -310,22 +310,29 @@ class ImageCollector {
     static removeSizeParamsFromWordPressQuery(url) {
         let urlParser= document.createElement("a");
         urlParser.href = url;
-        if (urlParser.hostname.endsWith("files.wordpress.com")) {
-            let index = url.indexOf("?");
-            if (0 < index) {
-                let query = url.substring(index + 1);
-                return url.substring(0, index) + 
-                    ImageCollector.removeSizeParamsFromQuery(query);
-            }
+        let query = urlParser.search;
+        if (!util.isNullOrEmpty(query) && 
+            ImageCollector.isWordPressHostedFile(urlParser.hostname) ) {
+            let noQuestionMark = query.substring(1);
+            urlParser.search = ImageCollector.removeSizeParamsFromQuery(noQuestionMark);
+            return urlParser.href;
+        } else {
+            return url;
         }
-        return url;
+    }
+
+    static isWordPressHostedFile(hostname) {
+        return hostname.endsWith("files.wordpress.com") || hostname.endsWith(".wp.com");
     }
 
     static removeSizeParamsFromQuery(query) {
-        let newQuery = query.split("&")
-            .filter(s => (s !== "") && !s.startsWith("w=") && !s.startsWith("h="))
+        return query.split("&")
+            .filter(s => (s !== "") && !ImageCollector.isSizeParam(s))
             .join("&");
-        return (newQuery === "") ? "" : "?" + newQuery;
+    }
+
+    static isSizeParam(p) {
+        return p.startsWith("w=") || p.startsWith("h=") || p.startsWith("resize=");
     }
 
     /**
