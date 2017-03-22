@@ -74,8 +74,16 @@ class WixParser extends Parser{
     }
     
     findContentInJson(json) {
-        let wantedComponentName = json.structure.components[0].dataQuery.substring(1);
-        return json.data.document_data[wantedComponentName].text;
+        // find names of the document_data fields holding content
+        let contentFieldNames = json.structure.components
+            .filter(c => c.styleId === "txtNew")
+            .map(f => f.dataQuery.substring(1));
+ 
+        // get content   
+        let content = contentFieldNames.map(f => json.data.document_data[f].text);
+       
+        // assume longest content is the story
+        return content.reduce((a, b) => (a.length > b.length) ? a : b );        
     }
 
     constructDoc(content, url) {
