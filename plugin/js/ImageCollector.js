@@ -242,19 +242,24 @@ class ImageCollector {
     getImageDimensions(imageInfo) {
         return new Promise(function(resolve, reject){ // eslint-disable-line no-unused-vars
             let img = new Image();
+            let options = {type: imageInfo.mediaType};
+            let blob = new Blob([new Uint8Array(imageInfo.arraybuffer)], options);
+            let dataUrl = URL.createObjectURL(blob);
             img.onload = function() {
                 imageInfo.height = img.height;
                 imageInfo.width = img.width;
+                URL.revokeObjectURL(dataUrl);
                 resolve();
             }
             img.onerror = function(){
                 // If the image gives an error then set a general height and width
                 imageInfo.height = 1200;
                 imageInfo.width = 1600;
+                URL.revokeObjectURL(dataUrl);
                 resolve();
             }
             // start downloading image after event handlers are set
-            img.src = imageInfo.sourceUrl;
+            img.src = dataUrl;
         });
     }
 
