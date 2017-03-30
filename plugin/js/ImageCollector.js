@@ -309,9 +309,17 @@ class ImageCollector {
     *  Hook point to allow picking between high and low res images.
     */
     initialUrlToTry(imageInfo) {
-        return ImageCollector.removeSizeParamsFromWordPressQuery(imageInfo.wrappingUrl);
+        let isImageUrl = !ImageCollector.urlHasFragment(imageInfo.wrappingUrl);
+        let urlToTry = isImageUrl ? imageInfo.wrappingUrl : imageInfo.sourceUrl;
+        return ImageCollector.removeSizeParamsFromWordPressQuery(urlToTry);
     }
 
+    static urlHasFragment(url) {
+        let parser = document.createElement("a");
+        parser.href = url;
+        return !util.isNullOrEmpty(parser.hash);
+    }
+    
     static removeSizeParamsFromWordPressQuery(url) {
         let urlParser= document.createElement("a");
         urlParser.href = url;
