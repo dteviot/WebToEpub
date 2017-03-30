@@ -90,7 +90,7 @@ class GravityTalesParser extends Parser {
     }
 
     static fetchUrlsOfChapters(novelId, baseUri, fetchJson) {
-        let chapterGroupsUrl = `https://gravitytales.com/Novels/GetChapterGroups/${novelId}`;
+        let chapterGroupsUrl = `https://gravitytales.com/api/novels/chaptergroups/${novelId}`;
         return fetchJson(chapterGroupsUrl).then(function (handler) {
             return Promise.all(
                 handler.json.map(group => GravityTalesParser.fetchChapterListForGroup(novelId, group, fetchJson))
@@ -102,11 +102,11 @@ class GravityTalesParser extends Parser {
 
     static fetchChapterListForGroup(novelId, chapterGroup, fetchJson) {
         let groupId = chapterGroup.ChapterGroupId;
-        let chaptersUrl = `https://gravitytales.com/Novels/GetNovelChapters/${novelId}?groupId=${groupId}&page=0&count=25`;
+        let chaptersUrl = `https://gravitytales.com/api/novels/chaptergroup/${groupId}`;
         return fetchJson(chaptersUrl).then(function (handler) {
             return {
                 groupTitle: chapterGroup.Title,
-                chapters: handler.json.Chapters
+                chapters: handler.json
             };
         });
     }
