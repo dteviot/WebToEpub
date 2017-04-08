@@ -48,9 +48,9 @@ test("mergeChapterLists", function (assert) {
 
 function fetchJsonStub(url) {
     let lookup = new Map();
-    lookup.set("https://gravitytales.com/Novels/GetChapterGroups/1", [{ChapterGroupId:1, Title:"Group 1"},{ChapterGroupId:2,Title:"Group 2"}]);
-    lookup.set("https://gravitytales.com/Novels/GetNovelChapters/1?groupId=1&page=0&count=25", {Chapters: expectedChapterLists[0].chapters});
-    lookup.set("https://gravitytales.com/Novels/GetNovelChapters/1?groupId=2&page=0&count=25", {Chapters: expectedChapterLists[1].chapters});
+    lookup.set("https://gravitytales.com/api/novels/chaptergroups/1", [{ChapterGroupId:1, Title:"Group 1"},{ChapterGroupId:2,Title:"Group 2"}]);
+    lookup.set("https://gravitytales.com/api/novels/chaptergroup/1", expectedChapterLists[0].chapters);
+    lookup.set("https://gravitytales.com/api/novels/chaptergroup/2", expectedChapterLists[1].chapters);
     return Promise.resolve({ json: lookup.get(url) });
 }
 
