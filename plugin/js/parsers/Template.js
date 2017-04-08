@@ -88,4 +88,12 @@ class TemplateParser extends Parser{
         });
     }
     */
+
+    // Optional, called when user presses the "Pack EPUB" button.
+    // Implement if parser needs to do anything after user sets UI settings 
+    // but before collecting pages
+    /*
+    onStartCollecting() {
+    }
+    */
 }

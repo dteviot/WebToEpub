@@ -312,4 +312,8 @@ class Parser {
             window.showErrorMessage(error);
         });
     }
+
+    // Hook point, when need to do something when "Pack EPUB" pressed
+    onStartCollecting() {
+    }    
 }

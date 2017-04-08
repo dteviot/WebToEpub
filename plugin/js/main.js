@@ -107,6 +107,7 @@ var main = (function () {
 
     function fetchContentAndPackEpub() {
         main.getPackEpubButton().disabled = true;
+        parser.onStartCollecting();
         parser.fetchContent().then(function () {
             packEpub();
         }).catch(function (err) {
