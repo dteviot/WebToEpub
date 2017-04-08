@@ -11,7 +11,10 @@ class QidianParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "ol", e => e.className === "inline")
+        let menu = util.getElement(dom, "ul", e => e.className.includes("content-list"));
+        if (menu === null) {
+            menu = util.getElement(dom, "ol", e => e.className.startsWith("inline"));
+        }
         let chapters = (menu === null) ? [] : this.buildChapterList(menu);
         return Promise.resolve(chapters);
     };
