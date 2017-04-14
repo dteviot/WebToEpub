@@ -451,3 +451,29 @@ test("replaceInvalidElements", function (assert) {
     assert.equal(xhtml.getElementsByTagName("body")[0].outerHTML, 
         "<body xmlns=\"http://www.w3.org/1999/xhtml\"><p>SomeText</p><br /><p>More</p></body>");
 });
+
+test("unSuperScriptAlternateTranslations", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<h2>"+
+            "<span class=\"mw-headline\" id=\"Chapter_5_.E2.80.93_ZeusLightning_Thunder_and_OdinSeverance_Spear.2C_Twisted_Dragon_of_Destiny\">Chapter 5 – "+
+                "<span style=\"white-space: nowrap; position: relative;\">"+
+                    "<span style=\"position: absolute; font-size: .8em; top: -11px; left: 50%; white-space: nowrap; letter-spacing: normal; color: inherit; font-weight: inherit; font-style: inherit;\">"+
+                        "<span style=\"position: relative; left: -50%;\">Zeus</span>"+
+                    "</span>"+
+                    "<span style=\"display: inline-block; color: inherit; letter-spacing: normal; font-size: 1.0em; font-weight: inherit;\">Lightning Thunder</span>"+
+                "</span> and "+
+                "<span style=\"white-space: nowrap; position: relative;\">"+
+                    "<span style=\"position: absolute; font-size: .8em; top: -11px; left: 50%; white-space: nowrap; letter-spacing: normal; color: inherit; font-weight: inherit; font-style: inherit;\">"+
+                        "<span style=\"position: relative; left: -50%;\">Odin</span>"+
+                    "</span>"+
+                    "<span style=\"display: inline-block; color: inherit; letter-spacing: normal; font-size: 1.0em; font-weight: inherit;\">Severance Spear</span>"+
+                "</span>, Twisted Dragon of Destiny"+
+            "</span>"+
+        "</h2>"
+    );
+
+    let heading = util.getElement(dom, "h2");
+    BakaTsukiParser.unSuperScriptAlternateTranslations(heading);
+    let actual = heading.textContent;
+    assert.equal(actual, "Chapter 5 – Lightning Thunder (Zeus) and Severance Spear (Odin), Twisted Dragon of Destiny")
+});

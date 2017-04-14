@@ -131,6 +131,10 @@
 		"message": "Remove Duplicate Images:",
 		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
 	},
+	"__MSG_label_Remove_Superscript_From_Alternate_Translations__": {
+		"message": "Remove superscript from alternate translations",
+		"description": "Label for checkbox to convert superscripted alternate translations into inline text"
+	},
 	"__MSG_label_Series__": {
 		"message": "Series",
 		"description": "Label in front input for series Novel is part of"

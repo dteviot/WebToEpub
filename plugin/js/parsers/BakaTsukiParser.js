@@ -161,6 +161,7 @@ class BakaTsukiParser extends Parser{
 
     populateUI(dom) {  // eslint-disable-line no-unused-vars
         document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("imageSection").hidden = false;
         document.getElementById("outputSection").hidden = true;
         document.getElementById("translatorRow").hidden = false;
@@ -176,6 +177,9 @@ class BakaTsukiParser extends Parser{
         util.fixBlockTagsNestedInInlineTags(content);
         that.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
+        if (that.userPreferences.unSuperScriptAlternateTranslations.value) {
+            BakaTsukiParser.unSuperScriptAlternateTranslations(content);
+        }
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
@@ -396,6 +400,21 @@ class BakaTsukiParser extends Parser{
                 } while (walker.nextNode());
             };
         };
+    }
+
+    static unSuperScriptAlternateTranslations(element) {
+        for(let s of util.getElements(element, "span", s => BakaTsukiParser.isPsudoSuperScriptSpan(s))) {
+            let sibling = s.nextSibling;
+            if ((sibling !== null) && (sibling.tagName.toLowerCase() === "span")) {
+                sibling.textContent = sibling.textContent + " (" + s.textContent + ")";
+                s.remove();
+            }
+        }
+    }
+
+    static isPsudoSuperScriptSpan(element) {
+        let top = element.style.top;
+        return (top != null) && (0 < top.length) && (top[0] === "-");
     }
 
     recordTarget(node, targets, zipHref) {
