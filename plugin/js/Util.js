@@ -104,15 +104,9 @@ var util = (function () {
         }
     }
 
-    var removeNode = function (node) {
-        if (node.parentNode != null) {
-            node.parentNode.removeChild(node)
-        }
-    }
-
     // delete all nodes in the supplied array
     var removeElements = function (elements) {
-        elements.forEach(e => removeNode(e));
+        elements.forEach(e => e.remove());
     }
 
     var removeComments = function (root) {
@@ -134,14 +128,14 @@ var util = (function () {
     var removeTrailingWhiteSpace = function(element) {
         let children = element.childNodes;
         while ((0 < children.length) && util.isElementWhiteSpace(children[children.length - 1])) {
-            util.removeNode(children[children.length - 1]);
+            children[children.length - 1].remove();
         }
     }
 
     var removeLeadingWhiteSpace = function(element) {
         let children = element.childNodes;
         while ((0 < children.length) && util.isElementWhiteSpace(children[0])) {
-            util.removeNode(children[0]);
+            children[0].remove();
         }
     }
 
@@ -230,7 +224,7 @@ var util = (function () {
         parent.insertBefore(replacement, element);
         util.moveChildElements(element, replacement);
         util.copyAttributes(element, replacement);
-        util.removeNode(element);
+        element.remove();
     }
 
     var moveChildElements = function(from, to) {
@@ -262,7 +256,7 @@ var util = (function () {
         };
 
         for(let g of garbage) {
-            util.removeNode(g);
+            g.remove();
         };
     }
 
@@ -714,7 +708,6 @@ var util = (function () {
         extractHostName: extractHostName,
         addToDocBody: addToDocBody,
         setBaseTag: setBaseTag,
-        removeNode: removeNode,
         removeElements: removeElements,
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,

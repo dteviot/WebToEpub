@@ -104,7 +104,7 @@ class Parser {
 
             for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
                 .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
-                util.removeNode(unwanted);
+                unwanted.remove();
             };
         }
     }

@@ -222,7 +222,7 @@ class BakaTsukiParser extends Parser{
                 };
             };
             if (that.isTableContainsHyperLinks(endTable)) {
-                util.removeNode(endTable);
+                endTable.remove();
             };
         }
     }
@@ -257,7 +257,7 @@ class BakaTsukiParser extends Parser{
 
         // throw away rest of gallery  (note sometimes there are multiple galleries)
         for(let node of garbage) {
-            util.removeNode(node);
+            node.remove();
         }
     }
 
@@ -266,7 +266,7 @@ class BakaTsukiParser extends Parser{
         while ((previous != null) && !util.isHeaderTag(previous)) {
             let temp = previous.previousElementSibling;
             if (previous.tagName.toLowerCase() === "p") {
-                util.removeNode(previous);
+                previous.remove();
             }
             previous = temp;
         }
@@ -292,7 +292,7 @@ class BakaTsukiParser extends Parser{
                 for(let j = node.childNodes.length - 1; 0 <= j; --j) {
                     that.insertAfter(node, node.childNodes[j]);
                 }
-                util.removeNode(node);
+                node.remove();
                 --i;
             }
         }

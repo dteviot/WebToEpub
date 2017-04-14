@@ -109,9 +109,9 @@ class ReadLightNovelParser extends Parser {
         for(let share of shareLinks) {
             let parent = share.parentNode;
             if (parent.tagName.toLowerCase() === "p") {
-                util.removeNode(parent);
+                parent.remove();
             }
-            util.removeNode(share);
+            share.remove();
         }
     }
 

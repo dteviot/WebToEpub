@@ -87,7 +87,7 @@ class UltimaguilParser extends Parser {
                     while(0 < div.childNodes.length) {
                         parent.insertBefore(div.childNodes[0], read_content);
                     };
-                    util.removeNode(div);
+                    div.remove();
                 } else {
                     parent.insertBefore(node, read_content);
                 };
@@ -101,7 +101,7 @@ class UltimaguilParser extends Parser {
             let link = util.getElement(header, "a");
             if (link !== null) {
                 header.appendChild(document.createTextNode(link.innerText));
-                util.removeNode(link);
+                link.remove();
             };
         };
     }

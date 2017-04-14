@@ -68,7 +68,7 @@ class ZirusMusingsParser extends Parser {
         // remove the previous | TOC | Next hyperlinks
         let toc = this.findTocElement(element);
         if (toc !== null) {
-            util.removeNode(toc.parentNode);
+            toc.parentNode.remove();
         };
     }
 

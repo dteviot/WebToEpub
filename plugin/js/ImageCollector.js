@@ -408,7 +408,7 @@ class ImageTagReplacer {
         let parent = that.wrappingElement.parentElement;
         if ((imageInfo != null) && (parent != null)) {
             if (that.isDuplicateImageToRemove(imageInfo)) {
-                util.removeNode(that.wrappingElement);
+                that.wrappingElement.remove();
             } else {
                 that.insertImageInLegalParent(parent, imageInfo);
             };
@@ -432,7 +432,7 @@ class ImageTagReplacer {
         let newImage = imageInfo.createImageElement(that.userPreferences);
         nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
         util.removeHeightAndWidthStyleFromParents(newImage);
-        util.removeNode(that.wrappingElement);
+        that.wrappingElement.remove();
     }
 
     /**

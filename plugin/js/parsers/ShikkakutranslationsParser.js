@@ -63,7 +63,7 @@ class ShikkakutranslationsParser extends Parser {
         util.getElements(element, "a")
             .filter(l => util.getElements(l, "img").length === 0)
             .map(l => that.findParentNodeOfChapterLinkToRemoveAt(l))
-            .forEach(u => util.removeNode(u));
+            .forEach(u => u.remove());
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

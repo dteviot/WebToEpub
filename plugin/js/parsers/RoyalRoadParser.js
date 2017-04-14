@@ -45,7 +45,7 @@ class RoyalRoadParser extends Parser{
             let child = content.children[i];
             let tagName = child.tagName.toLowerCase();
             if ((tagName !== "h1") && ((tagName !== "div") || !child.className.startsWith("chapter-inner"))) {
-                util.removeNode(child);
+                child.remove();
             }
         }
         this.removeNextAndPreviousChapterHyperlinks(content);
@@ -94,7 +94,7 @@ class RoyalRoadParser extends Parser{
         );
         let node = null;
         while ((node = walker.nextNode())) {
-            util.removeNode(node);
+            node.remove();
         };
     }
 
