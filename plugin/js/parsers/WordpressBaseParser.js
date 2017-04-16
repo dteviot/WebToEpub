@@ -12,7 +12,7 @@ parserFactory.register("yoraikun.wordpress.com", function() { return new Wordpre
 
 parserFactory.registerRule(
     function(url, dom) {
-        return (WordpressBaseParser.FindContentElement(dom) != null) &&
+        return (WordpressBaseParser.findContentElement(dom) != null) &&
             (WordpressBaseParser.findChapterTitleElement(dom) != null); 
     }, 
     function() { return new WordpressBaseParser() }
@@ -36,13 +36,21 @@ class WordpressBaseParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    static FindContentElement(dom) {
-        return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
+    static findContentElement(dom) {
+        let content = util.getElement(dom, "div", e => e.className.includes("entry-content"));
+        if (content === null) {
+            content = util.getElement(dom, "div", e => e.className.startsWith("post-content"));
+        }
+        return  content;
     }
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return WordpressBaseParser.FindContentElement(dom);
+        let content = WordpressBaseParser.findContentElement(dom);
+        if (content === null) {
+            content = BlogspotParser.findContentElement(dom);
+        }
+        return content;
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -56,11 +64,22 @@ class WordpressBaseParser extends Parser {
         if (elements.length === 0) {
             elements = dom.getElementsByClassName("page-title");
         }
-        return (elements.length === 0) ? null : elements[0];
+        let title = (elements.length === 0) ? null : elements[0];
+        if (title === null) {
+            title = util.getElement(dom, "header", e => e.className === "post-title");
+            if (title !== null) {
+                title = util.getElement(title, "h1");
+            }
+        }
+        return title;
     }
 
     findChapterTitle(dom) {
-        return WordpressBaseParser.findChapterTitleElement(dom);
+        let title = WordpressBaseParser.findChapterTitleElement(dom);
+        if (title === null) {
+            title = BlogspotParser.findChapterTitleElement(dom);
+        }
+        return title;
     }
 
     populateUI(dom) {

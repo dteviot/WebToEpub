@@ -7,7 +7,7 @@ parserFactory.register("sousetsuka.com", function() { return new BlogspotParser(
 parserFactory.registerRule(
     function(url, dom) {
         return (util.extractHostName(url).indexOf(".blogspot.") != -1) ||
-            (BlogspotParser.FindContentElement(dom) != null); 
+            (BlogspotParser.findContentElement(dom) != null); 
     }, 
     function() { return new BlogspotParser() }
 );
@@ -31,7 +31,7 @@ class BlogspotParser extends Parser {
         return Promise.resolve(chapters);
     }
 
-    static FindContentElement(dom) {
+    static findContentElement(dom) {
         return util.getElement(dom, "div", e => e.className.startsWith("post-body"));
     }
 
@@ -43,7 +43,7 @@ class BlogspotParser extends Parser {
             return ImgurParser.convertGalleryToConventionalForm(dom);
         }
         //---------------------------------------------------
-        let content = BlogspotParser.FindContentElement(dom);
+        let content = BlogspotParser.findContentElement(dom);
         if (content == null) {
             content = util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
         }
@@ -54,12 +54,16 @@ class BlogspotParser extends Parser {
         this.replaceWeirdPElements(content);
     }
 
-    findChapterTitle(dom) {
+    static findChapterTitleElement(dom) {
         let title = util.getElement(dom, "h3", e => e.className.startsWith("post-title"));
         if (title == null) {
             title = util.getElement(dom, "h1", e => e.className.startsWith("entry-title"));
         }
         return title;
+    }
+
+    findChapterTitle(dom) {
+        return BlogspotParser.findChapterTitleElement(dom);
     }
 
     /**
