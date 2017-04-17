@@ -9,6 +9,7 @@ class ChapterUrlsUI {
     connectButtonHandlers() {
         ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
         ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
+        ChapterUrlsUI.getReverseChapterUrlsOrderButton().onclick = this.reverseUrls.bind(this);
         ChapterUrlsUI.getEditChapterUrlsButton().onclick = this.setEditInputMode.bind(this);
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
     }
@@ -67,6 +68,11 @@ class ChapterUrlsUI {
     */
     static getApplyChangesButton() {
         return document.getElementById("applyChangesButton");
+    }
+
+    /**  @private */
+    static getReverseChapterUrlsOrderButton() {
+        return document.getElementById("reverseChapterUrlsOrderButton");
     }
 
     /** 
@@ -151,6 +157,7 @@ class ChapterUrlsUI {
         document.getElementById("coverUrlSection").hidden = !toTable;
         ChapterUrlsUI.getSelectAllUrlsButton().hidden = !toTable;
         ChapterUrlsUI.getUnselectAllUrlsButton().hidden = !toTable;
+        ChapterUrlsUI.getReverseChapterUrlsOrderButton().hidden = !toTable;
         ChapterUrlsUI.getEditChapterUrlsButton().hidden = !toTable;
         ChapterUrlsUI.getApplyChangesButton().hidden = toTable;
     }
@@ -165,6 +172,17 @@ class ChapterUrlsUI {
             this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
             this.usingTable = true;
             this.setVisibileUI(this.usingTable);
+        } catch (err) {
+            window.showErrorMessage(err);
+        }
+    }
+
+    /** @private */
+    reverseUrls() {
+        try {
+            let chapters = this.parser.chapters;
+            chapters.reverse();
+            this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
         } catch (err) {
             window.showErrorMessage(err);
         }
