@@ -32,7 +32,14 @@ class BlogspotParser extends Parser {
     }
 
     static findContentElement(dom) {
-        return util.getElement(dom, "div", e => e.className.startsWith("post-body"));
+        let content = util.getElement(dom, "div", e => e.className.startsWith("post-body"));
+        if (content === null ) {
+            content = util.getElement(dom, "div", e => e.className === "pagepost");
+            if (content !== null) {
+                content = util.getElement(content, "div", e => e.className === "cover");
+            }
+        }
+        return content;
     }
 
     findContent(dom) {
