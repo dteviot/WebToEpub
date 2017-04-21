@@ -369,6 +369,9 @@ var util = (function () {
         }
  
         let mergeStyles = function(parentStyle, currentStyle, styleProperty) {
+            if (currentStyle == null) {
+                return parentStyle;
+            }
             let c = currentStyle[styleProperty];
             return c != "" ? c : parentStyle; 
         } 
