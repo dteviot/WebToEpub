@@ -61,6 +61,7 @@ class Parser {
         util.removeComments(element);
         util.removeElements(util.getElements(element, "noscript"));
         util.removeUnwantedWordpressElements(element);
+        util.removeShareLinkElements(element);
         this.removeNextAndPreviousChapterHyperlinks(element);
         util.removeLeadingWhiteSpace(element);
     };

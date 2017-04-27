@@ -187,6 +187,10 @@ var util = (function () {
         util.removeElements(util.getElements(element, "ul",  e => e.className === "post-categories"));
     }
 
+    var removeShareLinkElements = function(contentElement) {
+        util.removeElements(util.getElements(contentElement, "div", e => e.className === "sharepost"));
+    }
+
     var prepForConvertToXhtml = function(element) {
         this.replaceCenterTags(element);
         this.replaceUnderscoreTags(element);
@@ -721,6 +725,7 @@ var util = (function () {
         removeHeightAndWidthStyleFromParents: removeHeightAndWidthStyleFromParents,
         removeHeightAndWidthStyle: removeHeightAndWidthStyle,
         removeUnwantedWordpressElements: removeUnwantedWordpressElements,
+        removeShareLinkElements: removeShareLinkElements,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,
