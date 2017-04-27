@@ -36,5 +36,19 @@ class WikipediaParser extends Parser{
 
     extractLanguage(dom) {
         return util.getElement(dom, "html").getAttribute("lang");
-    };    
+    };
+
+    removeUnwantedElementsFromContentElement(element) {
+        super.removeUnwantedElementsFromContentElement(element);
+        this.removeEditElements(element);
+        this.removeExternalLinkTables(element);
+    }
+
+    removeEditElements(element) {
+        util.removeElements(util.getElements(element, "span", e => e.className === "mw-editsection"));
+    }
+
+    removeExternalLinkTables(element) {
+        util.removeElements(util.getElements(element, "div", e => e.className.includes("navbox")));
+    }
 }
