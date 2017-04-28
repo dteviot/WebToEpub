@@ -46,8 +46,16 @@ class EpubPacker {
         return (fileName.endsWith(extension)) ? fileName : fileName + extension;
     }
 
-    // write blob to "Downloads" directory
+    /** write blob to "Downloads" directory */
     static save(blob, fileName) {
+        if (typeof(browser) === "undefined") {
+            EpubPacker.saveOnChrome(blob, fileName)
+        } else {
+            EpubPacker.saveOnFirefox(blob, fileName)
+        }
+    }
+
+    static saveOnChrome(blob, fileName) {
         var clickEvent = new MouseEvent("click", {
             "view": window,
             "bubbles": true,
@@ -59,6 +67,17 @@ class EpubPacker {
         a.download = fileName;
         a.dispatchEvent(clickEvent);
         EpubPacker.scheduleDataUrlForDisposal(dataUrl);
+    }
+
+    static saveOnFirefox(blob, fileName) {
+        let options = {
+            url: URL.createObjectURL(blob),
+            filename: fileName,
+            saveAs: true
+        };
+        var downloading = browser.downloads.download(options);       // eslint-disable-line no-undef
+        var cleanup = function() { EpubPacker.scheduleDataUrlForDisposal(options.url); };
+        downloading.then(cleanup, cleanup);
     }
 
     static scheduleDataUrlForDisposal(dataUrl) {
