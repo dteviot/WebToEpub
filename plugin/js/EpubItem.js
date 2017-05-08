@@ -163,6 +163,11 @@ class ImageInfo extends EpubItem {
         if (fileName == null) {
             let split = that.mediaType.split("/");
             suffix = split[split.length - 1];
+
+            // special case
+            if (suffix === "svg+xml") {
+                suffix = "svg";
+            }
         };
         return suffix;
     }
