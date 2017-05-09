@@ -42,6 +42,7 @@ class WikipediaParser extends Parser{
         super.removeUnwantedElementsFromContentElement(element);
         this.removeEditElements(element);
         this.removeExternalLinkTables(element);
+        this.removeExternalHyperlinks(element);
     }
 
     removeEditElements(element) {
@@ -50,5 +51,27 @@ class WikipediaParser extends Parser{
 
     removeExternalLinkTables(element) {
         util.removeElements(util.getElements(element, "div", e => e.className.includes("navbox")));
+    }
+
+    removeExternalHyperlinks(element) {
+        for(let a of util.getElements(element, "a", e => !this.isLinkToKeep(e))) {
+            this.replaceHyperlinkWithTextContent(a);
+        }
+    }
+    
+    isLinkToKeep(hyperlink) {
+        return !util.isNullOrEmpty(hyperlink.hash) ||
+            (util.getElement(hyperlink, "img") !== null) || 
+            (util.getElement(hyperlink, "imgage") !== null);
+    }
+
+    replaceHyperlinkWithTextContent(hyperlink) {
+        let newText = hyperlink.textContent;
+        if (util.isNullOrEmpty(newText)) {
+            hyperlink.remove();
+        } else {
+            let textNode = hyperlink.ownerDocument.createTextNode(newText);
+            hyperlink.replaceWith(textNode);
+        }
     }
 }
