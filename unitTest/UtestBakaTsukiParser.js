@@ -219,6 +219,9 @@ QUnit.test("replaceImageTags", function (assert) {
            "<p><i><b>"+
                 "<img src=\"https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif\" >" +
            "</b></i></p>"+
+           "<p><i><b>"+
+                "this image <img src=\"https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif\" > should be inline" +
+           "</b></i></p>"+
         "</x>",
         "text/html"
     );
@@ -286,6 +289,9 @@ QUnit.test("replaceImageTags", function (assert) {
              "<p></p>"+
              "<div><img src=\"../Images/0003_star_on.gif\" alt=\"\" /><!--  https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif\  --></div>"+
            "<p><i><b></b></i></p>"+
+           "<p><i><b>"+
+                "this image <span><img class=\"inline\" src=\"../Images/0003_star_on.gif\" alt=\"\" /><!--  https://www.baka-tsuki.org/project/index.php?title=File:star_on.gif\  --></span> should be inline" +
+           "</b></i></p>"+
         "</x>");
 });
 

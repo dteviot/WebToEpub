@@ -87,9 +87,9 @@ class EpubMetaInfo {
         "  margin: 0;\r"+
         "}\r"+
 
-        // In case there are images in img tags. It's up to you
         "img {\r"+
         "   display: block;\r"+
+        "   min-height: 1em;\r"+
         "   max-height: 100%;\r"+
         "   max-width: 100%;\r"+
         "   padding-bottom: 0;\r"+
@@ -100,6 +100,14 @@ class EpubMetaInfo {
         "   margin-right: auto;\r"+
         "   margin-bottom: 2%;\r"+
         "   margin-top: 2%;\r"+
+        "}\r"+
+
+        // images embedded in sentances (e.g. Emoji)
+        "img.inline {\r"+
+        "   display: inline;\r"+
+        "   min-height: 1em;\r"+
+        "   margin-bottom: 0;\r"+
+        "   margin-top: 0;\r"+
         "}\r"+
 
         // To make hr tags more visible. BT doesn't use them very often but other sites might.

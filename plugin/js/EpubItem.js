@@ -240,7 +240,7 @@ class ImageInfo extends EpubItem {
             return util.createSvgImageElement(this.getZipHref(), this.width, this.height, 
                 this.wrappingUrl, userPreferences.includeImageSourceUrl.value);
         } else {
-            return this.createImgImageElement(this.getZipHref(), this.wrappingUrl);
+            return this.createImgImageElement("div");
         }
     }
 
@@ -251,17 +251,22 @@ class ImageInfo extends EpubItem {
             MIN_SVG_IMAGE_DIMENSION <= this.height;
     }
 
-    createImgImageElement(src, origin) {
+    createImgImageElement(wrappingTag) {
+        let src = this.getZipHref();
+        let origin = this.wrappingUrl;
         let doc = util.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
-        let div = doc.createElementNS(util.XMLNS, "div");
-        body.appendChild(div);
+        let wrapper = doc.createElementNS(util.XMLNS, wrappingTag);
+        body.appendChild(wrapper);
         var img = document.createElementNS(util.XMLNS,"img");
+        if (wrappingTag === "span") {
+            img.className = "inline";
+        }
         img.src = util.makeRelative(src);
         img.alt = "";
-        div.appendChild(img);
-        div.appendChild(util.createComment(doc, origin));
-        return div;
+        wrapper.appendChild(img);
+        wrapper.appendChild(util.createComment(doc, origin));
+        return wrapper;
     }
 
     *chapterInfo() {

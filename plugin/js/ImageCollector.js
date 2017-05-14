@@ -415,24 +415,53 @@ class ImageTagReplacer {
         };
     }
 
-    /**
-     * @private
-     */
+    /** @private */
     insertImageInLegalParent(parent, imageInfo) {
-        let that = this;
+        if (this.isImageInline(imageInfo)) {
+            this.insertInlineImageInLegalParent(imageInfo);
+        } else {
+            this.insertBlockImageInLegalParent(parent, imageInfo);
+        }
+    }
+
+    /** @private */
+    isImageInline(imageInfo) {
+        const MAX_INLINE_IMAGE_HEIGHT = 200;
+        let parent = this.wrappingElement;
+        while((parent != null) && util.isInlineElement(parent)) {
+            parent = parent.parentNode;
+        }
+        return this.isParagraph(parent) &&
+            !util.isNullOrEmpty(parent.textContent) &&
+            (imageInfo.height <= MAX_INLINE_IMAGE_HEIGHT);
+    }
+
+    /** @private */
+    isParagraph(element) {
+        return (element != null) && (element.tagName.toLowerCase() === "p")
+    }
+
+    /** @private */
+    insertInlineImageInLegalParent(imageInfo) {
+        let newImage = imageInfo.createImgImageElement("span");
+        this.wrappingElement.replaceWith(newImage);
+    }
+
+    /** @private */
+    insertBlockImageInLegalParent(parent, imageInfo) {
         // Under XHTML, <div> not allowed to be a child of a <p> element, (or <i>, <u>, <s> etc.)
-        let nodeAfter = that.wrappingElement;
+        let nodeAfter = this.wrappingElement;
         while (util.isInlineElement(parent) && (parent.parentNode != null)) {
             nodeAfter = parent;
             parent = parent.parentNode;
         };
-        if (parent.tagName.toLowerCase() === "p") {
+        if (this.isParagraph(parent)) {
             nodeAfter = parent;
         };
-        let newImage = imageInfo.createImageElement(that.userPreferences);
+        let newImage = imageInfo.createImageElement(this.userPreferences);
         nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
         util.removeHeightAndWidthStyleFromParents(newImage);
-        that.wrappingElement.remove();
+        this.wrappingElement.remove();
     }
 
     /**
