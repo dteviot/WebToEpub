@@ -51,6 +51,10 @@
         "message": "Thiết đặt stylesheet về mặc định",
         "description": ""
     },
+    "__MSG_button_Reverse_Chapter_Urls_Order__": {
+        "message": "Đảo Ngược Vị Trí Đường Dẫn Chương",
+        "description": ""
+    },
     "__MSG_button_Select_All__": {
         "message": "Chọn Tất Cả",
         "description": ""
@@ -73,6 +77,10 @@
     },
     "__MSG_column_URL__": {
         "message": "Đường dẫn",
+        "description": ""
+    },
+    "__MSG_label_Advanced_Options_Visible_By_Default__": {
+        "message": "Mặc Định Hiển Thị Tùy Chọn Nâng Cao",
         "description": ""
     },
     "__MSG_label_Author__": {
@@ -119,8 +127,16 @@
         "message": "Ngôn Ngữ",
         "description": ""
     },
+    "__MSG_label_Manually_Select_Parser__": {
+        "message": "Chọn Parser Bằng Tay",
+        "description": ""
+    },
     "__MSG_label_Remove_Duplicate_Images__": {
         "message": "Loại Bỏ Ảnh Trùng Lặp:",
+        "description": ""
+    },
+    "__MSG_label_Remove_Superscript_From_Alternate_Translations__": {
+        "message": "Loại Bỏ Ký Tự Trên Khỏi Từ",
         "description": ""
     },
     "__MSG_label_Series__": {
