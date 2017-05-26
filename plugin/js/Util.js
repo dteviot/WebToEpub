@@ -145,6 +145,10 @@ var util = (function () {
         util.removeEventHandlers(element);
     }
 
+    var removeMicrosoftWordCrapElements = function(element) {
+        util.removeElements(util.getElements(element, "O:P"));
+    }
+
     /**
     * @todo expand to remove ALL event handlers
     */
@@ -721,6 +725,7 @@ var util = (function () {
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
+        removeMicrosoftWordCrapElements: removeMicrosoftWordCrapElements,
         removeEventHandlers: removeEventHandlers,
         removeHeightAndWidthStyleFromParents: removeHeightAndWidthStyleFromParents,
         removeHeightAndWidthStyle: removeHeightAndWidthStyle,

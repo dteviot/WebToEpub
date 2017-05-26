@@ -29,6 +29,18 @@ test("removeScriptableElements", function (assert) {
     assert.equal(content.innerHTML, "<div><h1>H1</h1></div><div>    \n\n\n</div>");
 });
 
+test("removeMicrosoftWordCrapElements", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<div><h1>H1</h1></div>" +
+        "<p>text<o:p></o:p></p>" +
+        "<div>    \n\n\n</div>"
+    );
+    let content = dom.body.cloneNode(true);
+    util.removeMicrosoftWordCrapElements(content);
+
+    assert.equal(content.innerHTML, "<div><h1>H1</h1></div><p>text</p><div>    \n\n\n</div>");
+});
+
 test("prepForConvertToXhtml", function (assert) {
     let dom = TestUtils.makeDomWithBody(
         "<p>Normal <u id=\"test1\">underline <i>italic</i></u></p>" +

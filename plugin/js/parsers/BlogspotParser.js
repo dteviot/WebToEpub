@@ -57,10 +57,6 @@ class BlogspotParser extends Parser {
         return content;
     }
 
-    customRawDomToContentStep(chapter, content) {
-        this.replaceWeirdPElements(content);
-    }
-
     static findChapterTitleElement(dom) {
         let title = util.getElement(dom, "h3", e => e.className.startsWith("post-title"));
         if (title == null) {
@@ -71,15 +67,6 @@ class BlogspotParser extends Parser {
 
     findChapterTitle(dom) {
         return BlogspotParser.findChapterTitleElement(dom);
-    }
-
-    /**
-    *  http://skythewood.blogspot.com/ has <o:p> nodes
-    *  I think they're supposed to be <p> nodes, but there's
-    *  no 'o' namespace
-    */
-    replaceWeirdPElements(content) {
-        util.removeElements(util.getElements(content, "O:P"));
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
