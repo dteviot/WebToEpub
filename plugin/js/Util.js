@@ -597,7 +597,7 @@ var util = (function () {
     var moveIfParent = function(element, parentTag) {
         let parent = element.parentNode;
         if ((parent.tagName.toLowerCase() === parentTag) &&
-            (parent.innerText.length  < 200)) {
+            (parent.textContent.length  < 200)) {
             return parent;
         }
         return element;

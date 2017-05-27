@@ -15,6 +15,9 @@ class McStoriesParser extends Parser {
     getChapterUrls(dom) {
         let chapters = [];
         let chaptersElement = util.getElement(dom, "table", e => (e.id === "index") );
+        if (chaptersElement === null) {
+            chaptersElement = util.getElement(dom, "div", e => (e.className === "chapter") );
+        }
         if (chaptersElement !== null) {
             chapters = util.hyperlinksToChapterList(chaptersElement);
         }
