@@ -265,7 +265,9 @@ class ImageCollector {
 
     fetchImage(imageInfo, progressIndicator) {
         let that = this;
-        return HttpClient.wrapFetch(that.initialUrlToTry(imageInfo)).then(function (xhr) {
+        let initialUrl = this.initialUrlToTry(imageInfo);
+        this.urlIndex.set(initialUrl, imageInfo.index);
+        return HttpClient.wrapFetch(initialUrl).then(function (xhr) {
             return that.findImageFileUrl(xhr, imageInfo);
         }).then(function (xhr) {
             imageInfo.mediaType = xhr.contentType;
@@ -282,13 +284,12 @@ class ImageCollector {
     }
 
     findImageFileUrl(xhr, imageInfo) {
-        let that = this;
         // with Baka-Tsuki, the link wrapping the image will return an HTML
         // page with a set of images.  We need to pick the desired image
         if (xhr.isHtml()) {
             // find URL of wanted image file on html page
             // if we can't find one, just use the original image.
-            let temp = that.selectImageUrlFromImagePage(xhr.responseXML);
+            let temp = this.selectImageUrlFromImagePage(xhr.responseXML);
             if (temp != null) {
                 imageInfo.sourceUrl = temp;
                 this.urlIndex.set(temp, imageInfo.index);
@@ -297,6 +298,7 @@ class ImageCollector {
         } else {
             // page wasn't HTML, so assume is actual image
             imageInfo.sourceUrl = xhr.response.url;
+            this.urlIndex.set(xhr.response.url, imageInfo.index);
             return Promise.resolve(xhr);
         }
     }
