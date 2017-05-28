@@ -36,7 +36,14 @@ class EpubItem {
     }
 
     fileContentForEpub() {
-        return util.xmlToString(this.makeChapterDoc());
+        let xml = util.xmlToString(this.makeChapterDoc());
+        if (util.isXhtmlInvalid(xml)) {
+            let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
+                [this.chapterTitle, this.sourceUrl]
+            );
+            util.logError(errorMsg);
+        }
+        return xml;
     }
 
 

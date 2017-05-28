@@ -635,6 +635,12 @@ var util = (function () {
            ((element.type === "text") || (element.type === "url"));
     }
 
+    var isXhtmlInvalid = function (xhtmlAsString) {
+        let doc = new DOMParser().parseFromString(xhtmlAsString, "application/xml");
+        let parsererror = util.getElement(doc, "parsererror");
+        return (parsererror === null) ? null : parsererror.textContent;
+    }
+
     /**
     * @todo: replace with something better
     *  for time being, just show to user.
@@ -774,6 +780,7 @@ var util = (function () {
         isHeaderTag: isHeaderTag,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
+        isXhtmlInvalid: isXhtmlInvalid,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket, 
         syncLoadSampleDoc : syncLoadSampleDoc,

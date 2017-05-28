@@ -352,3 +352,22 @@ test("findIndexOfClosingBracket", function (assert) {
     // unbalanced case
     assert.equal(test("a", 0), "{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}");
 });
+
+test("isXhtmlInvalid", function (assert) {
+    let invalidXhtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+        "<head><title></title></head>" +
+        "<body><h1></h1>the<p></p>" +
+        "<this one,=\"\"></body></html>";
+
+    let actual = util.isXhtmlInvalid(invalidXhtml);
+    assert.ok(actual !== null);
+
+    let validXhtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+        "<head><title></title></head>" +
+        "<body><h1></h1>the<p></p>" +
+        "</body></html>";
+    actual = util.isXhtmlInvalid(validXhtml);
+    assert.equal(actual, null);
+});
