@@ -207,3 +207,61 @@ QUnit.test("findImageWrappingElement", function (assert) {
     wrapper = imageCollector.findImageWrappingElement(dom.getElementById("i004"));
     assert.equal(wrapper.id, "a004");
 });
+
+QUnit.test("replaceHyperlinksToImagesWithImages", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<a href=\"http://dummy.com/K4CZyyP.png\">Insert image</a>" +
+        "<a href=\"http://imgur.com/K4CZyyP.jpg\">Insert image</a>" +
+        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">Insert image</a>" +
+        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+            "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+        "</a>" +
+        "<a href=\"http://i.imgur.com/help.html\"></a>"
+    );
+
+    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body);
+    assert.equal(dom.body.innerHTML, 
+        "<img src=\"http://dummy.com/K4CZyyP.png\">" +
+        "<img src=\"http://imgur.com/K4CZyyP.jpg\">" +
+        "<img src=\"http://i.imgur.com/K4CZyyP.jpg\">" +
+        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+            "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+        "</a>" +
+        "<a href=\"http://i.imgur.com/help.html\"></a>"
+    );
+});
+
+QUnit.test("dontReplaceNonImageLinksWithImages", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>" +
+        "<a class=\"sd-link-color\"></a>"
+    );
+    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body);
+    assert.equal(dom.body.innerHTML, 
+        "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>" +
+        "<a class=\"sd-link-color\"></a>"
+    );
+});
+
+QUnit.test("getExtensionFromUrlFilename", function (assert) {
+    let hyperlink = document.createElement("a");
+    hyperlink.href = "http://dummy.com/K4CZyyP.jpg";
+    let actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "jpg");
+    
+    hyperlink.href = "http://dummy.com/K4CZyyP.png/";
+    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "png");
+    
+    hyperlink.href = "http://dummy.com/K4CZyyP.jpeg?src=dummy.txt";
+    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "jpeg");
+    
+    hyperlink.href = "http://dummy.com/folder/K4CZyyP.gif?src=dummy.txt";
+    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "gif");
+    
+    hyperlink.href = "http://dummy.com/folder";
+    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "");
+});

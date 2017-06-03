@@ -266,6 +266,7 @@ class Parser {
                     let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [chapter.sourceUrl]);
                     throw new Error(errorMsg);
                 }
+                content = ImageCollector.replaceHyperlinksToImagesWithImages(content);
                 that.imageCollector.findImagesUsedInDocument(content);
                 return that.imageCollector.fetchImages(() => { });
             }); 

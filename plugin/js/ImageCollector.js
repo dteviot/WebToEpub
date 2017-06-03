@@ -366,6 +366,50 @@ class ImageCollector {
             return null;
         }
     }
+
+    static replaceHyperlinksToImagesWithImages(content) {
+        let toReplace = util.getElements(content, "a", ImageCollector.isHyperlinkToImage);
+        for(let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
+            ImageCollector.replaceHyperlinkWithImg(hyperlink);
+        }
+        return content;
+    }
+
+    /** @private */
+    static isHyperlinkToImage(hyperlink) {
+        let extension = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+        return extension === "png" ||
+        extension === "jpg" ||
+        extension === "jpeg" ||
+        extension === "gif" ||
+        extension === "svg";
+    }
+
+    /** @private */
+    static getExtensionFromUrlFilename(hyperlink) {
+       if (hyperlink.pathname === "") {
+           return "";
+       }
+       let split = hyperlink.pathname.split("/");
+       let filename = split[split.length - 1].toLowerCase();
+       if (filename === "") {
+           filename = split[split.length - 2].toLowerCase();
+       }
+       split = filename.split(".");
+       return (split.length < 2) ? "" : split[split.length - 1];
+    }
+
+    /** @private */
+    static linkContainsImageTag(hyperlink) {
+        return (util.getElements(hyperlink, "img").length !== 0);
+    }
+
+    /** @private */
+    static replaceHyperlinkWithImg(hyperlink) {
+        let img = hyperlink.ownerDocument.createElement("img");
+        img.src = hyperlink.href;
+        hyperlink.replaceWith(img);
+    }
 }
 
 //==============================================================

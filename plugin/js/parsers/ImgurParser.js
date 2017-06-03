@@ -64,36 +64,10 @@ class ImgurParser {
         return null;
     }
 
-    static replaceImgurLinksWithImages(content) {
-        let toReplace = util.getElements(content, "a", ImgurParser.isHyperlinkToImgurImage);
-        for(let hyperlink of toReplace) {
-            ImgurParser.replaceHyperlinkWithImg(hyperlink);
-        }
-    }
-
-    /** @private */
-    static isHyperlinkToImgurImage(hyperlink) {
-        return ImgurParser.isImgurHostName(hyperlink.hostname)
-          && !ImgurParser.linkContainsImageTag(hyperlink)
-          && !ImgurParser.isLinkToGallery(hyperlink);
-    }
-
     static isHyperlinkToImgurGallery(hyperlink) {
         return ImgurParser.isImgurHostName(hyperlink.hostname)
-          && !ImgurParser.linkContainsImageTag(hyperlink)
+          && !ImageCollector.linkContainsImageTag(hyperlink)
           && ImgurParser.isLinkToGallery(hyperlink);
-    }
-
-    /** @private */
-    static linkContainsImageTag(hyperlink) {
-        return (util.getElements(hyperlink, "img").length !== 0);
-    }
-
-    /** @private */
-    static replaceHyperlinkWithImg(hyperlink) {
-        let img = hyperlink.ownerDocument.createElement("img");
-        img.src = hyperlink.href;
-        hyperlink.replaceWith(img);
     }
 
     /** @private 

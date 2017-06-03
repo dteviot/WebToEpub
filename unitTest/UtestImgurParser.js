@@ -16,33 +16,6 @@ QUnit.test("constructStandardHtmForImgur", function (assert) {
     assert.equal(images[1].outerHTML, "<img src=\"http://i.imgur.com/pic2.jpg\">");
 });
 
-QUnit.test("replaceImgurLinksWithImages", function (assert) {
-    let dom = TestUtils.makeDomWithBody(
-        "<a href=\"http://dummy.com/K4CZyyP.jpg\">Insert image</a>" +
-        "<a href=\"http://imgur.com/K4CZyyP.jpg\">Insert image</a>" +
-        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">Insert image</a>" +
-        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-            "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-        "</a>"
-    );
-
-    ImgurParser.replaceImgurLinksWithImages(dom.body);
-    assert.equal(dom.body.innerHTML, 
-        "<a href=\"http://dummy.com/K4CZyyP.jpg\">Insert image</a>" +
-        "<img src=\"http://imgur.com/K4CZyyP.jpg\">" +
-        "<img src=\"http://i.imgur.com/K4CZyyP.jpg\">" +
-        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-            "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-        "</a>"
-    );
-});
-
-QUnit.test("dontReplaceImgurGalleryLinksWithImages", function (assert) {
-    let dom = TestUtils.makeDomWithBody("<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>");
-    ImgurParser.replaceImgurLinksWithImages(dom.body);
-    assert.equal(dom.body.innerHTML, "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>");
-});
-
 QUnit.test("findImagesListPre20170303", function (assert) {
     let dom = TestUtils.makeDomWithBody(
         "<script>" +
