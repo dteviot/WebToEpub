@@ -245,21 +245,12 @@ QUnit.test("dontReplaceNonImageLinksWithImages", function (assert) {
 
 QUnit.test("getExtensionFromUrlFilename", function (assert) {
     let hyperlink = document.createElement("a");
-    hyperlink.href = "http://dummy.com/K4CZyyP.jpg";
     let actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
+    assert.equal(actual, "");
+
+    hyperlink.href = "http://dummy.com/K4CZyyP.jpg";
+    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
     assert.equal(actual, "jpg");
-    
-    hyperlink.href = "http://dummy.com/K4CZyyP.png/";
-    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
-    assert.equal(actual, "png");
-    
-    hyperlink.href = "http://dummy.com/K4CZyyP.jpeg?src=dummy.txt";
-    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
-    assert.equal(actual, "jpeg");
-    
-    hyperlink.href = "http://dummy.com/folder/K4CZyyP.gif?src=dummy.txt";
-    actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
-    assert.equal(actual, "gif");
     
     hyperlink.href = "http://dummy.com/folder";
     actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);

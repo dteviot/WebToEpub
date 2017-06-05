@@ -371,3 +371,29 @@ test("isXhtmlInvalid", function (assert) {
     actual = util.isXhtmlInvalid(validXhtml);
     assert.equal(actual, null);
 });
+
+QUnit.test("extractFilename", function (assert) {
+    let hyperlink = document.createElement("a");
+    let actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "");
+
+    hyperlink.href = "http://dummy.com/K4CZyyP.jpg";
+    actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "K4CZyyP.jpg");
+    
+    hyperlink.href = "http://dummy.com/K4CZyyP.png/";
+    actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "K4CZyyP.png");
+    
+    hyperlink.href = "http://dummy.com/K4CZyyP.jpeg?src=dummy.txt";
+    actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "K4CZyyP.jpeg");
+    
+    hyperlink.href = "http://dummy.com/folder/K4CZyyP.gif?src=dummy.txt";
+    actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "K4CZyyP.gif");
+    
+    hyperlink.href = "http://dummy.com/folder";
+    actual = util.extractFilename(hyperlink);
+    assert.equal(actual, "folder");
+});

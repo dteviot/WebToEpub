@@ -74,9 +74,7 @@ class ImgurParser {
      * Hack, assume if no extension, it's a gallery
     */
     static isLinkToGallery(hyperlink) {
-        let filenames = hyperlink.pathname.split("/");
-        let filename = filenames[filenames.length - 1];
-        return !filename.includes(".");
+        return !util.extractFilename(hyperlink).includes(".");
     }
 
     static replaceGalleryHyperlinkWithImages(link, galleryDom) {

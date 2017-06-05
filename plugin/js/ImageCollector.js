@@ -387,16 +387,8 @@ class ImageCollector {
 
     /** @private */
     static getExtensionFromUrlFilename(hyperlink) {
-       if (hyperlink.pathname === "") {
-           return "";
-       }
-       let split = hyperlink.pathname.split("/");
-       let filename = split[split.length - 1].toLowerCase();
-       if (filename === "") {
-           filename = split[split.length - 2].toLowerCase();
-       }
-       split = filename.split(".");
-       return (split.length < 2) ? "" : split[split.length - 1];
+        let split = util.extractFilename(hyperlink).split(".");
+        return (split.length < 2) ? "" : split[split.length - 1];
     }
 
     /** @private */

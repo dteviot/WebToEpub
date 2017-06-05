@@ -86,6 +86,14 @@ var util = (function () {
         return parser.hostname;
     };
 
+    var extractFilename = function(hyperlink) {
+        let filename = hyperlink.pathname
+            .split("/")
+            .filter(p => p != "")
+            .pop();
+        return (filename == null) ? "" : filename;
+    }
+
     var addToDocBody = function (dom, contentToAdd) {
         dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
     }
@@ -723,6 +731,7 @@ var util = (function () {
         log: log,
         logError: logError,
         extractHostName: extractHostName,
+        extractFilename: extractFilename,
         addToDocBody: addToDocBody,
         setBaseTag: setBaseTag,
         removeElements: removeElements,
