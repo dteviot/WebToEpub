@@ -26,6 +26,16 @@ QUnit.test("findImagesListPre20170303", function (assert) {
     assert.deepEqual(images, [{hash:"zNuo7hV", ext:".png"},{hash:"bi7LaVD", ext:".png"}]);
 });
 
+QUnit.test("findImagesListPost20170605", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<script>" +
+        "window.runSlots = {item: {\"album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}}}" +
+        "</script>"
+    );
+    let images = Imgur.findImagesList(dom);
+    assert.deepEqual(images, [{hash:"zNuo7hV", ext:".png"},{hash:"bi7LaVD", ext:".png"}]);
+});
+
 QUnit.test("isImgurHostName", function (assert) {
     assert.equal(true, Imgur.isImgurHostName("imgur.com"));
     assert.equal(true, Imgur.isImgurHostName("m.imgur.com"));
