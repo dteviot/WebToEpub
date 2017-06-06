@@ -1,16 +1,32 @@
 /*
   This holds code for transforming an imgur gallery into content image collector can handle
-  Note, despite it's name, this IS NOT an actual parser.  But it may become one later.
 */
 "use strict";
 
-class ImgurParser {
+class Imgur {
     constructor() {
+    }
+
+    static expandGalleries(content) {
+        var sequence = Promise.resolve();
+        for(let link of Imgur.getGalleryLinksToReplace(content)) {
+            sequence = sequence.then(function () {
+                let href = Imgur.fixupImgurGalleryUrl(link.href);
+                return HttpClient.wrapFetch(href).then(function (xhr) {
+                    Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
+                    return Promise.resolve();
+                })
+            })
+        };
+        sequence = sequence.then(function () {
+            return Promise.resolve(content);
+        });
+        return sequence; 
     }
 
     static isImgurGallery(dom) {
         let host = util.extractHostName(dom.baseURI).toLowerCase();
-        return ImgurParser.isImgurHostName(host);
+        return Imgur.isImgurHostName(host);
     }
 
     static isImgurHostName(host) {
@@ -18,8 +34,8 @@ class ImgurParser {
     }
 
     static convertGalleryToConventionalForm(dom) {
-        let imagesList = ImgurParser.findImagesList(dom);
-        return (imagesList == null) ? null : ImgurParser.constructStandardHtmForImgur(imagesList);
+        let imagesList = Imgur.findImagesList(dom);
+        return (imagesList == null) ? null : Imgur.constructStandardHtmForImgur(imagesList);
     }
 
     static constructStandardHtmForImgur(imagesList) {
@@ -36,7 +52,7 @@ class ImgurParser {
     }
 
     static findImagesList(dom) {
-        let json = ImgurParser.findImagesJson(dom);
+        let json = Imgur.findImagesJson(dom);
         if (json != null) {
             if (json.album_images != null) {
                 return json.album_images.images;
@@ -65,9 +81,9 @@ class ImgurParser {
     }
 
     static isHyperlinkToImgurGallery(hyperlink) {
-        return ImgurParser.isImgurHostName(hyperlink.hostname)
+        return Imgur.isImgurHostName(hyperlink.hostname)
           && !ImageCollector.linkContainsImageTag(hyperlink)
-          && ImgurParser.isLinkToGallery(hyperlink);
+          && Imgur.isLinkToGallery(hyperlink);
     }
 
     /** @private 
@@ -78,20 +94,20 @@ class ImgurParser {
     }
 
     static replaceGalleryHyperlinkWithImages(link, galleryDom) {
-        if (ImgurParser.isImgurGallery(galleryDom)) {
-            let images =  ImgurParser.convertGalleryToConventionalForm(galleryDom);
+        if (Imgur.isImgurGallery(galleryDom)) {
+            let images =  Imgur.convertGalleryToConventionalForm(galleryDom);
             link.replaceWith(images);
         }       
     }
 
     static getGalleryLinksToReplace(dom) {
-        return util.getElements(dom, "a", ImgurParser.isHyperlinkToImgurGallery);
+        return util.getElements(dom, "a", Imgur.isHyperlinkToImgurGallery);
     }
 
     static fixupImgurGalleryUrl(url) {
         let link = document.createElement("a");
         link.href = url;
-        if (ImgurParser.isHyperlinkToImgurGallery(link) && !url.endsWith("?grid")) {
+        if (Imgur.isHyperlinkToImgurGallery(link) && !url.endsWith("?grid")) {
             return url + "?grid";
         }
         return url;

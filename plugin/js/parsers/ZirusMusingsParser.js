@@ -53,8 +53,8 @@ class ZirusMusingsParser extends Parser {
         // Ziru's Musings has links to imgur galleries.
         // So when one of them, create whole new page and return link to that.
         // ToDo: Fix this ugly hack.
-        if (ImgurParser.isImgurGallery(dom)) {
-            return ImgurParser.convertGalleryToConventionalForm(dom);
+        if (Imgur.isImgurGallery(dom)) {
+            return Imgur.convertGalleryToConventionalForm(dom);
         } else {
             let article = util.getElement(dom, "article", e => e.className !== "comment-body");
             let div = util.getElement(article, "div", e => e.className.startsWith("entry-content"));

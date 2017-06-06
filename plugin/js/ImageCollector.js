@@ -372,7 +372,7 @@ class ImageCollector {
         for(let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
             ImageCollector.replaceHyperlinkWithImg(hyperlink);
         }
-        return content;
+        return Imgur.expandGalleries(content);
     }
 
     /** @private */

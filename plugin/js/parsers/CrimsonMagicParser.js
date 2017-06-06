@@ -24,39 +24,15 @@ class CrimsonMagicParser extends WordpressBaseParser {
 
     fixupImgurGalleryChapters(chapters) {
         for(let c of chapters) {
-            c.sourceUrl = ImgurParser.fixupImgurGalleryUrl(c.sourceUrl);
+            c.sourceUrl = Imgur.fixupImgurGalleryUrl(c.sourceUrl);
         }
     }
 
     findContent(dom) {
-        if (ImgurParser.isImgurGallery(dom)) {
-            return ImgurParser.convertGalleryToConventionalForm(dom);
+        if (Imgur.isImgurGallery(dom)) {
+            return Imgur.convertGalleryToConventionalForm(dom);
         }
         let content = super.findContent(dom);
         return content;
-    }
-
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let dom = xhr.responseXML;
-            if (ImgurParser.isImgurGallery(dom)) {
-                return Promise.resolve(dom);
-            }
-            var sequence = Promise.resolve();
-            let galleriesToExpand = ImgurParser.getGalleryLinksToReplace(dom);
-            galleriesToExpand.forEach(function (link) {
-                sequence = sequence.then(function () {
-                    let href = ImgurParser.fixupImgurGalleryUrl(link.href);
-                    return HttpClient.wrapFetch(href).then(function (xhr) {
-                        ImgurParser.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
-                        return Promise.resolve();
-                    })
-                })
-            });
-            sequence = sequence.then(function () {
-                return Promise.resolve(dom);
-            });
-            return sequence; 
-        });
     }
 }

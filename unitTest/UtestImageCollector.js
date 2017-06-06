@@ -209,6 +209,7 @@ QUnit.test("findImageWrappingElement", function (assert) {
 });
 
 QUnit.test("replaceHyperlinksToImagesWithImages", function (assert) {
+    let done = assert.async(); 
     let dom = TestUtils.makeDomWithBody(
         "<a href=\"http://dummy.com/K4CZyyP.png\">Insert image</a>" +
         "<a href=\"http://imgur.com/K4CZyyP.jpg\">Insert image</a>" +
@@ -219,28 +220,33 @@ QUnit.test("replaceHyperlinksToImagesWithImages", function (assert) {
         "<a href=\"http://i.imgur.com/help.html\"></a>"
     );
 
-    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body);
-    assert.equal(dom.body.innerHTML, 
-        "<img src=\"http://dummy.com/K4CZyyP.png\">" +
-        "<img src=\"http://imgur.com/K4CZyyP.jpg\">" +
-        "<img src=\"http://i.imgur.com/K4CZyyP.jpg\">" +
-        "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-            "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
-        "</a>" +
-        "<a href=\"http://i.imgur.com/help.html\"></a>"
-    );
+    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body).then(function () {
+        assert.equal(dom.body.innerHTML, 
+            "<img src=\"http://dummy.com/K4CZyyP.png\">" +
+            "<img src=\"http://imgur.com/K4CZyyP.jpg\">" +
+            "<img src=\"http://i.imgur.com/K4CZyyP.jpg\">" +
+            "<a href=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+                "Insert image<img src=\"http://i.imgur.com/K4CZyyP.jpg\">"+
+            "</a>" +
+            "<a href=\"http://i.imgur.com/help.html\"></a>"
+        );
+        done();
+    });
 });
 
 QUnit.test("dontReplaceNonImageLinksWithImages", function (assert) {
+    let done = assert.async(); 
     let dom = TestUtils.makeDomWithBody(
-        "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>" +
+        "<a href=\"http://imgur.com/K4CZyyP.html\">Insert image</a>" +
         "<a class=\"sd-link-color\"></a>"
     );
-    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body);
-    assert.equal(dom.body.innerHTML, 
-        "<a href=\"http://imgur.com/K4CZyyP\">Insert image</a>" +
-        "<a class=\"sd-link-color\"></a>"
-    );
+    ImageCollector.replaceHyperlinksToImagesWithImages(dom.body).then(function () {
+        assert.equal(dom.body.innerHTML, 
+            "<a href=\"http://imgur.com/K4CZyyP.html\">Insert image</a>" +
+            "<a class=\"sd-link-color\"></a>"
+        );
+        done();
+    });
 });
 
 QUnit.test("getExtensionFromUrlFilename", function (assert) {

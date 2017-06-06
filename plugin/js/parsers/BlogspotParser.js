@@ -46,8 +46,8 @@ class BlogspotParser extends Parser {
         //---------------------------------------------------
         // Hack, fix for one of the image galleries for skythewood
         // ToDo.  Base class to pick parser on per URL basis.
-        if (ImgurParser.isImgurGallery(dom)) {
-            return ImgurParser.convertGalleryToConventionalForm(dom);
+        if (Imgur.isImgurGallery(dom)) {
+            return Imgur.convertGalleryToConventionalForm(dom);
         }
         //---------------------------------------------------
         let content = BlogspotParser.findContentElement(dom);
