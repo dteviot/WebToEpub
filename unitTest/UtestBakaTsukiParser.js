@@ -204,6 +204,7 @@ QUnit.test("replaceImageTags", function (assert) {
                 "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
                     "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                 "</a>" +
+                "<div class=\"thumbcaption\">comment</div>" + 
            "</div>" +
            "<div class=\"floatleft\">" +
                 "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg\" class=\"image\">" +
@@ -280,6 +281,7 @@ QUnit.test("replaceImageTags", function (assert) {
                     "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" width=\"302\" height=\"301\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
+                "<span class=\"thumbcaption\">comment</span>" + 
             "</div>"+
             "<div><img src=\"../Images/0002_BTS_V01_Cover.jpg\" alt=\"\" /><!--  https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg\  --></div>"+
              "<div class=\"rating-section\">" +
