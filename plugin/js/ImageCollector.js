@@ -505,12 +505,11 @@ class ImageTagReplacer {
 
     copyCaption(newImage, oldWrapper) {
         let thumbCaption = util.getElement(oldWrapper, "div", e => e.className === "thumbcaption");
-        let text = (thumbCaption == null) ? "" : thumbCaption.textContent;
-        if (!util.isNullOrEmpty(text)){
-            let newCaption = newImage.ownerDocument.createElement("span");
-            newCaption.innerText = text;
-            newCaption.className = "thumbcaption";
-            newImage.appendChild(newCaption);
+        if (thumbCaption != null){
+            for(let magnify of util.getElements(thumbCaption, "div", m => m.className === "magnify")){
+                magnify.remove();
+            }
+            newImage.appendChild(thumbCaption);
         }
     }
 

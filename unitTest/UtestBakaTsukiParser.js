@@ -190,6 +190,12 @@ QUnit.test("replaceImageTags", function (assert) {
                        "<a href=\"https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg\" class=\"image\">" +
                             "<img src=\"./Baka to Tesuto to Syokanju_Volume1 - Baka-Tsuki_files/120px-BTS_vol_01_000a.jpg\" >" +
                        "</a>" +
+                       "<div class=\"thumbcaption\">" +
+                           "<div class=\"magnify\">" +
+                               "<a href=\"/project/index.php?title=File:Mondaiji-tachi_ga_isekai_kara_kuru_soudesu_yo_V10_Color_Pic.jpg\" class=\"internal\" title=\"Enlarge\"></a>" +
+                           "</div>" +
+                           "<sup id=\"cite_ref-1\" class=\"reference\"><a href=\"#cite_note-1\">[1]</a></sup>" +
+                       "</div>" + 
                    "</div>" +
                "</div></li>"+
                "<li class=\"comment\"></li>" +
@@ -267,6 +273,9 @@ QUnit.test("replaceImageTags", function (assert) {
                     "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" width=\"302\" height=\"301\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
+                "<div class=\"thumbcaption\">" +
+                    "<sup id=\"cite_ref-1\" class=\"reference\"><a href=\"#cite_note-1\">[1]</a></sup>" +
+                "</div>" + 
              "</div>"+
            "</div>"+
            "<div class=\"svg_outer svg_inner\">"+
@@ -281,7 +290,7 @@ QUnit.test("replaceImageTags", function (assert) {
                     "<image xlink:href=\"../Images/0000_BTS_vol_01_000a.jpg\" width=\"302\" height=\"301\"/>"+
                     "<desc>https://www.baka-tsuki.org/project/index.php?title=File:BTS_vol_01_000a.jpg</desc>"+
                 "</svg>"+
-                "<span class=\"thumbcaption\">comment</span>" + 
+                "<div class=\"thumbcaption\">comment</div>" + 
             "</div>"+
             "<div><img src=\"../Images/0002_BTS_V01_Cover.jpg\" alt=\"\" /><!--  https://www.baka-tsuki.org/project/index.php?title=File:BTS_V01_Cover.jpg\  --></div>"+
              "<div class=\"rating-section\">" +

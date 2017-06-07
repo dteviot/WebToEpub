@@ -110,6 +110,14 @@ class EpubMetaInfo {
         "   margin-top: 0;\r"+
         "}\r"+
 
+        // differentiate caption text from body text 
+       ".thumbcaption {\r"+
+       "  display: block;\r"+
+       "  font-size: 0.9em;\r"+
+       "  padding-right: 5%;\r"+
+       "  padding-left: 5%;\r"+
+       "}\r"+
+       
         // To make hr tags more visible. BT doesn't use them very often but other sites might.
         "hr {\r"+
         "   color: black;\r"+
