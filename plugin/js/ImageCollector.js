@@ -509,7 +509,9 @@ class ImageTagReplacer {
             for(let magnify of util.getElements(thumbCaption, "div", m => m.className === "magnify")){
                 magnify.remove();
             }
-            newImage.appendChild(thumbCaption);
+            if (!util.isNullOrEmpty(thumbCaption.textContent)) {
+                newImage.appendChild(thumbCaption);
+            }
         }
     }
 
