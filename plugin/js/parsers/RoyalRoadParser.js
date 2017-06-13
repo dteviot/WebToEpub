@@ -55,7 +55,7 @@ class RoyalRoadParser extends Parser{
 
     removeNextAndPreviousChapterHyperlinks(content) {
         util.removeElements(util.getElements(content, "a", a => a.hostname === "www.royalroadl.com"));
-        this.removeOlderChapterNavJunk(content);
+        RoyalRoadParser.removeOlderChapterNavJunk(content);
     }
 
     extractTextFromPage(dom, tagName, filter) {
@@ -95,14 +95,11 @@ class RoyalRoadParser extends Parser{
         return (title === null) ? dom.title : title.innerText.trim();
     }
 
-    removeOlderChapterNavJunk(content) {
+    static removeOlderChapterNavJunk(content) {
         // some older chapters have next chapter & previous chapter links seperated by string "<-->"
-        let walker = content.ownerDocument.createTreeWalker(content, NodeFilter.SHOW_TEXT, 
-            n => (n.textContent.trim() === "<-->"), 
-            false
-        );
-        let node = null;
-        while ((node = walker.nextNode())) {
+        for(let node of util.iterateElements(content, 
+            n => (n.textContent.trim() === "<-->"),
+            NodeFilter.SHOW_TEXT)) {
             node.remove();
         };
     }
