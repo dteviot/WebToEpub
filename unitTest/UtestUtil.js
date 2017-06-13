@@ -397,3 +397,23 @@ QUnit.test("extractFilename", function (assert) {
     actual = util.extractFilename(hyperlink);
     assert.equal(actual, "folder");
 });
+
+QUnit.test("iterateElements", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<h1 id=\"e1\"></h1>" +
+        "<div id=\"d1\"><p id=\"p1\">1</p><p id=\"p2\">2</p></div>" +
+        "<h2 id=\"e2\"></h2>"
+    );
+    let root = util.getElement(dom, "div");
+    let actual = util.iterateElements(root, n => NodeFilter.FILTER_ACCEPT);
+    assert.equal(actual.length, 3);
+    assert.equal(actual[0].id, "d1");
+    assert.equal(actual[1].id, "p1");
+    assert.equal(actual[2].id, "p2");
+
+    actual = util.iterateElements(root, 
+        n => (n.tagName === "P") ? NodeFilter.FILTER_ACCEPT : NodeFilter.SKIP);
+    assert.equal(actual.length, 2);
+    assert.equal(actual[0].id, "p1");
+    assert.equal(actual[1].id, "p2");
+});

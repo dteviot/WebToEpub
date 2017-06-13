@@ -586,6 +586,19 @@ var util = (function () {
         return padded;
     }
 
+    var iterateElements = function(root, filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
+        let iterator = document.createNodeIterator(root,
+            whatToShow,
+            { acceptNode: filter }
+        );
+        let elements = [];
+        let node = null;
+        while ((node = iterator.nextNode()) != null) {
+            elements.push(node);
+        }
+        return elements;        
+    }
+    
     var getElements = function(dom, tagName, filter) {
         let array = Array.prototype.slice.apply(dom.getElementsByTagName(tagName));
         return (filter == undefined) ? array : array.filter(filter)
@@ -779,6 +792,7 @@ var util = (function () {
         createComment: createComment,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
         addXhtmlDocTypeToStart: addXhtmlDocTypeToStart,
+        iterateElements: iterateElements,
         getElement: getElement,
         getElements: getElements,
         moveIfParent: moveIfParent,

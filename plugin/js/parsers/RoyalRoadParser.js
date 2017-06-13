@@ -64,7 +64,16 @@ class RoyalRoadParser extends Parser{
     }
 
     extractTitle(dom) {
-        return this.extractTextFromPage(dom, "h2", e=> (e.getAttribute("property") === "name"));
+        let isTitleElement = function (element) {
+            let tag = element.tagName.toLowerCase();
+            let isTitle = ((tag[0] === "h") && (element.getAttribute("property") === "name"));
+            return isTitle ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        }
+
+        for(let e of util.iterateElements(dom.body, e => isTitleElement(e))) {
+            return e.innerText.trim();
+        }
+        return super.extractTitle(dom);
     }
 
     extractAuthor(dom) {
