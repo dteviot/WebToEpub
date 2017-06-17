@@ -201,7 +201,7 @@ test("buildTableOfContents", function (assert) {
 test("buildNestedTableOfContents", function (assert) {
     let epubItemSupplier = makeEpubItemSupplier();
     let doc = TestUtils.makeDomWithBody("<div></div><div></div>");
-    let body = util.getElement(doc, "body");
+    let body = doc.body;
     let epubItems = [];
     epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "C1", newArc: null }, body, 0));
     epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C1", newArc: "A1" }, body, 1));

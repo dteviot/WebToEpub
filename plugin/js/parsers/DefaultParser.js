@@ -81,8 +81,7 @@ class DefaultParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let body = util.getElement(dom, "body");
-        return Promise.resolve(util.hyperlinksToChapterList(body));
+        return Promise.resolve(util.hyperlinksToChapterList(dom.body));
     }
 
     onStartCollecting() {

@@ -347,7 +347,7 @@ QUnit.test("hasNoVisibleContent", function (assert) {
     );
 
     let elements = new Array();
-    for(let child of dom.getElementsByTagName("body")[0].childNodes) {
+    for(let child of dom.body.childNodes) {
         elements.push(child);
     };
 

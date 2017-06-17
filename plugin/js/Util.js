@@ -105,10 +105,6 @@ var util = (function () {
         return (filename == null) ? "" : filename;
     }
 
-    var addToDocBody = function (dom, contentToAdd) {
-        dom.getElementsByTagName("body")[0].appendChild(contentToAdd);
-    }
-
     // set the base tag of a DOM to specified URL.
     var setBaseTag = function (url, dom) {
         if (dom != null) {
@@ -758,7 +754,6 @@ var util = (function () {
         logError: logError,
         extractHostName: extractHostName,
         extractFilename: extractFilename,
-        addToDocBody: addToDocBody,
         setBaseTag: setBaseTag,
         removeElements: removeElements,
         removeComments: removeComments,

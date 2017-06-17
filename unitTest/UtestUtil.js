@@ -281,7 +281,7 @@ QUnit.test("removeHeightAndWidthStyle", function (assert) {
 
 QUnit.test("isElementWhiteSpace", function (assert) {
     let doc = TestUtils.makeDomWithBody("<!-- c -->text<div></div>");
-    let body = util.getElement(doc, "body");
+    let body = doc.body;
     assert.ok(util.isElementWhiteSpace(body.childNodes[0]));
     assert.ok(!util.isElementWhiteSpace(body.childNodes[1]));
     assert.ok(util.isElementWhiteSpace(body.childNodes[2]));
