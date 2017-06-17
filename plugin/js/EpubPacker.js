@@ -48,10 +48,10 @@ class EpubPacker {
 
     /** write blob to "Downloads" directory */
     static save(blob, fileName) {
-        if (typeof(browser) === "undefined") {
-            EpubPacker.saveOnChrome(blob, fileName)
-        } else {
+        if (util.isFirefox()) {
             EpubPacker.saveOnFirefox(blob, fileName)
+        } else {
+            EpubPacker.saveOnChrome(blob, fileName)
         }
     }
 
@@ -141,6 +141,10 @@ class EpubPacker {
         let identifier = that.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", that.metaInfo.uuid);
         identifier.setAttributeNS(null, "id", "BookId");
         identifier.setAttributeNS(opf_ns, "opf:scheme", "URI");
+
+        let webToEpubVersion = `[https://github.com/dteviot/WebToEpub] (ver. ${util.extensionVersion()})`;
+        let contributor = that.createAndAppendChildNS(metadata, dc_ns, "dc:contributor", webToEpubVersion);
+        contributor.setAttributeNS(opf_ns, "opf:role", "bkp");
 
         if (epubItemSupplier.hasCoverImageFile()) {
             that.appendMetaContent(metadata, opf_ns, "cover", epubItemSupplier.coverImageId());

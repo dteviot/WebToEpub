@@ -9,6 +9,16 @@
 
 var util = (function () {
 
+    var isFirefox = function() {
+        return (typeof(browser) !== "undefined");
+    }
+
+    var extensionVersion = function() {
+        let runtime = util.isFirefox() ? browser.runtime : chrome.runtime;
+        // when running unit tests, runtime is not available
+        return (typeof(runtime) === "undefined") ? "unknown" : runtime.getManifest().version;
+    }
+
     var createEmptyXhtmlDoc = function() {
         let doc = document.implementation.createDocument(util.XMLNS, "", null);
         util.addXhtmlDocTypeToStart(doc);
@@ -738,6 +748,8 @@ var util = (function () {
 
         HEADER_TAGS: ["h1", "h2", "h3", "h4", "h5", "h6" ],
 
+        isFirefox: isFirefox,
+        extensionVersion: extensionVersion,
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,

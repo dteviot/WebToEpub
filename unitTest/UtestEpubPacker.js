@@ -64,6 +64,7 @@ test("buildContentOpf", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>"+
+            "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>"+
@@ -103,6 +104,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
+            "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"cover-image\" name=\"cover\"/>" +
             "</metadata>" +
             "<manifest>" +
@@ -145,6 +147,7 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
             "<dc:creator opf:file-as=\"Doe, John\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:contributor opf:file-as=\"Baka-Tsuki staff\" opf:role=\"trl\">Baka-Tsuki staff</dc:contributor>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
+            "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
             "</metadata>" +
