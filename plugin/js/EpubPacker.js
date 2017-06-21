@@ -75,7 +75,7 @@ class EpubPacker {
             filename: fileName,
             saveAs: true
         };
-        var downloading = browser.downloads.download(options);       // eslint-disable-line no-undef
+        var downloading = browser.downloads.download(options);
         var cleanup = function() { EpubPacker.scheduleDataUrlForDisposal(options.url); };
         downloading.then(cleanup, cleanup);
     }

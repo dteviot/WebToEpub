@@ -27,3 +27,4 @@ Chrome.prototype.runtime = {
 }
 
 var chrome = new Chrome();
+var browser = new Chrome();

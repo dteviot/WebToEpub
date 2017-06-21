@@ -14,8 +14,7 @@ var util = (function () {
     }
 
     var extensionVersion = function() {
-        // when running eslint (Node.js), browser is undefined
-        let runtime = util.isFirefox() ? browser.runtime : chrome.runtime;  // eslint-disable-line no-undef
+        let runtime = util.isFirefox() ? browser.runtime : chrome.runtime;
         // when running unit tests, runtime is not available
         return (typeof(runtime) === "undefined") ? "unknown" : runtime.getManifest().version;
     }
