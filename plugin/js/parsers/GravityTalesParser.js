@@ -23,8 +23,7 @@ class GravityTalesParser extends Parser {
         if (content === null) {
             content = dom.body;
         }
-        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref);
-        return Promise.resolve(chapters);
+        return Promise.resolve(util.hyperlinksToChapterList(content, that.isChapterHref));
     }
 
     isChapterHref(link) {

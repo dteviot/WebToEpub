@@ -15,11 +15,7 @@ class RoyalRoadParser extends Parser{
         // Fetch new page to get all chapter links.
         return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
             let table = util.getElement(xhr.responseXML, "table", e => e.id === "chapters");
-            let chapters = [];
-            if (table !== null) {
-                chapters = util.hyperlinksToChapterList(table);
-            }
-            return chapters;
+            return util.hyperlinksToChapterList(table);
         });
     }
 

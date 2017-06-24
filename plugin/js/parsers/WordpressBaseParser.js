@@ -32,8 +32,7 @@ class WordpressBaseParser extends Parser {
         let that = this;
         let content = that.findContent(dom).cloneNode(true);
         that.removeUnwantedElementsFromContentElement(content);
-        let chapters = util.hyperlinksToChapterList(content);
-        return Promise.resolve(chapters);
+        return Promise.resolve(util.hyperlinksToChapterList(content));
     }
 
     static findContentElement(dom) {

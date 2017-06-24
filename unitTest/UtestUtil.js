@@ -250,6 +250,11 @@ test("hyperlinksToChapterList", function (assert) {
     assert.equal(chapters.length, 6);
 });
 
+test("hyperlinksToChapterListEmptyElement", function (assert) {
+    let chapters = util.hyperlinksToChapterList(null);
+    assert.deepEqual(chapters, []);
+});
+
 test("normalizeUrl", function (assert) {
     let testUrl1 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2";
     let testUrl2 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2/";

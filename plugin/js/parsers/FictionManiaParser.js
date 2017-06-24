@@ -15,8 +15,7 @@ class FictionManiaParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let chapters = [];
-        chapters = util.hyperlinksToChapterList(dom.body, this.isChapterHref);
+        let chapters = util.hyperlinksToChapterList(dom.body, this.isChapterHref);
         return Promise.resolve(chapters.reverse());
     }
 

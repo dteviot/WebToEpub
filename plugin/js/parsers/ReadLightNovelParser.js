@@ -13,10 +13,7 @@ class ReadLightNovelParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let chaptersDiv = util.getElement(dom, "div", d => d.className.indexOf("chapters") !== -1);
-        let chapters = [];
-        if (chaptersDiv !== null) {
-            chapters = util.hyperlinksToChapterList(chaptersDiv, that.isChapterHref, that.getChapterArc);
-        } 
+        let chapters = util.hyperlinksToChapterList(chaptersDiv, that.isChapterHref, that.getChapterArc);
         if (0 < chapters.length) {
             return Promise.resolve(chapters);
         }

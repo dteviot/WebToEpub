@@ -11,8 +11,7 @@ class UltimaguilParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let chapters = util.hyperlinksToChapterList(dom);
-        return Promise.resolve(chapters);
+        return Promise.resolve(util.hyperlinksToChapterList(dom));
     }
 
     extractTitle(dom) {   // eslint-disable-line no-unused-vars

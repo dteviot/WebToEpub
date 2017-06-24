@@ -485,6 +485,10 @@ var util = (function () {
     }
 
     var hyperlinksToChapterList = function(contentElement, isChapterPredicate, getChapterArc) {
+        if (contentElement == null) {
+            return [];
+        }
+
         let linkSet = new Set();
         let includeLink = function(link) {
             // ignore links with no name or link

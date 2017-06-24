@@ -12,11 +12,7 @@ class LightNovelBastionParser extends Parser {
 
     getChapterUrls(dom) {
         let menu = this.findContent(dom);
-        let chapters = [];
-        if (menu !== null) {
-            chapters = util.hyperlinksToChapterList(menu);
-        }
-        return Promise.resolve(chapters.reverse());
+        return Promise.resolve(util.hyperlinksToChapterList(menu).reverse());
     }
 
     findContent(dom) {

@@ -19,11 +19,7 @@ class HellpingParser extends Parser {
 
     getChapterUrls(dom) {
         let menu = util.getElement(dom, "ul", e => e.id === "nav");
-        let chapters = [];
-        if (menu !== null) {
-            chapters = util.hyperlinksToChapterList(menu);
-        }
-        return Promise.resolve(chapters);
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 
     findContent(dom) {

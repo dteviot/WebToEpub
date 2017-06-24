@@ -32,7 +32,6 @@ class CrimsonMagicParser extends WordpressBaseParser {
         if (Imgur.isImgurGallery(dom)) {
             return Imgur.convertGalleryToConventionalForm(dom);
         }
-        let content = super.findContent(dom);
-        return content;
+        return super.findContent(dom);
     }
 }
