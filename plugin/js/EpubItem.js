@@ -188,31 +188,15 @@ class ImageInfo extends EpubItem {
     // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
     // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
     extractImageFileNameFromUrl(url) {
-        let that = this;
-        let temp = url;
-    
-        // remove everything after hash
-        let index = url.indexOf("#");
-        if (0 <= index) {
-            temp = url.substring(0, index);
+        let parser = document.createElement("a");
+        parser.href = url;
+
+        // examine pathname and query
+        let temp = parser.pathname + parser.search;
+        let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => this.isImageFileNameCandidate(s));
+        if (0 < fileNames.length) {
+            return fileNames[fileNames.length - 1];
         }
-
-        // make sure it's long enough to be a url
-        if (9 < temp.length) {
-
-            // remove protocol, hostname and port, make sure there's a pathname left
-            temp = temp.substring(8);
-            index = temp.indexOf("/");
-            if ((0 <= index) && (index < temp.length - 2)) {
-                temp = temp.substring(index + 1);
-
-                // break into pieces and take last piece that looks like an image filename
-                let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => that.isImageFileNameCandidate(s));
-                if (0 < fileNames.length) {
-                    return fileNames[fileNames.length - 1];
-                }
-            }
-        } 
     
         // if get here, nothing found
         return undefined;
