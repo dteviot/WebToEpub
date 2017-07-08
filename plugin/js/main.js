@@ -16,7 +16,6 @@ var main = (function () {
     let initalWebPage = null;
     let parser = null;
     let userPreferences = null;
-    let errorMessageQueue = [];
 
     // register listener that is invoked when script injected into HTML sends its results
     try {
@@ -44,7 +43,7 @@ var main = (function () {
                 parser.populateUI(dom);
                 parser.onLoadFirstPage(url, dom);
             } catch (error) {
-                showErrorMessage(error);
+                ErrorLog.showErrorMessage(error);
             }
         }
     }
@@ -111,7 +110,7 @@ var main = (function () {
         parser.fetchContent().then(function () {
             packEpub();
         }).catch(function (err) {
-            showErrorMessage(err);
+            ErrorLog.showErrorMessage(err);
         });
     }
 
@@ -178,7 +177,7 @@ var main = (function () {
             parser = parserFactory.manuallySelectParser(manualSelect);
         }
         if (parser === undefined) {
-            showErrorMessage(chrome.i18n.getMessage("noParserFound"));
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("noParserFound"));
             return false;
         }
         getLoadAndAnalyseButton().hidden = true;
@@ -235,7 +234,7 @@ var main = (function () {
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
             getLoadAndAnalyseButton().disabled = false;
-            showErrorMessage(error);
+            ErrorLog.showErrorMessage(error);
         });
     }
 
@@ -269,57 +268,6 @@ var main = (function () {
         ChapterUrlsUI.clearChapterUrlsTable();
         CoverImageUI.clearUI();
         document.getElementById("fetchProgress").value = 0;
-    }
-
-    function getErrorSection() {
-        return document.getElementById("errorSection");
-    }
-
-    function showErrorMessage(msg) {
-        // if already showing an error message, queue the new one to display
-        // when currently showing is closed.
-        errorMessageQueue = [msg].concat(errorMessageQueue);
-        if (1 < errorMessageQueue.length) {
-            return;
-        };
-
-        let sections = hideAllSectionsSavingVisibility();
-        getErrorSection().hidden = false;
-
-        setErrorMessageText(msg);
-        document.getElementById("errorButtonOk").onclick = function () {
-            errorMessageQueue.pop();
-            if (errorMessageQueue.length === 0) {
-                restoreSectionVisibility(sections);
-            } else {
-                setErrorMessageText(errorMessageQueue[errorMessageQueue.length - 1]);
-            };
-        };
-    }
-
-    function hideAllSectionsSavingVisibility() {
-        let sections = new Map();
-        for(let section of util.getElements(document, "section")) {
-            sections.set(section, section.hidden);
-            section.hidden = true;
-        };
-        return sections;
-    }
-
-    function setErrorMessageText(msg) {
-        let textRow = document.getElementById("errorMessageText");
-        if (typeof (msg) === "string") {
-            textRow.innerText = msg ;
-        } else {
-            // assume msg is some sort of error object
-            textRow.innerText = msg.message + " " + msg.stack;
-        }
-    }
-
-    function restoreSectionVisibility(sections) {
-        for(let [key,value] of sections) {
-            key.hidden = value;
-        };
     }
 
     function localize(element) {
@@ -366,6 +314,7 @@ var main = (function () {
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
+        document.getElementById("writeErrorHistoryToFileButton").onclick = ErrorLog.dumpHistoryToFile;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
     }
@@ -377,7 +326,6 @@ var main = (function () {
             localizeHtmlPage();
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             addOnClickEventHandlers();
-            window.showErrorMessage = showErrorMessage;
             populateControls();
         } else {
             openTabWindow();

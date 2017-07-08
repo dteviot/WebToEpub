@@ -279,7 +279,7 @@ class ImageCollector {
         }).catch(function(error) {
             // ToDo, implement error handler.
             that.imagesToPack.push(imageInfo);
-            util.logError(error);
+            ErrorLog.log(error);
         });
     }
 

@@ -672,14 +672,6 @@ var util = (function () {
         return (parsererror === null) ? null : parsererror.textContent;
     }
 
-    /**
-    * @todo: replace with something better
-    *  for time being, just show to user.
-    */
-    var logError = function(error) {
-        window.showErrorMessage(error);
-    }
-
     // allow disabling loging from one place
     var log = function(arg) { // eslint-disable-line no-unused-vars
         // ToDo: uncomment this for debug logging
@@ -754,7 +746,6 @@ var util = (function () {
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
         log: log,
-        logError: logError,
         extractHostName: extractHostName,
         extractFilename: extractFilename,
         setBaseTag: setBaseTag,

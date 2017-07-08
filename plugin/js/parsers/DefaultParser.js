@@ -102,7 +102,7 @@ class DefaultParser extends Parser {
         super.populateUI(dom);
         CoverImageUI.showCoverImageUrlInput(true);
         document.getElementById("defaultParserSection").hidden = false;
-        window.showErrorMessage(chrome.i18n.getMessage("noParserFound"));
+        ErrorLog.showErrorMessage(chrome.i18n.getMessage("noParserFound"));
     }
 
     setUiForSite(url) {

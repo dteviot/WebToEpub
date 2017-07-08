@@ -36,7 +36,7 @@ class Parser {
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
             let errorMsg = chrome.i18n.getMessage("warningNoVisibleContent", [chapter.sourceUrl]);
-            window.showErrorMessage(errorMsg);
+            ErrorLog.showErrorMessage(errorMsg);
         }
         return content;
     }
@@ -216,13 +216,13 @@ class Parser {
             that.chapters = chapters;
             chapterUrlsUI.connectButtonHandlers();
         }).catch(function (err) {
-            window.showErrorMessage(err);
+            ErrorLog.showErrorMessage(err);
         });
     }
 
     onFetchChaptersClicked() {
         if (0 == this.chapters.length) {
-            window.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
         } else {
             this.getFetchContentButton().disabled = true;
             this.fetchChapters();
@@ -276,7 +276,7 @@ class Parser {
             that.getFetchContentButton().disabled = false;
             main.getPackEpubButton().disabled = false;
         }).catch(function (err) {
-            util.logError(err);
+            ErrorLog.log(err);
         })
         return sequence;
     }
@@ -313,7 +313,7 @@ class Parser {
         zipFile.generateAsync({ type: "blob" }).then(function(content) {
             EpubPacker.save(content, "raw.zip");
         }).catch(function(error) {
-            window.showErrorMessage(error);
+            ErrorLog.showErrorMessage(error);
         });
     }
 

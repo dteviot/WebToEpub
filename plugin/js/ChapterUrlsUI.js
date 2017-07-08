@@ -173,7 +173,7 @@ class ChapterUrlsUI {
             this.usingTable = true;
             this.setVisibileUI(this.usingTable);
         } catch (err) {
-            window.showErrorMessage(err);
+            ErrorLog.showErrorMessage(err);
         }
     }
 
@@ -184,7 +184,7 @@ class ChapterUrlsUI {
             chapters.reverse();
             this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
         } catch (err) {
-            window.showErrorMessage(err);
+            ErrorLog.showErrorMessage(err);
         }
     }
 

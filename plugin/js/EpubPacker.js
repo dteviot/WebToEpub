@@ -37,55 +37,13 @@ class EpubPacker {
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
         zipFile.generateAsync({ type: "blob" }).then(function(content) {
-            EpubPacker.save(content, EpubPacker.addExtensionIfMissing(fileName));
+            Download.save(content, EpubPacker.addExtensionIfMissing(fileName));
         });
     }
 
     static addExtensionIfMissing(fileName) {
         let extension = ".epub";
         return (fileName.endsWith(extension)) ? fileName : fileName + extension;
-    }
-
-    /** write blob to "Downloads" directory */
-    static save(blob, fileName) {
-        if (util.isFirefox()) {
-            EpubPacker.saveOnFirefox(blob, fileName)
-        } else {
-            EpubPacker.saveOnChrome(blob, fileName)
-        }
-    }
-
-    static saveOnChrome(blob, fileName) {
-        var clickEvent = new MouseEvent("click", {
-            "view": window,
-            "bubbles": true,
-            "cancelable": false
-        });
-        var a = document.createElement("a");
-        let dataUrl = URL.createObjectURL(blob);
-        a.href = dataUrl;
-        a.download = fileName;
-        a.dispatchEvent(clickEvent);
-        EpubPacker.scheduleDataUrlForDisposal(dataUrl);
-    }
-
-    static saveOnFirefox(blob, fileName) {
-        let options = {
-            url: URL.createObjectURL(blob),
-            filename: fileName,
-            saveAs: true
-        };
-        var downloading = browser.downloads.download(options);
-        var cleanup = function() { EpubPacker.scheduleDataUrlForDisposal(options.url); };
-        downloading.then(cleanup, cleanup);
-    }
-
-    static scheduleDataUrlForDisposal(dataUrl) {
-        // there is no download finished event, so best 
-        // we can do is release the URL at arbitary time in future
-        let oneMinute = 60 * 1000;
-        let disposeUrl = function() { URL.revokeObjectURL(dataUrl); };
-        setTimeout(disposeUrl, oneMinute);
     }
 
     // every EPUB must have a mimetype and a container.xml file

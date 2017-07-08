@@ -436,7 +436,7 @@ class BakaTsukiParser extends Parser{
     onFetchImagesClicked() {
         let that = this;
         if (0 == that.imageCollector.imageInfoList.length) {
-            window.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
         } else {
             that.getFetchContentButton().disabled = true;
             that.fetchContent();
@@ -452,7 +452,7 @@ class BakaTsukiParser extends Parser{
                 main.getPackEpubButton().disabled = false;
                 that.getFetchContentButton().disabled = false;
             }).catch(function (err) {
-                util.logError(err);
+                ErrorLog.log(err);
             });
     }
 

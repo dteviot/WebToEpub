@@ -63,6 +63,10 @@
 		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
 	},
+	"__MSG_button_Write_Error_History_To_File__": {
+		"message": "Write recent error messages to file",
+		"description": "Label on button to write recent error messages to file"
+	},
 	"__MSG_column_Include__": {
 		"message": "Include?",
 		"description": "The 'include this chapter' checkbox column in the table of chapters."
@@ -277,5 +281,9 @@
 			    "content": "$1"
 			}
 		}
+	},
+	"warningNoErrorsToWrite": {
+		"message": "There are no errors to write to file.",
+		"description": "Warning message if asked to write error history to file and there are none."
 	}
 }

@@ -41,7 +41,7 @@ class EpubItem {
             let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
                 [this.chapterTitle, this.sourceUrl]
             );
-            util.logError(errorMsg);
+            ErrorLog.log(errorMsg);
         }
         return xml;
     }
