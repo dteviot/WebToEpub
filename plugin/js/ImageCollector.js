@@ -290,11 +290,12 @@ class ImageCollector {
             // find URL of wanted image file on html page
             // if we can't find one, just use the original image.
             let temp = this.selectImageUrlFromImagePage(xhr.responseXML);
-            if (temp != null) {
-                imageInfo.sourceUrl = temp;
-                this.urlIndex.set(temp, imageInfo.index);
+            if (temp == null) {
+                temp = imageInfo.sourceUrl;
             }
-            return HttpClient.wrapFetch(imageInfo.sourceUrl);
+            temp = ImageCollector.removeSizeParamsFromWordPressQuery(temp);
+            this.urlIndex.set(temp, imageInfo.index);
+            return HttpClient.wrapFetch(temp);
         } else {
             // page wasn't HTML, so assume is actual image
             imageInfo.sourceUrl = xhr.response.url;
