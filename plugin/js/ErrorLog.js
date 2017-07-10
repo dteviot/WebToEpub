@@ -11,7 +11,7 @@ class ErrorLog {
     static showErrorMessage(msg) {
         // if already showing an error message, queue the new one to display
         // when currently showing is closed.
-        ErrorLog.queue = [msg].concat(ErrorLog.queue);
+        ErrorLog.queue.push(msg);
         if (1 < ErrorLog.queue.length) {
             return;
         };
@@ -21,11 +21,11 @@ class ErrorLog {
 
         ErrorLog.setErrorMessageText(msg);
         document.getElementById("errorButtonOk").onclick = function () {
-            ErrorLog.queue.pop();
+            ErrorLog.queue.shift();
             if (ErrorLog.queue.length === 0) {
                 ErrorLog.restoreSectionVisibility(sections);
             } else {
-                ErrorLog.setErrorMessageText(ErrorLog.queue[ErrorLog.queue.length - 1]);
+                ErrorLog.setErrorMessageText(ErrorLog.queue[0]);
             };
         };
     }
@@ -34,7 +34,7 @@ class ErrorLog {
         if (ErrorLog.history.length === 0) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("warningNoErrorsToWrite"));
         } else {
-            let errors = ErrorLog.history.reduce((p, c) => p += c + "\r\n\r\n", "");
+            let errors = ErrorLog.history.join("\r\n\r\n");
             let blob = new Blob([errors], {type : "text"});
             try {
                 Download.save(blob, "WebToEpub.Errors.txt")
