@@ -75,7 +75,7 @@ var main = (function () {
         }
     }
 
-    function metaInfoFromContorls() {
+    function metaInfoFromControls() {
         let metaInfo = new EpubMetaInfo();
         metaInfo.uuid = getValueFromUiField("startingUrlInput");
         metaInfo.title = getValueFromUiField("titleInput");
@@ -105,19 +105,34 @@ var main = (function () {
     }
 
     function fetchContentAndPackEpub() {
+        let metaInfo = metaInfoFromControls();
+        let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
         main.getPackEpubButton().disabled = true;
         parser.onStartCollecting();
         parser.fetchContent().then(function () {
-            packEpub();
+            return packEpub(metaInfo);
+        }).then(function (content) {
+            return Download.save(content, fileName);
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
     }
 
-    function packEpub() {
-        let metaInfo = metaInfoFromContorls();
+    function packEpub(metaInfo) {
         let epub = new EpubPacker(metaInfo);
-        epub.assembleAndSave(metaInfo.fileName, parser.epubItemSupplier());
+        return epub.assemble(parser.epubItemSupplier());
+    }
+
+    function dumpErrorLogToFile() {
+        let fileName = metaInfoFromControls().fileName + ".ErrorLog.txt";
+        let errors = ErrorLog.dumpHistory();
+        let blob = new Blob([errors], {type : "text"});
+        try {
+            Download.save(blob, fileName)
+        }
+        catch (err) {
+            ErrorLog.showErrorMessage(err);
+        }
     }
 
     function getActiveTabDOM(tabId) {
@@ -314,7 +329,7 @@ var main = (function () {
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
-        document.getElementById("writeErrorHistoryToFileButton").onclick = ErrorLog.dumpHistoryToFile;
+        document.getElementById("writeErrorHistoryToFileButton").onclick = dumpErrorLogToFile;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
     }

@@ -30,19 +30,10 @@ class ErrorLog {
         };
     }
 
-    static dumpHistoryToFile() {
-        if (ErrorLog.history.length === 0) {
-            ErrorLog.showErrorMessage(chrome.i18n.getMessage("warningNoErrorsToWrite"));
-        } else {
-            let errors = ErrorLog.history.join("\r\n\r\n");
-            let blob = new Blob([errors], {type : "text"});
-            try {
-                Download.save(blob, "WebToEpub.Errors.txt")
-            } catch (err) {
-                ErrorLog.showErrorMessage(err);
-            }
-            ErrorLog.history = [];
-        }
+    static dumpHistory() {
+        let errors = ErrorLog.history.join("\r\n\r\n");
+        ErrorLog.history = [];
+        return errors;
     }
 
     /** private */

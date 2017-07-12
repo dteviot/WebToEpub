@@ -28,7 +28,7 @@ class EpubPacker {
         return "cover";
     }
 
-    assembleAndSave(fileName, epubItemSupplier) {
+    assemble(epubItemSupplier) {
         let that = this;
         let zipFile = new JSZip();
         that.addRequiredFiles(zipFile);
@@ -36,9 +36,7 @@ class EpubPacker {
         zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
-        zipFile.generateAsync({ type: "blob" }).then(function(content) {
-            Download.save(content, EpubPacker.addExtensionIfMissing(fileName));
-        });
+        return zipFile.generateAsync({ type: "blob" });
     }
 
     static addExtensionIfMissing(fileName) {
