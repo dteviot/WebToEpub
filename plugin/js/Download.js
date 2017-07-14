@@ -4,45 +4,67 @@ class Download {
     constructor () {
     }
 
-    /** write blob to "Downloads" directory */
-    static save(blob, fileName) {
+    static init() {
+        Download.saveOn = util.isFirefox() ? Download.saveOnFirefox : Download.saveOnChrome;
         if (util.isFirefox()) {
-            Download.saveOnFirefox(blob, fileName)
+            Download.saveOn = Download.saveOnFirefox;
+            browser.downloads.onChanged.addListener(Download.onChanged);
         } else {
-            Download.saveOnChrome(blob, fileName)
+            Download.saveOn = Download.saveOnChrome;
+            chrome.downloads.onChanged.addListener(Download.onChanged);
         }
     }
 
-    static saveOnChrome(blob, fileName) {
-        var clickEvent = new MouseEvent("click", {
-            "view": window,
-            "bubbles": true,
-            "cancelable": false
-        });
-        var a = document.createElement("a");
-        let dataUrl = URL.createObjectURL(blob);
-        a.href = dataUrl;
-        a.download = fileName;
-        a.dispatchEvent(clickEvent);
-        Download.scheduleDataUrlForDisposal(dataUrl);
-    }
-
-    static saveOnFirefox(blob, fileName) {
+    /** write blob to "Downloads" directory */
+    static save(blob, fileName) {
         let options = {
             url: URL.createObjectURL(blob),
             filename: fileName,
-            saveAs: true
+            saveAs: false
         };
-        var downloading = browser.downloads.download(options);
-        var cleanup = function() { Download.scheduleDataUrlForDisposal(options.url); };
-        downloading.then(cleanup, cleanup);
+        let cleanup = () => { URL.revokeObjectURL(options.url); };
+        return Download.saveOn(options, cleanup);
     }
 
-    static scheduleDataUrlForDisposal(dataUrl) {
-        // there is no download finished event, so best 
-        // we can do is release the URL at arbitary time in future
-        let oneMinute = 60 * 1000;
-        let disposeUrl = function() { URL.revokeObjectURL(dataUrl); };
-        setTimeout(disposeUrl, oneMinute);
+    static saveOnChrome(options, cleanup) {
+        // on Chrome call to download() will resolve when "Save As" dialog OPENS
+        // so need to delay return until after file is actually saved
+        // Otherwise, we get multiple Save As Dialogs open.
+        return new Promise(resolve => {
+            chrome.downloads.download(options, 
+                downloadId => Download.onDownloadStarted(downloadId, 
+                    () => { cleanup(); resolve(); }
+                )
+            );
+        });
+    }
+
+    static saveOnFirefox(options, cleanup) {
+        return browser.downloads.download(options).then(
+            // on Firefox, resolves when "Save As" dialog CLOSES, so no
+            // need to delay past this point.
+            downloadId => Download.onDownloadStarted(downloadId, cleanup)
+        ).catch(cleanup);
+    }
+
+    static onChanged(delta) {
+        if ((delta.state != null) && (delta.state.current !== "in_progress")) {
+            let action = Download.toCleanup.get(delta.id);
+            if (action != null) {
+                Download.toCleanup.delete(delta.id);
+                action();
+            }
+        }
+    }
+
+    static onDownloadStarted(downloadId, action) {
+        if (downloadId === undefined) {
+            action();
+        } else {
+            Download.toCleanup.set(downloadId, action);
+        }
     }
 }
+
+Download.toCleanup = new Map();
+Download.init();

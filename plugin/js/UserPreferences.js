@@ -83,6 +83,7 @@ class UserPreferences {
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
+        this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", false);
 
         this.observers = [];
     };

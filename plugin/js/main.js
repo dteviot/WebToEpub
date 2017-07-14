@@ -113,6 +113,8 @@ var main = (function () {
             return packEpub(metaInfo);
         }).then(function (content) {
             return Download.save(content, fileName);
+        }).then(function () {
+            return dumpErrorLogToFile();
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
@@ -124,14 +126,13 @@ var main = (function () {
     }
 
     function dumpErrorLogToFile() {
-        let fileName = metaInfoFromControls().fileName + ".ErrorLog.txt";
         let errors = ErrorLog.dumpHistory();
-        let blob = new Blob([errors], {type : "text"});
-        try {
-            Download.save(blob, fileName)
-        }
-        catch (err) {
-            ErrorLog.showErrorMessage(err);
+        if (userPreferences.writeErrorHistoryToFile.value &&
+            !util.isNullOrEmpty(errors)) {
+            let fileName = metaInfoFromControls().fileName + ".ErrorLog.txt";
+            let blob = new Blob([errors], {type : "text"});
+            return Download.save(blob, fileName)
+                .catch (err => ErrorLog.showErrorMessage(err));
         }
     }
 
@@ -329,7 +330,6 @@ var main = (function () {
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
-        document.getElementById("writeErrorHistoryToFileButton").onclick = dumpErrorLogToFile;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
     }
