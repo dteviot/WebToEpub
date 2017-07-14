@@ -15,4 +15,10 @@ Chrome.prototype.i18n = {
     getMessage: id => new Chrome().messages[id]
 }
 
+Chrome.prototype.downloads = { 
+    onChanged: {
+        addListener: () => {}
+    }
+};
+
 var chrome = new Chrome();
