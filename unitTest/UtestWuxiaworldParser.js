@@ -69,3 +69,22 @@ test("getArcName", function (assert) {
         done();
     });
 });
+
+test("cleanCollapseomatic", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<p><strong><span class=\"collapseomatic \" id=\"id129\" tabindex title=\"Chapter 417 (Click to show &quote; spoiler&quote; title)\">Chapter 417 (Click to show \"spoiler\" title)</span></strong></p>" +
+        "<div id=\"target-id129\" class=\"collapseomatic_content \" style=\"display: none;\"><strong>" +
+        "<p>Chapter 417: The Resurrection Lily Suddenly Makes a Move!</p>" +
+        "</strong><p><strong></strong><br>" +
+        "</p></div>"
+    );
+    let content = dom.body;
+    WuxiaworldParser.cleanCollapseomatic(content);
+    assert.equal(content.innerHTML, 
+        "<p><strong></strong></p>" +
+        "<div id=\"target-id129\" class=\"collapseomatic_content \"><strong>" +
+        "<p>Chapter 417: The Resurrection Lily Suddenly Makes a Move!</p>" +
+        "</strong><p><strong></strong><br>" +
+        "</p></div>"
+    );
+});

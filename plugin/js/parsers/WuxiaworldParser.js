@@ -51,6 +51,7 @@ class WuxiaworldParser extends Parser {
         let that = this;
         super.removeUnwantedElementsFromContentElement(element);
         that.removeEmoji(element);
+        WuxiaworldParser.cleanCollapseomatic(element);
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -75,5 +76,15 @@ class WuxiaworldParser extends Parser {
     populateUI(dom) {
         super.populateUI(dom);
         CoverImageUI.showCoverImageUrlInput(true);
+    }
+
+    static cleanCollapseomatic(content) {
+        for(let e of content.querySelectorAll("[class^='collapseomatic']")) {
+            if (e.className.startsWith("collapseomatic_content")) {
+                e.removeAttribute("style");
+            } else {
+                e.remove();
+            }
+        }
     }
 }
