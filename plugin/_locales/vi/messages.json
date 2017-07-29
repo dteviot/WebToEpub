@@ -167,6 +167,10 @@
         "message": "Tập",
         "description": ""
     },
+    "__MSG_label_Write_Error_History_To_File__": {
+        "message": "Ghi các thông báo lỗi gần đây vào tập tin",
+        "description": ""
+    },
     "__MSG_option_Class_Is__": {
         "message": "Class là",
         "description": ""
@@ -186,6 +190,18 @@
     "__MSG_option_ID_Starts_With__": {
         "message": "ID Bắt Đầu Với",
         "description": ""
+    },
+    "convertToXhtmlWarning": {
+        "message": "Cảnh báo, không thể chuyển đổi chương '$chapter$'  từ '$url$' sang XHTML chuẩn. Trình đọc epub của bạn có thể không đọc được chương này. Bạn có thể cần phải sửa chương này thủ công bằng phần mềm Calibre.",
+        "description": "",
+        "placeholders": {
+            "chapter": {
+                "content": "$1"
+            },
+            "url": {
+                "content": "$2"
+            }
+        }
     },
     "defaultAuthor": {
         "message": "Tên Tác Giả Không Được Cấp",
