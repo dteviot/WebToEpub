@@ -49,7 +49,7 @@ class EpubItem {
 
     makeChapterDoc() {
         let that = this;
-        let doc = util.createEmptyXhtmlDoc();
+        let doc = EpubItem.createEmptyChapterDoc();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of that.nodes) {
             body.appendChild(doc.importNode(node, true));
@@ -76,7 +76,17 @@ class EpubItem {
             };
         };
     }
+
+    static setDocType(epubVersion) {
+        if (epubVersion === "2.0") {
+            EpubItem.createEmptyChapterDoc = util.createEmptyXhtmlDoc;
+        } else {
+            EpubItem.createEmptyChapterDoc = util.createEmptyHtmlDoc;
+        }
+    }
 }
+
+EpubItem.createEmptyChapterDoc = util.createEmptyXhtmlDoc;
 
 //==============================================================
 // Construct an Epub item from source where each chapter 

@@ -27,14 +27,24 @@ var util = (function () {
         let head = doc.createElementNS(util.XMLNS, "head");
         htmlNode.appendChild(head);
         head.appendChild(doc.createElementNS(util.XMLNS, "title"));
+        populateHead(doc, head);
+        let body = doc.createElementNS(util.XMLNS, "body");
+        htmlNode.appendChild(body);
+        return doc;
+    }
+
+    var populateHead = function(doc, head) {
         let style = doc.createElementNS(util.XMLNS, "link");
         head.appendChild(style);
         style.setAttribute("href", util.makeRelative(util.styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
-        let body = doc.createElementNS(util.XMLNS, "body");
-        htmlNode.appendChild(body);
-        return doc;
+    }
+
+    var createEmptyHtmlDoc = function() {
+        let doc = document.implementation.createHTMLDocument();
+        util.populateHead(doc, doc.querySelector("head"));
+        return doc
     }
 
     var createSvgImageElement = function (href, width, height, origin, includeImageSourceUrl) {
@@ -743,6 +753,8 @@ var util = (function () {
         isFirefox: isFirefox,
         extensionVersion: extensionVersion,
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
+        createEmptyHtmlDoc: createEmptyHtmlDoc,
+        populateHead: populateHead,
         createSvgImageElement: createSvgImageElement,
         resolveRelativeUrl: resolveRelativeUrl,
         log: log,

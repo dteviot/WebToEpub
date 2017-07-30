@@ -120,8 +120,14 @@ var main = (function () {
         });
     }
 
+    function epubVersionFromPreferences() {
+        return userPreferences.createEpub3.value ? "3.0" : "2.0";
+    }
+
     function packEpub(metaInfo) {
-        let epub = new EpubPacker(metaInfo);
+        let epubVersion = epubVersionFromPreferences();
+        EpubItem.setDocType(epubVersion);
+        let epub = new EpubPacker(metaInfo, epubVersion);
         return epub.assemble(parser.epubItemSupplier());
     }
 

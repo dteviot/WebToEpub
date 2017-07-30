@@ -15,9 +15,9 @@
 /// <param name="title" type="string">The Title of the story</param>
 /// <param name="author" type="string">The writer of the story</param>
 class EpubPacker {
-    constructor(metaInfo) {
-        let that = this;
-        that.metaInfo = metaInfo;
+    constructor(metaInfo, version = "2.0") {
+        this.metaInfo = metaInfo;
+        this.version = version;
     }
 
     static coverImageXhtmlHref() {
@@ -34,6 +34,9 @@ class EpubPacker {
         that.addRequiredFiles(zipFile);
         zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
         zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
+        if (this.version === "3.0") {
+            zipFile.file("OEBPS/toc.xhtml", that.buildNavigationDocument(epubItemSupplier), { compression: "DEFLATE" });
+        }
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
         return zipFile.generateAsync({ type: "blob" });
@@ -61,7 +64,7 @@ class EpubPacker {
         let that = this;
         let ns = "http://www.idpf.org/2007/opf";
         let opf = document.implementation.createDocument(ns, "package", null);
-        opf.documentElement.setAttributeNS(null, "version", "2.0");
+        opf.documentElement.setAttributeNS(null, "version", this.version);
         opf.documentElement.setAttributeNS(null, "unique-identifier", "BookId");
         that.buildMetaData(opf, epubItemSupplier);
         that.buildManifest(opf, ns, epubItemSupplier);
@@ -85,22 +88,30 @@ class EpubPacker {
         that.createAndAppendChildNS(metadata, dc_ns, "dc:date", that.getDateForMetaData());
 
         let author = that.createAndAppendChildNS(metadata, dc_ns, "dc:creator", that.metaInfo.author);
-        author.setAttributeNS(opf_ns, "opf:file-as", that.metaInfo.getFileAuthorAs());
-        author.setAttributeNS(opf_ns, "opf:role", "aut");
+        this.addMetaProperty(metadata, author, "file-as", "creator", that.metaInfo.getFileAuthorAs());
+        this.addMetaProperty(metadata, author, "role", "creator", "aut");
 
         if (that.metaInfo.translator !== null) {
             let translator = that.createAndAppendChildNS(metadata, dc_ns, "dc:contributor", that.metaInfo.translator);
-            translator.setAttributeNS(opf_ns, "opf:file-as", that.metaInfo.translator);
-            translator.setAttributeNS(opf_ns, "opf:role", "trl");
+            this.addMetaProperty(metadata, translator, "file-as", "translator", that.metaInfo.translator);
+            this.addMetaProperty(metadata, translator, "role", "translator", "trl");
         }
 
         let identifier = that.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", that.metaInfo.uuid);
         identifier.setAttributeNS(null, "id", "BookId");
-        identifier.setAttributeNS(opf_ns, "opf:scheme", "URI");
+        if (this.version === "2.0") {
+            identifier.setAttributeNS(opf_ns, "opf:scheme", "URI");
+        } else {
+            this.addMetaProperty(metadata, identifier, "identifier-type", "BookId", "URI");
+            let meta = this.createAndAppendChildNS(metadata, opf_ns, "meta");
+            meta.setAttributeNS(null, "property", "dcterms:modified");
+            let dateWithoutMillisecond = this.getDateForMetaData().substring(0, 19) + "Z";
+            meta.textContent = dateWithoutMillisecond;
+        }
 
         let webToEpubVersion = `[https://github.com/dteviot/WebToEpub] (ver. ${util.extensionVersion()})`;
         let contributor = that.createAndAppendChildNS(metadata, dc_ns, "dc:contributor", webToEpubVersion);
-        contributor.setAttributeNS(opf_ns, "opf:role", "bkp");
+        this.addMetaProperty(metadata, contributor, "role", "packingTool", "bkp");
 
         if (epubItemSupplier.hasCoverImageFile()) {
             that.appendMetaContent(metadata, opf_ns, "cover", epubItemSupplier.coverImageId());
@@ -109,6 +120,19 @@ class EpubPacker {
         if (that.metaInfo.seriesName !== null) {
             that.appendMetaContent(metadata, opf_ns, "calibre:series", that.metaInfo.seriesName);
             that.appendMetaContent(metadata, opf_ns, "calibre:series_index", that.metaInfo.seriesIndex);
+        }
+    }
+
+    addMetaProperty(metadata, element, propName, id, value) {
+        let opf_ns = "http://www.idpf.org/2007/opf";
+        if (this.version === "3.0") {
+            element.setAttributeNS(null, "id", id);
+            let meta = this.createAndAppendChildNS(metadata, opf_ns, "meta");
+            meta.setAttributeNS(null, "refines", "#" +id);
+            meta.setAttributeNS(null, "property", propName);
+            meta.textContent = value;
+        } else {
+            element.setAttributeNS(opf_ns, "opf:" + propName, value);
         }
     }
 
@@ -131,6 +155,10 @@ class EpubPacker {
         if (epubItemSupplier.hasCoverImageFile()) {
             that.addManifestItem(manifest, ns, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
         };
+        if (this.version === "3.0") {
+            let item = this.addManifestItem(manifest, ns, "OEBPS/toc.xhtml", "nav", "application/xhtml+xml");
+            item.setAttributeNS(null, "properties", "nav");
+        }
     }
 
     addManifestItem(manifest, ns, href, id, mediaType) {
@@ -139,6 +167,7 @@ class EpubPacker {
         item.setAttributeNS(null, "href", that.makeRelative(href));
         item.setAttributeNS(null, "id", id);
         item.setAttributeNS(null, "media-type", mediaType);
+        return item;
     }
 
     buildSpine(opf, ns, epubItemSupplier) {

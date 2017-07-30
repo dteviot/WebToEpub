@@ -84,6 +84,7 @@ class UserPreferences {
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
         this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", false);
+        this.addPreference("createEpub3", "createEpub3Checkbox", false);
 
         this.observers = [];
     };

@@ -82,6 +82,55 @@ test("buildContentOpf", function (assert) {
     );
 });
 
+test("buildEpub3ContentOpf", function (assert) {
+    let metaInfo = new EpubMetaInfo();
+    metaInfo.uuid = "Dummy UUID";
+    metaInfo.title = "Dummy <Title>";
+    metaInfo.author = "Dummy & Author";
+    metaInfo.translator = "GoogleTranslate";
+    let epubPacker = new EpubPacker(metaInfo, "3.0");
+    epubPacker.metaInfo.seriesName = "BakaSeries";
+    epubPacker.metaInfo.seriesIndex = "666";
+    epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
+    let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
+
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(contentOpf.replace(/\r|\n/g, ""),
+        "<?xml version='1.0' encoding='utf-8'?>"+
+        "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\" unique-identifier=\"BookId\">"+
+            "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
+            "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
+            "<dc:language>en</dc:language>"+
+            "<dc:date>2015-10-17T21:04:54.061Z</dc:date>" +
+            "<dc:creator id=\"creator\">Dummy &amp; Author</dc:creator>" +
+            "<meta refines=\"#creator\" property=\"file-as\">Dummy &amp; Author</meta>" +
+            "<meta refines=\"#creator\" property=\"role\">aut</meta>" +
+            "<dc:contributor id=\"translator\">GoogleTranslate</dc:contributor>" +
+            "<meta refines=\"#translator\" property=\"file-as\">GoogleTranslate</meta>" +
+            "<meta refines=\"#translator\" property=\"role\">trl</meta>" +
+            "<dc:identifier id=\"BookId\">Dummy UUID</dc:identifier>"+
+            "<meta refines=\"#BookId\" property=\"identifier-type\">URI</meta>"+
+            "<meta property=\"dcterms:modified\">2015-10-17T21:04:54Z</meta>" +
+            "<dc:contributor id=\"packingTool\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
+            "<meta refines=\"#packingTool\" property=\"role\">bkp</meta>" +
+            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
+            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "</metadata>"+
+            "<manifest>"+
+              "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
+              "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
+              "<item href=\"toc.ncx\" id=\"ncx\" media-type=\"application/x-dtbncx+xml\"/>" +
+              "<item href=\"toc.xhtml\" id=\"nav\" media-type=\"application/xhtml+xml\" properties=\"nav\"/>" +
+            "</manifest>"+
+            "<spine toc=\"ncx\">"+
+              "<itemref idref=\"xhtml0000\"/>" +
+              "<itemref idref=\"xhtml0001\"/>" +
+            "</spine>" +
+        "</package>"
+    );
+});
+
 test("buildContentOpfWithCover", function (assert) {
     let image = new ImageInfo("http://bp.org/thepic.jpeg", 0, "http://bp.org/thepic.jpeg");
     image.isCover = true;

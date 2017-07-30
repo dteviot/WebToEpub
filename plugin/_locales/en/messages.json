@@ -95,6 +95,10 @@
 		"message": "Cover Image URL:",
 		"description": "Label for input to give cover image as URL"
 	},
+	"__MSG_label_Create_Epub_3__": {
+		"message": "Create EPUB 3",
+		"description": "Label for checkbox to choose between EPUB 2 and 3"
+	},
 	"__MSG_label_File_Author_as__": {
 		"message": "File Author as",
 		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
