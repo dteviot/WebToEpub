@@ -182,6 +182,21 @@ class EpubPacker {
         return util.xmlToString(ncx);
     }
 
+    buildNavigationDocument(epubItemSupplier) {
+        let ns = "http://www.w3.org/1999/xhtml";
+        let navDoc = document.implementation.createDocument(ns, "html", null);
+        navDoc.documentElement.setAttribute("xml:lang", this.metaInfo.language);
+        navDoc.documentElement.setAttribute("xmlns:epub", "http://www.idpf.org/2007/ops");
+        navDoc.documentElement.setAttribute("lang", this.metaInfo.language);
+        this.createAndAppendChildNS(navDoc.documentElement, ns, "head");
+        let body = this.createAndAppendChildNS(navDoc.documentElement, ns, "body");
+        let nav = this.createAndAppendChildNS(body, ns, "nav");
+        nav.setAttribute("epub:type", "toc");
+        nav.setAttribute("id", "toc");
+        this.populateNavElement(nav, ns, epubItemSupplier);
+        return util.xmlToString(navDoc);
+    }
+
     populateHead(head, ns, depth) {
         let that = this;
         that.buildHeadMeta(head, ns, that.metaInfo.uuid, "dtb:uid");
@@ -201,6 +216,33 @@ class EpubPacker {
         let that = this;
         let docTitle = that.createAndAppendChildNS(ncx.documentElement, ns, "docTitle");
         that.createAndAppendChildNS(docTitle, ns, "text", that.metaInfo.title);
+    }
+
+    populateNavElement(nav, ns, epubItemSupplier) {
+        let rootParent = this.createAndAppendChildNS(nav, ns, "ol");
+        let parents = new NavPointParentElementsStack(rootParent);
+        for(let chapterInfo of epubItemSupplier.chapterInfo()) {
+            let parent = parents.findParentElement(chapterInfo.depth);
+            let nextLevel = this.buildNavListItem(parent, ns, chapterInfo);
+            parents.addElement(chapterInfo.depth, nextLevel);
+        }
+        this.removeEmptyNavLists(rootParent)
+    }
+
+    buildNavListItem(parent, ns, chapterInfo) {
+        let li = this.createAndAppendChildNS(parent, ns, "li");
+        let link = this.createAndAppendChildNS(li, ns, "a");
+        link.href = this.makeRelative(chapterInfo.src);
+        link.textContent = chapterInfo.title;
+        return this.createAndAppendChildNS(li, ns, "ol");
+    }
+
+    removeEmptyNavLists(rootParent) {
+        for(var list of rootParent.querySelectorAll("ol")) {
+            if (list.childElementCount === 0) {
+                list.remove();
+            }
+        }
     }
 
     buildNavMap(ncx, ns, epubItemSupplier) {

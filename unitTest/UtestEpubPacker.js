@@ -420,3 +420,45 @@ test("addExtensionIfMissing_Missing_Added", function (assert) {
     let actual = EpubPacker.addExtensionIfMissing("web");
     assert.equal(actual, "web.epub");
 });
+
+test("buildNavigationDocument", function (assert) {
+    let epubItemSupplier = makeEpubItemSupplier();
+    let doc = TestUtils.makeDomWithBody("<div></div><div></div>");
+    let body = doc.body;
+    let epubItems = [];
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "C1", newArc: null }, body, 0));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C1", newArc: "A1" }, body, 1));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A1C2", newArc: null }, body, 2));
+    epubItems.push(new ChapterEpubItem({sourceUrl: "", title: "A2C1", newArc: "A2" }, body, 3));
+
+    epubItemSupplier.epubItems = epubItems;
+    let navDocument = makePacker().buildNavigationDocument(epubItemSupplier);
+    // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
+    assert.equal(navDocument.replace(/\r|\n/g, ""),
+        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" xmlns:epub=\"http://www.idpf.org/2007/ops\" lang=\"en\">" +
+          "<head>" +
+          "</head>" +
+          "<body>" +
+            "<nav epub:type=\"toc\" id=\"toc\">" +
+              "<ol>" +
+                "<li><a href=\"Text/0000_C1.xhtml\">C1</a></li>" +
+                "<li>" +
+                  "<a href=\"Text/0001_A1C1.xhtml\">A1</a>" +
+                  "<ol>" +
+                    "<li><a href=\"Text/0001_A1C1.xhtml\">A1C1</a></li>" +
+                    "<li><a href=\"Text/0002_A1C2.xhtml\">A1C2</a></li>" +
+                  "</ol>" +
+                "</li>" +
+                "<li>" +
+                  "<a href=\"Text/0003_A2C1.xhtml\">A2</a>" +
+                  "<ol>" +
+                    "<li><a href=\"Text/0003_A2C1.xhtml\">A2C1</a></li>" +
+                  "</ol>" +
+                "</li>" +
+              "</ol>" +
+            "</nav>" +
+          "</body>" +
+        "</html>"  
+    );
+});
