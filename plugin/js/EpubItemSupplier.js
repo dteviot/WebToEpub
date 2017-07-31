@@ -41,9 +41,9 @@ class EpubItemSupplier {
         };
     }
 
-    makeCoverImageXhtmlFile() {
+    makeCoverImageXhtmlFile(emptyDocFactory) {
         let that = this;
-        let doc = util.createEmptyXhtmlDoc();
+        let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         let userPreferences = that.imageCollector.userPreferences;
         body.appendChild(that.coverImageInfo.createImageElement(userPreferences));

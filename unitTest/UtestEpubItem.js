@@ -22,7 +22,7 @@ test("fileContentForEpub", function (assert) {
     );
     let item = new EpubItem("http://dummy.com/imgage.html");
     item.nodes = [ dom.getElementsByTagName("section")[0] ];
-    let xhtml = item.fileContentForEpub();
+    let xhtml = item.fileContentForEpub(util.createEmptyXhtmlDoc);
 
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtml.replace(/\r|\n/g, ""),

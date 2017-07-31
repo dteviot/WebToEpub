@@ -35,8 +35,8 @@ class EpubItem {
         return "application/xhtml+xml";
     }
 
-    fileContentForEpub() {
-        let xml = util.xmlToString(this.makeChapterDoc());
+    fileContentForEpub(emptyDocFactory) {
+        let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
         if (util.isXhtmlInvalid(xml)) {
             let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
                 [this.chapterTitle, this.sourceUrl]
@@ -46,10 +46,9 @@ class EpubItem {
         return xml;
     }
 
-
-    makeChapterDoc() {
+    makeChapterDoc(emptyDocFactory) {
         let that = this;
-        let doc = EpubItem.createEmptyChapterDoc();
+        let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of that.nodes) {
             body.appendChild(doc.importNode(node, true));
@@ -76,17 +75,7 @@ class EpubItem {
             };
         };
     }
-
-    static setDocType(epubVersion) {
-        if (epubVersion === "2.0") {
-            EpubItem.createEmptyChapterDoc = util.createEmptyXhtmlDoc;
-        } else {
-            EpubItem.createEmptyChapterDoc = util.createEmptyHtmlDoc;
-        }
-    }
 }
-
-EpubItem.createEmptyChapterDoc = util.createEmptyXhtmlDoc;
 
 //==============================================================
 // Construct an Epub item from source where each chapter 
@@ -163,7 +152,7 @@ class ImageInfo extends EpubItem {
         return this.mediaType;
     }
 
-    fileContentForEpub() {
+    fileContentForEpub(emptyDocFactory) {   // eslint-disable-line no-unused-vars
         return this.arraybuffer;
     }
 

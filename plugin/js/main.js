@@ -126,7 +126,6 @@ var main = (function () {
 
     function packEpub(metaInfo) {
         let epubVersion = epubVersionFromPreferences();
-        EpubItem.setDocType(epubVersion);
         let epub = new EpubPacker(metaInfo, epubVersion);
         return epub.assemble(parser.epubItemSupplier());
     }

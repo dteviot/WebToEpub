@@ -374,7 +374,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
         imagesToPackInEpub: function () { return []; }
     };
     let itemSupplier = new EpubItemSupplier(null, [], dummyImageCollector);
-    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
+    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile(util.createEmptyXhtmlDoc);
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
@@ -408,7 +408,7 @@ test("makeCoverImageXhtmlFileAsImg", function (assert) {
         imagesToPackInEpub: function () { return []; }
     };
     let itemSupplier = new EpubItemSupplier(null, [], dummyImageCollector);
-    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
+    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile(util.createEmptyXhtmlDoc);
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
@@ -437,7 +437,7 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
         imagesToPackInEpub: function () { return []; }
     };
     let itemSupplier = new EpubItemSupplier(null, [], dummyImageCollector);
-    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile();
+    let xhtmlFile = itemSupplier.makeCoverImageXhtmlFile(util.createEmptyXhtmlDoc);
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),

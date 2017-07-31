@@ -18,6 +18,8 @@ class EpubPacker {
     constructor(metaInfo, version = "2.0") {
         this.metaInfo = metaInfo;
         this.version = version;
+        this.emptyDocFactory = (version === "2.0") ? 
+            util.createEmptyXhtmlDoc : util.createEmptyHtmlDoc;
     }
 
     static coverImageXhtmlHref() {
@@ -307,10 +309,12 @@ class EpubPacker {
     packXhtmlFiles(zipFile, epubItemSupplier) {
         let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
-            zipFile.file(file.getZipHref(), file.fileContentForEpub(), zipOptions);
+            let content = file.fileContentForEpub(this.emptyDocFactory);
+            zipFile.file(file.getZipHref(), content, zipOptions);
         };
         if (epubItemSupplier.hasCoverImageFile()) {
-            zipFile.file(EpubPacker.coverImageXhtmlHref(), epubItemSupplier.makeCoverImageXhtmlFile(), zipOptions);
+            let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
+            zipFile.file(EpubPacker.coverImageXhtmlHref(), fileContent, zipOptions);
         };
     }
 

@@ -42,7 +42,7 @@ var util = (function () {
     }
 
     var createEmptyHtmlDoc = function() {
-        let doc = document.implementation.createHTMLDocument();
+        let doc = document.implementation.createHTMLDocument("");
         util.populateHead(doc, doc.querySelector("head"));
         return doc
     }
