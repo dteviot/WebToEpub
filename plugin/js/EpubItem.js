@@ -35,6 +35,18 @@ class EpubItem {
         return "application/xhtml+xml";
     }
 
+    hasSvg() {
+        if (this.nodes != null) {
+            for(let n of this.nodes) {
+                if ((n.nodeType === Node.ELEMENT_NODE) &&
+                    (n.querySelector("svg") !== null)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     fileContentForEpub(emptyDocFactory) {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
         if (util.isXhtmlInvalid(xml)) {

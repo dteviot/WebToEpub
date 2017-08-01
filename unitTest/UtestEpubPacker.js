@@ -135,6 +135,10 @@ test("buildContentOpfWithCover", function (assert) {
     let image = new ImageInfo("http://bp.org/thepic.jpeg", 0, "http://bp.org/thepic.jpeg");
     image.isCover = true;
     let imageCollector = {
+        userPreferences: { 
+            useSvgForImages: {value: true},
+            includeImageSourceUrl: {value: true} 
+        }, 
         coverImageInfo: image,
         imagesToPackInEpub: () => [ image ]
     };

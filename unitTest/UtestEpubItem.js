@@ -41,3 +41,26 @@ test("fileContentForEpub", function (assert) {
         "</html>"
     );
 });
+
+test("hasSvg", function (assert) {
+    let image = new ImageInfo("http://bp.org/thepic.jpeg", 0, "http://bp.org/thepic.jpeg");
+    assert.notOk(image.hasSvg());
+
+    let item = new EpubItem("http://bp.org/thepic.jpeg");
+    assert.notOk(item.hasSvg());
+    item.nodes = [];
+    item.nodes.push(document.createTextNode("Hello World"));
+    item.nodes.push(document.createElement("div"));
+    assert.notOk(item.hasSvg());
+    let svg = util.createSvgImageElement("http://bp.org/thepic.jpeg", 10, 10, 
+        "http://bp.org/thepic.jpeg", true);
+    item.nodes.push(svg);
+    assert.ok(item.hasSvg());
+
+    item.nodes.pop();
+    assert.notOk(item.hasSvg());
+    svg = util.createSvgImageElement("http://bp.org/thepic.jpeg", 10, 10, 
+        "http://bp.org/thepic.jpeg", false);
+    item.nodes[1].appendChild(svg);
+    assert.ok(item.hasSvg());
+});

@@ -148,14 +148,16 @@ class EpubPacker {
     buildManifest(opf, ns, epubItemSupplier) {
         let that = this;
         var manifest = that.createAndAppendChildNS(opf.documentElement, ns, "manifest");
-        for(let item of epubItemSupplier.manifestItems()) {
-            that.addManifestItem(manifest, ns, item.getZipHref(), item.getId(), item.getMediaType());
+        for(let i of epubItemSupplier.manifestItems()) {
+            let item = that.addManifestItem(manifest, ns, i.getZipHref(), i.getId(), i.getMediaType());
+            this.setSvgPropertyForManifestItem(item, i.hasSvg());
         };
 
         that.addManifestItem(manifest, ns, util.styleSheetFileName(), "stylesheet", "text/css");
         that.addManifestItem(manifest, ns, "OEBPS/toc.ncx", "ncx", "application/x-dtbncx+xml");
         if (epubItemSupplier.hasCoverImageFile()) {
-            that.addManifestItem(manifest, ns, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
+            let item = that.addManifestItem(manifest, ns, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
+            this.setSvgPropertyForManifestItem(item, this.doesCoverHaveSvg(epubItemSupplier));
         };
         if (this.version === EpubPacker.EPUB_VERSION_3) {
             let item = this.addManifestItem(manifest, ns, "OEBPS/toc.xhtml", "nav", "application/xhtml+xml");
@@ -170,6 +172,18 @@ class EpubPacker {
         item.setAttributeNS(null, "id", id);
         item.setAttributeNS(null, "media-type", mediaType);
         return item;
+    }
+
+    setSvgPropertyForManifestItem(item, hasSvg) {
+        if (hasSvg && (this.version === EpubPacker.EPUB_VERSION_3)) {
+            item.setAttributeNS(null, "properties", "svg");
+        }
+    }
+
+    doesCoverHaveSvg(epubItemSupplier) {
+        let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(util.createEmptyXhtmlDoc);
+        let doc = new DOMParser().parseFromString(fileContent, "application/xml");
+        return (doc.querySelector("svg") != null);
     }
 
     buildSpine(opf, ns, epubItemSupplier) {
