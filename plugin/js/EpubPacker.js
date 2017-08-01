@@ -15,10 +15,10 @@
 /// <param name="title" type="string">The Title of the story</param>
 /// <param name="author" type="string">The writer of the story</param>
 class EpubPacker {
-    constructor(metaInfo, version = "2.0") {
+    constructor(metaInfo, version = EpubPacker.EPUB_VERSION_2) {
         this.metaInfo = metaInfo;
         this.version = version;
-        this.emptyDocFactory = (version === "2.0") ? 
+        this.emptyDocFactory = (version === EpubPacker.EPUB_VERSION_2) ? 
             util.createEmptyXhtmlDoc : util.createEmptyHtmlDoc;
     }
 
@@ -36,7 +36,7 @@ class EpubPacker {
         that.addRequiredFiles(zipFile);
         zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
         zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
-        if (this.version === "3.0") {
+        if (this.version === EpubPacker.EPUB_VERSION_3) {
             zipFile.file("OEBPS/toc.xhtml", that.buildNavigationDocument(epubItemSupplier), { compression: "DEFLATE" });
         }
         that.packXhtmlFiles(zipFile, epubItemSupplier);
@@ -101,7 +101,7 @@ class EpubPacker {
 
         let identifier = that.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", that.metaInfo.uuid);
         identifier.setAttributeNS(null, "id", "BookId");
-        if (this.version === "2.0") {
+        if (this.version === EpubPacker.EPUB_VERSION_2) {
             identifier.setAttributeNS(opf_ns, "opf:scheme", "URI");
         } else {
             this.addMetaProperty(metadata, identifier, "identifier-type", "BookId", "URI");
@@ -127,7 +127,7 @@ class EpubPacker {
 
     addMetaProperty(metadata, element, propName, id, value) {
         let opf_ns = "http://www.idpf.org/2007/opf";
-        if (this.version === "3.0") {
+        if (this.version === EpubPacker.EPUB_VERSION_3) {
             element.setAttributeNS(null, "id", id);
             let meta = this.createAndAppendChildNS(metadata, opf_ns, "meta");
             meta.setAttributeNS(null, "refines", "#" +id);
@@ -157,7 +157,7 @@ class EpubPacker {
         if (epubItemSupplier.hasCoverImageFile()) {
             that.addManifestItem(manifest, ns, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
         };
-        if (this.version === "3.0") {
+        if (this.version === EpubPacker.EPUB_VERSION_3) {
             let item = this.addManifestItem(manifest, ns, "OEBPS/toc.xhtml", "nav", "application/xhtml+xml");
             item.setAttributeNS(null, "properties", "nav");
         }
@@ -342,6 +342,9 @@ class EpubPacker {
         return new Date().toISOString();
     }
 }
+
+EpubPacker.EPUB_VERSION_2 = "2.0";
+EpubPacker.EPUB_VERSION_3 = "3.0";
 
 /*
   Class to make sure we correctly nest the NavPoint elements

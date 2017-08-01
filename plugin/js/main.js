@@ -121,7 +121,8 @@ var main = (function () {
     }
 
     function epubVersionFromPreferences() {
-        return userPreferences.createEpub3.value ? "3.0" : "2.0";
+        return userPreferences.createEpub3.value ? 
+            EpubPacker.EPUB_VERSION_3 : EpubPacker.EPUB_VERSION_2;
     }
 
     function packEpub(metaInfo) {

@@ -88,7 +88,7 @@ test("buildEpub3ContentOpf", function (assert) {
     metaInfo.title = "Dummy <Title>";
     metaInfo.author = "Dummy & Author";
     metaInfo.translator = "GoogleTranslate";
-    let epubPacker = new EpubPacker(metaInfo, "3.0");
+    let epubPacker = new EpubPacker(metaInfo, EpubPacker.EPUB_VERSION_3);
     epubPacker.metaInfo.seriesName = "BakaSeries";
     epubPacker.metaInfo.seriesIndex = "666";
     epubPacker.getDateForMetaData = function () { return "2015-10-17T21:04:54.061Z"; };
