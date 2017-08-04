@@ -47,9 +47,9 @@ class EpubItem {
         return false;
     }
 
-    fileContentForEpub(emptyDocFactory) {
+    fileContentForEpub(emptyDocFactory, contentValidator) {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
-        if (util.isXhtmlInvalid(xml)) {
+        if (contentValidator(xml)) {
             let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
                 [this.chapterTitle, this.sourceUrl]
             );
@@ -164,7 +164,7 @@ class ImageInfo extends EpubItem {
         return this.mediaType;
     }
 
-    fileContentForEpub(emptyDocFactory) {   // eslint-disable-line no-unused-vars
+    fileContentForEpub(emptyDocFactory, contentValidator) {   // eslint-disable-line no-unused-vars
         return this.arraybuffer;
     }
 

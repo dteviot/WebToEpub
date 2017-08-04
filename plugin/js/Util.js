@@ -676,8 +676,8 @@ var util = (function () {
            ((element.type === "text") || (element.type === "url"));
     }
 
-    var isXhtmlInvalid = function (xhtmlAsString) {
-        let doc = new DOMParser().parseFromString(xhtmlAsString, "application/xml");
+    var isXhtmlInvalid = function (xhtmlAsString, mimeType = "application/xml") {
+        let doc = new DOMParser().parseFromString(xhtmlAsString, mimeType);
         let parsererror = util.getElement(doc, "parsererror");
         return (parsererror === null) ? null : parsererror.textContent;
     }

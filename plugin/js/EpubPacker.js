@@ -18,8 +18,14 @@ class EpubPacker {
     constructor(metaInfo, version = EpubPacker.EPUB_VERSION_2) {
         this.metaInfo = metaInfo;
         this.version = version;
-        this.emptyDocFactory = (version === EpubPacker.EPUB_VERSION_2) ? 
-            util.createEmptyXhtmlDoc : util.createEmptyHtmlDoc;
+
+        this.emptyDocFactory = util.createEmptyXhtmlDoc;
+        let contentType = EpubPacker.XHTML_MIME_TYPE;
+        if (version === EpubPacker.EPUB_VERSION_3) {
+            this.emptyDocFactory = util.createEmptyHtmlDoc;
+            contentType = EpubPacker.HTML_MIME_TYPE;
+        }
+        this.contentValidator = xml => util.isXhtmlInvalid(xml, contentType);
     }
 
     static coverImageXhtmlHref() {
@@ -323,7 +329,7 @@ class EpubPacker {
     packXhtmlFiles(zipFile, epubItemSupplier) {
         let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
-            let content = file.fileContentForEpub(this.emptyDocFactory);
+            let content = file.fileContentForEpub(this.emptyDocFactory, this.contentValidator);
             zipFile.file(file.getZipHref(), content, zipOptions);
         };
         if (epubItemSupplier.hasCoverImageFile()) {
@@ -359,6 +365,8 @@ class EpubPacker {
 
 EpubPacker.EPUB_VERSION_2 = "2.0";
 EpubPacker.EPUB_VERSION_3 = "3.0";
+EpubPacker.XHTML_MIME_TYPE = "application/xml";
+EpubPacker.HTML_MIME_TYPE = "text/html";
 
 /*
   Class to make sure we correctly nest the NavPoint elements
