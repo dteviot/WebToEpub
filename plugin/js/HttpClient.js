@@ -55,7 +55,8 @@ class FetchResponseHandler {
     }
 
     responseToHtml(response) {
-        return response.text().then(function(data) {
+        return response.arrayBuffer().then(function(rawBytes) {
+            let data = this.makeTextDecoder(response).decode(rawBytes);
             let html = new DOMParser().parseFromString(data, "text/html");
             util.setBaseTag(this.response.url, html);
             this.responseXML = html;
@@ -76,7 +77,24 @@ class FetchResponseHandler {
             return this;
         }.bind(this));
     }
+
+    makeTextDecoder(response) {
+        let utflabel = this.charsetFromHeaders(response.headers);
+        return new TextDecoder(utflabel);
+    }
+
+    charsetFromHeaders(headers) {
+        let contentType = headers.get("Content-Type");
+        if (!util.isNullOrEmpty(contentType)) {
+            let pieces = contentType.toLowerCase().split("charset=");
+            if (2 <= pieces.length) {
+                return pieces[1].split(";")[0].replace(/\"/g, "").trim();
+            }
+        }
+        return FetchResponseHandler.DEFAULT_CHARSET;
+    }
 }
+FetchResponseHandler.DEFAULT_CHARSET = "utf-8"
 
 class FetchJsonResponseHandler extends FetchResponseHandler {
     constructor() {
