@@ -16,13 +16,9 @@ class GravityTalesParser extends Parser {
         if (novelId !== null) {
             return GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
         }
-        let content = that.findContent(dom);
-        if (content === null) {
-            content = util.getElement(dom, "chapters");
-        }
-        if (content === null) {
-            content = dom.body;
-        }
+        let content = that.findContent(dom) ||
+            dom.querySelector("chapters") ||
+            dom.body;
         return Promise.resolve(util.hyperlinksToChapterList(content, that.isChapterHref));
     }
 
@@ -32,11 +28,11 @@ class GravityTalesParser extends Parser {
     }
 
     extractTitle(dom) {
-        let title = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title"));
+        let title = dom.querySelector("meta[property='og:title']");
         if (title !== null) {
             return title.getAttribute("content");
         }
-        title = util.getElement(dom, "h3");
+        title = dom.querySelector("h3");
         if (title !== null) {
             return title.innerText;
         }
@@ -45,12 +41,12 @@ class GravityTalesParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
+        return dom.querySelector("div.entry-content");
     }
 
     findChapterTitle(dom) {
-        let title = util.getElement(dom, "h1", e => (e.className === "entry-title"));
-        return (title === null) ? util.getElement(dom, "h3") : title;
+        return dom.querySelector("h1.entry-title") ||
+            dom.querySelector("h3");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -66,7 +62,7 @@ class GravityTalesParser extends Parser {
     }
 
     static getNovelId(dom) {
-        let contentElement = util.getElement(dom.body, "div", e => e.id === "contentElement");
+        let contentElement = dom.querySelector("div#contentElement");
         let init = (contentElement === null) ? null : contentElement.getAttribute("ng-init");
         let valArray = [];
         if (!util.isNullOrEmpty(init)) {
@@ -138,7 +134,7 @@ class GravityTalesParser extends Parser {
     }
 
     static searchForNovelIdinScriptTags(dom) {
-        for(let e of util.getElements(dom, "script")) {
+        for(let e of dom.querySelectorAll("script")) {
             let novelId = GravityTalesParser.searchForNovelIdinString(e.innerText);
             if ( novelId !== null) {
                 return novelId;

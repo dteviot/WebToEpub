@@ -28,23 +28,13 @@ class BakaTsukiImageCollector extends ImageCollector {
     }
 
     getReducedResImageUrlFromImagePage(dom) {
-        let div = util.getElement(dom, "div", e => (e.className === "fullImageLink"));
-        if (div === null) {
-            return null;
-        } else {
-            let img = util.getElement(div, "img");
-            return (img === null) ? null : util.resolveRelativeUrl(dom.baseURI, img.src);
-        }
+        let img = dom.querySelector("div.fullImageLink img");
+        return (img === null) ? null : util.resolveRelativeUrl(dom.baseURI, img.src);
     }
 
     getHighestResImageUrlFromImagePage(dom) {
-        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
-        if (div === null) {
-            return null;
-        } else {
-            let link = util.getElement(div, "a");
-            return (link === null) ? null : link.href;
-        }
+        let link = dom.querySelector("div.fullMedia a");
+        return (link === null) ? null : link.href;
     }
 }
 
@@ -117,11 +107,11 @@ class BakaTsukiParser extends Parser{
     }
 
     extractTitle(dom) {
-        return util.getElement(dom, "h1", e => (e.className === "firstHeading") ).textContent.trim();
+        return dom.querySelector("h1.firstHeading").textContent.trim();
     }
 
     extractLanguage(dom) {
-        return util.getElement(dom, "html").getAttribute("lang");
+        return dom.querySelector("html").getAttribute("lang");
     }
 
     extractSeriesInfo(dom, metaInfo) {
@@ -146,7 +136,7 @@ class BakaTsukiParser extends Parser{
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => (e.className === "mw-content-ltr") );
+        return dom.querySelector("div.mw-content-ltr");
     }
 
     onLoadFirstPage(url, firstPageDom) {
@@ -192,10 +182,10 @@ class BakaTsukiParser extends Parser{
         util.removeScriptableElements(element);
 
         // discard table of contents (will generate one from tags later)
-        util.removeElements(util.getElements(element, "div", e => (e.id === "toc")));
+        util.removeElements(element.querySelectorAll("div#toc"));
 
         // remove "Jump Up" text that appears beside the up arrow from translator notes
-        util.removeElements(util.getElements(element, "span", e => (e.className === "cite-accessibility-label")));
+        util.removeElements(element.querySelectorAll("span.cite-accessibility-label"));
 
         util.removeUnneededIds(element);
 
@@ -203,7 +193,7 @@ class BakaTsukiParser extends Parser{
         that.removeUnwantedTable(element);
 
         // hyperlinks that allow editing text
-        util.removeElements(util.getElements(element, "span", e => (e.className === "mw-editsection")));
+        util.removeElements(element.querySelectorAll("span.mw-editsection"));
     }
 
     // There's a table at end of content, with links to other stories on Baka Tsuki.
@@ -211,7 +201,7 @@ class BakaTsukiParser extends Parser{
     removeUnwantedTable(element) {
         // sometimes the target table has other tables nested in it.
         let that = this;
-        let tables = util.getElements(element, "table");
+        let tables = [...element.querySelectorAll("table")];
         if (0 < tables.length) {
             let endTable = tables[tables.length - 1];
             let node = endTable;
@@ -228,7 +218,7 @@ class BakaTsukiParser extends Parser{
     }
 
     isTableContainsHyperLinks(tableElement) {
-        return util.getElement(tableElement, "a") !== null;
+        return tableElement.querySelector("a") !== null;
     }
 
     replaceImageTags(element) {
@@ -240,7 +230,7 @@ class BakaTsukiParser extends Parser{
     // remove gallery text and move images out of the gallery box so images can take full screen.
     stripGalleryBox(element) {
 
-        let galleryBoxes = util.getElements(element, "li", e => (e.className === "gallerybox"));
+        let galleryBoxes = [...element.querySelectorAll("li.gallerybox")];
         if (0 < galleryBoxes.length) {
             BakaTsukiParser.removeTextBeforeGallery(galleryBoxes[0].parentNode);        
         }
@@ -248,7 +238,7 @@ class BakaTsukiParser extends Parser{
         // move images out of the <ul> gallery
         let garbage = new Set();
         for(let listItem of galleryBoxes) {
-            util.removeElements(util.getElements(listItem, "div", e => (e.className === "gallerytext")));
+            util.removeElements(listItem.querySelectorAll("div.gallerytext"));
 
             let gallery = listItem.parentNode;
             garbage.add(gallery);

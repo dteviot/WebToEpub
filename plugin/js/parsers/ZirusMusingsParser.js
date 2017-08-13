@@ -34,7 +34,7 @@ class ZirusMusingsParser extends Parser {
         if (link.parentNode !== null) {
             let parent = link.parentNode;
             if (parent.tagName === "P") {
-                let strong = util.getElement(parent, "strong");
+                let strong = parent.querySelector("strong");
                 if (strong != null) {
                     arc = strong.innerText;
                 };
@@ -44,7 +44,7 @@ class ZirusMusingsParser extends Parser {
     }
 
     extractTitle(dom) {
-        return util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title")).getAttribute("content");
+        return dom.querySelector("meta[property='og:title']").getAttribute("content");
     }
 
     // find the node(s) holding the story content
@@ -56,9 +56,7 @@ class ZirusMusingsParser extends Parser {
         if (Imgur.isImgurGallery(dom)) {
             return Imgur.convertGalleryToConventionalForm(dom);
         } else {
-            let article = util.getElement(dom, "article", e => e.className !== "comment-body");
-            let div = util.getElement(article, "div", e => e.className.startsWith("entry-content"));
-            return div;
+            return dom.querySelector("article:not(.comment-body) div.entry-content");
         }
     }
 
@@ -73,7 +71,7 @@ class ZirusMusingsParser extends Parser {
     }
 
     findTocElement(div) {
-        return util.getElement(div, "a", a => (0 < a.href.indexOf("toc/")));
+        return div.querySelector("a[href*='toc/']");
     }
 
     populateUI(dom) {

@@ -16,16 +16,16 @@ class NanodesuParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "ul", e => e.id === "nav");
+        let menu = dom.querySelector("ul#nav");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className === "page-body");
+        return dom.querySelector("div.page-body");
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h2", e => (e.className === "page-title"));
+        return dom.querySelector("h2.page-title");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

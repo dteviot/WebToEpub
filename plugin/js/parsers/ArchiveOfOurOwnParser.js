@@ -13,38 +13,40 @@ class ArchiveOfOurOwnParser extends Parser{
     getChapterUrls(dom) {
         let that = this;
         let baseUrl = that.getBaseUrl(dom);
-        let chaptersElement = util.getElement(dom, "li", e => (e.className === "chapter") );
+        let chaptersElement = dom.querySelector("li.chapter");
         if (chaptersElement === null) {
             return Promise.resolve(that.singleChapterStory(baseUrl, dom));
         } else {
-            return Promise.resolve(util.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+            let chaptersUrl = dom.querySelector("ul#chapter_index a");
+            return ArchiveOfOurOwnParser.fetchChapterUrls(chaptersUrl);
         }
     };
 
-    optionToChapterInfo(baseUrl, optionElement) {
-        let relativeUrl = optionElement.getAttribute("value");
-        return {
-            sourceUrl: util.resolveRelativeUrl(baseUrl, relativeUrl) + "?view_adult=true",
-            title: optionElement.innerText
-        };
-    };
+    static fetchChapterUrls(url) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            return [...xhr.responseXML.querySelectorAll("ol.chapter a")].map(
+                url => ({
+                    sourceUrl: url.href + "?view_adult=true",
+                    title: url.textContent
+                })
+            );
+        });
+    }
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", 
-            e => (e.className === "userstuff module") || e.className.startsWith("storytext")
-        );
+        return dom.querySelector("div.userstuff, div[class^='storytext']");
     };
 
     extractTitle(dom) {
-        return util.getElement(dom, "h2", e => (e.className === "title heading") ).innerText.trim();
+        return dom.querySelector("h2.title.heading").innerText.trim();
     };
 
     extractAuthor(dom) {
-        return util.getElement(dom, "h3", e => (e.className === "byline heading") ).innerText.trim();
+        return dom.querySelector("h3.byline.heading").innerText.trim();
     };
 
     extractLanguage(dom) {
-        return util.getElement(dom, "meta", e => (e.getAttribute("name") === "language") ).getAttribute("content");
+        return dom.querySelector("meta[name='language']").getAttribute("content");
     };
 }

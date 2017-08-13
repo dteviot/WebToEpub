@@ -15,12 +15,12 @@ class NovelPlanetParser extends Parser{
     // promise is used because may need to fetch the list of URLs from internet
     getChapterUrls(dom) {
         let chapters = null;
-        let chapterListHeader = util.getElement(dom, "h3");
+        let chapterListHeader = dom.querySelector("h3");
         if (chapterListHeader !== null)
         {
             chapters = util.hyperlinksToChapterList(chapterListHeader.parentElement);
         } else {
-            let chapterLinks = util.getElement(dom, "a", e => !util.isNullOrEmpty(e.getAttribute("title")));
+            let chapterLinks = dom.querySelector("a[title]");
             chapters = chapterLinks.map(a => util.hyperLinkToChapter(a)); 
         }
         return Promise.resolve(chapters.reverse());
@@ -28,17 +28,17 @@ class NovelPlanetParser extends Parser{
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.id === "divReadContent");
+        return dom.querySelector("div#divReadContent");
     };
 
     // title of the story
     extractTitle(dom) {
-        let title = util.getElement(dom, "a", e => e.className === "title");
+        let title = dom.querySelector("a.title");
         return title === null ? super.extractTitle(dom) : title.textContent;
     };
 
     extractAuthor(dom) {
-        let element = util.getElement(dom, "a", a => a.search.startsWith("?author="))
+        let element = dom.querySelector("a[href*='?author=']");
         return (element === null) ? super.extractAuthor(dom) : element.textContent;
     };
 
@@ -47,7 +47,7 @@ class NovelPlanetParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h4");
+        return dom.querySelector("h4");
     }
 
     populateUI(dom) {

@@ -14,24 +14,16 @@ class RoyalRoadParser extends Parser{
         // Page in browser has links reduced to "Number of links to show"
         // Fetch new page to get all chapter links.
         return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
-            let table = util.getElement(xhr.responseXML, "table", e => e.id === "chapters");
+            let table = xhr.responseXML.querySelector("table#chapters");
             return util.hyperlinksToChapterList(table);
         });
-    }
-
-    elementToChapterInfo(chapterElement) {
-        let chapterHref = util.getElement(chapterElement, "a");
-        return {
-            sourceUrl:  chapterHref.href,
-            title: chapterHref.getAttribute("title")
-        };
     }
 
     // find the node(s) holding the story content
     findContent(dom) {
         return util.getElement(dom, "div", 
             e => (e.className === "portlet-body") &&
-            (util.getElement(e, "div", c => c.className.startsWith("chapter-inner")) !== null)
+            (e.querySelector("div.chapter-inner") !== null)
         );
     }
 
@@ -50,13 +42,8 @@ class RoyalRoadParser extends Parser{
     }
 
     removeNextAndPreviousChapterHyperlinks(content) {
-        util.removeElements(util.getElements(content, "a", a => a.hostname === "www.royalroadl.com"));
+        util.removeElements(content.querySelectorAll("a[href*='www.royalroadl.com']"));
         RoyalRoadParser.removeOlderChapterNavJunk(content);
-    }
-
-    extractTextFromPage(dom, tagName, filter) {
-        let element = util.getElement(dom, tagName, filter);
-        return (element === null) ? "<unknown>" : element.innerText.trim();
     }
 
     extractTitle(dom) {
@@ -73,7 +60,10 @@ class RoyalRoadParser extends Parser{
     }
 
     extractAuthor(dom) {
-        let author = this.extractTextFromPage(dom, "h4", e=> (e.getAttribute("property") === "author"));
+        let author = dom.querySelector("h4[property='author']");
+        if (author === null) {
+            return super.extractAuthor(dom);
+        }
         return author.startsWith("by ") ? author.substring(3) : author;
     }
 
@@ -87,7 +77,7 @@ class RoyalRoadParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        let title = util.getElement(dom, "h2"); 
+        let title = dom.querySelector("h2"); 
         return (title === null) ? dom.title : title.innerText.trim();
     }
 
@@ -108,7 +98,7 @@ class RoyalRoadParser extends Parser{
     findCoverImageUrl(dom) {
         let img = null;
         if (dom != null) {
-            img = util.getElement(dom, "img", e => e.className.startsWith("img-offset"));
+            img = dom.querySelector("img.img-offset");
         };
         return (img === null) ? img : img.src;   
     }

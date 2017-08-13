@@ -59,7 +59,7 @@ class Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeScriptableElements(element);
         util.removeComments(element);
-        util.removeElements(util.getElements(element, "noscript"));
+        util.removeElements(element.querySelectorAll("noscript"));
         util.removeUnwantedWordpressElements(element);
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
@@ -87,7 +87,7 @@ class Parser {
         if (dom != null) {
             let content = this.findContent(dom);
             if (content != null) {
-                let cover = util.getElement(content, "img");
+                let cover = content.querySelector("img");
                 if (cover != null) {
                     return cover.src;
                 };
@@ -142,7 +142,7 @@ class Parser {
     * but if not available, default to English
     */
     extractLanguage(dom) {
-        let locale = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:locale"));
+        let locale = dom.querySelector("meta[property='og:locale']");
         return (locale === null) ? "en" : locale.getAttribute("content");
     }
 

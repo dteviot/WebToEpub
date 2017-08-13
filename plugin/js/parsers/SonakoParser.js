@@ -23,11 +23,11 @@ class SonakoImageCollector extends BakaTsukiImageCollector {
         if (tagName === "a") {
             return element.href;
         }
-        let link = util.getElement(element, "a");
+        let link = element.querySelector("a");
         if (link !== null) {
             return link.href;
         };
-        let img = (tagName === "img") ? element : util.getElement(element, "img");
+        let img = (tagName === "img") ? element : element.querySelector("img");
         let dataImageName = img.getAttribute("data-image-name");
 
         // ToDo, use utilresolveRelativeUrl() rather than string concatanation
@@ -63,30 +63,29 @@ class SonakoParser extends BakaTsukiParser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", e => (e.className.startsWith("mw-content-ltr")));
+        return dom.querySelector("div.mw-content-ltr");
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeElements(util.getElements(element, "script"));
-        util.removeElements(util.getElements(element, "noscript"));
+        util.removeElements(element.querySelectorAll("script, " +
+            "noscript, " +
 
         // discard table of contents (will generate one from tags later)
-        util.removeElements(util.getElements(element, "div", e => (e.id === "toc-wrapper")));
-        util.removeElements(util.getElements(element, "a", e => (e.className === "toc-link")));
+            "div#toc-wrapper, " +
+            "a.toc-link, " +
 
-        util.removeElements(util.getElements(element, "a", e => e.className.startsWith("wikia-photogallery-add")));
-        util.removeElements(util.getElements(element, "div", e => (e.className ==="print-no")));
+            "a.wikia-photogallery-add, " +
+            "div.print-no"
+        ));
         util.removeElements(util.getElements(element, "div", e => (e.id.startsWith("INCONTENT"))));
 
 
         util.removeComments(element);
-        util.removeElements(util.getElements(element, "table"));
-
         // hyperlinks that allow editing text
-        util.removeElements(util.getElements(element, "span", e => (e.className === "editsection")));
+        util.removeElements(element.querySelectorAll("table, span.editsection"));
 
         // fix source for delay loaded image tags
-        for(let img of util.getElements(element, "img", e => e.src.startsWith("data:image"))) {
+        for(let img of element.querySelectorAll("img[src^='data:image']")) {
             let href = img.getAttribute("data-src");
             if (href != null) {
                 img.src = href;

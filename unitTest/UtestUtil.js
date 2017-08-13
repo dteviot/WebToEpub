@@ -54,7 +54,7 @@ test("prepForConvertToXhtml", function (assert) {
         "<p>Normal <span style=\"text-decoration: underline;\">underline <i>italic</i></span></p>" +
         "<p style=\"text-align: center;\">X			X</p>"
     );
-    let span = util.getElement(content, "span");
+    let span = content.querySelector("span");
     assert.equal(span.id, "test1");
 });
 
@@ -409,7 +409,7 @@ QUnit.test("iterateElements", function (assert) {
         "<div id=\"d1\"><p id=\"p1\">1</p><p id=\"p2\">2</p></div>" +
         "<h2 id=\"e2\"></h2>"
     );
-    let root = util.getElement(dom, "div");
+    let root = dom.querySelector("div");
     let actual = util.iterateElements(root, n => NodeFilter.FILTER_ACCEPT);
     assert.equal(actual.length, 3);
     assert.equal(actual[0].id, "d1");

@@ -27,7 +27,7 @@ class WuxiaworldParser extends Parser {
         if ((link.parentNode !== null) && (link.parentNode.parentNode !== null)) {
             let parent = link.parentNode.parentNode;
             if (parent.tagName === "DIV" && parent.className.startsWith("collapseomatic")) {
-                let strong = util.getElement(parent, "strong");
+                let strong = parent.querySelector("strong");
                 if (strong != null) {
                     arc = strong.innerText;
                 };
@@ -37,14 +37,13 @@ class WuxiaworldParser extends Parser {
     }
 
     extractTitle(dom) {
-        let title = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title"));
+        let title = dom.querySelector("meta[property='og:title']");
         return title === null ? super.extractTitle(dom) : title.getAttribute("content");
     }
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let div = util.getElement(dom, "div", e => e.getAttribute("itemprop") === "articleBody");
-        return div;
+        return dom.querySelector("div[itemprop='articleBody']");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -66,7 +65,7 @@ class WuxiaworldParser extends Parser {
     }
 
     removeEmoji(contentElement) {
-        for(let img of util.getElements(contentElement, "img", i => i.className === "emoji")) {
+        for(let img of contentElement.querySelectorAll("img.emoji")) {
             let text = img.getAttribute("alt") || "back to reference";
             let textNode = contentElement.ownerDocument.createTextNode(text);
             img.replaceWith(textNode);

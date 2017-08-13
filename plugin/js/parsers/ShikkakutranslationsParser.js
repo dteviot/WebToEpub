@@ -11,13 +11,10 @@ class ShikkakutranslationsImageCollector extends ImageCollector {
     }
 
     selectImageUrlFromImagePage(dom) {
-        let div = util.getElement(dom, "div", e => (e.className === "the_attachment"));
-        if (div !== null) {
-            let img = util.getElement(div, "img");
-            if (img !== null) {
-                let src = util.resolveRelativeUrl(dom.baseURI, img.src);
-                return ImageCollector.removeSizeParamsFromWordPressQuery(src);
-            }
+        let img = dom.querySelector("div.the_attachment img");
+        if (img !== null) {
+            let src = util.resolveRelativeUrl(dom.baseURI, img.src);
+            return ImageCollector.removeSizeParamsFromWordPressQuery(src);
         }
         return null;
     }
@@ -36,29 +33,24 @@ class ShikkakutranslationsParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "div", e => e.className === "menu-header");
+        let menu = dom.querySelector("div.menu-header");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => (e.id === "content-body"));
-        if (content !== null) {
-            content = util.getElement(content, "div", e => e.className === "entry");
-        }
-        return content;
+        return dom.querySelector("div#content-body div.entry");
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h1", e => e.className.startsWith("page-title"));
+        return dom.querySelector("h1.page-title");
     }
 
     removeNextAndPreviousChapterHyperlinks(element) {
         // override default, just remove all hyperlinks
         // due to links in chapters not matching links in menu.
-        let that = this;
-        util.getElements(element, "a")
-            .filter(l => util.getElements(l, "img").length === 0)
-            .map(l => that.findParentNodeOfChapterLinkToRemoveAt(l))
+        [...element.querySelectAll("a")]
+            .filter(l => l.querySelector("img").length === null)
+            .map(l => this.findParentNodeOfChapterLinkToRemoveAt(l))
             .forEach(u => u.remove());
     }
 

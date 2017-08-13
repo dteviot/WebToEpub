@@ -16,12 +16,12 @@ class FanFictionParser extends Parser {
     getChapterUrls(dom) {
         let that = this;
         let baseUrl = that.getBaseUrl(dom);
-        let chaptersElement = util.getElement(dom, "select", e => (e.id === "chap_select") );
-        if (chaptersElement === null) {
+        let options = [...dom.querySelectorAll("select#chap_select option")];
+        if (options.length ===0) {
             // no list of chapters found, assume it's a single chapter story
             return Promise.resolve(that.singleChapterStory(baseUrl, dom));
         } else {
-            return Promise.resolve(util.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+            return Promise.resolve(options.map(option => that.optionToChapterInfo(baseUrl, option)));
         }
     }
 
@@ -39,12 +39,11 @@ class FanFictionParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", e => (e.className === "storytext xcontrast_txt nocopy") );
+        return dom.querySelector("div.storytext");
     }
 
     extractTextFromProfile(dom, tag) {
-        let profile = util.getElement(dom, "div", e => (e.id === "profile_top") );
-        return util.getElement(profile, tag).innerText.trim();
+        return dom.querySelector("div#profile_top " + tag).textContent.trim();
     }
 
     extractTitle(dom) {

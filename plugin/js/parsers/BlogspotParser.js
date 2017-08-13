@@ -28,14 +28,8 @@ class BlogspotParser extends Parser {
     }
 
     static findContentElement(dom) {
-        let content = util.getElement(dom, "div", e => e.className.startsWith("post-body"));
-        if (content === null ) {
-            content = util.getElement(dom, "div", e => e.className === "pagepost");
-            if (content !== null) {
-                content = util.getElement(content, "div", e => e.className === "cover");
-            }
-        }
-        return content;
+        return dom.querySelector("div.post-body") ||
+            dom.querySelector("div.pagepost div.cover");
     }
 
     findContent(dom) {
@@ -46,19 +40,12 @@ class BlogspotParser extends Parser {
             return Imgur.convertGalleryToConventionalForm(dom);
         }
         //---------------------------------------------------
-        let content = BlogspotParser.findContentElement(dom);
-        if (content == null) {
-            content = util.getElement(dom, "div", e => e.className.startsWith("entry-content"));
-        }
-        return content;
+        return BlogspotParser.findContentElement(dom) ||
+            dom.querySelector("div.entry-content");
     }
 
     static findChapterTitleElement(dom) {
-        let title = util.getElement(dom, "h3", e => e.className.startsWith("post-title"));
-        if (title == null) {
-            title = util.getElement(dom, "h1", e => e.className.startsWith("entry-title"));
-        }
-        return title;
+        return dom.querySelector("h3.post-title, h1.entry-title");
     }
 
     findChapterTitle(dom) {

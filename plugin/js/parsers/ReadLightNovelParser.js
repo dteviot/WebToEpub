@@ -12,7 +12,7 @@ class ReadLightNovelParser extends Parser {
 
     getChapterUrls(dom) {
         let that = this;
-        let chaptersDiv = util.getElement(dom, "div", d => d.className.indexOf("chapters") !== -1);
+        let chaptersDiv = dom.querySelector("div.chapters");
         let chapters = util.hyperlinksToChapterList(chaptersDiv, that.isChapterHref, that.getChapterArc);
         if (0 < chapters.length) {
             return Promise.resolve(chapters);
@@ -41,7 +41,7 @@ class ReadLightNovelParser extends Parser {
         
         // get the title
         if (panelDiv !== null) {
-            let titleDiv = util.getElement(panelDiv, "div", d => d.className === "panel-heading");
+            let titleDiv = panelDiv.querySelector("div.panel-heading");
             if (titleDiv !== null) {
                 arc = titleDiv.innerText.trim();
             }
@@ -50,7 +50,7 @@ class ReadLightNovelParser extends Parser {
     }
 
     extractTitle(dom) {
-        let div = util.getElement(dom, "div", d => d.className === "block-title");
+        let div = dom.querySelector("div.block-title");
         return (div === null) ? "<unknown>" : div.innerText;
     }
 
@@ -59,7 +59,7 @@ class ReadLightNovelParser extends Parser {
         let div = util.getElement(dom, "div", d => (d.className === "novel-detail-item") && 
             (that.novelDetailHeaderName(d) === "Author(s)"));
         if (div !== null) {
-            let li = util.getElement(div, "li");
+            let li = div.querySelector("li");
             if (li != null) {
                 return li.innerText;
             };
@@ -68,7 +68,7 @@ class ReadLightNovelParser extends Parser {
     }
  
     novelDetailHeaderName(div) {
-        let header = util.getElement(div, "div", h => h.className === "novel-detail-item-header");
+        let header = div.querySelector("div.novel-detail-item-header");
         if (header !== null) {
             return header.innerText.trim();
         }
@@ -81,28 +81,23 @@ class ReadLightNovelParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let content = util.getElement(dom, "div", e => e.className === "chapter-content");
-        if (content === null) {
-            content = util.getElement(dom, "div", e => e.className.startsWith("chapter-content"));
-        }
-        return content;
+        return dom.querySelector("div[class^='chapter-content']");
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h1");
+        return dom.querySelector("h1");
     }
 
     removeUnwantedElementsFromContentElement(element) {
         super.removeUnwantedElementsFromContentElement(element);
-        util.removeElements(util.getElements(element, "div", e => e.className === "row"));
-        util.removeElements(util.getElements(element, "img", e => e.src.indexOf("/magnify-clip.png") !== -1));
+        util.removeElements(element.querySelectorAll("div.row, " +
+            "img[src*='/magnify-clip.png']"));
         this.removeShareThisLinks(element);
     }
 
     removeShareThisLinks(element) {
-        let shareLinks = util.getElements(element, "span", 
-            e => (e.className === "st_facebook") || (e.className === "st_twitter") || (e.className === "st_googleplus")
-        );
+        let shareLinks = element.querySelectorAll("span.st_facebook, " +
+            "span.st_twitter, span.st_googleplus");
         for(let share of shareLinks) {
             let parent = share.parentNode;
             if (parent.tagName.toLowerCase() === "p") {

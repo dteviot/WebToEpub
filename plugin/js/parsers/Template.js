@@ -31,7 +31,7 @@ class TemplateParser extends Parser{
         // Most common implementation is to find element holding the hyperlinks to 
         // the web pages holding the chapters.  Then call util.hyperlinksToChapterList()
         // to convert the links into a list of URLs the parser will collect.
-        let menu = util.getElement(dom, "div", e => e.className === "su-tabs-panes");
+        let menu = dom.querySelector("div.su-tabs-panes");
         return Promise.resolve(util.hyperlinksToChapterList(menu));        
     };
     */
@@ -41,7 +41,7 @@ class TemplateParser extends Parser{
     findContent(dom) {
         // typical implementation is find node with all wanted content
         // return is the element holding just the wanted content.
-        return util.getElement(dom, "article");
+        return dom.querySelector("article");
     };
     */
 
@@ -50,7 +50,7 @@ class TemplateParser extends Parser{
     extractTitle(dom) {
         // typical implementation is find node with the Title and return name from title
         // NOTE. Return Title as a string, not a HTML element
-        return util.getElement(dom, "h1").textContent.trim();
+        return dom.querySelector("h1").textContent.trim();
     };
     */
 
@@ -71,7 +71,7 @@ class TemplateParser extends Parser{
     // Optional, if not provided, will default to ISO code for English "en"
     /*
     extractLanguage(dom) {
-        return util.getElement(dom, "html").getAttribute("lang");
+        return dom.querySelector("html").getAttribute("lang");
     };
     */
 
@@ -95,7 +95,7 @@ class TemplateParser extends Parser{
     findChapterTitle(dom) {
         // typical implementation is find node with the Title
         // Return Title element, NOT the title as a string
-        return util.getElement(dom, "h3", e => (e.className === "dashhead-title"));
+        return dom.querySelector("h3.dashhead-title");
     }
     */
 

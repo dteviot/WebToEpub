@@ -36,11 +36,8 @@ class WordpressBaseParser extends Parser {
     }
 
     static findContentElement(dom) {
-        let content = util.getElement(dom, "div", e => e.className.includes("entry-content"));
-        if (content === null) {
-            content = util.getElement(dom, "div", e => e.className.startsWith("post-content"));
-        }
-        return  content;
+        return dom.querySelector("div.entry-content") ||
+            dom.querySelector("div.post-content");
     }
 
     // find the node(s) holding the story content
@@ -59,18 +56,9 @@ class WordpressBaseParser extends Parser {
     }
 
     static findChapterTitleElement(dom) {
-        let elements = dom.getElementsByClassName("entry-title");
-        if (elements.length === 0) {
-            elements = dom.getElementsByClassName("page-title");
-        }
-        let title = (elements.length === 0) ? null : elements[0];
-        if (title === null) {
-            title = util.getElement(dom, "header", e => e.className === "post-title");
-            if (title !== null) {
-                title = util.getElement(title, "h1");
-            }
-        }
-        return title;
+        return dom.querySelector(".entry-title") ||
+            dom.querySelector(".page-title") ||
+            dom.querySelector("header.post-title h1");
     }
 
     findChapterTitle(dom) {

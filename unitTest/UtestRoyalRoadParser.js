@@ -11,7 +11,7 @@ QUnit.test("removeOlderChapterNavJunk", function (assert) {
     );
     assert.equal(dom.body.textContent, "<-->12<--><-->");
     RoyalRoadParser.removeOlderChapterNavJunk(dom.body);
-    assert.equal(util.getElement(dom, "h1").textContent, "");
-    assert.equal(util.getElement(dom, "div").textContent, "12");
+    assert.equal(dom.querySelector("h1").textContent, "");
+    assert.equal(dom.querySelector("div").textContent, "12");
     assert.equal(dom.body.textContent, "12");
 });

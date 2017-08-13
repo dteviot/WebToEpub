@@ -80,7 +80,7 @@ class Imgur {
     }
 
     static scriptsWithRunSlots(dom) {
-        return util.getElements(dom, "script")
+        return [...dom.querySelectorAll("script")]
             .map(s => s.innerHTML)
             .filter(i => (0 <= i.indexOf("window.runSlots")));
     }

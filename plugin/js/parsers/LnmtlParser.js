@@ -18,33 +18,25 @@ class LnmtlParser extends Parser {
             });
         };
 
-        let volumesContainer = dom.getElementById("volumes-container");
-        let chapters = [];
-        if (volumesContainer !== null) {
-            let table = util.getElement(volumesContainer, "table");
-            if (table !== null) {
-                chapters = util.hyperlinksToChapterList(table);
-            }
-        }
-        return Promise.resolve(chapters);
+        let table = dom.querySelector("#volumes-container table");
+        return Promise.resolve(util.hyperlinksToChapterList(table));
     }
 
     extractTitle(dom) {
-        let title = util.getElement(dom, "meta", e => (e.getAttribute("property") === "og:title"));
+        let title = dom.querySelector("meta[property='og:title']");
         return (title === null) ? super.extractTitle(dom) : title.getAttribute("content");
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className.startsWith("chapter-body"));
+        return dom.querySelector("div.chapter-body");
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h3", e => (e.className === "dashhead-title"));
+        return dom.querySelector("h3.dashhead-title");
     }
 
     customRawDomToContentStep(chapter, content) {
-        let sentences = util.getElements(content, "sentence");
-        for(let s of sentences) {
+        for(let s of content.querySelectorAll("sentence")) {
             if (s.className === "original") {
                 s.remove();
             } else {
@@ -66,9 +58,9 @@ class LnmtlParser extends Parser {
 
     static findVolumesList(dom) {
         let startString = "lnmtl.volumes = ";
-        let scriptElement = util.getElement(dom, "script", e => 0 <= e.innerText.indexOf(startString));
+        let scriptElement = util.getElement(dom, "script", e => 0 <= e.textContent.indexOf(startString));
         if (scriptElement !== null) {
-            let text = scriptElement.innerText;
+            let text = scriptElement.textContent;
             let startIndex = text.indexOf(startString) + startString.length;
             text = text.substring(startIndex);
             let endIndex = text.indexOf("}];");

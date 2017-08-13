@@ -31,7 +31,7 @@ class WixParser extends Parser{
     }
 
     findJsonWithRestUrls(dom) {
-        for(let script of util.getElements(dom, "script")) {
+        for(let script of dom.querySelectorAll("script")) {
             let text = script.innerHTML;
             let index = text.indexOf("var publicModel = {")
             if (0 <= index) {
@@ -61,7 +61,7 @@ class WixParser extends Parser{
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div");
+        return dom.querySelector("div");
     };
 
     fetchChapter(url) {

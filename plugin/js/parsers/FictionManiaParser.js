@@ -28,7 +28,7 @@ class FictionManiaParser extends Parser {
         let content = util.getElement(dom, "div", e => (e.style.marginLeft !== ""));
         if (content === null) {
             // older versions have text in a <pre> element
-            content = util.getElement(dom, "pre");
+            content = dom.querySelector("pre");
         }
         return content;
     }
@@ -61,7 +61,7 @@ class FictionManiaParser extends Parser {
     };
 
     extractAuthor(dom) {
-        let author = util.getElement(dom.body, "a", e => (e.pathname.indexOf("/searchdisplay/authordisplay.html") !== -1));
+        let author = dom.querySelector("a[href*='/searchdisplay/authordisplay.html']");
         return (author === null) ? super.extractAuthor(dom) : author.innerText;
     };
 

@@ -11,34 +11,33 @@ class NovelOnlineFreeParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "div", e => e.className === "chapter-list")
-        let chapters = (menu === null) ? [] : this.buildChapterList(menu);
-        return Promise.resolve(chapters);
+        let menuItems = [...dom.querySelector("div.chapter-list a")];
+        return Promise.resolve(this.buildChapterList(menuItems));
     };
 
-    buildChapterList(menu) {
-        return util.getElements(menu, "a").reverse().map(
+    buildChapterList(menuItems) {
+        return menuItems.reverse().map(
            a => ({sourceUrl: a.href, title: a.getAttribute("title")})
        );
     };
     
     findContent(dom) {
-        return util.getElement(dom.body, "div", e => e.className.startsWith("vung_doc"));
+        return dom.querySelector("div.vung_doc");
     };
 
     // title of the story
     extractTitle(dom) {
-        return util.getElement(dom.body, "h1").textContent;
+        return dom.querySelector("h1").textContent;
     };
 
     extractAuthor(dom) {
-        let link = util.getElement(dom.body, "a", e => e.pathname.includes("search_author"));
+        let link = dom.querySelector("a[href*='search_author']");
         return (link == null) ? super.extractAuthor(dom) : link.textContent;
     };
 
     // individual chapter titles are not inside the content element
     findChapterTitle(dom) {
-        return util.getElement(dom.body, "h1");
+        return dom.querySelector("h1");
     }
 
     findCoverImageUrl(dom) {

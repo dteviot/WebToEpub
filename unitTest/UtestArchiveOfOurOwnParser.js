@@ -28,19 +28,6 @@ function syncLoadArchiveOfOurOwnSampleDoc() {
     return dom;
 }
 
-QUnit.test("getChapterUrls", function (assert) {
-    let done = assert.async();
-    asyncLoadArchiveOfOurOwnSampleDoc(function (dom) {
-        new ArchiveOfOurOwnParser().getChapterUrls(dom).then(function (chapterUrls) {
-            assert.equal(chapterUrls.length, 5);
-            assert.equal(chapterUrls[0].sourceUrl, "http://archiveofourown.org/works/123456/chapters/9876543?view_adult=true");
-            assert.equal(chapterUrls[1].sourceUrl, "http://archiveofourown.org/works/123456/chapters/9876544?view_adult=true");
-            assert.equal(chapterUrls[4].title, "5. Using Chrome's \"Inspect Element\" to examine the DOM");
-            done();
-        });
-    });
-});
-
 QUnit.test("findContent", function (assert) {
     let parser = new ArchiveOfOurOwnParser();
     let content = parser.findContent(syncLoadArchiveOfOurOwnSampleDoc());

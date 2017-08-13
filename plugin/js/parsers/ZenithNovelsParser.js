@@ -8,6 +8,6 @@ class ZenithNovelsParser extends WordpressBaseParser {
     }
 
     findContent(dom) {
-        return util.getElement(dom, "article");
+        return dom.querySelector("article");
     }
 }

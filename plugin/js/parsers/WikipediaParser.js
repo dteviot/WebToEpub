@@ -35,7 +35,7 @@ class WikipediaParser extends Parser{
     };
 
     extractLanguage(dom) {
-        return util.getElement(dom, "html").getAttribute("lang");
+        return dom.querySelector("html").getAttribute("lang");
     };
 
     removeUnwantedElementsFromContentElement(element) {
@@ -46,11 +46,11 @@ class WikipediaParser extends Parser{
     }
 
     removeEditElements(element) {
-        util.removeElements(util.getElements(element, "span", e => e.className === "mw-editsection"));
+        util.removeElements(element.querySelectorAll("span.mw-editsection"));
     }
 
     removeExternalLinkTables(element) {
-        util.removeElements(util.getElements(element, "div", e => e.className.includes("navbox")));
+        util.removeElements(element.querySelectorAll("div.navbox"));
     }
 
     removeExternalHyperlinks(element) {
@@ -61,8 +61,7 @@ class WikipediaParser extends Parser{
     
     isLinkToKeep(hyperlink) {
         return !util.isNullOrEmpty(hyperlink.hash) ||
-            (util.getElement(hyperlink, "img") !== null) || 
-            (util.getElement(hyperlink, "imgage") !== null);
+            (hyperlink.querySelector("img, image") !== null)
     }
 
     replaceHyperlinkWithTextContent(hyperlink) {

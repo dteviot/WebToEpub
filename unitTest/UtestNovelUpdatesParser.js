@@ -23,7 +23,7 @@ test("getPageValueOfLastTocPage", function (assert) {
         "</div>"
     );
 
-    let div = util.getElement(dom, "div");
+    let div = dom.querySelector("div");
     let actual = NovelUpdatesParser.getPageValueOfLastTocPage(div);
     assert.equal(actual, 25)
 });

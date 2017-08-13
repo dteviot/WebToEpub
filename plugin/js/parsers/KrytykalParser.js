@@ -11,13 +11,12 @@ class KrytykalParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "div", e => e.className === "nav-menu");
+        let menu = dom.querySelector("div.nav-menu");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 
     findContent(dom) {
-        let div = util.getElement(dom, "div", e => e.id === "content");
-        return (div === null) ? null : util.getElement(div, "article");
+        return dom.querySelector("div#content article");
     }
 
     populateUI(dom) {

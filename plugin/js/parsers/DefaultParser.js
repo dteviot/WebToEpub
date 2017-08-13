@@ -116,8 +116,7 @@ class DefaultParser extends Parser {
 
     // override default (keep nearly everything, may be wanted)
     removeUnwantedElementsFromContentElement(element) {
-        util.removeElements(util.getElements(element, "script", e => e.getAttribute("src") != null));
-        util.removeElements(util.getElements(element, "iframe"));
+        util.removeElements(element.querySelectorAll("script[src], iframe"));
         util.removeComments(element);
         util.removeUnwantedWordpressElements(element);
     };

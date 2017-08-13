@@ -11,25 +11,22 @@ class QidianParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "ul", e => e.className.includes("content-list"));
-        if (menu === null) {
-            menu = util.getElement(dom, "ol", e => e.className.startsWith("inline"));
-        }
+        let menu = dom.querySelector("ul.content-list") ||
+            dom.querySelector("ol.inline");
         let chapters = (menu === null) ? [] : this.buildChapterList(menu);
         return Promise.resolve(chapters);
     };
 
     buildChapterList(menu) {
-        let that = this;
-        return util.getElements(menu, "a").map(a => that.cleanupChapterLink(a));
+        return [...menu.querySelectorAll("a")].map(a => this.cleanupChapterLink(a));
     };
 
     cleanupChapterLink(link) {
         let title = link.textContent;
-        let element = util.getElement(link, "span");
+        let element = link.querySelector("span");
         if (element !== null) {
             title = element.textContent;
-            element = util.getElement(link, "i");
+            element = link.querySelector("i");
             if (element !== null) {
                 title = element.textContent + ": " + title;
             }
@@ -38,21 +35,21 @@ class QidianParser extends Parser{
     }
     
     findContent(dom) {
-        return util.getElement(dom.body, "div", e => e.className.startsWith("cha-content"));
+        return dom.querySelector("div.cha-content");
     };
 
     // title of the story
     extractTitle(dom) {
-        return util.getElement(dom.body, "h2").textContent;
+        return dom.querySelector("h2").textContent;
     };
 
     extractAuthor(dom) {
-        let element = util.getElement(dom, "address");
+        let element = dom.querySelector("address");
         if (element !== null) {
             element = util.getElement(element, "p", p => p.textContent.startsWith("Author"));
             if (element !== null) {
                 let author = element.textContent;
-                let strong = util.getElement(element, "strong");
+                let strong = element.querySelector("strong");
                 if (strong !== null) {
                     author = author.substring(strong.textContent.length);
                 }
@@ -64,7 +61,7 @@ class QidianParser extends Parser{
  
     // Optional, supply if individual chapter titles are not inside the content element
     findChapterTitle(dom) {
-        return util.getElement(dom.body, "h3");
+        return dom.querySelector("h3");
     }
 
     findCoverImageUrl(dom) {

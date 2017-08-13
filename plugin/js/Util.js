@@ -130,7 +130,9 @@ var util = (function () {
 
     // delete all nodes in the supplied array
     var removeElements = function (elements) {
-        elements.forEach(e => e.remove());
+        for(let e of elements) {
+            e.remove();
+        }
     }
 
     var removeComments = function (root) {
@@ -164,8 +166,7 @@ var util = (function () {
     }
 
     var removeScriptableElements = function(element) {
-        util.removeElements(util.getElements(element, "script"));
-        util.removeElements(util.getElements(element, "iframe"));
+        util.removeElements(element.querySelectorAll("script, iframe"));
         util.removeEventHandlers(element);
     }
 
@@ -212,11 +213,11 @@ var util = (function () {
             return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
         };
         util.removeElements(util.getElements(element, "div",  e => isUnwantedDiv(e)));
-        util.removeElements(util.getElements(element, "ul",  e => e.className === "post-categories"));
+        util.removeElements(element.querySelectorAll("ul.post-categories"));
     }
 
     var removeShareLinkElements = function(contentElement) {
-        util.removeElements(util.getElements(contentElement, "div", e => e.className === "sharepost"));
+        util.removeElements(contentElement.querySelectorAll("div.sharepost"));
     }
 
     var prepForConvertToXhtml = function(element) {
@@ -226,7 +227,7 @@ var util = (function () {
     }
 
     var replaceCenterTags = function(element) {
-        for(let center of util.getElements(element, "center")) {
+        for(let center of element.querySelectorAll("center")) {
             let replacement = center.ownerDocument.createElement("p");
             replacement.style.textAlign = "center";
             util.convertElement(center, replacement);
@@ -234,7 +235,7 @@ var util = (function () {
     }
 
     var replaceUnderscoreTags = function(element) {
-        for(let underscore of util.getElements(element, "U")) {
+        for(let underscore of element.querySelectorAll("U")) {
             let replacement = underscore.ownerDocument.createElement("span");
             // ToDo: figure out how to do this by manipulating the style directly
             replacement.setAttribute("style", "text-decoration: underline;");
@@ -243,7 +244,7 @@ var util = (function () {
     }
 
     var replaceSTags = function(element) {
-        for(let underscore of util.getElements(element, "s")) {
+        for(let underscore of element.querySelectorAll("s")) {
             let replacement = underscore.ownerDocument.createElement("span");
             // ToDo: figure out how to do this by manipulating the style directly
             replacement.setAttribute("style", "text-decoration: line-through;");
@@ -336,7 +337,7 @@ var util = (function () {
         if (dom != null) {
             let ancestor = util.getElement(dom, ancestorTag, filter);
             if (ancestor != null) {
-                img = util.getElement(ancestor, "img");
+                img = ancestor.querySelector("img");
             };
         };
         return (img === null) ? img : img.src;   
@@ -356,7 +357,7 @@ var util = (function () {
     var getAllHyperlinkHashes = function(element) {
         // ToDo: should exclude hyperlinks that don't point to this page
         let hashes = new Set();
-        for(let link of util.getElements(element, "a", e => e.href.indexOf("#") != -1)) {
+        for(let link of element.querySelectorAll("a[href*='#']")) {
             hashes.add(util.extractHashFromUri(link.href));
         }
         return hashes;
@@ -467,7 +468,7 @@ var util = (function () {
 
     // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
     var removeUnusedHeadingLevels = function(contentElement) {
-        let usedHeadings = util.HEADER_TAGS.map(tag => util.getElements(contentElement, tag))
+        let usedHeadings = util.HEADER_TAGS.map(tag => [...contentElement.querySelectorAll(tag)])
             .filter(headings => 0 < headings.length);
         for(let i = 0; i < usedHeadings.length; ++i) {
             for(let element of usedHeadings[i]) {
@@ -581,7 +582,7 @@ var util = (function () {
         if ((element.tagName === "IMG") || (element.tagName === "image")) {
             return false;
         }
-        if (0 < (util.getElements(element, "img").length) || (0 < util.getElements(element, "image").length)) {
+        if (element.querySelector("img, image") !== null) {
             return false;
         }
         return util.isStringWhiteSpace(element.innerText);
@@ -678,7 +679,7 @@ var util = (function () {
 
     var isXhtmlInvalid = function (xhtmlAsString, mimeType = "application/xml") {
         let doc = new DOMParser().parseFromString(xhtmlAsString, mimeType);
-        let parsererror = util.getElement(doc, "parsererror");
+        let parsererror = doc.querySelector("parsererror");
         return (parsererror === null) ? null : parsererror.textContent;
     }
 

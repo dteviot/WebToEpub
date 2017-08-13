@@ -16,7 +16,7 @@ class JaptemParser extends Parser {
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className === "post-content");
+        return dom.querySelector("div.post-content");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {

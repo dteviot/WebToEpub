@@ -13,29 +13,26 @@ class XianXiaWorldParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "div", e => e.id === "list");;
+        let menu = dom.querySelector("div#list");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.id === "content");
+        return dom.querySelector("div#content");
     }
 
     extractTitle(dom) {
-        let title = util.getElement(dom, "div", e => (e.id === "info"));
-        if (title !== null) {
-            title = util.getElement(title, "h1");
-        } 
+        let title = dom.querySelector("div#info h1");
         return (title === null) ? super.extractTitle(dom) : title.innerText;
     }
 
     extractAuthor(dom) {
-        let author = util.getElement(dom, "meta", e => (e.getAttribute("name") === "author"));
+        let author = dom.querySelector("meta[name='author']");
         return (author === null ) ? super.extractAuthor(dom) : author.getAttribute("content");
     }
 
     findChapterTitle(dom) {
-        return util.getElement(dom, "h1");
+        return dom.querySelector("h1");
     }
 
     removeUnwantedElementsFromContentElement(element) {

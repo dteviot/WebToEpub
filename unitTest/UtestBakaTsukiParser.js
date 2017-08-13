@@ -47,7 +47,7 @@ QUnit.test("getEpubMetaInfo", function (assert) {
 QUnit.test("noSeriesInfo", function (assert) {
     let parser = new BakaTsukiParser();
     let dom = syncLoadBakaTsukiSampleDoc();
-    util.getElement(dom, "title").innerText = "Web to Epub";
+    dom.querySelector("title").innerText = "Web to Epub";
     let metaInfo = parser.getEpubMetaInfo(dom);
     equal(metaInfo.seriesName, null);
 });
@@ -489,7 +489,7 @@ test("unSuperScriptAlternateTranslations", function (assert) {
         "</h2>"
     );
 
-    let heading = util.getElement(dom, "h2");
+    let heading = dom.querySelector("h2");
     BakaTsukiParser.unSuperScriptAlternateTranslations(heading);
     let actual = heading.textContent;
     assert.equal(actual, "Chapter 5 – Lightning Thunder (Zeus) and Severance Spear (Odin), Twisted Dragon of Destiny")

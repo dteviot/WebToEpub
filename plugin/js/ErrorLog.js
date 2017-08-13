@@ -44,7 +44,7 @@ class ErrorLog {
     /** private */
     static hideAllSectionsSavingVisibility() {
         let sections = new Map();
-        for(let section of util.getElements(document, "section")) {
+        for(let section of document.querySelectorAll("section")) {
             sections.set(section, section.hidden);
             section.hidden = true;
         };

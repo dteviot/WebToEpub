@@ -13,12 +13,12 @@ class MuggleNetParser extends Parser{
     getChapterUrls(dom) {
         let that = this;
         let baseUrl = that.getBaseUrl(dom);
-        let chaptersElement = util.getElement(dom, "select", e => (e.getAttribute("name") === "chapter") );
-        if (chaptersElement === null) {
+        let options = [...dom.querySelectorAll("select[name='chapter'] option")];
+        if (options.length === 0) {
             // no list of chapters found, assume it's a single chapter story
             return Promise.resolve(that.singleChapterStory(baseUrl, dom));
         } else {
-            return Promise.resolve(util.getElements(chaptersElement, "option").map(option => that.optionToChapterInfo(baseUrl, option)));
+            return Promise.resolve(options.map(option => that.optionToChapterInfo(baseUrl, option)));
         }
     }
 
@@ -36,17 +36,14 @@ class MuggleNetParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", e => (e.id === "story") );
+        return dom.querySelector("div#story");
     }
 
     extractTextFromPageTitle(dom, index) {
         let text = "<unknown>";
-        let profile = util.getElement(dom, "div", e => (e.id === "pagetitle") );
-        if (profile !== null) {
-            let links = util.getElements(profile, "a");
-            if (index < links.length) {
-                text = links[index].innerText.trim();
-            }
+        let links = [...dom.querySelectorAll("div#pagetitle a")];
+        if (index < links.length) {
+            text = links[index].textContent.trim();
         }
         return text;
     }

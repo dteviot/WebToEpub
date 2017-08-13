@@ -16,7 +16,7 @@ class LightNovelBastionParser extends Parser {
     }
 
     findContent(dom) {
-        return util.getElement(dom, "section");
+        return dom.querySelector("section");
     }
 
     findChapterTitle(dom) {
@@ -27,12 +27,9 @@ class LightNovelBastionParser extends Parser {
             title.appendChild(dom.createTextNode(titleText));
             titleDiv.appendChild(title);
         };
-        let header = util.getElement(dom, "header", e => e.id === "releases");
-        if (header !== null) {
-            let subtitle = util.getElement(header, "h2");
-            if (subtitle !== null) {
-                titleDiv.appendChild(subtitle);
-            }
+        let subtitle = dom.querySelector("header#releases h2");
+        if (subtitle !== null) {
+            titleDiv.appendChild(subtitle);
         }
         return titleDiv;
     }

@@ -11,16 +11,16 @@ class ShinsoriParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = util.getElement(dom, "div", e => e.className === "su-tabs-panes");
+        let menu = dom.querySelector("div.su-tabs-panes");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     };
 
     findContent(dom) {
-        return util.getElement(dom, "div", e => e.className === "td-ss-main-content");
+        return dom.querySelector("div.td-ss-main-content");
     };
 
     extractTitle(dom) {
-        return util.getElement(dom, "h1").textContent.trim();
+        return dom.querySelector("h1").textContent.trim();
     };
 
     extractAuthor(dom) {

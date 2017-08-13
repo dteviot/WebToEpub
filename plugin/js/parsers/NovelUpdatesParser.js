@@ -37,26 +37,19 @@ class NovelUpdatesParser extends Parser{
     }
 
     static chapterLinksFromDom(dom) {
-        let table = util.getElement(dom, "table", e => e.id === "myTable");
-        let body = util.getElement(table, "tbody");
-        let links = [];
-        for(let row of util.getElements(body, "tr")) {
-            let link = NovelUpdatesParser.chapterLinksFromRow(row);
-            if (link !== null) {
-                links.push(link);
-            }
-        }
-        return links;
+        return [...dom.querySelectorAll("table#myTable tbody tr")]
+            .map(NovelUpdatesParser.chapterLinksFromRow)
+            .filter(l => l !== null);
     }
 
     static chapterLinksFromRow(row) {
-        let links = util.getElements(row, "a");
+        let links = [...row.querySelectorAll("a")];
         return (0 < links.length) ? links[links.length - 1] : null;
     }
     
     static findPagesWithToC(dom) {
         let urls = [];
-        let div = util.getElement(dom, "div", e => e.className === "digg_pagination");
+        let div = dom.querySelector("div.digg_pagination");
         if (div !== null) {
             let maxPage = NovelUpdatesParser.getPageValueOfLastTocPage(div);
             for(let i = 2; i <= maxPage; ++i) {
@@ -67,7 +60,7 @@ class NovelUpdatesParser extends Parser{
     }
 
     static getPageValueOfLastTocPage(div) {
-        return util.getElements(div, "a").reduce(function(prev, curr) {
+        return [...div.querySelectorAll("a")].reduce(function(prev, curr) {
             let t = NovelUpdatesParser.getPageSearchParameter(curr);
             return (t > prev) ? t : prev;
         }, -1);
@@ -87,19 +80,13 @@ class NovelUpdatesParser extends Parser{
 
     // title of the story
     extractTitle(dom) {
-        let title = util.getElement(dom, "div", e => e.className === "seriestitlenu");
+        let title = dom.querySelector("div.seriestitlenu");
         return (title === null) ? super.extractTitle(dom) : title.textContent;
     };
 
     // author of the story
     extractAuthor(dom) {
-        let authors = util.getElement(dom, "div", e => e.id === "showauthors");
-        if (authors !== null) {
-            let author = util.getElement(authors, "a");
-            if (author !== null) {
-                return author.textContent;
-            }
-        }
-        return super.extractAuthor(dom);
+        let author = dom.querySelector("div#showauthors a");
+        return (author !== null) ? author.textContent : super.extractAuthor(dom);
     };
 }

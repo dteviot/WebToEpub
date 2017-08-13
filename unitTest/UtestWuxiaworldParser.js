@@ -50,7 +50,7 @@ test("removeEmoji", function (assert) {
     let dom = dummyWuxiaDoc();
     let parser = new WuxiaworldParser();
     let body = parser.removeEmoji(dom.body);
-    let link = util.getElement(dom.getElementById("fn-63064-1"), "a");
+    let link = dom.querySelector("#fn-63064-1 a");
     assert.equal(link.outerHTML, "<a href=\"#fnref-63064-1\">...</a>");
 });
 

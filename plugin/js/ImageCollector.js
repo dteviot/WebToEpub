@@ -214,7 +214,7 @@ class ImageCollector {
 
     findImagesUsedInDocument(content) {
         let that = this;
-        for(let currentNode of util.getElements(content, "img")) {
+        for(let currentNode of content.querySelectorAll("img")) {
             let src = currentNode.src;
             let wrappingElement = that.findImageWrappingElement(currentNode);
             let wrappingUrl = that.extractWrappingUrl(wrappingElement);
@@ -233,7 +233,7 @@ class ImageCollector {
     replaceImageTags(element) {
         let that = this;
         let converters = [];
-        for(let currentNode of util.getElements(element, "img")) {
+        for(let currentNode of element.querySelectorAll("img")) {
             converters.push(that.makeImageTagReplacer(currentNode));
         };
         converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
@@ -357,9 +357,9 @@ class ImageCollector {
     */
     selectImageUrlFromImagePage(dom) {
         // try mediawkiki format
-        let div = util.getElement(dom, "div", e => (e.className === "fullMedia"));
+        let div = dom.querySelector("div.fullMedia");
         if (div !== null) {
-            let link = util.getElement(div, "a");
+            let link = div.querySelector("a");
             return (link === null) ? null : link.href;
         } else {
             let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
@@ -394,7 +394,7 @@ class ImageCollector {
 
     /** @private */
     static linkContainsImageTag(hyperlink) {
-        return (util.getElements(hyperlink, "img").length !== 0);
+        return (hyperlink.querySelector("img") !== null);
     }
 
     /** @private */
@@ -505,9 +505,9 @@ class ImageTagReplacer {
     }
 
     copyCaption(newImage, oldWrapper) {
-        let thumbCaption = util.getElement(oldWrapper, "div", e => e.className === "thumbcaption");
+        let thumbCaption = oldWrapper.querySelector("div.thumbcaption");
         if (thumbCaption != null){
-            for(let magnify of util.getElements(thumbCaption, "div", m => m.className === "magnify")){
+            for(let magnify of thumbCaption.querySelectorAll("div.magnify")){
                 magnify.remove();
             }
             if (!util.isNullOrEmpty(thumbCaption.textContent)) {

@@ -28,7 +28,7 @@ class UltimaguilParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let div = util.getElement(dom, "div", d => d.id === "inside");
+        let div = dom.querySelector("div#inside");
         return div;
     }
 
@@ -58,10 +58,10 @@ class UltimaguilParser extends Parser {
 
     convertMidpartToHeaders(content) {
         let document = content.ownerDocument;
-        for(let midpart of util.getElements(content, "div", e => e.className === "part midpart gear")) {
+        for(let midpart of content.querySelectorAll("div.part.midpart.gear")) {
             let parent = midpart.parentElement;
             let h3 = document.createElement("h2");
-            let link = util.getElement(midpart, "a");
+            let link = midpart.querySelector("a");
             h3.appendChild(document.createTextNode(link.getAttribute("title")));
             parent.replaceWith(h3);
         };
@@ -76,7 +76,7 @@ class UltimaguilParser extends Parser {
      *  "flatten" content.  Chapter parts may be <div> sections after the read_content span
     */
     flattenContent(content) {
-        let read_content = util.getElement(content, "span", c => c.id === "read_content");
+        let read_content = content.querySelector("span#read_content");
         if (read_content !== null) {
             let parent = read_content.parentElement;
             while (0 < read_content.childNodes.length) {
@@ -96,12 +96,8 @@ class UltimaguilParser extends Parser {
 
     removeLinkFromHeaders(content) {
         let document = content.ownerDocument;
-        for(let header of util.getElements(content, "h2")) {
-            let link = util.getElement(header, "a");
-            if (link !== null) {
-                header.appendChild(document.createTextNode(link.innerText));
-                link.remove();
-            };
+        for(let link of content.querySelectorAll("h2 a")) {
+            link.replaceWith(document.createTextNode(link.textContent));
         };
     }
 }

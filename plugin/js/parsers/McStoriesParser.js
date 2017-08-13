@@ -13,21 +13,17 @@ class McStoriesParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let chaptersElement = util.getElement(dom, "table", e => (e.id === "index") );
-        if (chaptersElement === null) {
-            chaptersElement = util.getElement(dom, "div", e => (e.className === "chapter") );
-        }
+        let chaptersElement = dom.querySelector("table#index, div.chapter");
         return Promise.resolve(util.hyperlinksToChapterList(chaptersElement));
     }
 
     findContent(dom) {
-        return util.getElement(dom, "article");
+        return dom.querySelector("article");
     }
 
     extractAuthor(dom) {
-        let article = util.getElement(dom.body, "article");
-        let author = util.getElement(article, "a", e => (e.pathname.indexOf("/Authors/") !== -1));
-        return (author === null) ? super.extractAuthor(dom) : author.innerText;
+        let author = dom.querySelector("article a[href*='/Authors/']");
+        return (author === null) ? super.extractAuthor(dom) : author.textContent;
     };
 
     populateUI(dom) {

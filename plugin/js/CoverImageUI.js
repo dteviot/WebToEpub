@@ -98,7 +98,7 @@ class CoverImageUI {
 
             // uncheck any other checked boxes
             let imagesTable = CoverImageUI.getImageTableElement();
-            for(let box of util.getElements(imagesTable, "input")) {
+            for(let box of imagesTable.querySelectorAll("input")) {
                 if (box.id !== checkboxId) {
                     box.checked = false;
                 }
