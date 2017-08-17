@@ -11,7 +11,7 @@ class NovelOnlineFreeParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menuItems = [...dom.querySelector("div.chapter-list a")];
+        let menuItems = [...dom.querySelectorAll("div.chapter-list a")];
         return Promise.resolve(this.buildChapterList(menuItems));
     };
 

@@ -48,8 +48,8 @@ class ShikkakutranslationsParser extends Parser {
     removeNextAndPreviousChapterHyperlinks(element) {
         // override default, just remove all hyperlinks
         // due to links in chapters not matching links in menu.
-        [...element.querySelectAll("a")]
-            .filter(l => l.querySelector("img").length === null)
+        [...element.querySelectorAll("a")]
+            .filter(l => l.querySelector("img") === null)
             .map(l => this.findParentNodeOfChapterLinkToRemoveAt(l))
             .forEach(u => u.remove());
     }

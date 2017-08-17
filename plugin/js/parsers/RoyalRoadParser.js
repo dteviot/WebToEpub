@@ -64,21 +64,13 @@ class RoyalRoadParser extends Parser{
         if (author === null) {
             return super.extractAuthor(dom);
         }
+        author = author.innerText.trim();
         return author.startsWith("by ") ? author.substring(3) : author;
     }
 
-    addTitleToContent(chapter, content) {
-        let titleText = this.findChapterTitle(chapter.rawDom);
-        if (titleText !== "") {
-            let title = chapter.rawDom.createElement("h1");
-            title.appendChild(chapter.rawDom.createTextNode(titleText));
-            content.insertBefore(title, content.firstChild);
-        };
-    }
-
     findChapterTitle(dom) {
-        let title = dom.querySelector("h2"); 
-        return (title === null) ? dom.title : title.innerText.trim();
+        return dom.querySelector("h1") ||
+            dom.querySelector("h2");
     }
 
     static removeOlderChapterNavJunk(content) {

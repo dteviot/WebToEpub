@@ -11,7 +11,7 @@ class NovelAllParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menuItems = [...dom.querySelector("ul.detail-chlist a")];
+        let menuItems = [...dom.querySelectorAll("ul.detail-chlist a")];
         return Promise.resolve(this.buildChapterList(menuItems));
     };
 

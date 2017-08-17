@@ -16,7 +16,7 @@ class ShinsoriParser extends Parser{
     };
 
     findContent(dom) {
-        return dom.querySelector("div.td-ss-main-content");
+        return dom.querySelector("div.td-ss-main-content, div.td-page-content");
     };
 
     extractTitle(dom) {
@@ -25,8 +25,17 @@ class ShinsoriParser extends Parser{
 
     extractAuthor(dom) {
         let authorLabel = util.getElement(dom, "strong", e => e.textContent === "Author:");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextElementSibling.textContent;
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextSibling.textContent;
     };
+
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeElements(content.querySelectorAll("div.shins-after-content-1"));
+        super.removeUnwantedElementsFromContentElement(content);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
         return util.moveIfParent(link, "p");    

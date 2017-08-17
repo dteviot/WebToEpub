@@ -59,6 +59,11 @@ class QidianParser extends Parser{
         return super.extractAuthor(dom);
     }
  
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeElements(content.querySelectorAll("form.cha-score, div.cha-bts"));
+        super.removeUnwantedElementsFromContentElement(content);
+    }
+
     // Optional, supply if individual chapter titles are not inside the content element
     findChapterTitle(dom) {
         return dom.querySelector("h3");
