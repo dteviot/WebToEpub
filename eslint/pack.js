@@ -169,7 +169,6 @@ var packFirefoxXpi = function(version) {
 }
 
 var removeFirefoxPropertiesFromManifest = function(manifest) {
-    manifest.minimum_firefox_version = undefined;
     manifest.applications = undefined;
     return manifest;    
 }

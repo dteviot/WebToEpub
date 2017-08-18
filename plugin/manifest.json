@@ -19,9 +19,9 @@
   },
   "applications": {
     "gecko": {
-      "id": "WebToEpub@Baka-tsuki.org"
+      "id": "WebToEpub@Baka-tsuki.org",
+      "strict_min_version": "52.0"
     }
   },
-  "minimum_chrome_version": "54",
-  "minimum_firefox_version": "52"
+  "minimum_chrome_version": "54"
 }
