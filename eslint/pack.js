@@ -169,7 +169,7 @@ var packFirefoxXpi = function(version) {
 }
 
 var removeFirefoxPropertiesFromManifest = function(manifest) {
-    manifest.applications = undefined;
+    delete(manifest.applications);
     return manifest;    
 }
 
