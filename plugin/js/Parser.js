@@ -194,6 +194,7 @@ class Parser {
             let newItems = that.chapterToEpubItems(chapter, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
+            delete(chapter.rawDom);
         }
         return epubItems;
     }

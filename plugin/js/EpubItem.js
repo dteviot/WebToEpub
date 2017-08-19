@@ -59,12 +59,12 @@ class EpubItem {
     }
 
     makeChapterDoc(emptyDocFactory) {
-        let that = this;
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
-        for(let node of that.nodes) {
+        for(let node of this.nodes) {
             body.appendChild(doc.importNode(node, true));
         };
+        delete(this.nodes);
         return doc;
     }
 
