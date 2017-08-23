@@ -22,6 +22,9 @@ class HttpClient {
     static wrapFetchImpl(url, handler) {
         return fetch(url, HttpClient.makeOptions()).then(function(response) {
             return HttpClient.checkResponseAndGetData(handler, response);
+        }).catch(function (error) {
+            let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [url, error.message]);
+            return Promise.reject(new Error(errorMsg));
         });
     }
 
