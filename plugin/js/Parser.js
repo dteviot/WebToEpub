@@ -205,6 +205,9 @@ class Parser {
         
         // returns promise, because may need to fetch additional pages to find list of chapters
         that.getChapterUrls(firstPageDom).then(function(chapters) {
+            if (that.userPreferences.chaptersPageInChapterList.value) {
+                chapters = that.addFirstPageUrlToChapters(url, firstPageDom, chapters);
+            }
             let chapterUrlsUI = new ChapterUrlsUI(that);
             chapterUrlsUI.populateChapterUrlsTable(chapters, that.userPreferences);
             if (0 < chapters.length) {
@@ -219,6 +222,19 @@ class Parser {
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
+    }
+
+    addFirstPageUrlToChapters(url, firstPageDom, chapters) {
+        let present = chapters.find(e => e.sourceUrl === url);
+        if (present)
+        {
+            return chapters;
+        } else {
+            return [{
+                sourceUrl:  url,
+                title: this.extractTitle(firstPageDom)
+            }].concat(chapters);
+        }
     }
 
     onFetchChaptersClicked() {

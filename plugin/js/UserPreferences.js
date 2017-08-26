@@ -85,6 +85,7 @@ class UserPreferences {
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
         this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", false);
         this.addPreference("createEpub3", "createEpub3Checkbox", false);
+        this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
 
         this.observers = [];
     };
