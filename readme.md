@@ -72,7 +72,9 @@ For details on how to extend, see http://www.codeproject.com/Articles/1060680/We
 
 ## How to install from Source
 ### Chrome
-1. Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+1. Download the extension. 
+    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
 2. Unpack zip file and move the "plugin" directory to the location you want to keep it.
 3. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
 4. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
@@ -83,7 +85,9 @@ For details on how to extend, see http://www.codeproject.com/Articles/1060680/We
 
 ### Firefox
 1. Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
-2. Download the extension. Go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+2. Download the extension.
+    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
+    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
 3. Unpack zip file and move the "plugin" directory to the location you want to keep it.
 4. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
 5. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
