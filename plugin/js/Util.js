@@ -114,6 +114,22 @@ var util = (function () {
         return (filename == null) ? "" : filename;
     }
 
+    var getParamFromUrl = function(url, paramName) {
+        // derived from https://stackoverflow.com/questions/901115
+        // note that https://stackoverflow.com/questions/8486099 
+        // indicates edge cases it does not cover.
+        let parser = document.createElement("a");
+        parser.href = url;
+        let query = parser.search.substr(1);
+        for(let part of query.split("&")) {
+            var item = part.split("=");
+            if (decodeURIComponent(item[0]) === paramName) {
+                return decodeURIComponent(item[1].replace(/\+/g, " "));
+            }
+        };
+        return null;
+    }
+    
     // set the base tag of a DOM to specified URL.
     var setBaseTag = function (url, dom) {
         if (dom != null) {
@@ -761,6 +777,7 @@ var util = (function () {
         log: log,
         extractHostName: extractHostName,
         extractFilename: extractFilename,
+        getParamFromUrl: getParamFromUrl,
         setBaseTag: setBaseTag,
         removeElements: removeElements,
         removeComments: removeComments,
