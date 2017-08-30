@@ -348,14 +348,8 @@ var util = (function () {
         return this.isNodeInTag(util.BLOCK_ELEMENTS, node);
     }
 
-    var getFirstImgSrc = function(dom, ancestorTag, filter) {
-        let img = null;
-        if (dom != null) {
-            let ancestor = util.getElement(dom, ancestorTag, filter);
-            if (ancestor != null) {
-                img = ancestor.querySelector("img");
-            };
-        };
+    var getFirstImgSrc = function(dom, selector) {
+        let img = dom.querySelector(selector + " img");
         return (img === null) ? img : img.src;   
     }
 

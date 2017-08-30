@@ -4,6 +4,7 @@
 "use strict";
 
 parserFactory.register("readlightnovel.com", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser() });
 
 class ReadLightNovelParser extends Parser {
     constructor() {
@@ -76,7 +77,7 @@ class ReadLightNovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div", d => d.className === "novel-cover");
+        return util.getFirstImgSrc(dom, "div.novel-cover");
     }
 
     // find the node(s) holding the story content

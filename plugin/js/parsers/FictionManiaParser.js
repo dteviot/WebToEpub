@@ -61,7 +61,7 @@ class FictionManiaParser extends Parser {
     };
 
     extractAuthor(dom) {
-        let author = dom.querySelector("a[href*='/searchdisplay/authordisplay.html']");
+        let author = dom.querySelector("a[href*='/searchdisplay/authordisplay.html?word=']");
         return (author === null) ? super.extractAuthor(dom) : author.innerText;
     };
 

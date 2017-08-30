@@ -1,5 +1,5 @@
 /*
-  parses xianxiaworld.net
+  parses www.xianxiaworld.net
 */
 "use strict";
 
@@ -59,6 +59,6 @@ class XianXiaWorldParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div", d => d.id === "fmimg");
+        return util.getFirstImgSrc(dom, "div#fmimg");
     }
 }

@@ -43,7 +43,7 @@ class NovelPlanetParser extends Parser{
     };
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div", e => e.className === "post-previewInDetails");
+        return util.getFirstImgSrc(dom, "div.post-previewInDetails");
     }
 
     findChapterTitle(dom) {

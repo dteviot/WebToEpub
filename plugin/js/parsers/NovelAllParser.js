@@ -41,7 +41,7 @@ class NovelAllParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div", e => e.className.startsWith("manga-detailtop"));
+        return util.getFirstImgSrc(dom, "div.manga-detailtop");
     }
 
     populateUI(dom) {

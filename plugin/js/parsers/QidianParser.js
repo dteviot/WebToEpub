@@ -70,7 +70,7 @@ class QidianParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div", d => d.className.startsWith("det-hd"));
+        return util.getFirstImgSrc(dom, "div.det-hd");
     }
 
     populateUI(dom) {

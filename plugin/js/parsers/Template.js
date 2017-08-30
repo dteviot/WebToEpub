@@ -120,7 +120,7 @@ class TemplateParser extends Parser{
     /*
     findCoverImageUrl(dom) {
         // Most common implementation is get first image in specified container. e.g. 
-        return util.getFirstImgSrc(dom, "div", e => e.className === "td-ss-main-sidebar");
+        return util.getFirstImgSrc(dom, "div.td-ss-main-sidebar");
     }
     */
 
