@@ -87,9 +87,8 @@ class ChapterUrlsUI {
     */
     static setAllUrlsSelectState(select) {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        for(let row of linksTable.children) {
-            let input = util.getElement(row, "input", i => i.type === "checkbox");
-            if ((input !== null) && (input.checked !== select)) {
+        for(let input of [...linksTable.querySelectorAll("input[type='checkbox']")]) {
+            if (input.checked !== select) {
                 input.checked = select;
                 input.onclick();
             }
@@ -126,7 +125,7 @@ class ChapterUrlsUI {
 
     /** @private */
     static resizeTitleColumnToFit(linksTable, openAsTab) {
-        let inputs = util.getElements(linksTable, "input", i => i.type === "text"); 
+        let inputs = [...linksTable.querySelectorAll("input[type='text']")];
         let width = inputs.reduce((acc, element) => Math.max(acc, element.value.length), 0);
         if (!openAsTab) {
             // if open as popup, don't allow column to be more than 1/2 window width
