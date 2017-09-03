@@ -20,13 +20,16 @@ class ErrorLog {
         ErrorLog.getErrorSection().hidden = false;
 
         ErrorLog.setErrorMessageText(msg);
-        document.getElementById("errorButtonOk").onclick = function () {
-            ErrorLog.queue.shift();
-            if (ErrorLog.queue.length === 0) {
-                ErrorLog.restoreSectionVisibility(sections);
-            } else {
-                ErrorLog.setErrorMessageText(ErrorLog.queue[0]);
-            };
+        ErrorLog.setErrorMessageButtons(msg, sections);
+    }
+
+    static onCloseError(sections) {
+        ErrorLog.queue.shift();
+        if (ErrorLog.queue.length === 0) {
+            ErrorLog.restoreSectionVisibility(sections);
+        } else {
+            ErrorLog.setErrorMessageText(ErrorLog.queue[0]);
+            ErrorLog.setErrorMessageButtons(ErrorLog.queue[0], sections);
         };
     }
 
@@ -61,6 +64,32 @@ class ErrorLog {
             textRow.textContent = msg.message + " " + msg.stack;
         }
         ErrorLog.history.push(textRow.textContent);
+    }
+
+    /** private */
+    static setErrorMessageButtons(msg, sections) {
+        let close = () => ErrorLog.onCloseError(sections);
+        let okButton = document.getElementById("errorButtonOk");
+        let retryButton = document.getElementById("errorButtonRetry");
+        let cancelButton = document.getElementById("errorButtonCancel");
+        if (msg.retryAction !== undefined) {
+            okButton.hidden = true;
+            retryButton.hidden = false;
+            retryButton.onclick = function() {
+                close();
+                msg.retryAction();
+            };
+            cancelButton.hidden = false;
+            cancelButton.onclick = function() {
+                close();
+                msg.cancelAction();
+            };
+        } else {
+            okButton.hidden = false;
+            okButton.onclick = close;
+            retryButton.hidden = true;
+            cancelButton.hidden = true;
+        }
     }
 
     /** private */

@@ -15,9 +15,17 @@
 		"message": "Edit Chapter URLs",
 		"description": "Label on button to allow manually editing list of URLs to fetch"
 	},
+	"__MSG_button_error_Cancel__": {
+		"message": "Cancel",
+		"description": "Label on 'Cancel' button when show error"
+	},
 	"__MSG_button_error_OK__": {
 		"message": "OK",
 		"description": "Label on 'OK' button when show error"
+	},
+	"__MSG_button_error_Retry__": {
+		"message": "Retry",
+		"description": "Label on 'Retry' button when show error"
 	},
 	"__MSG_button_Fetch_Chapters__": {
 		"message": "Fetch Chapters",

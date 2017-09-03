@@ -21,17 +21,22 @@ class HttpClient {
 
     static wrapFetchImpl(url, handler) {
         return fetch(url, HttpClient.makeOptions()).then(function(response) {
-            return HttpClient.checkResponseAndGetData(handler, response);
+            return HttpClient.checkResponseAndGetData(url, handler, response);
         }).catch(function (error) {
             let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [url, error.message]);
             return Promise.reject(new Error(errorMsg));
         });
     }
 
-    static checkResponseAndGetData(handler, response) {
+    static checkResponseAndGetData(url, handler, response) {
         if(!response.ok) {
             let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
-            return Promise.reject(new Error(errorMsg));
+            let msg = new Error(errorMsg);
+            return new Promise(function(resolve, reject) {
+                msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, handler));
+                msg.cancelAction = () => reject(new Error(errorMsg));
+                ErrorLog.showErrorMessage(msg);
+            });
         } else {
             handler.setResponse(response);
             return handler.extractContentFromResponse(response);
