@@ -301,19 +301,14 @@ var main = (function () {
 
     function localizeHtmlPage()
     {
-        let isLocalizeable = function(e) { return e.innerText.startsWith("__MSG_"); };
-        for(let button of util.getElements(document, "button", b => isLocalizeable(b))) {
-            localize(button);
-        };
-        for(let label of util.getElements(document, "td", b => isLocalizeable(b))) {
-            localize(label);
-        };
-        for(let label of util.getElements(document, "th", b => isLocalizeable(b))) {
-            localize(label);
-        };
-        for(let label of util.getElements(document, "option", b => isLocalizeable(b))) {
-            localize(label);
-        };
+        // can't use a single select, because there are buttons in td elements
+        for(let selector of ["button, option", "td, th"]) {
+            for(let element of [...document.querySelectorAll(selector)]) {
+                if (element.textContent.startsWith("__MSG_")) {
+                    localize(element);
+                }
+            }
+        }
     }
 
     function clearCoverUrl() {
