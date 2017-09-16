@@ -21,7 +21,19 @@ class FanFictionParser extends Parser {
             // no list of chapters found, assume it's a single chapter story
             return Promise.resolve(that.singleChapterStory(baseUrl, dom));
         } else {
-            return Promise.resolve(options.map(option => that.optionToChapterInfo(baseUrl, option)));
+            let foundUrls = new Set();
+            let isUnique = function(chapterInfo) {
+                let unique = !foundUrls.has(chapterInfo.sourceUrl);
+                if (unique) {
+                    foundUrls.add(chapterInfo.sourceUrl);
+                }
+                return unique;
+            }
+
+            return Promise.resolve(
+                options.map(option => that.optionToChapterInfo(baseUrl, option))
+                .filter(isUnique)
+            );
         }
     }
 
