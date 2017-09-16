@@ -33,7 +33,11 @@ class Download {
         return new Promise(resolve => {
             chrome.downloads.download(options, 
                 downloadId => Download.onDownloadStarted(downloadId, 
-                    () => { cleanup(); resolve(); }
+                    () => { 
+                        const tenSeconds = 10 * 1000;
+                        setTimeout(cleanup, tenSeconds);
+                        resolve(); 
+                    }
                 )
             );
         });
@@ -48,7 +52,7 @@ class Download {
     }
 
     static onChanged(delta) {
-        if ((delta.state != null) && (delta.state.current !== "in_progress")) {
+        if ((delta.state != null) && (delta.state.current === "complete")) {
             let action = Download.toCleanup.get(delta.id);
             if (action != null) {
                 Download.toCleanup.delete(delta.id);
