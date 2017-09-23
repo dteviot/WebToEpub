@@ -15,6 +15,15 @@ class Download {
         }
     }
 
+    static isFileNameIllegalOnWindows(fileName) {
+        for(let c of Download.illegalWindowsFileNameChars) {
+            if (fileName.includes(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** write blob to "Downloads" directory */
     static save(blob, fileName) {
         let options = {
@@ -69,4 +78,5 @@ class Download {
 }
 
 Download.toCleanup = new Map();
+Download.illegalWindowsFileNameChars = "/?<>\\:*|\"";
 Download.init();

@@ -107,6 +107,14 @@ var main = (function () {
     function fetchContentAndPackEpub() {
         let metaInfo = metaInfoFromControls();
         let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
+
+        if (Download.isFileNameIllegalOnWindows(fileName)) {
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
+                [fileName, Download.illegalWindowsFileNameChars]
+            ));
+            return;
+        }
+
         main.getPackEpubButton().disabled = true;
         parser.onStartCollecting();
         parser.fetchContent().then(function () {

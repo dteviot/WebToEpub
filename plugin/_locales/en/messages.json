@@ -240,6 +240,18 @@
 			}
 		}
 	},
+	"errorIllegalFileName": {
+		"message": "Filename '$filename$' must not contain the following characters: $illegalCharacters$",
+		"description": "Warning message when filename isn't legal",
+		"placeholders": {
+			"filename": {
+			    "content": "$1"
+			},
+			"illegalCharacters": {
+			    "content": "$2"
+			}
+		}
+	},
 	"gotHtmlExpectedImageWarning": {
 		"message": "Fetch of URL '$url$' returned HTML, expected an image.",
 		"description": "Warning message when try to fetch an image and instead get HTML",
