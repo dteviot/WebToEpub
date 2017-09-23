@@ -363,7 +363,7 @@ class ImageCollector {
             return (link === null) ? null : link.href;
         } else {
             let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
-            ErrorLog.showErrorMessage(errorMsg);
+            ErrorLog.log(errorMsg);
             return null;
         }
     }

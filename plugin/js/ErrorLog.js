@@ -5,7 +5,7 @@ class ErrorLog {
     }
 
     static log(error) {
-        ErrorLog.showErrorMessage(error);
+        ErrorLog.history.push(ErrorLog.getMsgText(error));
     }
 
     static showErrorMessage(msg) {
@@ -33,9 +33,19 @@ class ErrorLog {
         };
     }
 
+    static showLogToUser() {
+        let history = ErrorLog.dumpHistory();
+        if (!util.isNullOrEmpty(history)) {
+            ErrorLog.showErrorMessage(history);
+        }
+    }
+
+    static clearHistory() {
+        ErrorLog.history = [];
+    }
+
     static dumpHistory() {
         let errors = ErrorLog.history.join("\r\n\r\n");
-        ErrorLog.history = [];
         return errors;
     }
 
@@ -56,14 +66,17 @@ class ErrorLog {
 
     /** private */
     static setErrorMessageText(msg) {
-        let textRow = document.getElementById("errorMessageText");
+        let textRow = document.querySelector("#errorMessageText pre");
+        textRow.textContent = ErrorLog.getMsgText(msg);
+    }
+
+    static getMsgText(msg) {
         if (typeof (msg) === "string") {
-            textRow.textContent = msg ;
+            return msg;
         } else {
             // assume msg is some sort of error object
-            textRow.textContent = msg.message + " " + msg.stack;
+            return msg.message + " " + msg.stack;
         }
-        ErrorLog.history.push(textRow.textContent);
     }
 
     /** private */

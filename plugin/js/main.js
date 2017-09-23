@@ -115,6 +115,7 @@ var main = (function () {
             return;
         }
 
+        ErrorLog.clearHistory();
         main.getPackEpubButton().disabled = true;
         parser.onStartCollecting();
         parser.fetchContent().then(function () {
@@ -122,6 +123,7 @@ var main = (function () {
         }).then(function (content) {
             return Download.save(content, fileName);
         }).then(function () {
+            ErrorLog.showLogToUser();
             return dumpErrorLogToFile();
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
