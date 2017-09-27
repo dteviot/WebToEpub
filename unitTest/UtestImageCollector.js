@@ -91,10 +91,10 @@ QUnit.test("findImagesUsedInDocument", function (assert) {
 QUnit.test("removeDuplicateImages", function (assert) {
     let imageCollector = new ImageCollector();
     // basic setup
-    imageCollector.addImageInfo("http://test.com/cover.jpg", "http://test.com/cover.jpg", true);
-    imageCollector.addImageInfo("http://test.com/bmp1.jpg", "http://test.com/bmp1.jpg", false);
-    imageCollector.addImageInfo("http://test.com/bmp2.jpg", "http://test.com/bmp2.jpg", false);
-    imageCollector.addImageInfo("http://test.com/cover.jpg", "http://test.com/cover.jpg", false);
+    imageCollector.addImageInfo("http://test.com/cover.jpg", "http://test.com/cover.jpg", null, true);
+    imageCollector.addImageInfo("http://test.com/bmp1.jpg", "http://test.com/bmp1.jpg", null, false);
+    imageCollector.addImageInfo("http://test.com/bmp2.jpg", "http://test.com/bmp2.jpg", null, false);
+    imageCollector.addImageInfo("http://test.com/cover.jpg", "http://test.com/cover.jpg", null, false);
     assert.equal(imageCollector.imagesToFetch.length, 3);
     assert.equal(imageCollector.imageInfoList.length, 3);
     assert.equal(imageCollector.imagesToPack.length, 0);

@@ -10,15 +10,6 @@ class ShikkakutranslationsImageCollector extends ImageCollector {
         super();
     }
 
-    selectImageUrlFromImagePage(dom) {
-        let img = dom.querySelector("div.the_attachment img");
-        if (img !== null) {
-            let src = util.resolveRelativeUrl(dom.baseURI, img.src);
-            return ImageCollector.removeSizeParamsFromWordPressQuery(src);
-        }
-        return null;
-    }
-
     isImageWrapperElement(element) {
         return ((element.tagName.toLowerCase() === "div") && element.className.startsWith("gallery-group")) ||
             super.isImageWrapperElement(element);

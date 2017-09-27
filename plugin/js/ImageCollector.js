@@ -34,30 +34,32 @@ class ImageCollector {
         this.coverImageInfo = null;
     }
 
-    addImageInfo(wrappingUrl, sourceUrl, fetchFirst) {
-        let that = this;
+    addImageInfo(wrappingUrl, sourceUrl, dataOrigFileUrl, fetchFirst) {
         let imageInfo = null;
         let index = this.urlIndex.get(sourceUrl);
-        if (index !== undefined) {
-            imageInfo = that.imageInfoList[index];
-        } else {
+        if (index === undefined) {
             index = this.urlIndex.get(wrappingUrl);
-            if (index !== undefined) {
-                imageInfo = that.imageInfoList[index];
-            };
-        };
-        if (imageInfo === null) {
-            index = that.imageInfoList.length;
-            imageInfo = new ImageInfo(wrappingUrl, index, sourceUrl);
+        }
+        if (index === undefined) {
+            index = this.urlIndex.get(dataOrigFileUrl);
+        }
+        if (index !== undefined) {
+            imageInfo = this.imageInfoList[index];
+        } else {
+            index = this.imageInfoList.length;
+            imageInfo = new ImageInfo(wrappingUrl, index, sourceUrl, dataOrigFileUrl);
             this.imageInfoList.push(imageInfo);
             if (fetchFirst) {
-                that.imagesToFetch = [imageInfo].concat(that.imagesToFetch);
+                this.imagesToFetch = [imageInfo].concat(this.imagesToFetch);
             } else {
                 this.imagesToFetch.push(imageInfo);
             }
         };           
         this.urlIndex.set(wrappingUrl, index);
         this.urlIndex.set(sourceUrl, index);
+        if (dataOrigFileUrl != null) {
+            this.urlIndex.set(dataOrigFileUrl, index);
+        }
         return imageInfo;
     }
 
@@ -69,7 +71,7 @@ class ImageCollector {
         if (!util.isNullOrEmpty(url)) {
             let info = that.imageInfoByUrl(url);
             if (info === null) {
-                info = that.addImageInfo(url, url, true);
+                info = that.addImageInfo(url, url, null, true);
             };
             info.isCover = true;
             that.coverImageInfo = info;
@@ -213,20 +215,30 @@ class ImageCollector {
     }
 
     findImagesUsedInDocument(content) {
-        let that = this;
-        for(let currentNode of content.querySelectorAll("img")) {
-            let src = currentNode.src;
-            let wrappingElement = that.findImageWrappingElement(currentNode);
-            let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-            let existing = that.imageInfoByUrl(wrappingUrl);
+        for(let imageElement of content.querySelectorAll("img")) {
+            let src = imageElement.src;
+            let wrappingElement = this.findImageWrappingElement(imageElement);
+            let wrappingUrl = this.extractWrappingUrl(wrappingElement);
+            let existing = this.imageInfoByUrl(wrappingUrl);
             if(existing == null){
-                that.addImageInfo(wrappingUrl, src, false);
+                let dataOrigFileUrl = this.findDataOrigFileUrl(imageElement, wrappingUrl);
+                this.addImageInfo(wrappingUrl, src, dataOrigFileUrl, false);
             } else {
                 existing.isOutsideGallery = true;
             };
         };
     }
 
+    findDataOrigFileUrl(imageElement, wrappingUrl) {
+        let dataOrigFile = imageElement.getAttribute("data-orig-file");
+        if ((dataOrigFile != null) && (dataOrigFile != imageElement.src)
+            && (dataOrigFile != wrappingUrl)){
+            let baseUrl = imageElement.ownerDocument.baseURI;
+            return util.resolveRelativeUrl(baseUrl, dataOrigFile);
+        }
+        return null;
+    }
+    
     /**  Update image tags, point to image file in epub
     * @param {element} element containing <img> tags to update
     */
@@ -268,7 +280,7 @@ class ImageCollector {
         let initialUrl = this.initialUrlToTry(imageInfo);
         this.urlIndex.set(initialUrl, imageInfo.index);
         return HttpClient.wrapFetch(initialUrl).then(function (xhr) {
-            return that.findImageFileUrl(xhr, imageInfo);
+            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl);
         }).then(function (xhr) {
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
@@ -283,7 +295,7 @@ class ImageCollector {
         });
     }
 
-    findImageFileUrl(xhr, imageInfo) {
+    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl) {
         // with Baka-Tsuki, the link wrapping the image will return an HTML
         // page with a set of images.  We need to pick the desired image
         if (xhr.isHtml()) {
@@ -291,6 +303,12 @@ class ImageCollector {
             // if we can't find one, just use the original image.
             let temp = this.selectImageUrlFromImagePage(xhr.responseXML);
             if (temp == null) {
+                if (dataOrigFileUrl != null) {
+                    return this.findImageFileUrlUsingDataOrigFileUrl(imageInfo);
+                }
+                let baseUri = xhr.responseXML.baseURI;
+                let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [baseUri]);
+                ErrorLog.log(errorMsg);
                 temp = imageInfo.sourceUrl;
             }
             temp = ImageCollector.removeSizeParamsFromWordPressQuery(temp);
@@ -304,6 +322,12 @@ class ImageCollector {
         }
     }
 
+    findImageFileUrlUsingDataOrigFileUrl(imageInfo) {
+        return HttpClient.wrapFetch(imageInfo.dataOrigFileUrl).then(
+            xhr => this.findImageFileUrl(xhr, imageInfo, null)
+        );
+    }
+    
     imagesToPackInEpub() {
         return this.imagesToPack;
     }
@@ -361,11 +385,8 @@ class ImageCollector {
         if (div !== null) {
             let link = div.querySelector("a");
             return (link === null) ? null : link.href;
-        } else {
-            let errorMsg = chrome.i18n.getMessage("gotHtmlExpectedImageWarning", [dom.baseURI]);
-            ErrorLog.log(errorMsg);
-            return null;
         }
+        return null;
     }
 
     static replaceHyperlinksToImagesWithImages(content) {

@@ -133,7 +133,7 @@ class ChapterEpubItem extends EpubItem {
     width: "full size" image width
 */
 class ImageInfo extends EpubItem {
-    constructor(wrappingUrl, index, sourceUrl) {
+    constructor(wrappingUrl, index, sourceUrl, dataOrigFileUrl) {
         super(sourceUrl);
         super.index = index;
         super.isInSpine = false;
@@ -144,6 +144,7 @@ class ImageInfo extends EpubItem {
         this.arraybuffer = null;
         this.height = null;
         this.width = null;
+        this.dataOrigFileUrl = dataOrigFileUrl;
     }
 
     getZipHref() {
