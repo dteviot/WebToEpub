@@ -5,7 +5,7 @@
     <title>WebToEpub</title>
     <base />
     <style>
-        #packEpubButton {
+        .expandedButton {
             padding: 5px 10px;
         }
     </style>
@@ -36,15 +36,15 @@
     </style>
     <section id="errorSection" class="minWidth" hidden>
         <table id="errorSectionTable">
-            <tr id="errorMessageRow">
-                <td id="errorMessageText"><pre></pre></td>
-            </tr>
             <tr>
                 <td>
-                    <button id="errorButtonOk">__MSG_button_error_OK__</button>
-                    <button id="errorButtonRetry">__MSG_button_error_Retry__</button>
-                    <button id="errorButtonCancel">__MSG_button_error_Cancel__</button>
+                    <button class="expandedButton" id="errorButtonOk">__MSG_button_error_OK__</button>
+                    <button class="expandedButton" id="errorButtonRetry">__MSG_button_error_Retry__</button>
+                    <button class="expandedButton" id="errorButtonCancel">__MSG_button_error_Cancel__</button>
                 </td>
+            </tr>
+            <tr id="errorMessageRow">
+                <td id="errorMessageText"><pre></pre></td>
             </tr>
         </table>
     </section>
@@ -107,7 +107,7 @@
                 </tr>
             </table>
         </section>
-        <button id="packEpubButton">__MSG_button_Pack_EPUB__</button>
+        <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
         <progress id="fetchProgress" value=" 0" max="1"></progress>
         <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
         <section hidden id="advancedOptionsSection">
