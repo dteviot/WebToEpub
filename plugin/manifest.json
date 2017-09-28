@@ -13,6 +13,7 @@
     "<all_urls>"
   ],
   "browser_action": {
+    "browser_style": false,
     "default_title": "",
     "default_icon": "book128.png",
     "default_popup": "popup.html"

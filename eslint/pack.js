@@ -170,6 +170,7 @@ var packFirefoxXpi = function(version) {
 
 var removeFirefoxPropertiesFromManifest = function(manifest) {
     delete(manifest.applications);
+    delete(manifest.browser_action.browser_style);
     return manifest;    
 }
 
