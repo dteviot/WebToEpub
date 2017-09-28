@@ -142,6 +142,13 @@ class TemplateParser extends Parser{
     }
     */
 
+    // Optional, supply if source has 100s of chapters and there's lots of
+    // elements in DOM that are not included in the epub.
+    /*
+    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+    }
+    */
+
     // Optional, called when user presses the "Pack EPUB" button.
     // Implement if parser needs to do anything after user sets UI settings 
     // but before collecting pages

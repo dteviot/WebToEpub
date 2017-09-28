@@ -271,10 +271,12 @@ class Parser {
         that.imageCollector.reset();
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
+        let reduceMemory = this.removeUnusedElementsToReduceMemoryConsumption;
         pagesToFetch.forEach(function(chapter) {
             sequence = sequence.then(function () {
                 return that.fetchChapter(chapter.sourceUrl);
             }).then(function (chapterDom) {
+                reduceMemory(chapterDom);
                 chapter.rawDom = chapterDom;
                 that.updateLoadState(chapter);
                 let content = that.findContent(chapter.rawDom);
@@ -296,6 +298,14 @@ class Parser {
             ErrorLog.log(err);
         })
         return sequence;
+    }
+
+    /**
+    * default implementation
+    * derivied classes can override if DOM has lots of elements not used in epub
+    */
+    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+        util.removeElements(chapterDom.querySelectorAll("select, iframe"));
     }
 
     // Hook if need to chase hyperlinks in page to get all chapter content
