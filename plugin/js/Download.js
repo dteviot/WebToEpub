@@ -29,7 +29,7 @@ class Download {
         let options = {
             url: URL.createObjectURL(blob),
             filename: fileName,
-            saveAs: false
+            saveAs: true
         };
         let cleanup = () => { URL.revokeObjectURL(options.url); };
         return Download.saveOn(options, cleanup);
