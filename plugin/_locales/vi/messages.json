@@ -107,10 +107,6 @@
         "message": "Tên tập tin",
         "description": ""
     },
-    "__MSG_label_Always_Open_as_Tab__": {
-        "message": "Luôn mở trong Tab mới",
-        "description": ""
-    },
     "__MSG_label_Developer_Stuff__": {
         "message": "Dành Cho Lập Trình Viên:",
         "description": ""

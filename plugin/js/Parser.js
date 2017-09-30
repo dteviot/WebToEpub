@@ -209,7 +209,7 @@ class Parser {
                 chapters = that.addFirstPageUrlToChapters(url, firstPageDom, chapters);
             }
             let chapterUrlsUI = new ChapterUrlsUI(that);
-            chapterUrlsUI.populateChapterUrlsTable(chapters, that.userPreferences);
+            chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
                 if (chapters[0].sourceUrl === url) {
                     chapters[0].rawDom = firstPageDom;

@@ -123,10 +123,6 @@
 		"message": "Filename",
 		"description": "Label in front input for file to save EPUB as"
 	},
-	"__MSG_label_Always_Open_as_Tab__": {
-		"message": "Always Open as Tab",
-		"description": "Label for checkbox to get extension to open as popup or tab (in Advanced settings)."
-	},
 	"__MSG_label_Developer_Stuff__": {
 		"message": "Developer Stuff:",
 		"description": "Label for checkbox to show/hide buttons for developer testing (in Advanced settings)."

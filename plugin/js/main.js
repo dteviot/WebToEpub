@@ -165,25 +165,13 @@ var main = (function () {
     function populateControls() {
         loadUserPreferences();
         parserFactory.populateManualParserSelectionTag(getManuallySelectParserTag());
-        if (isRunningInTabMode()) {
-            configureForTabMode();
-        } else if (isRunningFromWebPageOrLocalFile()) {
-            // nothing to do, user will need to supply URL
-        } else {
-            // running as an extention, try get active tab
-            getActiveTabDOM();
-        }
+        configureForTabMode();
     }
 
     function loadUserPreferences() {
         userPreferences = UserPreferences.readFromLocalStorage();
         userPreferences.writeToUi();
         userPreferences.hookupUi();
-    }
-
-    function isRunningFromWebPageOrLocalFile() {
-        let protocol = window.location.protocol;
-        return (protocol.startsWith("http") || protocol.startsWith("file"));
     }
 
     function isRunningInTabMode() {
@@ -348,7 +336,7 @@ var main = (function () {
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
-        if (isRunningInTabMode() || !userPreferences.alwaysOpenAsTab.value) {
+        if (isRunningInTabMode()) {
             localizeHtmlPage();
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             addOnClickEventHandlers();

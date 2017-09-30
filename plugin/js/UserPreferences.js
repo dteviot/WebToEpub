@@ -79,7 +79,6 @@ class UserPreferences {
         this.addPreference("includeImageSourceUrl", "includeImageSourceUrlCheckboxInput", true);
         this.addPreference("higestResolutionImages", "higestResolutionImagesCheckboxInput", true);
         this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
-        this.addPreference("alwaysOpenAsTab", "alwaysOpenAsTabInput", true);
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);

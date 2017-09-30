@@ -14,7 +14,7 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
     }
 
-    populateChapterUrlsTable(chapters, userPreferences) {
+    populateChapterUrlsTable(chapters) {
         ChapterUrlsUI.clearChapterUrlsTable();
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         chapters.forEach(function (chapter) {
@@ -25,7 +25,7 @@ class ChapterUrlsUI {
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
         });
-        ChapterUrlsUI.resizeTitleColumnToFit(linksTable, userPreferences.alwaysOpenAsTab.value);
+        ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
     static clearChapterUrlsTable() {
@@ -124,13 +124,9 @@ class ChapterUrlsUI {
     }
 
     /** @private */
-    static resizeTitleColumnToFit(linksTable, openAsTab) {
+    static resizeTitleColumnToFit(linksTable) {
         let inputs = [...linksTable.querySelectorAll("input[type='text']")];
         let width = inputs.reduce((acc, element) => Math.max(acc, element.value.length), 0);
-        if (!openAsTab) {
-            // if open as popup, don't allow column to be more than 1/2 window width
-            width = Math.min(width, 40);
-        }
         inputs.forEach(i => i.size = width); 
     }
 
@@ -168,7 +164,7 @@ class ChapterUrlsUI {
         try {
             let chapters = this.htmlToChapters(ChapterUrlsUI.getEditChaptersUrlsInput().value);
             this.parser.chapters = chapters;
-            this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
+            this.populateChapterUrlsTable(chapters);
             this.usingTable = true;
             this.setVisibileUI(this.usingTable);
         } catch (err) {
@@ -181,7 +177,7 @@ class ChapterUrlsUI {
         try {
             let chapters = this.parser.chapters;
             chapters.reverse();
-            this.populateChapterUrlsTable(chapters, UserPreferences.readFromLocalStorage());
+            this.populateChapterUrlsTable(chapters);
         } catch (err) {
             ErrorLog.showErrorMessage(err);
         }
