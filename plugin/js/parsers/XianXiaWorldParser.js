@@ -53,11 +53,6 @@ class XianXiaWorldParser extends Parser {
         util.removeElements(message);
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div#fmimg");
     }

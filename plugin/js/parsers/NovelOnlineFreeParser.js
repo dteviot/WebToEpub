@@ -44,9 +44,4 @@ class NovelOnlineFreeParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.entry-header");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

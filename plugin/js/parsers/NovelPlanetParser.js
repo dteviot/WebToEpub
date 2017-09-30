@@ -49,9 +49,4 @@ class NovelPlanetParser extends Parser{
     findChapterTitle(dom) {
         return dom.querySelector("h4");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

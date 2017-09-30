@@ -18,9 +18,4 @@ class KrytykalParser extends Parser {
     findContent(dom) {
         return dom.querySelector("div#content article");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

@@ -48,9 +48,4 @@ class ShikkakutranslationsParser extends Parser {
     findParentNodeOfChapterLinkToRemoveAt(link) {
         return util.moveIfParent(link, "p");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

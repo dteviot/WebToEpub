@@ -47,11 +47,6 @@ class LnmtlParser extends Parser {
         } 
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.jumbotron.novel");
     }

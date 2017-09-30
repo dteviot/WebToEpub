@@ -56,9 +56,4 @@ class BlogspotParser extends Parser {
         let toRemove = util.moveIfParent(link, "span");
         return util.moveIfParent(toRemove, "div");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

@@ -22,9 +22,4 @@ class JaptemParser extends Parser {
     findParentNodeOfChapterLinkToRemoveAt(link) {
         return util.moveIfParent(link, "h2");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

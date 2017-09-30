@@ -116,7 +116,6 @@ class TemplateParser extends Parser{
     // Optional, supply if cover image can usually be found on inital web page
     // Notes.
     //   1. If cover image is first image in content section, do not implement this function
-    //   2. If this is supplied, populateUI() must also be supplied
     /*
     findCoverImageUrl(dom) {
         // Most common implementation is get first image in specified container. e.g. 
@@ -125,6 +124,7 @@ class TemplateParser extends Parser{
     */
 
     // Optional, supply if user should be able to specify a cover image
+    // and findCoverImageUrl() above may return null.
     /*
     populateUI(dom) {
         // Following code is all that should be needed for this function

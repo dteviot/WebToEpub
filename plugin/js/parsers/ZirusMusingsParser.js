@@ -73,9 +73,4 @@ class ZirusMusingsParser extends Parser {
     findTocElement(div) {
         return div.querySelector("a[href*='toc/']");
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

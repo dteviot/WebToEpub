@@ -68,9 +68,4 @@ class WordpressBaseParser extends Parser {
         }
         return title;
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

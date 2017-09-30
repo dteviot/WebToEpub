@@ -107,9 +107,4 @@ class ReadLightNovelParser extends Parser {
             share.remove();
         }
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

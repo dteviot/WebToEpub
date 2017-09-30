@@ -44,10 +44,4 @@ class ShinsoriParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.td-ss-main-sidebar");
     }
-
-    // Optional, supply if user should be able to specify a cover image
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

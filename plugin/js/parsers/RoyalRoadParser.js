@@ -82,16 +82,8 @@ class RoyalRoadParser extends Parser{
         };
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-
     findCoverImageUrl(dom) {
-        let img = null;
-        if (dom != null) {
-            img = dom.querySelector("img.img-offset");
-        };
+        let img = dom.querySelector("img.img-offset");
         return (img === null) ? img : img.src;   
     }
 }

@@ -72,11 +72,6 @@ class WuxiaworldParser extends Parser {
         }
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-
     static cleanCollapseomatic(content) {
         for(let e of content.querySelectorAll("[class^='collapseomatic']")) {
             if (e.className.startsWith("collapseomatic_content")) {

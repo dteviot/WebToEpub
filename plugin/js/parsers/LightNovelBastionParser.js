@@ -33,9 +33,4 @@ class LightNovelBastionParser extends Parser {
         }
         return titleDiv;
     }
-
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
 }

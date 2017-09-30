@@ -56,11 +56,6 @@ class GravityTalesParser extends Parser {
         return util.moveIfParent(toRemove, "p");
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-
     static getNovelId(dom) {
         let contentElement = dom.querySelector("div#contentElement");
         let init = (contentElement === null) ? null : contentElement.getAttribute("ng-init");
