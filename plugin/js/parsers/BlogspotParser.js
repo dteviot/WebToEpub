@@ -33,13 +33,6 @@ class BlogspotParser extends Parser {
     }
 
     findContent(dom) {
-        //---------------------------------------------------
-        // Hack, fix for one of the image galleries for skythewood
-        // ToDo.  Base class to pick parser on per URL basis.
-        if (Imgur.isImgurGallery(dom)) {
-            return Imgur.convertGalleryToConventionalForm(dom);
-        }
-        //---------------------------------------------------
         return BlogspotParser.findContentElement(dom) ||
             dom.querySelector("div.entry-content");
     }

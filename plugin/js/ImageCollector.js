@@ -34,6 +34,16 @@ class ImageCollector {
         this.coverImageInfo = null;
     }
 
+    copyState(otherImageCollector) {
+        this.imageInfoList = otherImageCollector.imageInfoList;
+        this.urlIndex = otherImageCollector.urlIndex;
+        this.bitmapIndex = otherImageCollector.bitmapIndex;
+        this.imagesToFetch = otherImageCollector.imagesToFetch;
+        this.imagesToPack = otherImageCollector.imagesToPack;
+        this.coverImageInfo = otherImageCollector.coverImageInfo;
+        this.userPreferences = otherImageCollector.userPreferences;
+    }
+
     addImageInfo(wrappingUrl, sourceUrl, dataOrigFileUrl, fetchFirst) {
         let imageInfo = null;
         let index = this.urlIndex.get(sourceUrl);

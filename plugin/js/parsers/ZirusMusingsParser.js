@@ -49,15 +49,7 @@ class ZirusMusingsParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-
-        // Ziru's Musings has links to imgur galleries.
-        // So when one of them, create whole new page and return link to that.
-        // ToDo: Fix this ugly hack.
-        if (Imgur.isImgurGallery(dom)) {
-            return Imgur.convertGalleryToConventionalForm(dom);
-        } else {
-            return dom.querySelector("article:not(.comment-body) div.entry-content");
-        }
+        return dom.querySelector("article:not(.comment-body) div.entry-content");
     }
 
     removeUnwantedElementsFromContentElement(element) {

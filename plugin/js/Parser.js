@@ -8,6 +8,14 @@ class Parser {
         this.chapters = [];
         this.imageCollector = imageCollector || new ImageCollector();
         this.userPreferences = null;
+        this.chapterListUrl = null;
+    }
+
+    copyState(otherParser) {
+        this.chapters = otherParser.chapters;
+        this.imageCollector.copyState(otherParser.imageCollector);
+        this.userPreferences = otherParser.userPreferences;
+        this.chapterListUrl = otherParser.chapterListUrl;
     }
 
     onUserPreferencesUpdate(userPreferences) {
@@ -187,11 +195,13 @@ class Parser {
     }
 
     chaptersToEpubItems(chapters) {
-        let that = this;
         let epubItems = [];
         let index = 0;
-        for(let chapter of chapters.filter(c => that.isChapterPackable(c))) {
-            let newItems = that.chapterToEpubItems(chapter, index);
+        let initialHostName = this.initialHostName();
+
+        for(let chapter of chapters.filter(c => this.isChapterPackable(c))) {
+            let pageParser = this.parserForChapter(initialHostName, chapter);
+            let newItems = pageParser.chapterToEpubItems(chapter, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
             delete(chapter.rawDom);
@@ -202,6 +212,7 @@ class Parser {
     // called when plugin has obtained the first web page
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
+        this.chapterListUrl = url;
         
         // returns promise, because may need to fetch additional pages to find list of chapters
         that.getChapterUrls(firstPageDom).then(function(chapters) {
@@ -271,24 +282,23 @@ class Parser {
         that.imageCollector.reset();
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
-        let reduceMemory = this.removeUnusedElementsToReduceMemoryConsumption;
+        let initialHostName = this.initialHostName();
         pagesToFetch.forEach(function(chapter) {
+            
             sequence = sequence.then(function () {
                 return that.fetchChapter(chapter.sourceUrl);
             }).then(function (chapterDom) {
-                reduceMemory(chapterDom);
                 chapter.rawDom = chapterDom;
-                that.updateLoadState(chapter);
-                let content = that.findContent(chapter.rawDom);
+                let pageParser = that.parserForChapter(initialHostName, chapter);
+                pageParser.removeUnusedElementsToReduceMemoryConsumption(chapterDom);
+                pageParser.updateLoadState(chapter);
+                let content = pageParser.findContent(chapter.rawDom);
                 if (content == null) {
                     chapter.isIncludeable = false;
                     let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [chapter.sourceUrl]);
                     throw new Error(errorMsg);
                 }
-                return ImageCollector.replaceHyperlinksToImagesWithImages(content);
-            }).then(function (revisedContent) {                
-                that.imageCollector.findImagesUsedInDocument(revisedContent);
-                return that.imageCollector.fetchImages(() => { });
+                return pageParser.fetchImagesUsedInDocument(content);
             }); 
         });
         sequence = sequence.then(function() {
@@ -298,6 +308,31 @@ class Parser {
             ErrorLog.log(err);
         })
         return sequence;
+    }
+
+    initialHostName() {
+        return util.extractHostName(this.chapterListUrl);
+    }
+
+    parserForChapter(initialNostName, chapter) {
+        if (util.extractHostName(chapter.sourceUrl) === initialNostName) {
+            return this;
+        }
+        let pageParser = parserFactory.fetch(chapter.sourceUrl, chapter.rawDom);
+        if (pageParser === undefined) {
+            return this;
+        }
+        pageParser.copyState(this);
+        return pageParser;
+    }
+
+    fetchImagesUsedInDocument(content) {
+        let that = this;
+        return ImageCollector.replaceHyperlinksToImagesWithImages(content)
+        .then(function (revisedContent) {
+            that.imageCollector.findImagesUsedInDocument(revisedContent);
+            return that.imageCollector.fetchImages(() => { });
+        });
     }
 
     /**

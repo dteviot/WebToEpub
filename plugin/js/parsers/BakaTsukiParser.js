@@ -142,6 +142,7 @@ class BakaTsukiParser extends Parser{
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
         that.firstPageDom = firstPageDom;
+        this.chapterListUrl = url;
 
         let content = that.findContent(that.firstPageDom).cloneNode(true);
         that.removeUnwantedElementsFromContentElement(content);
