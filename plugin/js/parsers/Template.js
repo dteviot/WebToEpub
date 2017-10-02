@@ -123,16 +123,6 @@ class TemplateParser extends Parser{
     }
     */
 
-    // Optional, supply if user should be able to specify a cover image
-    // and findCoverImageUrl() above may return null.
-    /*
-    populateUI(dom) {
-        // Following code is all that should be needed for this function
-        super.populateUI(dom);
-        CoverImageUI.showCoverImageUrlInput(true);
-    }
-    */
-
     // Optional, supply if need to chase hyperlinks in page to get all chapter content
     /*
     fetchChapter(url) {
