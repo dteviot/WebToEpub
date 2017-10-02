@@ -31,14 +31,30 @@ class RoyalRoadParser extends Parser{
         // only keep the <div class="chapter-inner" elements of content
         for(let i = content.childElementCount - 1; 0 <= i; --i) {
             let child = content.children[i];
-            let tagName = child.tagName.toLowerCase();
-            if ((tagName !== "h1") && ((tagName !== "div") || !child.className.startsWith("chapter-inner"))) {
+            if (!this.isWantedElement(child)) {
                 child.remove();
             }
         }
+        this.makeHiddenElementsVisible(content);
         this.removeNextAndPreviousChapterHyperlinks(content);
 
         super.removeUnwantedElementsFromContentElement(content);
+    }
+
+    isWantedElement(element) {
+        let tagName = element.tagName.toLowerCase();
+        let className = element.className;
+        return (tagName === "h1") || 
+            ((tagName === "div") && 
+                (className.startsWith("chapter-inner")) ||
+                (className.includes("author-note-portlet"))
+            );
+    }
+
+    makeHiddenElementsVisible(content) {
+        for(let e of [...content.querySelectorAll("[style='display: none']")]) {
+            e.removeAttribute("style");
+        }
     }
 
     removeNextAndPreviousChapterHyperlinks(content) {
