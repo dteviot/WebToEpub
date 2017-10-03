@@ -14,10 +14,11 @@ parserFactory.register("skythewoodtl.com", function() { return new WordpressBase
 parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
 
 parserFactory.registerRule(
+    // return probability (0.0 to 1.0) web page is a Wordpress page
     function(url, dom) {
-        return (WordpressBaseParser.findContentElement(dom) != null) &&
-            (WordpressBaseParser.findChapterTitleElement(dom) != null); 
-    }, 
+        return ((WordpressBaseParser.findContentElement(dom) != null) &&
+            (WordpressBaseParser.findChapterTitleElement(dom) != null)) * 0.5;
+    },
     function() { return new WordpressBaseParser() }
 );
 

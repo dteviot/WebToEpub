@@ -5,10 +5,11 @@
 
 parserFactory.register("sousetsuka.com", function() { return new BlogspotParser() });
 parserFactory.registerRule(
+    // return probability (0.0 to 1.0) web page is a Blogspot page
     function(url, dom) {
         return (util.extractHostName(url).indexOf(".blogspot.") != -1) ||
-            (BlogspotParser.findContentElement(dom) != null); 
-    }, 
+            ((BlogspotParser.findContentElement(dom) != null) * 0.5);
+    },
     function() { return new BlogspotParser() }
 );
 

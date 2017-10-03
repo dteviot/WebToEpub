@@ -63,8 +63,16 @@ class ParserFactory{
         }
 
         // no exact match found, see if any parser is willing to handle the URL and/or DOM
-        for (let pair of this.parserRules.filter(p => p.test(url, dom))) {
-            return pair.constructor();
+        let maxConfidence = 0;
+        for (let pair of this.parserRules) {
+            let confidence = (pair.test(url, dom) * 1.0);
+            if (maxConfidence < confidence) {
+                maxConfidence = confidence;
+                constructor = pair.constructor;
+            }
+        }
+        if (0 < maxConfidence) {
+            return constructor();
         }
 
         // still no parser found, fall back to default
