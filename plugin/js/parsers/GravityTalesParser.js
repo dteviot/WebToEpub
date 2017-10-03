@@ -155,4 +155,19 @@ class GravityTalesParser extends Parser {
         let endIndex = s.indexOf(c);
         return (0 <= endIndex) ? s.substring(0, endIndex) : s;
     }
+
+    findCoverImageUrl(dom) {
+        let img = dom.querySelector("div#coverImg");
+        if (img !== null) {
+            let style = img.getAttribute("style");
+            if (!util.isNullOrEmpty(style)) {
+                let startIndex = style.indexOf("url(") + 4;
+                let endIndex = style.indexOf(");", startIndex);
+                if (startIndex < endIndex) {
+                    return style.substring(startIndex, endIndex);
+                }
+            }
+        }
+        return null;
+    }
 }

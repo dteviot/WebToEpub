@@ -107,3 +107,30 @@ test("searchForNovelIdinScriptTags_idPresent", function (assert) {
     let actual = GravityTalesParser.searchForNovelIdinScriptTags(dom);
     assert.equal(actual, 8);
 });
+
+test("findCoverImageUrl", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<div id=\"coverImg\" style=\"background-image: url(https://cdn.gravitytales.com/images/covers/cover.png);\"></div>"
+    );
+    let parser = new GravityTalesParser();
+    let actual = parser.findCoverImageUrl(dom);
+    assert.equal(actual, "https://cdn.gravitytales.com/images/covers/cover.png");
+
+    dom = TestUtils.makeDomWithBody(
+        "<div></div>"
+    );
+    actual = parser.findCoverImageUrl(dom);
+    assert.equal(actual, null);
+
+    dom = TestUtils.makeDomWithBody(
+        "<div id=\"coverImg\" ></div>"
+    );
+    actual = parser.findCoverImageUrl(dom);
+    assert.equal(actual, null);
+
+    dom = TestUtils.makeDomWithBody(
+        "<div id=\"coverImg\" style=\"1\"></div>"
+    );
+    actual = parser.findCoverImageUrl(dom);
+    assert.equal(actual, null);
+});
