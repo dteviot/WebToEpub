@@ -219,6 +219,7 @@ class Parser {
             if (that.userPreferences.chaptersPageInChapterList.value) {
                 chapters = that.addFirstPageUrlToChapters(url, firstPageDom, chapters);
             }
+            chapters = that.cleanChaperListUrls(chapters);
             let chapterUrlsUI = new ChapterUrlsUI(that);
             chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
@@ -233,6 +234,26 @@ class Parser {
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
+    }
+
+    cleanChaperListUrls(chapters) {
+        let foundUrls = new Set();
+        let isUnique = function(chapterInfo) {
+            let unique = !foundUrls.has(chapterInfo.sourceUrl);
+            if (unique) {
+                foundUrls.add(chapterInfo.sourceUrl);
+            }
+            return unique;
+        }
+
+        return chapters
+            .map(this.fixupImgurGalleryUrl)
+            .filter(isUnique);
+    }
+
+    fixupImgurGalleryUrl(chapter) {
+        chapter.sourceUrl = Imgur.fixupImgurGalleryUrl(chapter.sourceUrl);
+        return chapter;
     }
 
     addFirstPageUrlToChapters(url, firstPageDom, chapters) {
