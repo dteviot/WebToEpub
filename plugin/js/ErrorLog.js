@@ -75,7 +75,11 @@ class ErrorLog {
             return msg;
         } else {
             // assume msg is some sort of error object
-            return msg.message + " " + msg.stack;
+            let retVal = "" + msg.stack;
+            if (!retVal.includes(msg.message)) {
+                retVal = msg.message + " " + retVal;
+            }
+            return retVal;
         }
     }
 
