@@ -15,8 +15,16 @@
         "message": "Chỉnh sửa Đường dẫn của Chương",
         "description": ""
     },
+    "__MSG_button_error_Cancel__": {
+        "message": "Ngưng",
+        "description": ""
+    },
     "__MSG_button_error_OK__": {
         "message": "OK",
+        "description": ""
+    },
+    "__MSG_button_error_Retry__": {
+        "message": "Thử lại",
         "description": ""
     },
     "__MSG_button_Fetch_Chapters__": {
@@ -87,12 +95,20 @@
         "message": "Tác Giả",
         "description": ""
     },
+    "__MSG_label_Chapters_Page_In_Chapters_List__": {
+        "message": "Thêm Trang vào Danh Sách Chương",
+        "description": ""
+    },
     "__MSG_label_Cover_from_URL__": {
         "message": "Ảnh bìa từ đường dẫn:",
         "description": ""
     },
     "__MSG_label_Cover_Image_URL__": {
         "message": "Đường dẫn ảnh bìa:",
+        "description": ""
+    },
+    "__MSG_label_Create_Epub_3__": {
+        "message": "Tạo EPUB 3",
         "description": ""
     },
     "__MSG_label_File_Author_as__": {
@@ -217,6 +233,18 @@
         "placeholders": {
             "url": {
                 "content": "$1"
+            }
+        }
+    },
+    "errorIllegalFileName": {
+        "message": "Tên tập tin '$filename$' không được phép chứa các ký tự sau: $illegalCharacters$",
+        "description": "",
+        "placeholders": {
+            "filename": {
+                "content": "$1"
+            },
+            "illegalCharacters": {
+                "content": "$2"
             }
         }
     },
