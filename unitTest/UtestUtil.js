@@ -342,8 +342,8 @@ test("findIndexOfClosingQuote", function (assert) {
 });
 
 test("findIndexOfClosingBracket", function (assert) {
+    let testString = "a{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}";
     let test = function(startPattern) {
-        let testString = "a{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}";
         let startIndex = testString.indexOf(startPattern) + startPattern.length;
         let end = util.findIndexOfClosingBracket(testString, startIndex);
         let substring = testString.substring(startIndex, end + 1);
@@ -355,7 +355,27 @@ test("findIndexOfClosingBracket", function (assert) {
     assert.equal(test("_images\":", 0), "{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}");
     
     // unbalanced case
-    assert.equal(test("a", 0), "{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}");
+    assert.equal(util.findIndexOfClosingBracket(testString, 0), -1);
+});
+
+test("locateAndExtractJson", function (assert) {
+    let testString = "a{\album_images\":{\"count\":21,\"images\":[{\"hash\":\"zNuo7hV\",\"ext\":\".png\"},{\"hash\":\"bi7LaVD\",\"ext\":\".png\"}]}";
+    let test = function(startPattern) {
+        return util.locateAndExtractJson(testString, startPattern);
+    }
+    
+    assert.deepEqual(test("images\":[", 0), {hash: "zNuo7hV", ext: ".png"});
+    assert.deepEqual(test("\"images\":", 0), [{hash: "zNuo7hV", ext: ".png"},{hash:"bi7LaVD",ext:".png"}]);
+    assert.deepEqual(test("_images\":", 0), {count:21, images: [{hash:"zNuo7hV",ext:".png"},{hash:"bi7LaVD",ext:".png"}]});
+    
+    // unbalanced case
+    assert.equal(test("a", 0), null);
+
+    // no brackets
+    assert.equal(util.locateAndExtractJson("testString", "test"), null);
+
+    // empty string
+    assert.equal(util.locateAndExtractJson("", ""), null);
 });
 
 test("isXhtmlInvalid", function (assert) {

@@ -32,12 +32,10 @@ class WixParser extends Parser{
 
     findJsonWithRestUrls(dom) {
         for(let script of dom.querySelectorAll("script")) {
-            let text = script.innerHTML;
-            let index = text.indexOf("var publicModel = {")
-            if (0 <= index) {
-                index = text.indexOf("{", index);
-                let end = util.findIndexOfClosingBracket(text, index);
-                return JSON.parse(text.substring(index, end + 1));
+            let text = script.textContent;
+            let json = util.locateAndExtractJson(text, "var publicModel =");
+            if (json != null) {
+                return json;
             }
         };
     }    

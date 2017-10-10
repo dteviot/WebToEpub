@@ -55,11 +55,7 @@ class LnmtlParser extends Parser {
         let startString = "lnmtl.volumes = ";
         let scriptElement = util.getElement(dom, "script", e => 0 <= e.textContent.indexOf(startString));
         if (scriptElement !== null) {
-            let text = scriptElement.textContent;
-            let startIndex = text.indexOf(startString) + startString.length;
-            text = text.substring(startIndex);
-            let endIndex = text.indexOf("}];");
-            return JSON.parse(text.substring(0, endIndex + 2));  
+            return util.locateAndExtractJson(scriptElement.textContent, startString);
         }
         return []; 
     }

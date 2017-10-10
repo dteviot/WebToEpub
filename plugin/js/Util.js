@@ -740,10 +740,40 @@ var util = (function () {
             ++index;
             c = s[index];
         }
-        // unbalanced brackets, return rest of string
-        return s.length - 1;
+        // unbalanced brackets
+        return -1;
     }
 
+    /** locate and extract JSON that is embedded in a string
+     * @param {string} s - show/hide control
+     * @param {string} prefix - text that preceeds the embedded JSON 
+    */
+    var locateAndExtractJson = function(s, prefix) {
+        var findOpeningBracket = function(s, index) {
+            while (index < s.length) {
+                let ch = s[index];
+                if ((ch==="[") || (ch === "{")) {
+                    return index;
+                }
+                ++index;
+            }
+            return -1;
+        };
+
+        let index = s.indexOf(prefix);
+        if (0 <= index) {
+            index = findOpeningBracket(s, index + prefix.length);
+            if (0 <= index) {
+                let end = util.findIndexOfClosingBracket(s, index);
+                if (index < end) {
+                    let jsonString = s.substring(index, end + 1);
+                    return JSON.parse(jsonString);
+                }
+            }
+        }
+        return null;
+    }
+    
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
 
@@ -831,7 +861,8 @@ var util = (function () {
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
-        findIndexOfClosingBracket: findIndexOfClosingBracket, 
+        findIndexOfClosingBracket: findIndexOfClosingBracket,
+        locateAndExtractJson: locateAndExtractJson,
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad

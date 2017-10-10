@@ -66,14 +66,9 @@ class Imgur {
         // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
         // Obviously this will break each time imgur change their scripts.
         for(let text of Imgur.scriptsWithRunSlots(dom)) {
-            let index = text.indexOf("item:")
-            if (0 <= index) {
-                index = text.indexOf("{", index);
-                if (0 < index) {
-                    let end = util.findIndexOfClosingBracket(text, index);
-                    let jsonString = text.substring(index, end + 1);
-                    return JSON.parse(jsonString);
-                }
+            let json = util.locateAndExtractJson(text, "item:");
+            if (json != null) {
+                return json;
             }
         };
         return null;
