@@ -163,7 +163,7 @@ class ChapterUrlsUI {
     setTableMode() {
         try {
             let chapters = this.htmlToChapters(ChapterUrlsUI.getEditChaptersUrlsInput().value);
-            this.parser.chapters = chapters;
+            this.parser.setPagesToFetch(chapters);
             this.populateChapterUrlsTable(chapters);
             this.usingTable = true;
             this.setVisibileUI(this.usingTable);
@@ -175,7 +175,7 @@ class ChapterUrlsUI {
     /** @private */
     reverseUrls() {
         try {
-            let chapters = this.parser.chapters;
+            let chapters = this.parser.getPagesToFetch().values();
             chapters.reverse();
             this.populateChapterUrlsTable(chapters);
         } catch (err) {
@@ -199,8 +199,8 @@ class ChapterUrlsUI {
         this.usingTable = false;
         this.setVisibileUI(this.usingTable);
         let input = ChapterUrlsUI.getEditChaptersUrlsInput();
-        input.rows = Math.max(this.parser.chapters.length, 20);
-        input.value = this.chaptersToHTML(this.parser.chapters);
+        input.rows = Math.max(this.parser.getPagesToFetch().size, 20);
+        input.value = this.chaptersToHTML(this.parser.getPagesToFetch().values());
     }
 
     chaptersToHTML(chapters) {

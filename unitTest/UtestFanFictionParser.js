@@ -15,7 +15,7 @@ QUnit.test("getChapterUrls", function (assert) {
     let done = assert.async();
     let parser = new FanFictionParser();
     parser.getChapterUrls(loadFanFictionMultiPageDoc()).then(function (chapterUrls) {
-        chapterUrls = parser.cleanChaperListUrls(chapterUrls);
+        chapterUrls = parser.cleanWebPageUrls(chapterUrls);
         assert.equal(chapterUrls.length, 5);
         assert.equal(chapterUrls[0].sourceUrl, "https://www.fanfiction.net/s/1234567/1/WebToEpub");
         assert.equal(chapterUrls[1].sourceUrl, "https://www.fanfiction.net/s/1234567/2/WebToEpub");

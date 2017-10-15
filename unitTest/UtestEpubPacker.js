@@ -24,10 +24,10 @@ function makePacker() {
 
 function makeEpubItemSupplier(imageCollector) {
     imageCollector = imageCollector || ImageCollector.StubCollector();
-    let chapters = [];
+    let webPages = [];
     for (let i = 0; i < 2; ++i) {
         let title = "Title" + i;
-        chapters.push({
+        webPages.push({
             sourceUrl: "http://dummy.com/" + title,
             title: title,
             isIncludeable: true,
@@ -36,7 +36,7 @@ function makeEpubItemSupplier(imageCollector) {
         });
     }
     let parser = new ArchiveOfOurOwnParser();
-    let epubItems = parser.chaptersToEpubItems(chapters);
+    let epubItems = parser.webPagesToEpubItems(webPages);
     return new EpubItemSupplier(parser, epubItems, imageCollector);
 }
 

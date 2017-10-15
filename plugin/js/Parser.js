@@ -3,19 +3,39 @@
 */
 "use strict";
 
-class Parser {
-    constructor(imageCollector) {
-        this.chapters = [];
-        this.imageCollector = imageCollector || new ImageCollector();
-        this.userPreferences = null;
+/**
+ * A Parser's state variables
+*/
+class ParserState {
+    constructor() {
+        this.webPages = new Map();
         this.chapterListUrl = null;
     }
 
+    setPagesToFetch(urls) {
+        this.webPages = new Map(urls.map(u => [u.sourceUrl, u]));
+    }
+}
+
+class Parser {
+    constructor(imageCollector) {
+        this.state = new ParserState();
+        this.imageCollector = imageCollector || new ImageCollector();
+        this.userPreferences = null;
+    }
+
     copyState(otherParser) {
-        this.chapters = otherParser.chapters;
+        this.state = otherParser.state;
         this.imageCollector.copyState(otherParser.imageCollector);
         this.userPreferences = otherParser.userPreferences;
-        this.chapterListUrl = otherParser.chapterListUrl;
+    }
+
+    setPagesToFetch(urls) {
+        this.state.setPagesToFetch(urls);
+    }
+
+    getPagesToFetch() {
+        return this.state.webPages;
     }
 
     onUserPreferencesUpdate(userPreferences) {
@@ -23,34 +43,34 @@ class Parser {
         this.imageCollector.onUserPreferencesUpdate(userPreferences);
     }
 
-    isChapterPackable(chapter) {
-        return (chapter.rawDom != null) && (chapter.isIncludeable);
+    isWebPagePackable(webPage) {
+        return (webPage.rawDom != null) && (webPage.isIncludeable);
     }
 
-    convertRawDomToContent(chapter) {
+    convertRawDomToContent(webPage) {
         let that = this;
-        let content = that.findContent(chapter.rawDom);
-        that.customRawDomToContentStep(chapter, content);
+        let content = that.findContent(webPage.rawDom);
+        that.customRawDomToContentStep(webPage, content);
         that.removeUnwantedElementsFromContentElement(content);
-        this.addTitleToContent(chapter, content);
+        this.addTitleToContent(webPage, content);
         util.fixBlockTagsNestedInInlineTags(content);
         that.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
         util.removeUnneededIds(content);
-        util.makeHyperlinksRelative(chapter.rawDom.baseURI, content);
+        util.makeHyperlinksRelative(webPage.rawDom.baseURI, content);
         util.setStyleToDefault(content);
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
-            let errorMsg = chrome.i18n.getMessage("warningNoVisibleContent", [chapter.sourceUrl]);
+            let errorMsg = chrome.i18n.getMessage("warningNoVisibleContent", [webPage.sourceUrl]);
             ErrorLog.showErrorMessage(errorMsg);
         }
         return content;
     }
 
-    addTitleToContent(chapter, content) {
-        let title = this.findChapterTitle(chapter.rawDom);
+    addTitleToContent(webPage, content) {
+        let title = this.findChapterTitle(webPage.rawDom);
         if (title !== null) {
             content.insertBefore(title, content.firstChild);
         };
@@ -81,7 +101,7 @@ class Parser {
 
     populateUI(dom) {
         this.getFetchContentButton().onclick = this.onFetchChaptersClicked.bind(this);
-        document.getElementById("packRawButton").onclick = this.packRawChapters.bind(this);
+        document.getElementById("packRawButton").onclick = this.packRawWebPages.bind(this);
         let coverUrl = this.findCoverImageUrl(dom);
         if (!util.isNullOrEmpty(coverUrl)) {
             CoverImageUI.setCoverImageUrl(coverUrl);
@@ -106,27 +126,22 @@ class Parser {
 
     removeNextAndPreviousChapterHyperlinks(element) {
         if (this.findParentNodeOfChapterLinkToRemoveAt != null) {
-            let that = this;
-            let chapterLinks = new Set();
-            for(let c of that.chapters) { 
-                chapterLinks.add(util.normalizeUrl(c.sourceUrl));
-            };
-
-            for(let unwanted of util.getElements(element, "a", link => chapterLinks.has(util.normalizeUrl(link.href)))
-                .map(link => that.findParentNodeOfChapterLinkToRemoveAt(link))) {
+            for(let unwanted of [...element.querySelectorAll("a")]
+                .filter(link => this.state.webPages.has(util.normalizeUrl(link.href)))
+                .map(link => this.findParentNodeOfChapterLinkToRemoveAt(link))) {
                 unwanted.remove();
             };
         }
     }
 
     /**
-    * default implementation turns each chapter into single epub item
+    * default implementation turns each webPage into single epub item
     */
-    chapterToEpubItems(chapter, epubItemIndex) {
-        let content = this.convertRawDomToContent(chapter);
+    webPageToEpubItems(webPage, epubItemIndex) {
+        let content = this.convertRawDomToContent(webPage);
         let items = [];
         if (content != null) {
-            items.push(new ChapterEpubItem(chapter, content, epubItemIndex));
+            items.push(new ChapterEpubItem(webPage, content, epubItemIndex));
         }
         return items;
     }
@@ -188,23 +203,22 @@ class Parser {
     }
 
     epubItemSupplier() {
-        let that = this;
-        let epubItems = that.chaptersToEpubItems(that.chapters);
-        let supplier = new EpubItemSupplier(this, epubItems, that.imageCollector);
+        let epubItems = this.webPagesToEpubItems(this.state.webPages);
+        let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
         return supplier;
     }
 
-    chaptersToEpubItems(chapters) {
+    webPagesToEpubItems(webPages) {
         let epubItems = [];
         let index = 0;
         let initialHostName = this.initialHostName();
 
-        for(let chapter of chapters.filter(c => this.isChapterPackable(c))) {
-            let pageParser = this.parserForChapter(initialHostName, chapter);
-            let newItems = pageParser.chapterToEpubItems(chapter, index);
+        for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
+            let pageParser = this.parserForWebPage(initialHostName, webPage);
+            let newItems = pageParser.webPageToEpubItems(webPage, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
-            delete(chapter.rawDom);
+            delete(webPage.rawDom);
         }
         return epubItems;
     }
@@ -212,14 +226,14 @@ class Parser {
     // called when plugin has obtained the first web page
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
-        this.chapterListUrl = url;
+        this.state.chapterListUrl = url;
         
         // returns promise, because may need to fetch additional pages to find list of chapters
         that.getChapterUrls(firstPageDom).then(function(chapters) {
             if (that.userPreferences.chaptersPageInChapterList.value) {
-                chapters = that.addFirstPageUrlToChapters(url, firstPageDom, chapters);
+                chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
-            chapters = that.cleanChaperListUrls(chapters);
+            chapters = that.cleanWebPageUrls(chapters);
             let chapterUrlsUI = new ChapterUrlsUI(that);
             chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
@@ -229,57 +243,57 @@ class Parser {
                 }
                 that.getProgressBar().value = 0;
             }
-            that.chapters = chapters;
+            that.state.setPagesToFetch(chapters);
             chapterUrlsUI.connectButtonHandlers();
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
     }
 
-    cleanChaperListUrls(chapters) {
+    cleanWebPageUrls(webPages) {
         let foundUrls = new Set();
-        let isUnique = function(chapterInfo) {
-            let unique = !foundUrls.has(chapterInfo.sourceUrl);
+        let isUnique = function(webPage) {
+            let unique = !foundUrls.has(webPage.sourceUrl);
             if (unique) {
-                foundUrls.add(chapterInfo.sourceUrl);
+                foundUrls.add(webPage.sourceUrl);
             }
             return unique;
         }
 
-        return chapters
+        return webPages
             .map(this.fixupImgurGalleryUrl)
             .filter(isUnique);
     }
 
-    fixupImgurGalleryUrl(chapter) {
-        chapter.sourceUrl = Imgur.fixupImgurGalleryUrl(chapter.sourceUrl);
-        return chapter;
+    fixupImgurGalleryUrl(webPage) {
+        webPage.sourceUrl = Imgur.fixupImgurGalleryUrl(webPage.sourceUrl);
+        return webPage;
     }
 
-    addFirstPageUrlToChapters(url, firstPageDom, chapters) {
-        let present = chapters.find(e => e.sourceUrl === url);
+    addFirstPageUrlToWebPages(url, firstPageDom, webPages) {
+        let present = webPages.find(e => e.sourceUrl === url);
         if (present)
         {
-            return chapters;
+            return webPages;
         } else {
             return [{
                 sourceUrl:  url,
                 title: this.extractTitle(firstPageDom)
-            }].concat(chapters);
+            }].concat(webPages);
         }
     }
 
     onFetchChaptersClicked() {
-        if (0 == this.chapters.length) {
+        if (0 == this.state.webPages.size) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
         } else {
             this.getFetchContentButton().disabled = true;
-            this.fetchChapters();
+            this.fetchWebPages();
         }
     }
 
     fetchContent() {
-        return this.fetchChapters();
+        return this.fetchWebPages();
     }
 
     setUiToShowLoadingProgress(length) {
@@ -288,10 +302,10 @@ class Parser {
         this.getProgressBar().value = 1;
     }
 
-    fetchChapters() {
+    fetchWebPages() {
         let that = this;
 
-        let pagesToFetch = that.chapters.filter(c => c.isIncludeable);
+        let pagesToFetch = this.state.webPages.values(c => c.isIncludeable);
         if (pagesToFetch.length === 0) {
             return Promise.reject(new Error("No chapters found."));
         }
@@ -304,19 +318,19 @@ class Parser {
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
         let initialHostName = this.initialHostName();
-        pagesToFetch.forEach(function(chapter) {
+        pagesToFetch.forEach(function(webPage) {
             
             sequence = sequence.then(function () {
-                return that.fetchChapter(chapter.sourceUrl);
-            }).then(function (chapterDom) {
-                chapter.rawDom = chapterDom;
-                let pageParser = that.parserForChapter(initialHostName, chapter);
-                pageParser.removeUnusedElementsToReduceMemoryConsumption(chapterDom);
-                pageParser.updateLoadState(chapter);
-                let content = pageParser.findContent(chapter.rawDom);
+                return that.fetchChapter(webPage.sourceUrl);
+            }).then(function (webPageDom) {
+                webPage.rawDom = webPageDom;
+                let pageParser = that.parserForWebPage(initialHostName, webPage);
+                pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+                pageParser.updateLoadState(webPage);
+                let content = pageParser.findContent(webPage.rawDom);
                 if (content == null) {
-                    chapter.isIncludeable = false;
-                    let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [chapter.sourceUrl]);
+                    webPage.isIncludeable = false;
+                    let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
                     throw new Error(errorMsg);
                 }
                 return pageParser.fetchImagesUsedInDocument(content);
@@ -332,14 +346,14 @@ class Parser {
     }
 
     initialHostName() {
-        return util.extractHostName(this.chapterListUrl);
+        return util.extractHostName(this.state.chapterListUrl);
     }
 
-    parserForChapter(initialNostName, chapter) {
-        if (util.extractHostName(chapter.sourceUrl) === initialNostName) {
+    parserForWebPage(initialNostName, webPage) {
+        if (util.extractHostName(webPage.sourceUrl) === initialNostName) {
             return this;
         }
-        let pageParser = parserFactory.fetch(chapter.sourceUrl, chapter.rawDom);
+        let pageParser = parserFactory.fetch(webPage.sourceUrl, webPage.rawDom);
         if (pageParser === undefined) {
             return this;
         }
@@ -360,8 +374,8 @@ class Parser {
     * default implementation
     * derivied classes can override if DOM has lots of elements not used in epub
     */
-    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
-        util.removeElements(chapterDom.querySelectorAll("select, iframe"));
+    removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
+        util.removeElements(webPageDom.querySelectorAll("select, iframe"));
     }
 
     // Hook if need to chase hyperlinks in page to get all chapter content
@@ -371,8 +385,8 @@ class Parser {
         });
     }
 
-    updateLoadState(chapter) {
-        chapter.stateColumn.innerText = "Yes";
+    updateLoadState(webPage) {
+        webPage.stateColumn.innerText = "Yes";
         this.getProgressBar().value += 1;
     }
 
@@ -384,13 +398,13 @@ class Parser {
         return document.getElementById("fetchChaptersButton")
     }
 
-    // pack the raw chapter HTML into a zip file (for later manual analysis)
-    packRawChapters() {
-        let that = this;
+    // pack the raw HTML into a zip file (for later manual analysis)
+    packRawWebPages() {
         let zipFile = new JSZip();
-        for (let i = 0; i < that.chapters.length; ++i) {
-            if (that.chapters[i].rawDom != null) {
-                zipFile.file("chapter" + i + ".html", that.chapters[i].rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
+        let i = -1;
+        for (let page of this.state.webPages.values()) {
+            if (page.rawDom != null) {
+                zipFile.file("chapter" + (++i) + ".html", page.rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
             };
         }
         zipFile.generateAsync({ type: "blob" }).then(function(content) {
