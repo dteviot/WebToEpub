@@ -203,7 +203,7 @@ class Parser {
     }
 
     epubItemSupplier() {
-        let epubItems = this.webPagesToEpubItems(this.state.webPages);
+        let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
         let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
         return supplier;
     }
@@ -305,7 +305,7 @@ class Parser {
     fetchWebPages() {
         let that = this;
 
-        let pagesToFetch = this.state.webPages.values(c => c.isIncludeable);
+        let pagesToFetch = [...this.state.webPages.values()].filter(c => c.isIncludeable);
         if (pagesToFetch.length === 0) {
             return Promise.reject(new Error("No chapters found."));
         }
