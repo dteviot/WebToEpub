@@ -386,7 +386,9 @@ class Parser {
     }
 
     updateLoadState(webPage) {
-        webPage.stateColumn.innerText = "Yes";
+        if (webPage.row != null) {
+            webPage.row.classList.add("loaded");
+        }
         this.getProgressBar().value += 1;
     }
 

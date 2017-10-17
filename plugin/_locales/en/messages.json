@@ -75,10 +75,6 @@
 		"message": "Include?",
 		"description": "The 'include this chapter' checkbox column in the table of chapters."
 	},
-	"__MSG_column_Loaded__": {
-		"message": "Loaded?",
-		"description": "The 'has chapter been loaded?' column in the table of chapters."
-	},
 	"__MSG_column_Title__": {
 		"message": "Title",
 		"description": "The 'name of chapter' column in the table of chapters."

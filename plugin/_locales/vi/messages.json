@@ -75,10 +75,6 @@
         "message": "Bao gồm?",
         "description": ""
     },
-    "__MSG_column_Loaded__": {
-        "message": "Đã tải?",
-        "description": ""
-    },
     "__MSG_column_Title__": {
         "message": "Tiêu đề",
         "description": ""

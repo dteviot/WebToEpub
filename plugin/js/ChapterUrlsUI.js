@@ -21,7 +21,7 @@ class ChapterUrlsUI {
             let row = document.createElement("tr");
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
-            chapter.stateColumn = ChapterUrlsUI.appendColumnDataToRow(row, "No");
+            chapter.row = row;
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
         });
