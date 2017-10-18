@@ -12,8 +12,26 @@ class WattpadParser extends Parser{
 
     getChapterUrls(dom) {
         let menu = dom.querySelector("ul.table-of-contents");
-        return Promise.resolve(util.hyperlinksToChapterList(menu));        
+        if (menu == null) {
+            return this.fetchChapterList(dom);
+        }
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
     };
+
+    fetchChapterList(dom) {
+        let storyId = WattpadParser.extractStoryId(dom.baseURI);
+        let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
+        return HttpClient.fetchJson(chaptersUrl).then(function (handler) {
+            return handler.json.parts.map(p => ({sourceUrl: p.url, title: p.title}))
+        });
+    }
+
+    static extractStoryId(url) {
+        let hyperlink = document.createElement("a");
+        hyperlink.href = url;
+        let path = hyperlink.pathname;
+        return path.split("/").filter(s => s.includes("-"))[0].split("-")[0];
+    }
 
     findContent(dom) {
         return dom.querySelector("div[data-page-number]");
