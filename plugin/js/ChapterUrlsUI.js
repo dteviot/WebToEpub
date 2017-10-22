@@ -200,7 +200,7 @@ class ChapterUrlsUI {
         this.setVisibileUI(this.usingTable);
         let input = ChapterUrlsUI.getEditChaptersUrlsInput();
         input.rows = Math.max(this.parser.getPagesToFetch().size, 20);
-        input.value = this.chaptersToHTML(this.parser.getPagesToFetch().values());
+        input.value = this.chaptersToHTML([...this.parser.getPagesToFetch().values()]);
     }
 
     chaptersToHTML(chapters) {
