@@ -448,18 +448,8 @@ class BakaTsukiParser extends Parser{
     }
 
     updateProgressBarOneStep() {
-        this.updateLoadState();
+        ProgressBar.updateValue(1);
     }
-
-    /*
-    Show progress,
-    finished  true if have loaded all images, false if only loaded a single image
-    */
-    updateLoadState() {
-        let that = this;
-        that.getProgressBar().value += 1;
-    }
-
 
     getFetchContentButton() {
         return document.getElementById("fetchImagesButton");

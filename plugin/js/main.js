@@ -287,7 +287,7 @@ var main = (function () {
         main.getPackEpubButton().disabled = false;
         ChapterUrlsUI.clearChapterUrlsTable();
         CoverImageUI.clearUI();
-        document.getElementById("fetchProgress").value = 0;
+        ProgressBar.setValue(0);
     }
 
     function localize(element) {

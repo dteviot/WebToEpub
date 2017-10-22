@@ -241,7 +241,7 @@ class Parser {
                     chapters[0].rawDom = firstPageDom;
                     that.updateLoadState(chapters[0]);
                 }
-                that.getProgressBar().value = 0;
+                ProgressBar.setValue(0);
             }
             that.state.setPagesToFetch(chapters);
             chapterUrlsUI.connectButtonHandlers();
@@ -298,8 +298,8 @@ class Parser {
 
     setUiToShowLoadingProgress(length) {
         main.getPackEpubButton().disabled = true;
-        this.getProgressBar().max = length + 1;
-        this.getProgressBar().value = 1;
+        ProgressBar.setMax(length + 1);
+        ProgressBar.setValue(1);
     }
 
     fetchWebPages() {
@@ -389,11 +389,7 @@ class Parser {
         if (webPage.row != null) {
             webPage.row.classList.add("loaded");
         }
-        this.getProgressBar().value += 1;
-    }
-
-    getProgressBar() {
-        return document.getElementById("fetchProgress");
+        ProgressBar.updateValue(1);
     }
 
     getFetchContentButton() {
