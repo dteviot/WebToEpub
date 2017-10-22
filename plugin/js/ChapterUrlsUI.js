@@ -175,9 +175,10 @@ class ChapterUrlsUI {
     /** @private */
     reverseUrls() {
         try {
-            let chapters = this.parser.getPagesToFetch().values();
+            let chapters = [...this.parser.getPagesToFetch().values()];
             chapters.reverse();
             this.populateChapterUrlsTable(chapters);
+            this.parser.setPagesToFetch(chapters);
         } catch (err) {
             ErrorLog.showErrorMessage(err);
         }
