@@ -321,6 +321,7 @@ class Parser {
         pagesToFetch.forEach(function(webPage) {
             
             sequence = sequence.then(function () {
+                ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
                 return that.fetchChapter(webPage.sourceUrl);
             }).then(function (webPageDom) {
                 webPage.rawDom = webPageDom;
@@ -386,9 +387,7 @@ class Parser {
     }
 
     updateLoadState(webPage) {
-        if (webPage.row != null) {
-            webPage.row.classList.add("loaded");
-        }
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_LOADED);
         ProgressBar.updateValue(1);
     }
 

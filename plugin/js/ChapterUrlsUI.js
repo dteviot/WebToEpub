@@ -28,6 +28,21 @@ class ChapterUrlsUI {
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
+    static showDownloadState(row, state) {
+        if (row != null) {
+            let img = row.querySelector("img");
+            img.src = ChapterUrlsUI.ImageForState[state];
+        }
+    }
+
+    static resetDownloadStateImages() {
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        let imgSrc = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
+        for(let img of linksTable.querySelectorAll("img")) {
+            img.src = imgSrc;
+        }
+    }
+
     static clearChapterUrlsTable() {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         while (linksTable.children.length > 1) {
@@ -106,7 +121,15 @@ class ChapterUrlsUI {
         checkbox.checked = chapter.isIncludeable;
         checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
         col.appendChild(checkbox);
+        ChapterUrlsUI.addImageToCheckBoxColumn(col);
         row.appendChild(col);
+    }
+
+    static addImageToCheckBoxColumn(col) {
+        let img = document.createElement("img");
+        img.className = "downloadState";
+        img.src = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
+        col.appendChild(img);
     }
 
     /** 
@@ -220,3 +243,13 @@ class ChapterUrlsUI {
         return link;
     }
 }
+
+ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
+ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING = 1;
+ChapterUrlsUI.DOWNLOAD_STATE_LOADED = 2;
+
+ChapterUrlsUI.ImageForState = [
+    "images/ChapterStateNone.svg",
+    "images/ChapterStateDownloading.svg",
+    "images/ChapterStateLoaded.svg"
+];

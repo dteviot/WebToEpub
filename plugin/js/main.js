@@ -115,6 +115,7 @@ var main = (function () {
             return;
         }
 
+        ChapterUrlsUI.resetDownloadStateImages();
         ErrorLog.clearHistory();
         main.getPackEpubButton().disabled = true;
         parser.onStartCollecting();
