@@ -327,14 +327,13 @@ class Parser {
                 webPage.rawDom = webPageDom;
                 let pageParser = that.parserForWebPage(initialHostName, webPage);
                 pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
-                pageParser.updateLoadState(webPage);
                 let content = pageParser.findContent(webPage.rawDom);
                 if (content == null) {
                     webPage.isIncludeable = false;
                     let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
                     throw new Error(errorMsg);
                 }
-                return pageParser.fetchImagesUsedInDocument(content);
+                return pageParser.fetchImagesUsedInDocument(content, webPage);
             }); 
         });
         sequence = sequence.then(function() {
@@ -362,12 +361,14 @@ class Parser {
         return pageParser;
     }
 
-    fetchImagesUsedInDocument(content) {
+    fetchImagesUsedInDocument(content, webPage) {
         let that = this;
         return ImageCollector.replaceHyperlinksToImagesWithImages(content)
         .then(function (revisedContent) {
             that.imageCollector.findImagesUsedInDocument(revisedContent);
             return that.imageCollector.fetchImages(() => { });
+        }).then(function () {
+            that.updateLoadState(webPage);
         });
     }
 
