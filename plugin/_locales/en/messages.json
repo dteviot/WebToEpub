@@ -27,14 +27,6 @@
 		"message": "Retry",
 		"description": "Label on 'Retry' button when show error"
 	},
-	"__MSG_button_Fetch_Chapters__": {
-		"message": "Fetch Chapters",
-		"description": "Label on 'Fetch Chapters' button under 'Developer Stuff'"
-	},
-	"__MSG_button_Fetch_Images__": {
-		"message": "Fetch Images",
-		"description": "Label on 'Fetch Images' button under 'Developer Stuff'"
-	},
 	"__MSG_button_load_and_analyse__": {
 		"message": "Load and Analyse",
 		"description": "Label on button to try loading url given by 'Starting URL'"
@@ -42,10 +34,6 @@
 	"__MSG_button_Pack_EPUB__": {
 		"message": "Pack EPUB",
 		"description": "Label on button to create the EPUB"
-	},
-	"__MSG_button_Pack_Raw_Chapters__": {
-		"message": "Pack Raw Chapters",
-		"description": "Label on 'Pack Raw Chapters' button under 'Developer Stuff'"
 	},
 	"__MSG_button_Reset__": {
 		"message": "Reset",

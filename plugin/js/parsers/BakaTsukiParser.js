@@ -157,7 +157,6 @@ class BakaTsukiParser extends Parser{
         document.getElementById("outputSection").hidden = true;
         document.getElementById("translatorRow").hidden = false;
         document.getElementById("fileAuthorAsRow").hidden = false;
-        this.getFetchContentButton().onclick = this.onFetchImagesClicked.bind(this);
         document.getElementById("coverFromUrlCheckboxInput").onclick = this.populateImageTable.bind(this);
     }
 
@@ -429,7 +428,6 @@ class BakaTsukiParser extends Parser{
         if (0 == that.imageCollector.imageInfoList.length) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
         } else {
-            that.getFetchContentButton().disabled = true;
             that.fetchContent();
         }
     }
@@ -441,7 +439,6 @@ class BakaTsukiParser extends Parser{
         return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
             .then(function() {
                 main.getPackEpubButton().disabled = false;
-                that.getFetchContentButton().disabled = false;
             }).catch(function (err) {
                 ErrorLog.log(err);
             });
@@ -449,9 +446,5 @@ class BakaTsukiParser extends Parser{
 
     updateProgressBarOneStep() {
         ProgressBar.updateValue(1);
-    }
-
-    getFetchContentButton() {
-        return document.getElementById("fetchImagesButton");
     }
 }

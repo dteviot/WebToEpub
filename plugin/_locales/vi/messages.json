@@ -27,24 +27,12 @@
         "message": "Thử lại",
         "description": ""
     },
-    "__MSG_button_Fetch_Chapters__": {
-        "message": "Tải Chương",
-        "description": ""
-    },
-    "__MSG_button_Fetch_Images__": {
-        "message": "Tải Ảnh",
-        "description": ""
-    },
     "__MSG_button_load_and_analyse__": {
         "message": "Tải và Phân Tích",
         "description": ""
     },
     "__MSG_button_Pack_EPUB__": {
         "message": "Đóng gói EPUB",
-        "description": ""
-    },
-    "__MSG_button_Pack_Raw_Chapters__": {
-        "message": "Đóng gói Chương nguyên bản",
         "description": ""
     },
     "__MSG_button_Reset__": {

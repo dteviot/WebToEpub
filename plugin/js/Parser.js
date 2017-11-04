@@ -100,8 +100,6 @@ class Parser {
     }
 
     populateUI(dom) {
-        this.getFetchContentButton().onclick = this.onFetchChaptersClicked.bind(this);
-        document.getElementById("packRawButton").onclick = this.packRawWebPages.bind(this);
         let coverUrl = this.findCoverImageUrl(dom);
         if (!util.isNullOrEmpty(coverUrl)) {
             CoverImageUI.setCoverImageUrl(coverUrl);
@@ -287,7 +285,6 @@ class Parser {
         if (0 == this.state.webPages.size) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
         } else {
-            this.getFetchContentButton().disabled = true;
             this.fetchWebPages();
         }
     }
@@ -337,7 +334,6 @@ class Parser {
             }); 
         });
         sequence = sequence.then(function() {
-            that.getFetchContentButton().disabled = false;
             main.getPackEpubButton().disabled = false;
         }).catch(function (err) {
             ErrorLog.log(err);
@@ -390,26 +386,6 @@ class Parser {
     updateLoadState(webPage) {
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_LOADED);
         ProgressBar.updateValue(1);
-    }
-
-    getFetchContentButton() {
-        return document.getElementById("fetchChaptersButton")
-    }
-
-    // pack the raw HTML into a zip file (for later manual analysis)
-    packRawWebPages() {
-        let zipFile = new JSZip();
-        let i = -1;
-        for (let page of this.state.webPages.values()) {
-            if (page.rawDom != null) {
-                zipFile.file("chapter" + (++i) + ".html", page.rawDom.documentElement.outerHTML, { compression: "DEFLATE" });
-            };
-        }
-        zipFile.generateAsync({ type: "blob" }).then(function(content) {
-            EpubPacker.save(content, "raw.zip");
-        }).catch(function(error) {
-            ErrorLog.showErrorMessage(error);
-        });
     }
 
     // Hook point, when need to do something when "Pack EPUB" pressed
