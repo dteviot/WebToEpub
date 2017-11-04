@@ -4,6 +4,7 @@
       type:  XHTML or image
       sourceUrl: where the html came from
       id:  the id value in the content.opf file
+      directory: subdirectory in ZIP that will hold the item
 
       optional members:
       nodes:  list of nodes that make up the content (if it's XHTML content)
@@ -11,10 +12,11 @@
 "use strict";
 
 class EpubItem {
-    constructor(sourceUrl) {
+    constructor(sourceUrl, directory) {
         this.sourceUrl = sourceUrl;
         this.isInSpine = true;
         this.chapterTitle = null;
+        this.directory =  directory || "OEBPS/Text/";
     }
 
     setIndex(index) {
@@ -23,8 +25,7 @@ class EpubItem {
 
     // name of the item in the zip.
     getZipHref() {
-        let that = this;
-        return util.makeStorageFileName("OEBPS/Text/", that.index, that.chapterTitle, "xhtml");
+        return util.makeStorageFileName(this.directory, this.index, this.chapterTitle, "xhtml");
     }
 
     getId() {
@@ -87,6 +88,19 @@ class EpubItem {
             };
         };
     }
+
+    makeSummaryRow(doc) {
+        let row = doc.createElementNS(util.XMLNS, "tr");
+        this.addColumn(doc, row, this.sourceUrl);
+        this.addColumn(doc, row, this.getZipHref());
+        return row;
+    }
+
+    addColumn(doc, row, textContent) {
+        let header = doc.createElementNS(util.XMLNS, "td");
+        header.textContent = textContent;
+        row.appendChild(header);
+    }    
 }
 
 //==============================================================
@@ -134,7 +148,7 @@ class ChapterEpubItem extends EpubItem {
 */
 class ImageInfo extends EpubItem {
     constructor(wrappingUrl, index, sourceUrl, dataOrigFileUrl) {
-        super(sourceUrl);
+        super(sourceUrl, "OEBPS/Images/");
         super.index = index;
         super.isInSpine = false;
         this.wrappingUrl = wrappingUrl;
@@ -148,9 +162,8 @@ class ImageInfo extends EpubItem {
     }
 
     getZipHref() {
-        let that = this;
-        let suffix = that.findImageSuffix(that.wrappingUrl);
-        return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
+        let suffix = this.findImageSuffix(this.wrappingUrl);
+        return util.makeStorageFileName(this.directory, this.index, this.getImageName(this.wrappingUrl), suffix);
     }
 
     getId() {

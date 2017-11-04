@@ -53,4 +53,40 @@ class EpubItemSupplier {
     hasCoverImageFile() {
         return (this.coverImageInfo != null);
     }
+
+    addTableOfFetchedUrls() {
+        let item = new EpubItem(null, "OEBPS/WebToEpub/");
+        item.isInSpine = true;
+        item.chapterTitle = "URLs fetched";
+        let table = this.createTableOfFetchedUrls();
+        let title = table.ownerDocument.createElementNS(util.XMLNS, "h1");
+        title.textContent = item.chapterTitle;
+        let style = table.ownerDocument.createElementNS(util.XMLNS, "style");
+        style.textContent = `table { border-collapse: collapse; }
+        table, th, td { border: 1px solid black; }`;
+        item.nodes = [ style, title, table ];
+        item.setIndex(this.epubItems.length);
+        this.epubItems.push(item)
+    }
+
+    createTableOfFetchedUrls() {
+        let doc = util.createEmptyXhtmlDoc();
+        let table = doc.createElementNS(util.XMLNS, "table");
+        let body = doc.getElementsByTagName("body")[0];
+        body.appendChild(table);
+        let row = doc.createElementNS(util.XMLNS, "tr");
+        table.appendChild(row);
+        this.addHeader(doc, row, "URL");
+        this.addHeader(doc, row, "File in EPUB");
+        for(let item of this.epubItems) {
+            table.appendChild(item.makeSummaryRow(doc));
+        };
+        return table;
+    }
+
+    addHeader(doc, row, textContent) {
+        let header = doc.createElementNS(util.XMLNS, "th");
+        header.textContent = textContent;
+        row.appendChild(header);
+    }
 }
