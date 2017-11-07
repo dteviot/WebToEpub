@@ -139,11 +139,7 @@ var main = (function () {
     function packEpub(metaInfo) {
         let epubVersion = epubVersionFromPreferences();
         let epub = new EpubPacker(metaInfo, epubVersion);
-        let supplier = parser.epubItemSupplier();
-        if (userPreferences.listFetchedUrls.value) {
-            supplier.addTableOfFetchedUrls();
-        }
-        return epub.assemble(supplier);
+        return epub.assemble(parser.epubItemSupplier());
     }
 
     function dumpErrorLogToFile() {

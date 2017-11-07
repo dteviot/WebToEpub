@@ -119,10 +119,6 @@
 		"message": "Include URL of Images",
 		"description": "Label for checkbox to record source URL of images into EPUB (in Advanced settings)."
 	},
-	"__MSG_label_Include_List_Of_Fetched_URLs__": {
-		"message": "Include list of fetched URLs",
-		"description": "Label for checkbox to add list of fetched URLs to end of EPUB (in Advanced settings)."
-	},
 	"__MSG_label_Language__": {
 		"message": "Language",
 		"description": "Label in front input for language EPUB will be in"
