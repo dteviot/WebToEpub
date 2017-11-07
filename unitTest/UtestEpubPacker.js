@@ -67,6 +67,8 @@ test("buildContentOpf", function (assert) {
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
+            "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>"+
             "<manifest>"+
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
@@ -115,6 +117,8 @@ test("buildEpub3ContentOpf", function (assert) {
             "<meta refines=\"#packingTool\" property=\"role\">bkp</meta>" +
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
+            "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>"+
             "<manifest>"+
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
@@ -159,6 +163,9 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"cover-image\" name=\"cover\"/>" +
+            "<dc:source id=\"id.cover-image\">http://bp.org/thepic.jpeg</dc:source>" +
+            "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
+            "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>" +
             "<manifest>" +
               "<item href=\"Images/0000_thepic.jpeg\" id=\"cover-image\" media-type=\"image/jpeg\"/>" +
@@ -203,6 +210,8 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
             "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
+            "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>" +
             "<manifest>" +
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +

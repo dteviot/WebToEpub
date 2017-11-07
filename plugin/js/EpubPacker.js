@@ -129,6 +129,11 @@ class EpubPacker {
             that.appendMetaContent(metadata, opf_ns, "calibre:series", that.metaInfo.seriesName);
             that.appendMetaContent(metadata, opf_ns, "calibre:series_index", that.metaInfo.seriesIndex);
         }
+
+        for(let i of epubItemSupplier.manifestItems()) {
+            let source = this.createAndAppendChildNS(metadata, dc_ns, "dc:source", i.sourceUrl);
+            source.setAttributeNS(null, "id", "id." + i.getId());
+        };
     }
 
     addMetaProperty(metadata, element, propName, id, value) {
