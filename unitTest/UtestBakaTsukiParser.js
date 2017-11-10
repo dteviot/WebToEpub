@@ -131,8 +131,7 @@ QUnit.test("removeUnwantedTableWhenSingleTable", function (assert) {
         "text/html"
     );
 
-    let parser = new BakaTsukiParser();
-    parser.removeUnwantedTable(dom.documentElement);
+    BakaTsukiParser.removeUnwantedTable(dom.documentElement);
     assert.equal(dom.body.innerHTML, "<x><h1>H1</h1></x>");
 });
 
@@ -150,8 +149,7 @@ QUnit.test("removeUnwantedTableWhenTableNested", function (assert) {
         "text/html"
     );
 
-    let parser = new BakaTsukiParser();
-    parser.removeUnwantedTable(dom.documentElement);
+    BakaTsukiParser.removeUnwantedTable(dom.documentElement);
     assert.equal(dom.body.innerHTML,
         "<x>" +
            "<table><tbody><tr><th>Table1</th></tr></tbody></table>" +
@@ -493,4 +491,9 @@ test("unSuperScriptAlternateTranslations", function (assert) {
     BakaTsukiParser.unSuperScriptAlternateTranslations(heading);
     let actual = heading.textContent;
     assert.equal(actual, "Chapter 5 – Lightning Thunder (Zeus) and Severance Spear (Odin), Twisted Dragon of Destiny")
+});
+
+test("isFullTextPage", function (assert) {
+    assert.ok(BakaTsukiSeriesPageParser.isFullTextPage("https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha:Volume_1"));
+    assert.notOk(BakaTsukiSeriesPageParser.isFullTextPage("https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha"));
 });

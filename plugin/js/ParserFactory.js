@@ -59,7 +59,7 @@ class ParserFactory{
         let hostName = ParserFactory.stripLeadingWww(util.extractHostName(url));
         let constructor = this.parsers.get(hostName);
         if (constructor !== undefined) {
-            return constructor();
+            return constructor(url, dom);
         }
 
         // no exact match found, see if any parser is willing to handle the URL and/or DOM
@@ -72,7 +72,7 @@ class ParserFactory{
             }
         }
         if (0 < maxConfidence) {
-            return constructor();
+            return constructor(url, dom);
         }
 
         // still no parser found, fall back to default

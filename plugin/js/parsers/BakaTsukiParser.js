@@ -1,14 +1,10 @@
 /*
-  Parses files on www.baka-tsuki.org
+  Parses "Full Text" web page on www.baka-tsuki.org
 */
 "use strict";
 
-parserFactory.register("www.baka-tsuki.org", function() { 
-    return new BakaTsukiParser(new BakaTsukiImageCollector()) 
-});
-
 parserFactory.registerManualSelect(
-    "Baka-Tsuki", 
+    "Baka-Tsuki Full Text Page", 
     function() { return new BakaTsukiParser(new BakaTsukiImageCollector()) }
 );
 
@@ -178,7 +174,6 @@ class BakaTsukiParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let that = this;
         util.removeScriptableElements(element);
 
         // discard table of contents (will generate one from tags later)
@@ -190,7 +185,7 @@ class BakaTsukiParser extends Parser{
         util.removeUnneededIds(element);
 
         util.removeComments(element);
-        that.removeUnwantedTable(element);
+        BakaTsukiParser.removeUnwantedTable(element);
 
         // hyperlinks that allow editing text
         util.removeElements(element.querySelectorAll("span.mw-editsection"));
@@ -198,9 +193,8 @@ class BakaTsukiParser extends Parser{
 
     // There's a table at end of content, with links to other stories on Baka Tsuki.
     // It's not wanted in the EPUB
-    removeUnwantedTable(element) {
+    static removeUnwantedTable(element) {
         // sometimes the target table has other tables nested in it.
-        let that = this;
         let tables = [...element.querySelectorAll("table")];
         if (0 < tables.length) {
             let endTable = tables[tables.length - 1];
@@ -211,24 +205,23 @@ class BakaTsukiParser extends Parser{
                     endTable = node;
                 };
             };
-            if (that.isTableContainsHyperLinks(endTable)) {
+            if (BakaTsukiParser.isTableContainsHyperLinks(endTable)) {
                 endTable.remove();
             };
         }
     }
 
-    isTableContainsHyperLinks(tableElement) {
+    static isTableContainsHyperLinks(tableElement) {
         return tableElement.querySelector("a") !== null;
     }
 
     replaceImageTags(element) {
-        let that = this;
-        that.stripGalleryBox(element);
-        that.imageCollector.replaceImageTags(element);
+        BakaTsukiParser.stripGalleryBox(element);
+        this.imageCollector.replaceImageTags(element);
     }
 
     // remove gallery text and move images out of the gallery box so images can take full screen.
-    stripGalleryBox(element) {
+    static stripGalleryBox(element) {
 
         let galleryBoxes = [...element.querySelectorAll("li.gallerybox")];
         if (0 < galleryBoxes.length) {
