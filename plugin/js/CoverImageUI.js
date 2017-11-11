@@ -141,10 +141,27 @@ class CoverImageUI {
         return document.getElementById("coverImageUrlInput");
     }
 
+    /** @private */
+    static getSampleCoverImg() {
+        return document.getElementById("sampleCoverImg");
+    }
+
     /** set URL of image to use for cover, or NULL if no cover
     * @public
     */
     static setCoverImageUrl(url) {
-        CoverImageUI.getCoverImageUrlInput().value = url;
+        let inputUrl = CoverImageUI.getCoverImageUrlInput();
+        if (inputUrl.onchange == null) {
+            inputUrl.onchange = CoverImageUI.showSampleImg;
+        }
+        inputUrl.value = url;
+        CoverImageUI.getSampleCoverImg().src = url;
+    }
+
+    /** @private */
+    static showSampleImg() {
+        let url = CoverImageUI.getCoverImageUrlInput().value;
+        let sampleImg = CoverImageUI.getSampleCoverImg();
+        sampleImg.src = url;
     }
 }
