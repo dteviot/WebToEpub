@@ -40,12 +40,23 @@ var main = (function () {
                 userPreferences.addObserver(parser);
                 let metaInfo = parser.getEpubMetaInfo(dom);
                 populateMetaInfo(metaInfo);
+                setUiToDefaultState();
                 parser.populateUI(dom);
                 parser.onLoadFirstPage(url, dom);
             } catch (error) {
                 ErrorLog.showErrorMessage(error);
             }
         }
+    }
+
+    function setUiToDefaultState() {
+        document.getElementById("higestResolutionImagesRow").hidden = true; 
+        document.getElementById("unSuperScriptAlternateTranslations").hidden = true; 
+        document.getElementById("imageSection").hidden = true;
+        document.getElementById("outputSection").hidden = false;
+        document.getElementById("translatorRow").hidden = true;
+        document.getElementById("fileAuthorAsRow").hidden = true;
+        document.getElementById("defaultParserSection").hidden = true;
     }
 
     function populateMetaInfo(metaInfo) {
