@@ -9,8 +9,8 @@
             padding: 5px 10px;
         }
 
-        tr.loaded {
-            color: #008800;
+        .warning {
+            color: #ff0000;
         }
 
         .scrollingtable {
@@ -217,12 +217,13 @@
         <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
         <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
         <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
-        <table id="chapterUrlsTable" class=" chapterlist">
+        <table id="chapterUrlsTable" class="chapterlist">
             <tr>
                 <th align="left">__MSG_column_Include__</th>
                 <th align="left">__MSG_column_Title__</th>
                 <th align="left">__MSG_column_URL__</th>
             </tr>
+            <tr id="findingChapterUrlsMessageRow" class="warning"><th>__MSG_Searching_For_URLs_Please_Wait__</th></tr>
         </table>
         <div>
             <textarea id="editChaptersUrlsInput" hidden class="allSpace" rows="20"></textarea>

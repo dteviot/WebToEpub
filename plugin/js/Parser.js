@@ -225,6 +225,7 @@ class Parser {
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
         this.state.chapterListUrl = url;
+        let chapterUrlsUI = new ChapterUrlsUI(this);
         
         // returns promise, because may need to fetch additional pages to find list of chapters
         that.getChapterUrls(firstPageDom).then(function(chapters) {
@@ -232,7 +233,6 @@ class Parser {
                 chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
             chapters = that.cleanWebPageUrls(chapters);
-            let chapterUrlsUI = new ChapterUrlsUI(that);
             chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
                 if (chapters[0].sourceUrl === url) {

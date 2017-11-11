@@ -4,6 +4,7 @@
 class ChapterUrlsUI {
     constructor(parser) {
         this.parser = parser;
+        ChapterUrlsUI.getPleaseWaitMessageRow().hidden = false;
     }
 
     connectButtonHandlers() {
@@ -15,6 +16,7 @@ class ChapterUrlsUI {
     }
 
     populateChapterUrlsTable(chapters) {
+        ChapterUrlsUI.getPleaseWaitMessageRow().hidden = true;
         ChapterUrlsUI.clearChapterUrlsTable();
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         chapters.forEach(function (chapter) {
@@ -95,6 +97,11 @@ class ChapterUrlsUI {
     */
     static getEditChaptersUrlsInput() {
         return document.getElementById("editChaptersUrlsInput");
+    }
+
+    /** @private */
+    static getPleaseWaitMessageRow() {
+        return document.getElementById("findingChapterUrlsMessageRow");
     }
 
     /** 
