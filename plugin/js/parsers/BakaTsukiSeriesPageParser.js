@@ -45,6 +45,14 @@ class BakaTsukiSeriesPageParser extends Parser{
         return dom.querySelector("div#mw-content-text");
     };
 
+    populateUI(dom) {
+        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
+        document.getElementById("translatorRow").hidden = false;
+        document.getElementById("fileAuthorAsRow").hidden = false;
+        super.populateUI(dom);
+    }
+
     // title of the story  (not to be confused with title of each chapter)
     extractTitle(dom) {
         return dom.querySelector("#firstHeading").textContent.trim();
@@ -52,6 +60,9 @@ class BakaTsukiSeriesPageParser extends Parser{
 
     customRawDomToContentStep(chapter, content) {
         BakaTsukiParser.stripGalleryBox(content);
+        if (this.userPreferences.unSuperScriptAlternateTranslations.value) {
+            BakaTsukiParser.unSuperScriptAlternateTranslations(content);
+        }
     }
 
     removeUnwantedElementsFromContentElement(element) {
