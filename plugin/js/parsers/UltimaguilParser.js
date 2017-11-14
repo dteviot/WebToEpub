@@ -78,11 +78,11 @@ class UltimaguilParser extends Parser {
         let read_content = content.querySelector("span#read_content");
         if (read_content !== null) {
             let parent = read_content.parentElement;
-            while (0 < read_content.childNodes.length) {
+            while (read_content.hasChildNodes()) {
                 let node = read_content.childNodes[0];
                 if (node.tagName.toLowerCase() === "div") {
                     let div = node;
-                    while(0 < div.childNodes.length) {
+                    while(div.hasChildNodes()) {
                         parent.insertBefore(div.childNodes[0], read_content);
                     };
                     div.remove();

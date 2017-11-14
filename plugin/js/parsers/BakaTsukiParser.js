@@ -268,14 +268,10 @@ class BakaTsukiParser extends Parser{
     flattenContent(content) {
         // most pages have all header tags as immediate children of the content element
         // where this is not the case, flatten them so that they are.
-        let that = this;
         for(let i = 0; i < content.childNodes.length; ++i) {
             let node = content.childNodes[i];
-            if (that.nodeNeedsToBeFlattened(node)) {
-                for(let j = node.childNodes.length - 1; 0 <= j; --j) {
-                    that.insertAfter(node, node.childNodes[j]);
-                }
-                node.remove();
+            if (this.nodeNeedsToBeFlattened(node)) {
+                util.flattenNode(node);
                 --i;
             }
         }
@@ -296,15 +292,6 @@ class BakaTsukiParser extends Parser{
             };
         } while (walker.nextNode());
         return count;
-    }
-
-    insertAfter(atNode, nodeToInsert) {
-        let nextSibling = atNode.nextSibling;
-        if (nextSibling != null) {
-            atNode.parentNode.insertBefore(nodeToInsert, nextSibling);
-        } else {
-            atNode.parentNode.appendChild(nodeToInsert);
-        }
     }
 
     // If a epubItem only holds a heading element, combine with following epubItem.

@@ -188,6 +188,12 @@ var util = (function () {
 
     var removeMicrosoftWordCrapElements = function(element) {
         util.removeElements(util.getElements(element, "O:P"));
+
+    var flattenNode = function(node) {
+        while (node.hasChildNodes()) {
+            node.parentNode.insertBefore(node.childNodes[0], node);
+        }
+        node.remove();
     }
 
     /**
@@ -277,7 +283,7 @@ var util = (function () {
     }
 
     var moveChildElements = function(from, to) {
-        while (0 < from.childNodes.length) {
+        while (from.hasChildNodes()) {
             let node = from.childNodes[0];
             to.appendChild(node);
         };
@@ -322,7 +328,7 @@ var util = (function () {
     }
 
     var moveElementsOutsideTag = function(inlineElement) {
-        while (0 < inlineElement.childNodes.length) {
+        while (inlineElement.hasChildNodes()) {
             let node = inlineElement.childNodes[0];
             inlineElement.parentNode.insertBefore(node, inlineElement);
             
@@ -810,6 +816,7 @@ var util = (function () {
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
         removeScriptableElements: removeScriptableElements,
         removeMicrosoftWordCrapElements: removeMicrosoftWordCrapElements,
+        flattenNode: flattenNode,
         removeEventHandlers: removeEventHandlers,
         removeHeightAndWidthStyleFromParents: removeHeightAndWidthStyleFromParents,
         removeHeightAndWidthStyle: removeHeightAndWidthStyle,
