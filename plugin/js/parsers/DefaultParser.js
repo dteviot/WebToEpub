@@ -40,7 +40,7 @@ class DefaultParserSiteSettings {
     isConfigChanged(hostname, tag, idType, search) {
         let config = this.configs.get(hostname);
         return (config === undefined) || (tag !== config.tag) ||
-            (idType !== idType) || (search !== search);
+            (idType !== config.idType) || (search !== config.search);
     }
 
     getConfigForSite(url) {
