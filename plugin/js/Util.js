@@ -187,7 +187,10 @@ var util = (function () {
     }
 
     var removeMicrosoftWordCrapElements = function(element) {
-        util.removeElements(util.getElements(element, "O:P"));
+        for(let node of util.getElements(element, "O:P")) {
+            util.flattenNode(node);
+        }
+    }
 
     var flattenNode = function(node) {
         while (node.hasChildNodes()) {
