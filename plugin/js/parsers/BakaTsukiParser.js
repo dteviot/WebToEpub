@@ -63,31 +63,29 @@ class BakaTsukiParser extends Parser{
         CoverImageUI.onCoverFromUrlClick(enable, this.imageCollector.imageInfoList);
     }
 
-    static splitContentOnHeadingTags(content, sourceUrl) {
-        let epubItems = [];
+    static splitContentOnHeadingTags(content) {
+        let items = [];
         let nodesInItem = [];
         for(let i = 0; i < content.childNodes.length; ++i) {
             let node = util.wrapRawTextNode(content.childNodes[i]);
             if (BakaTsukiParser.isChapterStart(node)) {
-                BakaTsukiParser.appendToEpubItems(epubItems, nodesInItem, sourceUrl);
+                BakaTsukiParser.appendToItems(items, nodesInItem);
                 nodesInItem = [];
             };
             nodesInItem.push(node);
         };
-        BakaTsukiParser.appendToEpubItems(epubItems, nodesInItem, sourceUrl);
-        return epubItems;
+        BakaTsukiParser.appendToItems(items, nodesInItem);
+        return items;
     }
 
     static isChapterStart(node) {
         return util.isHeaderTag(node);
     }
 
-    static appendToEpubItems(epubItems, nodesInItem, sourceUrl) {
+    static appendToItems(items, nodesInItem) {
         BakaTsukiParser.removeTrailingWhiteSpace(nodesInItem);
         if (0 < nodesInItem.length) {
-            let epubItem = new EpubItem(sourceUrl);
-            epubItem.nodes = nodesInItem;
-            epubItems.push(epubItem);
+            items.push({ nodes: nodesInItem});
         };
     }
 
@@ -99,13 +97,16 @@ class BakaTsukiParser extends Parser{
         };
     }
 
-    static indexEpubItems(epubItems, startAt) {
+    static itemsToEpubItems(items, startAt, sourceUrl) {
         // ToDo: when have image files, this will probably need to be redone.
         let index = startAt;
-        for(let epubItem of  epubItems) {
+        return items.map(function(item) {
+            let epubItem = new EpubItem(sourceUrl);
             epubItem.setIndex(index);
+            epubItem.nodes = item.nodes;
             ++index;
-        };
+            return epubItem;
+        });
     }
 
     extractTitle(dom) {
@@ -174,7 +175,7 @@ class BakaTsukiParser extends Parser{
         }
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
-        let epubItems = that.splitContentIntoSections(content, that.firstPageDom.baseURI);
+        let epubItems = that.splitContentIntoEpubItems(content, that.firstPageDom.baseURI);
         that.fixupInternalHyperLinks(epubItems);
         return new EpubItemSupplier(that, epubItems, that.imageCollector);
     }
@@ -261,14 +262,13 @@ class BakaTsukiParser extends Parser{
         }
     }
 
-    splitContentIntoSections(content, sourceUrl) {
+    splitContentIntoEpubItems(content, sourceUrl) {
         let that = this;
         that.flattenContent(content);
-        let epubItems = BakaTsukiParser.splitContentOnHeadingTags(content, sourceUrl);
-        epubItems = that.consolidateEpubItems(epubItems);
-        epubItems = that.discardEpubItemsWithNoVisibleContent(epubItems);
-        BakaTsukiParser.indexEpubItems(epubItems, 0);
-        return epubItems;
+        let items = BakaTsukiParser.splitContentOnHeadingTags(content);
+        items = that.consolidateItems(items);
+        items = that.discardItemsWithNoVisibleContent(items);
+        return BakaTsukiParser.itemsToEpubItems(items, 0, sourceUrl);
     }
 
     flattenContent(content) {
@@ -300,26 +300,25 @@ class BakaTsukiParser extends Parser{
         return count;
     }
 
-    // If a epubItem only holds a heading element, combine with following epubItem.
+    // If an item only holds a heading element, combine with following epubItem.
     // e.g. We're dealing with <h1> followed by <h2>
-    consolidateEpubItems(epubItems) {
-        let newEpubItems = [ epubItems[epubItems.length - 1] ];
-        let i = epubItems.length - 2;
+    consolidateItems(items) {
+        let newItems = [ items[items.length - 1] ];
+        let i = items.length - 2;
         while (0 <= i) {
-            let epubItem = epubItems[i];
-            if (epubItem.nodes.length === 1) {
-                newEpubItems[0].nodes.unshift(epubItem.nodes[0]);
+            let item = items[i];
+            if (item.nodes.length === 1) {
+                newItems[0].nodes.unshift(item.nodes[0]);
             } else {
-                newEpubItems.unshift(epubItem);
+                newItems.unshift(item);
             }
             --i;
         }
-        return newEpubItems;
+        return newItems;
     }
 
-    discardEpubItemsWithNoVisibleContent(epubItems) {
-        let that = this;
-        return epubItems.filter(item => that.hasVisibleContent(item.nodes));
+    discardItemsWithNoVisibleContent(items) {
+        return items.filter(item => this.hasVisibleContent(item.nodes));
     }
 
     hasVisibleContent(nodes) {

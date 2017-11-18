@@ -368,7 +368,7 @@ QUnit.test("hasNoVisibleContent", function (assert) {
 });
 
 
-QUnit.test("splitContentIntoSections", function (assert) {
+QUnit.test("splitContentIntoEpubItems", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<div>" +
            "\n\n"+
@@ -389,7 +389,7 @@ QUnit.test("splitContentIntoSections", function (assert) {
     );
 
     let parser = new BakaTsukiParser();
-    let epubItems = parser.splitContentIntoSections(dom.body.firstChild);
+    let epubItems = parser.splitContentIntoEpubItems(dom.body.firstChild);
     assert.equal(epubItems.length, 3);
     assert.equal(epubItems[0].nodes.length, 2);
     assert.equal(epubItems[1].nodes.length, 4);
@@ -438,7 +438,7 @@ test("fixupInternalHyperLinks", function (assert) {
     );
     let parser = new BakaTsukiParser();
     let content = dom.body.cloneNode(true);
-    let epubItems = parser.splitContentIntoSections(content, null);
+    let epubItems = parser.splitContentIntoEpubItems(content, null);
     parser.fixupInternalHyperLinks(epubItems);
 
     assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "../Text/0003_H4.xhtml#cite_note-1");

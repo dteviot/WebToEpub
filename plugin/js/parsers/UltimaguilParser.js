@@ -42,17 +42,15 @@ class UltimaguilParser extends Parser {
         let content = that.convertRawDomToContent(webPage);
         let items = [];
         if (content != null) {
-            items = that.splitContentIntoSections(content, webPage.sourceUrl, epubItemIndex);
+            items = that.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
         }
         return items;
     }
 
-    splitContentIntoSections(content, baseUri, epubItemIndex) {
-        let that = this;
-        that.convertMidpartToHeaders(content);
-        let epubItems = BakaTsukiParser.splitContentOnHeadingTags(content, baseUri);
-        BakaTsukiParser.indexEpubItems(epubItems, epubItemIndex);
-        return epubItems;
+    splitContentIntoEpubItems(content, baseUri, epubItemIndex) {
+        this.convertMidpartToHeaders(content);
+        let items = BakaTsukiParser.splitContentOnHeadingTags(content);
+        return BakaTsukiParser.itemsToEpubItems(items, epubItemIndex, baseUri);
     }
 
     convertMidpartToHeaders(content) {
