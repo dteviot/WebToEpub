@@ -42,6 +42,12 @@ class BakaTsukiParser extends Parser{
         this.firstPageDom = null;
     }
 
+    static register() {
+        parserFactory.reregister("baka-tsuki.org", function() { 
+            return new BakaTsukiParser(new BakaTsukiImageCollector()) 
+        });      
+    }
+
     rebuildImagesToFetch() {
         // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
         let that = this;
@@ -428,3 +434,7 @@ class BakaTsukiParser extends Parser{
         ProgressBar.updateValue(1);
     }
 }
+
+//==============================================================
+
+BakaTsukiParser.register();

@@ -184,6 +184,7 @@ var main = (function () {
         userPreferences = UserPreferences.readFromLocalStorage();
         userPreferences.writeToUi();
         userPreferences.hookupUi();
+        BakaTsukiSeriesPageParser.registerBakaParsers(userPreferences.autoSelectBTSeriesPage.value);
     }
 
     function isRunningInTabMode() {

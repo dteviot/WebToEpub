@@ -47,3 +47,12 @@ QUnit.test("fetch", function (assert) {
     actual = parserFactory.fetch(unknownUrl, wordpressDom);
     assert.ok(actual instanceof WordpressBaseParser);
 });
+
+QUnit.test("reregister", function (assert) {
+    parserFactory.register("reregister.org", function() { return new ArchiveOfOurOwnParser() })
+    let parser = parserFactory.fetch("http://reregister.org");
+    assert.ok(parser instanceof ArchiveOfOurOwnParser );
+    parserFactory.reregister("reregister.org", function() { return new FanFictionParser() })
+    parser = parserFactory.fetch("https://reregister.org/s/1234567/1/WebToEpub")
+    assert.ok(parser instanceof FanFictionParser );
+});

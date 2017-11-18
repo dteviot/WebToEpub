@@ -497,3 +497,20 @@ test("isFullTextPage", function (assert) {
     assert.ok(BakaTsukiSeriesPageParser.isFullTextPage("https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha:Volume_1"));
     assert.notOk(BakaTsukiSeriesPageParser.isFullTextPage("https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha"));
 });
+
+test("registerBakaParsers", function (assert) {
+    BakaTsukiSeriesPageParser.registerBakaParsers(false);
+    let seriesPageUrl = "https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha";
+    let fullPageUrl = "https://www.baka-tsuki.org/project/index.php?title=Shinmai_Maou_no_Keiyakusha:Volume_1";
+
+    let parser = parserFactory.fetch(seriesPageUrl);
+    assert.ok(parser instanceof BakaTsukiParser );
+    parser = parserFactory.fetch(fullPageUrl);
+    assert.ok(parser instanceof BakaTsukiParser );
+    
+    BakaTsukiSeriesPageParser.registerBakaParsers(true);
+    parser = parserFactory.fetch(seriesPageUrl);
+    assert.ok(parser instanceof BakaTsukiSeriesPageParser );
+    parser = parserFactory.fetch(fullPageUrl);
+    assert.ok(parser instanceof BakaTsukiParser );
+});

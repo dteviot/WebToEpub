@@ -79,6 +79,10 @@
 		"message": "Author",
 		"description": "Label in front input for novel's Author"
 	},
+	"__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
+		"message": "Automatic parser select includes Baka-Tsuki Series Page Parser",
+		"description": "Label for checkbox to toggle logic that picks parser to use for a web page to include the Baka-Tsuki Series Page Parser"
+	},
 	"__MSG_label_Chapters_Page_In_Chapters_List__": {
 		"message": "Add Page with Chapters to Chapters List",
 		"description": "Label for checkbox to toggle adding the page with chapters to list of pages to fetch"

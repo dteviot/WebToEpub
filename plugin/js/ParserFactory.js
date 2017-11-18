@@ -40,6 +40,10 @@ class ParserFactory{
         };
     }
 
+    reregister(hostName, constructor) {
+        this.parsers.set(ParserFactory.stripLeadingWww(hostName), constructor);
+    }
+
     registerManualSelect(name, constructor) {
         this.manualSelection.push({name, constructor});
     };

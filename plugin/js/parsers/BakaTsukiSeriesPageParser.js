@@ -4,17 +4,6 @@
 */
 "use strict";
 
-parserFactory.register(
-    "baka-tsuki.org", 
-    function(url) {
-        if (BakaTsukiSeriesPageParser.isFullTextPage(url)) {
-            return new BakaTsukiParser(new BakaTsukiImageCollector());
-        } else {
-            return new BakaTsukiSeriesPageParser();
-        }
-    }
-);
-
 parserFactory.registerManualSelect(
     "Baka-Tsuki Series Page", 
     function() { return new BakaTsukiSeriesPageParser(); }
@@ -23,6 +12,27 @@ parserFactory.registerManualSelect(
 class BakaTsukiSeriesPageParser extends Parser{
     constructor() {
         super(new BakaTsukiImageCollector());
+    }
+
+    static register() {
+        parserFactory.reregister(
+            "baka-tsuki.org", 
+            function(url) {
+                if (BakaTsukiSeriesPageParser.isFullTextPage(url)) {
+                    return new BakaTsukiParser(new BakaTsukiImageCollector());
+                } else {
+                    return new BakaTsukiSeriesPageParser();
+                }
+            }
+        );
+    }
+
+    static registerBakaParsers(includeSeriesPage) {
+        if (includeSeriesPage) {
+            BakaTsukiSeriesPageParser.register();
+        } else {
+            BakaTsukiParser.register();
+        }
     }
 
     static isFullTextPage(url) {
