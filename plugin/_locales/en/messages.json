@@ -27,6 +27,10 @@
 		"message": "Retry",
 		"description": "Label on 'Retry' button when show error"
 	},
+	"__MSG_button_Help__": {
+		"message": "Help...",
+		"description": "Label on button launch help page"
+	},
 	"__MSG_button_load_and_analyse__": {
 		"message": "Load and Analyse",
 		"description": "Label on button to try loading url given by 'Starting URL'"
