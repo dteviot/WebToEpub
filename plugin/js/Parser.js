@@ -100,10 +100,9 @@ class Parser {
     }
 
     populateUI(dom) {
+        CoverImageUI.showCoverImageUrlInput(true);
         let coverUrl = this.findCoverImageUrl(dom);
-        if (!util.isNullOrEmpty(coverUrl)) {
-            CoverImageUI.setCoverImageUrl(coverUrl);
-        };
+        CoverImageUI.setCoverImageUrl(coverUrl);
     }
 
     /**
