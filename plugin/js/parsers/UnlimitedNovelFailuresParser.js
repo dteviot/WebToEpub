@@ -33,6 +33,7 @@ class UnlimitedNovelFailuresParser extends Parser {
         if (content != null) {
             items = that.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
         }
+        BakaTsukiParser.fixupInternalHyperLinks(items);
         return items;
     }
 

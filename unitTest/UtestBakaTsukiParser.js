@@ -439,7 +439,7 @@ test("fixupInternalHyperLinks", function (assert) {
     let parser = new BakaTsukiParser();
     let content = dom.body.cloneNode(true);
     let epubItems = parser.splitContentIntoEpubItems(content, null);
-    parser.fixupInternalHyperLinks(epubItems);
+    BakaTsukiParser.fixupInternalHyperLinks(epubItems);
 
     assert.equal(fetchHrefForId(epubItems, "cite_ref-1"), "../Text/0003_H4.xhtml#cite_note-1");
     assert.equal(fetchHrefForId(epubItems, "cite_ref-2"), "../Text/0001_H2.xhtml#cite_note-2");

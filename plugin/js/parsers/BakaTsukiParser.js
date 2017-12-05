@@ -176,7 +176,7 @@ class BakaTsukiParser extends Parser{
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
         let epubItems = that.splitContentIntoEpubItems(content, that.firstPageDom.baseURI);
-        that.fixupInternalHyperLinks(epubItems);
+        BakaTsukiParser.fixupInternalHyperLinks(epubItems);
         return new EpubItemSupplier(that, epubItems, that.imageCollector);
     }
 
@@ -332,33 +332,30 @@ class BakaTsukiParser extends Parser{
         return false;
     }
 
-    fixupInternalHyperLinks(epubItems) {
-        let targets = this.findLinkTargets(epubItems);
-        this.findAndFixHyperLinks(epubItems, targets);
+    static fixupInternalHyperLinks(epubItems) {
+        let targets = BakaTsukiParser.findLinkTargets(epubItems);
+        BakaTsukiParser.findAndFixHyperLinks(epubItems, targets);
     }
 
-    findLinkTargets(epubItems) {
-        let that = this;
+    static findLinkTargets(epubItems) {
         let targets = new Map();
-        that.walkEpubItemsWithElements(
+        BakaTsukiParser.walkEpubItemsWithElements(
             epubItems, 
             targets,
-            that.recordTarget
+            BakaTsukiParser.recordTarget
         );
         return targets;
     }
 
-    findAndFixHyperLinks(epubItems, targets) {
-        let that = this;
-        that.walkEpubItemsWithElements(
+    static findAndFixHyperLinks(epubItems, targets) {
+        BakaTsukiParser.walkEpubItemsWithElements(
             epubItems, 
             targets,
-            that.fixHyperlink
+            BakaTsukiParser.fixHyperlink
         );
     }
 
-    walkEpubItemsWithElements(epubItems, targets, processFoundNode) {
-        let that = this;
+    static walkEpubItemsWithElements(epubItems, targets, processFoundNode) {
         for(let epubItem of epubItems) {
             for(let element of epubItem.nodes.filter(e => e.nodeType === Node.ELEMENT_NODE)) {
                 let walker = document.createTreeWalker(
@@ -371,7 +368,7 @@ class BakaTsukiParser extends Parser{
                     epubItem.chapterTitle = element.textContent;
                 }
                 do {
-                    processFoundNode.apply(that, [walker.currentNode, targets, util.makeRelative(epubItem.getZipHref())]);
+                    processFoundNode(walker.currentNode, targets, util.makeRelative(epubItem.getZipHref()));
                 } while (walker.nextNode());
             };
         };
@@ -392,13 +389,13 @@ class BakaTsukiParser extends Parser{
         return (top != null) && (0 < top.length) && (top[0] === "-");
     }
 
-    recordTarget(node, targets, zipHref) {
+    static recordTarget(node, targets, zipHref) {
         if (node.id != "") {
             targets.set(node.id, zipHref);
         };
     }
 
-    fixHyperlink(node, targets, unused) { // eslint-disable-line no-unused-vars
+    static fixHyperlink(node, targets, unused) { // eslint-disable-line no-unused-vars
         if (node.tagName === "A") {
             let targetId = util.extractHashFromUri(node.href);
             let targetZipHref = targets.get(targetId);
