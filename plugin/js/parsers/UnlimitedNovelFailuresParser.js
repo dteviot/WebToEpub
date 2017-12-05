@@ -1,0 +1,60 @@
+/*
+  Parses unlimitednovelfailures.mangamatters.com
+*/
+"use strict";
+
+parserFactory.register("unlimitednovelfailures.mangamatters.com", 
+    function() { return new UnlimitedNovelFailuresParser() }
+);
+
+class UnlimitedNovelFailuresParser extends Parser {
+    constructor(imageCollector) {
+        super(imageCollector);
+    }
+
+    getChapterUrls(dom) {
+        return Promise.resolve(util.hyperlinksToChapterList(dom));
+    }
+
+    extractTitle(dom) {   // eslint-disable-line no-unused-vars
+        var title = dom.querySelector(".entry-title");
+        return (title == null) ? super.extractTitle(dom) : title.textContent.trim();
+    }
+
+    // find the node(s) holding the story content
+    findContent(dom) {
+        return WordpressBaseParser.findContentElement(dom);
+    }
+
+    webPageToEpubItems(webPage, epubItemIndex) {
+        let that = this;
+        let content = that.convertRawDomToContent(webPage);
+        let items = [];
+        if (content != null) {
+            items = that.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
+        }
+        return items;
+    }
+
+    splitContentIntoEpubItems(content, baseUri, epubItemIndex) {
+        this.convertAnchorsToHeaders(content);
+        let items = BakaTsukiParser.splitContentOnHeadingTags(content);
+        return BakaTsukiParser.itemsToEpubItems(items, epubItemIndex, baseUri);
+    }
+
+    convertAnchorsToHeaders(content) {
+        let document = content.ownerDocument;
+        for(let link of content.querySelectorAll("a[id]")) {
+            let h2 = document.createElement("h2");
+            h2.id = link.id;
+            h2.appendChild(document.createTextNode(link.textContent));
+            let parent = link.parentElement;
+            if (parent.tagName.toLowerCase() === "p") {
+                parent.after(h2);
+                link.remove();
+            } else {
+                link.replaceWith(h2);
+            }
+        };
+    }
+}
