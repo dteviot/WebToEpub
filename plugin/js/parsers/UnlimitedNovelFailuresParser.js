@@ -26,6 +26,10 @@ class UnlimitedNovelFailuresParser extends Parser {
         return WordpressBaseParser.findContentElement(dom);
     }
 
+    findChapterTitle(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
     webPageToEpubItems(webPage, epubItemIndex) {
         let that = this;
         let content = that.convertRawDomToContent(webPage);
