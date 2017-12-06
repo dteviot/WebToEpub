@@ -27,6 +27,10 @@
         "message": "Thử lại",
         "description": ""
     },
+    "__MSG_button_Help__": {
+        "message": "Trợ giúp...",
+        "description": ""
+    },
     "__MSG_button_load_and_analyse__": {
         "message": "Tải và Phân Tích",
         "description": ""
@@ -77,6 +81,10 @@
     },
     "__MSG_label_Author__": {
         "message": "Tác Giả",
+        "description": ""
+    },
+    "__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
+        "message": "Tự động lựa chọn parser bao gồm Parser dành cho các bộ truyện trên Baka-Tsuki",
         "description": ""
     },
     "__MSG_label_Chapters_Page_In_Chapters_List__": {
@@ -185,6 +193,10 @@
     },
     "__MSG_option_ID_Starts_With__": {
         "message": "ID Bắt Đầu Với",
+        "description": ""
+    },
+    "__MSG_Searching_For_URLs_Please_Wait__": {
+        "message": "Đang Truy Tìm Các Đường Dẫn. Vui lòng đợi.",
         "description": ""
     },
     "convertToXhtmlWarning": {
