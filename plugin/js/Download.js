@@ -51,11 +51,20 @@ class Download {
     }
 
     static saveOnFirefox(options, cleanup) {
+        if (Download.isAndroid()) {
+            options.saveAs = false;
+        }
         return browser.downloads.download(options).then(
             // on Firefox, resolves when "Save As" dialog CLOSES, so no
             // need to delay past this point.
             downloadId => Download.onDownloadStarted(downloadId, cleanup)
         ).catch(cleanup);
+    }
+
+    static isAndroid() {
+        let agent = navigator.userAgent.toLowerCase();
+        return agent.includes("android") || 
+            navigator.platform.toLowerCase().includes("android");
     }
 
     static onChanged(delta) {
