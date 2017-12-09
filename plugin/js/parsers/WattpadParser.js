@@ -19,18 +19,104 @@ class WattpadParser extends Parser{
     };
 
     fetchChapterList(dom) {
-        let storyId = WattpadParser.extractStoryId(dom.baseURI);
+        let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
         let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
         return HttpClient.fetchJson(chaptersUrl).then(function (handler) {
             return handler.json.parts.map(p => ({sourceUrl: p.url, title: p.title}))
         });
     }
 
-    static extractStoryId(url) {
+    static extractIdFromUrl(url) {
         let hyperlink = document.createElement("a");
         hyperlink.href = url;
         let path = hyperlink.pathname;
         return path.split("/").filter(s => s.includes("-"))[0].split("-")[0];
+    }
+
+    fetchChapter(url) {
+        let that = this;
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            let dom = xhr.responseXML;
+            let extraUris = that.findURIsWithRestOfChapterContent(dom);
+            return that.fetchAndAddExtraContentForChapter(dom, extraUris);
+        });
+    }
+
+    findURIsWithRestOfChapterContent(dom) {
+        let uris = [];
+        let source = this.findScriptWithRestOfChapterUriInfo(dom);
+        if (source != null) {
+            let pages = this.extractNumberOfExtraPages(source);
+            let uri = this.extractBaseUriForExtraPages(source);
+            let index = uri.indexOf("?");
+            let uriStart = uri.substring(0, index);
+            let uriEnd = uri.substring(index);
+            for(let i = 2; i <= pages; ++i) {
+                uris.push(uriStart + "-" + i + uriEnd);
+            }
+        }
+        return uris;
+    }
+
+    findScriptWithRestOfChapterUriInfo(dom) {
+        // can't use JSON, because has characters that won't parse
+        let searchString = ".metadata\":{\"data\":";
+        for(let s of [...dom.querySelectorAll("script")]) {
+            let source = s.innerHTML;
+            let index = source.indexOf(searchString);
+            if (0 <= index) {
+                return source.substring(index + searchString.length);
+            }
+        }
+    }
+
+    extractNumberOfExtraPages(source) {
+        let pagesToken = "\pages\":";
+        let pagesIndex = source.indexOf(pagesToken);
+        pagesIndex += pagesToken.length;
+        let pagesEnd = source.indexOf(",", pagesIndex);
+        return parseInt(source.substring(pagesIndex, pagesEnd));
+    }
+
+    extractBaseUriForExtraPages(source) {
+        return util.locateAndExtractJson(source, "\"text_url\":").text;
+    }
+
+    fetchAndAddExtraContentForChapter(dom, extraUris) {
+        return this.fetchExtraChapterContent(extraUris).then(
+            (extraContent) => this.addExtraContent(dom, extraContent)
+        );
+    }
+
+    fetchExtraChapterContent(extraUris) {
+        let sequence = Promise.resolve();
+        let extraContent = [];
+        extraUris.forEach(function(uri) {
+            sequence = sequence.then(function () {
+                return HttpClient.fetchText(uri).then(
+                    text => extraContent.push(text)
+                );
+            }); 
+        });
+        sequence = sequence.then(
+            () => extraContent
+        );
+        return sequence;
+    }
+
+    addExtraContent(dom, extraContent) {
+        let content = this.findContent(dom);
+        for (let s of extraContent) {
+            content.appendChild(this.toHtml(s));
+        }
+        return dom;
+    }
+
+    toHtml(extraContent) {
+        return new DOMParser().parseFromString(
+            "<div>" + extraContent + "</div>", 
+            "text/html"
+        ).querySelector("div");
     }
 
     findContent(dom) {

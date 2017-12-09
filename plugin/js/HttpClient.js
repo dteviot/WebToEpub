@@ -19,6 +19,10 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, new FetchJsonResponseHandler());
     }
 
+    static fetchText(url) {
+        return HttpClient.wrapFetchImpl(url, new FetchTextResponseHandler());
+    }
+
     static wrapFetchImpl(url, handler) {
         return fetch(url, HttpClient.makeOptions()).then(function(response) {
             return HttpClient.checkResponseAndGetData(url, handler, response);
@@ -79,6 +83,12 @@ class FetchResponseHandler {
         }.bind(this));
     }
 
+    responseToText(response) {
+        return response.arrayBuffer().then(function(rawBytes) {
+            return this.makeTextDecoder(response).decode(rawBytes);
+        }.bind(this));
+    }
+
     responseToJson(response) {
         return response.text().then(function(data) {
             this.json =  JSON.parse(data);
@@ -111,5 +121,15 @@ class FetchJsonResponseHandler extends FetchResponseHandler {
 
     extractContentFromResponse(response) {
         return super.responseToJson(response);
+    }
+}
+
+class FetchTextResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToText(response);
     }
 }
