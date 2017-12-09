@@ -139,9 +139,10 @@ class WattpadParser extends Parser{
 
     // custom cleanup of content
     removeUnwantedElementsFromContentElement(element) {
-        for(let pre of [...element.querySelectorAll("pre")]) {
-            util.moveElementsOutsideTag(pre);
-            pre.remove();
+        let keep = [...element.querySelectorAll("p")];
+        util.removeElements([...element.children]);
+        for(let e of keep) {
+            element.appendChild(e);
         }
         super.removeUnwantedElementsFromContentElement(element);
     }
