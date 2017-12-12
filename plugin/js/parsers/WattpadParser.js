@@ -44,10 +44,10 @@ class WattpadParser extends Parser{
 
     findURIsWithRestOfChapterContent(dom) {
         let uris = [];
-        let source = this.findScriptWithRestOfChapterUriInfo(dom);
-        if (source != null) {
-            let pages = this.extractNumberOfExtraPages(source);
-            let uri = this.extractBaseUriForExtraPages(source);
+        let json = this.findJsonWithRestOfChapterUriInfo(dom);
+        if (json != null) {
+            let pages = json.pages;
+            let uri = json.text_url.text;
             let index = uri.indexOf("?");
             let uriStart = uri.substring(0, index);
             let uriEnd = uri.substring(index);
@@ -58,28 +58,15 @@ class WattpadParser extends Parser{
         return uris;
     }
 
-    findScriptWithRestOfChapterUriInfo(dom) {
-        // can't use JSON, because has characters that won't parse
+    findJsonWithRestOfChapterUriInfo(dom) {
         let searchString = ".metadata\":{\"data\":";
         for(let s of [...dom.querySelectorAll("script")]) {
             let source = s.innerHTML;
             let index = source.indexOf(searchString);
             if (0 <= index) {
-                return source.substring(index + searchString.length);
+                return util.locateAndExtractJson(source, searchString);
             }
         }
-    }
-
-    extractNumberOfExtraPages(source) {
-        let pagesToken = "\pages\":";
-        let pagesIndex = source.indexOf(pagesToken);
-        pagesIndex += pagesToken.length;
-        let pagesEnd = source.indexOf(",", pagesIndex);
-        return parseInt(source.substring(pagesIndex, pagesEnd));
-    }
-
-    extractBaseUriForExtraPages(source) {
-        return util.locateAndExtractJson(source, "\"text_url\":").text;
     }
 
     fetchAndAddExtraContentForChapter(dom, extraUris) {
