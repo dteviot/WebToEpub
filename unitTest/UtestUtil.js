@@ -255,12 +255,21 @@ test("hyperlinksToChapterListEmptyElement", function (assert) {
     assert.deepEqual(chapters, []);
 });
 
-test("normalizeUrl", function (assert) {
-    let testUrl1 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2";
-    let testUrl2 = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2/";
+test("removeTrailingSlash", function (assert) {
+    let expected = "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2";
+    
+    assert.equal(util.removeTrailingSlash(expected), expected);
+    assert.equal(util.removeTrailingSlash(expected + "/"), expected);
+});
 
-    assert.equal(util.normalizeUrl(testUrl1), testUrl1);
-    assert.equal(util.normalizeUrl(testUrl2), testUrl1);
+test("normalizeUrlForCompare", function (assert) {
+    let expected = "www.wuxiaworld.com/wmw-index/wmw-chapter-2";
+    
+    assert.equal(util.normalizeUrlForCompare(expected), expected);
+    assert.equal(util.normalizeUrlForCompare("http://" + expected), expected);
+    assert.equal(util.normalizeUrlForCompare("http://" + expected +"/"), expected);
+    assert.equal(util.normalizeUrlForCompare("https://" + expected), expected);
+    assert.equal(util.normalizeUrlForCompare("https://" + expected +"/"), expected);
 });
 
 test("removeEventHandlers", function (assert) {

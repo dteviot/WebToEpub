@@ -36,7 +36,7 @@ class ShikkakutranslationsParser extends Parser {
         return dom.querySelector("h1.page-title");
     }
 
-    removeNextAndPreviousChapterHyperlinks(element) {
+    removeNextAndPreviousChapterHyperlinks(webPage, element) {
         // override default, just remove all hyperlinks
         // due to links in chapters not matching links in menu.
         [...element.querySelectorAll("a")]

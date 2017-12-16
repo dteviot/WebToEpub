@@ -31,11 +31,14 @@ function dummyWuxiaDoc() {
 test("removeUnwantedElementsFromContentElement", function (assert) {
     let dom = dummyWuxiaDoc();
     let parser = new WuxiaworldParser();
-    parser.setPagesToFetch([
+    let pagesToFetch = [
         { sourceUrl: "http://www.wuxiaworld.com/wmw-index/wmw-chapter-1/" },
+        { sourceUrl: "http://www.wuxiaworld.com/wmw-index/wmw-chapter-2" },
         { sourceUrl: "http://www.wuxiaworld.com/wmw-index/wmw-chapter-3" }
-    ]);
-    let body = parser.removeNextAndPreviousChapterHyperlinks(dom.body);
+    ];
+    parser.setPagesToFetch(pagesToFetch);
+    let webPage = parser.state.webPages.get(pagesToFetch[1].sourceUrl);
+    let body = parser.removeNextAndPreviousChapterHyperlinks(webPage, dom.body);
     assert.equal(dom.body.innerHTML,
            "<sup class=\"footnote\"><a href=\"#fn-63064-1\" id=\"fnref-63064-1\" onclick=\"return fdfootnote_show(63064)\">1</a></sup>" +
             "<ol>" +

@@ -36,7 +36,6 @@ class RoyalRoadParser extends Parser{
             }
         }
         this.makeHiddenElementsVisible(content);
-        this.removeNextAndPreviousChapterHyperlinks(content);
 
         super.removeUnwantedElementsFromContentElement(content);
     }
@@ -57,7 +56,7 @@ class RoyalRoadParser extends Parser{
         }
     }
 
-    removeNextAndPreviousChapterHyperlinks(content) {
+    removeNextAndPreviousChapterHyperlinks(webPage, content) {
         util.removeElements(content.querySelectorAll("a[href*='www.royalroadl.com']"));
         RoyalRoadParser.removeOlderChapterNavJunk(content);
     }

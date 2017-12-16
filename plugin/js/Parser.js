@@ -13,7 +13,18 @@ class ParserState {
     }
 
     setPagesToFetch(urls) {
-        this.webPages = new Map(urls.map(u => [u.sourceUrl, u]));
+        let nextPrevChapters = new Set();
+        this.webPages = new Map();
+        for(let i = 0; i < urls.length; ++i) {
+            let page = urls[i];
+            if (i < urls.length - 1) {
+                nextPrevChapters.add(util.normalizeUrlForCompare(urls[i + 1].sourceUrl));
+            };
+            page.nextPrevChapters = nextPrevChapters;
+            this.webPages.set(page.sourceUrl, page);
+            nextPrevChapters = new Set();
+            nextPrevChapters.add(util.normalizeUrlForCompare(page.sourceUrl));
+        }
     }
 }
 
@@ -48,13 +59,13 @@ class Parser {
     }
 
     convertRawDomToContent(webPage) {
-        let that = this;
-        let content = that.findContent(webPage.rawDom);
-        that.customRawDomToContentStep(webPage, content);
-        that.removeUnwantedElementsFromContentElement(content);
+        let content = this.findContent(webPage.rawDom);
+        this.customRawDomToContentStep(webPage, content);
+        this.removeNextAndPreviousChapterHyperlinks(webPage, content);
+        this.removeUnwantedElementsFromContentElement(content);
         this.addTitleToContent(webPage, content);
         util.fixBlockTagsNestedInInlineTags(content);
-        that.imageCollector.replaceImageTags(content);
+        this.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
         util.removeUnneededIds(content);
         util.makeHyperlinksRelative(webPage.rawDom.baseURI, content);
@@ -91,7 +102,6 @@ class Parser {
         util.removeUnwantedWordpressElements(element);
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
-        this.removeNextAndPreviousChapterHyperlinks(element);
         util.removeLeadingWhiteSpace(element);
     };
 
@@ -121,14 +131,15 @@ class Parser {
         return null;
     }
 
-    removeNextAndPreviousChapterHyperlinks(element) {
-        if (this.findParentNodeOfChapterLinkToRemoveAt != null) {
-            for(let unwanted of [...element.querySelectorAll("a")]
-                .filter(link => this.state.webPages.has(util.normalizeUrl(link.href)))
-                .map(link => this.findParentNodeOfChapterLinkToRemoveAt(link))) {
-                unwanted.remove();
-            };
-        }
+    removeNextAndPreviousChapterHyperlinks(webPage, element) {
+        let elementToRemove = (this.findParentNodeOfChapterLinkToRemoveAt != null) ?
+            this.findParentNodeOfChapterLinkToRemoveAt.bind(this)
+            : (element) => element;
+
+        let chapterLinks = [...element.querySelectorAll("a")]
+            .filter(link => webPage.nextPrevChapters.has(util.normalizeUrlForCompare(link.href)))
+            .map(link => elementToRemove(link));
+        util.removeElements(chapterLinks);
     }
 
     /**

@@ -106,7 +106,7 @@ class GravityTalesParser extends Parser {
         return chapterLists.reduce(function(chapters, chapterList) {
             let groupTitle = chapterList.groupTitle;
             for(let c of chapterList.chapters) {
-                let url = util.normalizeUrl(baseUri + "/" + c.Slug);
+                let url = util.removeTrailingSlash(baseUri + "/" + c.Slug);
                 if (!uniqueChapters.has(url)) {
                     uniqueChapters.add(url);
                     chapters.push(GravityTalesParser.makeChapter(url, c.Name, groupTitle));

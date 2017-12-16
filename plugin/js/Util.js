@@ -526,7 +526,7 @@ var util = (function () {
                 return false;
             };
             // ignore duplicate links
-            let href = util.normalizeUrl(link.href);
+            let href = util.normalizeUrlForCompare(link.href);
             if (linkSet.has(href)) {
                 return false;
             };
@@ -554,9 +554,17 @@ var util = (function () {
         return chaptersList;
     }
 
-    var normalizeUrl = function(url) {
-        // remove trailing '/'
-        return (url[url.length - 1] === "/") ? url.substring(0, url.length - 1) : url;
+    var removeTrailingSlash = function(url) {
+        return url.endsWith("/") ? url.substring(0, url.length - 1) : url;
+    }
+
+    var normalizeUrlForCompare = function(url) {
+        let noTrailingSlash = removeTrailingSlash(url);
+        
+        const protocolSeperator = "://";
+        let protocolIndex = noTrailingSlash.indexOf(protocolSeperator);
+        return (protocolIndex < 0) ?  noTrailingSlash
+            : noTrailingSlash.substring(protocolIndex + protocolSeperator.length);
     }
 
     var hyperLinkToChapter = function(link, newArc) {
@@ -853,7 +861,8 @@ var util = (function () {
         isNullOrEmpty: isNullOrEmpty,
         wrapRawTextNode: wrapRawTextNode,
         hyperlinksToChapterList: hyperlinksToChapterList,
-        normalizeUrl: normalizeUrl,
+        removeTrailingSlash: removeTrailingSlash,
+        normalizeUrlForCompare: normalizeUrlForCompare,
         hyperLinkToChapter: hyperLinkToChapter,
         createComment: createComment,
         addXmlDeclarationToStart: addXmlDeclarationToStart,
