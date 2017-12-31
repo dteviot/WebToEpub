@@ -212,6 +212,7 @@ class Parser {
 
     epubItemSupplier() {
         let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
+        this.pointHyperlinksToEpubItems(epubItems);
         let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
         return supplier;
     }
@@ -401,4 +402,43 @@ class Parser {
     // Hook point, when need to do something when "Pack EPUB" pressed
     onStartCollecting() {
     }    
+
+    pointHyperlinksToEpubItems(epubItems) {
+        let targets = this.sourceUrlToEpubItemUrl(epubItems);
+        for(let item of epubItems) {
+            for(let link of item.getHyperlinks().filter(this.isUnresolvedHyperlink)) {
+                this.hyperlinkToEpubItemUrl(link, targets);
+            }
+        }
+    }
+
+    sourceUrlToEpubItemUrl(epubItems) {
+        let targets = new Map();
+        for(let item of epubItems) {
+            let key = util.normalizeUrlForCompare(item.sourceUrl);
+            
+            // Some source URLs may generate multiple epub items.
+            // In that case, want FIRST epub item
+            if (!targets.has(key)) {
+                targets.set(key, util.makeRelative(item.getZipHref()));
+            }
+        }
+        return targets;
+    }
+
+    isUnresolvedHyperlink(link) {
+        let href = link.getAttribute("href");
+        if (href == null) {
+            return false;
+        }
+        return !href.startsWith("#") &&
+            !href.startsWith("../Text/");
+    }
+
+    hyperlinkToEpubItemUrl(link, targets) {
+        let key = util.normalizeUrlForCompare(link.href);
+        if (targets.has(key)) {
+            link.href = targets.get(key) + link.hash;
+        }
+    }
 }

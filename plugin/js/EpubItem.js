@@ -87,6 +87,21 @@ class EpubItem {
             };
         };
     }
+
+    getHyperlinks() {
+        let links = [];
+        for(let element of this.nodes) {
+            if (element.nodeType === Node.ELEMENT_NODE) {
+                if (element.tagName.toLowerCase() === "a") {
+                    links.push(element);
+                }
+                for(let link of element.querySelectorAll("a")) {
+                    links.push(link);
+                }
+            }
+        }
+        return links;
+    }
 }
 
 //==============================================================

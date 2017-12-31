@@ -558,8 +558,13 @@ var util = (function () {
         return url.endsWith("/") ? url.substring(0, url.length - 1) : url;
     }
 
+    var removeAnchor = function(url) {
+        let index = url.indexOf("#");
+        return (0 <= index) ? url.substring(0, index) : url;
+    }
+
     var normalizeUrlForCompare = function(url) {
-        let noTrailingSlash = removeTrailingSlash(url);
+        let noTrailingSlash = util.removeTrailingSlash(util.removeAnchor(url));
         
         const protocolSeperator = "://";
         let protocolIndex = noTrailingSlash.indexOf(protocolSeperator);
@@ -862,6 +867,7 @@ var util = (function () {
         wrapRawTextNode: wrapRawTextNode,
         hyperlinksToChapterList: hyperlinksToChapterList,
         removeTrailingSlash: removeTrailingSlash,
+        removeAnchor: removeAnchor,
         normalizeUrlForCompare: normalizeUrlForCompare,
         hyperLinkToChapter: hyperLinkToChapter,
         createComment: createComment,

@@ -270,6 +270,7 @@ test("normalizeUrlForCompare", function (assert) {
     assert.equal(util.normalizeUrlForCompare("http://" + expected +"/"), expected);
     assert.equal(util.normalizeUrlForCompare("https://" + expected), expected);
     assert.equal(util.normalizeUrlForCompare("https://" + expected +"/"), expected);
+    assert.equal(util.normalizeUrlForCompare(expected + "#title"), expected);
 });
 
 test("removeEventHandlers", function (assert) {
