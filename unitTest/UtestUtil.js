@@ -58,46 +58,6 @@ test("prepForConvertToXhtml", function (assert) {
     assert.equal(span.id, "test1");
 });
 
-test("removeUnneededIds", function (assert) {
-    let dom = TestUtils.makeDomWithBody(
-        "<h2><span id=\"Life.0\">Life.0</span></h2>" +
-        "<sup id=\"cite_ref-1\" class=\"reference\">"+
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
-        "</sup>" +
-        "<sup id=\"cite_ref-2\" class=\"reference\">" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
-        "</sup>" +
-        "<ol>" +
-        "<li id=\"cite_note-1\">" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
-        "</li>"+
-        "<li id=\"cite_note-3\">" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
-        "</li>" +
-        "</ol>"
-    );
-    let content = dom.body.cloneNode(true);
-    util.removeUnneededIds(content);
-
-    assert.equal(content.innerHTML,
-        "<h2><span>Life.0</span></h2>" +
-        "<sup id=\"cite_ref-1\" class=\"reference\">"+
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-1\">[1]</a>" +
-        "</sup>" +
-        "<sup class=\"reference\">" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=High_School_DxD:Volume_1#cite_note-2\">[1]</a>" +
-        "</sup>" +
-        "<ol>" +
-        "<li id=\"cite_note-1\">" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-1\"></a>" +
-        "</li>"+
-        "<li>" +
-            "<a href=\"https://www.baka-tsuki.org/project/index.php?title=test:Volume_1#cite_ref-3\"></a>" +
-        "</li>" +
-        "</ol>"
-    );
-});
-
 test("makeHyperlinksRelative", function (assert) {
     let dom = TestUtils.makeDomWithBody(
         "<h2><span id=\"Life.0\">Life.0</span></h2>" +
@@ -119,22 +79,21 @@ test("makeHyperlinksRelative", function (assert) {
 
     util.setBaseTag("https://www.baka-tsuki.org/project/test:Volume_1", dom);
     let content = dom.body.cloneNode(true);
-    util.removeUnneededIds(content);
     util.makeHyperlinksRelative("https://www.baka-tsuki.org/project/test:Volume_1", content);
 
     assert.equal(content.innerHTML,
-        "<h2><span>Life.0</span></h2>" +
+        "<h2><span id=\"Life.0\">Life.0</span></h2>" +
         "<sup id=\"cite_ref-1\" class=\"reference\">" +
             "<a href=\"#cite_note-1\">[1]</a>" +
         "</sup>" +
-        "<sup class=\"reference\">" +
+        "<sup id=\"cite_ref-2\" class=\"reference\">" +
             "<a href=\"#cite_note-2\">[1]</a>" +
         "</sup>" +
         "<ol>" +
         "<li id=\"cite_note-1\">" +
             "<a href=\"#cite_ref-1\"></a>" +
         "</li>" +
-        "<li>" +
+        "<li id=\"cite_note-3\">" +
             "<a href=\"#cite_ref-3\"></a>" +
         "</li>" +
         "</ol>"

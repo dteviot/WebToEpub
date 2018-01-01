@@ -189,8 +189,6 @@ class BakaTsukiParser extends Parser{
         // remove "Jump Up" text that appears beside the up arrow from translator notes
         util.removeElements(element.querySelectorAll("span.cite-accessibility-label"));
 
-        util.removeUnneededIds(element);
-
         util.removeComments(element);
         BakaTsukiParser.removeUnwantedTable(element);
 

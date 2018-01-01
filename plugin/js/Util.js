@@ -362,17 +362,6 @@ var util = (function () {
         return (img === null) ? img : img.src;   
     }
 
-    var removeUnneededIds = function(contentElement) {
-        let hashes = util.getAllHyperlinkHashes(contentElement);
-        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
-        let element = null;
-        while ((element = walker.nextNode())) {
-            if ((element.id !== "") && !hashes.has(element.id)) {
-                element.removeAttribute("id");
-            }
-        };
-    }
-
     var getAllHyperlinkHashes = function(element) {
         // ToDo: should exclude hyperlinks that don't point to this page
         let hashes = new Set();
@@ -854,7 +843,6 @@ var util = (function () {
         getFirstImgSrc: getFirstImgSrc,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
-        removeUnneededIds: removeUnneededIds,
         getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
         makeHyperlinksRelative: makeHyperlinksRelative, 

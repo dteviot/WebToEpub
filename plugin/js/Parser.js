@@ -67,7 +67,6 @@ class Parser {
         util.fixBlockTagsNestedInInlineTags(content);
         this.imageCollector.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
-        util.removeUnneededIds(content);
         util.makeHyperlinksRelative(webPage.rawDom.baseURI, content);
         util.setStyleToDefault(content);
         util.prepForConvertToXhtml(content);
