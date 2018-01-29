@@ -1,6 +1,6 @@
 /*
   Parser for gutenberg.spiegel.de. 
-  Start at Chapter 1, frequently a link like /buch/nnn/1, where nnn is the numbr of the book.
+  Start at Chapter 1, frequently a link like /buch/nnn/1, where nnn is the gutenberg book number.
   Derived from:
   Template to use to create a new parser
 */
