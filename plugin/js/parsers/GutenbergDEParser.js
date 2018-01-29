@@ -44,16 +44,16 @@ class GutenbergDEParser extends Parser{
         // typical implementation is find node with the Title and return name from title
         // NOTE. Return Title as a string, not a HTML element
 
-	// this works if chapter 1 contains a cover with separate class attributes 
-	let titleElem=dom.querySelector("h2.title");
-	if(null != titleElem) return titleElem.textContent.trim();
+        // this works if chapter 1 contains a cover with separate class attributes 
+        let titleElem=dom.querySelector("h2.title");
+        if(null != titleElem) return titleElem.textContent.trim();
 
-	// else rely on the div showing a breadcrumb 
-	let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
-	let titleE=gbbreadcrumb.firstElementChild.nextElementSibling.nextElementSibling;
-       	if (titleE) return titleE.textContent.trim();
+        // else rely on the div showing a breadcrumb 
+        let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
+        let titleE=gbbreadcrumb.firstElementChild.nextElementSibling.nextElementSibling;
+        if (titleE) return titleE.textContent.trim();
 
-       	return super.extractTitle(dom);
+        return super.extractTitle(dom);
     };
     
 
@@ -64,20 +64,14 @@ class GutenbergDEParser extends Parser{
         // typical implementation is find node with the author's name and return name from title
         // Major points to note
 
-	let authorElem=dom.querySelector("h3.author");
-	if(null != authorElem) return authorElem.textContent.trim();
+        let authorElem=dom.querySelector("h3.author");
+        if(null != authorElem) return authorElem.textContent.trim();
 
-	let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
-	let authorA=gbbreadcrumb.firstElementChild.nextElementSibling;
-       	if (authorA) return authorA.textContent.trim();
+        let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
+        let authorA=gbbreadcrumb.firstElementChild.nextElementSibling;
+        if (authorA) return authorA.textContent.trim();
 
-       	return super.extractAuthor(dom);
-
-        //   1. Return the Author's name as a string, not a HTML element
-        //   2. If can't find Author, call the base implementation
-        let authorLabel = util.getElement(dom, "strong", e => e.textContent === "Author:");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextElementSibling.textContent;
-
+        return super.extractAuthor(dom);
     };
     
 
