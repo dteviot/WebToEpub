@@ -177,9 +177,13 @@ class EpubPacker {
     }
 
     addManifestItem(manifest, ns, href, id, mediaType) {
-        let that = this;
-        var item = that.createAndAppendChildNS(manifest, ns, "item");
-        item.setAttributeNS(null, "href", that.makeRelative(href));
+        let item = this.createAndAppendChildNS(manifest, ns, "item");
+        let relativeHref = this.makeRelative(href);
+        if (mediaType === "image/webp") {
+            let errorMsg = chrome.i18n.getMessage("warningWebpImage", [relativeHref]);
+            ErrorLog.log(errorMsg);
+        }
+        item.setAttributeNS(null, "href", relativeHref);
         item.setAttributeNS(null, "id", id);
         item.setAttributeNS(null, "media-type", mediaType);
         return item;

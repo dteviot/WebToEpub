@@ -309,5 +309,14 @@
 			    "content": "$1"
 			}
 		}
+	},
+	"warningWebpImage": {
+		"message": "Warning: image file '$filename$' is in webp format.  Your epub viewer may not be able to render it.",
+		"description": "Warning message when downloaded image is in webp format",
+		"placeholders": {
+			"filename": {
+			    "content": "$1"
+			}
+		}
 	}
 }
