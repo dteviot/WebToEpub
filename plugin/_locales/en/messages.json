@@ -56,11 +56,11 @@
 		"description": "Label on button to change order of chapters from last to first"
 	},
 	"__MSG_button_Select_All__": {
-		"message": "Select All",
+		"message": "Select All in Range",
 		"description": "Label on button to set all chapters to selected"
 	},
 	"__MSG_button_Unselect_All__": {
-		"message": "Unselect All",
+		"message": "Unselect All in Range",
 		"description": "Label on button to unselect all chapters"
 	},
 	"__MSG_column_Include__": {
@@ -134,6 +134,14 @@
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"
+	},
+	"__MSG_label_Range_End_Chapter__": {
+		"message": "Range End Chapter",
+		"description": "Label in front of drop down for selecting end of range"
+	},
+	"__MSG_label_Range_Start_Chapter__": {
+		"message": "Range Start Chapter",
+		"description": "Label in front of drop down for selecting start of range"
 	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",

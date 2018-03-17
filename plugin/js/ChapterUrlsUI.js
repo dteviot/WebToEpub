@@ -19,14 +19,22 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getPleaseWaitMessageRow().hidden = true;
         ChapterUrlsUI.clearChapterUrlsTable();
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        let index = 0;
+        let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
+        let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         chapters.forEach(function (chapter) {
             let row = document.createElement("tr");
+            row.setAttribute(ChapterUrlsUI.IndexAttributeName, index);
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
             chapter.row = row;
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
+            ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter);
+            ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter);
+            ++index;
         });
+        ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
@@ -46,17 +54,37 @@ class ChapterUrlsUI {
     }
 
     static clearChapterUrlsTable() {
-        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        while (linksTable.children.length > 1) {
-            linksTable.removeChild(linksTable.children[linksTable.children.length - 1])
-        }
+        util.removeElements(ChapterUrlsUI.getTableRowsWithChapters());
+        util.removeElements([...ChapterUrlsUI.getRangeStartChapterSelect().options]);
+        util.removeElements([...ChapterUrlsUI.getRangeEndChapterSelect().options]);
     }
 
+    static setRangeOptionsToFirstAndLastChapters()
+    {
+        ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex = 0;
+        let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();        
+        rangeEnd.selectedIndex = rangeEnd.length - 1;
+    }
+ 
     /** 
     * @private
     */
     static getChapterUrlsTable() {
         return document.getElementById("chapterUrlsTable");
+    }
+
+    /** 
+    * @private
+    */
+    static getRangeStartChapterSelect() {
+        return document.getElementById("selectRangeStartChapter");
+    }
+
+    /** 
+    * @private
+    */
+    static getRangeEndChapterSelect() {
+        return document.getElementById("selectRangeEndChapter");
     }
 
     /** 
@@ -108,13 +136,27 @@ class ChapterUrlsUI {
     * @private
     */
     static setAllUrlsSelectState(select) {
-        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        for(let input of [...linksTable.querySelectorAll("input[type='checkbox']")]) {
+        let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
+        let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
+        let rowInRange = function(row) {
+            let index = parseInt(row.getAttribute(ChapterUrlsUI.IndexAttributeName));
+            return (startIndex <= index) && (index <= endIndex);
+        }
+
+        let checkBoxes = ChapterUrlsUI.getTableRowsWithChapters()
+            .filter(rowInRange)
+            .map(r => r.querySelector("input[type='checkbox']"));
+        for(let input of checkBoxes) {
             if (input.checked !== select) {
                 input.checked = select;
                 input.onclick();
             }
         }
+    }
+
+    static getTableRowsWithChapters() {
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        return [...linksTable.querySelectorAll("tr:not(.warning)")]
     }
 
     /** 
@@ -153,6 +195,10 @@ class ChapterUrlsUI {
         row.appendChild(col);
     }
 
+    static appendOptionToSelect(select, value, chapter) {
+        select.add(new Option(chapter.sourceUrl, value));
+    }
+
     /** @private */
     static resizeTitleColumnToFit(linksTable) {
         let inputs = [...linksTable.querySelectorAll("input[type='text']")];
@@ -180,6 +226,7 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
         document.getElementById("inputSection").hidden = !toTable;
         document.getElementById("coverUrlSection").hidden = !toTable;
+        document.getElementById("rangeSelectTable").hidden = !toTable;
         ChapterUrlsUI.getSelectAllUrlsButton().hidden = !toTable;
         ChapterUrlsUI.getUnselectAllUrlsButton().hidden = !toTable;
         ChapterUrlsUI.getReverseChapterUrlsOrderButton().hidden = !toTable;
@@ -260,3 +307,5 @@ ChapterUrlsUI.ImageForState = [
     "images/ChapterStateDownloading.svg",
     "images/ChapterStateLoaded.svg"
 ];
+
+ChapterUrlsUI.IndexAttributeName = "index";
