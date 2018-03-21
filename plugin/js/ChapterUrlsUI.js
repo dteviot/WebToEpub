@@ -8,6 +8,7 @@ class ChapterUrlsUI {
     }
 
     connectButtonHandlers() {
+        document.getElementById("selectChaptersInRangeButton").onclick = ChapterUrlsUI.setOnlyRangeUrlsSelected.bind(null);
         ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
         ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
         ChapterUrlsUI.getReverseChapterUrlsOrderButton().onclick = this.reverseUrls.bind(this);
@@ -132,25 +133,37 @@ class ChapterUrlsUI {
         return document.getElementById("findingChapterUrlsMessageRow");
     }
 
-    /** 
-    * @private
-    */
-    static setAllUrlsSelectState(select) {
+    /** @private */
+    static makeRowInRangeFunction() {
         let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
         let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
-        let rowInRange = function(row) {
+        return function(row) {
             let index = parseInt(row.getAttribute(ChapterUrlsUI.IndexAttributeName));
             return (startIndex <= index) && (index <= endIndex);
         }
+    }
 
-        let checkBoxes = ChapterUrlsUI.getTableRowsWithChapters()
-            .filter(rowInRange)
-            .map(r => r.querySelector("input[type='checkbox']"));
-        for(let input of checkBoxes) {
-            if (input.checked !== select) {
-                input.checked = select;
-                input.onclick();
-            }
+    /** @private */
+    static setAllUrlsSelectState(select) {
+        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
+            ChapterUrlsUI.setRowCheckboxState(row, select);
+        }
+    }
+
+    /** @private */
+    static setOnlyRangeUrlsSelected() {
+        let rowInRange = ChapterUrlsUI.makeRowInRangeFunction();
+        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
+            ChapterUrlsUI.setRowCheckboxState(row, rowInRange(row));
+        }
+    }
+
+    /** @private */
+    static setRowCheckboxState(row, checked) {
+        let input = row.querySelector("input[type='checkbox']");
+        if (input.checked !== checked) {
+            input.checked = checked;
+            input.onclick();
         }
     }
 
@@ -226,11 +239,7 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
         document.getElementById("inputSection").hidden = !toTable;
         document.getElementById("coverUrlSection").hidden = !toTable;
-        document.getElementById("rangeSelectTable").hidden = !toTable;
-        ChapterUrlsUI.getSelectAllUrlsButton().hidden = !toTable;
-        ChapterUrlsUI.getUnselectAllUrlsButton().hidden = !toTable;
-        ChapterUrlsUI.getReverseChapterUrlsOrderButton().hidden = !toTable;
-        ChapterUrlsUI.getEditChapterUrlsButton().hidden = !toTable;
+        document.getElementById("chapterSelectControlsDiv").hidden = !toTable;
         ChapterUrlsUI.getApplyChangesButton().hidden = toTable;
     }
 

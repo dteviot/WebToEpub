@@ -56,11 +56,15 @@
 		"description": "Label on button to change order of chapters from last to first"
 	},
 	"__MSG_button_Select_All__": {
-		"message": "Select All in Range",
+		"message": "Select All",
 		"description": "Label on button to set all chapters to selected"
 	},
+	"__MSG_button_Select_Chapters_In_Range__": {
+		"message": "Select Chapters in Range",
+		"description": "Label on button to set only chapters in range to selected"
+	},
 	"__MSG_button_Unselect_All__": {
-		"message": "Unselect All in Range",
+		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
 	},
 	"__MSG_column_Include__": {
