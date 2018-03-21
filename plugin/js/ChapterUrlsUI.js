@@ -9,10 +9,10 @@ class ChapterUrlsUI {
 
     connectButtonHandlers() {
         document.getElementById("selectChaptersInRangeButton").onclick = ChapterUrlsUI.setOnlyRangeUrlsSelected.bind(null);
-        ChapterUrlsUI.getSelectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
-        ChapterUrlsUI.getUnselectAllUrlsButton().onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
-        ChapterUrlsUI.getReverseChapterUrlsOrderButton().onclick = this.reverseUrls.bind(this);
-        ChapterUrlsUI.getEditChapterUrlsButton().onclick = this.setEditInputMode.bind(this);
+        document.getElementById("selectAllUrlsButton").onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
+        document.getElementById("unselectAllUrlsButton").onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
+        document.getElementById("reverseChapterUrlsOrderButton").onclick = this.reverseUrls.bind(this);
+        document.getElementById("editChaptersUrlsButton").onclick = this.setEditInputMode.bind(this);
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
     }
 
@@ -74,16 +74,12 @@ class ChapterUrlsUI {
         return document.getElementById("chapterUrlsTable");
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     static getRangeStartChapterSelect() {
         return document.getElementById("selectRangeStartChapter");
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     static getRangeEndChapterSelect() {
         return document.getElementById("selectRangeEndChapter");
     }
@@ -91,34 +87,8 @@ class ChapterUrlsUI {
     /** 
     * @private
     */
-    static getSelectAllUrlsButton() {
-        return document.getElementById("selectAllUrlsButton");
-    }
-
-    /** 
-    * @private
-    */
-    static getUnselectAllUrlsButton() {
-        return document.getElementById("unselectAllUrlsButton");
-    }
-
-    /** 
-    * @private
-    */
-    static getEditChapterUrlsButton() {
-        return document.getElementById("editChaptersUrlsButton");
-    }
-
-    /** 
-    * @private
-    */
     static getApplyChangesButton() {
         return document.getElementById("applyChangesButton");
-    }
-
-    /**  @private */
-    static getReverseChapterUrlsOrderButton() {
-        return document.getElementById("reverseChapterUrlsOrderButton");
     }
 
     /** 
