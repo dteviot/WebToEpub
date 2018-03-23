@@ -59,10 +59,6 @@
 		"message": "Select All",
 		"description": "Label on button to set all chapters to selected"
 	},
-	"__MSG_button_Select_Chapters_In_Range__": {
-		"message": "Select Chapters in Range",
-		"description": "Label on button to set only chapters in range to selected"
-	},
 	"__MSG_button_Unselect_All__": {
 		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
@@ -90,6 +86,10 @@
 	"__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
 		"message": "Automatic parser select includes Baka-Tsuki Series Page Parser",
 		"description": "Label for checkbox to toggle logic that picks parser to use for a web page to include the Baka-Tsuki Series Page Parser"
+	},
+	"__MSG_label_Chapter_Count__": {
+		"message": "Chapters Count:",
+		"description": "Label for number of chapters in range"
 	},
 	"__MSG_label_Chapters_Page_In_Chapters_List__": {
 		"message": "Add Page with Chapters to Chapters List",
@@ -140,12 +140,12 @@
 		"description": "Label for menu to change parser (in advanced options section)"
 	},
 	"__MSG_label_Range_End_Chapter__": {
-		"message": "Range End Chapter",
-		"description": "Label in front of drop down for selecting end of range"
+		"message": "Last Chapter",
+		"description": "Label in front of drop down for selecting last chapter to include in epub"
 	},
 	"__MSG_label_Range_Start_Chapter__": {
-		"message": "Range Start Chapter",
-		"description": "Label in front of drop down for selecting start of range"
+		"message": "First Chapter",
+		"description": "Label in front of drop down for selecting first chapter to include in epub"
 	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",

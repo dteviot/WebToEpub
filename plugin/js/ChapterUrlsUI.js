@@ -8,7 +8,6 @@ class ChapterUrlsUI {
     }
 
     connectButtonHandlers() {
-        document.getElementById("selectChaptersInRangeButton").onclick = ChapterUrlsUI.setOnlyRangeUrlsSelected.bind(null);
         document.getElementById("selectAllUrlsButton").onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, true);
         document.getElementById("unselectAllUrlsButton").onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
         document.getElementById("reverseChapterUrlsOrderButton").onclick = this.reverseUrls.bind(this);
@@ -60,13 +59,46 @@ class ChapterUrlsUI {
         util.removeElements([...ChapterUrlsUI.getRangeEndChapterSelect().options]);
     }
 
+    /** @private */
     static setRangeOptionsToFirstAndLastChapters()
     {
-        ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex = 0;
-        let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();        
+        var rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
+        let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
+
+        rangeStart.onchange = null;
+        rangeEnd.onchange = null;
+        
+        rangeStart.selectedIndex = 0;
         rangeEnd.selectedIndex = rangeEnd.length - 1;
+        ChapterUrlsUI.setChapterCount(rangeStart.selectedIndex, rangeEnd.selectedIndex);
+        
+        rangeStart.onchange = ChapterUrlsUI.onRangeChanged;
+        rangeEnd.onchange = ChapterUrlsUI.onRangeChanged;
     }
  
+    /** @private */
+    static onRangeChanged() {
+        let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
+        let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
+        let rowInRange = function(row) {
+            let index = parseInt(row.getAttribute(ChapterUrlsUI.IndexAttributeName));
+            return (startIndex <= index) && (index <= endIndex);
+        }
+
+        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
+            let inRange = rowInRange(row);
+            ChapterUrlsUI.setRowCheckboxState(row, rowInRange(row));
+            row.hidden = !inRange;
+        }
+        ChapterUrlsUI.setChapterCount(startIndex, endIndex);
+    }
+    
+    /** @private */
+    static setChapterCount(startIndex, endIndex) {
+        let count = Math.max(0, 1 + endIndex - startIndex);
+        document.getElementById("spanChapterCount").textContent = count;
+    }
+    
     /** 
     * @private
     */
@@ -104,28 +136,12 @@ class ChapterUrlsUI {
     }
 
     /** @private */
-    static makeRowInRangeFunction() {
-        let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
-        let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
-        return function(row) {
-            let index = parseInt(row.getAttribute(ChapterUrlsUI.IndexAttributeName));
-            return (startIndex <= index) && (index <= endIndex);
-        }
-    }
-
-    /** @private */
     static setAllUrlsSelectState(select) {
         for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
             ChapterUrlsUI.setRowCheckboxState(row, select);
+            row.hidden = false;
         }
-    }
-
-    /** @private */
-    static setOnlyRangeUrlsSelected() {
-        let rowInRange = ChapterUrlsUI.makeRowInRangeFunction();
-        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
-            ChapterUrlsUI.setRowCheckboxState(row, rowInRange(row));
-        }
+        ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters()
     }
 
     /** @private */
