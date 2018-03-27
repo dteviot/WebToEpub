@@ -155,7 +155,7 @@ class ChapterUrlsUI {
 
     static getTableRowsWithChapters() {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        return [...linksTable.querySelectorAll("tr:not(.warning)")]
+        return [...linksTable.querySelectorAll("tr")]
     }
 
     /** 

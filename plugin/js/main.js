@@ -310,7 +310,7 @@ var main = (function () {
     function localizeHtmlPage()
     {
         // can't use a single select, because there are buttons in td elements
-        for(let selector of ["button, option", "td, th"]) {
+        for(let selector of ["button, option", "td, th", ".i18n"]) {
             for(let element of [...document.querySelectorAll(selector)]) {
                 if (element.textContent.startsWith("__MSG_")) {
                     localize(element);
