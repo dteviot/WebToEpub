@@ -24,7 +24,6 @@ class ChapterUrlsUI {
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         chapters.forEach(function (chapter) {
             let row = document.createElement("tr");
-            row.setAttribute(ChapterUrlsUI.IndexAttributeName, index);
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
             chapter.row = row;
@@ -81,7 +80,7 @@ class ChapterUrlsUI {
         let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
         let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
         let rowInRange = function(row) {
-            let index = parseInt(row.getAttribute(ChapterUrlsUI.IndexAttributeName));
+            let index = row.rowIndex;
             return (startIndex <= index) && (index <= endIndex);
         }
 
@@ -302,5 +301,3 @@ ChapterUrlsUI.ImageForState = [
     "images/ChapterStateDownloading.svg",
     "images/ChapterStateLoaded.svg"
 ];
-
-ChapterUrlsUI.IndexAttributeName = "index";
