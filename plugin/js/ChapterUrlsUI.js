@@ -13,6 +13,7 @@ class ChapterUrlsUI {
         document.getElementById("reverseChapterUrlsOrderButton").onclick = this.reverseUrls.bind(this);
         document.getElementById("editChaptersUrlsButton").onclick = this.setEditInputMode.bind(this);
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
+        ChapterUrlsUI.getChapterUrlsTable().onmousedown = ChapterUrlsUI.onMouseDown;
     }
 
     populateChapterUrlsTable(chapters) {
@@ -290,6 +291,39 @@ class ChapterUrlsUI {
         link.appendChild(doc.createTextNode(chapter.title));
         return link;
     }
+
+    /** @private */
+    static onMouseDown(event) {
+        let row = ChapterUrlsUI.getTargetRow(event.target);
+        if (row === null) {
+            return;
+        }
+        let oldState = row.querySelector("input[type='checkbox']").checked;
+        if (window.event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+            let newState = !oldState;
+            ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
+        } else {
+            ChapterUrlsUI.lastSelectedRow = row.rowIndex;
+        }
+    }
+
+    /** @private */
+    static updateRange(startRowIndex, endRowIndex, state) {
+        let direction = startRowIndex < endRowIndex ? 1 : -1;
+        let linkTable = ChapterUrlsUI.getChapterUrlsTable();
+        for(let rowIndex = startRowIndex; rowIndex != endRowIndex; rowIndex += direction) {
+            let row = linkTable.rows[rowIndex];
+            ChapterUrlsUI.setRowCheckboxState(row, state);
+        }
+    }
+
+    /** @private */
+    static getTargetRow(target) {
+        while ((target.tagName.toLowerCase() !== "tr") && (target.parentElement !== null)) {
+            target = target.parentElement;
+        }
+        return target;
+    }
 }
 
 ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
@@ -301,3 +335,5 @@ ChapterUrlsUI.ImageForState = [
     "images/ChapterStateDownloading.svg",
     "images/ChapterStateLoaded.svg"
 ];
+
+ChapterUrlsUI.lastSelectedRow = null;
