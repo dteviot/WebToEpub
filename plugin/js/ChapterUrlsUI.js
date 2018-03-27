@@ -299,7 +299,7 @@ class ChapterUrlsUI {
             return;
         }
         let oldState = row.querySelector("input[type='checkbox']").checked;
-        if (window.event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+        if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
             let newState = !oldState;
             ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
         } else {
