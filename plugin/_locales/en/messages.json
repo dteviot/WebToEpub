@@ -211,6 +211,10 @@
 		"message": "Searching for URLs.  Please wait.",
 		"description": "Message shown while looking for list of Chapter URLs."
 	},
+	"__MSG_Shift_Click__": {
+		"message": "You can select or unselect a range of chapters by clicking on the checkbox for the first chapter, then  hold down the shift key and click the last chapter in the range.",
+		"description": "Tell user how to shift-click to multiselect."
+	},
 	"convertToXhtmlWarning": {
 		"message": "Warning, unable to convert chapter '$chapter$' from '$url$' to valid XHTML. Your epub viewer may fail when viewing that chapter. You may need to fix the chapter manually with Calibre.",
 		"description": "Warning message when try to fetch an image and instead get HTML",

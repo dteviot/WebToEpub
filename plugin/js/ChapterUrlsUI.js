@@ -298,6 +298,7 @@ class ChapterUrlsUI {
         if (row === null) {
             return;
         }
+        ChapterUrlsUI.tellUserAboutShiftClick(event, row);
         let oldState = row.querySelector("input[type='checkbox']").checked;
         if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
             let newState = !oldState;
@@ -324,6 +325,22 @@ class ChapterUrlsUI {
         }
         return target;
     }
+
+    /** @private */
+    static tellUserAboutShiftClick(event, row) {
+        if (event.shiftKey || (ChapterUrlsUI.lastSelectedRow === null)) {
+            return;
+        }
+        let distance = Math.abs(row.rowIndex - ChapterUrlsUI.lastSelectedRow);
+        if (distance !== 1) {
+            ChapterUrlsUI.ConsecutiveRowClicks = 0;
+            return;
+        }
+        ++ChapterUrlsUI.ConsecutiveRowClicks;
+        if (ChapterUrlsUI.ConsecutiveRowClicks == 5) {
+            alert(chrome.i18n.getMessage("__MSG_Shift_Click__"));
+        }
+    }
 }
 
 ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
@@ -337,3 +354,4 @@ ChapterUrlsUI.ImageForState = [
 ];
 
 ChapterUrlsUI.lastSelectedRow = null;
+ChapterUrlsUI.ConsecutiveRowClicks = 0;
