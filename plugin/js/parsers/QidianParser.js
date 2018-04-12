@@ -11,17 +11,14 @@ class QidianParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = dom.querySelector("ul.content-list") ||
-            dom.querySelector("ol.inline");
-        let chapters = (menu === null) ? [] : this.buildChapterList(menu);
-        return Promise.resolve(chapters);
+        let chapters = Array.from(dom.querySelectorAll("ul.content-list a"));
+        if (chapters.length === 0) {
+            chapters = Array.from(dom.querySelectorAll("div.volume-item ol.inline a"));
+        }
+        return Promise.resolve(chapters.map(QidianParser.cleanupChapterLink));
     };
 
-    buildChapterList(menu) {
-        return [...menu.querySelectorAll("a")].map(a => this.cleanupChapterLink(a));
-    };
-
-    cleanupChapterLink(link) {
+    static cleanupChapterLink(link) {
         let title = link.textContent;
         let element = link.querySelector("span");
         if (element !== null) {
