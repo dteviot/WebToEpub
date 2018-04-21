@@ -87,6 +87,10 @@
         "message": "Tự động lựa chọn parser bao gồm Parser dành cho các bộ truyện trên Baka-Tsuki",
         "description": ""
     },
+    "__MSG_label_Chapter_Count__": {
+        "message": "Tổng Số Chương:",
+        "description": ""
+    },
     "__MSG_label_Chapters_Page_In_Chapters_List__": {
         "message": "Thêm Trang vào Danh Sách Chương",
         "description": ""
@@ -133,6 +137,14 @@
     },
     "__MSG_label_Manually_Select_Parser__": {
         "message": "Chọn Parser Bằng Tay",
+        "description": ""
+    },
+    "__MSG_label_Range_End_Chapter__": {
+        "message": "Chương Cuối",
+        "description": ""
+    },
+    "__MSG_label_Range_Start_Chapter__": {
+        "message": "Chương Đầu",
         "description": ""
     },
     "__MSG_label_Remove_Duplicate_Images__": {
@@ -197,6 +209,10 @@
     },
     "__MSG_Searching_For_URLs_Please_Wait__": {
         "message": "Đang Truy Tìm Các Đường Dẫn. Vui lòng đợi.",
+        "description": ""
+    },
+    "__MSG_Shift_Click__": {
+        "message": "Bạn có thể chọn hoặc bỏ chọn một dải nhiều chương bằng việc chọn vào ô chọn cho phần chương đầu, sau đó giữ phím Shift và chọn phần chương cuối trong dải chương.",
         "description": ""
     },
     "convertToXhtmlWarning": {
@@ -298,6 +314,15 @@
         "description": "",
         "placeholders": {
             "url": {
+                "content": "$1"
+            }
+        }
+    },
+    "warningWebpImage": {
+        "message": "Cảnh báo: tệp hình ảnh '$filename$' ở định dạng webp. Trình xem epub của bạn có thể không dựng được hình ảnh đó.",
+        "description": "",
+        "placeholders": {
+            "filename": {
                 "content": "$1"
             }
         }
