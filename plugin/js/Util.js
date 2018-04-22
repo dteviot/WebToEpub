@@ -133,7 +133,7 @@ var util = (function () {
     // set the base tag of a DOM to specified URL.
     var setBaseTag = function (url, dom) {
         if (dom != null) {
-            let tags = Array.prototype.slice.apply(dom.getElementsByTagName("base"));
+            let tags = Array.from(dom.getElementsByTagName("base"));
             if (0 < tags.length) {
                 tags[0].setAttribute("href", url);
             } else {
@@ -642,7 +642,7 @@ var util = (function () {
     }
     
     var getElements = function(dom, tagName, filter) {
-        let array = Array.prototype.slice.apply(dom.getElementsByTagName(tagName));
+        let array = Array.from(dom.getElementsByTagName(tagName));
         return (filter == undefined) ? array : array.filter(filter)
     }
 

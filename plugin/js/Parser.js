@@ -202,7 +202,7 @@ class Parser {
     }
 
     getBaseUrl(dom) {
-        return Array.prototype.slice.apply(dom.getElementsByTagName("base"))[0].href;
+        return Array.from(dom.getElementsByTagName("base"))[0].href;
     }
 
     makeSaveAsFileNameWithoutExtension(title) {

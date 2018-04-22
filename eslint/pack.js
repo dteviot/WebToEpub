@@ -8,7 +8,7 @@ var DOMParser = require('xmldom').DOMParser;
 var extractFileListFromHtml = function(htmlAsString) {
     let dom = new DOMParser().parseFromString(htmlAsString, "text/html");
     if (dom != null) {
-        return Array.prototype.slice.apply(dom.getElementsByTagName("script"))
+        return Array.from(dom.getElementsByTagName("script"))
             .map(e => e.getAttribute("src"));
     }
     return [];
