@@ -140,6 +140,17 @@ var getLocaleFilesNames = function() {
     });
 }
 
+var addPopupHtmlToZip = function(zip) {
+    return readFilePromise("../plugin/popup.html")
+    .then(function (data) {
+        let htmlAsString = data.toString()
+            .split("\r")
+            .filter(s => !s.includes("/experimental/"))
+            .join("\r");
+        zip.file("popup.html", htmlAsString);
+    })
+}
+
 var packNonManifestExtensionFiles = function(zip, packedFileName) {
     return readFilePromise("../plugin/book128.png")
     .then(function (data) {
@@ -147,10 +158,13 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
         return getFileList("../plugin/popup.html");
     }).then(function(fileList) {
         return getLocaleFilesNames().then(function(localeNames) {
-            return ["popup.html", "js/ContentScript.js"].concat(localeNames).concat(fileList);
+            return ["js/ContentScript.js"].concat(localeNames)
+            .concat(fileList.filter(n => !n.includes("/experimental/")));
         });
     }).then(function (fileList) {
         return addFilesToZip(zip, fileList);
+    }).then(function () {
+        return addPopupHtmlToZip(zip);
     }).then(function() {
         return writeZipToDisk(zip, packedFileName);
     }).then(function() {
