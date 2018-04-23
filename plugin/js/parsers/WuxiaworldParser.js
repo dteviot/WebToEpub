@@ -26,6 +26,10 @@ class WuxiaworldParser extends Parser {
         return dom.querySelector("div.fr-view");
     }
 
+    findChapterTitle(dom) {
+        return dom.querySelector("div.caption h4");
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.media-left");
     }
