@@ -1,0 +1,33 @@
+/*
+  parser for liberspark.com
+*/
+"use strict";
+
+parserFactory.register("liberspark.com", function() { return new LibersparkParser() });
+
+class LibersparkParser extends Parser{
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        // Page in browser has chapter links reduced to 5
+        // Fetch page again to get all chapter links.
+        return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
+            let table = xhr.responseXML.querySelector("table#novel-chapters-list");
+            return util.hyperlinksToChapterList(table).reverse();
+        });
+    };
+
+    findContent(dom) {
+        return dom.querySelector("div#chapter_body");
+    };
+
+    extractTitle(dom) {
+        return dom.querySelector("h1").textContent.trim();
+    };
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.card-header");
+    }
+}
