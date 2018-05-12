@@ -86,6 +86,7 @@ class UserPreferences {
         this.addPreference("createEpub3", "createEpub3Checkbox", false);
         this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
         this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
+        this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
 
         this.observers = [];
     };

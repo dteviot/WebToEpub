@@ -28,6 +28,11 @@ class RoyalRoadParser extends Parser{
         );
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
     removeUnwantedElementsFromContentElement(content) {
         // only keep the <div class="chapter-inner" elements of content
         for(let i = content.childElementCount - 1; 0 <= i; --i) {
@@ -101,5 +106,12 @@ class RoyalRoadParser extends Parser{
     findCoverImageUrl(dom) {
         let img = dom.querySelector("img.img-offset");
         return (img === null) ? img : img.src;   
+    }
+
+    removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
+        super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeElements([...webPageDom.querySelectorAll("div.author-note-portlet")]);
+        }
     }
 }

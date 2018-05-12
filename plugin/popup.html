@@ -84,6 +84,10 @@
                 <td>__MSG_label_Filename__</td>
                 <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
             </tr>
+            <tr id="removeAuthorNotesRow" hidden>
+                <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
+                <td>__MSG_label_Remove_Author_Notes__</td>
+            </tr>
         </table>
         <section id="defaultParserSection" hidden>
             <table>
@@ -274,6 +278,8 @@
     <script src="js/parsers/BakaTsukiSeriesPageParser.js"></script>
     <script src="js/parsers/BlogspotParser.js"></script>
     <script src="js/parsers/DefaultParser.js"></script>
+    <script src="js/parsers/experimental/EightMusesParser.js"></script>
+    <script src="js/parsers/experimental/ErofusParser.js"></script>       
     <script src="js/parsers/FanFictionParser.js"></script>
     <script src="js/parsers/FantasyBooksParser.js"></script>
     <script src="js/parsers/FictionManiaParser.js"></script>

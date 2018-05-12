@@ -151,6 +151,10 @@
 		"message": "First Chapter",
 		"description": "Label in front of drop down for selecting first chapter to include in epub"
 	},
+	"__MSG_label_Remove_Author_Notes__": {
+		"message": "Remove Author Notes",
+		"description": "Label for checkbox to remove Author Notes from chapters"
+	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",
 		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
