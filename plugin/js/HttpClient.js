@@ -16,6 +16,10 @@ class FetchErrorHandler {
             chrome.i18n.getMessage("httpFetchCanRetry");
     }
 
+    getCancelButtonText() {
+        return chrome.i18n.getMessage("__MSG_button_error_Cancel__");
+    }
+
     onFetchError(url, error) {
         return Promise.reject(new Error(this.makeFailMessage(url, error.message)));
     }
@@ -27,9 +31,11 @@ class FetchErrorHandler {
         }
 
         let msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
+        let cancelLabel = this.getCancelButtonText();
         return new Promise(function(resolve, reject) {
             msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, handler, this));
             msg.cancelAction = () => reject(failError);
+            msg.cancelLabel = cancelLabel;
             ErrorLog.showErrorMessage(msg);
         });
     }
@@ -43,6 +49,10 @@ class FetchImageErrorHandler extends FetchErrorHandler{
 
     makeFailMessage(url, error) {
         return chrome.i18n.getMessage("imageFetchFailed", [url, this.parentPageUrl, error]);
+    }
+
+    getCancelButtonText() {
+        return chrome.i18n.getMessage("__MSG_button_error_Skip__");
     }
 }
 

@@ -101,6 +101,10 @@ class ErrorLog {
                 close();
                 msg.cancelAction();
             };
+            cancelButton.textContent = chrome.i18n.getMessage("__MSG_button_error_Cancel__");
+            if (msg.cancelLabel !== undefined) {
+                cancelButton.textContent =  msg.cancelLabel;
+            };
         } else {
             okButton.hidden = false;
             okButton.onclick = close;

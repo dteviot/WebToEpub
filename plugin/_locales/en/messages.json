@@ -19,6 +19,10 @@
 		"message": "Cancel",
 		"description": "Label on 'Cancel' button when show error"
 	},
+	"__MSG_button_error_Skip__": {
+		"message": "Skip",
+		"description": "Label on 'Skip' button when show error"
+	},
 	"__MSG_button_error_OK__": {
 		"message": "OK",
 		"description": "Label on 'OK' button when show error"
