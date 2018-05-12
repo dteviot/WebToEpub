@@ -300,6 +300,21 @@
 			}
 		}
 	},
+	"imgurFetchFailed": {
+		"message": "Warning: Attempt to fetch imgur image(s) '$imageUrl$' for page '$pageUrl$' failed with network error $err$.",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"imageUrl": {
+			    "content": "$1"
+			},
+			"pageUrl": {
+			    "content": "$2"
+			},
+			"err": {
+			    "content": "$3"
+			}
+		}
+	},
 	"noChaptersFound": {
 		"message": "No chapters found. This may not be the novel's detail page.",
 		"description": "Warning message when parser can't find list of chapters."

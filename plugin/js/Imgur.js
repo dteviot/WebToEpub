@@ -7,7 +7,7 @@ class Imgur {
     constructor() {
     }
 
-    static expandGalleries(content) {
+    static expandGalleries(content, parentPageUrl) {
         var sequence = Promise.resolve();
         for(let link of Imgur.getGalleryLinksToReplace(content)) {
             sequence = sequence.then(function () {
@@ -15,7 +15,12 @@ class Imgur {
                 return HttpClient.wrapFetch(href).then(function (xhr) {
                     Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
                     return Promise.resolve();
-                })
+                }).catch(function (err) {
+                    let errorMsg = chrome.i18n.getMessage("imgurFetchFailed", 
+                        [link.href, parentPageUrl, err]);
+                    ErrorLog.log(errorMsg);
+                    return Promise.resolve();
+                });
             })
         };
         sequence = sequence.then(function () {

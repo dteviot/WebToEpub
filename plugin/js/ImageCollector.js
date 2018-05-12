@@ -400,12 +400,12 @@ class ImageCollector {
         return null;
     }
 
-    static replaceHyperlinksToImagesWithImages(content) {
+    static replaceHyperlinksToImagesWithImages(content, parentPageUrl) {
         let toReplace = util.getElements(content, "a", ImageCollector.isHyperlinkToImage);
         for(let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
             ImageCollector.replaceHyperlinkWithImg(hyperlink);
         }
-        return Imgur.expandGalleries(content);
+        return Imgur.expandGalleries(content, parentPageUrl);
     }
 
     /** @private */
