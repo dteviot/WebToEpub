@@ -3,6 +3,49 @@
 */
 "use strict";
 
+class FetchErrorHandler {
+    constructor() {
+    }
+
+    makeFailMessage(url, error) {
+        return chrome.i18n.getMessage("htmlFetchFailed", [url, error]);
+    }
+
+    makeFailCanRetryMessage(url, error) {
+        return this.makeFailMessage(url, error) + " " +
+            chrome.i18n.getMessage("httpFetchCanRetry");
+    }
+
+    onFetchError(url, error) {
+        return Promise.reject(new Error(this.makeFailMessage(url, error.message)));
+    }
+
+    onResponseError(url, handler, response) {
+        let failError = new Error(this.makeFailMessage(url, response.status));
+        if ((response.status < 500) || (600 <= response.status)) {
+            return Promise.reject(failError);
+        }
+
+        let msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
+        return new Promise(function(resolve, reject) {
+            msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, handler, this));
+            msg.cancelAction = () => reject(failError);
+            ErrorLog.showErrorMessage(msg);
+        });
+    }
+}
+
+class FetchImageErrorHandler extends FetchErrorHandler{
+    constructor(parentPageUrl) {
+        super();
+        this.parentPageUrl = parentPageUrl;
+    }
+
+    makeFailMessage(url, error) {
+        return chrome.i18n.getMessage("imageFetchFailed", [url, this.parentPageUrl, error]);
+    }
+}
+
 class HttpClient {
     constructor() {
     }
@@ -11,8 +54,11 @@ class HttpClient {
         return { credentials: "include" };
     }
 
-    static wrapFetch(url) {
-        return HttpClient.wrapFetchImpl(url, new FetchResponseHandler());
+    static wrapFetch(url, errorHandler) {
+        if (errorHandler == null) {
+            errorHandler = new FetchErrorHandler();
+        }
+        return HttpClient.wrapFetchImpl(url, new FetchResponseHandler(), errorHandler);
     }
 
     static fetchJson(url) {
@@ -23,24 +69,21 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, new FetchTextResponseHandler());
     }
 
-    static wrapFetchImpl(url, handler) {
-        return fetch(url, HttpClient.makeOptions()).then(function(response) {
-            return HttpClient.checkResponseAndGetData(url, handler, response);
-        }).catch(function (error) {
-            let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [url, error.message]);
-            return Promise.reject(new Error(errorMsg));
+    static wrapFetchImpl(url, handler, errorHandler) {
+        if (errorHandler == null) {
+            errorHandler = new FetchErrorHandler();
+        }
+        return fetch(url, HttpClient.makeOptions()).
+        catch(function (error) {
+            return errorHandler.onFetchError(url, error);
+        }).then(function(response) {
+            return HttpClient.checkResponseAndGetData(url, handler, response, errorHandler);
         });
     }
 
-    static checkResponseAndGetData(url, handler, response) {
+    static checkResponseAndGetData(url, handler, response, errorHandler) {
         if(!response.ok) {
-            let errorMsg = chrome.i18n.getMessage("htmlFetchFailed", [response.url, response.status]);
-            let msg = new Error(errorMsg);
-            return new Promise(function(resolve, reject) {
-                msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, handler));
-                msg.cancelAction = () => reject(new Error(errorMsg));
-                ErrorLog.showErrorMessage(msg);
-            });
+            return errorHandler.onResponseError(url, handler, response);
         } else {
             handler.setResponse(response);
             return handler.extractContentFromResponse(response);

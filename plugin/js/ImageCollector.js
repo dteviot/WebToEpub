@@ -101,11 +101,11 @@ class ImageCollector {
         return this.imagesToFetch.length;
     }
 
-    fetchImages(progressIndicator) {
+    fetchImages(progressIndicator, parentPageUrl) {
         let that = this;
         let temp = that.imagesToFetch.reduce(function(sequence, imageInfo) {
             return sequence.then(function() {
-                return that.fetchImage(imageInfo, progressIndicator);
+                return that.fetchImage(imageInfo, progressIndicator, parentPageUrl);
             })
         }, Promise.resolve());
         that.imagesToFetch = [];
@@ -285,12 +285,13 @@ class ImageCollector {
         });
     }
 
-    fetchImage(imageInfo, progressIndicator) {
+    fetchImage(imageInfo, progressIndicator, parentPageUrl) {
         let that = this;
         let initialUrl = this.initialUrlToTry(imageInfo);
         this.urlIndex.set(initialUrl, imageInfo.index);
-        return HttpClient.wrapFetch(initialUrl).then(function (xhr) {
-            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl);
+        let errorHandler = new FetchImageErrorHandler(parentPageUrl);
+        return HttpClient.wrapFetch(initialUrl, errorHandler).then(function (xhr) {
+            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, errorHandler);
         }).then(function (xhr) {
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
@@ -305,7 +306,7 @@ class ImageCollector {
         });
     }
 
-    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl) {
+    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, errorHandler) {
         // with Baka-Tsuki, the link wrapping the image will return an HTML
         // page with a set of images.  We need to pick the desired image
         if (xhr.isHtml()) {
@@ -323,7 +324,7 @@ class ImageCollector {
             }
             temp = ImageCollector.removeSizeParamsFromWordPressQuery(temp);
             this.urlIndex.set(temp, imageInfo.index);
-            return HttpClient.wrapFetch(temp);
+            return HttpClient.wrapFetch(temp, errorHandler);
         } else {
             // page wasn't HTML, so assume is actual image
             imageInfo.sourceUrl = xhr.response.url;

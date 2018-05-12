@@ -372,7 +372,7 @@ class Parser {
         return ImageCollector.replaceHyperlinksToImagesWithImages(content)
         .then(function (revisedContent) {
             that.imageCollector.findImagesUsedInDocument(revisedContent);
-            return that.imageCollector.fetchImages(() => { });
+            return that.imageCollector.fetchImages(() => { }, webPage.sourceUrl);
         }).then(function () {
             that.updateLoadState(webPage);
         });

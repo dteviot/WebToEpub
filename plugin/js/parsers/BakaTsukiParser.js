@@ -413,10 +413,9 @@ class BakaTsukiParser extends Parser{
     }
 
     fetchContent() {
-        let that = this;
-        that.rebuildImagesToFetch();
-        this.setUiToShowLoadingProgress(that.imageCollector.numberOfImagesToFetch());
-        return that.imageCollector.fetchImages(() => that.updateProgressBarOneStep())
+        this.rebuildImagesToFetch();
+        this.setUiToShowLoadingProgress(this.imageCollector.numberOfImagesToFetch());
+        return this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.firstPageDom.baseURI)
             .then(function() {
                 main.getPackEpubButton().disabled = false;
             }).catch(function (err) {

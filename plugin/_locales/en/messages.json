@@ -269,6 +269,10 @@
 			}
 		}
 	},
+	"httpFetchCanRetry": {
+		"message": "This is an intermittent error. Trying again may succeed.",
+		"description": "Added message that retrying HTTP operation may succeed."
+	},
 	"htmlFetchFailed": {
 		"message": "Fetch of URL '$url$' failed with network error $err$.",
 		"description": "Error message when fetch of a web page fails.",
@@ -278,6 +282,21 @@
 			},
 			"err": {
 			    "content": "$2"
+			}
+		}
+	},
+	"imageFetchFailed": {
+		"message": "Fetch of image '$imageUrl$' for page '$pageUrl$' failed with network error $err$.",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"imageUrl": {
+			    "content": "$1"
+			},
+			"pageUrl": {
+			    "content": "$2"
+			},
+			"err": {
+			    "content": "$3"
 			}
 		}
 	},
