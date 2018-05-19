@@ -61,6 +61,7 @@ class Parser {
     convertRawDomToContent(webPage) {
         let content = this.findContent(webPage.rawDom);
         this.customRawDomToContentStep(webPage, content);
+        util.decodeCloudflareProtectedEmails(content);
         this.removeNextAndPreviousChapterHyperlinks(webPage, content);
         this.removeUnwantedElementsFromContentElement(content);
         this.addTitleToContent(webPage, content);

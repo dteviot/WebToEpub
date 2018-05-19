@@ -144,6 +144,46 @@ var util = (function () {
         }
     }
 
+    // refer https://usamaejaz.com/cloudflare-email-decoding/
+    var decodeCloudflareProtectedEmails = function(content) {
+        for(let link of [...content.querySelectorAll("a.__cf_email__")]) {
+            util.replaceCloudflareProtectedLink(link);
+        }
+        let links = [...content.querySelectorAll("a")].
+            filter(l => (l.href != null) && l.href.includes("/cdn-cgi/l/email-protection"));
+        for(let link of links) {
+            util.replaceCloudflareProtectedLink(link);
+        }
+    }
+
+    var replaceCloudflareProtectedLink = function(link) {
+        let cyptedEmail = link.getAttribute("data-cfemail");
+        if (cyptedEmail == null) {
+            cyptedEmail = link.hash;
+            if (!util.isNullOrEmpty(cyptedEmail)) {
+                cyptedEmail = cyptedEmail.substring(1);
+            }
+        }
+        if (cyptedEmail != null) {
+            let decryptedEmail = decodeEmail(cyptedEmail);
+            let textNode = document.createTextNode(decryptedEmail);
+            link.parentNode.insertBefore(textNode, link);
+            link.remove();
+        }
+    }
+
+    var decodeEmail = function(encodedString) {
+        let extractHex = function(index) {
+            return parseInt(encodedString.substr(index, 2), 16);
+        };
+        let key = extractHex(0);
+        let email = "";
+        for(let index = 2; index < encodedString.length; index += 2) {
+            email +=  String.fromCharCode(extractHex(index) ^ key);
+        }
+        return email;
+    }
+
     // delete all nodes in the supplied array
     var removeElements = function (elements) {
         for(let e of elements) {
@@ -814,6 +854,9 @@ var util = (function () {
         extractFilename: extractFilename,
         getParamFromUrl: getParamFromUrl,
         setBaseTag: setBaseTag,
+        decodeCloudflareProtectedEmails: decodeCloudflareProtectedEmails,
+        replaceCloudflareProtectedLink: replaceCloudflareProtectedLink,
+        decodeEmail: decodeEmail,
         removeElements: removeElements,
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,

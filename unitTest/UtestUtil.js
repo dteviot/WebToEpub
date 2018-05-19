@@ -435,3 +435,23 @@ QUnit.test("iterateElements", function (assert) {
     assert.equal(actual[0].id, "p1");
     assert.equal(actual[1].id, "p2");
 });
+
+QUnit.test("decodeEmail", function (assert) {
+    let actual = util.decodeEmail("513f3e2334213d281135343c3e3f227f237f2422");
+    assert.equal(actual, "noreply@demons.r.us");
+    actual = util.decodeEmail("8cdceda2cee0f9e9eee9e0e0ccc1cdd8daa2efe3e1");
+    assert.equal(actual, "Pa.Bluebell@MATV.com");
+});
+
+QUnit.test("decodeCloudflareProtectedEmails", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<div>" +
+        "<p><a href=\"/cdn-cgi/l/email-protection\" class=\"__cf_email__\" data-cfemail=\"543931142127353935313e352e7a373b39\">[email&#160;protected]</a></p>" +
+        "<p><a href=\"/cdn-cgi/l/email-protection#5f323a1f2a2c3e323e3a353e25713c3032\"><i class=\"svg-icon email\"></i></a></p>" +
+        "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
+        "</div>"
+    );
+    let div = dom.querySelector("div");
+    util.decodeCloudflareProtectedEmails(div);
+    assert.equal(div.innerHTML, "<p>me@usamaejaz.com</p><p>me@usamaejaz.com</p><a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>");
+});
