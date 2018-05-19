@@ -57,9 +57,9 @@ class RoyalRoadParser extends Parser{
     }
 
     makeHiddenElementsVisible(content) {
-        for(let e of [...content.querySelectorAll("[style='display: none']")]) {
-            e.removeAttribute("style");
-        }
+        [...content.querySelectorAll("div")]
+            .filter(e => (e.style.display === "none"))
+            .forEach(e => e.removeAttribute("style"));
     }
 
     removeNextAndPreviousChapterHyperlinks(webPage, content) {

@@ -15,3 +15,12 @@ QUnit.test("removeOlderChapterNavJunk", function (assert) {
     assert.equal(dom.querySelector("div").textContent, "12");
     assert.equal(dom.body.textContent, "12");
 });
+
+QUnit.test("makeHiddenElementsVisible", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<div style=\"display: none;\">Spoiler</div>"
+    );
+    let div = dom.querySelector("div");
+    new RoyalRoadParser().makeHiddenElementsVisible(dom.body);
+    assert.equal(div.outerHTML, "<div>Spoiler</div>");
+});
