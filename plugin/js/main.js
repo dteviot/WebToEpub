@@ -6,10 +6,15 @@ var main = (function () {
     "use strict";
 
     // this will be called when message listener fires
-    function onMessageListener(message) {
-        // convert the string returned from content script back into a DOM
-        let dom = new DOMParser().parseFromString(message.document, "text/html");
-        populateControlsWithDom(message.url, dom);
+    function onMessageListener(message, sender, sendResponse) {  // eslint-disable-line no-unused-vars
+        if (message.messageType == "ParseResults") {
+            chrome.runtime.onMessage.removeListener(onMessageListener);
+            util.log("addListener");
+            util.log(message);
+            // convert the string returned from content script back into a DOM
+            let dom = new DOMParser().parseFromString(message.document, "text/html");
+            populateControlsWithDom(message.url, dom);
+        }
     };
 
     // details 
@@ -18,19 +23,15 @@ var main = (function () {
     let userPreferences = null;
 
     // register listener that is invoked when script injected into HTML sends its results
-    try {
-        // note, this will throw if not running as an extension.
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {   // eslint-disable-line no-unused-vars
-            if (request.messageType == "ParseResults") {
-                util.log("addListener");
-                util.log(request);
-                onMessageListener(request);
+    function addMessageListener() {
+        try {
+            // note, this will throw if not running as an extension.
+            if (!chrome.runtime.onMessage.hasListener(onMessageListener)) {
+                chrome.runtime.onMessage.addListener(onMessageListener);
             }
-        });
-    }
-    catch (chromeError)
-    {
-        util.log(chromeError);
+        } catch (chromeError) {
+            util.log(chromeError);
+        }
     }
 
     // extract urls from DOM and populate control
@@ -165,6 +166,7 @@ var main = (function () {
     }
 
     function getActiveTabDOM(tabId) {
+        addMessageListener();
         chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
             function (result) {   // eslint-disable-line no-unused-vars
                 if (chrome.runtime.lastError) {
