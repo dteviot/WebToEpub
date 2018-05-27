@@ -39,7 +39,7 @@ class Parser {
         this.state = otherParser.state;
         this.imageCollector.copyState(otherParser.imageCollector);
         this.userPreferences = otherParser.userPreferences;
-		HttpClient.setReaderPref(this.userPreferences.useReaderView.value);
+        HttpClient.setReaderPref(this.userPreferences.useReaderView.value);
     }
 
     setPagesToFetch(urls) {
@@ -52,7 +52,7 @@ class Parser {
 
     onUserPreferencesUpdate(userPreferences) {
         this.userPreferences = userPreferences;
-		HttpClient.setReaderPref(this.userPreferences.useReaderView.value);
+        HttpClient.setReaderPref(this.userPreferences.useReaderView.value);
         this.imageCollector.onUserPreferencesUpdate(userPreferences);
     }
 

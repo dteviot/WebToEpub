@@ -58,7 +58,7 @@ class FetchImageErrorHandler extends FetchErrorHandler{
 
 class HttpClient {
     constructor() {
-		HttpClient.useReader = false;
+        HttpClient.useReader = false;
     }
 
     static makeOptions() {
@@ -80,9 +80,9 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, new FetchTextResponseHandler());
     }
 
-	static setReaderPref(enabled) {
-		HttpClient.useReader = enabled;
-	}
+    static setReaderPref(enabled) {
+        HttpClient.useReader = enabled;
+    }
 
     static wrapFetchImpl(url, handler, errorHandler) {
         if (errorHandler == null) {
@@ -128,19 +128,19 @@ class FetchResponseHandler {
         return response.arrayBuffer().then(function(rawBytes) {
             let data = this.makeTextDecoder(response).decode(rawBytes);
             let html = new DOMParser().parseFromString(data, "text/html");
-			if (HttpClient.useReader) {
-				var article = new Readability(html).parse();
-				var html2 = new DOMParser().parseFromString(
-					'<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' + 
-					article.content + 
-					'</body></html>', 'text/html'
-				);
-            	util.setBaseTag(this.response.url, html2);
-            	this.responseXML = html2;
-			} else {
-				util.setBaseTag(this.response.url, html);
-            	this.responseXML = html;
-			}
+            if (HttpClient.useReader) {
+                var article = new Readability(html).parse();
+                var html2 = new DOMParser().parseFromString(
+                    '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' + 
+                    article.content + 
+                    '</body></html>', 'text/html'
+                );
+                util.setBaseTag(this.response.url, html2);
+                this.responseXML = html2;
+            } else {
+                util.setBaseTag(this.response.url, html);
+                this.responseXML = html;
+            }
             return this;
         }.bind(this));
     }
