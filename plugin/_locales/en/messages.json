@@ -187,6 +187,10 @@
 		"message": "Use <svg> for images",
 		"description": "Label in front of checkbox to choose between <img> and <svg> elements for images."
 	},
+	"__MSG_label_Use_Reader_View__": {
+		"message": "Use reader view",
+		"description": "Label in front of checkbox to choose whether to run chapter through readability.js"
+	},
 	"__MSG_label_Volume__": {
 		"message": "Volume",
 		"description": "Label in front of input for novel's position in series."
