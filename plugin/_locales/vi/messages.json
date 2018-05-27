@@ -179,6 +179,10 @@
         "message": "Sử dụng <svg> cho hình ảnh",
         "description": ""
     },
+	"__MSG_label_Use_Reader_View__": {
+        "message": "UnTranslated",
+        "description": "Label in front of checkbox to choose whether to run chapter through readability.js"
+	},
     "__MSG_label_Volume__": {
         "message": "Tập",
         "description": ""
