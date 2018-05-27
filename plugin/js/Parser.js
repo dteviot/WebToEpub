@@ -222,6 +222,11 @@ class Parser {
         let index = 0;
         let initialHostName = this.initialHostName();
 
+        if (this.getInformationEpubItemChildNodes !== undefined) {
+            epubItems.push(this.makeInformationEpubItem(this.state.firstPageDom));
+            ++index;
+        }
+
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
             let pageParser = this.parserForWebPage(initialHostName, webPage);
             let newItems = pageParser.webPageToEpubItems(webPage, index);
@@ -232,9 +237,31 @@ class Parser {
         return epubItems;
     }
 
+    makeInformationEpubItem(dom) {
+        let titleText = chrome.i18n.getMessage("informationPageTitle");
+        let div = document.createElement("div");
+        let title = document.createElement("h1");
+        title.appendChild(document.createTextNode(titleText));
+        div.appendChild(title);
+        let urlElement = document.createElement("p");
+        let bold = document.createElement("b");
+        bold.textContent = chrome.i18n.getMessage("tableOfContentsUrl");
+        urlElement.appendChild(bold);
+        urlElement.appendChild(document.createTextNode(this.state.chapterListUrl));
+        div.appendChild(urlElement);
+        let childNodes = [div].concat(this.getInformationEpubItemChildNodes(dom));
+        let chapter = {
+            sourceUrl: this.state.chapterListUrl,
+            title: titleText,
+            newArch: null
+        };
+        return new ChapterEpubItem(chapter, {childNodes: childNodes}, 0);
+    }
+
     // called when plugin has obtained the first web page
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
+        this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
         let chapterUrlsUI = new ChapterUrlsUI(this);
         

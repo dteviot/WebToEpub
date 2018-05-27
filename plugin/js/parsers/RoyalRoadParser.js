@@ -114,4 +114,10 @@ class RoyalRoadParser extends Parser{
             util.removeElements([...webPageDom.querySelectorAll("div.author-note-portlet")]);
         }
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [dom.querySelector("div.fic-title")];
+        nodes.push(dom.querySelector("div.fiction-info div.portlet"));
+        return nodes;
+    }
 }

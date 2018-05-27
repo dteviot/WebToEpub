@@ -39,7 +39,7 @@ class BakaTsukiImageCollector extends ImageCollector {
 class BakaTsukiParser extends Parser{
     constructor(imageCollector) {
         super(imageCollector);
-        this.firstPageDom = null;
+        this.state.firstPageDom = null;
     }
 
     static register() {
@@ -52,7 +52,7 @@ class BakaTsukiParser extends Parser{
         // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
         let that = this;
         that.imageCollector.reset();
-        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        let content = that.findContent(this.state.firstPageDom).cloneNode(true);
         that.removeUnwantedElementsFromContentElement(content);
         that.imageCollector.findImagesUsedInDocument(content);
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
@@ -144,10 +144,10 @@ class BakaTsukiParser extends Parser{
 
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
-        that.firstPageDom = firstPageDom;
+        this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
 
-        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        let content = that.findContent(firstPageDom).cloneNode(true);
         that.removeUnwantedElementsFromContentElement(content);
         that.imageCollector.findImagesUsedInDocument(content);
         that.populateImageTable();
@@ -165,7 +165,7 @@ class BakaTsukiParser extends Parser{
 
     epubItemSupplier() {
         let that = this;
-        let content = that.findContent(that.firstPageDom).cloneNode(true);
+        let content = that.findContent(this.state.firstPageDom).cloneNode(true);
         that.removeUnwantedElementsFromContentElement(content);
         util.fixBlockTagsNestedInInlineTags(content);
         that.replaceImageTags(content);
@@ -175,7 +175,7 @@ class BakaTsukiParser extends Parser{
         }
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
-        let epubItems = that.splitContentIntoEpubItems(content, that.firstPageDom.baseURI);
+        let epubItems = that.splitContentIntoEpubItems(content, this.state.firstPageDom.baseURI);
         BakaTsukiParser.fixupInternalHyperLinks(epubItems);
         return new EpubItemSupplier(that, epubItems, that.imageCollector);
     }
@@ -415,7 +415,7 @@ class BakaTsukiParser extends Parser{
     fetchContent() {
         this.rebuildImagesToFetch();
         this.setUiToShowLoadingProgress(this.imageCollector.numberOfImagesToFetch());
-        return this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.firstPageDom.baseURI)
+        return this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.state.firstPageDom.baseURI)
             .then(function() {
                 main.getPackEpubButton().disabled = false;
             }).catch(function (err) {

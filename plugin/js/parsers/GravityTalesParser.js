@@ -170,4 +170,8 @@ class GravityTalesParser extends Parser {
         }
         return null;
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [dom.querySelector("div.desc")];
+    }
 }
