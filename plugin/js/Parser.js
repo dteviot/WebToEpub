@@ -212,7 +212,7 @@ class Parser {
 
     epubItemSupplier() {
         let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
-        this.pointHyperlinksToEpubItems(epubItems);
+        this.fixupHyperlinksInEpubItems(epubItems);
         let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
         return supplier;
     }
@@ -430,11 +430,13 @@ class Parser {
     onStartCollecting() {
     }    
 
-    pointHyperlinksToEpubItems(epubItems) {
+    fixupHyperlinksInEpubItems(epubItems) {
         let targets = this.sourceUrlToEpubItemUrl(epubItems);
         for(let item of epubItems) {
             for(let link of item.getHyperlinks().filter(this.isUnresolvedHyperlink)) {
-                this.hyperlinkToEpubItemUrl(link, targets);
+                if (!this.hyperlinkToEpubItemUrl(link, targets)) {
+                    this.makeHyperlinkAbsolute(link);
+                }
             }
         }
     }
@@ -464,8 +466,16 @@ class Parser {
 
     hyperlinkToEpubItemUrl(link, targets) {
         let key = util.normalizeUrlForCompare(link.href);
-        if (targets.has(key)) {
+        let targetInEpub = targets.has(key);
+        if (targetInEpub) {
             link.href = targets.get(key) + link.hash;
+        }
+        return targetInEpub;
+    }
+
+    makeHyperlinkAbsolute(link) {
+        if (link.href !== link.getAttribute("href")) {
+            link.href = link.href;
         }
     }
 }

@@ -98,14 +98,14 @@ QUnit.test("isUnresolvedHyperlink", function (assert) {
     assert.ok(parser.isUnresolvedHyperlink(link));
 });
 
-QUnit.test("pointHyperlinksToEpubItems", function (assert) {
+QUnit.test("fixupHyperlinksInEpubItems", function (assert) {
     let epubItems = makeEpubItemsToTestResolvingHyperlinks();
-    new Parser().pointHyperlinksToEpubItems(epubItems);
+    new Parser().fixupHyperlinksInEpubItems(epubItems);
     let links = epubItems[1].getHyperlinks();
     assert.equal(links.length, 3);
     assert.equal(links[0].getAttribute("href"), "../Text/0000_Prolog.xhtml#homunculus");
     assert.equal(links[1].getAttribute("href"), "../Text/0000_Prolog.xhtml");
-    assert.equal(links[2].getAttribute("href"), "/project/index.php?title=Fate/Zero:AuthorNotes");
+    assert.equal(links[2].getAttribute("href"), "https://www.baka-tsuki.org/project/index.php?title=Fate/Zero:AuthorNotes");
     links = epubItems[0].getHyperlinks();
     assert.equal(links.length, 4);
     assert.equal(links[0].getAttribute("href"), "#fn-3352-1");
