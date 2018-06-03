@@ -83,6 +83,7 @@ For details on how to extend, see http://www.codeproject.com/Articles/1060680/We
 6. Open Chrome and type "chrome://extensions" into the browser.
 7. Make sure "Developer Mode" at the top of the page is checked.
 8. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
+9. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
 
 ### Firefox
 1. Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
