@@ -353,30 +353,53 @@ class Parser {
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
         let initialHostName = this.initialHostName();
-        pagesToFetch.forEach(function(webPage) {
-            
+        let fetchFunc = (webPage) => this.fetchWebPageContent(webPage, initialHostName);
+        
+        let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
+        for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
             sequence = sequence.then(function () {
-                ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
-                return that.fetchChapter(webPage.sourceUrl);
-            }).then(function (webPageDom) {
-                webPage.rawDom = webPageDom;
-                let pageParser = that.parserForWebPage(initialHostName, webPage);
-                pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
-                let content = pageParser.findContent(webPage.rawDom);
-                if (content == null) {
-                    webPage.isIncludeable = false;
-                    let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
-                    throw new Error(errorMsg);
-                }
-                return pageParser.fetchImagesUsedInDocument(content, webPage);
+                return Promise.all(group.map(fetchFunc));
             }); 
-        });
+        }
         sequence = sequence.then(function() {
             main.getPackEpubButton().disabled = false;
         }).catch(function (err) {
             ErrorLog.log(err);
         })
         return sequence;
+    }
+
+    static groupPagesToFetch(webPages, blockSize) {
+        let blocks = [];
+        let block = [];
+        for(let i = 0; i < webPages.length; ++i) {
+            block.push(webPages[i]);
+            if (block.length === blockSize) {
+                blocks.push(block);
+                block = [];
+            }
+        }
+        if (0 < block.length) {
+            blocks.push(block);
+        }
+        return blocks;
+    }
+
+    fetchWebPageContent(webPage, initialHostName) {
+        let that = this;
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
+        return that.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
+            webPage.rawDom = webPageDom;
+            let pageParser = that.parserForWebPage(initialHostName, webPage);
+            pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+            let content = pageParser.findContent(webPage.rawDom);
+            if (content == null) {
+                webPage.isIncludeable = false;
+                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
+                throw new Error(errorMsg);
+            }
+            return pageParser.fetchImagesUsedInDocument(content, webPage);
+        }); 
     }
 
     initialHostName() {

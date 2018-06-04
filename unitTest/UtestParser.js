@@ -113,3 +113,21 @@ QUnit.test("fixupHyperlinksInEpubItems", function (assert) {
     assert.equal(links[2].getAttribute("href"), "../Text/0001_Notes.xhtml#homunculus");
     assert.equal(links[3].getAttribute("href"), "#fnref-3352-1");
 });
+
+QUnit.test("groupPagesToFetchSize1", function (assert) {
+    let rawData = [1, 2, 3];
+    let actual = Parser.groupPagesToFetch(rawData, 1);
+    assert.deepEqual(actual, [[1], [2], [3]]);
+});
+
+QUnit.test("groupPagesToFetchSize2", function (assert) {
+    let rawData = [1, 2, 3, 4, 5];
+    let actual = Parser.groupPagesToFetch(rawData, 2);
+    assert.deepEqual(actual, [[1,2],[3,4],[5]]);
+});
+
+QUnit.test("groupPagesToFetchSize3", function (assert) {
+    let rawData = [1, 2, 3, 4, 5, 6];
+    let actual = Parser.groupPagesToFetch(rawData, 3);
+    assert.deepEqual(actual, [[1,2,3],[4,5,6]]);
+});

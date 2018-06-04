@@ -143,6 +143,10 @@
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"
 	},
+	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
+		"message": "Max web pages to fetch simultaneously",
+		"description": "Label for drop down for maximum number of web pages to request at same time"
+	},
 	"__MSG_label_Range_End_Chapter__": {
 		"message": "Last Chapter",
 		"description": "Label in front of drop down for selecting last chapter to include in epub"
