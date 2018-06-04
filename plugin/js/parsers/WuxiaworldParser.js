@@ -33,4 +33,11 @@ class WuxiaworldParser extends Parser {
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.media-left");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [...dom.querySelectorAll("div.media-novel-index div.media-body")];
+        let summary = [...dom.querySelectorAll("div.fr-view")];
+        nodes.push(summary[1]);
+        return nodes;
+    }
 }

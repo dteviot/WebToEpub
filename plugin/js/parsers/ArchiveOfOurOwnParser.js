@@ -49,4 +49,8 @@ class ArchiveOfOurOwnParser extends Parser{
     extractLanguage(dom) {
         return dom.querySelector("meta[name='language']").getAttribute("content");
     };
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("dl.meta, div.summary")];
+    }
 }
