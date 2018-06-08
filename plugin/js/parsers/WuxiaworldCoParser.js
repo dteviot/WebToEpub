@@ -30,4 +30,8 @@ class WuxiaworldCoParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div#sidebar");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div#maininfo")];
+    }
 }

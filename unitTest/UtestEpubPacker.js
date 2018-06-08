@@ -36,6 +36,8 @@ function makeEpubItemSupplier(imageCollector) {
         });
     }
     let parser = new ArchiveOfOurOwnParser();
+    // monkey patch to avoid adding information page
+    parser.getInformationEpubItemChildNodes = undefined;
     let epubItems = parser.webPagesToEpubItems(webPages);
     return new EpubItemSupplier(parser, epubItems, imageCollector);
 }

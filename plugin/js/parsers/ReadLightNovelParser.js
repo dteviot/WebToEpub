@@ -107,4 +107,8 @@ class ReadLightNovelParser extends Parser {
             share.remove();
         }
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.novel-details")];
+    }
 }

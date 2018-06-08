@@ -146,4 +146,12 @@ class TemplateParser extends Parser{
     onStartCollecting() {
     }
     */
+
+    // Optional, Return elements from page used to get Chapter URLs
+    // that are to be shown on epub's "information" page
+    /*
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.novel-details")];
+    }
+    */
 }

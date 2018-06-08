@@ -57,9 +57,9 @@ class RoyalRoadParser extends Parser{
     }
 
     makeHiddenElementsVisible(content) {
-        for(let e of [...content.querySelectorAll("[style='display: none']")]) {
-            e.removeAttribute("style");
-        }
+        [...content.querySelectorAll("div")]
+            .filter(e => (e.style.display === "none"))
+            .forEach(e => e.removeAttribute("style"));
     }
 
     removeNextAndPreviousChapterHyperlinks(webPage, content) {
@@ -113,5 +113,11 @@ class RoyalRoadParser extends Parser{
         if (this.userPreferences.removeAuthorNotes.value) {
             util.removeElements([...webPageDom.querySelectorAll("div.author-note-portlet")]);
         }
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [dom.querySelector("div.fic-title")];
+        nodes.push(dom.querySelector("div.fiction-info div.portlet"));
+        return nodes;
     }
 }

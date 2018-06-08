@@ -61,6 +61,7 @@ class Parser {
     convertRawDomToContent(webPage) {
         let content = this.findContent(webPage.rawDom);
         this.customRawDomToContentStep(webPage, content);
+        util.decodeCloudflareProtectedEmails(content);
         this.removeNextAndPreviousChapterHyperlinks(webPage, content);
         this.removeUnwantedElementsFromContentElement(content);
         this.addTitleToContent(webPage, content);
@@ -211,7 +212,7 @@ class Parser {
 
     epubItemSupplier() {
         let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
-        this.pointHyperlinksToEpubItems(epubItems);
+        this.fixupHyperlinksInEpubItems(epubItems);
         let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
         return supplier;
     }
@@ -220,6 +221,11 @@ class Parser {
         let epubItems = [];
         let index = 0;
         let initialHostName = this.initialHostName();
+
+        if (this.getInformationEpubItemChildNodes !== undefined) {
+            epubItems.push(this.makeInformationEpubItem(this.state.firstPageDom));
+            ++index;
+        }
 
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
             let pageParser = this.parserForWebPage(initialHostName, webPage);
@@ -231,9 +237,31 @@ class Parser {
         return epubItems;
     }
 
+    makeInformationEpubItem(dom) {
+        let titleText = chrome.i18n.getMessage("informationPageTitle");
+        let div = document.createElement("div");
+        let title = document.createElement("h1");
+        title.appendChild(document.createTextNode(titleText));
+        div.appendChild(title);
+        let urlElement = document.createElement("p");
+        let bold = document.createElement("b");
+        bold.textContent = chrome.i18n.getMessage("tableOfContentsUrl");
+        urlElement.appendChild(bold);
+        urlElement.appendChild(document.createTextNode(this.state.chapterListUrl));
+        div.appendChild(urlElement);
+        let childNodes = [div].concat(this.getInformationEpubItemChildNodes(dom));
+        let chapter = {
+            sourceUrl: this.state.chapterListUrl,
+            title: titleText,
+            newArch: null
+        };
+        return new ChapterEpubItem(chapter, {childNodes: childNodes}, 0);
+    }
+
     // called when plugin has obtained the first web page
     onLoadFirstPage(url, firstPageDom) {
         let that = this;
+        this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
         let chapterUrlsUI = new ChapterUrlsUI(this);
         
@@ -325,30 +353,53 @@ class Parser {
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
         let initialHostName = this.initialHostName();
-        pagesToFetch.forEach(function(webPage) {
-            
+        let fetchFunc = (webPage) => this.fetchWebPageContent(webPage, initialHostName);
+        
+        let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
+        for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
             sequence = sequence.then(function () {
-                ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
-                return that.fetchChapter(webPage.sourceUrl);
-            }).then(function (webPageDom) {
-                webPage.rawDom = webPageDom;
-                let pageParser = that.parserForWebPage(initialHostName, webPage);
-                pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
-                let content = pageParser.findContent(webPage.rawDom);
-                if (content == null) {
-                    webPage.isIncludeable = false;
-                    let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
-                    throw new Error(errorMsg);
-                }
-                return pageParser.fetchImagesUsedInDocument(content, webPage);
+                return Promise.all(group.map(fetchFunc));
             }); 
-        });
+        }
         sequence = sequence.then(function() {
             main.getPackEpubButton().disabled = false;
         }).catch(function (err) {
             ErrorLog.log(err);
         })
         return sequence;
+    }
+
+    static groupPagesToFetch(webPages, blockSize) {
+        let blocks = [];
+        let block = [];
+        for(let i = 0; i < webPages.length; ++i) {
+            block.push(webPages[i]);
+            if (block.length === blockSize) {
+                blocks.push(block);
+                block = [];
+            }
+        }
+        if (0 < block.length) {
+            blocks.push(block);
+        }
+        return blocks;
+    }
+
+    fetchWebPageContent(webPage, initialHostName) {
+        let that = this;
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
+        return that.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
+            webPage.rawDom = webPageDom;
+            let pageParser = that.parserForWebPage(initialHostName, webPage);
+            pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+            let content = pageParser.findContent(webPage.rawDom);
+            if (content == null) {
+                webPage.isIncludeable = false;
+                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
+                throw new Error(errorMsg);
+            }
+            return pageParser.fetchImagesUsedInDocument(content, webPage);
+        }); 
     }
 
     initialHostName() {
@@ -402,11 +453,13 @@ class Parser {
     onStartCollecting() {
     }    
 
-    pointHyperlinksToEpubItems(epubItems) {
+    fixupHyperlinksInEpubItems(epubItems) {
         let targets = this.sourceUrlToEpubItemUrl(epubItems);
         for(let item of epubItems) {
             for(let link of item.getHyperlinks().filter(this.isUnresolvedHyperlink)) {
-                this.hyperlinkToEpubItemUrl(link, targets);
+                if (!this.hyperlinkToEpubItemUrl(link, targets)) {
+                    this.makeHyperlinkAbsolute(link);
+                }
             }
         }
     }
@@ -436,8 +489,16 @@ class Parser {
 
     hyperlinkToEpubItemUrl(link, targets) {
         let key = util.normalizeUrlForCompare(link.href);
-        if (targets.has(key)) {
+        let targetInEpub = targets.has(key);
+        if (targetInEpub) {
             link.href = targets.get(key) + link.hash;
+        }
+        return targetInEpub;
+    }
+
+    makeHyperlinkAbsolute(link) {
+        if (link.href !== link.getAttribute("href")) {
+            link.href = link.href;
         }
     }
 }

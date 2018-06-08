@@ -98,18 +98,36 @@ QUnit.test("isUnresolvedHyperlink", function (assert) {
     assert.ok(parser.isUnresolvedHyperlink(link));
 });
 
-QUnit.test("pointHyperlinksToEpubItems", function (assert) {
+QUnit.test("fixupHyperlinksInEpubItems", function (assert) {
     let epubItems = makeEpubItemsToTestResolvingHyperlinks();
-    new Parser().pointHyperlinksToEpubItems(epubItems);
+    new Parser().fixupHyperlinksInEpubItems(epubItems);
     let links = epubItems[1].getHyperlinks();
     assert.equal(links.length, 3);
     assert.equal(links[0].getAttribute("href"), "../Text/0000_Prolog.xhtml#homunculus");
     assert.equal(links[1].getAttribute("href"), "../Text/0000_Prolog.xhtml");
-    assert.equal(links[2].getAttribute("href"), "/project/index.php?title=Fate/Zero:AuthorNotes");
+    assert.equal(links[2].getAttribute("href"), "https://www.baka-tsuki.org/project/index.php?title=Fate/Zero:AuthorNotes");
     links = epubItems[0].getHyperlinks();
     assert.equal(links.length, 4);
     assert.equal(links[0].getAttribute("href"), "#fn-3352-1");
     assert.equal(links[1].getAttribute("href"), "../Text/0010_Part_2.xhtml#cite_ref-2");
     assert.equal(links[2].getAttribute("href"), "../Text/0001_Notes.xhtml#homunculus");
     assert.equal(links[3].getAttribute("href"), "#fnref-3352-1");
+});
+
+QUnit.test("groupPagesToFetchSize1", function (assert) {
+    let rawData = [1, 2, 3];
+    let actual = Parser.groupPagesToFetch(rawData, 1);
+    assert.deepEqual(actual, [[1], [2], [3]]);
+});
+
+QUnit.test("groupPagesToFetchSize2", function (assert) {
+    let rawData = [1, 2, 3, 4, 5];
+    let actual = Parser.groupPagesToFetch(rawData, 2);
+    assert.deepEqual(actual, [[1,2],[3,4],[5]]);
+});
+
+QUnit.test("groupPagesToFetchSize3", function (assert) {
+    let rawData = [1, 2, 3, 4, 5, 6];
+    let actual = Parser.groupPagesToFetch(rawData, 3);
+    assert.deepEqual(actual, [[1,2,3],[4,5,6]]);
 });

@@ -67,7 +67,12 @@ class StringUserPreference extends UserPreference {
     }
 
     hookupUi(readFromUi) {
-        this.getUiElement().addEventListener("blur", readFromUi, true);
+        let uiElement = this.getUiElement();
+        if (uiElement.tagName === "SELECT") {
+            uiElement.onchange = readFromUi;
+        } else {
+            uiElement.addEventListener("blur", readFromUi, true);
+        }
     }
 }
 
@@ -88,6 +93,7 @@ class UserPreferences {
         this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
         this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
         this.addPreference("removeOriginal", "removeOriginalCheckbox", false);
+        this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.observers = [];
     };
 

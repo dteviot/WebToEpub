@@ -55,4 +55,15 @@ class FanFictionParser extends Parser {
     extractAuthor(dom) {
         return this.extractTextFromProfile(dom, "a");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let node = dom.querySelector("div#profile_top");
+        if (node != null) {
+            nodes.push(node);
+            let toRemove = [...node.querySelectorAll("button, span[title]")];
+            util.removeElements(toRemove);
+        }
+        return nodes;
+    }
 }
