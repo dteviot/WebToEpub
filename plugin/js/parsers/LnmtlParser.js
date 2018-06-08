@@ -10,6 +10,11 @@ class LnmtlParser extends Parser {
         super();
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeOriginalRow").hidden = false; 
+    }
+  
     getChapterUrls(dom) {
         let volumesList = LnmtlParser.findVolumesList(dom);
         if (volumesList.length !== 0) {
