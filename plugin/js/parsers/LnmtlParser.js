@@ -37,7 +37,7 @@ class LnmtlParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         for(let s of content.querySelectorAll("sentence")) {
-            if (s.className === "original") {
+            if (!this.userPreferences.removeOriginal.value && s.className === "original") {
                 s.remove();
             } else {
                 let p = s.ownerDocument.createElement("p");
