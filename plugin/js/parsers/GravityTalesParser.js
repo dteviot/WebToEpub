@@ -54,7 +54,7 @@ class GravityTalesParser extends Parser {
 
     findChapterTitle(dom) {
         return dom.querySelector("h1.entry-title") ||
-            dom.querySelector("h3");
+            dom.querySelector("h4");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
