@@ -14,6 +14,12 @@ test("customRawDomToContentStep", function (assert) {
     );
     
     let parser = new LnmtlParser();
+    parser.userPreferences = {
+        removeOriginal: {
+            value: true
+        }
+    };
+    
     let content = parser.findContent(dom); 
     parser.customRawDomToContentStep(null, content);
     let actual = dom.getElementsByTagName("p");

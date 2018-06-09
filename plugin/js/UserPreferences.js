@@ -92,8 +92,8 @@ class UserPreferences {
         this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
         this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
         this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
+        this.addPreference("removeOriginal", "removeOriginalCheckbox", false);
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
-
         this.observers = [];
     };
 

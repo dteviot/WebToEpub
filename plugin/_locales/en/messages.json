@@ -159,6 +159,10 @@
 		"message": "Remove Author Notes",
 		"description": "Label for checkbox to remove Author Notes from chapters"
 	},
+	"__MSG_label_Remove_Original__": {
+		"message": "Remove Original/Raw Text",
+		"description": "Label for checkbox to remove Original text from chapters"
+	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",
 		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
