@@ -69,4 +69,15 @@ class QidianParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.det-hd");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = dom.querySelector("div._mn");
+        if (summary != null) {
+            summary = summary.cloneNode(true);
+            util.removeElements(summary.querySelectorAll("div._ft, span.g_star"));
+            nodes.push(summary);
+        }
+        return nodes.concat([...dom.querySelectorAll("div.det-abt")]);
+    }
 }
