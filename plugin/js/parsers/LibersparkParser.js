@@ -30,4 +30,8 @@ class LibersparkParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.card-header");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.novel-synopsis")];
+    }    
 }

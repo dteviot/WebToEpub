@@ -32,7 +32,7 @@ class TemplateParser extends Parser{
         // the web pages holding the chapters.  Then call util.hyperlinksToChapterList()
         // to convert the links into a list of URLs the parser will collect.
         let menu = dom.querySelector("div.su-tabs-panes");
-        return Promise.resolve(util.hyperlinksToChapterList(menu));        
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
     };
     */
 
