@@ -56,6 +56,10 @@ class LnmtlParser extends Parser {
         return util.getFirstImgSrc(dom, "div.jumbotron.novel");
     }
 
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.description")];
+    }
+
     static findVolumesList(dom) {
         let startString = "lnmtl.volumes = ";
         let scriptElement = util.getElement(dom, "script", e => 0 <= e.textContent.indexOf(startString));

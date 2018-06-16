@@ -33,4 +33,13 @@ class LightNovelBastionParser extends Parser {
         }
         return titleDiv;
     }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "article span.image");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let node = dom.querySelector("article.container header");
+        return (node == null) ? [] : [ node ];
+    }
 }
