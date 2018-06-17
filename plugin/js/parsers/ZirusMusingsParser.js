@@ -49,7 +49,7 @@ class ZirusMusingsParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return dom.querySelector("article:not(.comment-body) div.entry-content");
+        return dom.querySelector("div#resizeable-text div.elementor-widget-container");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -64,5 +64,9 @@ class ZirusMusingsParser extends Parser {
 
     findTocElement(div) {
         return div.querySelector("a[href*='toc/']");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
     }
 }

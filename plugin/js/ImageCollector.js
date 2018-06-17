@@ -226,7 +226,7 @@ class ImageCollector {
 
     findImagesUsedInDocument(content) {
         for(let imageElement of content.querySelectorAll("img")) {
-            let src = imageElement.src;
+            let src = this.fixLazyLoadImageSource(imageElement);
             let wrappingElement = this.findImageWrappingElement(imageElement);
             let wrappingUrl = this.extractWrappingUrl(wrappingElement);
             let existing = this.imageInfoByUrl(wrappingUrl);
@@ -237,6 +237,14 @@ class ImageCollector {
                 existing.isOutsideGallery = true;
             };
         };
+    }
+
+    fixLazyLoadImageSource(img) {
+        let lazySrc = img.getAttribute("data-lazy-src");
+        if (lazySrc != null) {
+            img.src = lazySrc;
+        }
+        return img.src;
     }
 
     findDataOrigFileUrl(imageElement, wrappingUrl) {
