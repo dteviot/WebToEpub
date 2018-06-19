@@ -4,7 +4,6 @@
 "use strict";
 
 parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser() });
-parserFactory.register("predeploy.royalroadl.com", function() { return new RoyalRoadParser() });
 
 class RoyalRoadParser extends Parser{
     constructor() {
