@@ -174,35 +174,30 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
     });
 }
 
-var packFirefoxXpi = function(version) {
-    let zip = new JSZip();
-    return addToZipFile(zip, "manifest.json", "../plugin/manifest.json")
-    .then(function() {
-        return packNonManifestExtensionFiles(zip, "WebToEpub" + version + ".xpi");
-    });
+var makeManifestForFirefox = function(data) {
+    let manifest = JSON.parse(data.toString());
+    delete(manifest.incognito);
+    return manifest;    
 }
 
-var removeFirefoxPropertiesFromManifest = function(manifest) {
+var makeManifestForChrome = function(data) {
+    let manifest = JSON.parse(data.toString());
     delete(manifest.applications);
     delete(manifest.browser_action.browser_style);
     return manifest;    
 }
 
-var packChromeExtension = function(manifest) {
+var packExtension = function(manifest, fileExtension) {
     let zip = new JSZip();
-    let newManifest = removeFirefoxPropertiesFromManifest(manifest);
-    zip.file("manifest.json", JSON.stringify(newManifest));
-    return packNonManifestExtensionFiles(zip, "WebToEpub" + manifest.version + ".zip");
+    zip.file("manifest.json", JSON.stringify(manifest));
+    return packNonManifestExtensionFiles(zip, "WebToEpub" + manifest.version + fileExtension);
 }
-
 
 // pack the extensions for Chrome and firefox
 readFilePromise("../plugin/manifest.json")
 .then(function (data) {
-    let manifest = JSON.parse(data.toString());
-    console.log("version = " + manifest.version);
-    packFirefoxXpi(manifest.version);
-    packChromeExtension(manifest);
+    packExtension(makeManifestForFirefox(data), ".xpi");
+    packExtension(makeManifestForChrome(data), ".zip");
 }).catch(function (err) {
     console.log(err);
 });

@@ -18,6 +18,7 @@
     "default_icon": "book128.png",
     "default_popup": "popup.html"
   },
+  "incognito": "split",
   "applications": {
     "gecko": {
       "id": "WebToEpub@Baka-tsuki.org",

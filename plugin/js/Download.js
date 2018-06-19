@@ -36,18 +36,20 @@ class Download {
     }
 
     static saveOnChrome(options, cleanup) {
-        let clickEvent = new MouseEvent("click", {
-            "view": window,
-            "bubbles": true,
-            "cancelable": false
+        // on Chrome call to download() will resolve when "Save As" dialog OPENS
+        // so need to delay return until after file is actually saved
+        // Otherwise, we get multiple Save As Dialogs open.
+        return new Promise(resolve => {
+            chrome.downloads.download(options, 
+                downloadId => Download.onDownloadStarted(downloadId, 
+                    () => { 
+                        const tenSeconds = 10 * 1000;
+                        setTimeout(cleanup, tenSeconds);
+                        resolve(); 
+                    }
+                )
+            );
         });
-        let a = document.createElement("a");
-        a.href = options.url;
-        a.download = options.filename;
-        a.dispatchEvent(clickEvent);
-        const oneMinute = 60 * 1000;
-        setTimeout(cleanup, oneMinute);
-        return Promise.resolve();
     }
 
     static saveOnFirefox(options, cleanup) {
