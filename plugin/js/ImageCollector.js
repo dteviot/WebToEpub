@@ -297,9 +297,9 @@ class ImageCollector {
         let that = this;
         let initialUrl = this.initialUrlToTry(imageInfo);
         this.urlIndex.set(initialUrl, imageInfo.index);
-        let errorHandler = new FetchImageErrorHandler(parentPageUrl);
-        return HttpClient.wrapFetch(initialUrl, errorHandler).then(function (xhr) {
-            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, errorHandler);
+        let fetchOptions = {errorHandler: new FetchImageErrorHandler(parentPageUrl) };
+        return HttpClient.wrapFetch(initialUrl, fetchOptions).then(function (xhr) {
+            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
         }).then(function (xhr) {
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
@@ -314,7 +314,7 @@ class ImageCollector {
         });
     }
 
-    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, errorHandler) {
+    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, fetchOptions) {
         // with Baka-Tsuki, the link wrapping the image will return an HTML
         // page with a set of images.  We need to pick the desired image
         if (xhr.isHtml()) {
@@ -332,7 +332,7 @@ class ImageCollector {
             }
             temp = ImageCollector.removeSizeParamsFromWordPressQuery(temp);
             this.urlIndex.set(temp, imageInfo.index);
-            return HttpClient.wrapFetch(temp, errorHandler);
+            return HttpClient.wrapFetch(temp, fetchOptions);
         } else {
             // page wasn't HTML, so assume is actual image
             imageInfo.sourceUrl = xhr.response.url;

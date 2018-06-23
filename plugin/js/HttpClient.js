@@ -64,11 +64,20 @@ class HttpClient {
         return { credentials: "include" };
     }
 
-    static wrapFetch(url, errorHandler) {
-        if (errorHandler == null) {
-            errorHandler = new FetchErrorHandler();
+    static wrapFetch(url, fetchOptions) {
+        if (fetchOptions == null) {
+            fetchOptions = {
+                errorHandler: new FetchErrorHandler()
+            }
         }
-        return HttpClient.wrapFetchImpl(url, new FetchResponseHandler(), errorHandler);
+        if (fetchOptions.errorHandler == null) {
+            fetchOptions.errorHandler = new FetchErrorHandler();
+        }
+        let responseHandler = new FetchResponseHandler();
+        if (fetchOptions.makeTextDecoder != null) {
+            responseHandler.makeTextDecoder = fetchOptions.makeTextDecoder;
+        }
+        return HttpClient.wrapFetchImpl(url, responseHandler, fetchOptions.errorHandler);
     }
 
     static fetchJson(url) {
