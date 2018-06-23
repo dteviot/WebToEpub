@@ -1,0 +1,43 @@
+{
+  "name": "@dteviot/web_to_epub",
+  "version": "1.0.0",
+  "description": "Extension for Chrome and Firefox that converts a story on Baka-Tsuki (or a number of other sites) into an EPUB.",
+  "dependencies": {
+    "jszip": "3.1.5"
+  },
+  "devDependencies" : {
+    "xmldom": "0.1.27",
+    "qunit": "1.19.0"
+  },
+  "main": "popup.html",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dteviot/WebToEpub.git"
+  },
+  "keywords": ["epub"],
+  "author": { 
+    "name": "David Teviotdale",
+    "email": "dteviot@gmail.com"
+  },
+  "contributors" : [
+    { "name": "Markus Vieth"},
+    { "name": "Michael Fox"},
+    { "name": "typhoon71"},
+    { "name": "toshiya44"},
+    { "name": "dreamer2908"},
+    { "name": "GallusMax"},
+    { "name": "Hogesyx"}
+  ],
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/dteviot/WebToEpub/issues"
+  },
+  "homepage": "https://github.com/dteviot/WebToEpub#readme",
+  "private": true
+}

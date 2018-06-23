@@ -1,7 +1,7 @@
 # WebToEpub
 (c) 2015 David Teviotdale   
 
-A simple Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
+Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
 Also works with 
 * ArchiveOfOurOwn.org
 * blogspot (some)
