@@ -207,7 +207,12 @@ class Parser {
     }
 
     makeSaveAsFileNameWithoutExtension(title) {
-        return (title == null)  ? "web" : util.safeForFileName(title);
+        let fileName = (title == null)  ? "web" : util.safeForFileName(title);
+        if (util.isStringWhiteSpace(fileName)) {
+            // title is probably not English, so just use it as is
+            fileName = title;
+        }
+        return fileName;
     }
 
     epubItemSupplier() {
