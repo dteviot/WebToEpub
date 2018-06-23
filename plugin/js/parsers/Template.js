@@ -127,7 +127,7 @@ class TemplateParser extends Parser{
     /*
     fetchChapter(url) {
         return HttpClient.wrapFetch(url).then(function (xhr) {
-            Promise.resolve(xhr.responseXML);
+            return Promise.resolve(xhr.responseXML);
         });
     }
     */
