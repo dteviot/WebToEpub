@@ -19,6 +19,10 @@
         "message": "Ngưng",
         "description": ""
     },
+    "__MSG_button_error_Skip__": {
+        "message": "Bỏ qua",
+        "description": ""
+    },
     "__MSG_button_error_OK__": {
         "message": "OK",
         "description": ""
@@ -139,12 +143,24 @@
         "message": "Chọn Parser Bằng Tay",
         "description": ""
     },
+    "__MSG_label_Max_pages_to_fetch_simultaneously__": {
+        "message": "Lượng trang tối đa tải về đồng thời",
+        "description": ""
+    },
     "__MSG_label_Range_End_Chapter__": {
         "message": "Chương Cuối",
         "description": ""
     },
     "__MSG_label_Range_Start_Chapter__": {
         "message": "Chương Đầu",
+        "description": ""
+    },
+    "__MSG_label_Remove_Author_Notes__": {
+        "message": "Xóa Ghi Chú Tác Giả",
+        "description": ""
+    },
+    "__MSG_label_Remove_Original__": {
+        "message": "Loại bỏ Chữ Bản Gốc/Raw",
         "description": ""
     },
     "__MSG_label_Remove_Duplicate_Images__": {
@@ -269,6 +285,10 @@
             }
         }
     },
+    "httpFetchCanRetry": {
+        "message": "Bị lỗi gián đoạn. Thử lại có thể thành công.",
+        "description": ""
+    },
     "htmlFetchFailed": {
         "message": "Tải trang từ đường dẫn '$url$' bị lỗi do lỗi mạng $err$",
         "description": "",
@@ -281,8 +301,42 @@
             }
         }
     },
+    "imageFetchFailed": {
+        "message": "Sự cố khi lấy hình ảnh '$imageUrl$' cho trang '$pageUrl$' do lỗi mạng $err$.",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            },
+            "pageUrl": {
+                "content": "$2"
+            },
+            "err": {
+                "content": "$3"
+            }
+        }
+    },
+    "imgurFetchFailed": {
+        "message": "Cảnh Báo: Cố lấy ảnh imgur '$imageUrl$' cho trang '$pageUrl$' bị lỗi do lỗi mạng $err$.",
+        "description": "",
+        "placeholders": {
+            "imageUrl": {
+                "content": "$1"
+            },
+            "pageUrl": {
+                "content": "$2"
+            },
+            "err": {
+                "content": "$3"
+            }
+        }
+    },
     "noChaptersFound": {
         "message": "Không tìm thấy chương. Có thể đây không phải một trang thuộc bộ truyện.",
+        "description": ""
+    },
+    "informationPageTitle": {
+        "message": "Thông Tin",
         "description": ""
     },
     "noChaptersFoundAndFetchClicked": {
@@ -303,6 +357,10 @@
     },
     "setCover": {
         "message": "Đăt Ảnh Bìa",
+        "description": ""
+    },
+    "tableOfContentsUrl": {
+        "message": "Đường Dẫn/URL Mục Lục: ",
         "description": ""
     },
     "unhandledFieldTypeError": {
