@@ -43,4 +43,20 @@ class NovelAllParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.manga-detailtop");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = dom.querySelectorAll("div.manga-detailtop, div.manga-detailmiddle");
+        for(let node of summary) {
+            let clone = node.cloneNode(true);
+            this.cleanInformationNode(clone);
+            nodes.push(clone);
+        }
+        return nodes;
+    }
+
+    cleanInformationNode(node) {
+        let toRemove = [...node.querySelectorAll("img, script")];
+        util.removeElements(toRemove);
+    }
 }
