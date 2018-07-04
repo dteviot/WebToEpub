@@ -58,7 +58,7 @@ test("buildContentOpf", function (assert) {
 
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(contentOpf.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>"+
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">"+
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
@@ -100,7 +100,7 @@ test("buildEpub3ContentOpf", function (assert) {
 
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(contentOpf.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>"+
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\" unique-identifier=\"BookId\">"+
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">"+
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
@@ -155,7 +155,7 @@ test("buildContentOpfWithCover", function (assert) {
 
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(contentOpf.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
@@ -200,7 +200,7 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
 
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(contentOpf.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"2.0\" unique-identifier=\"BookId\">" +
             "<metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:opf=\"http://www.idpf.org/2007/opf\">" +
             "<dc:title>Dummy &lt;Title&gt;</dc:title>" +
@@ -233,7 +233,7 @@ test("buildTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(makeEpubItemSupplier());
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(buildTableOfContents.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
           "<head>" +
             "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
@@ -276,7 +276,7 @@ test("buildNestedTableOfContents", function (assert) {
     let buildTableOfContents = makePacker().buildTableOfContents(epubItemSupplier);
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(buildTableOfContents.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
           "<head>" +
             "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
@@ -393,7 +393,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
@@ -427,7 +427,7 @@ test("makeCoverImageXhtmlFileAsImg", function (assert) {
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
@@ -456,7 +456,7 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
     
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(xhtmlFile.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
             "<head>" +
@@ -499,7 +499,7 @@ test("buildNavigationDocument", function (assert) {
     let navDocument = makePacker().buildNavigationDocument(epubItemSupplier);
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(navDocument.replace(/\r|\n/g, ""),
-        "<?xml version='1.0' encoding='utf-8'?>" +
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" xmlns:epub=\"http://www.idpf.org/2007/ops\" lang=\"en\">" +
           "<head>" +
           "</head>" +
