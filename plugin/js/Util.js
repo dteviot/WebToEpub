@@ -278,7 +278,7 @@ var util = (function () {
             return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
         };
         util.removeElements(util.getElements(element, "div",  e => isUnwantedDiv(e)));
-        util.removeElements(element.querySelectorAll("ul.post-categories"));
+        util.removeElements(element.querySelectorAll("ul.post-categories, div.mistape_caption"));
     }
 
     var removeShareLinkElements = function(contentElement) {
