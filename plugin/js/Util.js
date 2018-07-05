@@ -274,11 +274,8 @@ var util = (function () {
     }
 
     var removeUnwantedWordpressElements = function(element) {
-        let isUnwantedDiv = function(div) {
-            return ((div.className ==="wpcnt") || div.className.startsWith("sharedaddy"))
-        };
-        util.removeElements(util.getElements(element, "div",  e => isUnwantedDiv(e)));
-        util.removeElements(element.querySelectorAll("ul.post-categories, div.mistape_caption"));
+        let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption";
+        util.removeElements(element.querySelectorAll(ccs));
     }
 
     var removeShareLinkElements = function(contentElement) {

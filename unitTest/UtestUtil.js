@@ -455,3 +455,19 @@ QUnit.test("decodeCloudflareProtectedEmails", function (assert) {
     util.decodeCloudflareProtectedEmails(div);
     assert.equal(div.innerHTML, "<p>me@usamaejaz.com</p><p>me@usamaejaz.com</p><a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>");
 });
+
+test("removeUnwantedWordpressElements", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<p>start</p>" +
+        "<div class=\"mistape_caption\">" +
+            "<span class=\"mistape-link-wrap\"><span class=\"mistape-link mistape-logo\"></span></span><p></p>"+
+            "<p>If you have found any mistakes in the translation, please, notify us by selecting that text and pressing <em>Ctrl+Enter</em>.</p>" +
+        "</div>" +
+        "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper' id='like-post-wrapper-5376690-1282-5b3d359d247de'><h3 class=\"sd-title\">Like this:</h3><div class='likes-widget-placeholder post-likes-widget-placeholder'><span class='button'><span>Like</span></span> <span class=\"loading\">Loading...</span></div><span class='sd-text-color'></span><a class='sd-link-color'></a></div>" +
+        "<div class=\"wpcnt \"><div class=\"wpa\"><span class=\"wpa-about\">Advertisements</span></div></div>" +
+        "<p>end</p>"
+    );
+
+    let actual = util.removeUnwantedWordpressElements(dom.body);
+    assert.equal(dom.body.innerHTML, "<p>start</p><p>end</p>");
+});
