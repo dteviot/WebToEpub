@@ -19,8 +19,8 @@ class WuxiaworldCoParser extends Parser{
         return dom.querySelector("div#content");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("div#info h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div#info h1");
     };
 
     findChapterTitle(dom) {

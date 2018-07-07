@@ -47,10 +47,10 @@ class TemplateParser extends Parser{
 
     // title of the story  (not to be confused with title of each chapter)
     /*
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         // typical implementation is find node with the Title and return name from title
-        // NOTE. Return Title as a string, not a HTML element
-        return dom.querySelector("h1").textContent.trim();
+        // NOTE. Can return Title as a string, or an  HTML element
+        return dom.querySelector("h1");
     };
     */
 

@@ -67,8 +67,8 @@ class ShinsoriParser extends Parser{
         return dom.querySelector("div.entry-content");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("h2.section-title").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("h2.section-title");
     };
 
     extractAuthor(dom) {

@@ -131,3 +131,19 @@ QUnit.test("groupPagesToFetchSize3", function (assert) {
     let actual = Parser.groupPagesToFetch(rawData, 3);
     assert.deepEqual(actual, [[1,2,3],[4,5,6]]);
 });
+
+QUnit.test("extractTitle", function (assert) {
+    let doc = new DOMParser().parseFromString(
+        "<html><head><title> Title 1 </title><meta property=\"og:title\" content=\" Title 3 \" /></head> " +
+        "<body>" +
+        "<div><span class=\"threadtitle\"> Title 2 </span></div><div></div>" +
+        "</body></html>",
+        "text/html"
+    );
+    let actual = new NrvnqsrParser().extractTitle(doc);
+    assert.equal(actual, "Title 2");
+    actual = new ZirusMusingsParser().extractTitle(doc);
+    assert.equal(actual, "Title 3");
+    actual = new NovelUniverseParser().extractTitle(doc);
+    assert.equal(actual, "Title 1");
+});

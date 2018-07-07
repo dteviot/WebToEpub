@@ -54,10 +54,9 @@ class FictionManiaParser extends Parser {
         return s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         let that = this;
-        let title = util.getElement(dom.body, "a", e => that.isChapterHref(e));
-        return (title === null) ? super.extractTitle(dom) : title.innerText;
+        return util.getElement(dom.body, "a", e => that.isChapterHref(e));
     };
 
     extractAuthor(dom) {

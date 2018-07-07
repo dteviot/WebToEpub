@@ -48,7 +48,7 @@ class FanFictionParser extends Parser {
         return dom.querySelector("div#profile_top " + tag).textContent.trim();
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         return this.extractTextFromProfile(dom, "b");
     }
 

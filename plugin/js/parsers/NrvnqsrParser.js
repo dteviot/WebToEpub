@@ -18,8 +18,8 @@ class NrvnqsrParser extends Parser{
         return dom.querySelector(selector);
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("span.threadtitle").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("span.threadtitle");
     };
 
     extractAuthor(dom) {

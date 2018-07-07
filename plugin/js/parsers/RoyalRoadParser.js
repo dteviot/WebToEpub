@@ -66,7 +66,7 @@ class RoyalRoadParser extends Parser{
         RoyalRoadParser.removeOlderChapterNavJunk(content);
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         let isTitleElement = function (element) {
             let tag = element.tagName.toLowerCase();
             let isTitle = ((tag[0] === "h") && (element.getAttribute("property") === "name"));
@@ -74,9 +74,8 @@ class RoyalRoadParser extends Parser{
         }
 
         for(let e of util.iterateElements(dom.body, e => isTitleElement(e))) {
-            return e.innerText.trim();
+            return e;
         }
-        return super.extractTitle(dom);
     }
 
     extractAuthor(dom) {

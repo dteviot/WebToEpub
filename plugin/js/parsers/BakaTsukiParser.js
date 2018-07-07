@@ -109,8 +109,8 @@ class BakaTsukiParser extends Parser{
         });
     }
 
-    extractTitle(dom) {
-        return dom.querySelector("h1.firstHeading").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.firstHeading");
     }
 
     extractLanguage(dom) {

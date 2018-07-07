@@ -50,9 +50,8 @@ class ReadLightNovelParser extends Parser {
         return arc;
     }
 
-    extractTitle(dom) {
-        let div = dom.querySelector("div.block-title");
-        return (div === null) ? "<unknown>" : div.innerText;
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.block-title");
     }
 
     extractAuthor(dom) {

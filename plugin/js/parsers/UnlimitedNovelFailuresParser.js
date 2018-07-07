@@ -16,9 +16,8 @@ class UnlimitedNovelFailuresParser extends Parser {
         return Promise.resolve(util.hyperlinksToChapterList(dom));
     }
 
-    extractTitle(dom) {   // eslint-disable-line no-unused-vars
-        var title = dom.querySelector(".entry-title");
-        return (title == null) ? super.extractTitle(dom) : title.textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
     }
 
     // find the node(s) holding the story content

@@ -21,9 +21,8 @@ class XianXiaWorldParser extends Parser {
         return dom.querySelector("div#content");
     }
 
-    extractTitle(dom) {
-        let title = dom.querySelector("div#info h1");
-        return (title === null) ? super.extractTitle(dom) : title.innerText;
+    extractTitleImpl(dom) {
+        return dom.querySelector("div#info h1");
     }
 
     extractAuthor(dom) {

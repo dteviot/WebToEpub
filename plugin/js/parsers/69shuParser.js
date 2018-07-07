@@ -19,8 +19,8 @@ class ShuParser extends Parser{
         return dom.querySelector("div.yd_text2");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("div.status h1 a").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.status h1 a");
     };
 
     extractAuthor(dom) {

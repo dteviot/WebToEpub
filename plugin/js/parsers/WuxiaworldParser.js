@@ -16,9 +16,9 @@ class WuxiaworldParser extends Parser {
         return Promise.resolve(chapters);  
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         let title = dom.querySelector("meta[property='og:title']");
-        return title === null ? super.extractTitle(dom) : title.getAttribute("content");
+        return title === null ? null : title.getAttribute("content");
     }
 
     // find the node(s) holding the story content

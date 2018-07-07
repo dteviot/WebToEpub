@@ -38,8 +38,8 @@ class ArchiveOfOurOwnParser extends Parser{
         return dom.querySelector("div.userstuff, div[class^='storytext']");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("h2.title.heading").innerText.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("h2.title.heading");
     };
 
     extractAuthor(dom) {

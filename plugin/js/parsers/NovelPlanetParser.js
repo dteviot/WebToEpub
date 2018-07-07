@@ -32,9 +32,8 @@ class NovelPlanetParser extends Parser{
     };
 
     // title of the story
-    extractTitle(dom) {
-        let title = dom.querySelector("a.title");
-        return title === null ? super.extractTitle(dom) : title.textContent;
+    extractTitleImpl(dom) {
+        return dom.querySelector("a.title");
     };
 
     extractAuthor(dom) {

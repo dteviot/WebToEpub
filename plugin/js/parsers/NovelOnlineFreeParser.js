@@ -27,8 +27,8 @@ class NovelOnlineFreeParser extends Parser{
     };
 
     // title of the story
-    extractTitle(dom) {
-        return dom.querySelector("h1").textContent;
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
     };
 
     extractAuthor(dom) {

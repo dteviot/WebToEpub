@@ -43,7 +43,7 @@ class ZirusMusingsParser extends Parser {
         return arc;
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         return dom.querySelector("meta[property='og:title']").getAttribute("content");
     }
 

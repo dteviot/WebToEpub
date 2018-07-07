@@ -157,8 +157,23 @@ class Parser {
     /**
     * default implementation, use the <title> element
     */
+    static extractTitleDefault(dom) {
+        return dom.title;
+    };
+
+    extractTitleImpl(dom) {
+        return dom.title;
+    };
+
     extractTitle(dom) {
-        return dom.title.trim();
+        let title = this.extractTitleImpl(dom);
+        if (title == null) {
+            title = Parser.extractTitleDefault(dom);
+        }
+        if (title.textContent !== undefined) {
+            title = title.textContent;
+        }
+        return title.trim();
     };
 
     /**

@@ -16,8 +16,8 @@ class MangakakalotParser extends Parser{
         return dom.querySelector("div#vungdoc");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("div.manga-info-top h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.manga-info-top h1");
     };
 
     extractAuthor(dom) {

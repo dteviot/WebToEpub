@@ -35,16 +35,12 @@ class GravityTalesParser extends Parser {
             (link.search === "");
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         let title = dom.querySelector("meta[property='og:title']");
         if (title !== null) {
             return title.getAttribute("content");
         }
-        title = dom.querySelector("h3");
-        if (title !== null) {
-            return title.innerText;
-        }
-        return super.extractTitle(dom);
+        return dom.querySelector("h3");
     }
 
     // find the node(s) holding the story content

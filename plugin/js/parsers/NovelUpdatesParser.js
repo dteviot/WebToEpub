@@ -79,9 +79,8 @@ class NovelUpdatesParser extends Parser{
     };
 
     // title of the story
-    extractTitle(dom) {
-        let title = dom.querySelector("div.seriestitlenu");
-        return (title === null) ? super.extractTitle(dom) : title.textContent;
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.seriestitlenu");
     };
 
     // author of the story

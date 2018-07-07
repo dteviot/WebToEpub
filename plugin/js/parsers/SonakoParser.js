@@ -48,7 +48,7 @@ class SonakoParser extends BakaTsukiParser {
         super(new SonakoImageCollector());
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         return dom.title;
     }
 

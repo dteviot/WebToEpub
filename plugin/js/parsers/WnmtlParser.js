@@ -19,8 +19,8 @@ class WnmtlParser extends Parser{
     };
 
     // title of the story  (not to be confused with title of each chapter)
-    extractTitle(dom) {
-        return dom.querySelector("article header h2").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("article header h2");
     };
 
     findChapterTitle(dom) {

@@ -31,8 +31,8 @@ class NovelAllParser extends Parser{
     };
 
     // title of the story
-    extractTitle(dom) {
-        return dom.querySelector("h1").textContent;
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
     };
 
     // individual chapter titles are not inside the content element

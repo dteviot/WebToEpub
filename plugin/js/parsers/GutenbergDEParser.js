@@ -40,7 +40,7 @@ class GutenbergDEParser extends Parser{
 
     // title of the story  (not to be confused with title of each chapter)
     
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         // typical implementation is find node with the Title and return name from title
         // NOTE. Return Title as a string, not a HTML element
 
@@ -51,9 +51,7 @@ class GutenbergDEParser extends Parser{
         // else rely on the div showing a breadcrumb 
         let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
         let titleE=gbbreadcrumb.firstElementChild.nextElementSibling.nextElementSibling;
-        if (titleE) return titleE.textContent.trim();
-
-        return super.extractTitle(dom);
+        return titleE;
     };
     
 

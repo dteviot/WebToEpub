@@ -23,8 +23,8 @@ class LibersparkParser extends Parser{
         return dom.querySelector("div#chapter_body");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
     };
 
     findCoverImageUrl(dom) {

@@ -18,12 +18,9 @@ class CreativeNovelsParser extends Parser{
     };
 
     // title of the story  (not to be confused with title of each chapter)
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         let title = dom.querySelector("meta[property='og:title']");
-        if (title !== null) {
-            return title.getAttribute("content");
-        }
-        return super.extractTitle(dom);
+        return (title !== null) ? title.getAttribute("content") : null;
     }
 
     removeUnwantedElementsFromContentElement(element) {

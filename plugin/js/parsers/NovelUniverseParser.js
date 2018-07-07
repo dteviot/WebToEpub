@@ -40,8 +40,8 @@ class NovelUniverseParser extends Parser{
         return dom.querySelector("div.top_loc");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("div.info h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.info h1");
     };
 
     removeUnwantedElementsFromContentElement(element) {

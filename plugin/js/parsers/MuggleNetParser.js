@@ -48,7 +48,7 @@ class MuggleNetParser extends Parser{
         return text;
     }
 
-    extractTitle(dom) {
+    extractTitleImpl(dom) {
         return this.extractTextFromPageTitle(dom, 0);
     }
 

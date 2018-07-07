@@ -111,8 +111,8 @@ class WattpadParser extends Parser{
     };
 
     // title of the story  (not to be confused with title of each chapter)
-    extractTitle(dom) {
-        return dom.querySelector("div#story-landing h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div#story-landing h1");
     };
 
     extractAuthor(dom) {

@@ -58,8 +58,8 @@ class NovelfullParser extends Parser{
     };
 
     // title of the story  (not to be confused with title of each chapter)
-    extractTitle(dom) {
-        return dom.querySelector("h3.title").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("h3.title");
     };
 
     extractAuthor(dom) {

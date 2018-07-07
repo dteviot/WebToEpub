@@ -14,7 +14,7 @@ class UltimaguilParser extends Parser {
         return Promise.resolve(util.hyperlinksToChapterList(dom));
     }
 
-    extractTitle(dom) {   // eslint-disable-line no-unused-vars
+    extractTitleImpl(dom) {   // eslint-disable-line no-unused-vars
         return "Twintails";
     }
 

@@ -64,8 +64,8 @@ class BakaTsukiSeriesPageParser extends Parser{
     }
 
     // title of the story  (not to be confused with title of each chapter)
-    extractTitle(dom) {
-        return dom.querySelector("#firstHeading").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("#firstHeading");
     };
 
     customRawDomToContentStep(chapter, content) {

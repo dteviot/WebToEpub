@@ -18,8 +18,8 @@ class AnythingNovelParser extends Parser{
         return dom.querySelector("div#content");
     };
 
-    extractTitle(dom) {
-        return dom.querySelector("div#content h1").textContent.trim();
+    extractTitleImpl(dom) {
+        return dom.querySelector("div#content h1");
     };
 
     removeUnwantedElementsFromContentElement(element) {
