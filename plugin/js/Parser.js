@@ -391,16 +391,8 @@ class Parser {
 
     static groupPagesToFetch(webPages, blockSize) {
         let blocks = [];
-        let block = [];
-        for(let i = 0; i < webPages.length; ++i) {
-            block.push(webPages[i]);
-            if (block.length === blockSize) {
-                blocks.push(block);
-                block = [];
-            }
-        }
-        if (0 < block.length) {
-            blocks.push(block);
+        for(let i = 0; i < webPages.length; i += blockSize) {
+            blocks.push(webPages.slice(i, i + blockSize));
         }
         return blocks;
     }
