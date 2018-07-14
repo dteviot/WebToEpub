@@ -48,4 +48,20 @@ class NovelPlanetParser extends Parser{
     findChapterTitle(dom) {
         return dom.querySelector("h4");
     }
+ 
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = dom.querySelector("div.post-contentDetails");
+        if (summary != null) {
+            summary = summary.parentElement;
+            nodes.push(summary);
+            this.cleanInformationNode(summary);
+        }
+        return nodes;
+    }
+
+    cleanInformationNode(node) {
+        let toRemove = [...node.querySelectorAll("div.post-previewInDetails, div.clsButtonSmall, div.addthis_inline_share_toolbox, hr")];
+        util.removeElements(toRemove);
+    }
 }

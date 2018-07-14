@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("mangakakalot.com", function() { return new MangakakalotParser() });
+parserFactory.register("manganelo.com", function() { return new MangakakalotParser() });
 
 class MangakakalotParser extends Parser{
     constructor() {

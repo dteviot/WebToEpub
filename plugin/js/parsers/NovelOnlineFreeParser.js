@@ -44,4 +44,20 @@ class NovelOnlineFreeParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.entry-header");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = dom.querySelectorAll("div#noidungm, ul.truyen_info_right");
+        for(let node of summary) {
+            let clone = node.cloneNode(true);
+            this.cleanInformationNode(clone);
+            nodes.push(clone);
+        }
+        return nodes;
+    }
+
+    cleanInformationNode(node) {
+        let toRemove = [...node.querySelectorAll("span.rate_star, .fb_iframe_widget, div.google, button, img, script")];
+        util.removeElements(toRemove);
+    }
 }

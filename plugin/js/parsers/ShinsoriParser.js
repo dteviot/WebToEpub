@@ -29,7 +29,10 @@ class ShinsoriParser extends Parser{
     static listUrlsHoldingChapterLists(dom) {
         let link = dom.querySelector("li.last-page a");
         let urls = [];
-        if (link != null) {
+        if (link == null) {
+            return [...dom.querySelectorAll("div.pages-nav a[title]")]
+                .map(a => a.href);
+        } else {
             let href = link.href;
             let index = href.indexOf("page/");
             if (0 <= index) {
@@ -99,5 +102,21 @@ class ShinsoriParser extends Parser{
     
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "li.post-item");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = dom.querySelectorAll("div.block-custom-content, div.first-half-box");
+        for(let node of summary) {
+            let clone = node.cloneNode(true);
+            this.cleanInformationNode(clone);
+            nodes.push(clone);
+        }
+        return nodes;
+    }
+
+    cleanInformationNode(node) {
+        let toRemove = [...node.querySelectorAll("a")];
+        util.removeElements(toRemove);
     }
 }

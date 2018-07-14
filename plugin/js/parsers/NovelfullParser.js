@@ -80,4 +80,8 @@ class NovelfullParser extends Parser{
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.book");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.desc-text, div.info")];
+    }
 }
