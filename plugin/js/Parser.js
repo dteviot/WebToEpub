@@ -204,7 +204,7 @@ class Parser {
         let metaInfo = new EpubMetaInfo();
         metaInfo.uuid = dom.baseURI;
         metaInfo.title = that.extractTitle(dom);
-        metaInfo.author = that.extractAuthor(dom);
+        metaInfo.author = that.extractAuthor(dom).trim();
         metaInfo.language = that.extractLanguage(dom);
         metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title);
         that.extractSeriesInfo(dom, metaInfo);

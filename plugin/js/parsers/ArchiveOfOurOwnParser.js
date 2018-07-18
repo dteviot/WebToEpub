@@ -43,7 +43,7 @@ class ArchiveOfOurOwnParser extends Parser{
     };
 
     extractAuthor(dom) {
-        return dom.querySelector("h3.byline.heading").innerText.trim();
+        return dom.querySelector("h3.byline.heading").innerText;
     };
 
     extractLanguage(dom) {

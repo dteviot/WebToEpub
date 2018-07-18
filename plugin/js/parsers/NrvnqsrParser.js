@@ -24,6 +24,6 @@ class NrvnqsrParser extends Parser{
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.userinfo a.username");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent.trim();
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     };
 }

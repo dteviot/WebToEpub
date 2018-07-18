@@ -64,7 +64,7 @@ class ReadLightNovelParser extends Parser {
                 return li.innerText;
             };
         };
-        return "<unknown>";
+        return super.extractAuthor(dom);
     }
  
     novelDetailHeaderName(div) {
