@@ -36,4 +36,20 @@ class ZenithNovelsParser extends WordpressBaseParser {
     findContent(dom) {
         return dom.querySelector("article");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        let summary = [...dom.querySelectorAll("div.entry p")];
+        for(let node of summary) {
+            let clone = node.cloneNode(true);
+            this.cleanInformationNode(clone);
+            nodes.push(clone);
+        }
+        return nodes;
+    }
+
+    cleanInformationNode(node) {
+        let toRemove = [...node.querySelectorAll("img")];
+        util.removeElements(toRemove);
+    }
 }
