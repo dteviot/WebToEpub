@@ -43,10 +43,6 @@ class ZirusMusingsParser extends Parser {
         return arc;
     }
 
-    extractTitleImpl(dom) {
-        return dom.querySelector("meta[property='og:title']").getAttribute("content");
-    }
-
     // find the node(s) holding the story content
     findContent(dom) {
         return dom.querySelector("div#resizeable-text div.elementor-widget-container");

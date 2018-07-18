@@ -17,12 +17,6 @@ class CreativeNovelsParser extends Parser{
         return dom.querySelector("div.content");
     };
 
-    // title of the story  (not to be confused with title of each chapter)
-    extractTitleImpl(dom) {
-        let title = dom.querySelector("meta[property='og:title']");
-        return (title !== null) ? title.getAttribute("content") : null;
-    }
-
     removeUnwantedElementsFromContentElement(element) {
         util.removeElements(element.querySelectorAll("div.team, div.x-donate-1,"+
             " div.navigation, div.navi, header.entry-header"));

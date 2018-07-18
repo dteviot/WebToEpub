@@ -27,11 +27,6 @@ class LnmtlParser extends Parser {
         return Promise.resolve(util.hyperlinksToChapterList(table));
     }
 
-    extractTitleImpl(dom) {
-        let title = dom.querySelector("meta[property='og:title']");
-        return (title === null) ? null : title.getAttribute("content");
-    }
-
     findContent(dom) {
         return dom.querySelector("div.chapter-body");
     }

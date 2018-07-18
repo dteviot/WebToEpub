@@ -155,14 +155,15 @@ class Parser {
     }
 
     /**
-    * default implementation, use the <title> element
+    * default implementation
     */
     static extractTitleDefault(dom) {
-        return dom.title;
+        let title = dom.querySelector("meta[property='og:title']");
+        return (title === null) ? dom.title : title.getAttribute("content");
     };
 
     extractTitleImpl(dom) {
-        return dom.title;
+        return Parser.extractTitleDefault(dom);
     };
 
     extractTitle(dom) {
