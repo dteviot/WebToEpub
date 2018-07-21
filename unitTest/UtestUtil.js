@@ -471,3 +471,20 @@ test("removeUnwantedWordpressElements", function (assert) {
     let actual = util.removeUnwantedWordpressElements(dom.body);
     assert.equal(dom.body.innerHTML, "<p>start</p><p>end</p>");
 });
+
+test("dctermsToTable", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<meta name=\"dcterms.description\" content=\"Synopsis of story.\">" +
+        "<meta name=\"dcterms.creator\" content=\"An author\">" +
+        "<meta name=\"dcterms.date\" content=\"2018-02-17\">"
+    );
+
+    let actual = util.dctermsToTable(dom);
+    assert.equal(actual.outerHTML, "<table><tbody>"+
+        "<tr><td>description</td><td>Synopsis of story.</td></tr>"+
+        "<tr><td>creator</td><td>An author</td></tr>"+
+        "<tr><td>date</td><td>2018-02-17</td></tr>"+
+        "</tbody></table>"
+    );
+});
+

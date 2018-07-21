@@ -25,4 +25,8 @@ class McStoriesParser extends Parser {
         let author = dom.querySelector("article a[href*='/Authors/']");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
     };
+
+    getInformationEpubItemChildNodes(dom) {
+        return [ util.dctermsToTable(dom) ];
+    }
 }

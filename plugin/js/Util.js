@@ -741,6 +741,23 @@ var util = (function () {
         return (parsererror === null) ? null : parsererror.textContent;
     }
 
+    var dctermsToTable = function (dom) {
+        let table = dom.createElement("table");
+        let body = dom.createElement("tbody");
+        table.appendChild(body);
+        for(let term of dom.querySelectorAll("meta[name*='dcterms.']")) {
+            let row = dom.createElement("tr");
+            body.appendChild(row);
+            let td = dom.createElement("td");
+            row.appendChild(td);
+            td.textContent = term.getAttribute("name").replace("dcterms.", "");
+            td = dom.createElement("td");
+            row.appendChild(td);
+            td.textContent = term.getAttribute("content");
+        }
+        return table;
+    }
+
     // allow disabling loging from one place
     var log = function(arg) { // eslint-disable-line no-unused-vars
         // ToDo: uncomment this for debug logging
@@ -913,6 +930,7 @@ var util = (function () {
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
+        dctermsToTable: dctermsToTable,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket,
         locateAndExtractJson: locateAndExtractJson,
