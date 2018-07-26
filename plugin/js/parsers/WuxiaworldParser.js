@@ -18,7 +18,19 @@ class WuxiaworldParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return dom.querySelector("div.fr-view");
+        let candidates = [...dom.querySelectorAll("div.fr-view")];
+        return WuxiaworldParser.elementWithMostParagraphs(candidates);
+    }
+
+    static elementWithMostParagraphs(elements) {
+        if (elements.length === 0) {
+            return null;
+        }
+        return elements.map(
+            e => ({e: e, numParagraphs: [...e.querySelectorAll("p")].length})
+        ).reduce(
+            (a, c) => a.numParagraphs < c.numParagraphs ? c : a
+        ).e;
     }
 
     findChapterTitle(dom) {
