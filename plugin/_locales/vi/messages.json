@@ -305,7 +305,7 @@
         "message": "Sự cố khi lấy hình ảnh '$imageUrl$' cho trang '$pageUrl$' do lỗi mạng $err$.",
         "description": "",
         "placeholders": {
-            "url": {
+            "imageUrl": {
                 "content": "$1"
             },
             "pageUrl": {
