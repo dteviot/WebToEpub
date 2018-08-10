@@ -232,7 +232,7 @@
 		"description": "Tell user how to shift-click to multiselect."
 	},
 	"convertToXhtmlWarning": {
-		"message": "Warning, unable to convert chapter '$chapter$' from '$url$' to valid XHTML. Your epub viewer may fail when viewing that chapter. You may need to fix the chapter manually with Calibre.",
+		"message": "Warning, unable to convert chapter '$chapter$' from '$url$' to valid XHTML. Your epub viewer may fail when viewing that chapter. You may need to fix the chapter manually with Calibre. \r\nConversion error message was: ($error$)",
 		"description": "Warning message when try to fetch an image and instead get HTML",
 		"placeholders": {
 			"chapter": {
@@ -240,6 +240,9 @@
 			},
 			"url": {
 			    "content": "$2"
+			},
+			"error": {
+			    "content": "$3"
 			}
 		}
 	},

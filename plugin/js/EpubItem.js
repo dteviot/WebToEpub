@@ -49,9 +49,10 @@ class EpubItem {
 
     fileContentForEpub(emptyDocFactory, contentValidator) {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
+        let errorMessage = contentValidator(xml);
         if (contentValidator(xml)) {
             let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
-                [this.chapterTitle, this.sourceUrl]
+                [this.chapterTitle, this.sourceUrl, errorMessage]
             );
             ErrorLog.log(errorMsg);
         }
