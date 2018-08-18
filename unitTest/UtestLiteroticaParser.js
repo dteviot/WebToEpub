@@ -52,19 +52,23 @@ QUnit.test("assembleChapter", function (assert) {
 QUnit.test("getChapterUrls-noTable", function (assert) {
     let dom = new DOMParser().parseFromString(
         LiteroticaToCSamplePage1, "text/html");
-    let urls = new LiteroticaParser().chaptersFromMemberPage(dom);
-    assert.equal(urls.length, 2);
-    assert.equal(urls[0].sourceUrl, "https://www.literotica.com/s/alien-artifact-geek-pride");
-    assert.equal(urls[1].sourceUrl, "https://www.literotica.com/s/an-infernal-folio");
+    let chapters = new LiteroticaParser().chaptersFromMemberPage(dom);
+    assert.equal(chapters.length, 2);
+    assert.equal(chapters[0].sourceUrl, "https://www.literotica.com/s/alien-artifact-geek-pride");
+    assert.strictEqual(chapters[0].newArc, null);
+    assert.equal(chapters[1].sourceUrl, "https://www.literotica.com/s/an-infernal-folio");
+    assert.strictEqual(chapters[1].newArc, null);
 });
 
 QUnit.test("chaptersFromMemberPage", function (assert) {
     let dom = new DOMParser().parseFromString(
         LiteroticaToCSamplePage2, "text/html");
-    let urls = new LiteroticaParser().chaptersFromMemberPage(dom);
-    assert.equal(urls.length, 2);
-    assert.equal(urls[0].sourceUrl, "https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01");
-    assert.equal(urls[1].sourceUrl, "https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07");
+    let chapters = new LiteroticaParser().chaptersFromMemberPage(dom);
+    assert.equal(chapters.length, 2);
+    assert.equal(chapters[0].sourceUrl, "https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01");
+    assert.strictEqual(chapters[0].newArc, null);
+    assert.equal(chapters[1].sourceUrl, "https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07");
+    assert.strictEqual(chapters[1].newArc, null);
 });
 
 let LiteroticaSampleChapterPage =

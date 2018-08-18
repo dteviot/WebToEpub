@@ -18,7 +18,7 @@ class LiteroticaParser extends Parser{
     chaptersFromMemberPage(dom) {
         let links = [...dom.querySelectorAll("td.fc a, div.b-story-list-box h3 a, div.b-story-list h3 a")];
         if (0 < links.length) {
-            return links.map(util.hyperLinkToChapter);
+            return links.map(a => util.hyperLinkToChapter(a));
         }
         let content = dom.querySelector("div#content");
         return content === null ? [] : util.hyperlinksToChapterList(content);

@@ -602,7 +602,7 @@ var util = (function () {
         return {
             sourceUrl:  link.href,
             title: link.innerText.trim(),
-            newArc: newArc
+            newArc: (newArc === undefined) ? null : newArc
         };
     }
 
