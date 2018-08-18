@@ -22,7 +22,7 @@ class MangaHereParser extends Parser {
 
     getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("div.detail_list li a")]
-            .map(a => util.hyperLinkToChapter(a, null));
+            .map(a => util.hyperLinkToChapter(a));
         return Promise.resolve(chapters.reverse());
     }
 

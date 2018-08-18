@@ -10,7 +10,7 @@ class AnythingNovelParser extends Parser{
     getChapterUrls(dom) {
         let links = [...dom.querySelectorAll("div#content li a")]
             .reverse()
-            .map(link => util.hyperLinkToChapter(link, null));
+            .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(links);        
     };
 

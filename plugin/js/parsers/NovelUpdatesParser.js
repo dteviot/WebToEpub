@@ -14,7 +14,7 @@ class NovelUpdatesParser extends Parser{
     // promise is used because may need to fetch the list of URLs from internet
     getChapterUrls(dom) {
         return NovelUpdatesParser.fetchChapterUrls(dom).then(function (links) {
-            let chapters = links.map(l => util.hyperLinkToChapter(l, null));
+            let chapters = links.map(l => util.hyperLinkToChapter(l));
             return Promise.resolve(chapters.reverse());
         })
     };

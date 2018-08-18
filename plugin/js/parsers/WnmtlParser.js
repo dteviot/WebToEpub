@@ -9,7 +9,7 @@ class WnmtlParser extends Parser{
     getChapterUrls(dom) {
         let items = [...dom.querySelectorAll("article div.t a")]
             .filter(link => link.parentElement.parentElement.className !== "text-mutedxxx")
-            .map(link => util.hyperLinkToChapter(link, null));
+            .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(items);
     };
 

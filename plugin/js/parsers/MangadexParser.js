@@ -11,7 +11,7 @@ class MangadexParser extends Parser{
         let rows = [...dom.querySelectorAll("table.table-striped img[alt=\"English\"]")];
         let chapters = rows
             .map(i => i.parentElement.parentElement.querySelector("a[data-chapter-id]"))
-            .map(a => util.hyperLinkToChapter(a, null));
+            .map(a => util.hyperLinkToChapter(a));
         return Promise.resolve(chapters.reverse());
     };
 

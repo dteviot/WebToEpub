@@ -49,7 +49,7 @@ class NovelfullParser extends Parser{
 
     static extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("ul.list-chapter a")]
-            .map(link => util.hyperLinkToChapter(link, null));
+            .map(link => util.hyperLinkToChapter(link));
     }
 
     // returns the element holding the story content in a chapter

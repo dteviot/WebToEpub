@@ -12,7 +12,7 @@ class WuxiaworldParser extends Parser {
 
     getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("li.chapter-item a")]
-            .map(link => util.hyperLinkToChapter(link, null));
+            .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(chapters);  
     }
 
