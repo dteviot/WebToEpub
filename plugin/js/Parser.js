@@ -515,3 +515,5 @@ class Parser {
         }
     }
 }
+
+Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";

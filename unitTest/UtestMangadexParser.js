@@ -3,103 +3,176 @@
 
 module("UtestMangadexParser");
 
-QUnit.test("findContent", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        MangadexSample, "text/html");
-    let parser = new MangadexParser();
-    let out = parser.findContent(dom);
-    let images = [...out.querySelectorAll("img")];
-    assert.equal(images.length, 32);
-    assert.equal(images[0].src, "https://mangadex.org/data/8ca1fa56082f0ffd8694447119e47e96/Z1.jpg");
+QUnit.test("getChapterUrls", function (assert) {
+    let done = assert.async(); 
+    let dom = new DOMParser().parseFromString(MangadexSample, "text/html");
+    return new MangadexParser().getChapterUrls(dom).then(
+        function(chapters) {
+            assert.equal(2, chapters.length);
+            assert.equal("https://mangadex.org/chapter/422459", chapters[0].sourceUrl);
+            assert.equal("https://mangadex.org/chapter/424587", chapters[1].sourceUrl);
+            done();
+        }
+    );
+});
+
+QUnit.test("jsonToHtmlWithImgTags", function (assert) {
+    let json = {
+        "hash": "79a3fd70cf0627bc8031afb119fb09b7",
+        "server": "https:\/\/s5.mangadex.org\/data\/",
+        "page_array": ["F1.png", "F2.png"]
+    };
+    let out = MangadexParser.jsonToHtmlWithImgTags("https://mangadex.org/chapter/424587", json);
+    let actual = [...out.querySelectorAll("img")].map(i => i.src);
+    assert.deepEqual(actual, [
+        "https://s5.mangadex.org/data/79a3fd70cf0627bc8031afb119fb09b7/F1.png",
+        "https://s5.mangadex.org/data/79a3fd70cf0627bc8031afb119fb09b7/F2.png"
+    ]);
 });
 
 QUnit.test("getInformationEpubItemChildNodes", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        MangadexSample, "text/html");
+    let dom = new DOMParser().parseFromString(MangadexSample, "text/html");
     let parser = new MangadexParser();
-    let out = parser.getInformationEpubItemChildNodes(dom);
-    let rows = [...out[0].querySelectorAll("tr")];
-    assert.equal(rows.length, 10);
-    assert.equal(rows[9].querySelector("th").textContent, "Links:");
+    let rows = parser.getInformationEpubItemChildNodes(dom);
+    assert.equal(rows.length, 9);
+    assert.equal(rows[8].querySelector("div.strong").textContent, "Description:");
 });
 
 let MangadexSample =
 `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Vol. 1 Ch. 4 (Sekai Saikyou no Kouei: Meikyuukoku no Shinjin Tansakusha) - MangaDex</title>
-    <base href="https://mangadex.org/manga/25623/sekai-saikyou-no-kouei-meikyuukoku-no-shinjin-tansakusha" />
+    <title>Isekai Maou to Shoukan Shoujo Dorei Majutsu (Manga) - MangaDex</title>
+    <base href="https://mangadex.org/chapter/424587" />
 </head>
 
 <body>
-<div class="col-sm-9">
-				<table class="table table-condensed">
-					<tbody><tr style="border-top: 0;">
-						<th width="105px">Alt name(s):</th>
-						<td>
-							<ul class="list-inline" style="margin-bottom: 0;">
-							<li><span class="fas fa-book fa-fw" aria-hidden="true" title=""></span> World Strongest Rearguard – Labyrinth Country and Dungeon Seekers</li><li><span class="fas fa-book fa-fw" aria-hidden="true" title=""></span> 世界最強の後衛 ～迷宮国の新人探索者～</li><li><span class="fas fa-book fa-fw" aria-hidden="true" title=""></span> 세계최강의 후위 ~미궁나라의 신인탐색가~</li>							</ul>
-						</td>
-					</tr>
-					<tr>
-						<th>Author:</th>
-						<td><a href="/?page=search&amp;author=Toowa" title="Other manga by this author">Toowa</a></td>
-					</tr>
-					<tr>
-						<th>Artist:</th>
-						<td><a href="/?page=search&amp;artist=Rikizo" title="Other manga by this artist">Rikizo</a></td>
-					</tr>
-										<tr>
-						<th>Demographic:</th>
-						<td><span class="label label-default"><a class="genre" href="/?page=search&amp;demo=1" title="Search for Shounen titles">Shounen</a></span></td>
-					</tr>
-										<tr>
-						<th>Genres:</th>
-						<td><span class="label label-default"><a class="genre" href="/?page=search&amp;genres=2">Action</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=3">Adventure</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=5">Comedy</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=9">Ecchi</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=10">Fantasy</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=12">Harem</a></span> <span class="label label-default"><a class="genre" href="/?page=search&amp;genres=41">Isekai</a></span> </td>
-					</tr>
-					<tr>
-						<th>Rating:</th>
-						<td class=""><span class="fas fa-star fa-fw" aria-hidden="true" title="Rating"></span> 7.94 <span class="small"><span class="fas fa-user fa-fw" aria-hidden="true" title="Users"></span> 270</span></td>
-					</tr>
-					<tr>
-						<th>Pub. status:</th>
-						<td>Ongoing</td>
-					</tr>
-					<tr>
-						<th>Stats:</th>
-						<td>
-							<ul class="list-inline" style="margin-bottom: 0;">
-								<li class="text-info"><span class="fas fa-eye fa-fw" aria-hidden="true" title="Views"></span> 166,594</li>
-								<li class="text-success"><span class="fas fa-bookmark fa-fw" aria-hidden="true" title="Follows"></span> 7,204</li>
-								<li><span class="far fa-file fa-fw" aria-hidden="true" title="Total chapters"></span> 7</li>
-							</ul>
-						</td>
-					</tr>
-					<tr>
-						<th>Description:</th>
-						<td>Workaholic assistant Atobe Arihito fell asleep in his company's bus that was traveling for a vacation. When he awoke he learned he had died due to the bus getting into an accident, and that he had reincarnated into a world of reincarnators - to the Labyrinth Country. To his surprise he was discovered by his slave driving manager, Igarashi Kyouka, who further explains their role in this world.<br>
-<br>
-In Labyrinth Country, Reincarnators are expected to choose a job and form parties to fight against monsters in Labyrinths. "Valkyrie" Kyouka had expected Arihito to work with her once again, but he declines due to his knowledge of her demanding nature. As they depart she vows to make him regret not choosing her. And thus starts Arihito's adventure as a "Rear Guard".<br>
-<br>
-Based off of the LN/WN series of the same name.</td>
-					</tr>
-										
-		<tr>
-			<th>Links:</th>
-			<td><ul class="list-inline" style="margin-bottom: 0;"><li><img src="/images/misc/mu.png"> <a rel="noopener noreferrer" target="_blank" href="https://www.mangaupdates.com/series.html?id=148262">MangaUpdates</a></li><li><img src="/images/misc/nu.png"> <a rel="noopener noreferrer" target="_blank" href="https://www.novelupdates.com/series/world-strongest-rearguard-labyrinth-country-and-dungeon-seekers/">NovelUpdates</a></li><li><img src="/images/misc/mal.png"> <a rel="noopener noreferrer" target="_blank" href="https://myanimelist.net/manga/113980">MyAnimeList</a></li><li><span class="fas fa-external-link-alt fa-fw" aria-hidden="true" title=""></span> <a rel="noopener noreferrer" target="_blank" href="http://seiga.nicovideo.jp/comic/33376">Raw</a></li></ul></td>
-		</tr>					<tr>
-						<th>Actions:</th>
-						<td>
-							<button class="btn btn-default" id="upload_button" disabled="" title="You need to log in to use this function."><span class="fas fa-upload fa-fw" aria-hidden="true" title="Upload"></span> <span class="visible-md-inline visible-lg-inline">Upload chapter</span></button>							<button class="btn btn-success" disabled="" title="You need to log in to use this function."><span class="fas fa-bookmark fa-fw" aria-hidden="true" title="Follow"></span> <span class="visible-md-inline visible-lg-inline">Follow</span> <span class="caret"></span></button>							<div class="btn-group">
-		<button disabled="" title="You need to log in to use this function." type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-star fa-fw" aria-hidden="true" title=""></span> <span class="hidden-xs hidden-sm">Rating</span> <span class="caret"></span>
-		</button>
-		<ul class="dropdown-menu"><li class=""><a class="manga_rating_button" id="10" href="#">(10) Masterpiece</a></li><li class=""><a class="manga_rating_button" id="9" href="#">(9) Great</a></li><li class=""><a class="manga_rating_button" id="8" href="#">(8) Very good</a></li><li class=""><a class="manga_rating_button" id="7" href="#">(7) Good</a></li><li class=""><a class="manga_rating_button" id="6" href="#">(6) Fine</a></li><li class=""><a class="manga_rating_button" id="5" href="#">(5) Average</a></li><li class=""><a class="manga_rating_button" id="4" href="#">(4) Bad</a></li><li class=""><a class="manga_rating_button" id="3" href="#">(3) Very bad</a></li><li class=""><a class="manga_rating_button" id="2" href="#">(2) Horrible</a></li><li class=""><a class="manga_rating_button" id="1" href="#">(1) Appalling</a></li></ul>
-	</div>													</td>
-					</tr>
-									</tbody></table>
-			</div>
-<script data-type="chapter">{"manga_title":"Sekai Saikyou no Kouei: Meikyuukoku no Shinjin Tansakusha","manga_url":"\/manga\/25623\/sekai-saikyou-no-kouei-meikyuukoku-no-shinjin-tansakusha","lang":"Japanese","flag_url":"jp","prev_chapter_id":325491,"next_chapter_id":0,"prev_pages":32,"manga_id":25623,"chapter_id":408203,"dataurl":"8ca1fa56082f0ffd8694447119e47e96","server":"\/data\/","page_array":["Z1.jpg","Z2.jpg","Z3.jpg","Z4.jpg","Z5.jpg","Z6.jpg","Z7.jpg","Z8.jpg","Z9.jpg","Z10.jpg","Z11.jpg","Z12.jpg","Z13.jpg","Z14.jpg","Z15.jpg","Z16.jpg","Z17.jpg","Z18.jpg","Z19.jpg","Z20.jpg","Z21.jpg","Z22.jpg","Z23.jpg","Z24.jpg","Z25.jpg","Z26.jpg","Z27.jpg","Z28.jpg","Z29.jpg","Z30.jpg","Z31.jpg","Z32.jpg"],"other_groups":{"408203":{"lang_name":"English","lang_flag":"gb","group_id":853,"group_id_2":0,"group_id_3":0,"group_name":"Loli Mamoritai","group_name_2":null,"group_name_3":null}},"other_chapters":[{"id":408203,"name":"Volume 1 Chapter 4"},{"id":325491,"name":"Volume 1 Chapter 3"},{"id":257658,"name":"Volume 1 Chapter 2"},{"id":257520,"name":"Volume 1 Chapter 1"}],"chapter_title":"","long_strip":0}</script>
-</body>
-</html>
 
-`
+    <div class="container" role="main" id="content">
+        <div class="card mb-3">
+            <div class="card-body p-0">
+                <div class="row edit">
+                    <div class="col-xl-3 col-lg-4 col-md-5"><img class="rounded" width="100%" src="/images/manga/15950.jpg?1533304813" /></div>
+                    <div class="col-xl-9 col-lg-8 col-md-7">
+                        <div class="row m-0 py-1 px-0">
+                            <div class="col-lg-3 col-xl-2 strong">Alt name(s):</div>
+                            <div class="col-lg-9 col-xl-10">
+                                <ul class="list-inline m-0">
+                                    <li class='list-inline-item'><span class='fas fa-book fa-fw ' aria-hidden='true'></span> How NOT to Summon a Demon Lord</li>
+                                    <li class='list-inline-item'><span class='fas fa-book fa-fw ' aria-hidden='true'></span> Le Roi D&eacute;mon d'un autre monde et la magie d'esclavage des invocatrices</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Author:</div>
+                            <div class="col-lg-9 col-xl-10"><a href="/?page=search&author=Murasaki Yukiya" title="Other manga by this author">Murasaki Yukiya</a></div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Artist:</div>
+                            <div class="col-lg-9 col-xl-10"><a href="/?page=search&artist=Fukuda Naoto" title="Other manga by this artist">Fukuda Naoto</a></div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Demographic:</div>
+                            <div class="col-lg-9 col-xl-10"><span class="badge badge-secondary"><a class="genre" href="/?page=search&demo=1" title="Search for Shounen titles">Shounen</a></span></div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Genres:</div>
+                            <div class="col-lg-9 col-xl-10"><span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=2'>Action</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=5'>Comedy</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=8'>Drama</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=9'>Ecchi</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=10'>Fantasy</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=12'>Harem</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=23'>Romance</a></span> <span class='badge badge-secondary'><a class='genre' href='/?page=search&genres_inc=41'>Isekai</a></span> </div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Rating:</div>
+                            <div class="col-lg-9 col-xl-10"><span class="text-primary"><span class='fas fa-star fa-fw ' aria-hidden='true' title='Rating'></span> 7.46</span> <span class="small"><span class='fas fa-user fa-fw ' aria-hidden='true' title='Users'></span> 394</span></div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Pub. status:</div>
+                            <div class="col-lg-9 col-xl-10">Ongoing</div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Stats:</div>
+                            <div class="col-lg-9 col-xl-10">
+                                <ul class="list-inline m-0">
+                                    <li class="list-inline-item text-info"><span class='fas fa-eye fa-fw ' aria-hidden='true' title='Views'></span> 348,073</li>
+                                    <li class="list-inline-item text-success"><span class='fas fa-bookmark fa-fw ' aria-hidden='true' title='Follows'></span> 10,000</li>
+                                    <li class="list-inline-item"><span class='far fa-file fa-fw ' aria-hidden='true' title='Total chapters'></span> 128</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Description:</div>
+                            <div class="col-lg-9 col-xl-10">In the MMORPG Cross Reverie, Takuma Sakamoto is so powerful that he is lauded as the &ldquo;Demon Lord&rdquo; by other players. One day, he is summoned to a world outside his own-- but with the same appearance he had in the game! There, he meets two girls who both proclaim themselves to be his Summoner. They perform an Enslavement Ritual to turn him into their Summon... but that&rsquo;s when Takuma&rsquo;s passive ability &lt;&lt;Magic Reflection&gt;&gt; activates! Instead, it is the girls who become enslaved! Though Takuma may be the strongest Sorcerer there is, he has no idea how to talk with other people. It is here he makes his choice: to act based on his persona from the game! &ldquo;Amazing? But of course... I am Diablo, the being known and feared as the Demon Lord!&rdquo; So begins a tale of adventure with an earth-shakingly powerful Demon Lord (or at least someone who acts like one) taking on another world! <strong>[Source: J-Novel Club]</strong></div>
+                        </div>
+
+                        <div class='row m-0 py-1 px-0 border-top'>
+                            <div class='col-lg-3 col-xl-2 strong'>Links:</div>
+                            <div class='col-lg-9 col-xl-10'><ul class='list-inline' style='margin-bottom: 0;'><li class='list-inline-item'><img src='/images/misc/mu.png' /> <a rel='noopener noreferrer' target='_blank' href='https://www.mangaupdates.com/series.html?id=124600'>MangaUpdates</a></li><li class='list-inline-item'><img src='/images/misc/nu.png' /> <a rel='noopener noreferrer' target='_blank' href='https://www.novelupdates.com/series/isekai-maou-to-shoukan-shoujo-dorei-majutsu/'>NovelUpdates</a></li><li class='list-inline-item'><img src='/images/misc/amz.png' /> <a rel='noopener noreferrer' target='_blank' href='https://www.amazon.co.jp/dp/B07FCMHXPR/'>Amazon.co.jp</a></li><li class='list-inline-item'><img src='/images/misc/cdj.png' /> <a rel='noopener noreferrer' target='_blank' href='http://www.cdjapan.co.jp/product/NEOBK-1905450'>CDJapan</a></li><li class='list-inline-item'><img src='/images/misc/mal.png' /> <a rel='noopener noreferrer' target='_blank' href='https://myanimelist.net/manga/91714'>MyAnimeList</a></li><li class='list-inline-item'><span class='fas fa-external-link-alt fa-fw ' aria-hidden='true'></span> <a rel='noopener noreferrer' target='_blank' href='http://www.sevenseasentertainment.com/series/how-not-to-summon-a-demon-lord/'>Official English</a></li></ul></div>
+                        </div>
+
+                        <div class="row m-0 py-1 px-0 border-top">
+                            <div class="col-lg-3 col-xl-2 strong">Actions:</div>
+                            <div class="col-lg-9 col-xl-10">
+                                <button class='btn btn-secondary' id='upload_button' disabled title='You need to log in to use this function.'><span class='fas fa-upload fa-fw ' aria-hidden='true' title='Upload'></span> <span class='d-none d-xl-inline'>Upload chapter</span></button>                            <button class='btn btn-secondary ' disabled title='You need to log in to use this function.'><span class='fas fa-bookmark fa-fw ' aria-hidden='true' title='Follow'></span> <span class='d-none d-xl-inline'>Follow</span></button>                            <div class='btn-group '>
+                                    <button disabled title='You need to log in to use this function.' type='button' class='btn btn-primary dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+                                        <span class='fas fa-star fa-fw ' aria-hidden='true'></span>  <span class='caret'></span>
+                                    </button>
+                                    <div class='dropdown-menu'><a class=' dropdown-item manga_rating_button' id='10' data-manga-id='15950' href='#'>(10) Masterpiece</a><a class=' dropdown-item manga_rating_button' id='9' data-manga-id='15950' href='#'>(9) Great</a><a class=' dropdown-item manga_rating_button' id='8' data-manga-id='15950' href='#'>(8) Very good</a><a class=' dropdown-item manga_rating_button' id='7' data-manga-id='15950' href='#'>(7) Good</a><a class=' dropdown-item manga_rating_button' id='6' data-manga-id='15950' href='#'>(6) Fine</a><a class=' dropdown-item manga_rating_button' id='5' data-manga-id='15950' href='#'>(5) Average</a><a class=' dropdown-item manga_rating_button' id='4' data-manga-id='15950' href='#'>(4) Bad</a><a class=' dropdown-item manga_rating_button' id='3' data-manga-id='15950' href='#'>(3) Very bad</a><a class=' dropdown-item manga_rating_button' id='2' data-manga-id='15950' href='#'>(2) Horrible</a><a class=' dropdown-item manga_rating_button' id='1' data-manga-id='15950' href='#'>(1) Appalling</a></div>
+                                </div>                                                        <button type="button" class="btn btn-warning float-right mr-1" data-toggle="modal" data-target="#manga_report_modal"><span class='fas fa-flag fa-fw ' aria-hidden='true'></span> <span class="d-none d-xl-inline">Report</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="edit tab-content">
+            <div class="chapter-container ">
+                <div class="row no-gutters">
+                    <div class="col ">
+                        <div class="chapter-row d-flex row no-gutters p-2 align-items-center border-bottom odd-row">
+                            <div class="col col-lg-5 row no-gutters align-items-center flex-nowrap text-truncate pr-1 order-lg-2">
+                                <a href='/chapter/425797' class='text-truncate'>Ch. 37.2</a>                                <div></div>
+                            </div>
+                            <div class="chapter-list-flag col-auto text-center order-lg-4" style="flex: 0 0 2.5em;">
+                                <img class='rounded align-text-bottom d-inline-block flag' src='/images/flags/mx.png' alt='Spanish (LATAM)' title='Spanish (LATAM)' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row no-gutters">
+                    <div class="col ">
+                        <div class="chapter-row d-flex row no-gutters p-2 align-items-center border-bottom odd-row">
+                            <div class="col col-lg-5 row no-gutters align-items-center flex-nowrap text-truncate pr-1 order-lg-2">
+                                <a href='/chapter/424587' class='text-truncate'>
+                                    <span>Ch. 37.2 </span>
+                                    <span>- Demon King and Demon King III</span>
+                                </a>                                <div></div>
+                            </div>
+                            <div class="chapter-list-flag col-auto text-center order-lg-4" style="flex: 0 0 2.5em;">
+                                <img class='rounded align-text-bottom d-inline-block flag' src='/images/flags/gb.png' alt='English' title='English' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row no-gutters">
+                    <div class="col ">
+                        <div class="chapter-row d-flex row no-gutters p-2 align-items-center border-bottom odd-row">
+                            <div class="col col-lg-5 row no-gutters align-items-center flex-nowrap text-truncate pr-1 order-lg-2">
+                                <a href='/chapter/422459' class='text-truncate'>
+                                    <span>Ch. 37.1 </span>
+                                    <span>- Demon King and Demon King III</span>
+                                </a>                                <div></div>
+                            </div>
+                            <div class="chapter-list-flag col-auto text-center order-lg-4" style="flex: 0 0 2.5em;">
+                                <img class='rounded align-text-bottom d-inline-block flag' src='/images/flags/gb.png' alt='English' title='English' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- /container -->
+</body>
+</html>`
