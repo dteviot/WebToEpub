@@ -232,7 +232,7 @@
         "description": ""
     },
     "convertToXhtmlWarning": {
-        "message": "Cảnh báo, không thể chuyển đổi chương '$chapter$'  từ '$url$' sang XHTML chuẩn. Trình đọc epub của bạn có thể không đọc được chương này. Bạn có thể cần phải sửa chương này thủ công bằng phần mềm Calibre.",
+        "message": "Cảnh báo, không thể chuyển đổi chương '$chapter$' từ '$url$' sang XHTML chuẩn. Trình xem Epub của bạn có thể gặp lỗi khi hiển thị chương này. Bạn có thể cần phải tự sửa chương này bằng tay bằng phần mềm Calibre. \r\nTin nhắn báo lỗi khi chuyển đổi: ($error$)",
         "description": "",
         "placeholders": {
             "chapter": {
@@ -240,6 +240,9 @@
             },
             "url": {
                 "content": "$2"
+            },
+            "error": {
+                "content": "$3"
             }
         }
     },
