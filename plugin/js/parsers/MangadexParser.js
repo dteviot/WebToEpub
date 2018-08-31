@@ -64,6 +64,6 @@ class MangadexParser extends Parser{
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.card-body div.row")]
-           .filter(row => (row.querySelector("img, button") === null))
+            .filter(row => (row.querySelector("img, button") === null))
     }
 }

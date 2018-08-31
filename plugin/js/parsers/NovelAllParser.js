@@ -17,8 +17,8 @@ class NovelAllParser extends Parser{
 
     buildChapterList(menuItems) {
         return menuItems.reverse().map(
-           a => ({sourceUrl: a.href, title: a.getAttribute("title")})
-       );
+            a => ({sourceUrl: a.href, title: a.getAttribute("title")})
+        );
     };
     
     findContent(dom) {
