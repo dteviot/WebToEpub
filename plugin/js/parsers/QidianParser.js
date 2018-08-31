@@ -13,7 +13,7 @@ class QidianParser extends Parser{
     getChapterUrls(dom) {
         let chapters = Array.from(dom.querySelectorAll("ul.content-list a"));
         if (chapters.length === 0) {
-            chapters = Array.from(dom.querySelectorAll("div.volume-item ol.inline a"));
+            chapters = Array.from(dom.querySelectorAll("div.volume-item ol a"));
         }
         return Promise.resolve(chapters.map(QidianParser.cleanupChapterLink));
     };
@@ -68,6 +68,13 @@ class QidianParser extends Parser{
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.det-hd");
+    }
+
+    removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
+        super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+        for(let e of [...webPageDom.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
+            e.remove()
+        }
     }
 
     getInformationEpubItemChildNodes(dom) {
