@@ -5,6 +5,7 @@
 
 parserFactory.register("bakapervert.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("crimsonmagic.me", function() { return new WordpressBaseParser() });
+parserFactory.register("cgtranslations.me", function() { return new WordpressBaseParser() });
 parserFactory.register("shalvationtranslations.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("frostfire10.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("isekaicyborg.wordpress.com", function() { return new WordpressBaseParser() });
