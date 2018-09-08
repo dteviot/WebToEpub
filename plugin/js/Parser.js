@@ -519,6 +519,21 @@ class Parser {
             link.href = link.href;
         }
     }
+
+    static makeEmptyDocForContent() {
+        let dom = document.implementation.createHTMLDocument("");
+        let content = dom.createElement("div");
+        content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
+        dom.body.appendChild(content);
+        return {
+            dom: dom,
+            content: content 
+        };
+    }
+
+    static findConstrutedContent(dom) {
+        return dom.querySelector("div." + Parser.WEB_TO_EPUB_CLASS_NAME);
+    }
 }
 
 Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";

@@ -150,7 +150,7 @@ QUnit.test("extractTitle", function (assert) {
 });
 
 QUnit.test("addTitleToContent-h1Element", function (assert) {
-    let doc = new DOMParser().parseFromString("<html></html>", "text/html");
+    let doc = document.implementation.createHTMLDocument("");
     let webPage = { rawDom: doc };
     let parser = new Parser();
     parser.findChapterTitle = function() {
@@ -163,7 +163,7 @@ QUnit.test("addTitleToContent-h1Element", function (assert) {
 });
 
 QUnit.test("addTitleToContent-text", function (assert) {
-    let doc = new DOMParser().parseFromString("<html></html>", "text/html");
+    let doc = document.implementation.createHTMLDocument("");
     let webPage = { rawDom: doc };
     let parser = new Parser();
     parser.findChapterTitle = () => "Title2";
