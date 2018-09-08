@@ -83,6 +83,11 @@ class Parser {
     addTitleToContent(webPage, content) {
         let title = this.findChapterTitle(webPage.rawDom);
         if (title !== null) {
+            if (typeof(title) === "string") {
+                let titleElement = webPage.rawDom.createElement("h1");
+                titleElement.appendChild(webPage.rawDom.createTextNode(title));
+                title = titleElement;
+            }
             content.insertBefore(title, content.firstChild);
         };
     }

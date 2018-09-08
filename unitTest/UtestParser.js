@@ -148,3 +148,25 @@ QUnit.test("extractTitle", function (assert) {
     actual = new NovelUniverseParser().extractTitle(doc);
     assert.equal(actual, "Title 1");
 });
+
+QUnit.test("addTitleToContent-h1Element", function (assert) {
+    let doc = new DOMParser().parseFromString("<html></html>", "text/html");
+    let webPage = { rawDom: doc };
+    let parser = new Parser();
+    parser.findChapterTitle = function() {
+        let e = webPage.rawDom.createElement("h1");
+        e.textContent = "Title1";
+        return e;
+    }
+    parser.addTitleToContent(webPage, doc.body);
+    assert.equal(doc.body.innerHTML, "<h1>Title1</h1>");
+});
+
+QUnit.test("addTitleToContent-text", function (assert) {
+    let doc = new DOMParser().parseFromString("<html></html>", "text/html");
+    let webPage = { rawDom: doc };
+    let parser = new Parser();
+    parser.findChapterTitle = () => "Title2";
+    parser.addTitleToContent(webPage, doc.body);
+    assert.equal(doc.body.innerHTML, "<h1>Title2</h1>");
+   });
