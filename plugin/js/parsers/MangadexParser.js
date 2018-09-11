@@ -19,7 +19,7 @@ class MangadexParser extends Parser{
     };
 
     findContent(dom) {
-        Parser.findConstrutedContent(dom);
+        return Parser.findConstrutedContent(dom);
     }
 
     findCoverImageUrl(dom) {
