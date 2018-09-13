@@ -654,6 +654,15 @@ var util = (function () {
         return util.HEADER_TAGS.some(t => tag === t);
     }
 
+    var isUrl = function(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     var xmlToString = function(dom) {
         util.addXmlDeclarationToStart(dom);
         return new XMLSerializer().serializeToString(dom);
@@ -927,6 +936,7 @@ var util = (function () {
         isStringWhiteSpace: isStringWhiteSpace,
         isElementWhiteSpace: isElementWhiteSpace,
         isHeaderTag: isHeaderTag,
+        isUrl: isUrl,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,

@@ -488,3 +488,8 @@ test("dctermsToTable", function (assert) {
     );
 });
 
+test("isUrl", function (assert) {
+    assert.ok(util.isUrl("https://www.google.com"));
+    assert.notOk(util.isUrl("www.google.com"));
+});
+
