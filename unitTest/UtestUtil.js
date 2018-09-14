@@ -491,5 +491,6 @@ test("dctermsToTable", function (assert) {
 test("isUrl", function (assert) {
     assert.ok(util.isUrl("https://www.google.com"));
     assert.notOk(util.isUrl("www.google.com"));
+    assert.notOk(util.isUrl("Price: 8,000 Gold"));
 });
 

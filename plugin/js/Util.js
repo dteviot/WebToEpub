@@ -656,8 +656,9 @@ var util = (function () {
 
     var isUrl = function(string) {
         try {
-            new URL(string);
-            return true;
+            let url = new URL(string);
+            return url.protocol.startsWith("http:")
+              || url.protocol.startsWith("https:");
         } catch (e) {
             return false;
         }

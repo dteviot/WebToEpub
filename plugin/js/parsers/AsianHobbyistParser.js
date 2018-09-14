@@ -19,6 +19,10 @@ class AsianHobbyistParser extends WordpressBaseParser{
             return link.href;
         }
 
+        if (AsianHobbyistParser.isPaged(dom)) {
+            return null;
+        }
+
         let content = AsianHobbyistParser.cleanedContent(dom);
         let links = [...content.querySelectorAll("a")];
         if (0 < links.length) {
