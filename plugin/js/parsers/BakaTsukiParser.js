@@ -113,10 +113,6 @@ class BakaTsukiParser extends Parser{
         return dom.querySelector("h1.firstHeading");
     }
 
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
-    }
-
     extractSeriesInfo(dom, metaInfo) {
         // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
         let that = this;

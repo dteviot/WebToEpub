@@ -34,10 +34,6 @@ class WikipediaParser extends Parser{
         return dom.getElementById("bodyContent");
     };
 
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
-    };
-
     removeUnwantedElementsFromContentElement(element) {
         super.removeUnwantedElementsFromContentElement(element);
         this.removeEditElements(element);

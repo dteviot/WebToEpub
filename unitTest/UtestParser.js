@@ -169,4 +169,22 @@ QUnit.test("addTitleToContent-text", function (assert) {
     parser.findChapterTitle = () => "Title2";
     parser.addTitleToContent(webPage, doc.body);
     assert.equal(doc.body.innerHTML, "<h1>Title2</h1>");
-   });
+ });
+
+ QUnit.test("extractLanguage", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html lang=\"cn\">"+
+        "<head><title> Title 1 </title>"+
+        "<meta property=\"og:locale\" content=\"fr\" /></head> " +
+        "<body>" +
+        "<h1></h1>" +
+        "</body></html>",
+        "text/html"
+    );
+    let parser = new Parser();
+    assert.equal(parser.extractLanguage(dom), "fr");
+    dom.querySelector("meta").remove();
+    assert.equal(parser.extractLanguage(dom), "cn");
+    dom.querySelector("html").removeAttribute("lang");
+    assert.equal(parser.extractLanguage(dom), "en");
+ });

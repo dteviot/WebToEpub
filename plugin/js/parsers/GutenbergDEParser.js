@@ -71,13 +71,4 @@ class GutenbergDEParser extends Parser{
 
         return super.extractAuthor(dom);
     };
-    
-
-    // language used
-    // Optional, if not provided, will default to ISO code for English "en"
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
-    };
-
-
 }

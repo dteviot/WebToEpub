@@ -18,10 +18,6 @@ class UltimaguilParser extends Parser {
         return "Twintails";
     }
 
-    extractLanguage(dom) {   // eslint-disable-line no-unused-vars
-        return "en";
-    };
-
     extractAuthor(dom) {   // eslint-disable-line no-unused-vars
         return "Mizusawa Yume";
     }

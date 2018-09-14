@@ -190,12 +190,19 @@ class Parser {
     }
 
     /**
-    * default implementation, a number of sites use jetpack tags
-    * but if not available, default to English
+    * default implementation, 
+    * if not available, default to English
     */
     extractLanguage(dom) {
+        // try jetpack tag
         let locale = dom.querySelector("meta[property='og:locale']");
-        return (locale === null) ? "en" : locale.getAttribute("content");
+        if (locale !== null) {
+            return locale.getAttribute("content");
+        }
+
+        // try <html>'s lang attribute
+        locale = dom.querySelector("html").getAttribute("lang");
+        return (locale === null) ? "en" : locale;
     }
 
     /**
