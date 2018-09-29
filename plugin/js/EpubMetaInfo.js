@@ -138,6 +138,14 @@ class EpubMetaInfo {
         "}\r"+
         "a:active {\r"+
         "   text-decoration: underline;\r"+
-        "}";
+        "}"+
+
+        "table {\r"+
+        "   width: 90%;\r"+
+        "   border-collapse: collapse;\r"+
+        "}\r"+
+        "table, th, td {\r"+
+        "   border: 1px solid black;\r"+
+        "}\r";
     }
 }
