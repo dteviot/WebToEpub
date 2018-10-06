@@ -20,9 +20,9 @@ class QidianParser extends Parser{
 
     static cleanupChapterLink(link) {
         let title = link.textContent;
-        let element = link.querySelector("span");
+        let element = link.querySelector("strong");
         if (element !== null) {
-            title = element.textContent;
+            title = element.textContent.trim();
             element = link.querySelector("i");
             if (element !== null) {
                 title = element.textContent + ": " + title;
