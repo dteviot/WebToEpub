@@ -23,6 +23,10 @@ class WuxiaworldCoParser extends Parser{
         return dom.querySelector("div#info h1");
     };
 
+    extractAuthor(dom) {
+        return dom.querySelector("div#info p").textContent.substring(7);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("div.bookname h1");
     }
