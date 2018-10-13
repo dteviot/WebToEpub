@@ -27,6 +27,7 @@ Credits
 * dreamer2908
 * Parser for German Project Gutenberg by GallusMax
 * Hogesyx
+* Asif Mahmood
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
