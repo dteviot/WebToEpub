@@ -50,7 +50,7 @@ class AsianHobbyistParser extends WordpressBaseParser{
     fetchChapter(url) {
         let firstUrl = url;
         return HttpClient.wrapFetch(url).then(function (xhr) {
-            let docToFill = Parser.makeEmptyDocForContent("");
+            let docToFill = Parser.makeEmptyDocForContent();
             let newDom = xhr.responseXML;
             let pageUrl = AsianHobbyistParser.findUrlOfFirstPageOfChapter(newDom);
             return AsianHobbyistParser.fetchPagesOfChapter(
