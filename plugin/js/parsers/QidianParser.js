@@ -43,7 +43,6 @@ class QidianParser extends Parser{
     extractAuthor(dom) {
         let element = dom.querySelector("address p strong");
         if (element !== null) {
-            console.log(element.nextSibling.textContent);
             return element.nextSibling.textContent;
         }
         return super.extractAuthor(dom);
