@@ -41,19 +41,8 @@ class QidianParser extends Parser{
     };
 
     extractAuthor(dom) {
-        let element = dom.querySelector("address");
-        if (element !== null) {
-            element = util.getElement(element, "p", p => p.textContent.startsWith("Author"));
-            if (element !== null) {
-                let author = element.textContent;
-                let strong = element.querySelector("strong");
-                if (strong !== null) {
-                    author = author.substring(strong.textContent.length);
-                }
-                return author;
-            }
-        }
-        return super.extractAuthor(dom);
+        let element = dom.querySelector("address p span");
+        return (element === null) ? super.extractAuthor(dom) : element.textContent;
     }
  
     removeUnwantedElementsFromContentElement(content) {
