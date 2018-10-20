@@ -13,8 +13,7 @@ class EpubItemSupplier {
         this.imageCollector = imageCollector;
         imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
         epubItems.forEach(item => this.epubItems.push(item));
-        let that = this;
-        this.coverImageId = () => that.coverImageInfo.getId();
+        this.coverImageId = () => this.coverImageInfo.getId();
     };
 
 
@@ -35,18 +34,16 @@ class EpubItemSupplier {
 
     // used to populate table of contents
     *chapterInfo() {
-        let that = this;
-        for(let epubItem of that.epubItems) {
+        for(let epubItem of this.epubItems) {
             yield* epubItem.chapterInfo();
         };
     }
 
     makeCoverImageXhtmlFile(emptyDocFactory) {
-        let that = this;
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
-        let userPreferences = that.imageCollector.userPreferences;
-        body.appendChild(that.coverImageInfo.createImageElement(userPreferences));
+        let userPreferences = this.imageCollector.userPreferences;
+        body.appendChild(this.coverImageInfo.createImageElement(userPreferences));
         return util.xmlToString(doc);
     }
 
