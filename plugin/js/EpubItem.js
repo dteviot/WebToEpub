@@ -119,7 +119,9 @@ class ChapterEpubItem extends EpubItem {
 
     *chapterInfo() {
         let that = this;
-        if (that.newArc !== null) {
+
+        let isStartOfNewArc = ((that.newArc !== null) && (that.newArc !== undefined));
+        if (isStartOfNewArc) {
             yield {
                 depth: 0,
                 title: that.newArc,

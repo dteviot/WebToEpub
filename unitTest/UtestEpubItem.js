@@ -65,3 +65,14 @@ test("hasSvg", function (assert) {
     item.nodes[1].appendChild(svg);
     assert.ok(item.hasSvg());
 });
+
+test("ChapterEpubItem_chapterInfo_noNewArc", function (assert) {
+    let chapter = {
+        sourceUrl: "https://dummy.com/nonsuch.html",
+        title: "DummyTitle"
+    };
+    let content = { childNodes: [] };
+    let item = new ChapterEpubItem(chapter, content, 1);
+    let ci = [...item.chapterInfo()];
+    assert.equal(ci.length, 1);
+});
