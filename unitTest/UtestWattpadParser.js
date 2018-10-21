@@ -49,9 +49,9 @@ HttpClient.simulateFetch = function (url, handler) {
     return Promise.resolve(response);
 }
 
-HttpClient.wrapFetchImpl = function (url, handler) {
+HttpClient.wrapFetchImpl = function (url, wrapOptions) {
     return HttpClient.simulateFetch(url, HttpClient.makeOptions()).then(function (response) {
-        return HttpClient.checkResponseAndGetData(url, handler, response);
+        return HttpClient.checkResponseAndGetData(url, wrapOptions.responseHandler, response);
     });
 }
 

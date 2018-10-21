@@ -77,22 +77,39 @@ class HttpClient {
         if (fetchOptions.makeTextDecoder != null) {
             responseHandler.makeTextDecoder = fetchOptions.makeTextDecoder;
         }
-        return HttpClient.wrapFetchImpl(url, responseHandler, fetchOptions.errorHandler);
+        let wrapOptions = {
+            responseHandler: responseHandler,
+            errorHandler: fetchOptions.errorHandler
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
-    static fetchJson(url) {
-        return HttpClient.wrapFetchImpl(url, new FetchJsonResponseHandler());
+    static fetchJson(url, fetchOptions) {
+        let wrapOptions = {
+            responseHandler: new FetchJsonResponseHandler(),
+            fetchOptions: fetchOptions
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
     static fetchText(url) {
-        return HttpClient.wrapFetchImpl(url, new FetchTextResponseHandler());
+        let wrapOptions = {
+            responseHandler: new FetchTextResponseHandler(),
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
-    static wrapFetchImpl(url, handler, errorHandler) {
+    static wrapFetchImpl(url, wrapOptions) {
+        let handler = wrapOptions.responseHandler;
+        let errorHandler = wrapOptions.errorHandler;
+        let fetchOptions = wrapOptions.fetchOptions;
+        if (fetchOptions == null) {
+            fetchOptions = HttpClient.makeOptions(); 
+        }
         if (errorHandler == null) {
             errorHandler = new FetchErrorHandler();
         }
-        return fetch(url, HttpClient.makeOptions()).
+        return fetch(url, fetchOptions).
         catch(function (error) {
             return errorHandler.onFetchError(url, error);
         }).then(function(response) {
