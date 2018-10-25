@@ -71,10 +71,10 @@ test("getUrlforTocAjaxCall", function (assert) {
     assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=163443");
 });
 
-test("calcNumberOfChaptersToAskFor", function (assert) {
+test("getWdtnonce", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let count = ComrademaoParser.calcNumberOfChaptersToAskFor(dom);
-    assert.equal(count, 116);
+    let wdtnonce = ComrademaoParser.getWdtnonce(dom);
+    assert.equal(wdtnonce, "5b5e209fcb");
 });
 
 test("getInformationEpubItemChildNodes", function (assert) {
@@ -96,6 +96,7 @@ let ComrademaoToCSample =
     <div class="page-title-product_2">
         <div class="wrap-content"><div class="author" style=""> <img src="https://comrademao.com/wp-content/themes/book-junky/assets/images/author.png" alt=""> Jing Wu Hen &amp; 净无痕</div><h4 style="">The Legend of Futian</h4><div><div class="woocommerce"><div class="woocommerce-product-rating"> <span class="star-rating  bj-color-#7151ed"> <span style="width:0%"></span> </span><span class="bj-rating-counts" style="color:#7151ed;">0 Ratings</span></div></div></div><p style="">In a time when the Divine Prefectures of the East Sea were in great disarray, Emperor Ye Qing and Donghuang the Great appeared to save the day. Under their rule, the prefectures united and all nations as well as their kings have been controlled. However, the legend of these two great heroes becomes altered when Emperor Ye Qing’s name is wiped from the history books after his sudden death. All statues and images of him were destroyed and his name a taboo. Only the legend of Donghuang the Great shall live on. Fifteen years later, a young man by the name of Ye Futian begins his journey in search for his true identity. The legend of Futian was going to be one for the history books.</p></div>
     </div>
+    <input type="hidden" id="wdtNonceFrontendEdit" name="wdtNonceFrontendEdit" value="5b5e209fcb">
     <table id="table_1" class="responsive display nowrap data-t data-t wpDataTable dataTable no-footer" style="" data-described-by="table_1_desc" data-wpdatatable_id="3" role="grid">
         <tbody>
             <tr role="row" class="odd">

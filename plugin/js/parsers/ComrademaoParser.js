@@ -24,6 +24,10 @@ class ComrademaoParser extends Parser{
     }
 
     getChapterUrls(dom) {
+        let chapters = ComrademaoParser.chaptersFromDom(dom);
+        if (ComrademaoParser.allChaptersPresent(chapters)) {
+            return Promise.resolve(chapters);
+        }
         let wrapOptions = {
             method: "POST",
             credentials: "include",
@@ -32,6 +36,9 @@ class ComrademaoParser extends Parser{
         return HttpClient.fetchJson(ComrademaoParser.getUrlforTocAjaxCall(dom), wrapOptions)
             .then(function (handler) {
                 return ComrademaoParser.makeChapterUrlsFromAjaxResponse(handler.json);
+            })
+            .catch(function () {
+                return ComrademaoParser.chaptersFromDom(dom);
             });
     }
 
@@ -40,6 +47,10 @@ class ComrademaoParser extends Parser{
         return util.hyperlinksToChapterList(menu).reverse();
     }
 
+    static allChaptersPresent(chapters) {
+        return 100 < chapters.length;
+    }
+    
     static getUrlforTocAjaxCall(dom) {
         let link = dom.querySelector("link[rel='shortlink']");
         let id = link.getAttribute("href").split("?p=")[1];
@@ -47,7 +58,7 @@ class ComrademaoParser extends Parser{
     }
 
     static fakeFormData(dom) {
-        let numChapters = ComrademaoParser.calcNumberOfChaptersToAskFor(dom);
+        const askForAllChapters = -1;
         var formData = new FormData();
         formData.append("draw", 1);
         formData.append("columns[0][data]", 0);
@@ -71,29 +82,23 @@ class ComrademaoParser extends Parser{
         formData.append("order[0][column]", 0);
         formData.append("order[0][dir]", "desc");
         formData.append("start", 0);
-        formData.append("length", numChapters);
+        formData.append("length", askForAllChapters);
         formData.append("search[value]", "");
         formData.append("search[regex]", false);
-        formData.append("wdtNonce", "51af17c637");
+        formData.append("wdtNonce", ComrademaoParser.getWdtnonce(dom));
         return formData;
     }
 
-    static calcNumberOfChaptersToAskFor(dom) {
-        let paginate = [...dom.querySelectorAll("div#table_1_paginate span a")]
-            .map(a => parseInt(a.textContent));
-        if (0 < paginate.length) {
-            let tocPageCount = Math.max(...paginate);
-            let linksPerPage = ComrademaoParser.chaptersFromDom(dom).length;
-            return (tocPageCount + 1) * linksPerPage;
-        }
-        return 10000;
+    static getWdtnonce(dom) {
+        return dom.querySelector("input#wdtNonceFrontendEdit")
+            .getAttribute("value");
     }
 
     static makeChapterUrlsFromAjaxResponse(json) {
         let parser = new DOMParser();
         return json.data
-           .map(a => ComrademaoParser.stringToChapter(a[1], parser))
-           .reverse();
+            .map(a => ComrademaoParser.stringToChapter(a[1], parser))
+            .reverse();
     }
 
     static stringToChapter(s, parser) {
