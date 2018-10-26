@@ -118,6 +118,7 @@ class DefaultParser extends Parser {
         util.removeElements(element.querySelectorAll("script[src], iframe"));
         util.removeComments(element);
         util.removeUnwantedWordpressElements(element);
+        util.removeMicrosoftWordCrapElements(element);
     };
 
     static getSelectContentTag() {
