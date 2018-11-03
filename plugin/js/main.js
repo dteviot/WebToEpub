@@ -303,7 +303,7 @@ var main = (function () {
     }
 
     function localize(element) {
-        let localized = chrome.i18n.getMessage(element.innerText);
+        let localized = chrome.i18n.getMessage(element.textContent.trim());
         if (!util.isNullOrEmpty(localized)) {
             element.innerText = localized;
         };
