@@ -399,15 +399,6 @@ var util = (function () {
         return (img === null) ? img : img.src;   
     }
 
-    var getAllHyperlinkHashes = function(element) {
-        // ToDo: should exclude hyperlinks that don't point to this page
-        let hashes = new Set();
-        for(let link of element.querySelectorAll("a[href*='#']")) {
-            hashes.add(util.extractHashFromUri(link.href));
-        }
-        return hashes;
-    }
-
     var extractHashFromUri = function(uri) {
         let index = uri.indexOf("#");
         return (index === -1) ? null : uri.substring(index + 1);
@@ -910,7 +901,6 @@ var util = (function () {
         getFirstImgSrc: getFirstImgSrc,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
-        getAllHyperlinkHashes: getAllHyperlinkHashes,
         extractHashFromUri: extractHashFromUri,
         makeHyperlinksRelative: makeHyperlinksRelative, 
         isLocalHyperlink: isLocalHyperlink,
