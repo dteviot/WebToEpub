@@ -184,6 +184,8 @@ var makeManifestForChrome = function(data) {
     let manifest = JSON.parse(data.toString());
     delete(manifest.applications);
     delete(manifest.browser_action.browser_style);
+    manifest.permissions = manifest.permissions
+        .filter(p => !p.startsWith("webRequest"));
     return manifest;    
 }
 

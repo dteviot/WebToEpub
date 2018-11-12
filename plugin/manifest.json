@@ -10,6 +10,8 @@
     "downloads",
     "storage",
     "tabs", 
+    "webRequest",
+    "webRequestBlocking",
     "<all_urls>"
   ],
   "browser_action": {
