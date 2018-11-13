@@ -449,11 +449,15 @@ QUnit.test("decodeCloudflareProtectedEmails", function (assert) {
         "<p><a href=\"/cdn-cgi/l/email-protection\" class=\"__cf_email__\" data-cfemail=\"543931142127353935313e352e7a373b39\">[email&#160;protected]</a></p>" +
         "<p><a href=\"/cdn-cgi/l/email-protection#5f323a1f2a2c3e323e3a353e25713c3032\"><i class=\"svg-icon email\"></i></a></p>" +
         "<a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
+        "<a href=\"https://www.webnovel.com/book/8527113906000305/Reincarnation-Of-The-Strongest-Sword-God\"><span class=\"__cf_email__\" data-cfemail=\"eab8b9b9adaabd8f8884859c8f86\">[email&#160;protected]</span></a>" +
         "</div>"
     );
     let div = dom.querySelector("div");
     util.decodeCloudflareProtectedEmails(div);
-    assert.equal(div.innerHTML, "<p>me@usamaejaz.com</p><p>me@usamaejaz.com</p><a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>");
+    assert.equal(div.innerHTML, 
+        "<p>me@usamaejaz.com</p><p>me@usamaejaz.com</p><a href=\"https://www.baka-tsuki.org/project/test:Volume_1#cite_note-1\">[1]</a>" +
+        "<a href=\"https://www.webnovel.com/book/8527113906000305/Reincarnation-Of-The-Strongest-Sword-God\">RSSG@Webnovel</a>"
+    );
 });
 
 test("removeUnwantedWordpressElements", function (assert) {

@@ -146,7 +146,7 @@ var util = (function () {
 
     // refer https://usamaejaz.com/cloudflare-email-decoding/
     var decodeCloudflareProtectedEmails = function(content) {
-        for(let link of [...content.querySelectorAll("a.__cf_email__")]) {
+        for(let link of [...content.querySelectorAll(".__cf_email__")]) {
             util.replaceCloudflareProtectedLink(link);
         }
         let links = [...content.querySelectorAll("a")].
