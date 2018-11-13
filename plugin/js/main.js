@@ -350,26 +350,6 @@ var main = (function () {
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
     }
 
-    // fetch() calls on Firefox include an origin header.
-    // Which makes some sites fail with a CORS violation.
-    // Need to use a webRequest to remove origin from header.
-    function filterHeaders(e) {
-        return {requestHeaders: e.requestHeaders.filter(
-            h => ((h.name.toLowerCase() !== "origin")
-                || !h.value.startsWith("moz-extension://"))
-        )};
-    }
-
-    function startWebRequestListeners() {
-        if (util.isFirefox()) {
-            browser.webRequest.onBeforeSendHeaders.addListener(
-                filterHeaders,
-                {urls: ["<all_urls>"]},
-                ["blocking", "requestHeaders"]
-            );        
-        };
-    }
-
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
@@ -378,14 +358,15 @@ var main = (function () {
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             addOnClickEventHandlers();
             populateControls();
-            startWebRequestListeners();
+            if (util.isFirefox()) {
+                Firefox.startWebRequestListeners();
+            }
         } else {
             openTabWindow();
         }
     }
 
     return {
-        filterHeaders: filterHeaders,
         getPackEpubButton: getPackEpubButton
     };
 })();
