@@ -51,7 +51,7 @@ HttpClient.simulateFetch = function (url, handler) {
 
 HttpClient.wrapFetchImpl = function (url, wrapOptions) {
     return HttpClient.simulateFetch(url, HttpClient.makeOptions()).then(function (response) {
-        return HttpClient.checkResponseAndGetData(url, wrapOptions.responseHandler, response);
+        return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
     });
 }
 

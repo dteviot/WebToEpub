@@ -24,7 +24,7 @@ class FetchErrorHandler {
         return Promise.reject(new Error(this.makeFailMessage(url, error.message)));
     }
 
-    onResponseError(url, handler, response) {
+    onResponseError(url, wrapOptions, response) {
         let failError = new Error(this.makeFailMessage(url, response.status));
         if ((response.status < 500) || (600 <= response.status)) {
             return Promise.reject(failError);
@@ -33,7 +33,7 @@ class FetchErrorHandler {
         let msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
         let cancelLabel = this.getCancelButtonText();
         return new Promise(function(resolve, reject) {
-            msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, handler, this));
+            msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, wrapOptions));
             msg.cancelAction = () => reject(failError);
             msg.cancelLabel = cancelLabel;
             ErrorLog.showErrorMessage(msg);
@@ -100,27 +100,25 @@ class HttpClient {
     }
 
     static wrapFetchImpl(url, wrapOptions) {
-        let handler = wrapOptions.responseHandler;
-        let errorHandler = wrapOptions.errorHandler;
-        let fetchOptions = wrapOptions.fetchOptions;
-        if (fetchOptions == null) {
-            fetchOptions = HttpClient.makeOptions(); 
+        if (wrapOptions.fetchOptions == null) {
+            wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
-        if (errorHandler == null) {
-            errorHandler = new FetchErrorHandler();
+        if (wrapOptions.errorHandler == null) {
+            wrapOptions.errorHandler = new FetchErrorHandler();
         }
-        return fetch(url, fetchOptions).
+        return fetch(url, wrapOptions.fetchOptions).
         catch(function (error) {
-            return errorHandler.onFetchError(url, error);
+            return wrapOptions.errorHandler.onFetchError(url, error);
         }).then(function(response) {
-            return HttpClient.checkResponseAndGetData(url, handler, response, errorHandler);
+            return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
         });
     }
 
-    static checkResponseAndGetData(url, handler, response, errorHandler) {
+    static checkResponseAndGetData(url, wrapOptions, response) {
         if(!response.ok) {
-            return errorHandler.onResponseError(url, handler, response);
+            return wrapOptions.errorHandler.onResponseError(url, wrapOptions, response);
         } else {
+            let handler = wrapOptions.responseHandler;
             handler.setResponse(response);
             return handler.extractContentFromResponse(response);
         }
