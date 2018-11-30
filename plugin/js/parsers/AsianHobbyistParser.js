@@ -10,9 +10,38 @@ class AsianHobbyistParser extends WordpressBaseParser{
     getChapterUrls(dom) {
         let items = [...dom.querySelectorAll("li.su-post a")]
             .map(a => util.hyperLinkToChapter(a));
-        return Promise.resolve(items.reverse());
+        if (0 < items.length) {
+            return Promise.resolve(items.reverse());
+        }
+        return AsianHobbyistParser.usePostEntriesAsTitles(dom);
     };
 
+    static usePostEntriesAsTitles(dom) {
+        let chapters = AsianHobbyistParser.extractPostEntries(dom);
+        let tocPageUrls = AsianHobbyistParser.getUrlsOfTocPages(dom);
+        return Promise.all(
+            tocPageUrls.map(url => AsianHobbyistParser.fetchPartialChapterList(url))
+        ).then(function (tocFragments) {
+            return tocFragments.reduce((a, c) => a.concat(c), chapters).reverse();
+        });
+    }
+
+    static getUrlsOfTocPages(dom) {
+        return [...dom.querySelectorAll("div.pagenav.clearfix > a")]
+            .map(a => a.href);
+    }
+
+    static fetchPartialChapterList(url) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            return AsianHobbyistParser.extractPostEntries(xhr.responseXML);
+        });
+    }
+    
+    static extractPostEntries(dom) {
+        return [...dom.querySelectorAll("h2.post-title.entry-title > a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+    
     static findUrlOfFirstPageOfChapter(dom) {
         let link = dom.querySelector("div.entry-content div.post-embed blockquote a");
         if (link != null) {
