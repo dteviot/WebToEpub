@@ -53,8 +53,18 @@ class ComrademaoParser extends Parser{
     
     static getUrlforTocAjaxCall(dom) {
         let link = dom.querySelector("link[rel='shortlink']");
-        let id = link.getAttribute("href").split("?p=")[1];
+        let id = (link == null)
+            ? ComrademaoParser.wdtVarFromBody(dom)
+            : link.getAttribute("href").split("?p=")[1];
         return `https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=${id}`;
+    }
+
+    static wdtVarFromBody(dom) {
+        const prefix = "postid-";
+        let candidates = dom.body.className.split(" ")
+            .filter(s => s.startsWith(prefix))
+            .map(s => s.substring(prefix.length));
+        return candidates[0];
     }
 
     static fakeFormData(dom) {

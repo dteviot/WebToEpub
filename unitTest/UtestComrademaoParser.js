@@ -71,6 +71,18 @@ test("getUrlforTocAjaxCall", function (assert) {
     assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=163443");
 });
 
+test("wdtVarFromBody", function (assert) {
+    let dom = new DOMParser().parseFromString(ComrademaoToCSample2, "text/html");
+    let wdt = ComrademaoParser.wdtVarFromBody(dom);
+    assert.equal(wdt, "2310988");
+});
+
+test("getUrlforTocAjaxCallFromBody", function (assert) {
+    let dom = new DOMParser().parseFromString(ComrademaoToCSample2, "text/html");
+    let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
+    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=2310988");
+});
+
 test("getWdtnonce", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
     let wdtnonce = ComrademaoParser.getWdtnonce(dom);
@@ -132,6 +144,18 @@ let ComrademaoToCSample =
     </div>
 </body>
 </html>`
+
+let ComrademaoToCSample2 =
+`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Spirit Vessel &#8211; Comrade Mao</title>
+    <base href="https://comrademao.com/novel/spirit-vessel/" />
+</head>
+<body class="product-template-default single single-product postid-2310988 woocommerce woocommerce-page woocommerce-no-js">
+</body>
+</html>`
+
 
 let ComrademaoChapterSample =
 `<!DOCTYPE html>
