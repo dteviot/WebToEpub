@@ -498,3 +498,6 @@ test("isUrl", function (assert) {
     assert.notOk(util.isUrl("Price: 8,000 Gold"));
 });
 
+test("safeForFileName", function (assert) {
+    assert.equal(util.safeForFileName("aAzZ 0-9\\_"), "aAzZ_0-9_");
+});

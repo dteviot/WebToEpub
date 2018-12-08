@@ -223,7 +223,7 @@ class ImageInfo extends EpubItem {
 
         // examine pathname and query
         let temp = parser.pathname + parser.search;
-        let fileNames = temp.split(/=|&|\:|\/|\?/).filter(s => this.isImageFileNameCandidate(s));
+        let fileNames = temp.split(/=|&|:|\/|\?/).filter(s => this.isImageFileNameCandidate(s));
         if (0 < fileNames.length) {
             return fileNames[fileNames.length - 1];
         }

@@ -183,7 +183,7 @@ class FetchResponseHandler {
         if (!util.isNullOrEmpty(contentType)) {
             let pieces = contentType.toLowerCase().split("charset=");
             if (2 <= pieces.length) {
-                return pieces[1].split(";")[0].replace(/\"/g, "").trim();
+                return pieces[1].split(";")[0].replace(/"/g, "").trim();
             }
         }
         return FetchResponseHandler.DEFAULT_CHARSET;
