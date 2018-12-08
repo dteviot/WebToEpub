@@ -394,11 +394,9 @@ class Parser {
                 return Promise.all(group.map(fetchFunc));
             }); 
         }
-        sequence = sequence.then(function() {
-            main.getPackEpubButton().disabled = false;
-        }).catch(function (err) {
+        sequence = sequence.catch(function (err) {
             ErrorLog.log(err);
-        })
+        });
         return sequence;
     }
 

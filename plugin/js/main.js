@@ -141,6 +141,7 @@ var main = (function () {
         }).catch(function (err) {
             ErrorLog.showErrorMessage(err);
         });
+        main.getPackEpubButton().disabled = false;
     }
 
     function epubVersionFromPreferences() {
