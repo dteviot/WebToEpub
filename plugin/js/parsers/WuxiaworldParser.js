@@ -11,9 +11,49 @@ class WuxiaworldParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("li.chapter-item a")]
-            .map(link => util.hyperLinkToChapter(link));
+        let chapters = [];
+        let chaptersElement = dom.querySelector("div.content div.panel-group");
+        if (chaptersElement != null) {
+            chapters = util.hyperlinksToChapterList(chaptersElement, 
+                WuxiaworldParser.isChapterHref, WuxiaworldParser.getChapterArc);
+            WuxiaworldParser.removeArcsWhenOnlyOne(chapters);
+        }
+        if (0 == chapters.length) {
+            chapters = [...dom.querySelectorAll("li.chapter-item a")]
+                .map(link => util.hyperLinkToChapter(link));
+        }
         return Promise.resolve(chapters);  
+    }
+
+    static isChapterHref(link) {
+        let parent = link.parentNode;
+        return (parent.tagName.toLowerCase() === "li")
+            && (parent.className === "chapter-item");
+    }
+
+    static getChapterArc(link) {
+        let isPanel = function(element) {
+            return (element.tagName.toLowerCase() === "div")
+                && (element.className === "panel panel-default")
+        };
+        
+        let parent = link;
+        do {
+            parent = parent.parentNode;
+            if (parent == null) {
+                return null;
+            }
+        } while (!isPanel(parent));
+        
+        let arc = parent.querySelector("span.title a");
+        return arc == null ? null : arc.textContent.trim();
+    }
+
+    static removeArcsWhenOnlyOne(chapters) {
+        let arcCount = chapters.reduce((p, c) => p + (c.newArc != null), 0);
+        if (arcCount < 2) {
+            chapters.forEach(c => c.newArc = null);
+        }
     }
 
     // find the node(s) holding the story content
