@@ -106,8 +106,7 @@ class HttpClient {
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
         }
-        return fetch(url, wrapOptions.fetchOptions).
-        catch(function (error) {
+        return fetch(url, wrapOptions.fetchOptions).catch(function (error) {
             return wrapOptions.errorHandler.onFetchError(url, error);
         }).then(function(response) {
             return HttpClient.checkResponseAndGetData(url, wrapOptions, response);

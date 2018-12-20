@@ -444,12 +444,12 @@ class Parser {
     fetchImagesUsedInDocument(content, webPage) {
         let that = this;
         return ImageCollector.replaceHyperlinksToImagesWithImages(content, webPage.sourceUrl)
-        .then(function (revisedContent) {
-            that.imageCollector.findImagesUsedInDocument(revisedContent);
-            return that.imageCollector.fetchImages(() => { }, webPage.sourceUrl);
-        }).then(function () {
-            that.updateLoadState(webPage);
-        });
+            .then(function (revisedContent) {
+                that.imageCollector.findImagesUsedInDocument(revisedContent);
+                return that.imageCollector.fetchImages(() => { }, webPage.sourceUrl);
+            }).then(function () {
+                that.updateLoadState(webPage);
+            });
     }
 
     /**
@@ -521,7 +521,7 @@ class Parser {
 
     makeHyperlinkAbsolute(link) {
         if (link.href !== link.getAttribute("href")) {
-            link.href = link.href;
+            link.href = link.href;       // eslint-disable-line no-self-assign
         }
     }
 
