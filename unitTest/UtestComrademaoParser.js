@@ -68,7 +68,7 @@ test("makeChapterUrlsFromAjaxResponse", function (assert) {
 test("getUrlforTocAjaxCall", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
     let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
-    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=163443");
+    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=163443");
 });
 
 test("wdtVarFromBody", function (assert) {
@@ -80,7 +80,7 @@ test("wdtVarFromBody", function (assert) {
 test("getUrlforTocAjaxCallFromBody", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample2, "text/html");
     let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
-    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=2310988");
+    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=2310988");
 });
 
 test("getWdtnonce", function (assert) {

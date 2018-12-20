@@ -56,7 +56,7 @@ class ComrademaoParser extends Parser{
         let id = (link == null)
             ? ComrademaoParser.wdtVarFromBody(dom)
             : link.getAttribute("href").split("?p=")[1];
-        return `https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=3&wdt_var1=${id}`;
+        return `https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=${id}`;
     }
 
     static wdtVarFromBody(dom) {
