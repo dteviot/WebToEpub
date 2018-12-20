@@ -11,14 +11,20 @@ class QidianParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = Array.from(dom.querySelectorAll("ul.content-list a"));
-        if (chapters.length === 0) {
-            chapters = Array.from(dom.querySelectorAll("div.volume-item ol a"));
+        let links = Array.from(dom.querySelectorAll("ul.content-list a"));
+        if (links.length === 0) {
+            links = Array.from(dom.querySelectorAll("div.volume-item ol a"));
         }
-        return Promise.resolve(chapters.map(QidianParser.cleanupChapterLink));
+        return Promise.resolve(links.map(QidianParser.linkToChapter));
     };
 
-    static cleanupChapterLink(link) {
+    static isLinkLocked(link) {
+        let img = link.querySelector("svg > use");
+        return (img != null)
+            && (img.getAttribute("xlink:href") === "#i-lock");
+    }
+
+    static linkToChapter(link) {
         let title = link.textContent;
         let element = link.querySelector("strong");
         if (element !== null) {
@@ -28,7 +34,9 @@ class QidianParser extends Parser{
                 title = element.textContent + ": " + title;
             }
         }
-        return {sourceUrl: link.href, title: title}
+        return {sourceUrl: link.href, title: title, 
+            isIncludeable: !QidianParser.isLinkLocked(link)
+        };
     }
     
     findContent(dom) {

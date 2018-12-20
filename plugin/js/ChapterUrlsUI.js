@@ -165,7 +165,9 @@ class ChapterUrlsUI {
         let col = document.createElement("td");
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        chapter.isIncludeable = true;
+        if (chapter.isIncludeable === undefined) {
+            chapter.isIncludeable = true;
+        }
         checkbox.checked = chapter.isIncludeable;
         checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
         col.appendChild(checkbox);
