@@ -17,3 +17,43 @@ QUnit.test("charsetFromHeaders", function (assert) {
     assert.equal(evaluate("text/html;Charset=\"utf-19\";something="), "utf-19");
     assert.equal(evaluate("text/html; Charset=utf-20 ;something="), "utf-20");
 });
+
+function createDummyFetchErrorHandler(response) {
+    let handler = new FetchErrorHandler();
+    handler.count = 0;
+    handler.prompted = false;
+    handler.retryFetch = function(url, wrapOptions) {
+        ++handler.count;
+        return handler.onResponseError(url, wrapOptions, response);
+    }
+    handler.promptUserForRetry = function(url, wrapOptions, response, failError) {
+        handler.prompted = true;
+        return Promise.reject();
+    }
+    return {errorHandler: handler};
+}
+
+function testOnResponseError(assert, status, retries, prompted) {
+    let done = assert.async(); 
+    let response = {status: status}
+    let wrapOptions = createDummyFetchErrorHandler(response);
+    let handler = wrapOptions.errorHandler;
+    return handler.onResponseError(null, wrapOptions, response)
+        .catch(function() {
+            assert.equal(handler.count, retries)
+            assert.equal(handler.prompted, prompted)
+            done();
+        });
+}
+
+QUnit.test("onResponseError_404_error_fails_immediately", function (assert) {
+    testOnResponseError(assert, 404, 0, false);
+});
+
+QUnit.test("onResponseError_500_error_retries_once", function (assert) {
+    testOnResponseError(assert, 500, 1, false);
+});
+
+QUnit.test("onResponseError_504_error_retries_10_times", function (assert) {
+    testOnResponseError(assert, 504, 10, true);
+});

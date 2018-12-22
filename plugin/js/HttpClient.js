@@ -26,10 +26,29 @@ class FetchErrorHandler {
 
     onResponseError(url, wrapOptions, response) {
         let failError = new Error(this.makeFailMessage(url, response.status));
-        if ((response.status < 500) || (600 <= response.status)) {
+        let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response.status);
+        if (retry.maxRetry === 0) {
             return Promise.reject(failError);
         }
 
+        if (wrapOptions.retry === undefined) {
+            wrapOptions.retry = retry;
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        --wrapOptions.retry.maxRetry;
+        if (0 < wrapOptions.retry.maxRetry) {
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        if (wrapOptions.retry.promptUser) {
+            return this.promptUserForRetry(url, wrapOptions, response, failError);
+        } else {
+            return Promise.reject(failError);
+        }
+    }
+
+    promptUserForRetry(url, wrapOptions, response, failError) {
         let msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
         let cancelLabel = this.getCancelButtonText();
         return new Promise(function(resolve, reject) {
@@ -38,6 +57,32 @@ class FetchErrorHandler {
             msg.cancelLabel = cancelLabel;
             ErrorLog.showErrorMessage(msg);
         });
+    }
+
+    static wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    retryFetch(url, wrapOptions) {
+        return FetchErrorHandler.wait(10000).then(function () {
+            return HttpClient.wrapFetchImpl(url, wrapOptions);
+        });
+    }
+
+    static getAutomaticRetryBehaviourForStatus(status) {
+        switch(status) {
+        case 500:
+            // is fault at server, retry might clear
+            return {maxRetry: 1, promptUser: false};
+        case 502: 
+        case 503: 
+        case 504: 
+            // intermittant fault
+            return {maxRetry: 10, promptUser: true};
+        default:
+            // it's dead Jim
+            return {maxRetry: 0, promptUser: false};
+        }
     }
 }
 
