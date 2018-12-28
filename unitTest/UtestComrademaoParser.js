@@ -2,14 +2,14 @@
 
 module("ComrademaoParser");
 
-test("chaptersFromDom", function (assert) {
+test("extractPartialChapterList", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let chapterUrls = ComrademaoParser.chaptersFromDom(dom);
-    assert.equal(chapterUrls.length, 2);
-    assert.deepEqual(chapterUrls[1], {
+    let chapterUrls = ComrademaoParser.extractPartialChapterList(dom);
+    assert.equal(chapterUrls.length, 10);
+    assert.deepEqual(chapterUrls[8], {
         newArc: null,
-        sourceUrl: "https://comrademao.com/?p=562316",
-        title: "Six hundred and sixty-six chapter"
+        sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1993/",
+        title: "Shoujo Grand Summoning Chapter 1993"
     });
 });
 
@@ -27,6 +27,14 @@ test("extractAuthor", function (assert) {
     assert.equal(actual.trim(), "Jing Wu Hen & 净无痕");
 });
 
+test("listUrlsHoldingChapterLists", function (assert) {
+    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
+    let actual = ComrademaoParser.listUrlsHoldingChapterLists(dom);
+    assert.equal(actual.length, 201);
+    assert.equal(actual[0], "https://comrademao.com/novel/shoujo-grand-summoning/");
+    assert.equal(actual[200], "https://comrademao.com/novel/shoujo-grand-summoning/page/201/")
+});
+
 test("customRawDomToContentStep_removeOriginal", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoChapterSample, "text/html");
     let parser = new ComrademaoParser();
@@ -34,7 +42,7 @@ test("customRawDomToContentStep_removeOriginal", function (assert) {
     let content = parser.findContent(dom);
     parser.customRawDomToContentStep(null, content);
     let paragraphs = [...content.querySelectorAll("p")];
-    assert.equal(paragraphs.length, 3);
+    assert.equal(paragraphs.length, 2);
 });
 
 test("customRawDomToContentStep_keepOriginal", function (assert) {
@@ -44,49 +52,7 @@ test("customRawDomToContentStep_keepOriginal", function (assert) {
     let content = parser.findContent(dom);
     parser.customRawDomToContentStep(null, content);
     let paragraphs = [...content.querySelectorAll("p")];
-    assert.equal(paragraphs.length, 6);
-});
-
-test("stringToChapter", function (assert) {
-    let chapter = ComrademaoParser.stringToChapter(
-        "<a href=\"https:\/\/comrademao.com\/?p=462525\">Chapter 577 The strength of the outbreak<\/a>",
-        new DOMParser()
-    );
-    assert.deepEqual(chapter, {
-        newArc: null,
-        sourceUrl: "https://comrademao.com/?p=462525",
-        title: "Chapter 577 The strength of the outbreak"
-    });
-});
-
-test("makeChapterUrlsFromAjaxResponse", function (assert) {
-    let json = JSON.parse(ComrademaoAjaxResponseSample);
-    let chapters = ComrademaoParser.makeChapterUrlsFromAjaxResponse(json);
-    assert.equal(chapters.length, 10);
-});
-
-test("getUrlforTocAjaxCall", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
-    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=163443");
-});
-
-test("wdtVarFromBody", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample2, "text/html");
-    let wdt = ComrademaoParser.wdtVarFromBody(dom);
-    assert.equal(wdt, "2310988");
-});
-
-test("getUrlforTocAjaxCallFromBody", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample2, "text/html");
-    let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
-    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=2310988");
-});
-
-test("getWdtnonce", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let wdtnonce = ComrademaoParser.getWdtnonce(dom);
-    assert.equal(wdtnonce, "5b5e209fcb");
+    assert.equal(paragraphs.length, 4);
 });
 
 test("getInformationEpubItemChildNodes", function (assert) {
@@ -100,9 +66,8 @@ let ComrademaoToCSample =
 `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>The Legend of Futian &#8211; Comrade Mao</title>
-    <base href="https://comrademao.com/novel/the-legend-of-futian/" />
-    <link rel='shortlink' href='https://comrademao.com/?p=163443' />
+    <title>Shoujo Grand Summoning &#8211; Comrade Mao</title>
+    <base href="https://comrademao.com/novel/shoujo-grand-summoning/" />
 </head>
 <body>
     <div class="page-title-product_2">
@@ -127,74 +92,65 @@ let ComrademaoToCSample =
         </tbody>
     </table>
 
-    <div class="dataTables_paginate paging_full_numbers" id="table_1_paginate" style="display: block;">
-        <a class="paginate_button first disabled" aria-controls="table_1" data-dt-idx="0" tabindex="0" id="table_1_first">First</a>
-        <a class="paginate_button previous disabled" aria-controls="table_1" data-dt-idx="1" tabindex="0" id="table_1_previous">Previous</a>
-        <span>
-            <a class="paginate_button current" aria-controls="table_1" data-dt-idx="2" tabindex="0">1</a>
-            <a class="paginate_button " aria-controls="table_1" data-dt-idx="3" tabindex="0">2</a>
-            <a class="paginate_button " aria-controls="table_1" data-dt-idx="4" tabindex="0">3</a>
-            <a class="paginate_button " aria-controls="table_1" data-dt-idx="5" tabindex="0">4</a>
-            <a class="paginate_button " aria-controls="table_1" data-dt-idx="6" tabindex="0">5</a>
-            <span class="ellipsis">…</span>
-            <a class="paginate_button " aria-controls="table_1" data-dt-idx="7" tabindex="0">57</a>
-        </span>
-        <a class="paginate_button next" aria-controls="table_1" data-dt-idx="8" tabindex="0" id="table_1_next">Next</a>
-        <a class="paginate_button last" aria-controls="table_1" data-dt-idx="9" tabindex="0" id="table_1_last">Last</a>
-    </div>
+    <div class="content">
+    <table class="table table-hover">
+    <thead><tr><th>Date</th><th>Chapter</th></tr></thead>
+    <tbody>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-epilogue/">Shoujo Grand Summoning Chapter epilogue</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-2000/">Shoujo Grand Summoning Chapter 2000</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1999/">Shoujo Grand Summoning Chapter 1999</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1998/">Shoujo Grand Summoning Chapter 1998</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1997/">Shoujo Grand Summoning Chapter 1997</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1996/">Shoujo Grand Summoning Chapter 1996</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1995/">Shoujo Grand Summoning Chapter 1995</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1994/">Shoujo Grand Summoning Chapter 1994</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1993/">Shoujo Grand Summoning Chapter 1993</a></td></tr>
+    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1992/">Shoujo Grand Summoning Chapter 1992</a></td></tr>
+    </tbody>
+    </table>
+    <nav class="pagination pagination-lg text-center">
+        <div class="column">
+            <span aria-current='page' class='page-numbers current'>1</span>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/2/'>2</a>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/3/'>3</a>
+            <span class="page-numbers dots">&hellip;</span>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/201/'>201</a>
+            <a class="next page-numbers" href="https://comrademao.com/novel/shoujo-grand-summoning/page/2/">Next &raquo;</a>
+        </div><div class="column text-right hidden-xs-down"></div>
+    </nav>
+</div>
 </body>
 </html>`
-
-let ComrademaoToCSample2 =
-`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Spirit Vessel &#8211; Comrade Mao</title>
-    <base href="https://comrademao.com/novel/spirit-vessel/" />
-</head>
-<body class="product-template-default single single-product postid-2310988 woocommerce woocommerce-page woocommerce-no-js">
-</body>
-</html>`
-
 
 let ComrademaoChapterSample =
 `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Chapter 935: Gigantic Reproductive System - Chinese Fantasy Novels</title>
-    <base href="https://comrademao.com/chapter/mtl/the-legend-of-futian/six-hundred-and-sixty-six-chapter/" />
+    <title>>Shoujo Grand Summoning Chapter 1994 &#8211; Comrade Mao</title>
+    <base href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1994/" />
 </head>
 
 <body>
-<div class="entry-content">
 <main id="main" class="site-main" role="main">
-Qingu is one of the remains of the Most Holy Palace and a relic of great prestige.<p></p>
-<div class="collapse multi-collapse" id="CollapseRaw"><div class="card card-body"><p>&nbsp;&nbsp;&nbsp;&nbsp;由此可见柳狂生此人是怎样的人，人如其名，狂生狂生，哪怕死后，道宫天之骄子，皆不入他眼。</p></div></div>
-<p> The reason is not only because of the reputation of Liu Niang, but also because Qingu never really touched Liu’s wild piano and got his approval.</p>
-<div class="collapse multi-collapse" id="CollapseRaw"><div class="card card-body"><p>&nbsp;&nbsp;&nbsp;&nbsp;琴谷入口是一处石洞，此刻有不少人来到此地，最前方之人正是叶伏天，他双手环抱古琴，琴曲依旧未断，若断，很可能便会打断琴谷和他之间的共鸣。</p></div></div>
-<p> It can be seen that Liu is mad at this person, who is as famous as his name, wild and mad, even after death, the prince of Daogong Tian is not in his eyes.</p>
-<div class="collapse multi-collapse" id="CollapseRaw"><div class="card card-body"><p>&nbsp;&nbsp;&nbsp;&nbsp;他能够感受到，这片琴谷之中，蕴藏非常强大的琴道意志力量。</p></div></div>
+<div class="entry-content">
+<div class="container">
+<a href="#raw1" data-toggle="collapse">
+    <p>    Above the black cloud layer, Beast King was floating in the air, watching the battlefield below, his face gradually ugly.</p>
+</a>
+<div id="raw1" class="collapse">
+    <p>    在那黑压压的乌云层上方，兽王正临空悬浮在了这里，看着下方的战场，脸色渐渐的难看了起来。</p>
+</div>
+</div>	<div class="container">
+<a href="#raw2" data-toggle="collapse">
+    <p>    Since the beginning of this war, ten minutes later, the first Pseudo Beast King was wiped out by the Magicannon of Kazami Yuuka. At the same time, the number of the Magical Beast, which is about Hundred Thousand, has all died in the hands of Kazami Yuuka.</p>
+</a>
+<div id="raw2" class="collapse">
+    <p>    自这场大战掀开序幕，十分钟以后，第一个伪兽王在风见幽香的魔炮下灰飞烟灭，同时，数量大约在十万左右的飞行魔兽也已经全部死在风见幽香的手中。</p>
+</div>
+</div>
+
 </div>
 </div>
 </body>
 </html>
-`
-
-let ComrademaoAjaxResponseSample =
-`{
-    "draw": 2,
-    "recordsTotal": "383929",
-    "recordsFiltered": "561",
-    "data": [
-        ["05\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=462525\\\">Chapter 577 The strength of the outbreak<\\/a>", "163.443"],
-        ["05\\/10\\/2018 11:33 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=462524\\\">The 576th chapter<\\/a>", "163.443"],
-        ["04\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=458826\\\">The fifth hundred seventy-five chapter three<\\/a>", "163.443"],
-        ["04\\/10\\/2018 11:33 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=458825\\\">Chapter 576 gives way?<\\/a>", "163.443"],
-        ["03\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=453743\\\">Chapter 537 The last six<\\/a>", "163.443"],
-        ["03\\/10\\/2018 11:33 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=453742\\\">The 576th chapter<\\/a>", "163.443"],
-        ["02\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=448154\\\">The fifty-seventh chapter of the first ten battle<\\/a>", "163.443"],
-        ["02\\/10\\/2018 11:33 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=448153\\\">The 570th chapter of Baiyuncheng Ergongzi (three more)<\\/a>", "163.443"],
-        ["01\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=436116\\\">Chapter 569 The rest of the transformation (two more)<\\/a>", "163.443"],
-        ["01\\/10\\/2018 11:34 AM", "<a href=\\\"https:\\/\\/comrademao.com\\/?p=436115\\\">Chapter 558, reaching the top ten<\\/a>", "163.443"]    ]
-}
 `

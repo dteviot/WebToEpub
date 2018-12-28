@@ -24,102 +24,56 @@ class ComrademaoParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = ComrademaoParser.chaptersFromDom(dom);
-        if (ComrademaoParser.allChaptersPresent(chapters)) {
-            return Promise.resolve(chapters);
+        let chapters = ComrademaoParser.extractPartialChapterList(dom);
+        let pagesWithToc = ComrademaoParser.listUrlsHoldingChapterLists(dom);
+        if (pagesWithToc.length <= 1) {
+            return Promise.resolve(chapters.reverse());
         }
-        let wrapOptions = {
-            method: "POST",
-            credentials: "include",
-            body: ComrademaoParser.fakeFormData(dom)
-        };
-        return HttpClient.fetchJson(ComrademaoParser.getUrlforTocAjaxCall(dom), wrapOptions)
-            .then(function (handler) {
-                return ComrademaoParser.makeChapterUrlsFromAjaxResponse(handler.json);
-            })
-            .catch(function () {
-                return ComrademaoParser.chaptersFromDom(dom);
-            });
+
+        // Disabled fetching ToC pages, is timing out at moment.
+        return Promise.resolve(chapters.reverse());
+/*        
+        return Promise.all(
+            pagesWithToc.map(volume => ComrademaoParser.fetchPartialChapterList(volume))
+        ).then(function (tocFragments) {
+            for (let fragment of tocFragments) {
+                chapters = chapters.concat(fragment);
+            }
+            return Promise.resolve(chapters.reverse());
+        });
+*/        
+    };
+
+    static listUrlsHoldingChapterLists(dom) {
+        let urls = [ dom.baseURI ];
+        let nav = dom.querySelector("div.content nav");
+        if (nav != null) {
+            let links = [...nav.querySelectorAll("a.page-numbers")]
+                .filter(l => !l.className.includes("next"));
+            let max = (0 < links.length) 
+                ? parseInt(links[links.length - 1].textContent)
+                : 0;
+            for(let i = 2; i <= max; ++i) {
+                let url = `${dom.baseURI}page/${i}/`;
+                urls.push(url);
+            }
+        }
+        return urls;
     }
 
-    static chaptersFromDom(dom) {
-        let menu = dom.querySelector("table#table_1");
-        return util.hyperlinksToChapterList(menu).reverse();
+    static fetchPartialChapterList(url) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            return ComrademaoParser.extractPartialChapterList(xhr.responseXML);
+        });
     }
 
-    static allChaptersPresent(chapters) {
-        return 100 < chapters.length;
-    }
-    
-    static getUrlforTocAjaxCall(dom) {
-        let link = dom.querySelector("link[rel='shortlink']");
-        let id = (link == null)
-            ? ComrademaoParser.wdtVarFromBody(dom)
-            : link.getAttribute("href").split("?p=")[1];
-        return `https://comrademao.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=4&wdt_var1=${id}`;
-    }
-
-    static wdtVarFromBody(dom) {
-        const prefix = "postid-";
-        let candidates = dom.body.className.split(" ")
-            .filter(s => s.startsWith(prefix))
-            .map(s => s.substring(prefix.length));
-        return candidates[0];
-    }
-
-    static fakeFormData(dom) {
-        const askForAllChapters = -1;
-        var formData = new FormData();
-        formData.append("draw", 1);
-        formData.append("columns[0][data]", 0);
-        formData.append("columns[0][name]", "post_post_date");
-        formData.append("columns[0][searchable]", true);
-        formData.append("columns[0][orderable]", true);
-        formData.append("columns[0][search][value]", ""); 
-        formData.append("columns[0][search][regex]", false);
-        formData.append("columns[1][data]", 1);
-        formData.append("columns[1][name]", "post_title_with_link_to_post");
-        formData.append("columns[1][searchable]", true);
-        formData.append("columns[1][orderable]", true);
-        formData.append("columns[1][search][value]", "");
-        formData.append("columns[1][search][regex]", false);
-        formData.append("columns[2][data]", 2);
-        formData.append("columns[2][name]", "post_meta_p2m");
-        formData.append("columns[2][searchable]", true);
-        formData.append("columns[2][orderable]", true);
-        formData.append("columns[2][search][value]", "");
-        formData.append("columns[2][search][regex]", false);
-        formData.append("order[0][column]", 0);
-        formData.append("order[0][dir]", "desc");
-        formData.append("start", 0);
-        formData.append("length", askForAllChapters);
-        formData.append("search[value]", "");
-        formData.append("search[regex]", false);
-        formData.append("wdtNonce", ComrademaoParser.getWdtnonce(dom));
-        return formData;
-    }
-
-    static getWdtnonce(dom) {
-        return dom.querySelector("input#wdtNonceFrontendEdit")
-            .getAttribute("value");
-    }
-
-    static makeChapterUrlsFromAjaxResponse(json) {
-        let parser = new DOMParser();
-        return json.data
-            .map(a => ComrademaoParser.stringToChapter(a[1], parser))
-            .reverse();
-    }
-
-    static stringToChapter(s, parser) {
-        let link = parser.parseFromString(s, "text/html").body.childNodes[0];
-        return util.hyperLinkToChapter(link) ;
+    static extractPartialChapterList(dom) {
+        let menu = dom.querySelector("table.table");
+        return util.hyperlinksToChapterList(menu);
     }
 
     findContent(dom) {
-        let entry = dom.querySelector("div.entry-content");
-        let main = entry.querySelector("main#main");
-        return (main == null) ? entry : main; 
+        return dom.querySelector("div.entry-content");
     };
 
     extractTitleImpl(dom) {
