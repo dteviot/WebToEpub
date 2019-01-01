@@ -31,9 +31,19 @@ class Sanitize {
             tag = "div";
             validAttributes = this.attributesForTag.get(tag);
         }
-        let e2 = document.createElement(tag);
+        let e2 = this.isSvgElement(tag)
+            ? this.makeSvgElement(tag)
+            : document.createElement(tag)
         return this.copyAttributes(e2, element, validAttributes);
     }    
+
+    isSvgElement(tag) {
+        return (tag === "svg") || (tag === "image") || (tag === "desc");
+    }
+
+    makeSvgElement(tag) {
+        return document.createElementNS("http://www.w3.org/2000/svg", tag);
+    }
 
     copyAttributes(e2, element, validAttributes) {
         for(let attribName of validAttributes) {
@@ -63,6 +73,9 @@ class Sanitize {
         case 3:
             // Text
             return this.cleanTextNode(childNode);
+        case 8:
+            // comment
+            return childNode.cloneNode();
         default:
             return null;
         }
@@ -70,25 +83,30 @@ class Sanitize {
 
     cleanTextNode(textNode) {
         // ToDo: fully implement
-        return textNode;
+        let text = textNode.nodeValue;
+        return document.createTextNode(text);
     }
 }
 
 Sanitize.TAG_LIST = ["a", "abbr", "access", "action", 
-    "address", "blockcode", "blockquote", "body", "caption", "cite", "code",
-    "col", "colgroup", "dd", "delete", "dfn", "di", "dispatch", "div", "dl",
-    "dt", "em", "ev:listener", "group", "h", "handler", "head", "heading",
-    "html", "img", "input", "insert", "kbd", "l", "label", "li", "link",
+    "address", "blockcode", "blockquote", "body", "br", "caption", "cite", "code",
+    "col", "colgroup", "dd", "delete", "desc", "dfn", "di", "dispatch", "div", "dl",
+    "dt", "em", "ev:listener", "group", "h", 
+    "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8",
+    "handler", "head", "heading",
+    "html", "img", "image", "input", "insert", "kbd", "l", "label", "li", "link",
     "load", "message", "meta", "model", "nl", "object", "ol", "output",
     "p", "param", "pre", "quote", "range", "rebuild", "recalculate",
     "refresh", "repeat", "reset", "revalidate", "ruby", "samp", "secret",
     "section", "select1", "select", "send", "separator", "setfocus",
     "setindex", "setvalue", "span", "standby", "strong", "style", "sub",
-    "submit", "summary", "sup", "switch", "table", "tbody", "td",
+    "submit", "summary", "sup", "svg", "switch", "table", "tbody", "td",
     "textarea", "tfoot", "th", "thead", "title", "tr", "trigger",
     "ul", "upload", "var"];
 
 Sanitize.ATTRIBUTES = {
     "a": ["href"],
-    "img": ["src"]
+    "img": ["src"],
+    "image": ["xlink:href", "width", "height"],
+    "svg": ["xmlns", "xmlns:xlink", "height", "width",  "version", "preserveAspectRatio", "viewBox"]
 };
