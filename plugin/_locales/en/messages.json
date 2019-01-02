@@ -31,6 +31,10 @@
 		"message": "Retry",
 		"description": "Label on 'Retry' button when show error"
 	},
+	"__MSG_button_finished_default_parser__": {
+		"message": "Finished",
+		"description": "Label on button to finish configuring default parser"
+	},
 	"__MSG_button_Help__": {
 		"message": "Help...",
 		"description": "Label on button launch help page"
@@ -62,6 +66,10 @@
 	"__MSG_button_Select_All__": {
 		"message": "Select All",
 		"description": "Label on button to set all chapters to selected"
+	},
+	"__MSG_button_test_default_parser__": {
+		"message": "Test",
+		"description": "Label on button to test default parser settings"
 	},
 	"__MSG_button_Unselect_All__": {
 		"message": "Unselect All",
@@ -114,6 +122,26 @@
 	"__MSG_label_File_Author_as__": {
 		"message": "File Author as",
 		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
+	},
+	"__MSG_label_Default_Parser_Chapter_Title_CSS__": {
+		"message": "CSS selector for element holding Title of Chapter:",
+		"description": "Label in front of input for CSS selector to find element holding title of a chapter"
+	},
+	"__MSG_label_Default_Parser_Content_CSS__": {
+		"message": "(required) CSS selector for element holding content to put into EPUB:",
+		"description": "Label in front of input for CSS selector to find element holding content to put into EPUB"
+	},
+	"__MSG_label_Default_Parser_HostName__": {
+		"message": "(required) Hostname:",
+		"description": "Label in front of input for hostname in URL to use these settings for."
+	},
+	"__MSG_label_Default_Parser_Test_Chapter_Url__": {
+		"message": "Url of chapter to test these settings against:",
+		"description": "Label in front of input for URL to test deefault parser settings."
+	},
+	"__MSG_label_Default_Parser_Unwanted_Elements_CSS__": {
+		"message": "CSS selector for element(s) to remove:",
+		"description": "Label in front input for CCS selector for elements to remove"
 	},
 	"__MSG_label_Element_With_Chapter_Content__": {
 		"message": "Element with Chapter Content:",
@@ -194,6 +222,10 @@
 	"__MSG_label_Use_SVG_for_Images__": {
 		"message": "Use <svg> for images",
 		"description": "Label in front of checkbox to choose between <img> and <svg> elements for images."
+	},
+	"__MSG_label_Using_Default_Parser__": {
+		"message": "No parser found for this URL.  Default Parser will be used. Please specify how to obtain content from each web page.",
+		"description": "Warning message when can't figure out how to extract info from web page."
 	},
 	"__MSG_label_Volume__": {
 		"message": "Volume",
@@ -369,6 +401,10 @@
 	"unhandledFieldTypeError": {
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
+	},
+	"warningNoChapterUrl": {
+		"message": "ERROR: No Chapter URL supplied to test against.",
+		"description": "Warning message when user tries to test the Default Parser without supplying a Chapter URL to test against."
 	},
 	"warningNoVisibleContent": {
 		"message": "Warning, content element for web page '$url$' has no visible content.",

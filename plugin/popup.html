@@ -52,6 +52,44 @@
             </tr>
         </table>
     </section>
+    <section id="defaultParserSection" hidden>
+        <p class="i18n">__MSG_label_Using_Default_Parser__</p>
+        <table>
+            <tr>
+                <td>__MSG_label_Default_Parser_HostName__</td>
+                <td>
+                    <input id="defaultParserHostName" type="text" name="defaultParserHostNameInput" size="30" value="" />
+                </td>
+            </tr>
+            <tr>
+                <td>__MSG_label_Default_Parser_Content_CSS__</td>
+                <td>
+                    <input id="defaultParserContentCss" type="text" name="defaultParserContentCssInput" size="30" value="" />
+                </td>
+            </tr>
+            <tr>
+                <td>__MSG_label_Default_Parser_Chapter_Title_CSS__</td>
+                <td>
+                    <input id="defaultParserChapterTitleCss" type="text" name="defaultParserChapterTitleCssInput" size="30" value="" />
+                </td>
+            </tr>
+            <tr>
+                <td>__MSG_label_Default_Parser_Unwanted_Elements_CSS__</td>
+                <td>
+                    <input id="defaultParserUnwantedElementsCss" type="text" name="defaultParserUnwantedElementsCssInput" size="30" value="" />
+                </td>
+            </tr>
+            <tr>
+                <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
+                <td>
+                    <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
+                </td>
+            </tr>
+        </table>
+        <button class="expandedButton" id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
+        <button class="expandedButton" id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
+        <div class="scrollingtable" id="defaultParserVewResult"></div>
+    </section>
     <section id="inputSection">
         <table id="inputTable">
             <tr>
@@ -93,34 +131,6 @@
                 <td>__MSG_label_Remove_Original__</td>
             </tr>
         </table>
-        <section id="defaultParserSection" hidden>
-            <table>
-                <tr>
-                    <td>__MSG_label_Element_With_Chapter_Content__</td>
-                    <td>
-                        <select id="selectContentTag">
-                            <option value="body" selected>&lt;body&gt;</option>
-                            <option value="main">&lt;main&gt;</option>
-                            <option value="section">&lt;section&gt;</option>
-                            <option value="div">&lt;div&gt;</option>
-                            <option value="article">&lt;article&gt;</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="selectContentTagIdType">
-                            <option value="firstFound" selected>__MSG_option_First_Found__</option>
-                            <option value="classIs">__MSG_option_Class_Is__</option>
-                            <option value="classStartsWith">__MSG_option_Class_Starts_With__</option>
-                            <option value="idIs">__MSG_option_ID_Is__</option>
-                            <option value="idStartsWith">__MSG_option_ID_Starts_With__</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input id="contentTagIdentifierInput" type="text" name="contentTagIdentifierInput" size="30" value="" />
-                    </td>
-                </tr>
-            </table>
-        </section>
         <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
         <progress id="fetchProgress" value=" 0" max="1"></progress>
         <span id="progressString"></span>
@@ -290,6 +300,7 @@
     <script src="js/ImageCollector.js"></script>
     <script src="js/Imgur.js"></script>
     <script src="js/ChapterUrlsUI.js"></script>
+    <script src="js/DefaultParserUI.js"></script>
     <script src="js/ProgressBar.js"></script>
     <script src="js/Parser.js"></script>
     <script src="js/parsers/69shuParser.js"></script>

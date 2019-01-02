@@ -219,9 +219,9 @@ class ChapterUrlsUI {
     }
 
     /** 
-    * @private
+    * @public
     */
-    setVisibileUI(toTable) {
+    static setVisibileUI(toTable) {
         // toggle mode
         ChapterUrlsUI.getEditChaptersUrlsInput().hidden = toTable;
         ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
@@ -240,7 +240,7 @@ class ChapterUrlsUI {
             this.parser.setPagesToFetch(chapters);
             this.populateChapterUrlsTable(chapters);
             this.usingTable = true;
-            this.setVisibileUI(this.usingTable);
+            ChapterUrlsUI.setVisibileUI(this.usingTable);
         } catch (err) {
             ErrorLog.showErrorMessage(err);
         }
@@ -272,7 +272,7 @@ class ChapterUrlsUI {
     */
     setEditInputMode() {
         this.usingTable = false;
-        this.setVisibileUI(this.usingTable);
+        ChapterUrlsUI.setVisibileUI(this.usingTable);
         let input = ChapterUrlsUI.getEditChaptersUrlsInput();
         input.rows = Math.max(this.parser.getPagesToFetch().size, 20);
         input.value = this.chaptersToHTML([...this.parser.getPagesToFetch().values()]);
