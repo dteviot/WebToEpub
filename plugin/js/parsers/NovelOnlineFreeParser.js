@@ -5,6 +5,7 @@
 
 parserFactory.register("novelonlinefree.com", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("novelonlinefree.info", function() { return new NovelOnlineFreeParser() });
+parserFactory.register("wuxiaworld.online", function() { return new NovelOnlineFreeParser() });
 
 class NovelOnlineFreeParser extends Parser{
     constructor() {
@@ -23,7 +24,9 @@ class NovelOnlineFreeParser extends Parser{
     };
     
     findContent(dom) {
-        return dom.querySelector("div.vung_doc");
+        let content = dom.querySelector("div.vung_doc")
+          || dom.querySelector("div.content-area")
+        return content;
     };
 
     // title of the story
