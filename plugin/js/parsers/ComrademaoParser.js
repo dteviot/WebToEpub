@@ -26,30 +26,24 @@ class ComrademaoParser extends Parser{
     getChapterUrls(dom) {
         let chapters = ComrademaoParser.extractPartialChapterList(dom);
         let pagesWithToc = ComrademaoParser.listUrlsHoldingChapterLists(dom);
-        if (pagesWithToc.length <= 1) {
-            return Promise.resolve(chapters.reverse());
+        ProgressBar.setValue(0);
+        ProgressBar.setMax(pagesWithToc.length);
+        var sequence = Promise.resolve();
+        for(let tocUrl of pagesWithToc) {
+            sequence = sequence.then(function () {
+                return ComrademaoParser.fetchPartialChapterList(tocUrl).then(
+                    c => (chapters = chapters.concat(c))
+                );
+            }); 
         }
-
-        // Disabled fetching ToC pages, is timing out at moment.
-        return Promise.resolve(chapters.reverse());
-/*        
-        return Promise.all(
-            pagesWithToc.map(volume => ComrademaoParser.fetchPartialChapterList(volume))
-        ).then(function (tocFragments) {
-            for (let fragment of tocFragments) {
-                chapters = chapters.concat(fragment);
-            }
-            return Promise.resolve(chapters.reverse());
-        });
-*/        
+        return sequence.then(() => Promise.resolve(chapters.reverse()));
     };
 
     static listUrlsHoldingChapterLists(dom) {
-        let urls = [ dom.baseURI ];
+        let urls = [];
         let nav = dom.querySelector("div.content nav");
         if (nav != null) {
-            let links = [...nav.querySelectorAll("a.page-numbers")]
-                .filter(l => !l.className.includes("next"));
+            let links = [...nav.querySelectorAll("a.page-numbers:not(.next)")];
             let max = (0 < links.length) 
                 ? parseInt(links[links.length - 1].textContent)
                 : 0;
@@ -63,6 +57,7 @@ class ComrademaoParser extends Parser{
 
     static fetchPartialChapterList(url) {
         return HttpClient.wrapFetch(url).then(function (xhr) {
+            ProgressBar.updateValue(1);
             return ComrademaoParser.extractPartialChapterList(xhr.responseXML);
         });
     }

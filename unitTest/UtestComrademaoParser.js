@@ -30,9 +30,9 @@ test("extractAuthor", function (assert) {
 test("listUrlsHoldingChapterLists", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
     let actual = ComrademaoParser.listUrlsHoldingChapterLists(dom);
-    assert.equal(actual.length, 201);
-    assert.equal(actual[0], "https://comrademao.com/novel/shoujo-grand-summoning/");
-    assert.equal(actual[200], "https://comrademao.com/novel/shoujo-grand-summoning/page/201/")
+    assert.equal(actual.length, 200);
+    assert.equal(actual[0], "https://comrademao.com/novel/shoujo-grand-summoning/page/2/");
+    assert.equal(actual[199], "https://comrademao.com/novel/shoujo-grand-summoning/page/201/")
 });
 
 test("customRawDomToContentStep_removeOriginal", function (assert) {
