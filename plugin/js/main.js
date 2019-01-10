@@ -338,6 +338,10 @@ var main = (function () {
         chrome.tabs.create({ url: "https://dteviot.github.io/Projects/webToEpub_FAQ.html#baka-tsuki-series-page" });
     }
 
+    function onDefaultParserHelp() {
+        chrome.tabs.create({ url: "https://dteviot.github.io/Projects/webToEpub_DefaultParser.html" });
+    }
+
     function addOnClickEventHandlers() {
         getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
@@ -348,6 +352,7 @@ var main = (function () {
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
         document.getElementById("seriesPageHelpButton").onclick = onSeriesPageHelp;
+        document.getElementById("defaultParserHelpButton").onclick = onDefaultParserHelp;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
     }
 
