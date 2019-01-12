@@ -6,6 +6,7 @@
 parserFactory.register("novelonlinefree.com", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("novelonlinefree.info", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("wuxiaworld.online", function() { return new NovelOnlineFreeParser() });
+parserFactory.register("chinesewuxia.world", function() { return new NovelOnlineFreeParser() });
 
 class NovelOnlineFreeParser extends Parser{
     constructor() {
