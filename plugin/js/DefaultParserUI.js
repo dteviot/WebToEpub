@@ -13,11 +13,16 @@ class DefaultParserSiteSettings {
         if (config != null) {
             for(let e of JSON.parse(config)) {
                 let selectors = e[1];
-                if (selectors.contentCss !== undefined) {
+                if (DefaultParserSiteSettings.isConfigValid(selectors)) {
                     this.configs.set(e[0], selectors);
                 }
             }
         }
+    }
+
+    static isConfigValid(selectors) {
+        return (selectors.contentCss !== undefined)
+            && !util.isNullOrEmpty(selectors.contentCss);
     }
 
     saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl) {
@@ -82,7 +87,7 @@ class DefaultParserUI {
     }
 
     static setupDefaultParserUI(dom, parser) {
-        DefaultParserUI.cleanResults();
+        DefaultParserUI.copyInstructions();
         DefaultParserUI.setDefaultParserUiVisibility(true);
         DefaultParserUI.populateDefaultParserUI(dom, parser)
         document.getElementById("testDefaultParserButton").onclick = DefaultParserUI.testDefaultParser.bind(null, parser);
@@ -139,6 +144,7 @@ class DefaultParserUI {
         if (util.isNullOrEmpty(config.testUrl))
         {
             alert(chrome.i18n.getMessage("warningNoChapterUrl"));
+            return;
         }
         return HttpClient.wrapFetch(config.testUrl).then(function (xhr) {
             let webPage = { rawDom: xhr.responseXML };
@@ -161,6 +167,11 @@ class DefaultParserUI {
         while (0 < children.length) {
             children[children.length - 1].remove();
         }
+    }
+
+    static copyInstructions() {
+        let content = document.getElementById("defaultParserInstructions");
+        DefaultParserUI.showResult(content);
     }
 
     static showResult(content) {

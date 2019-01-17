@@ -132,11 +132,11 @@
 		"description": "Label in front of input for CSS selector to find element holding content to put into EPUB"
 	},
 	"__MSG_label_Default_Parser_HostName__": {
-		"message": "(required) Hostname:",
+		"message": "Hostname:",
 		"description": "Label in front of input for hostname in URL to use these settings for."
 	},
 	"__MSG_label_Default_Parser_Test_Chapter_Url__": {
-		"message": "Url of chapter to test these settings against:",
+		"message": "URL of first chapter:",
 		"description": "Label in front of input for URL to test deefault parser settings."
 	},
 	"__MSG_label_Default_Parser_Unwanted_Elements_CSS__": {

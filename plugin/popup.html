@@ -35,6 +35,10 @@
         img.downloadState {
             height: 1em;
         }
+        
+        .withBorder {
+            border: 1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +66,12 @@
                 </td>
             </tr>
             <tr>
+                <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
+                <td>
+                    <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
+                </td>
+            </tr>
+            <tr>
                 <td>__MSG_label_Default_Parser_Content_CSS__</td>
                 <td>
                     <input id="defaultParserContentCss" type="text" name="defaultParserContentCssInput" size="30" value="" />
@@ -79,17 +89,23 @@
                     <input id="defaultParserUnwantedElementsCss" type="text" name="defaultParserUnwantedElementsCssInput" size="30" value="" />
                 </td>
             </tr>
-            <tr>
-                <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
-                <td>
-                    <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
-                </td>
-            </tr>
         </table>
+        <button id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
+        <button id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
         <button class="expandedButton" id="defaultParserHelpButton">__MSG_button_Help__</button>
-        <button class="expandedButton" id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
-        <button class="expandedButton" id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
-        <div class="scrollingtable" id="defaultParserVewResult"></div>
+        <br />
+        <br />
+        <div class="scrollingtable withBorder" id="defaultParserVewResult">
+        </div>
+        <div id="defaultParserInstructions" hidden>
+            <h3>Instructions</h3>
+            <p>WebToEpub does not know what content on each web page (chapter) to put into the Epub.</p> 
+            <p>Use this screen to tell WebToEpub which element on the pages has the wanted content.</p>
+            <p>Give a <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors">CSS Selector</a> for the wanted element element.</p>
+            <p>After providing the CSS Seletor, test it works by clicking the "Test" button. Which will make this box show you what will be packed into the first chapter of the EPUB.</p>
+            <br />
+            <p>For more details, and a worked example, click the "Help" button above.</p>
+        </div>
     </section>
     <section id="inputSection">
         <table id="inputTable">
