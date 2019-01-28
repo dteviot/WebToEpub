@@ -779,6 +779,28 @@ var util = (function () {
         return "OEBPS/Styles/stylesheet.css";
     }
 
+    var extactSubstring = function(s, prefix, suffix) {
+        if (typeof(prefix) !== "string") {
+            let match = s.match(prefix);
+            if (match === null) {
+                throw new Error("prefix not found");
+            } else {
+                prefix = match[0];
+            }
+        }
+
+        var i = s.indexOf(prefix);
+        if (i < 0) {
+            throw new Error("prefix not found");
+        }        
+        s = s.substring(i + prefix.length);
+        i = s.indexOf(suffix);
+        if (i < 0) {
+            throw new Error("suffix not found");
+        }        
+        return s.substring(0, i);
+    }
+
     var findIndexOfClosingQuote = function(s, startIndex) {
         let index = startIndex + 1;
         while(index < s.length && (s[index] !== "\""))
@@ -932,6 +954,7 @@ var util = (function () {
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
         dctermsToTable: dctermsToTable,
+        extactSubstring: extactSubstring,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket,
         locateAndExtractJson: locateAndExtractJson,

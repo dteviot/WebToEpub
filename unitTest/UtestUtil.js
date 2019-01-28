@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestUtil");
+module("Util");
 
 function dummyWuxiaDoc() {
     let dom = TestUtils.makeDomWithBody(
@@ -500,4 +500,19 @@ test("isUrl", function (assert) {
 
 test("safeForFileName", function (assert) {
     assert.equal(util.safeForFileName("aAzZ 0-9\\_"), "aAzZ_0-9_");
+});
+
+test("extactSubstring", function (assert) {
+    let sample1 = "; var comicid = 20409;        var chapterid =349317;        var imagepage=1;        var imagecount=8;        ";
+    let sample2 = "var comicid = 28771; var chapterid = 549660; var userid = 0; var imagepage = 4; var imagecount = 5;";
+
+    let regex = /var\s*chapterid\s*=\s*/;
+    let actual = util.extactSubstring(sample1, regex, ';')
+    assert.equal(actual, "349317");
+    actual = util.extactSubstring(sample2, regex, ';')
+    assert.equal(actual, "549660");
+
+    let prefix = "var chapterid = ";
+    actual = util.extactSubstring(sample2, prefix, ';')
+    assert.equal(actual, "549660");
 });
