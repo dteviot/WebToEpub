@@ -4,6 +4,7 @@
 "use strict";
 
 parserFactory.register("sonako.wikia.com", function() { return new SonakoParser() });
+parserFactory.register("sonako.fandom.com", function() { return new SonakoParser() });
 
 //-----------------------------------------------------------------------------
 // class SonakoImageCollector  (derives from ImageCollector)
