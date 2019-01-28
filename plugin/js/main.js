@@ -342,6 +342,10 @@ var main = (function () {
         chrome.tabs.create({ url: "https://dteviot.github.io/Projects/webToEpub_DefaultParser.html" });
     }
 
+    function onReadOptionsFromFile(event) {
+        userPreferences.readFromFile(event, populateControls);
+    }
+
     function addOnClickEventHandlers() {
         getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
@@ -354,6 +358,9 @@ var main = (function () {
         document.getElementById("seriesPageHelpButton").onclick = onSeriesPageHelp;
         document.getElementById("defaultParserHelpButton").onclick = onDefaultParserHelp;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+
+        document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
+        document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
     }
 
     // actions to do when window opened

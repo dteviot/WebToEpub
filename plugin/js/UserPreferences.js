@@ -164,4 +164,63 @@ class UserPreferences {
 
         this.notifyObserversOfChange();
     }
+
+    writeToFile() {
+        let obj = {};
+        let serialized = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
+        if (serialized != null) {
+            obj[DefaultParserSiteSettings.storageName] = JSON.parse(serialized);
+        }
+        for(let p of this.preferences) {
+            obj[p.storageName] = p.value; 
+        }
+        serialized = JSON.stringify(obj);
+        let blob = new Blob([serialized], {type : "text"});
+        return Download.save(blob, "Options.json")
+            .catch (err => ErrorLog.showErrorMessage(err));
+    }
+
+    readFromFile(event, populateControls) {
+        if (event.target.files.length == 0) {
+            return;
+        }
+        
+        let file = event.target.files[0];
+        let reader = new FileReader();
+        reader.onload = readerEvent => {
+            let content = readerEvent.target.result;
+
+            // reset so triggers if user selects same file again  
+            event.target.value = null;
+            try {
+                let json = JSON.parse(content);
+                this.loadOpionsFromJson(json);
+                this.loadDefaultParserFromJson(json);
+                populateControls();
+            } catch(err) {
+                ErrorLog.showErrorMessage(err);
+            }
+        }
+        reader.readAsText(file);
+    }
+
+    loadOpionsFromJson(json) {
+        for(let p of this.preferences) {
+            let val = json[p.storageName];
+            if (val !== undefined && (p.value !== val)) {
+                p.value = val;
+                p.writeToLocalStorage();
+            }
+        }
+    }
+
+    loadDefaultParserFromJson(json) {
+        let val = json[DefaultParserSiteSettings.storageName];
+        if (val === undefined) {
+            window.localStorage.removeItem(DefaultParserSiteSettings.storageName);
+        } else {
+            let serialized = JSON.stringify(val);
+            window.localStorage.setItem(DefaultParserSiteSettings.storageName, serialized);
+        }
+    }
 }

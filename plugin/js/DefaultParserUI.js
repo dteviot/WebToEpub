@@ -8,7 +8,7 @@ class DefaultParserSiteSettings {
 
     /** @private */
     loadSiteConfigs() {
-        let config = window.localStorage.getItem(this.storageName);
+        let config = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
         this.configs = new Map();
         if (config != null) {
             for(let e of JSON.parse(config)) {
@@ -36,7 +36,7 @@ class DefaultParserSiteSettings {
                 }
             );
             let serialized = JSON.stringify(Array.from(this.configs.entries()));
-            window.localStorage.setItem(this.storageName, serialized);
+            window.localStorage.setItem(DefaultParserSiteSettings.storageName, serialized);
         }
     }
 

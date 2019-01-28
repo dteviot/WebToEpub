@@ -75,6 +75,10 @@
 		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
 	},
+	"__MSG_button_Write_Options_to_file__": {
+		"message": "Write Options to file",
+		"description": "Label on button to write options to a file"
+	},
 	"__MSG_column_Include__": {
 		"message": "Include?",
 		"description": "The 'include this chapter' checkbox column in the table of chapters."
@@ -182,6 +186,10 @@
 	"__MSG_label_Range_Start_Chapter__": {
 		"message": "First Chapter",
 		"description": "Label in front of drop down for selecting first chapter to include in epub"
+	},
+	"__MSG_label_Read_Options_from_file__": {
+		"message": "Read Options from file:",
+		"description": "Label in front of button to read Options from a file"
 	},
 	"__MSG_label_Remove_Author_Notes__": {
 		"message": "Remove Author Notes",
