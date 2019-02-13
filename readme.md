@@ -46,22 +46,13 @@ Credits
 * Wait for progress bar to finish (indicating the additional chapters are being downloaded) and the generated EPUB to be placed in your downloads directory.
 
 ## How to use for site that there is no specific parser for:
-* Examine the HTML of a chapter the web page and find the tag holding the content.  Take note of:
-    * Type: `<div>` or `<article>`
-    * id (if present)
-    * class (if present and id not present)
-* Browse to page that has URLs for the chapters you want to fetch.
-* Click on the WebToEpub icon on top right of the window.
-* When warning "No parser found for this URL. Default parser will be used. You will need to specify how to obtain content for each chapter." appears, click "OK".
-* Select the URLs to the chapters you want.
-* Above the "Pack EPUB" button set 
-    * the `<body>` drop down to type of the tag holding the content you found in the first step.  Note, if it's neither `<div>` or `<article>` leave value as `<body>`.
-    * next drop down to one of `<Class Starts With>`, `<Class is>`, `<ID Starts With>` or `<ID is>`
-    * the text box to the value of the id or class
-* Click "Pack EPUB"
+See: https://dteviot.github.io/Projects/webToEpub_DefaultParser.html
 
 ## How to create Parsers for new sites
-For details on how to extend, see http://www.codeproject.com/Articles/1060680/Web-to-EPUB-Extension-for-Chrome.
+For details on how to extend, see the following
+* https://dteviot.github.io/Projects/webToEpub_FAQ.html#write-parser
+* https://dteviot.github.io/Projects/webToEpub_FAQ.html
+* http://www.codeproject.com/Articles/1060680/Web-to-EPUB-Extension-for-Chrome.
 
 ## How to install 
 ### from Chrome Web Store
