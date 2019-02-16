@@ -87,6 +87,29 @@ class ComrademaoParser extends Parser{
         super.removeUnwantedElementsFromContentElement(element);
     }
 
+    findChapterTitle(dom) {
+        let text = this.makeChapterTitleTextFromUrl(dom.baseURI)
+        let title = dom.createElement("h1");
+        title.appendChild(dom.createTextNode(text));
+        return title;
+    }
+
+    makeChapterTitleTextFromUrl(url) {
+        let leaf = url
+            .split("/")
+            .filter(s => !util.isNullOrEmpty(s))
+            .reverse()[0];
+        let words = leaf
+            .split("-")
+            .map(this.capitalizeWord)
+            .join(" ");
+        return words;
+    }
+
+    capitalizeWord(word) {
+        return word.toUpperCase()[0] + word.substring(1);
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.page-title-product_2");
     }
