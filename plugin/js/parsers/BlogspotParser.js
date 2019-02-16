@@ -25,7 +25,14 @@ class BlogspotParser extends Parser {
 
     getChapterUrls(dom) {
         let menu = this.findContent(dom);
-        return Promise.resolve(util.hyperlinksToChapterList(menu));
+        let chapters = util.hyperlinksToChapterList(menu);
+        if (0 < chapters.length) {
+            return Promise.resolve(chapters);
+        }
+        // try "Blog Archive" links
+        chapters = [...dom.querySelectorAll("ul.posts a")]
+            .map(link => util.hyperLinkToChapter(link));
+        return Promise.resolve(chapters.reverse());
     }
 
     static findContentElement(dom) {
