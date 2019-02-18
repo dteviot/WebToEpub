@@ -32,7 +32,7 @@
 		"description": "Label on 'Retry' button when show error"
 	},
 	"__MSG_button_finished_default_parser__": {
-		"message": "Finished",
+		"message": "Apply",
 		"description": "Label on button to finish configuring default parser"
 	},
 	"__MSG_button_Help__": {

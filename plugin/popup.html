@@ -39,6 +39,10 @@
         .withBorder {
             border: 1px solid black;
         }
+
+        .withMargin {
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -92,10 +96,11 @@
         </table>
         <button id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
         <button id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
-        <button class="expandedButton" id="defaultParserHelpButton">__MSG_button_Help__</button>
+        <button id="defaultParserHelpButton">__MSG_button_Help__</button>
         <br />
         <br />
-        <div class="scrollingtable withBorder" id="defaultParserVewResult">
+        <div class="withBorder"">
+            <div class="scrollingtable withMargin" id="defaultParserVewResult"></div>
         </div>
         <div id="defaultParserInstructions" hidden>
             <h3>Instructions</h3>
@@ -294,9 +299,9 @@
             <div>
                 <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
                 <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
+                <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
+                <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
             </div>
-            <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
-            <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
         </div>
         <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
         <table id="chapterUrlsTable" class="chapterlist">
