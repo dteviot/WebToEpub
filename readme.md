@@ -17,6 +17,7 @@ Also works with
 * shikkakutranslations.org
 * sonako.wikia.com
 * wuxiaworld.com
+* rebirth.online
 * and many other sites
 
 Credits
@@ -29,6 +30,7 @@ Credits
 * Hogesyx
 * Asif Mahmood
 * snnsnn
+* Sergii Pravdzivyi
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
