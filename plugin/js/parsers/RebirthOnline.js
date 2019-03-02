@@ -25,12 +25,12 @@ class RebirthOnlineParser extends Parser{
     }
 
     customRawDomToContentStep(webPage, content) {
-        const styles = Array.from(webPage.rawDom.querySelectorAll('head style')).filter(s => s.textContent.trim());
+        const styles = Array.from(webPage.rawDom.querySelectorAll("head style")).filter(s => s.textContent.trim());
         const classes = [];
         styles.forEach(s => {
             const re = /(\.[a-zA-Z0-9]+)/g;
             const t = s.textContent;
-            if (!~t.indexOf('-999')) return;
+            if (!~t.indexOf("-999")) return;
             let c;
             while ((c = re.exec(t)) != null) {
                 classes.push(...c);
