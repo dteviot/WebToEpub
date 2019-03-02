@@ -86,7 +86,8 @@ class TemplateParser extends Parser{
     // Optional, supply if need to do custom cleanup of content
     /*
     removeUnwantedElementsFromContentElement(element) {
-        // for example of this, refer to Wikipedia parser
+        util.removeChildElementsMatchingCss(element, "button");
+        super.removeUnwantedElementsFromContentElement(element);
     }
     */
 
@@ -152,6 +153,14 @@ class TemplateParser extends Parser{
     /*
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.novel-details")];
+    }
+    */
+
+    // Optional, Any cleanup operations to perform on the nodes
+    // returned by getInformationEpubItemChildNodes
+    /*
+    cleanInformationNode(node) {
+        return node;
     }
     */
 }
