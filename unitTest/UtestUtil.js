@@ -516,3 +516,14 @@ test("extactSubstring", function (assert) {
     actual = util.extactSubstring(sample2, prefix, ';')
     assert.equal(actual, "549660");
 });
+
+QUnit.test("removeChildElementsMatchingCss", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<h1><a>Title</a></h1>" +
+        "<div><p><span></span></p></div>" +
+        "<img></img>"
+    );
+    util.removeChildElementsMatchingCss(dom.body, "span, img");
+    let actual = dom.body.innerHTML;
+    assert.equal(actual, "<h1><a>Title</a></h1><div><p></p></div>");
+});

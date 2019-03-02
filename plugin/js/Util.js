@@ -191,6 +191,10 @@ var util = (function () {
         }
     }
 
+    var removeChildElementsMatchingCss = function (element, css) {
+        util.removeElements([...element.querySelectorAll(css)]);
+    }
+
     var removeComments = function (root) {
         let walker = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT);
         
@@ -895,6 +899,7 @@ var util = (function () {
         replaceCloudflareProtectedLink: replaceCloudflareProtectedLink,
         decodeEmail: decodeEmail,
         removeElements: removeElements,
+        removeChildElementsMatchingCss: removeChildElementsMatchingCss,
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
