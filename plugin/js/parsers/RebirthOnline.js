@@ -20,6 +20,10 @@ class RebirthOnlineParser extends Parser{
         return dom.querySelector(".entry-title a");
     };
 
+    findChapterTitle(dom) {
+        return dom.querySelector(".chapter-title");
+    }
+
     customRawDomToContentStep(webPage, content) {
         const styles = Array.from(webPage.rawDom.querySelectorAll('head style')).filter(s => s.textContent.trim());
         const classes = [];
@@ -35,5 +39,9 @@ class RebirthOnlineParser extends Parser{
         classes.filter((v,i,a) => a.indexOf(v)===i).forEach(c => {
             content.querySelectorAll(c).forEach(n => n.remove());
         });
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".entry-title, div.entry-content p")];
     }
 }
