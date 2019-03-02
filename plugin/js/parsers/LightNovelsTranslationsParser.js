@@ -45,11 +45,6 @@ class LightNovelsTranslationsParser extends WordpressBaseParser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [...dom.querySelectorAll("div.entry-content > p")]
-            .map(n => n.cloneNode(true));
-        for(let n of nodes) {
-            util.removeElements(n.querySelectorAll("img"));
-        }
-        return nodes;
+        return [...dom.querySelectorAll("div.entry-content > p")];
     }
 }

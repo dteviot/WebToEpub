@@ -32,10 +32,6 @@ class WnmtlParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let div = document.createElement("div");
-        for(let e of [...dom.querySelectorAll("article p.time, article p.note")]) {
-            div.appendChild(e.cloneNode(true));
-        }
-        return div;
+        return [...dom.querySelectorAll("article p.time, article p.note")];
     }
 }

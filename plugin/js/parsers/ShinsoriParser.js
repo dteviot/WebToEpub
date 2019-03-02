@@ -105,18 +105,10 @@ class ShinsoriParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [];
-        let summary = dom.querySelectorAll("div.block-custom-content, div.first-half-box");
-        for(let node of summary) {
-            let clone = node.cloneNode(true);
-            this.cleanInformationNode(clone);
-            nodes.push(clone);
-        }
-        return nodes;
+        return [...dom.querySelectorAll("div.block-custom-content, div.first-half-box")];
     }
 
     cleanInformationNode(node) {
-        let toRemove = [...node.querySelectorAll("a")];
-        util.removeElements(toRemove);
+        util.removeChildElementsMatchingCss(node, "a");
     }
 }

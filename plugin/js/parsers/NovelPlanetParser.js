@@ -50,18 +50,10 @@ class NovelPlanetParser extends Parser{
     }
  
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [];
-        let summary = dom.querySelector("div.post-contentDetails");
-        if (summary != null) {
-            summary = summary.parentElement;
-            nodes.push(summary);
-            this.cleanInformationNode(summary);
-        }
-        return nodes;
+        return [...dom.querySelectorAll("div.post-contentDetails")];
     }
 
     cleanInformationNode(node) {
-        let toRemove = [...node.querySelectorAll("div.post-previewInDetails, div.clsButtonSmall, div.addthis_inline_share_toolbox, hr")];
-        util.removeElements(toRemove);
+        util.removeChildElementsMatchingCss(node, "div.post-previewInDetails, div.clsButtonSmall, div.addthis_inline_share_toolbox, hr");
     }
 }

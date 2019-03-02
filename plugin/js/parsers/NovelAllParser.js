@@ -45,18 +45,10 @@ class NovelAllParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [];
-        let summary = dom.querySelectorAll("div.manga-detailtop, div.manga-detailmiddle");
-        for(let node of summary) {
-            let clone = node.cloneNode(true);
-            this.cleanInformationNode(clone);
-            nodes.push(clone);
-        }
-        return nodes;
+        return  [...dom.querySelectorAll("div.manga-detailtop, div.manga-detailmiddle")];
     }
 
     cleanInformationNode(node) {
-        let toRemove = [...node.querySelectorAll("img, script")];
-        util.removeElements(toRemove);
+        util.removeChildElementsMatchingCss(node, "script");
     }
 }

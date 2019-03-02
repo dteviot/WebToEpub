@@ -36,13 +36,12 @@ class AnythingNovelParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let node = dom.querySelector("div#content div:not(.clearfix)");
-        if (node != null) {
-            node = node.cloneNode(true);
-            let strip = [...node.querySelectorAll("img")]
-                .map(e => e.parentElement);
-            util.removeElements(strip);
-        }
-        return [node];
+        return [...dom.querySelector("div#content div:not(.clearfix)")];
+    }
+
+    cleanInformationNode(node) {
+        let strip = [...node.querySelectorAll("img")]
+            .map(e => e.parentElement);
+        util.removeElements(strip);
     }
 }

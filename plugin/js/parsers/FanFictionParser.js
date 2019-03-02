@@ -57,13 +57,10 @@ class FanFictionParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [];
-        let node = dom.querySelector("div#profile_top");
-        if (node != null) {
-            nodes.push(node);
-            let toRemove = [...node.querySelectorAll("button, span[title]")];
-            util.removeElements(toRemove);
-        }
-        return nodes;
+        return [...dom.querySelector("div#profile_top")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "button, span[title]");
     }
 }

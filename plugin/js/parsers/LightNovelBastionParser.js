@@ -39,7 +39,6 @@ class LightNovelBastionParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let node = dom.querySelector("article.container header");
-        return (node == null) ? [] : [ node ];
+        return [...dom.querySelectorAll("article.container header")];
     }
 }

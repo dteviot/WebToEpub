@@ -81,9 +81,7 @@ class ComrademaoParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        for(let button of element.querySelectorAll("button")) {
-            button.remove();
-        }
+        util.removeChildElementsMatchingCss(element, "button");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -115,12 +113,6 @@ class ComrademaoParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let infoNodes = [...dom.querySelectorAll("div.page-title-product_2 div.wrap-content, div.info-single-product")];
-        for(let e of infoNodes) {
-            for(let i of e.querySelectorAll("img")) {
-                i.remove();
-            }
-        }
-        return infoNodes;
+        return [...dom.querySelectorAll("div.page-title-product_2 div.wrap-content, div.info-single-product")];
     }
 }

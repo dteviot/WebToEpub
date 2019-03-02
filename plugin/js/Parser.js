@@ -282,13 +282,32 @@ class Parser {
         urlElement.appendChild(bold);
         urlElement.appendChild(document.createTextNode(this.state.chapterListUrl));
         div.appendChild(urlElement);
-        let childNodes = [div].concat(this.getInformationEpubItemChildNodes(dom));
+        let infoDiv = document.createElement("div");
+        this.populateInfoDiv(infoDiv, dom);    
+        let childNodes = [div, infoDiv];
         let chapter = {
             sourceUrl: this.state.chapterListUrl,
             title: titleText,
             newArch: null
         };
         return new ChapterEpubItem(chapter, {childNodes: childNodes}, 0);
+    }
+
+    populateInfoDiv(infoDiv, dom) {
+        let sanitize = new Sanitize();
+        for(let n of this.getInformationEpubItemChildNodes(dom)) {
+            let clone = n.cloneNode(true);
+            this.cleanInformationNode(clone);
+            if (clone != null) {
+                infoDiv.appendChild(sanitize.clean(clone));
+            }
+        }
+        // this "page" doesn't go through image collector, so strip images
+        util.removeChildElementsMatchingCss(infoDiv, "img");
+    }
+
+    cleanInformationNode(node) {     // eslint-disable-line no-unused-vars
+        // do nothing, derived class overrides as required
     }
 
     // called when plugin has obtained the first web page
