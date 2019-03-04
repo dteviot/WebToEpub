@@ -115,8 +115,6 @@ class RoyalRoadParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [dom.querySelector("div.fic-title")];
-        nodes.push(dom.querySelector("div.fiction-info div.portlet"));
-        return nodes;
+        return [...dom.querySelectorAll("div.fic-title, div.fiction-info div.portlet.row")];
     }
 }

@@ -75,13 +75,10 @@ class QidianParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let nodes = [];
-        let summary = dom.querySelector("div._mn");
-        if (summary != null) {
-            summary = summary.cloneNode(true);
-            util.removeElements(summary.querySelectorAll("div._ft, span.g_star"));
-            nodes.push(summary);
-        }
-        return nodes.concat([...dom.querySelectorAll("div.det-abt")]);
+        return [...dom.querySelectorAll("div._mn, div.det-abt")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "div._ft, span.g_star");
     }
 }
