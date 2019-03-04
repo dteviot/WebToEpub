@@ -57,7 +57,7 @@ class FanFictionParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelector("div#profile_top")];
+        return [...dom.querySelectorAll("div#profile_top")];
     }
 
     cleanInformationNode(node) {

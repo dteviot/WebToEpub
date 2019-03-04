@@ -36,7 +36,7 @@ class AnythingNovelParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelector("div#content div:not(.clearfix)")];
+        return [...dom.querySelectorAll("div#content div:not(.clearfix)")];
     }
 
     cleanInformationNode(node) {
