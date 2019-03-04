@@ -50,7 +50,14 @@ class NovelPlanetParser extends Parser{
     }
  
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.post-contentDetails")];
+        return [...dom.querySelectorAll("div.post-contentDetails")]
+            .concat(this.getSynopsisElement(dom));
+    }
+
+    getSynopsisElement(dom) {
+        // bit tricky, has nothing to identify itself
+        let divs = [...dom.querySelectorAll("div.container > div > div:not([style]):not(.rowChapter)")];
+        return divs.filter(d => (d.className === "") && (d.id === ""));
     }
 
     cleanInformationNode(node) {
