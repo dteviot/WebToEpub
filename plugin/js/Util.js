@@ -192,7 +192,7 @@ var util = (function () {
     }
 
     var removeChildElementsMatchingCss = function (element, css) {
-        util.removeElements([...element.querySelectorAll(css)]);
+        util.removeElements(element.querySelectorAll(css));
     }
 
     var removeComments = function (root) {
@@ -226,7 +226,7 @@ var util = (function () {
     }
 
     var removeScriptableElements = function(element) {
-        util.removeElements(element.querySelectorAll("script, iframe"));
+        util.removeChildElementsMatchingCss(element, "script, iframe");
         util.removeEventHandlers(element);
     }
 
@@ -278,12 +278,12 @@ var util = (function () {
     }
 
     var removeUnwantedWordpressElements = function(element) {
-        let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption";
-        util.removeElements(element.querySelectorAll(ccs));
+        let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption, div.wpulike";
+        util.removeChildElementsMatchingCss(element, ccs);
     }
 
     var removeShareLinkElements = function(contentElement) {
-        util.removeElements(contentElement.querySelectorAll("div.sharepost"));
+        util.removeChildElementsMatchingCss(contentElement, "div.sharepost");
     }
 
     var prepForConvertToXhtml = function(element) {
