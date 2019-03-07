@@ -336,7 +336,11 @@ var util = (function () {
     var copyAttributes = function(from, to) {
         for(let i = 0; i < from.attributes.length; ++i) {
             let attr = from.attributes[i];
-            to.setAttribute(attr.localName, attr.value);
+            try {
+                to.setAttribute(attr.localName, attr.value);
+            } catch (e) {
+                // probably invalid attribute name.  Discard
+            }
         };
     }
 
