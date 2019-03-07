@@ -39,33 +39,31 @@ class MangaHereParser extends Parser {
     }
 
     fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return MangaHereParser.buildPageWithImageTags(url, xhr.responseXML);
-        });
-    }
-
-    static buildPageWithImageTags(url, dom) {
         let newDoc = Parser.makeEmptyDocForContent();
         newDoc.dom.base = url;
-
-        let sequence = Promise.resolve();
-        let err = "";
-        for(let tocUrl of MangaHereParser.makeChapterFuncUrls(url, dom)) {
-            sequence = sequence.then(function () {
-                return HttpClient.fetchText(tocUrl).then(
-                    js => err += MangaHereParser.responseToImg(newDoc, js, tocUrl)
-                );
-            }); 
-        }
-        return sequence.then(function () {
-            if (!util.isNullOrEmpty(err)) {
-                ErrorLog.log(err);
-            }
-            return newDoc.dom;
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
+            return MangaHereParser.buildPageWithImageTags(jsonUrls, new Set(), newDoc, "");
         });
     }
 
-    static makeChapterFuncUrls(url, dom) {
+    static buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err) {
+
+        if (!util.isNullOrEmpty(err)) {
+            ErrorLog.log(err);
+            return newDoc.dom;
+        }
+        if (imgUrls.size === jsonUrls.length) {
+            return newDoc.dom;
+        }
+        let tocUrl = jsonUrls[imgUrls.size];
+        return HttpClient.fetchText(tocUrl).then(function (js) {
+            err = MangaHereParser.responseToImg(newDoc, js, tocUrl, imgUrls);
+            return MangaHereParser.buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err);
+        });
+    }
+
+    static makeImgJsonUrls(url, dom) {
         let script = [...dom.querySelectorAll("script")]
             .filter(MangaHereParser.isWantedScriptElement)
             .map(s => s.innerHTML);
@@ -87,13 +85,19 @@ class MangaHereParser extends Parser {
         return (match !== null);
     }
 
-    static responseToImg(newDoc, js, tocUrl) {
+    static responseToImg(newDoc, js, tocUrl, imgUrls) {
         if (util.isNullOrEmpty(js)) {
             return `No response for URL ${tocUrl}\r\n`;
         } else {
-            let img = newDoc.dom.createElement("img");
-            img.src = MangaHereParser.decryptChapterFun(js);
-            newDoc.content.appendChild(img);
+            let urls = MangaHereParser.decryptChapterFun(js);
+            for(let u of urls) {
+                if (!imgUrls.has(u)) {
+                    imgUrls.add(u);
+                    let img = newDoc.dom.createElement("img");
+                    img.src = u;
+                    newDoc.content.appendChild(img);
+                }
+            }
             return "";
         }
     }
@@ -111,8 +115,9 @@ class MangaHereParser extends Parser {
     }
 
     static extractFilenameFromClearText(clearText) {
-        let strings = clearText.split("\"");
-        return "http:" + strings[1] + strings[3];
+        let prefix = util.extactSubstring(clearText, "\"", "\"");
+        let urls = util.extactSubstring(clearText, "[", "]").split(",");
+        return urls.map(u => "http:" + prefix + u.replace(/"/g, ""));
     }
 
     // extracted from MangaHere

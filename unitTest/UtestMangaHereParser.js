@@ -27,12 +27,17 @@ test("decrypt", function (assert) {
 test("decryptChapterFun", function (assert) {
     let rawInput = `eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)d[e(c)]=k[c]||e(c);k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1;};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p;}('l f(){3 j="//a.8.c/g/4/7/5.1/e";3 2=["/o.h?6=m&9=b","/n.h?6=p&9=b"];k(3 i=0;i<2.q;i++){v(i==0){2[i]="//a.8.c/g/4/7/5.1/e"+2[i];s}2[i]=j+2[i]}t 2}3 d;d=f();r=u;',32,32,'||pvalue|var|manga|061|token|11110|mangahere|ttl||1548025200|cc||compressed|dm5imagefun|store|jpg||pix|for|function|2523bca6b6e10783845bc524dbec18a73454a867|k20190103_161010_2748|k20190103_161010_2747|c9cbbe3a58535b9040d5d23708a3d5d7d6d2a89a|length|currentimageid|continue|return|14300828|if'.split('|'),0,{}))`;
     let actual = MangaHereParser.decryptChapterFun(rawInput)
-    assert.equal(actual, "http://a.mangahere.cc/store/manga/11110/061.1/compressed/k20190103_161010_2747.jpg?token=2523bca6b6e10783845bc524dbec18a73454a867&ttl=1548025200");
+    assert.deepEqual(actual, 
+        [
+            "http://a.mangahere.cc/store/manga/11110/061.1/compressed/k20190103_161010_2747.jpg?token=2523bca6b6e10783845bc524dbec18a73454a867&ttl=1548025200",
+            "http://a.mangahere.cc/store/manga/11110/061.1/compressed/k20190103_161010_2748.jpg?token=c9cbbe3a58535b9040d5d23708a3d5d7d6d2a89a&ttl=1548025200"
+        ]
+    );
 });
 
-QUnit.test("makeChapterFuncUrls", function (assert) {
+QUnit.test("makeImgJsonUrls", function (assert) {
     let dom = new DOMParser().parseFromString(MangaHereSample, "text/html");
-    let actual = MangaHereParser.makeChapterFuncUrls("http://www.mangahere.cc/manga/isekai_nonbiri_nouka/c038/1.html", dom);
+    let actual = MangaHereParser.makeImgJsonUrls("http://www.mangahere.cc/manga/isekai_nonbiri_nouka/c038/1.html", dom);
     assert.equal(actual.length, 5);
     assert.equal(actual[0], "http://www.mangahere.cc/manga/isekai_nonbiri_nouka/c038/chapterfun.ashx?cid=549660&page=1");
     assert.equal(actual[4], "http://www.mangahere.cc/manga/isekai_nonbiri_nouka/c038/chapterfun.ashx?cid=549660&page=5");
