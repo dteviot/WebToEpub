@@ -45,7 +45,7 @@ class QidianParser extends Parser{
 
     // title of the story
     extractTitleImpl(dom) {
-        return dom.querySelector("h2").childNodes[0];
+        return dom.title.split("-")[0];
     };
 
     extractAuthor(dom) {

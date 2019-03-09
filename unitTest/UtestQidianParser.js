@@ -21,6 +21,11 @@ QUnit.test("linkToChapter_Locked", function (assert) {
     assert.equal(actual.isIncludeable, false);
 });
 
+QUnit.test("extractTitleImpl", function (assert) {
+    let dom = new DOMParser().parseFromString(QidianChatperLinkSample, "text/html");
+    let actual = new QidianParser().extractTitleImpl(dom);
+    assert.equal(actual, "King of Gods ");
+});
 
 let QidianChatperLinkSample =
 `<!DOCTYPE html>
