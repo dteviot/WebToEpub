@@ -8,6 +8,7 @@ class ParserFactory{
     constructor() {
         this.parsers = new Map();
         this.parserRules = [];
+        this.parserUrlRules = [];
         this.manualSelection = [];
         this.registerManualSelect("", function() { return undefined });
     }
@@ -49,25 +50,49 @@ class ParserFactory{
     };
 
     /*
-    *  @param {function} test predicate that checks if parser can handle URL
+    *  @param {function} test predicate that checks if parser can handle URL & DOM
     *  @param {function} constructor to obtain parser to handle the URL
     */
     registerRule(test, constructor) {
         this.parserRules.push( {test: test, constructor: constructor } );
     }
 
-    fetch(url, dom) {
+    /*
+    *  @param {function} test predicate that checks if parser can handle URL
+    *  @param {function} constructor to obtain parser to handle the URL
+    */
+    registerUrlRule(test, constructor) {
+        this.parserUrlRules.push( {test: test, constructor: constructor } );
+    }
+
+    fetchByUrl(url) {
         if (ParserFactory.isWebArchive(url)) {
             url = ParserFactory.stripWebArchive(url);
         }
         let hostName = ParserFactory.stripLeadingWww(util.extractHostName(url));
         let constructor = this.parsers.get(hostName);
         if (constructor !== undefined) {
-            return constructor(url, dom);
+            return constructor(url);
+        }
+
+        for (let pair of this.parserUrlRules) {
+            if (pair.test(url)) {
+                return pair.constructor(url);
+            }
+        }
+
+        return null;
+    }
+
+    fetch(url, dom) {
+        let forUrl = this.fetchByUrl(url);
+        if (forUrl != null) {
+            return forUrl;
         }
 
         // no exact match found, see if any parser is willing to handle the URL and/or DOM
         let maxConfidence = 0;
+        let constructor = null;
         for (let pair of this.parserRules) {
             let confidence = (pair.test(url, dom) * 1.0);
             if (maxConfidence < confidence) {
@@ -76,7 +101,7 @@ class ParserFactory{
             }
         }
         if (0 < maxConfidence) {
-            return constructor(url, dom);
+            return constructor(url);
         }
 
         // still no parser found, fall back to default

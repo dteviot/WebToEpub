@@ -4,10 +4,9 @@
 "use strict";
 
 // nanodesu URLs have hostnames like '*thetranslation.wordpress.com'
-parserFactory.registerRule(
-    function(url, dom) { // eslint-disable-line no-unused-vars 
-        return util.extractHostName(url).endsWith("thetranslation.wordpress.com"); }, 
-    function() { return new NanodesuParser() }
+parserFactory.registerUrlRule(
+    url => util.extractHostName(url).endsWith("thetranslation.wordpress.com"), 
+    () => new NanodesuParser()
 );
 
 class NanodesuParser extends Parser {

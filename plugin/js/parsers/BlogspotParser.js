@@ -4,6 +4,12 @@
 "use strict";
 
 parserFactory.register("sousetsuka.com", function() { return new BlogspotParser() });
+
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).indexOf(".blogspot.") != -1),
+    () => new BlogspotParser()
+);
+
 parserFactory.registerRule(
     // return probability (0.0 to 1.0) web page is a Blogspot page
     function(url, dom) {

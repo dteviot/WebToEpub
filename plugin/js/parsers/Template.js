@@ -7,7 +7,13 @@
 /*
 // Use this function if site's host name is sufficient.  
 // i.e. All pages are on same site, and use same format.
-parserFactory.register("template.org", function() { return new TemplateParser() });
+parserFactory.register("template.org", () => new TemplateParser());
+
+// Use this function if site's URL is sufficient
+parserFactory.registerUrlRule(
+    url => TemplateParser.urlMeetsSelectionCriteria(url), 
+    () => new TemplateParser()
+);
 
 // Use this if pages are on multiple sites, or host name isn't unique
 parserFactory.registerRule(
@@ -15,7 +21,7 @@ parserFactory.registerRule(
         return TemplateParser.urlMeetsSelectionCriteria(url) ||
             TemplateParser.domMeetsSelectionCritera(dom); 
     }, 
-    function() { return new TemplateParser() }
+    () => new TemplateParser()
 );
 */
 

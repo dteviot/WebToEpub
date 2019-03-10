@@ -6,11 +6,9 @@
 */
 "use strict";
 
-parserFactory.registerRule(
-    function(url, dom) {           // eslint-disable-line no-unused-vars
-        return util.extractHostName(url).endsWith(".wixsite.com"); 
-    }, 
-    function() { return new WixParser() }
+parserFactory.registerUrlRule(
+    url => util.extractHostName(url).endsWith(".wixsite.com"), 
+    () => new WixParser()
 );
 
 class WixParser extends Parser{

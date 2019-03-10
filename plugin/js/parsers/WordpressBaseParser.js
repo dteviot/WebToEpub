@@ -47,9 +47,6 @@ class WordpressBaseParser extends Parser {
     // find the node(s) holding the story content
     findContent(dom) {
         let content = WordpressBaseParser.findContentElement(dom);
-        if (content === null) {
-            content = BlogspotParser.findContentElement(dom);
-        }
         return content;
     }
 
@@ -67,9 +64,6 @@ class WordpressBaseParser extends Parser {
 
     findChapterTitle(dom) {
         let title = WordpressBaseParser.findChapterTitleElement(dom);
-        if (title === null) {
-            title = BlogspotParser.findChapterTitleElement(dom);
-        }
         return title;
     }
 }

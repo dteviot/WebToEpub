@@ -3,11 +3,9 @@
 */
 "use strict";
 
-parserFactory.registerRule(
-    function(url, dom) {           // eslint-disable-line no-unused-vars
-        return util.extractHostName(url).endsWith(".wikipedia.org"); 
-    }, 
-    function() { return new WikipediaParser() }
+parserFactory.registerUrlRule(
+    url => util.extractHostName(url).endsWith(".wikipedia.org"), 
+    () => new WikipediaParser()
 );
 
 parserFactory.registerManualSelect(
