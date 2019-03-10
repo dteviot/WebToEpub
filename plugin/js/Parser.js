@@ -253,7 +253,6 @@ class Parser {
     webPagesToEpubItems(webPages) {
         let epubItems = [];
         let index = 0;
-        let initialHostName = this.initialHostName();
 
         if (this.getInformationEpubItemChildNodes !== undefined) {
             epubItems.push(this.makeInformationEpubItem(this.state.firstPageDom));
@@ -261,8 +260,7 @@ class Parser {
         }
 
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
-            let pageParser = this.parserForWebPage(initialHostName, webPage);
-            let newItems = pageParser.webPageToEpubItems(webPage, index);
+            let newItems = webPage.parser.webPageToEpubItems(webPage, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
             delete(webPage.rawDom);
@@ -399,14 +397,15 @@ class Parser {
 
         this.setUiToShowLoadingProgress(pagesToFetch.length);
 
-        var sequence = Promise.resolve();
-
         that.imageCollector.reset();
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
-        let initialHostName = this.initialHostName();
-        let fetchFunc = (webPage) => this.fetchWebPageContent(webPage, initialHostName);
-        
+        let fetchFunc = (webPage) => this.fetchWebPageContent(webPage);
+
+        var sequence = Promise.resolve();
+        sequence.then(
+            () => parserFactory.addParsersToPages(this, pagesToFetch)
+        );
         let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
         for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
             sequence = sequence.then(function () {
@@ -427,12 +426,12 @@ class Parser {
         return blocks;
     }
 
-    fetchWebPageContent(webPage, initialHostName) {
+    fetchWebPageContent(webPage) {
         let that = this;
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         return that.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
             webPage.rawDom = webPageDom;
-            let pageParser = that.parserForWebPage(initialHostName, webPage);
+            let pageParser = webPage.parser;
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
@@ -442,22 +441,6 @@ class Parser {
             }
             return pageParser.fetchImagesUsedInDocument(content, webPage);
         }); 
-    }
-
-    initialHostName() {
-        return util.extractHostName(this.state.chapterListUrl);
-    }
-
-    parserForWebPage(initialNostName, webPage) {
-        if (util.extractHostName(webPage.sourceUrl) === initialNostName) {
-            return this;
-        }
-        let pageParser = parserFactory.fetch(webPage.sourceUrl, webPage.rawDom);
-        if (pageParser === undefined) {
-            return this;
-        }
-        pageParser.copyState(this);
-        return pageParser;
     }
 
     fetchImagesUsedInDocument(content, webPage) {

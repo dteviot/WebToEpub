@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestParserFactory");
+module("ParserFactory");
 
 // Check get correct parser, based on URL
 QUnit.test("basicFetchWorks", function (assert) {
@@ -55,4 +55,32 @@ QUnit.test("reregister", function (assert) {
     parserFactory.reregister("reregister.org", function() { return new FanFictionParser() })
     parser = parserFactory.fetch("https://reregister.org/s/1234567/1/WebToEpub")
     assert.ok(parser instanceof FanFictionParser );
+});
+
+QUnit.test("hostNameForParserSelection", function (assert) {
+    let fn = ParserFactory.hostNameForParserSelection;
+    assert.equal("zirusmusings.com", fn("https://zirusmusings.com/ldm-ch84/"));
+    assert.equal("dailydallying.com", fn("https://web.archive.org/web/20180729210849/http://dailydallying.com/nny/nny1/"));
+    assert.equal("fanfiction.net", fn("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
+});
+
+test("assignParsersToPages", function (assert) {
+    let done = assert.async();
+    let webPages = [
+        {sourceUrl: "https://zirusmusings.com/ldm-ch84/"},
+        {sourceUrl: "https://zirusmusings.com/ldm-ch85/"},
+        {sourceUrl: "https://royalroadl.com/bgm/"},
+        {sourceUrl: "https://royalroadl.com/bgm2/"},
+    ];
+    let parser = new ZirusMusingsParser();
+    parser.state.chapterListUrl = "https://zirusmusings.com/ldm/";
+    parserFactory.addParsersToPages(parser, webPages).then(
+        function() {
+            assert.equal(parser, webPages[0].parser);
+            assert.equal(parser, webPages[1].parser);
+            assert.ok(webPages[2].parser instanceof RoyalRoadParser);
+            assert.equal(webPages[2].parser, webPages[3].parser);
+            done();
+        }
+    );
 });

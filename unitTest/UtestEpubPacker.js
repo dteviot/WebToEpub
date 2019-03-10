@@ -24,6 +24,7 @@ function makePacker() {
 
 function makeEpubItemSupplier(imageCollector) {
     imageCollector = imageCollector || ImageCollector.StubCollector();
+    let parser = new ArchiveOfOurOwnParser();
     let webPages = [];
     for (let i = 0; i < 2; ++i) {
         let title = "Title" + i;
@@ -32,10 +33,10 @@ function makeEpubItemSupplier(imageCollector) {
             title: title,
             isIncludeable: true,
             newArc: null,
+            parser: parser,
             rawDom: makeDummyXhtmlFile(title)
         });
     }
-    let parser = new ArchiveOfOurOwnParser();
     // monkey patch to avoid adding information page
     parser.getInformationEpubItemChildNodes = undefined;
     let epubItems = parser.webPagesToEpubItems(webPages);

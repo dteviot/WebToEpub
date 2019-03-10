@@ -66,10 +66,7 @@ class ParserFactory{
     }
 
     fetchByUrl(url) {
-        if (ParserFactory.isWebArchive(url)) {
-            url = ParserFactory.stripWebArchive(url);
-        }
-        let hostName = ParserFactory.stripLeadingWww(util.extractHostName(url));
+        let hostName = ParserFactory.hostNameForParserSelection(url);
         let constructor = this.parsers.get(hostName);
         if (constructor !== undefined) {
             return constructor(url);
@@ -108,6 +105,13 @@ class ParserFactory{
         return new DefaultParser();
     }
 
+    static hostNameForParserSelection(url) {
+        if (ParserFactory.isWebArchive(url)) {
+            url = ParserFactory.stripWebArchive(url);
+        }
+        return ParserFactory.stripLeadingWww(util.extractHostName(url));
+    }
+
     populateManualParserSelectionTag(selectTag) {
         let options = selectTag.options;
         if (options.length === 0) {
@@ -123,6 +127,55 @@ class ParserFactory{
                 return m.constructor();
             }
         }
+    }
+
+    addParsersToPages(initialParser, webPages) {
+        let pagesByHost = new Map()
+        let initialUrl = initialParser.state.chapterListUrl;
+        let initialHostName = ParserFactory.hostNameForParserSelection(initialUrl);
+        for(let page of webPages) {
+            let key = ParserFactory.hostNameForParserSelection(page.sourceUrl);
+            if (key === initialHostName) {
+                page.parser = initialParser;
+                continue;
+            }
+            let pages = pagesByHost.get(key);
+            if (pages == null) {
+                pages = [];
+                pagesByHost.set(key, pages);
+            }
+            pages.push(page);
+        }
+        let pages = [];
+        for(let pair of pagesByHost) {
+            pages.push(pair);
+        }    
+        return Promise.all(pages.map(
+            p => this.assignParserToPages(p[0], p[1], initialParser)
+        ));
+    }
+
+    assignParserToPages(hostName, webPages, initialParser) {
+        let url = webPages[0].sourceUrl;
+        return this.findParserForPages(hostName, url, initialParser).then(function (parser) {
+            for(let page of webPages) {
+                page.parser = parser;
+            }
+        });
+    }
+
+    findParserForPages(hostName, url, initialParser) {
+        let parser = this.fetchByUrl(url);
+        if (parser != null) {
+            parser.copyState(initialParser);
+            return Promise.resolve(parser);
+        }
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            let dom = xhr.responseXML;
+            parser = parserFactory.fetch(url, dom);
+            parser.copyState(initialParser);
+            return Promise.resolve(parser);
+        });
     }
 }
 
