@@ -4,6 +4,7 @@
 "use strict";
 
 parserFactory.register("liberspark.com", function() { return new LibersparkParser() });
+parserFactory.register("veratales.com", function() { return new LibersparkParser() });
 
 class LibersparkParser extends Parser{
     constructor() {
