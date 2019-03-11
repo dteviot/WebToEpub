@@ -71,6 +71,8 @@ test("assignParsersToPages", function (assert) {
         {sourceUrl: "https://zirusmusings.com/ldm-ch85/"},
         {sourceUrl: "https://royalroadl.com/bgm/"},
         {sourceUrl: "https://royalroadl.com/bgm2/"},
+        {sourceUrl: "https://www.lightnovelbastion.com/release.php?p=546"},
+        {sourceUrl: "https://lightnovelstranslations.com/nidome-no-yuusha-illustration/"},
     ];
     let parser = new ZirusMusingsParser();
     parser.state.chapterListUrl = "https://zirusmusings.com/ldm/";
@@ -80,6 +82,8 @@ test("assignParsersToPages", function (assert) {
             assert.equal(parser, webPages[1].parser);
             assert.ok(webPages[2].parser instanceof RoyalRoadParser);
             assert.equal(webPages[2].parser, webPages[3].parser);
+            assert.ok(webPages[4].parser instanceof LightNovelBastionParser);
+            assert.ok(webPages[5].parser instanceof LightNovelsTranslationsParser);
             done();
         }
     );

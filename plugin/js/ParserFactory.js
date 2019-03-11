@@ -146,36 +146,34 @@ class ParserFactory{
             }
             pages.push(page);
         }
-        let pages = [];
+
+        var sequence = Promise.resolve();
         for(let pair of pagesByHost) {
-            pages.push(pair);
-        }    
-        return Promise.all(pages.map(
-            p => this.assignParserToPages(p[0], p[1], initialParser)
-        ));
+            sequence = sequence.then(
+                () => this.assignParserToPages(pair[0], pair[1], initialParser)
+            ); 
+        }
+        return sequence;
     }
 
     assignParserToPages(hostName, webPages, initialParser) {
         let url = webPages[0].sourceUrl;
-        return this.findParserForPages(hostName, url, initialParser).then(function (parser) {
-            for(let page of webPages) {
-                page.parser = parser;
-            }
+        let parser = this.fetchByUrl(url);
+        if (parser != null) {
+            return ParserFactory.copyParserToPages(parser, webPages, initialParser);
+        }
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            parser = parserFactory.fetch(url, xhr.responseXML);
+            return ParserFactory.copyParserToPages(parser, webPages, initialParser);
         });
     }
 
-    findParserForPages(hostName, url, initialParser) {
-        let parser = this.fetchByUrl(url);
-        if (parser != null) {
-            parser.copyState(initialParser);
-            return Promise.resolve(parser);
+    static copyParserToPages(parser, webPages, initialParser) {
+        parser.copyState(initialParser);
+        for(let page of webPages) {
+            page.parser = parser;
         }
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let dom = xhr.responseXML;
-            parser = parserFactory.fetch(url, dom);
-            parser.copyState(initialParser);
-            return Promise.resolve(parser);
-        });
+        return Promise.resolve();
     }
 }
 

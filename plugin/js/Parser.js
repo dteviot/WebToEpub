@@ -402,20 +402,19 @@ class Parser {
 
         let fetchFunc = (webPage) => this.fetchWebPageContent(webPage);
 
-        var sequence = Promise.resolve();
-        sequence.then(
-            () => parserFactory.addParsersToPages(this, pagesToFetch)
-        );
-        let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
-        for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
-            sequence = sequence.then(function () {
-                return Promise.all(group.map(fetchFunc));
-            }); 
-        }
-        sequence = sequence.catch(function (err) {
-            ErrorLog.log(err);
-        });
-        return sequence;
+        return parserFactory.addParsersToPages(this, pagesToFetch).then(function () {
+            var sequence = Promise.resolve();
+            let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
+            for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
+                sequence = sequence.then(function () {
+                    return Promise.all(group.map(fetchFunc));
+                }); 
+            }
+            sequence = sequence.catch(function (err) {
+                ErrorLog.log(err);
+            });
+            return sequence;
+        }).catch(err => ErrorLog.log(err));
     }
 
     static groupPagesToFetch(webPages, blockSize) {
@@ -427,11 +426,10 @@ class Parser {
     }
 
     fetchWebPageContent(webPage) {
-        let that = this;
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
-        return that.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
+        let pageParser = webPage.parser;
+        return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
             webPage.rawDom = webPageDom;
-            let pageParser = webPage.parser;
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
