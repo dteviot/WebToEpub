@@ -29,7 +29,8 @@ class CreativeNovelsParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "header");
+        let img = dom.querySelector("img.book_cover");
+        return (img === null) ? util.getFirstImgSrc(dom, "header") : img.src;
     }
 
     makeHiddenNodesVisible(node) {
