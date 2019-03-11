@@ -59,7 +59,8 @@ class WordpressBaseParser extends Parser {
     static findChapterTitleElement(dom) {
         return dom.querySelector(".entry-title") ||
             dom.querySelector(".page-title") ||
-            dom.querySelector("header.post-title h1");
+            dom.querySelector("header.post-title h1") ||
+            dom.querySelector(".post-title");
     }
 
     findChapterTitle(dom) {
