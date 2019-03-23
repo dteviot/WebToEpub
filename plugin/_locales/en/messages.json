@@ -11,6 +11,10 @@
 		"message": "Clear URL",
 		"description": "Label on button to erase the Cover Image URL text"
 	},
+	"__MSG_button_Copy_Urls_To_Clipboard__": {
+		"message": "Copy URLs to Clipboard",
+		"description": "Label on button that copies selected chapter URLs to clipboard"
+	},
 	"__MSG_button_Edit_Chapter_Urls__": {
 		"message": "Edit Chapter URLs",
 		"description": "Label on button to allow manually editing list of URLs to fetch"

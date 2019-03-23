@@ -12,6 +12,7 @@ class ChapterUrlsUI {
         document.getElementById("unselectAllUrlsButton").onclick = ChapterUrlsUI.setAllUrlsSelectState.bind(null, false);
         document.getElementById("reverseChapterUrlsOrderButton").onclick = this.reverseUrls.bind(this);
         document.getElementById("editChaptersUrlsButton").onclick = this.setEditInputMode.bind(this);
+        document.getElementById("copyUrlsToClipboardButton").onclick = this.copyUrlsToClipboard.bind(this);
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
         ChapterUrlsUI.getChapterUrlsTable().onmousedown = ChapterUrlsUI.onMouseDown;
     }
@@ -265,6 +266,12 @@ class ChapterUrlsUI {
         let html = "<html><head><title></title><body>" + innerHtml + "</body></html>";
         let doc = new DOMParser().parseFromString(html, "text/html");
         return util.hyperlinksToChapterList(doc.body);
+    }
+
+    /** @private */
+    copyUrlsToClipboard() {
+        let text = this.chaptersToHTML([...this.parser.getPagesToFetch().values()]);
+        navigator.clipboard.writeText(text);
     }
 
     /** 
