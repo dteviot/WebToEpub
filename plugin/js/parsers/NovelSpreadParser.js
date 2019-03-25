@@ -8,26 +8,13 @@ class NovelSpreadParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let url = NovelSpreadParser.findTocRestUri(dom);
-        return HttpClient.fetchJson(url).then(function (handler) {
-            return NovelSpreadParser.buildChaptersList(handler.json);
-        })
-    };
-
-    static findTocRestUri(dom) {
-        let div = dom.querySelector("div.main-body[data-novel]");
-        let dataNovel = div.getAttribute("data-novel");
-        return "https://www.novelspread.com/novel/catalog/" + dataNovel;
-    };
-
-    static buildChaptersList(json) {
-        return Promise.resolve(json.data.map(
-            j => ({
-                sourceUrl: "https://www.novelspread.com/chapter/" + j.id,
-                title: j.chapter_title,
-                newArc: null
-            })
-        ));
+        let chapters = [...dom.querySelectorAll("div.volumeBox a")]
+            .map(a => util.hyperLinkToChapter(a));
+        for (let i = 0; i < chapters.length; ++i) {
+            let chapter = chapters[i];
+            chapter.title = `${i + 1}. ${chapter.title}`;
+        }
+        return Promise.resolve(chapters);
     };
 
     findContent(dom) {
@@ -35,7 +22,7 @@ class NovelSpreadParser extends Parser{
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.main-right h3");
+        return dom.title.split("-")[0];
     };
 
     extractAuthor(dom) {
@@ -48,9 +35,18 @@ class NovelSpreadParser extends Parser{
     }
 
     fetchChapter(url) {
-        return HttpClient.fetchJson(url).then(function (handler) {
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            let restUrl = NovelSpreadParser.extractRestUrl(xhr.responseXML);
+            return HttpClient.fetchJson(restUrl);
+        }).then(function (handler) {
             return NovelSpreadParser.buildChapter(handler.json.data);
-        })
+        });
+    }
+
+    static extractRestUrl(dom) {
+        let div = dom.querySelector("div.text-body");
+        let chapterId = div.getAttribute("data-chapter-id");
+        return `https://www.novelspread.com/chapter/${chapterId}`;
     }
 
     static buildChapter(json) {
@@ -58,7 +54,7 @@ class NovelSpreadParser extends Parser{
         let base = "https://www.novelspread.com" + json.path;
         util.setBaseTag(base, newDoc.dom);        
         let title = newDoc.dom.createElement("h1");
-        title.textContent = json.chapter_title;
+        title.textContent = `${json.chapter_number}. ${json.chapter_title}`;
         newDoc.content.appendChild(title);
         let content = new DOMParser().parseFromString(json.chapter_content, "text/html");
         for(let n of [...content.body.childNodes]) {
