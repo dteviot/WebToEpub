@@ -101,7 +101,7 @@ class TemplateParser extends Parser{
     /*
     findChapterTitle(dom) {
         // typical implementation is find node with the Title
-        // Return Title element, NOT the title as a string
+        // Return Title element, OR the title as a string
         return dom.querySelector("h3.dashhead-title");
     }
     */
