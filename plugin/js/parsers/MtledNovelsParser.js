@@ -13,8 +13,9 @@ class MtledNovelsParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = dom.querySelector("div.card__body");
-        return Promise.resolve(util.hyperlinksToChapterList(menu));
+        let chapters = [...dom.querySelectorAll("div.card__body a:not(.list-group-item)")]
+            .map(a => util.hyperLinkToChapter(a));
+        return Promise.resolve(chapters);
     };
 
     findContent(dom) {
