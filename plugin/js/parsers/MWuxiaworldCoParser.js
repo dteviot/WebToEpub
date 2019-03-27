@@ -1,7 +1,4 @@
-﻿/*
-  Template to use to create a new parser
-*/
-"use strict";
+﻿"use strict";
 
 parserFactory.register("m.wuxiaworld.co", () => new MWuxiaworldCoParser());
 
