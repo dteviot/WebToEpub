@@ -1,4 +1,7 @@
-﻿"use strict";
+/*
+  parses m.wuxiaworld.co
+*/
+"use strict";
 
 parserFactory.register("m.wuxiaworld.co", () => new MWuxiaworldCoParser());
 
