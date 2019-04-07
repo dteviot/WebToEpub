@@ -314,13 +314,15 @@ class Parser {
         this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
         let chapterUrlsUI = new ChapterUrlsUI(this);
-        
+        this.userPreferences.setReadingListCheckbox(url);
+
         // returns promise, because may need to fetch additional pages to find list of chapters
         that.getChapterUrls(firstPageDom).then(function(chapters) {
             if (that.userPreferences.chaptersPageInChapterList.value) {
                 chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
             chapters = that.cleanWebPageUrls(chapters);
+            that.userPreferences.readingList.deselectUnwantedChapters(url, chapters);
             chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
                 if (chapters[0].sourceUrl === url) {
@@ -465,6 +467,13 @@ class Parser {
         return HttpClient.wrapFetch(url).then(function (xhr) {
             return Promise.resolve(xhr.responseXML);
         });
+    }
+
+    updateReadingList() {
+        this.userPreferences.readingList.update(
+            this.state.chapterListUrl,
+            [...this.state.webPages.values()]
+        );
     }
 
     updateLoadState(webPage) {

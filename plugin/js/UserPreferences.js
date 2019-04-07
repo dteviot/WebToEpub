@@ -14,7 +14,7 @@ class UserPreference {
 
     getUiElement() {
         return document.getElementById(this.uiElementName);
-    }    
+    }
 
     writeToLocalStorage() {
         window.localStorage.setItem(this.storageName, this.value);
@@ -95,6 +95,7 @@ class UserPreferences {
         this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.observers = [];
+        this.readingList = new ReadingList();
     };
 
     /** @private */
@@ -120,6 +121,7 @@ class UserPreferences {
         for(let p of newPreferences.preferences) {
             p.readFromLocalStorage();
         }
+        newPreferences.readingList.readFromLocalStorage();
         return newPreferences;
     }
 
@@ -127,6 +129,7 @@ class UserPreferences {
         for(let p of this.preferences) {
             p.writeToLocalStorage();
         }
+        this.readingList.writeToLocalStorage();
     }
 
     addObserver(observer) {
@@ -171,6 +174,7 @@ class UserPreferences {
         if (serialized != null) {
             obj[DefaultParserSiteSettings.storageName] = JSON.parse(serialized);
         }
+        obj[ReadingList.storageName] = JSON.parse(this.readingList.toJson());
         for(let p of this.preferences) {
             obj[p.storageName] = p.value; 
         }
@@ -196,6 +200,7 @@ class UserPreferences {
                 let json = JSON.parse(content);
                 this.loadOpionsFromJson(json);
                 this.loadDefaultParserFromJson(json);
+                this.loadReadingListFromJson(json);
                 populateControls();
             } catch(err) {
                 ErrorLog.showErrorMessage(err);
@@ -222,5 +227,23 @@ class UserPreferences {
             let serialized = JSON.stringify(val);
             window.localStorage.setItem(DefaultParserSiteSettings.storageName, serialized);
         }
+    }
+
+    loadReadingListFromJson(json) {
+        let val = json[ReadingList.storageName];
+        if (val !== undefined) {
+            let serialized = JSON.stringify(val);
+            this.readingList = ReadingList.fromJson(serialized);
+            window.localStorage.setItem(ReadingList.storageName, serialized);
+        }
+    }
+
+    setReadingListCheckbox(url) {
+        let inlist = this.readingList.getEpub(url) != null;
+        UserPreferences.getReadingListCheckbox().checked = inlist;
+    }
+
+    static getReadingListCheckbox() {
+        return document.getElementById("includeInReadingListCheckbox");
     }
 }

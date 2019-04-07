@@ -136,6 +136,7 @@ var main = (function () {
         }).then(function (content) {
             return Download.save(content, fileName);
         }).then(function () {
+            parser.updateReadingList();
             ErrorLog.showLogToUser();
             return dumpErrorLogToFile();
         }).catch(function (err) {
@@ -346,6 +347,28 @@ var main = (function () {
         userPreferences.readFromFile(event, populateControls);
     }
 
+    function onReadingListCheckboxClicked() {
+        let url = parser.state.chapterListUrl;
+        let checked = UserPreferences.getReadingListCheckbox().checked;
+        userPreferences.readingList.onReadingListCheckboxClicked(checked, url);
+    }
+
+    function showReadingList() {
+        let sections = new Map(
+            [...document.querySelectorAll("section")]
+               .map(s =>[s, s.hidden])
+        );
+        [...sections.keys()].forEach(s => s.hidden = true);
+
+        document.getElementById("readingListSection").hidden = false;
+        document.getElementById("closeReadingList").onclick = function () {
+            [...sections].forEach(s => s[0].hidden = s[1])
+        };
+
+        let div = document.getElementById("readingListTable");
+        userPreferences.readingList.showReadingList(div);
+    }
+
     function addOnClickEventHandlers() {
         getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
@@ -361,6 +384,8 @@ var main = (function () {
 
         document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
+        UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
+        document.getElementById("viewReadingListButton").onclick = () => showReadingList();
     }
 
     // actions to do when window opened

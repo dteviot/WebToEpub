@@ -46,6 +46,11 @@
     </style>
 </head>
 <body>
+    <section id="readingListSection" hidden>
+        <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
+        <div id="readingListTable">
+        </table>
+    </section>
     <section id="errorSection" class="minWidth" hidden>
         <table id="errorSectionTable">
             <tr>
@@ -233,6 +238,14 @@
                         </td>
                         <td>__MSG_label_Max_pages_to_fetch_simultaneously__</td>
                     </tr>
+                    <tr id="IncludeInReadingListRow">
+                        <td><input id="includeInReadingListCheckbox" type="checkbox" name="includeInReadingListCheckbox" value="false"></td>
+                        <td>__MSG_label_Include_in_Reading_List__</td>
+                    </tr>
+                    <tr id="viewReadingListRow">
+                        <td></td>
+                        <td><button id="viewReadingListButton">__MSG_button_View_Reading_List__</button></td>
+                    </tr>
                     <tr id="developerStuffRow">
                         <td>__MSG_label_Developer_Stuff__</td>
                         <td>
@@ -318,6 +331,7 @@
         </div>
     </section>
     <!-- scripts go here -->
+    <script src="js/ReadingList.js"></script>
     <script src="js/UserPreferences.js"></script>
     <script src="js/EpubMetaInfo.js"></script>
     <script src="js/ErrorLog.js"></script>

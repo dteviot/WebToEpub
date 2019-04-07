@@ -11,6 +11,10 @@
 		"message": "Clear URL",
 		"description": "Label on button to erase the Cover Image URL text"
 	},
+	"__MSG_button_Close_ReadingList__": {
+		"message": "Close",
+		"description": "Label on button to stop showing the Reading List"
+	},
 	"__MSG_button_Copy_Urls_To_Clipboard__": {
 		"message": "Copy URLs to Clipboard",
 		"description": "Label on button that copies selected chapter URLs to clipboard"
@@ -78,6 +82,10 @@
 	"__MSG_button_Unselect_All__": {
 		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
+	},
+	"__MSG_button_View_Reading_List__": {
+		"message": "View Reading List",
+		"description": "Label on button to show Reading List"
 	},
 	"__MSG_button_Write_Options_to_file__": {
 		"message": "Write Options to file",
@@ -166,6 +174,10 @@
 	"__MSG_label_Fetch_Highest_Resolution_Images__": {
 		"message": "Fetch Highest Resolution Images",
 		"description": "Label for checkbox to get EPUB to include highest resolution images available (in Advanced settings)."
+	},
+	"__MSG_label_Include_in_Reading_List__": {
+		"message": "Include in Reading List",
+		"description": "Label for checkbox to add/remove title from Reading List of tracked titles."
 	},
 	"__MSG_label_Include_URL_of_Images__": {
 		"message": "Include URL of Images",
