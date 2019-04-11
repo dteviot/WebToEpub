@@ -356,7 +356,7 @@ var main = (function () {
     function showReadingList() {
         let sections = new Map(
             [...document.querySelectorAll("section")]
-               .map(s =>[s, s.hidden])
+                .map(s =>[s, s.hidden])
         );
         [...sections.keys()].forEach(s => s.hidden = true);
 
