@@ -24,47 +24,46 @@ class ComrademaoParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = ComrademaoParser.extractPartialChapterList(dom);
-        let pagesWithToc = ComrademaoParser.listUrlsHoldingChapterLists(dom);
-        ProgressBar.setValue(0);
-        ProgressBar.setMax(pagesWithToc.length);
-        var sequence = Promise.resolve();
-        for(let tocUrl of pagesWithToc) {
-            sequence = sequence.then(function () {
-                return ComrademaoParser.fetchPartialChapterList(tocUrl).then(
-                    c => (chapters = chapters.concat(c))
-                );
-            }); 
+        let chapters = ComrademaoParser.chaptersFromDom(dom);
+        let ajaxUrl = ComrademaoParser.getUrlforTocAjaxCall(dom);
+        if (ajaxUrl === null) {
+            return Promise.resolve(chapters);
         }
-        return sequence.then(() => Promise.resolve(chapters.reverse()));
+        return HttpClient.fetchJson(ajaxUrl)
+            .then(function (handler) {
+                return ComrademaoParser.makeChapterUrlsFromAjaxResponse(handler.json);
+            })
+            .catch(function () {
+                return chapters;
+            });
     };
 
-    static listUrlsHoldingChapterLists(dom) {
-        let urls = [];
-        let nav = dom.querySelector("div.content nav");
-        if (nav != null) {
-            let links = [...nav.querySelectorAll("a.page-numbers:not(.next)")];
-            let max = (0 < links.length) 
-                ? parseInt(links[links.length - 1].textContent)
-                : 0;
-            for(let i = 2; i <= max; ++i) {
-                let url = `${dom.baseURI}page/${i}/`;
-                urls.push(url);
+    static chaptersFromDom(dom) {
+        let menu = dom.querySelector("table#chapters");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    static getUrlforTocAjaxCall(dom) {
+        let link = dom.querySelector("link[rel='shortlink']");
+        if (link !== null) {
+            let id = link.getAttribute("href").split("?p=")[1];
+            if (!util.isNullOrEmpty(id)) {
+                return `https://comrademao.com/wp-admin/admin-ajax.php?action=movie_datatables&start=0&length=10000&p2m=${id}`;
             }
         }
-        return urls;
+        return null;
     }
 
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            ProgressBar.updateValue(1);
-            return ComrademaoParser.extractPartialChapterList(xhr.responseXML);
-        });
+    static makeChapterUrlsFromAjaxResponse(json) {
+        let parser = new DOMParser();
+        return json.data
+            .map(a => ComrademaoParser.stringToChapter(a[1], parser))
+            .reverse();
     }
 
-    static extractPartialChapterList(dom) {
-        let menu = dom.querySelector("table.table");
-        return util.hyperlinksToChapterList(menu);
+    static stringToChapter(s, parser) {
+        let link = parser.parseFromString(s, "text/html").body.childNodes[0];
+        return util.hyperLinkToChapter(link) ;
     }
 
     findContent(dom) {

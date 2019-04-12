@@ -2,14 +2,14 @@
 
 module("ComrademaoParser");
 
-test("extractPartialChapterList", function (assert) {
+test("chaptersFromDom", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let chapterUrls = ComrademaoParser.extractPartialChapterList(dom);
-    assert.equal(chapterUrls.length, 10);
-    assert.deepEqual(chapterUrls[8], {
+    let chapterUrls = ComrademaoParser.chaptersFromDom(dom);
+    assert.equal(chapterUrls.length, 3);
+    assert.deepEqual(chapterUrls[2], {
         newArc: null,
-        sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1993/",
-        title: "Shoujo Grand Summoning Chapter 1993"
+        sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-epilogue/",
+        title: "Shoujo Grand Summoning Chapter epilogue"
     });
 });
 
@@ -27,12 +27,20 @@ test("extractAuthor", function (assert) {
     assert.equal(actual.trim(), "Jing Wu Hen & 净无痕");
 });
 
-test("listUrlsHoldingChapterLists", function (assert) {
+test("getUrlforTocAjaxCall", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let actual = ComrademaoParser.listUrlsHoldingChapterLists(dom);
-    assert.equal(actual.length, 200);
-    assert.equal(actual[0], "https://comrademao.com/novel/shoujo-grand-summoning/page/2/");
-    assert.equal(actual[199], "https://comrademao.com/novel/shoujo-grand-summoning/page/201/")
+    let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
+    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=movie_datatables&start=0&length=10000&p2m=2370820");
+});
+
+test("makeChapterUrlsFromAjaxResponse", function (assert) {
+    let chapters = ComrademaoParser.makeChapterUrlsFromAjaxResponse(ComrademaoAjaxResponseSample);
+    assert.equal(chapters.length, 4);
+    assert.deepEqual(chapters[0], {
+        newArc: null,
+        sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1998/",
+        title: "Shoujo Grand Summoning Chapter 1998"
+    });
 });
 
 test("customRawDomToContentStep_removeOriginal", function (assert) {
@@ -75,6 +83,7 @@ let ComrademaoToCSample =
 <head>
     <title>Shoujo Grand Summoning &#8211; Comrade Mao</title>
     <base href="https://comrademao.com/novel/shoujo-grand-summoning/" />
+    <link rel="shortlink" href="https://comrademao.com/?p=2370820">
 </head>
 <body>
     <div class="page-title-product_2">
@@ -100,31 +109,26 @@ let ComrademaoToCSample =
     </table>
 
     <div class="content">
-    <table class="table table-hover">
-    <thead><tr><th>Date</th><th>Chapter</th></tr></thead>
-    <tbody>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-epilogue/">Shoujo Grand Summoning Chapter epilogue</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-2000/">Shoujo Grand Summoning Chapter 2000</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1999/">Shoujo Grand Summoning Chapter 1999</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1998/">Shoujo Grand Summoning Chapter 1998</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1997/">Shoujo Grand Summoning Chapter 1997</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1996/">Shoujo Grand Summoning Chapter 1996</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1995/">Shoujo Grand Summoning Chapter 1995</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1994/">Shoujo Grand Summoning Chapter 1994</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1993/">Shoujo Grand Summoning Chapter 1993</a></td></tr>
-    <tr><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1992/">Shoujo Grand Summoning Chapter 1992</a></td></tr>
-    </tbody>
+    <table id="chapters" class="table table-sm table-hover dataTable no-footer" role="grid" aria-describedby="chapters_info" style="width: 684px;">
+        <thead>
+            <tr role="row"><th class="sorting_disabled" rowspan="1" colspan="1" style="width: 197px;">Date</th><th class="sorting_disabled" rowspan="1" colspan="1" style="width: 455px;">Title</th></tr>
+        </thead>
+        <tbody>
+            <tr role="row" class="odd"><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-epilogue/">Shoujo Grand Summoning Chapter epilogue</a></td></tr>
+            <tr role="row" class="even"><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-2000/">Shoujo Grand Summoning Chapter 2000</a></td></tr>
+            <tr role="row" class="odd"><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1999/">Shoujo Grand Summoning Chapter 1999</a></td></tr>
+        </tbody>
     </table>
-    <nav class="pagination pagination-lg text-center">
-        <div class="column">
-            <span aria-current='page' class='page-numbers current'>1</span>
-            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/2/'>2</a>
-            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/3/'>3</a>
-            <span class="page-numbers dots">&hellip;</span>
-            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/201/'>201</a>
-            <a class="next page-numbers" href="https://comrademao.com/novel/shoujo-grand-summoning/page/2/">Next &raquo;</a>
-        </div><div class="column text-right hidden-xs-down"></div>
-    </nav>
+    <ul class="pagination">
+        <li class="paginate_button previous disabled" id="chapters_previous"><a href="#" aria-controls="chapters" data-dt-idx="0" tabindex="0">Previous</a></li>
+        <li class="paginate_button active"><a href="#" aria-controls="chapters" data-dt-idx="1" tabindex="0">1</a></li>
+        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="2" tabindex="0">2</a></li>
+        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="3" tabindex="0">3</a></li>
+        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="4" tabindex="0">4</a></li>
+        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="5" tabindex="0">5</a></li>
+        <li class="paginate_button disabled" id="chapters_ellipsis"><a href="#" aria-controls="chapters" data-dt-idx="6" tabindex="0">…</a></li><li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="7" tabindex="0">201</a></li>
+        <li class="paginate_button next" id="chapters_next"><a href="#" aria-controls="chapters" data-dt-idx="8" tabindex="0">Next</a></li>
+    </ul>
 </div>
 </body>
 </html>`
@@ -161,3 +165,14 @@ let ComrademaoChapterSample =
 </body>
 </html>
 `
+let ComrademaoAjaxResponseSample = {
+    "draw": 0,
+    "recordsTotal": 2001,
+    "recordsFiltered": 2001,
+    "data": [
+        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-epilogue\/\">Shoujo Grand Summoning Chapter epilogue<\/a>"],
+        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-2000\/\">Shoujo Grand Summoning Chapter 2000<\/a>"],
+        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-1999\/\">Shoujo Grand Summoning Chapter 1999<\/a>"],
+        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-1998\/\">Shoujo Grand Summoning Chapter 1998<\/a>"]
+    ]
+};
