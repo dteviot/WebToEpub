@@ -1,8 +1,9 @@
 # WebToEpub
 (c) 2015 David Teviotdale   
 
-Extension for Firefox and Chrome that converts a story on Baka-Tsuki into an EPUB.
-Also works with 
+Extension for Firefox and Chrome that converts Web Novels (and other web pages) into an EPUB.
+Works with many sites, including the following:
+* Baka-Tsuki.org
 * ArchiveOfOurOwn.org
 * blogspot (some)
 * mugglenet.com
@@ -21,7 +22,7 @@ Also works with
 * and many other sites
 
 Credits
-* Firefox mod by Markus Vieth
+* Firefox port by Markus Vieth
 * Michael Fox (Belldandu)
 * typhoon71
 * toshiya44
@@ -123,7 +124,7 @@ WebToEpub uses the following libraries:
 * Load unitTest/Tests.html
 * (Remember to reset security.fileuri.strict_origin_policy to true when done.
 
-### To run eslint (and build the plugins)
+### To run eslint (and build the plugin)
 * Install Node.js (if not already installed)
 * Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (Needed by pack.js)
 * Use Node.js to run eslint/pack.js
