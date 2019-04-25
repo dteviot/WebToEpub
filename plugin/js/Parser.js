@@ -322,7 +322,7 @@ class Parser {
                 chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
             chapters = that.cleanWebPageUrls(chapters);
-            that.userPreferences.readingList.deselectUnwantedChapters(url, chapters);
+            that.userPreferences.readingList.deselectOldChapters(url, chapters);
             chapterUrlsUI.populateChapterUrlsTable(chapters);
             if (0 < chapters.length) {
                 if (chapters[0].sourceUrl === url) {

@@ -1,16 +1,20 @@
 
 "use strict";
 
-/** Track EPUB chapters that have been previously downloaded */
+/** Track EPUB chapters that have been previously downloaded 
+ * Note, as local storage is limited to 5 Megabytes, 
+ * and some stories can have  * 4k or more chapters, 
+ * Can't hold all URLs.  So just record last chapter for each story.
+*/
 class ReadingList {
     constructor () {
         this.epubs = new Map();
     }
 
     addEpub(url) {
-        let oldUrls = this.epubs.get(url);
-        if (oldUrls == null) {
-            this.epubs.set(url, new Set());
+        let oldUrl = this.epubs.get(url);
+        if (oldUrl == null) {
+            this.epubs.set(url, "");
         }
     }
 
@@ -22,33 +26,38 @@ class ReadingList {
         return this.epubs.get(url);
     }
 
-    deselectUnwantedChapters(url, chapterList) {
-        let oldUrls = this.epubs.get(url);
-        if (oldUrls != null) {
-            for(let c of chapterList) {
-                if (oldUrls.has(c.sourceUrl)) {
-                    c.isIncludeable = false;
+    deselectOldChapters(url, chapterList) {
+        let oldUrl = this.epubs.get(url);
+        if (oldUrl != null) {
+            for(let i = 0; i < chapterList.length; ++i) {
+                if (oldUrl === chapterList[i].sourceUrl) {
+                    for(let j = 0; j <= i; ++j) {
+                        chapterList[j].isIncludeable = false;
+                    }
+                    break;
                 }
             }
         }
     }
 
     update(url, chapterList) {
-        let oldUrls = this.epubs.get(url);
-        if (oldUrls != null) {
+        let oldUrl = this.epubs.get(url);
+        if (oldUrl != null) {
             for(let c of chapterList) {
-                oldUrls.add(c.sourceUrl);
+                if (c.isIncludeable) {
+                    this.epubs.set(url, c.sourceUrl);
+                }
             }
-            this.writeToLocalStorage();
+            if (oldUrl !== this.epubs.get(url)) {
+                this.writeToLocalStorage();
+            }
         }
     }
 
     static replacer(key, value) {
         switch(key) {
         case "epubs":
-            return [...value].map(v => ({ toc: v[0], history: v[1] }));
-        case "history":
-            return [...value];
+            return [...value].map(v => ({ toc: v[0], lastUrl: v[1] }));
         default:
             return value;
         }
@@ -57,13 +66,19 @@ class ReadingList {
     static reviver(key, value) {
         switch(key) {
         case "epubs":
-            return new Map([...value].map(v => [v.toc, v.history]));
+            return new Map([...value].map(ReadingList.reviveEpub));
         case "history": {
-            return new Set([...value]);
+            return value[value.length - 1];
         }
         default:
             return value;
         }
+    }
+
+    static reviveEpub(packedEpub) {
+        return (packedEpub.history == null)
+            ? [packedEpub.toc, packedEpub.lastUrl]
+            : [packedEpub.toc, packedEpub.history];
     }
 
     toJson() {

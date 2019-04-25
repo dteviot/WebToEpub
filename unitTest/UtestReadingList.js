@@ -14,23 +14,16 @@ test("update", function (assert) {
     let rl = new ReadingList();
     rl.addEpub(toc1Url);
     rl.update(toc1Url, chapterList);
-    let actual = [...rl.getEpub(toc1Url)];
-    assert.deepEqual(actual, ["http://novelupdates.com/seriesPage.html",
-        "http://mySite.org/s1/chapter_001.html",
-        "http://mySite.org/s1/chapter_002.html"
-    ]);
+    let actual = rl.getEpub(toc1Url);
+    assert.equal(actual, "http://mySite.org/s1/chapter_001.html");
 
     chapterList.push({isIncludeable: true, sourceUrl: "http://mySite.org/s1/chapter_003.html"})
     rl.update(toc1Url, chapterList);
-    actual = [...rl.getEpub(toc1Url)];
-    assert.deepEqual(actual, ["http://novelupdates.com/seriesPage.html",
-        "http://mySite.org/s1/chapter_001.html",
-        "http://mySite.org/s1/chapter_002.html",
-        "http://mySite.org/s1/chapter_003.html"
-    ]);
+    actual = rl.getEpub(toc1Url);
+    assert.equal(actual, "http://mySite.org/s1/chapter_003.html");
 });
 
-test("deselectUnwantedChapters", function (assert) {
+test("deselectOldChapters", function (assert) {
     let history = [
         {isIncludeable: false, sourceUrl: "http://novelupdates.com/seriesPage.html"},
         {isIncludeable: true, sourceUrl: "http://mySite.org/s1/chapter_001.html"},
@@ -48,9 +41,9 @@ test("deselectUnwantedChapters", function (assert) {
     let rl = new ReadingList();
     rl.addEpub(toc1Url);
     rl.update(toc1Url, history);
-    rl.deselectUnwantedChapters(toc1Url, pages);
+    rl.deselectOldChapters(toc1Url, pages);
     let actual = pages.map(p => p.isIncludeable);
-    assert.deepEqual(actual, [false, false, false, true, false]);
+    assert.deepEqual(actual, [false, false, true, true, false]);
 });
 
 test("toJson_whenEmpty", function (assert) {
@@ -82,8 +75,8 @@ test("toJson", function (assert) {
 
     let actual = readingList.toJson();
     assert.equal(actual, "{\"epubs\":["+
-        "{\"toc\":\"" + toc1Url + "\",\"history\":[\"http://novelupdates.com/seriesPage.html\",\"http://mySite.org/s1/chapter_001.html\",\"http://mySite.org/s1/chapter_002.html\"]},"+
-        "{\"toc\":\"" + toc2Url + "\",\"history\":[\"http://novelupdates.com/series2Page.html\",\"http://mySite.org/s2/chapter_001.html\",\"http://mySite.org/s2/chapter_002.html\"]}"+
+        "{\"toc\":\"" + toc1Url + "\",\"lastUrl\":\"http://mySite.org/s1/chapter_001.html\"},"+
+        "{\"toc\":\"" + toc2Url + "\",\"lastUrl\":\"http://mySite.org/s2/chapter_002.html\"}"+
         "]}"
     );
 
@@ -91,7 +84,15 @@ test("toJson", function (assert) {
     assert.deepEqual(readingList, clone);
 });
 
-// check this test works correctly
-//{ sourceUrl: "http://mySite.org/s1/chapter_11.html",  isIncludeable: true },
-//{ sourceUrl: "http://mySite.org/s1/chapter_1.html",  isIncludeable: true },
+test("fromJson_oldVersion", function (assert) {
+    let toc1Url = "http://mySite.org/s1/toc.html";
+    let toc2Url = "http://mySite.org/s2/toc.html";
+    let oldJson = "{\"epubs\":["+
+        "{\"toc\":\"" + toc1Url + "\",\"history\":[\"http://novelupdates.com/seriesPage.html\",\"http://mySite.org/s1/chapter_001.html\",\"http://mySite.org/s1/chapter_002.html\"]},"+
+        "{\"toc\":\"" + toc2Url + "\",\"history\":[\"http://novelupdates.com/series2Page.html\",\"http://mySite.org/s2/chapter_001.html\",\"http://mySite.org/s2/chapter_002.html\"]}"+
+        "]}";
 
+    let rl = ReadingList.fromJson(oldJson);
+    assert.equal(rl.getEpub(toc1Url), "http://mySite.org/s1/chapter_002.html");
+    assert.equal(rl.getEpub(toc2Url), "http://mySite.org/s2/chapter_002.html");
+});
