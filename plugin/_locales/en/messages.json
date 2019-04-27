@@ -63,6 +63,10 @@
 		"message": "Reload",
 		"description": "Label on 'Reload' button under 'Developer Stuff'"
 	},
+	"__MSG_button_Remove__": {
+		"message": "Remove",
+		"description": "Label on button to remove an entry from Reading List"
+	},
 	"__MSG_button_Reset_stylesheet__": {
 		"message": "Reset stylesheet to default",
 		"description": "Label on button to remove all changes to stylesheet and set to default value"

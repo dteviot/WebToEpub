@@ -111,14 +111,33 @@ class ReadingList {
         this.writeToLocalStorage();
     }
 
-    showReadingList(div) {
-        util.removeChildElementsMatchingCss(div, "a, br");
+    showReadingList(table) {
+        util.removeChildElementsMatchingCss(table, "tr");
         for(let e of this.epubs.keys()) {
+            let row = document.createElement("tr");
+            table.appendChild(row);
             let link = document.createElement("a");
             link.href = e;
             link.textContent = e;
-            div.appendChild(link);
-            div.appendChild(document.createElement("br"))
+            this.appendColumnToRow(row, link);
+            let button = document.createElement("button");
+            button.textContent = chrome.i18n.getMessage("__MSG_button_Remove__");
+            this.appendColumnToRow(row, button);
+        }
+    }
+
+    appendColumnToRow(row, element) {
+        let col = document.createElement("td");
+        col.appendChild(element);
+        row.appendChild(col);
+    }
+
+    onClickRemove(evt) {
+        if (evt.target.tagName === "BUTTON") {
+            var row = evt.target.parentElement.parentElement;
+            this.deleteEpub(row.querySelector("a").href);
+            this.showReadingList(evt.currentTarget);
+            this.writeToLocalStorage();
         }
     }
 }

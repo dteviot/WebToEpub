@@ -365,8 +365,9 @@ var main = (function () {
             [...sections].forEach(s => s[0].hidden = s[1])
         };
 
-        let div = document.getElementById("readingListTable");
-        userPreferences.readingList.showReadingList(div);
+        let table = document.getElementById("readingListTable");
+        userPreferences.readingList.showReadingList(table);
+        table.onclick = (event) => userPreferences.readingList.onClickRemove(event);
     }
 
     function addOnClickEventHandlers() {
