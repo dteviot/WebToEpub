@@ -50,7 +50,7 @@ class EpubItem {
     fileContentForEpub(emptyDocFactory, contentValidator) {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
         let errorMessage = contentValidator(xml);
-        if (contentValidator(xml)) {
+        if (errorMessage) {
             let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
                 [this.chapterTitle, this.sourceUrl, errorMessage]
             );
@@ -63,7 +63,8 @@ class EpubItem {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of this.nodes) {
-            body.appendChild(doc.importNode(node, true));
+            let clone = doc.importNode(node, true);
+            body.appendChild(Sanitize.stripInvalidChars(clone));
         };
         delete(this.nodes);
         return doc;

@@ -83,8 +83,25 @@ class Sanitize {
 
     cleanTextNode(textNode) {
         // ToDo: fully implement
-        let text = textNode.nodeValue;
+        let text = Sanitize.stripInvalidCharsFromString(textNode.nodeValue);
         return document.createTextNode(text);
+    }
+
+    static stripInvalidChars(node) {
+        let iterator = node.ownerDocument.createNodeIterator(node, NodeFilter.SHOW_TEXT, null); 
+        let n = null;
+        while ((n = iterator.nextNode()) != null) {
+            let oldtext = n.nodeValue;
+            let newText = Sanitize.stripInvalidCharsFromString(oldtext);
+            if (oldtext.length !== newText.length) {
+                n.nodeValue = newText;
+            }
+        }
+        return node;
+    }
+
+    static stripInvalidCharsFromString(s) {
+        return s.replace(Sanitize.InvalidCharsRegex, "");
     }
 }
 
@@ -110,3 +127,6 @@ Sanitize.ATTRIBUTES = {
     "image": ["xlink:href", "width", "height"],
     "svg": ["xmlns", "xmlns:xlink", "height", "width",  "version", "preserveAspectRatio", "viewBox"]
 };
+
+// The most common chars found in HTML that are not valid for XML
+Sanitize.InvalidCharsRegex = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g;

@@ -12,7 +12,7 @@ test("copyAttributes", function (assert) {
 test("cloneChildren", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<dummy id='first' class='' dummy='something'>" +
-        "<p>Hello</p><span id=\"second\"> world</span>" +
+        "<p>Hello</p><span id=\"second\"> world\u000c</span>" +
         "</dummy>" ,
         "text/html"
     );
@@ -36,4 +36,21 @@ test("svg", function (assert) {
     let sanitizer = new Sanitize();
     let actual = sanitizer.clean(dom.body);
     assert.equal(actual.outerHTML, dom.body.outerHTML);
+});
+
+test("stripInvalidCharsFromString", function (assert) {
+    let s = "A\u000cB\u0008";
+    let actual = Sanitize.stripInvalidCharsFromString(s);
+    assert.equal(s.length, 4);
+    assert.equal(actual, "AB");
+    assert.equal(actual.length, 2);
+});
+
+test("stripInvalidChars", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<p><span>◇\u0007――――――――――――――――</span><span>&lt;\u000c&gt;</span></p>",
+        "text/html"
+    );
+    let actual = Sanitize.stripInvalidChars(dom.body);
+    assert.equal(actual.innerHTML, "<p><span>◇――――――――――――――――</span><span>&lt;&gt;</span></p>");
 });
