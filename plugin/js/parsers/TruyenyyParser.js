@@ -38,8 +38,8 @@ class TruyenyyParser extends Parser{
                 .map(a => a.href)
                 .filter(href => href.includes("?p="))
             let maxPage = tocLinks
-               .map(href => parseInt(href.split("?p=")[1]))
-               .reduce((p, c) => Math.max(p, c), -1);
+                .map(href => parseInt(href.split("?p=")[1]))
+                .reduce((p, c) => Math.max(p, c), -1);
             if (1 < maxPage) {
                 let base = tocLinks[0].split("?p=")[0];
                 for(let i = 2; i <= maxPage; ++i) {

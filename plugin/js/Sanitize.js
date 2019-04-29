@@ -1,6 +1,6 @@
 "use strict";
 
-/** Intented to strip XHTML down to minimum set of elements
+/** Intended to strip XHTML down to minimum set of elements
  * (i.e. Clean up the dirty HTML sometimes encountered)
 */
 
@@ -129,4 +129,4 @@ Sanitize.ATTRIBUTES = {
 };
 
 // The most common chars found in HTML that are not valid for XML
-Sanitize.InvalidCharsRegex = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g;
+Sanitize.InvalidCharsRegex = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g;     // eslint-disable-line no-control-regex
