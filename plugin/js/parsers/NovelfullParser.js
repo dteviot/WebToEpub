@@ -11,23 +11,13 @@ class NovelfullParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let pagesWithToc = NovelfullParser.listUrlsHoldingChapterLists(dom);
-        if (pagesWithToc.length <= 1) {
-            let chapters = NovelfullParser.extractPartialChapterList(dom);
-            return Promise.resolve(chapters);
-        }
-        return Promise.all(
-            pagesWithToc.map(volume => NovelfullParser.fetchPartialChapterList(volume))
-        ).then(function (tocFragments) {
-            let chapters = [];
-            for (let fragment of tocFragments) {
-                chapters = chapters.concat(fragment);
-            }
-            return chapters;
-        });
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            NovelfullParser.extractPartialChapterList,
+            NovelfullParser.getUrlsOfTocPages
+        );
     };
 
-    static listUrlsHoldingChapterLists(dom) {
+    static getUrlsOfTocPages(dom) {
         let link = dom.querySelector("li.last a");
         let urls = [];
         if (link != null) {
@@ -39,12 +29,6 @@ class NovelfullParser extends Parser{
             }
         }
         return urls;
-    }
-
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return NovelfullParser.extractPartialChapterList(xhr.responseXML);
-        });
     }
 
     static extractPartialChapterList(dom) {

@@ -11,59 +11,22 @@ class ShinsoriParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = ShinsoriParser.extractPartialChapterList(dom);
-        let pagesWithToc = ShinsoriParser.listUrlsHoldingChapterLists(dom);
-        if (pagesWithToc.length <= 1) {
-            return Promise.resolve(chapters.reverse());
-        }
-        return Promise.all(
-            pagesWithToc.map(volume => ShinsoriParser.fetchPartialChapterList(volume))
-        ).then(function (tocFragments) {
-            for (let fragment of tocFragments) {
-                chapters = chapters.concat(fragment);
-            }
-            return Promise.resolve(chapters.reverse());
-        });
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            ShinsoriParser.extractPartialChapterList,
+            ShinsoriParser.getUrlsOfTocPages
+        );
     };
 
-    static listUrlsHoldingChapterLists(dom) {
-        let link = dom.querySelector("li.last-page a");
-        let urls = [];
-        if (link == null) {
-            return [...dom.querySelectorAll("div.pages-nav a[title]")]
-                .map(a => a.href);
-        } else {
-            let href = link.href;
-            let index = href.indexOf("page/");
-            if (0 <= index) {
-                let suffix = href.substring(index + 5);
-                let prefix = href.substring(0, index + 5);
-                let max = parseInt(suffix);
-                for (let i = 2; i <= max; ++i) {
-                    urls.push(prefix + i +"/");
-                }
-            }
-        }
-        return urls;
-    }
-
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return ShinsoriParser.extractPartialChapterList(xhr.responseXML);
-        });
+    static getUrlsOfTocPages(dom) {
+        return [...dom.querySelectorAll("ul.lcp_paginator a:not(.lcp_nextlink)")]
+            .map(link => link.href);
     }
 
     static extractPartialChapterList(dom) {
-        let list = [...dom.querySelectorAll("div.mag-box-container li.post-item a[title]")];
-        return list.map(l => ShinsoriParser.linkToChapter(l));
-    }
-
-    static linkToChapter(link) {
-        return ({
-            sourceUrl: link.href,
-            title: link.getAttribute("title"),
-            newArc: null                    
-        });
+        let lists = [...dom.querySelectorAll("ul.lcp_catlist")];
+        return (0 === lists.length) 
+            ? [] 
+            : util.hyperlinksToChapterList(lists[lists.length - 1]);
     }
 
     findContent(dom) {

@@ -8,13 +8,10 @@ class TruyenfullParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = TruyenfullParser.extractPartialChapterList(dom);
-        let restUrls = TruyenfullParser.getUrlsOfTocPages(dom);
-        return Promise.all(
-            restUrls.map(url => TruyenfullParser.fetchPartialChapterList(url))
-        ).then(function (tocFragments) {
-            return tocFragments.reduce((a, c) => a.concat(c), chapters);
-        });
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            TruyenfullParser.extractPartialChapterList,
+            TruyenfullParser.getUrlsOfTocPages
+        );
     };
 
     static getUrlsOfTocPages(dom) {
@@ -32,12 +29,6 @@ class TruyenfullParser extends Parser{
     static extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("ul.list-chapter a")]
             .map(link => util.hyperLinkToChapter(link));
-    }
-
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return TruyenfullParser.extractPartialChapterList(xhr.responseXML);
-        });
     }
 
     findContent(dom) {

@@ -548,6 +548,21 @@ class Parser {
     static findConstrutedContent(dom) {
         return dom.querySelector("div." + Parser.WEB_TO_EPUB_CLASS_NAME);
     }
+
+    getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages)  {
+        let fetchPartialChapterList = function(url) {
+            return HttpClient.wrapFetch(url).then(function (xhr) {
+                return extractPartialChapterList(xhr.responseXML);
+            });
+        }
+        let chapters = extractPartialChapterList(dom);
+        let restUrls = getUrlsOfTocPages(dom);
+        return Promise.all(
+            restUrls.map(fetchPartialChapterList)
+        ).then(function (tocFragments) {
+            return tocFragments.reduce((a, c) => a.concat(c), chapters);
+        });
+    }
 }
 
 Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";

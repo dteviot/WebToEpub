@@ -8,25 +8,19 @@ class LightNovelsTranslationsParser extends WordpressBaseParser{
     }
 
     getChapterUrls(dom) {
-        let paginationUrl = this.getLastPaginationUrl(dom);
+        let paginationUrl = LightNovelsTranslationsParser.getLastPaginationUrl(dom);
         if (paginationUrl === null) {
             return super.getChapterUrls(dom);
         }
-        return Promise.resolve(this.getMultiTocPageChapterUrls(dom, paginationUrl));
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            LightNovelsTranslationsParser.extractPartialChapterList,
+            LightNovelsTranslationsParser.getUrlsOfTocPages
+        ).then(c => c.reverse());
     };
 
-    getMultiTocPageChapterUrls(dom, paginationUrl) {
-        let chapters = LightNovelsTranslationsParser.extractPartialChapterList(dom);
-        let tocPages = this.getUrlsOfTocPages(paginationUrl);
-        return Promise.all(
-            tocPages.map(url => LightNovelsTranslationsParser.fetchPartialChapterList(url))
-        ).then(function (tocFragments) {
-            return tocFragments.reduce((a, c) => a.concat(c), chapters).reverse();
-        });
-    }
-
-    getUrlsOfTocPages(paginationUrl) {
+    static getUrlsOfTocPages(dom) {
         let urls = [];
+        let paginationUrl = LightNovelsTranslationsParser.getLastPaginationUrl(dom);
         let maxPage = parseInt(util.extactSubstring(paginationUrl, "/page/", "/"));
         let index = paginationUrl.indexOf("/page/") + 6;
         let prefix = paginationUrl.substring(0, index);
@@ -36,17 +30,11 @@ class LightNovelsTranslationsParser extends WordpressBaseParser{
         return urls;
     }
 
-    getLastPaginationUrl(dom) {
+    static getLastPaginationUrl(dom) {
         let urls = [...dom.querySelectorAll("div.pagination_container a")];
         return (0 === urls.length) ? null : urls.pop().href;
     }
 
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return LightNovelsTranslationsParser.extractPartialChapterList(xhr.responseXML);
-        });
-    }
-    
     static extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("h2.entry-title a")]
             .map(a => util.hyperLinkToChapter(a));

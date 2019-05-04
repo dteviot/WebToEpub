@@ -8,13 +8,10 @@ class TruyenyyParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = TruyenyyParser.extractPartialChapterList(dom);
-        let tocPages = TruyenyyParser.getUrlsOfTocPages(dom);
-        return Promise.all(
-            tocPages.map(url => TruyenyyParser.fetchPartialChapterList(url))
-        ).then(function (tocFragments) {
-            return tocFragments.reduce((a, c) => a.concat(c), chapters);
-        });
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            TruyenyyParser.extractPartialChapterList,
+            TruyenyyParser.getUrlsOfTocPages
+        );
     };
 
     static extractPartialChapterList(dom) {
@@ -48,12 +45,6 @@ class TruyenyyParser extends Parser{
             }
         }
         return tocUrls;
-    }
-
-    static fetchPartialChapterList(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return TruyenyyParser.extractPartialChapterList(xhr.responseXML);
-        });
     }
 
     findContent(dom) {

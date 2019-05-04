@@ -6,14 +6,14 @@ module("LightNovelsTranslationsParser");
 QUnit.test("getLastPaginationUrl", function (assert) {
     let dom = new DOMParser().parseFromString(
         LightNovelsTranslationsToCSample, "text/html");
-    let url = new LightNovelsTranslationsParser().getLastPaginationUrl(dom);
+    let url = LightNovelsTranslationsParser.getLastPaginationUrl(dom);
     assert.equal(url, LightNovelPaginationUrl);
 });
 
 QUnit.test("getUrlsOfTocPages", function (assert) {
     let dom = new DOMParser().parseFromString(
         LightNovelsTranslationsToCSample, "text/html");
-    let urls = new LightNovelsTranslationsParser().getUrlsOfTocPages(LightNovelPaginationUrl);
+    let urls = LightNovelsTranslationsParser.getUrlsOfTocPages(dom);
     assert.equal(urls.length, 52);
     assert.equal(urls[51], LightNovelPaginationUrl);
 });
