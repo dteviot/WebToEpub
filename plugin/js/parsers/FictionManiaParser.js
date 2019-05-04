@@ -35,7 +35,7 @@ class FictionManiaParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         if (content.tagName.toLowerCase() === "pre") {
-            util.convertPreTagToPTags(chapter.rawDom, content);
+            util.convertPreTagToPTags(chapter.rawDom, content, "\n\n");
         }
     }
 

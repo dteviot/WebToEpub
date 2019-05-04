@@ -530,14 +530,28 @@ QUnit.test("removeChildElementsMatchingCss", function (assert) {
 
 QUnit.test("convertPreTagToPTags", function (assert) {
     let dom = TestUtils.makeDomWithBody(
-        "<pre>oneline\u000a" +
-        "two\u000d" +
-        "three\u000d\u000a" +
-        "\u000d\u000a" +
+        "<pre>oneline\r" +
+        "two\n" +
+        "three\r\n" +
+        "\r\n" +
         "four" +
         "</pre>"
     );
     util.convertPreTagToPTags(dom, dom.querySelector("pre"));
     let actual = dom.body.innerHTML;
-    assert.equal(actual, "<pre><p>oneline</p><p>two</p><p>three</p><p>four</p></pre>");
+    assert.equal(actual, "<pre><p>oneline</p><p>two</p><p>three</p><p></p><p>four</p></pre>");
+});
+
+QUnit.test("convertPreTagToPTags_splitAtDoubleLineFeed", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<pre>paragraph 1 line 1\r" +
+        "paragraph 1 line 2\r" +
+        "\r" +
+        "paragraph 2 line 1\r" +
+        "paragraph 2 line 2\r" +
+        "</pre>"
+    );
+    util.convertPreTagToPTags(dom, dom.querySelector("pre"), "\n\n");
+    let actual = dom.body.innerHTML;
+    assert.equal(actual, "<pre><p>paragraph 1 line 1\nparagraph 1 line 2</p><p>paragraph 2 line 1\nparagraph 2 line 2\n</p></pre>");
 });

@@ -286,14 +286,14 @@ var util = (function () {
         util.removeChildElementsMatchingCss(contentElement, "div.sharepost");
     }
 
-    var convertPreTagToPTags = function(dom, element) {
+    var convertPreTagToPTags = function(dom, element, splitOn) {
         let normalizeEol = function(s) {
             return s.replace(/\r\n/g, "\n")
                 .replace(/\r/g, "\n")
-                .replace(/\n\n/g, "\n");
         };
     
-        let strings = normalizeEol(element.innerText).split("\n");
+        splitOn = splitOn || "\n";
+        let strings = normalizeEol(element.innerText).split(splitOn);
         element.innerHTML = "";
         for(let s of strings) {
             let p = dom.createElement("p");
