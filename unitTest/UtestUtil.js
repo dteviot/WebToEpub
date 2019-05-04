@@ -527,3 +527,17 @@ QUnit.test("removeChildElementsMatchingCss", function (assert) {
     let actual = dom.body.innerHTML;
     assert.equal(actual, "<h1><a>Title</a></h1><div><p></p></div>");
 });
+
+QUnit.test("convertPreTagToPTags", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<pre>oneline\u000a" +
+        "two\u000d" +
+        "three\u000d\u000a" +
+        "\u000d\u000a" +
+        "four" +
+        "</pre>"
+    );
+    util.convertPreTagToPTags(dom, dom.querySelector("pre"));
+    let actual = dom.body.innerHTML;
+    assert.equal(actual, "<pre><p>oneline</p><p>two</p><p>three</p><p>four</p></pre>");
+});

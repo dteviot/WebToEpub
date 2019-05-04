@@ -286,6 +286,22 @@ var util = (function () {
         util.removeChildElementsMatchingCss(contentElement, "div.sharepost");
     }
 
+    var convertPreTagToPTags = function(dom, element) {
+        let normalizeEol = function(s) {
+            return s.replace(/\r\n/g, "\n")
+                .replace(/\r/g, "\n")
+                .replace(/\n\n/g, "\n");
+        };
+    
+        let strings = normalizeEol(element.innerText).split("\n");
+        element.innerHTML = "";
+        for(let s of strings) {
+            let p = dom.createElement("p");
+            p.appendChild(dom.createTextNode(s));
+            element.appendChild(p);
+        }
+    }
+
     var prepForConvertToXhtml = function(element) {
         this.replaceCenterTags(element);
         this.replaceUnderscoreTags(element);
@@ -916,6 +932,7 @@ var util = (function () {
         removeHeightAndWidthStyle: removeHeightAndWidthStyle,
         removeUnwantedWordpressElements: removeUnwantedWordpressElements,
         removeShareLinkElements: removeShareLinkElements,
+        convertPreTagToPTags: convertPreTagToPTags, 
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,

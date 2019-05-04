@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("forum.babelchain.org", () => new BabelChainParser());
+parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
 
 class BabelChainParser extends Parser{
     constructor() {
@@ -8,51 +8,55 @@ class BabelChainParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = BabelChainParser.getChapterUrlsFromRenderedTocPage(dom);
-        if (!BabelChainParser.mayBeMoreChapters(chapters)) {
-            return Promise.resolve(chapters.reverse());
+        let chapters = [];
+        let lastChapterLink = this.findLastChapterUrl(dom);
+        if (lastChapterLink != null) {
+            let href = lastChapterLink.href;
+            // assume URL looks like https://novel.babelchain.org/books/the-rebirth-of-the-malicious/chapters/c14
+            let index = href.lastIndexOf("c");
+            let base = href.substring(0, index);
+            let max = parseInt(href.substring(index + 1));
+            for(let i = 1; i <= max; ++i) {
+                chapters.push({
+                    sourceUrl: `${base}c${i}`,
+                    title: `C${i}`
+                })
+            };
         }
-        return HttpClient.wrapFetch(dom.baseURI).then(
-            response => BabelChainParser.walkTocPages(response.responseXML, [])
-        );
+        return Promise.resolve(chapters);
     };
 
-    static getChapterUrlsFromRenderedTocPage(dom) {
-        return [...dom.querySelectorAll("span.link-top-line a")]
-            .map(a => util.hyperLinkToChapter(a));
+    findLastChapterUrl(dom) {
+        let lastChapterLink = dom.querySelector("a.chapter-content__3MoDI.last-chapter__4B8tJ");
+        if (lastChapterLink != null) {
+            return lastChapterLink;
+        }
+        return dom.querySelector("a.chapter__VWBWj.item__1oJbc");
     }
 
+    customRawDomToContentStep(chapter, content) {
+        util.convertPreTagToPTags(chapter.rawDom, content);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book-info-wrapper__26NST div.name__8GUv7");
+    };
+
     findContent(dom) {
-        return dom.querySelector("div.post");
+        return dom.querySelector("div.content-container__eld5P pre blockquote");
     };
 
     findChapterTitle(dom) {
-        return this.extractTitle(dom);
+        return dom.querySelector("div.content-container__eld5P div.title__3StRr");
     }
 
-    static walkTocPages(dom, chapters) {
-        let newChapters = BabelChainParser.getChapterUrlsFromRawTocPage(dom);
-        chapters = chapters.concat(newChapters);
-        let next = BabelChainParser.findNextTocPageUrl(dom);
-        if ((next != null) && BabelChainParser.mayBeMoreChapters(newChapters)) {
-            return HttpClient.wrapFetch(next.href).then(
-                response => BabelChainParser.walkTocPages(response.responseXML, chapters)
-            )
-        }
-        return Promise.resolve(chapters.reverse());
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.cover__265y8");
     }
 
-    static getChapterUrlsFromRawTocPage(dom) {
-        return [...dom.querySelectorAll("div.topic-list a")]
-            .map(a => util.hyperLinkToChapter(a));
+    getInformationEpubItemChildNodes(dom) {
+        let synopsis = dom.querySelector("div.section-content__1fSI8.section-body__3WqX5");
+        return synopsis == null ? [] : [synopsis];
     }
 
-    static findNextTocPageUrl(dom) {
-        return dom.querySelector("a[rel='next']");
-    }
-
-    static mayBeMoreChapters(chapters) {
-        // Each ToC page may have up to 30 chapters
-        return 30 <= chapters.length;
-    }
 }

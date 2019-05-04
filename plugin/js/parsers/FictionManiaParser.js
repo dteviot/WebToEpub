@@ -35,23 +35,8 @@ class FictionManiaParser extends Parser {
 
     customRawDomToContentStep(chapter, content) {
         if (content.tagName.toLowerCase() === "pre") {
-            this.convertPreTagToPTags(chapter.rawDom, content);
+            util.convertPreTagToPTags(chapter.rawDom, content);
         }
-    }
-
-    convertPreTagToPTags(dom, element) {
-        let rawText = element.innerText;
-        let strings = this.normalizeEol(rawText).split("\n\n");
-        element.innerText = "";
-        for(let s of strings) {
-            let p = dom.createElement("p");
-            p.appendChild(dom.createTextNode(s));
-            element.appendChild(p);
-        }
-    }
-
-    normalizeEol(s) {
-        return s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
     }
 
     extractTitleImpl(dom) {
