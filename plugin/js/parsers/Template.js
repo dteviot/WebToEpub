@@ -154,7 +154,7 @@ class TemplateParser extends Parser{
     }
     */
 
-    // Optional, Return elements from page used to get Chapter URLs
+    // Optional, Return elements from page
     // that are to be shown on epub's "information" page
     /*
     getInformationEpubItemChildNodes(dom) {
