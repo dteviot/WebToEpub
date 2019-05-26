@@ -74,7 +74,7 @@ test("findChapterTitle", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoChapterSample, "text/html");
     let parser = new ComrademaoParser();
     let title = parser.findChapterTitle(dom);
-    assert.equal(title.outerHTML, "<h1>Shoujo Grand Summoning Chapter 1994</h1>");
+    assert.equal(title, "Shoujo Grand Summoning Chapter 1994");
 });
 
 let ComrademaoToCSample =

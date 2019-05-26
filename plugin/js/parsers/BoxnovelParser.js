@@ -27,13 +27,7 @@ class BoxnovelParser extends Parser{
     };
 
     findChapterTitle(dom) {
-        let title = dom.querySelector("ol.breadcrumb li.active");
-        if (title == null) {
-            return null;
-        }
-        let h = dom.createElement("h1");
-        h.textContent = title.textContent.trim();
-        return h;
+        return dom.querySelector("ol.breadcrumb li.active").textContent;
     }
 
     findCoverImageUrl(dom) {

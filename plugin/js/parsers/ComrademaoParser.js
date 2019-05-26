@@ -85,10 +85,7 @@ class ComrademaoParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        let text = this.makeChapterTitleTextFromUrl(dom.baseURI)
-        let title = dom.createElement("h1");
-        title.appendChild(dom.createTextNode(text));
-        return title;
+        return this.makeChapterTitleTextFromUrl(dom.baseURI)
     }
 
     makeChapterTitleTextFromUrl(url) {

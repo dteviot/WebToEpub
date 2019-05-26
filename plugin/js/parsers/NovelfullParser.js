@@ -52,13 +52,7 @@ class NovelfullParser extends Parser{
     };
 
     findChapterTitle(dom) {
-        let titleLink = dom.querySelector("a.chapter-title");
-        if (titleLink != null) {
-            let title = dom.createElement("h1");
-            title.appendChild(dom.createTextNode(titleLink.textContent));
-            return title;
-        }
-        return null;
+        return dom.querySelector("a.chapter-title");
     }
 
     findCoverImageUrl(dom) {

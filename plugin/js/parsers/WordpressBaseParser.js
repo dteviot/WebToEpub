@@ -64,7 +64,6 @@ class WordpressBaseParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        let title = WordpressBaseParser.findChapterTitleElement(dom);
-        return title;
+        return WordpressBaseParser.findChapterTitleElement(dom);
     }
 }
