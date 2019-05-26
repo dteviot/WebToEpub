@@ -1,6 +1,3 @@
-/*
-  parses lightnovelbastion.com
-*/
 "use strict";
 
 parserFactory.register("lightnovelbastion.com", function() { return new LightNovelBastionParser() });
@@ -11,34 +8,42 @@ class LightNovelBastionParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let menu = this.findContent(dom);
+        let menu = dom.querySelector("div.listing-chapters_wrap");
         return Promise.resolve(util.hyperlinksToChapterList(menu).reverse());
     }
 
     findContent(dom) {
-        return dom.querySelector("section");
+        return dom.querySelector("div.reading-content");
     }
 
     findChapterTitle(dom) {
-        let titleDiv = dom.createElement("div");
-        let titleText = dom.title;
-        if (titleText !== "") {
-            let title = dom.createElement("h1");
-            title.appendChild(dom.createTextNode(titleText));
-            titleDiv.appendChild(title);
-        };
-        let subtitle = dom.querySelector("header#releases h2");
-        if (subtitle !== null) {
-            titleDiv.appendChild(subtitle);
+        return dom.querySelector("ol.breadcrumb li.active").textContent;
+    }
+
+    extractTitleImpl(dom) {
+        let element = dom.querySelector("div.post-title");
+        if (element !== null) {
+            util.removeChildElementsMatchingCss(element, "span");
+            return element.textContent;
         }
-        return titleDiv;
+        return null;
+    };
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.author-content");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, "div.lnbad-tag");
+        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "article span.image");
+        return util.getFirstImgSrc(dom, "div.summary_image");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("article.container header")];
+        return [...dom.querySelectorAll("div.summary__content p:not(.zeno_font_resizer)")];
     }
 }

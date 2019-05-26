@@ -493,9 +493,11 @@ test("dctermsToTable", function (assert) {
 });
 
 test("isUrl", function (assert) {
+    assert.ok(util.isUrl("http://www.google.com"));
     assert.ok(util.isUrl("https://www.google.com"));
     assert.notOk(util.isUrl("www.google.com"));
     assert.notOk(util.isUrl("Price: 8,000 Gold"));
+    assert.notOk(util.isUrl("javascript:void(0)"));
 });
 
 test("safeForFileName", function (assert) {
@@ -554,4 +556,11 @@ QUnit.test("convertPreTagToPTags_splitAtDoubleLineFeed", function (assert) {
     util.convertPreTagToPTags(dom, dom.querySelector("pre"), "\n\n");
     let actual = dom.body.innerHTML;
     assert.equal(actual, "<pre><p>paragraph 1 line 1\nparagraph 1 line 2</p><p>paragraph 2 line 1\nparagraph 2 line 2\n</p></pre>");
+});
+
+QUnit.test("resolveRelativeUrl", function (assert) {
+    let actual = util.resolveRelativeUrl("http://www.example.com/cats", "../dogs");
+    assert.equal(actual, "http://www.example.com/dogs");
+    actual = util.resolveRelativeUrl("http://www.example.com/cats", "javascript:void(0)");
+    assert.equal(actual, "javascript:void(0)");
 });

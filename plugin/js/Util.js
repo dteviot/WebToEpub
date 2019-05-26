@@ -85,19 +85,7 @@ var util = (function () {
     }
 
     var resolveRelativeUrl = function(baseUrl, relativeUrl) {
-        // Assumes parent document has a <base> element
-        let base = document.getElementsByTagName("base")[0];
-        let oldHref = base.href;
-
-        // this gets the browser to do the work for us
-        let resolver = document.createElement("a");
-        base.href = baseUrl;
-        resolver.href = relativeUrl;
-        let resolvedUrl = resolver.href;  
-
-        // restore and return
-        base.href = oldHref;
-        return resolvedUrl;
+        return new URL(relativeUrl, baseUrl).href;
     }
 
     var extractHostName = function (url) {

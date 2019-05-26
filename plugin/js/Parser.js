@@ -85,7 +85,7 @@ class Parser {
         if (title !== null) {
             if (typeof(title) === "string") {
                 let titleElement = webPage.rawDom.createElement("h1");
-                titleElement.appendChild(webPage.rawDom.createTextNode(title));
+                titleElement.appendChild(webPage.rawDom.createTextNode(title.trim()));
                 title = titleElement;
             }
             content.insertBefore(title, content.firstChild);
@@ -350,6 +350,7 @@ class Parser {
 
         return webPages
             .map(this.fixupImgurGalleryUrl)
+            .filter(p => util.isUrl(p.sourceUrl))
             .filter(isUnique);
     }
 
