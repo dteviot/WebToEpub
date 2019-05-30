@@ -11,7 +11,7 @@ class ComrademaoParser extends Parser{
         super.populateUI(dom);
         document.getElementById("removeOriginalRow").hidden = false; 
     }
-  
+
     customRawDomToContentStep(chapter, content) {
         for(let s of content.querySelectorAll("div.collapse")) {
             if (this.userPreferences.removeOriginal.value) {
@@ -24,46 +24,36 @@ class ComrademaoParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let chapters = ComrademaoParser.chaptersFromDom(dom);
-        let ajaxUrl = ComrademaoParser.getUrlforTocAjaxCall(dom);
-        if (ajaxUrl === null) {
-            return Promise.resolve(chapters);
-        }
-        return HttpClient.fetchJson(ajaxUrl)
-            .then(function (handler) {
-                return ComrademaoParser.makeChapterUrlsFromAjaxResponse(handler.json);
-            })
-            .catch(function () {
-                return chapters;
-            });
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            ComrademaoParser.extractPartialChapterList,
+            ComrademaoParser.getUrlsOfTocPages
+        ).then(urls => urls.reverse());
     };
 
-    static chaptersFromDom(dom) {
-        let menu = dom.querySelector("table#chapters");
-        return util.hyperlinksToChapterList(menu).reverse();
-    }
-
-    static getUrlforTocAjaxCall(dom) {
-        let link = dom.querySelector("link[rel='shortlink']");
-        if (link !== null) {
-            let id = link.getAttribute("href").split("?p=")[1];
-            if (!util.isNullOrEmpty(id)) {
-                return `https://comrademao.com/wp-admin/admin-ajax.php?action=movie_datatables&start=0&length=10000&p2m=${id}`;
+    static getUrlsOfTocPages(dom) {
+        let pagination = dom.querySelector("nav.pagination");
+        let tocUrls = [];
+        if (pagination != null ) {
+            let tocLinks = [...dom.querySelectorAll("a.page-numbers:not(.next)")]
+                .map(a => a.href);
+            if (0 < tocLinks.length) {
+                let maxPageUrl = tocLinks[tocLinks.length - 1];
+                let index = maxPageUrl.lastIndexOf("/", maxPageUrl.length - 2);
+                let base = maxPageUrl.substring(0, index + 1);
+                let maxPage = parseInt(maxPageUrl.substring(index + 1));
+                if (1 < maxPage) {
+                    for(let i = 2; i <= maxPage; ++i) {
+                        tocUrls.push(`${base}${i}/`);
+                    }
+                }
             }
         }
-        return null;
+        return tocUrls;
     }
 
-    static makeChapterUrlsFromAjaxResponse(json) {
-        let parser = new DOMParser();
-        return json.data
-            .map(a => ComrademaoParser.stringToChapter(a[1], parser))
-            .reverse();
-    }
-
-    static stringToChapter(s, parser) {
-        let link = parser.parseFromString(s, "text/html").body.childNodes[0];
-        return util.hyperLinkToChapter(link) ;
+    static extractPartialChapterList(dom) {
+        let menu = dom.querySelector("table.table");
+        return util.hyperlinksToChapterList(menu);
     }
 
     findContent(dom) {
@@ -80,7 +70,7 @@ class ComrademaoParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "button");
+        util.removeChildElementsMatchingCss(element, "button, nav, div#comments");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

@@ -2,11 +2,18 @@
 
 module("ComrademaoParser");
 
-test("chaptersFromDom", function (assert) {
+test("getUrlsOfTocPages", function (assert) {
     let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let chapterUrls = ComrademaoParser.chaptersFromDom(dom);
+    let chapters = ComrademaoParser.getUrlsOfTocPages(dom);
+    assert.equal(chapters.length, 133);
+    assert.equal(chapters[132], "https://comrademao.com/novel/shoujo-grand-summoning/page/134/");
+});
+
+test("extractPartialChapterList", function (assert) {
+    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
+    let chapterUrls = ComrademaoParser.extractPartialChapterList(dom);
     assert.equal(chapterUrls.length, 3);
-    assert.deepEqual(chapterUrls[2], {
+    assert.deepEqual(chapterUrls[0], {
         newArc: null,
         sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-epilogue/",
         title: "Shoujo Grand Summoning Chapter epilogue"
@@ -25,22 +32,6 @@ test("extractAuthor", function (assert) {
     let parser = new ComrademaoParser();
     let actual = parser.extractAuthor(dom);
     assert.equal(actual.trim(), "Jing Wu Hen & 净无痕");
-});
-
-test("getUrlforTocAjaxCall", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let url = ComrademaoParser.getUrlforTocAjaxCall(dom);
-    assert.equal(url, "https://comrademao.com/wp-admin/admin-ajax.php?action=movie_datatables&start=0&length=10000&p2m=2370820");
-});
-
-test("makeChapterUrlsFromAjaxResponse", function (assert) {
-    let chapters = ComrademaoParser.makeChapterUrlsFromAjaxResponse(ComrademaoAjaxResponseSample);
-    assert.equal(chapters.length, 4);
-    assert.deepEqual(chapters[0], {
-        newArc: null,
-        sourceUrl: "https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1998/",
-        title: "Shoujo Grand Summoning Chapter 1998"
-    });
 });
 
 test("customRawDomToContentStep_removeOriginal", function (assert) {
@@ -119,16 +110,16 @@ let ComrademaoToCSample =
             <tr role="row" class="odd"><td>December 24, 2018</td><td><a href="https://comrademao.com/mtl/shoujo-grand-summoning/shoujo-grand-summoning-chapter-1999/">Shoujo Grand Summoning Chapter 1999</a></td></tr>
         </tbody>
     </table>
-    <ul class="pagination">
-        <li class="paginate_button previous disabled" id="chapters_previous"><a href="#" aria-controls="chapters" data-dt-idx="0" tabindex="0">Previous</a></li>
-        <li class="paginate_button active"><a href="#" aria-controls="chapters" data-dt-idx="1" tabindex="0">1</a></li>
-        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="2" tabindex="0">2</a></li>
-        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="3" tabindex="0">3</a></li>
-        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="4" tabindex="0">4</a></li>
-        <li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="5" tabindex="0">5</a></li>
-        <li class="paginate_button disabled" id="chapters_ellipsis"><a href="#" aria-controls="chapters" data-dt-idx="6" tabindex="0">…</a></li><li class="paginate_button "><a href="#" aria-controls="chapters" data-dt-idx="7" tabindex="0">201</a></li>
-        <li class="paginate_button next" id="chapters_next"><a href="#" aria-controls="chapters" data-dt-idx="8" tabindex="0">Next</a></li>
-    </ul>
+    <nav class="pagination pagination-lg text-center">
+        <div class="column">
+            <span aria-current='page' class='page-numbers current'>1</span>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/2/'>2</a>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/3/'>3</a>
+            <span class="page-numbers dots">&hellip;</span>
+            <a class='page-numbers' href='https://comrademao.com/novel/shoujo-grand-summoning/page/134/'>134</a>
+            <a class="next page-numbers" href="https://comrademao.com/novel/shoujo-grand-summoning/page/2/">Next &raquo;</a>
+        </div><div class="column text-right hidden-xs-down"></div>
+    </nav>
 </div>
 </body>
 </html>`
@@ -165,14 +156,3 @@ let ComrademaoChapterSample =
 </body>
 </html>
 `
-let ComrademaoAjaxResponseSample = {
-    "draw": 0,
-    "recordsTotal": 2001,
-    "recordsFiltered": 2001,
-    "data": [
-        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-epilogue\/\">Shoujo Grand Summoning Chapter epilogue<\/a>"],
-        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-2000\/\">Shoujo Grand Summoning Chapter 2000<\/a>"],
-        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-1999\/\">Shoujo Grand Summoning Chapter 1999<\/a>"],
-        ["December 24, 2018", "<a href=\"https:\/\/comrademao.com\/mtl\/shoujo-grand-summoning\/shoujo-grand-summoning-chapter-1998\/\">Shoujo Grand Summoning Chapter 1998<\/a>"]
-    ]
-};
