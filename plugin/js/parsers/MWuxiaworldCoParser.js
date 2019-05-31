@@ -12,7 +12,7 @@ class MWuxiaworldCoParser extends Parser{
 
     getChapterUrls(dom) {
         let chapters = MWuxiaworldCoParser.chaptersFromDom(dom);
-        if (10 < chapters) {
+        if (dom.baseURI.endsWith("/all.html") || (10 < chapters)) {
             return Promise.resolve(chapters);
         } else {
             return HttpClient.wrapFetch(dom.baseURI + "/all.html").then(function (xhr) {
