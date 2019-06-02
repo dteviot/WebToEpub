@@ -9,7 +9,7 @@ class BoxnovelParser extends Parser{
 
     getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("li.wp-manga-chapter a")]
-            .map(link => util.hyperLinkToChapter(link));           
+            .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(chapters.reverse());
     };
 
