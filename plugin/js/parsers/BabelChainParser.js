@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
+parserFactory.register("babelnovel.com", () => new BabelChainParser());
 
 class BabelChainParser extends Parser{
     constructor() {
@@ -43,7 +44,9 @@ class BabelChainParser extends Parser{
     };
 
     findContent(dom) {
-        return dom.querySelector("div.content-container__eld5P pre blockquote");
+        let pre = dom.querySelector("div.content-container__eld5P pre");
+        let blockquote = pre.querySelector("blockquote");
+        return blockquote === null ? pre : blockquote;
     };
 
     findChapterTitle(dom) {
@@ -58,5 +61,4 @@ class BabelChainParser extends Parser{
         let synopsis = dom.querySelector("div.section-content__1fSI8.section-body__3WqX5");
         return synopsis == null ? [] : [synopsis];
     }
-
 }
