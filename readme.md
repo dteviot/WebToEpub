@@ -88,12 +88,13 @@ For details on how to extend, see the following
     1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
     2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
 3. Unpack zip file and move the "plugin" directory to the location you want to keep it.
-4. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-5. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-6. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-7. Open Firefox and type "about:debugging" into the URL bar.
-8. Click "Load Temporary Add-on".
-9. Open the "plugin" directory from step 3 and select manifest.json.
+4. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
+5. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
+6. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+7. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
+8. Open Firefox and type "about:debugging" into the URL bar.
+9. Click "Load Temporary Add-on".
+10. Open the "plugin" directory from step 3 and select manifest.json.
 
 ## License information
 Licenced under GPLv3.
