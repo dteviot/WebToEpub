@@ -535,6 +535,10 @@ class Parser {
         }
     }
 
+    disabled() {
+        return null;
+    }
+
     static makeEmptyDocForContent() {
         let dom = document.implementation.createHTMLDocument("");
         let content = dom.createElement("div");

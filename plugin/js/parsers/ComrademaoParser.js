@@ -7,6 +7,10 @@ class ComrademaoParser extends Parser{
         super();
     }
 
+    disabled() {
+        return chrome.i18n.getMessage("warningParserDisabledComradeMao");
+    }
+
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeOriginalRow").hidden = false; 

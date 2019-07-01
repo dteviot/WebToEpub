@@ -218,6 +218,11 @@ var main = (function () {
             return false;
         }
         getLoadAndAnalyseButton().hidden = true;
+        let disabledMessage = parser.disabled();
+        if (disabledMessage !== null) {
+            ErrorLog.showErrorMessage(disabledMessage);
+            return false;
+        }
         return true;
     }
 
