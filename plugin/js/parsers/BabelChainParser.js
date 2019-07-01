@@ -8,6 +8,10 @@ class BabelChainParser extends Parser{
         super();
     }
 
+    disabled() {
+        return chrome.i18n.getMessage("warningParserDisabledBabelnovel");
+    }
+
     getChapterUrls(dom) {
         let chapters = [];
         let lastChapterLink = this.findLastChapterUrl(dom);
