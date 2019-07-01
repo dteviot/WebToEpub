@@ -157,6 +157,7 @@ class ChapterUrlsUI {
     static getTableRowsWithChapters() {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         return [...linksTable.querySelectorAll("tr")]
+            .filter(r => r.querySelector("th") === null);
     }
 
     /** 
