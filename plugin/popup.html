@@ -11,6 +11,8 @@
 
         .warning {
             color: #ff0000;
+            font-size: 2em;
+            font-weight: bold;
         }
 
         .scrollingtable {
@@ -42,6 +44,10 @@
 
         .withMargin {
             margin-left: 5px;
+        }
+
+        td.disabled {
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -318,6 +324,7 @@
             </div>
         </div>
         <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
+        <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
         <table id="chapterUrlsTable" class="chapterlist">
             <tr>
                 <th align="left">__MSG_column_Include__</th>
@@ -325,7 +332,6 @@
                 <th align="left">__MSG_column_URL__</th>
             </tr>
         </table>
-        <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
         <div>
             <textarea id="editChaptersUrlsInput" hidden class="allSpace" rows="20"></textarea>
         </div>

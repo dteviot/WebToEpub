@@ -7,8 +7,9 @@ class ComrademaoParser extends Parser{
         super();
     }
 
-    disabled() {
-        return chrome.i18n.getMessage("warningParserDisabledComradeMao");
+    // This site can't handle more than 1 page at a time
+    clampSimultanousFetchSize() {
+        return 1;
     }
 
     populateUI(dom) {
@@ -27,10 +28,11 @@ class ComrademaoParser extends Parser{
         } 
     }
 
-    getChapterUrls(dom) {
+    getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             ComrademaoParser.extractPartialChapterList,
-            ComrademaoParser.getUrlsOfTocPages
+            ComrademaoParser.getUrlsOfTocPages,
+            chapterUrlsUI
         ).then(urls => urls.reverse());
     };
 

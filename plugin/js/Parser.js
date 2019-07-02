@@ -317,7 +317,7 @@ class Parser {
         this.userPreferences.setReadingListCheckbox(url);
 
         // returns promise, because may need to fetch additional pages to find list of chapters
-        that.getChapterUrls(firstPageDom).then(function(chapters) {
+        that.getChapterUrls(firstPageDom, chapterUrlsUI).then(function(chapters) {
             if (that.userPreferences.chaptersPageInChapterList.value) {
                 chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
@@ -408,6 +408,7 @@ class Parser {
         return parserFactory.addParsersToPages(this, pagesToFetch).then(function () {
             var sequence = Promise.resolve();
             let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
+            simultanousFetchSize = that.clampSimultanousFetchSize(simultanousFetchSize);
             for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
                 sequence = sequence.then(function () {
                     return Promise.all(group.map(fetchFunc));
@@ -539,6 +540,16 @@ class Parser {
         return null;
     }
 
+    /**
+     * limit number of pages to fetch at once 
+     * ignoing user preference.
+     * Some sites can't handle high load.  e.g. Comrademao
+     * @param {any} fetchSize
+     */
+    clampSimultanousFetchSize(fetchSize) {
+        return fetchSize;
+    }
+
     static makeEmptyDocForContent() {
         let dom = document.implementation.createHTMLDocument("");
         let content = dom.createElement("div");
@@ -554,18 +565,23 @@ class Parser {
         return dom.querySelector("div." + Parser.WEB_TO_EPUB_CLASS_NAME);
     }
 
-    getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages)  {
-        let fetchPartialChapterList = function(url) {
-            return HttpClient.wrapFetch(url).then(function (xhr) {
-                return extractPartialChapterList(xhr.responseXML);
-            });
-        }
+    getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)  {
         let chapters = extractPartialChapterList(dom);
-        let restUrls = getUrlsOfTocPages(dom);
-        return Promise.all(
-            restUrls.map(fetchPartialChapterList)
-        ).then(function (tocFragments) {
-            return tocFragments.reduce((a, c) => a.concat(c), chapters);
+        chapterUrlsUI.showTocProgress(chapters);
+        let tocPageUrls = getUrlsOfTocPages(dom);
+        return Parser.fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, 0, chapterUrlsUI);
+    }
+
+    static fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, index, chapterUrlsUI)
+    {
+        if (tocPageUrls.length <= index) {
+            return Promise.resolve(chapters);
+        }
+        return HttpClient.wrapFetch(tocPageUrls[index]).then(function (xhr) {
+            let partialList = extractPartialChapterList(xhr.responseXML);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+            return Parser.fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, index + 1, chapterUrlsUI);
         });
     }
 }

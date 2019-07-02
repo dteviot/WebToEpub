@@ -7,10 +7,11 @@ class TruyenyyParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             TruyenyyParser.extractPartialChapterList,
-            TruyenyyParser.getUrlsOfTocPages
+            TruyenyyParser.getUrlsOfTocPages,
+            chapterUrlsUI
         );
     };
 

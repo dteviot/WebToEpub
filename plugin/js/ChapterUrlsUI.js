@@ -39,6 +39,20 @@ class ChapterUrlsUI {
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
+    showTocProgress(chapters) {
+        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        chapters.forEach(function (chapter) {
+            let row = document.createElement("tr");
+            linksTable.appendChild(row);
+            row.appendChild(document.createElement("td"));
+            let col = document.createElement("td");
+            col.className = "disabled";
+            col.appendChild(document.createTextNode(chapter.title));
+            row.appendChild(col);
+            row.appendChild(document.createElement("td"));
+        });
+    }
+
     static showDownloadState(row, state) {
         if (row != null) {
             let img = row.querySelector("img");

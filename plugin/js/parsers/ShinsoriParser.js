@@ -10,10 +10,11 @@ class ShinsoriParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             ShinsoriParser.extractPartialChapterList,
-            ShinsoriParser.getUrlsOfTocPages
+            ShinsoriParser.getUrlsOfTocPages,
+            chapterUrlsUI
         );
     };
 

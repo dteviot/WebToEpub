@@ -7,14 +7,15 @@ class LightNovelsTranslationsParser extends WordpressBaseParser{
         super();
     }
 
-    getChapterUrls(dom) {
+    getChapterUrls(dom, chapterUrlsUI) {
         let paginationUrl = LightNovelsTranslationsParser.getLastPaginationUrl(dom);
         if (paginationUrl === null) {
             return super.getChapterUrls(dom);
         }
         return this.getChapterUrlsFromMultipleTocPages(dom,
             LightNovelsTranslationsParser.extractPartialChapterList,
-            LightNovelsTranslationsParser.getUrlsOfTocPages
+            LightNovelsTranslationsParser.getUrlsOfTocPages,
+            chapterUrlsUI
         ).then(c => c.reverse());
     };
 

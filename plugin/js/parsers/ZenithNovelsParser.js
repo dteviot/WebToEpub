@@ -7,10 +7,11 @@ class ZenithNovelsParser extends WordpressBaseParser {
         super();
     }
 
-    getChapterUrls(dom) {
+    getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             ZenithNovelsParser.extractPartialChapterList,
-            ZenithNovelsParser.getUrlsOfTocPages
+            ZenithNovelsParser.getUrlsOfTocPages,
+            chapterUrlsUI
         ).then(l => l.reverse());
     };
 
