@@ -7,6 +7,10 @@ class ComrademaoParser extends Parser{
         super();
     }
 
+    disabled() {
+        return chrome.i18n.getMessage("warningParserDisabledComradeMao");
+    }
+
     // This site can't handle more than 1 page at a time
     clampSimultanousFetchSize() {
         return 1;
