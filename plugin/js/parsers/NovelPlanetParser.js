@@ -6,9 +6,23 @@
 // Use one or more of these to specify when the parser is to be used
 parserFactory.register("novelplanet.com", function() { return new NovelPlanetParser() });
 
-class NovelPlanetParser extends Parser{
+class NovelPlanetImageCollector extends ImageCollector {
     constructor() {
         super();
+    }
+
+    fixLazyLoadImageSource(img) {
+        let lazySrc = img.getAttribute("data-orig-file");
+        if (lazySrc != null) {
+            img.src = lazySrc;
+        }
+        return img.src;
+    }
+}
+
+class NovelPlanetParser extends Parser{
+    constructor() {
+        super(new NovelPlanetImageCollector());
     }
 
     // returns promise with the URLs of the chapters to fetch
