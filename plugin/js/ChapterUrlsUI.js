@@ -77,7 +77,7 @@ class ChapterUrlsUI {
     /** @private */
     static setRangeOptionsToFirstAndLastChapters()
     {
-        var rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
+        let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
 
         rangeStart.onchange = null;
@@ -93,8 +93,8 @@ class ChapterUrlsUI {
  
     /** @private */
     static onRangeChanged() {
-        let startIndex = parseInt(ChapterUrlsUI.getRangeStartChapterSelect().selectedIndex);
-        let endIndex = parseInt(ChapterUrlsUI.getRangeEndChapterSelect().selectedIndex);
+        let startIndex = ChapterUrlsUI.selectionToRowIndex(ChapterUrlsUI.getRangeStartChapterSelect());
+        let endIndex = ChapterUrlsUI.selectionToRowIndex(ChapterUrlsUI.getRangeEndChapterSelect());
         let rowInRange = function(row) {
             let index = row.rowIndex;
             return (startIndex <= index) && (index <= endIndex);
@@ -107,7 +107,12 @@ class ChapterUrlsUI {
         }
         ChapterUrlsUI.setChapterCount(startIndex, endIndex);
     }
-    
+
+    static selectionToRowIndex(selectElement) {
+        var selectedIndex = selectElement.selectedIndex;
+        return selectedIndex + 1;
+    }
+
     /** @private */
     static setChapterCount(startIndex, endIndex) {
         let count = Math.max(0, 1 + endIndex - startIndex);
@@ -323,12 +328,16 @@ class ChapterUrlsUI {
             return;
         }
         ChapterUrlsUI.tellUserAboutShiftClick(event, row);
-        let oldState = row.querySelector("input[type='checkbox']").checked;
-        if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
-            let newState = !oldState;
-            ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
-        } else {
-            ChapterUrlsUI.lastSelectedRow = row.rowIndex;
+        let checkbox = row.querySelector("input[type='checkbox']");
+        if (checkbox !== null)
+        {
+            let oldState = checkbox.checked;
+            if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+                let newState = !oldState;
+                ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
+            } else {
+                ChapterUrlsUI.lastSelectedRow = row.rowIndex;
+            }
         }
     }
 
