@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("listnovel.com", () => new ListNovelParser());
+parserFactory.register("readwebnovel.xyz", () => new ListNovelParser());
 
 class ListNovelParser extends WordpressBaseParser{
     constructor() {
@@ -16,6 +17,11 @@ class ListNovelParser extends WordpressBaseParser{
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.author-content a");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, "div.addtoany_share_save_container");
+        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findCoverImageUrl(dom) {
