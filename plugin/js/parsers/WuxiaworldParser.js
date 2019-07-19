@@ -58,7 +58,7 @@ class WuxiaworldParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let candidates = [...dom.querySelectorAll("div.fr-view")];
+        let candidates = [...dom.querySelectorAll("div.fr-view:not(.panel-body)")];
         return WuxiaworldParser.elementWithMostParagraphs(candidates);
     }
 

@@ -68,6 +68,13 @@ QUnit.test("removeArcsWhenOnlyOne-multipleArcs", function (assert) {
     assert.deepEqual(chapters, [{newArc: "V1"}, {newArc: null}, {newArc: "V2"}]);
 });
 
+QUnit.test("findContent", function (assert) {
+    let dom = new DOMParser().parseFromString(WuxiaworldiSamplePage3, "text/html");
+    let parser = new WuxiaworldParser();
+    let content = parser.findContent(dom);
+    assert.ok(content.textContent.trim().startsWith("Vol 5: Chapter 3-2"));
+});
+
 let WuxiaworldiSamplePage =
 `<!DOCTYPE html>
 <html lang="en-US" class="dark-skin">
@@ -161,3 +168,26 @@ let WuxiaworldiSamplePage2 =
     </div>
 </body>
 </html>`
+
+let WuxiaworldiSamplePage3 =
+`<!DOCTYPE html>
+<html lang="en-US" class="dark-skin">
+<head>
+    <title>TI - Vol 5 Chapter 3-2 - WuxiaWorld</title>
+    <base href="https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-5-chapter-3-2" />
+</head>
+<body>
+    <div class="section">
+    <div id="announcement-body-79268" class="fr-view panel-body hidden">
+    <p>Wuxiaworld is hiring once again! &nbsp;We are now looking for up </p>
+    <p>
+        <a href="/announcement/hiring-two-paid-front-end-technomancer-interns">Read More...</a>
+    </p>
+    </div>
+    <div class="fr-view">
+    <p><strong>Vol 5: Chapter 3-2.</strong></p> 3 (2/3)<br> <br> Jonathan <br>
+    </div>
+    </div>
+</body>
+</html>
+`
