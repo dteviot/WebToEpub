@@ -144,7 +144,7 @@
 		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
 	},
 	"__MSG_label_Default_Parser_Chapter_Title_CSS__": {
-		"message": "CSS-селектор элемента, в котором содержится названием главы:",
+		"message": "CSS-селектор элемента, в котором содержится название главы:",
 		"description": "Label in front of input for CSS selector to find element holding title of a chapter"
 	},
 	"__MSG_label_Default_Parser_Content_CSS__": {
