@@ -1,6 +1,6 @@
 {
 	"__MSG_button_Advanced_Options__": {
-		"message": "Розширені опції",
+		"message": "Розширені налаштування",
 		"description": "Label on button to toggle showing 'Advanced Options'"
 	},
 	"__MSG_button_Apply_Changes__": {
@@ -56,7 +56,7 @@
 		"description": "Label on button to create the EPUB"
 	},
 	"__MSG_button_Reset__": {
-		"message": "Скинути",
+		"message": "Очистити",
 		"description": "Label on button that clears the dialog"
 	},
 	"__MSG_button_Reload__": {
@@ -72,7 +72,7 @@
 		"description": "Label on button to remove all changes to stylesheet and set to default value"
 	},
 	"__MSG_button_Reverse_Chapter_Urls_Order__": {
-		"message": "Перепорядкувати посилання на глави",
+		"message": "Змінити порядок посилань на глави",
 		"description": "Label on button to change order of chapters from last to first"
 	},
 	"__MSG_button_Select_All__": {
@@ -108,7 +108,7 @@
 		"description": "The 'URL to get chapter from' column in the table of chapters."
 	},
 	"__MSG_label_Advanced_Options_Visible_By_Default__": {
-		"message": "Расширені опції видно за замовчунням",
+		"message": "Розширені налаштування видно за замовчунням",
 		"description": "Label for checkbox to make Advanced Options visible when UI opens"
 	},
 	"__MSG_label_Author__": {
@@ -116,7 +116,7 @@
 		"description": "Label in front input for novel's Author"
 	},
 	"__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
-		"message": "Автоматичний підбір парсеру пробуватиме Baka-Tsuki Series Page Parser",
+		"message": "Автоматичний підбір парсеру спробує Baka-Tsuki Series Page Parser",
 		"description": "Label for checkbox to toggle logic that picks parser to use for a web page to include the Baka-Tsuki Series Page Parser"
 	},
 	"__MSG_label_Chapter_Count__": {
@@ -196,7 +196,7 @@
 		"description": "Label for menu to change parser (in advanced options section)"
 	},
 	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
-		"message": "Максимальна кількість сторинок, що завантажуються водночас",
+		"message": "Максимальна кількість сторінок, що завантажуються водночас",
 		"description": "Label for drop down for maximum number of web pages to request at same time"
 	},
 	"__MSG_label_Range_End_Chapter__": {
@@ -212,7 +212,7 @@
 		"description": "Label in front of button to read Options from a file"
 	},
 	"__MSG_label_Remove_Author_Notes__": {
-		"message": "Видалити авторськи замітки",
+		"message": "Видалити авторські замітки",
 		"description": "Label for checkbox to remove Author Notes from chapters"
 	},
 	"__MSG_label_Remove_Original__": {
