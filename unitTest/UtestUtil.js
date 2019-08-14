@@ -502,6 +502,18 @@ test("isUrl", function (assert) {
 
 test("safeForFileName", function (assert) {
     assert.equal(util.safeForFileName("aAzZ 0-9\\_"), "aAzZ_0-9_");
+
+    // 20 chars, won't slice
+    let actual = util.safeForFileName("01234567890123456789");
+    assert.equal(actual, "01234567890123456789");
+
+    // 21 chars, will slice
+    actual = util.safeForFileName("0123456789A0123456789");
+    assert.equal(actual, "01234567...23456789");
+
+    // 21 chars, but allow longer
+    actual = util.safeForFileName("0123456789A0123456789", 21);
+    assert.equal(actual, "0123456789A0123456789");
 });
 
 test("extactSubstring", function (assert) {
