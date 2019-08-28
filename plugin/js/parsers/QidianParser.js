@@ -54,7 +54,7 @@ class QidianParser extends Parser{
     }
  
     removeUnwantedElementsFromContentElement(content) {
-        util.removeElements(content.querySelectorAll("form.cha-score, div.cha-bts"));
+        util.removeElements(content.querySelectorAll("form.cha-score, div.cha-bts, pirate"));
         super.removeUnwantedElementsFromContentElement(content);
     }
 
