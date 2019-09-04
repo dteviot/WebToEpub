@@ -4,65 +4,71 @@ parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
 parserFactory.register("babelnovel.com", () => new BabelChainParser());
 
 class BabelChainParser extends Parser{
-    constructor() {
-        super();
-    }
+    getBookEntity(dom) {
+        let __STATE__ = decodeURIComponent(dom.body.innerHTML.match(/window\.__STATE__\s=\s"([^"]+)"/)[1]);
+        let state = JSON.parse(__STATE__);
 
-    disabled() {
-        return chrome.i18n.getMessage("warningParserDisabledBabelnovel");
+        console.log(state);
+
+        return state.bookDetailStore.bookEntity;
     }
 
     getChapterUrls(dom) {
-        let chapters = [];
-        let lastChapterLink = this.findLastChapterUrl(dom);
-        if (lastChapterLink != null) {
-            let href = lastChapterLink.href;
-            // assume URL looks like https://novel.babelchain.org/books/the-rebirth-of-the-malicious/chapters/c14
-            let index = href.lastIndexOf("c");
-            let base = href.substring(0, index);
-            let max = parseInt(href.substring(index + 1));
-            for(let i = 1; i <= max; ++i) {
-                chapters.push({
-                    sourceUrl: `${base}c${i}`,
-                    title: `C${i}`
-                })
-            };
-        }
-        return Promise.resolve(chapters);
-    };
+        let bookEntity = this.getBookEntity(dom);
+        let chaptersUrl = `https://babelnovel.com/api/books/${bookEntity.id}/chapters?pageSize=50000&page=0`;
 
-    findLastChapterUrl(dom) {
-        let lastChapterLink = dom.querySelector("a.chapter-content__3MoDI.last-chapter__4B8tJ");
-        if (lastChapterLink != null) {
-            return lastChapterLink;
-        }
-        return dom.querySelector("a.chapter__VWBWj.item__1oJbc");
+        return fetch(chaptersUrl).then((response) => {
+            return response.json().then((result) => {
+                return result.data.map((chapter) => {
+                    return {
+                        sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${chapter.canonicalName}`,
+                        title: chapter.name
+                    };
+                });
+            });
+        }).catch((e) => {
+            return [];
+        });
     }
-
-    customRawDomToContentStep(chapter, content) {
-        util.convertPreTagToPTags(chapter.rawDom, content);
-    }
-
     extractTitleImpl(dom) {
-        return dom.querySelector("div.book-info-wrapper__26NST div.name__8GUv7");
-    };
+        return this.getBookEntity(dom).name || null;
+    }
 
     findContent(dom) {
-        let pre = dom.querySelector("div.content-container__eld5P pre");
-        let blockquote = pre.querySelector("blockquote");
-        return blockquote === null ? pre : blockquote;
-    };
-
-    findChapterTitle(dom) {
-        return dom.querySelector("div.content-container__eld5P div.title__3StRr");
+        return dom;
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.cover__265y8");
+        return this.getBookEntity(dom).cover || null;
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let synopsis = dom.querySelector("div.section-content__1fSI8.section-body__3WqX5");
-        return synopsis == null ? [] : [synopsis];
+        let synopsis = '';
+
+        synopsis += this.getBookEntity(dom).subTitle || '';
+        synopsis += "\n";
+        synopsis += this.getBookEntity(dom).synopsis || '';
+
+        let p = document.createElement('p');
+        p.innerHTML = synopsis;
+
+        return [p];
+    }
+
+    fetchChapter(url) {
+        return fetch(url.replace('/books/', '/api//books/')).then((response) => {
+            return response.json().then((result) => {
+                let div = document.createElement('div');
+
+                div.cssText = 'line-height: 1.5em;text-indent: 1.5em;word-spacing: .12em;letter-spacing: .01em; padding: 0 5%;';
+
+                div.innerHTML = result.data.content
+                .replace('<blockquote>', '<p>')
+                .replace('</blockquote>', '</p>')
+                .replace(/\n{2}/g, '</p><p>');
+
+                return div;
+            });
+        });
     }
 }
