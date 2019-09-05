@@ -4,12 +4,13 @@ parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
 parserFactory.register("babelnovel.com", () => new BabelChainParser());
 
 class BabelChainParser extends Parser{
+    constructor() {
+        super();
+    }
+    
     getBookEntity(dom) {
         let __STATE__ = decodeURIComponent(dom.body.innerHTML.match(/window\.__STATE__\s=\s"([^"]+)"/)[1]);
         let state = JSON.parse(__STATE__);
-
-        console.log(state);
-
         return state.bookDetailStore.bookEntity;
     }
 
@@ -17,25 +18,24 @@ class BabelChainParser extends Parser{
         let bookEntity = this.getBookEntity(dom);
         let chaptersUrl = `https://babelnovel.com/api/books/${bookEntity.id}/chapters?pageSize=50000&page=0`;
 
-        return fetch(chaptersUrl).then((response) => {
-            return response.json().then((result) => {
-                return result.data.map((chapter) => {
-                    return {
-                        sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${chapter.canonicalName}`,
-                        title: chapter.name
-                    };
-                });
+        return HttpClient.fetchJson(chaptersUrl).then((xhr) => {
+            return xhr.json.data.map((chapter) => {
+                return {
+                    sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${chapter.canonicalName}`,
+                    title: chapter.name
+                };
             });
-        }).catch((e) => {
-            return [];
-        });
+        }).catch(
+            () => []
+        );
     }
+
     extractTitleImpl(dom) {
         return this.getBookEntity(dom).name || null;
     }
 
     findContent(dom) {
-        return dom;
+        return Parser.findConstrutedContent(dom);
     }
 
     findCoverImageUrl(dom) {
@@ -43,32 +43,37 @@ class BabelChainParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let synopsis = '';
+        let synopsis = [];
+        let entity = this.getBookEntity(dom);
+        this.addTextToSynopsis(synopsis, entity.subTitle);
+        this.addTextToSynopsis(synopsis, entity.synopsis);
+        return synopsis;
+    }
 
-        synopsis += this.getBookEntity(dom).subTitle || '';
-        synopsis += "\n";
-        synopsis += this.getBookEntity(dom).synopsis || '';
-
-        let p = document.createElement('p');
-        p.innerHTML = synopsis;
-
-        return [p];
+    addTextToSynopsis(synopsis, text) {
+        if (text) {
+            let p = document.createElement("p");
+            p.textContent = text;
+            synopsis.push(p);
+        }
     }
 
     fetchChapter(url) {
-        return fetch(url.replace('/books/', '/api//books/')).then((response) => {
-            return response.json().then((result) => {
-                let div = document.createElement('div');
+        let fetchUrl = url.replace("/books/", "/api//books/");
+        return HttpClient.fetchJson(fetchUrl).then(
+            (xhr) => BabelChainParser.jsonToHtml(xhr.json)
+        );
+    }
 
-                div.cssText = 'line-height: 1.5em;text-indent: 1.5em;word-spacing: .12em;letter-spacing: .01em; padding: 0 5%;';
-
-                div.innerHTML = result.data.content
-                .replace('<blockquote>', '<p>')
-                .replace('</blockquote>', '</p>')
-                .replace(/\n{2}/g, '</p><p>');
-
-                return div;
-            });
-        });
+    static jsonToHtml(json) {
+        let newDoc = Parser.makeEmptyDocForContent();
+        let header = newDoc.dom.createElement("h1");
+        header.textContent = json.data.canonicalName;
+        newDoc.content.appendChild(header);
+        let pre = newDoc.dom.createElement("div");
+        newDoc.content.appendChild(pre);
+        pre.textContent = json.data.content.replace("<blockquote>", "").replace("</blockquote>", "");
+        util.convertPreTagToPTags(newDoc.dom, pre, "\n\n");
+        return newDoc.dom;
     }
 }

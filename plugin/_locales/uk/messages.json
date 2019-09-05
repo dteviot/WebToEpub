@@ -430,10 +430,6 @@
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
 	},
-	"warningParserDisabledBabelnovel": {
-		"message": "УВАГА: Підтримка babelnovel.com була припинена через зміни на сайті, що перешкоджають роботі додатка. Інформація: https://github.com/dteviot/WebToEpub/issues/277",
-		"description": "Warning message when user tries to process babelnovel.com."
-	},
 	"warningParserDisabledComradeMao": {
 		"message": "УВАГА: Підтримка comrademao.com була припинена за запитом власника сайту, тому що робота додатку перешкоджає іншим користувачам сайту. Інформація: https://github.com/dteviot/WebToEpub/issues/279",
 		"description": "Warning message when user tries to process comrademao.com."
