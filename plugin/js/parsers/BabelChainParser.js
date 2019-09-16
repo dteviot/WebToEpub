@@ -16,7 +16,7 @@ class BabelChainParser extends Parser{
 
     getChapterUrls(dom) {
         let bookEntity = this.getBookEntity(dom);
-        let chaptersUrl = `https://babelnovel.com/api/books/${bookEntity.id}/chapters?pageSize=50000&page=0`;
+        let chaptersUrl = `https://babelnovel.com/api/books/${bookEntity.id}/chapters?bookId=${bookEntity.id}&pageSize=${bookEntity.chapterCount}&page=0&fields=id,name,canonicalName,hasContent,type,translateStatus,publishTime`;
 
         return HttpClient.fetchJson(chaptersUrl).then((xhr) => {
             return xhr.json.data.map((chapter) => {
@@ -26,8 +26,20 @@ class BabelChainParser extends Parser{
                 };
             });
         }).catch(
-            () => []
+            () => BabelChainParser.guessChapterList(bookEntity)
         );
+    }
+
+    static guessChapterList(bookEntity) {
+        let list = [];
+        for(let i = 1; i <= bookEntity.chapterCount; ++i) {
+            let name = `C${i}`;
+            list.push({
+                sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${name}`,
+                title: name
+            });
+        }
+        return list;
     }
 
     extractTitleImpl(dom) {
