@@ -39,11 +39,36 @@ class MangaHereParser extends Parser {
     }
 
     fetchChapter(url) {
-        let newDoc = Parser.makeEmptyDocForContent();
-        newDoc.dom.base = url;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
+        let tabToClose = -1
+        // need to open chapter in tab so cookies are loaded
+        return MangaHereParser.createChapterTab(url).then(function(tablId) {
+            tabToClose = tablId;
+            return util.sleep(5000);
+        }).then(function() {
+            return MangaHereParser.closeChapterTab(tabToClose);
+        }).then(function () {
+            return HttpClient.wrapFetch(url);
+        }).then(function (xhr) {
+            let newDoc = Parser.makeEmptyDocForContent();
+            newDoc.dom.base = url;
             let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
             return MangaHereParser.buildPageWithImageTags(jsonUrls, new Set(), newDoc, "");
+        });
+    }
+
+    static createChapterTab(url) {
+        return new Promise(function(resolve) {
+            chrome.tabs.create({ url: url, active: false },
+                function (tab) {
+                    resolve(tab.id);
+                }
+            );
+        });
+    }
+
+    static closeChapterTab(tabId) {
+        return new Promise(function(resolve) {
+            chrome.tabs.remove(tabId, () => resolve());
         });
     }
 

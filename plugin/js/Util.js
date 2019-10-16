@@ -9,6 +9,10 @@
 
 var util = (function () {
 
+    var sleep = function(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     var isFirefox = function() {
         return (typeof(browser) !== "undefined");
     }
@@ -896,6 +900,7 @@ var util = (function () {
 
         HEADER_TAGS: ["h1", "h2", "h3", "h4", "h5", "h6" ],
 
+        sleep: sleep,
         isFirefox: isFirefox,
         extensionVersion: extensionVersion,
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
