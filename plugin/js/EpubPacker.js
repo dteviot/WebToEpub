@@ -47,7 +47,10 @@ class EpubPacker {
         }
         that.packXhtmlFiles(zipFile, epubItemSupplier);
         zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
-        return zipFile.generateAsync({ type: "blob" });
+        return zipFile.generateAsync({ 
+            type: "blob",
+            mimeType: "application/epub+zip",
+        });
     }
 
     static addExtensionIfMissing(fileName) {
