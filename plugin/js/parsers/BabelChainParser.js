@@ -33,7 +33,7 @@ class BabelChainParser extends Parser{
     static guessChapterList(bookEntity) {
         let list = [];
         for(let i = 1; i <= bookEntity.chapterCount; ++i) {
-            let name = `C${i}`;
+            let name = `c${i}`;
             list.push({
                 sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${name}`,
                 title: name
