@@ -70,9 +70,17 @@ class BabelChainParser extends Parser{
         }
     }
 
+    // rate limit site
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     fetchChapter(url) {
+        const rateLimitTo20PagePerMinute = 3000;
         let fetchUrl = url.replace("/books/", "/api//books/");
-        return HttpClient.fetchJson(fetchUrl).then(
+        return util.sleep(rateLimitTo20PagePerMinute).then(
+            () => HttpClient.fetchJson(fetchUrl)
+        ).then(
             (xhr) => BabelChainParser.jsonToHtml(xhr.json)
         );
     }
