@@ -93,9 +93,7 @@ var util = (function () {
     }
 
     var extractHostName = function (url) {
-        let parser = document.createElement("a");
-        parser.href = url;
-        return parser.hostname;
+        return new URL(url).hostname;
     };
 
     var extractFilename = function(hyperlink) {
@@ -107,19 +105,7 @@ var util = (function () {
     }
 
     var getParamFromUrl = function(url, paramName) {
-        // derived from https://stackoverflow.com/questions/901115
-        // note that https://stackoverflow.com/questions/8486099 
-        // indicates edge cases it does not cover.
-        let parser = document.createElement("a");
-        parser.href = url;
-        let query = parser.search.substr(1);
-        for(let part of query.split("&")) {
-            var item = part.split("=");
-            if (decodeURIComponent(item[0]) === paramName) {
-                return decodeURIComponent(item[1].replace(/\+/g, " "));
-            }
-        };
-        return null;
+        return new URL(url).searchParams.get(paramName);
     }
     
     // set the base tag of a DOM to specified URL.

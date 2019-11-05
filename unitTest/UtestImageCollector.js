@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UTestImageCollector");
+module("ImageCollector");
 
 QUnit.test("ImageInfo.ctor", function (assert) {
     let imageInfo = new ImageInfo("http://www.baka-tsuki.org/WebToEpub.jpg", 0, null);
@@ -129,19 +129,32 @@ QUnit.test("removeDuplicateImages", function (assert) {
     assert.equal(imageCollector.urlIndex.get("http://test.com/bmp2.jpg"), 2);
 });
 
-QUnit.test("removeSizeParamsFromQuery", function (assert) {
-    assert.equal(ImageCollector.removeSizeParamsFromQuery(""), "");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1"), "a=1");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&z=2"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1"), "");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1"), "a=1");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("h=1&z=2"), "z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&w=2&z=2"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("a=1&h=1&z=2&w=2"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("w=2&a=1&h=1&z=2&resize=615%2C907"), "a=1&z=2");
-    assert.equal(ImageCollector.removeSizeParamsFromQuery("resize=615%2C907&w=2&a=1&h=1&z=2"), "a=1&z=2");
+QUnit.test("removeSizeParamsFromSearch", function (assert) {
+    let testRemoveSizeParams = function(s) {
+        let searchParams = new URLSearchParams(s);
+        ImageCollector.removeSizeParamsFromSearch(searchParams)
+        return searchParams.toString();
+    };
+
+    assert.equal(testRemoveSizeParams(""), "");
+    assert.equal(testRemoveSizeParams("a=1"), "a=1");
+    assert.equal(testRemoveSizeParams("a=1&z=2"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("h=1"), "");
+    assert.equal(testRemoveSizeParams("a=1&h=1"), "a=1");
+    assert.equal(testRemoveSizeParams("h=1&z=2"), "z=2");
+    assert.equal(testRemoveSizeParams("a=1&h=1&z=2"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("a=1&h=1&w=2&z=2"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("a=1&h=1&z=2&w=2"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("w=2&a=1&h=1&z=2"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("w=2&a=1&h=1&z=2&resize=615%2C907"), "a=1&z=2");
+    assert.equal(testRemoveSizeParams("resize=615%2C907&w=2&a=1&h=1&z=2"), "a=1&z=2");
+});
+
+QUnit.test("modifySeachParams", function (assert) {
+    let url = new URL("http://unlimitednovelfailures.com/uploads/img004b.jpg?h=20");
+    let search = url.searchParams;
+    search.delete("h");
+    assert.equal(url.toString(), "http://unlimitednovelfailures.com/uploads/img004b.jpg");
 });
 
 QUnit.test("removeSizeParamsFromWordPressQuery", function (assert) {
@@ -261,4 +274,9 @@ QUnit.test("getExtensionFromUrlFilename", function (assert) {
     hyperlink.href = "http://dummy.com/folder";
     actual = ImageCollector.getExtensionFromUrlFilename(hyperlink);
     assert.equal(actual, "");
+});
+
+QUnit.test("urlHasFragment", function (assert) {
+    assert.ok(ImageCollector.urlHasFragment("http://dummy.com/uploads/img004b.jpg?h=20#content"));
+    assert.notOk(ImageCollector.urlHasFragment("http://dummy.com/uploads/img004b.jpg?h=20"));
 });

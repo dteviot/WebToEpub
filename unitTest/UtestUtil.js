@@ -576,3 +576,19 @@ QUnit.test("resolveRelativeUrl", function (assert) {
     actual = util.resolveRelativeUrl("http://www.example.com/cats", "javascript:void(0)");
     assert.equal(actual, "javascript:void(0)");
 });
+
+QUnit.test("extractHostName", function (assert) {
+    let actual = util.extractHostName("http://www.example.com/cats");
+    assert.equal(actual, "www.example.com");
+    actual = util.extractHostName("https://example2.com:444/cats");
+    assert.equal(actual, "example2.com");
+});
+
+QUnit.test("getParamFromUrl", function (assert) {
+    let actual = util.getParamFromUrl("http://www.example.com/cats");
+    assert.equal(actual, null);
+    actual = util.getParamFromUrl("https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg", "title");
+    assert.equal(actual, "File:HSDxD_v01_cover.jpg");
+    actual = util.getParamFromUrl("https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg", "nonesuch");
+    assert.equal(actual, null);
+});

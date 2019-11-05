@@ -219,11 +219,15 @@ class ImageInfo extends EpubItem {
     // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
     // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
     extractImageFileNameFromUrl(url) {
-        let parser = document.createElement("a");
-        parser.href = url;
+        let parsedUrl = null;
+        try {
+            parsedUrl = new URL(url);
+        } catch (err) {
+            return undefined;
+        }
 
         // examine pathname and query
-        let temp = parser.pathname + parser.search;
+        let temp = parsedUrl.pathname + parsedUrl.search;
         let fileNames = temp.split(/=|&|:|\/|\?/).filter(s => this.isImageFileNameCandidate(s));
         if (0 < fileNames.length) {
             return fileNames[fileNames.length - 1];

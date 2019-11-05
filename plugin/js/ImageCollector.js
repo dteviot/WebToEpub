@@ -361,22 +361,18 @@ class ImageCollector {
     }
 
     static urlHasFragment(url) {
-        let parser = document.createElement("a");
-        parser.href = url;
-        return !util.isNullOrEmpty(parser.hash);
+        return !util.isNullOrEmpty(new URL(url).hash);
     }
     
-    static removeSizeParamsFromWordPressQuery(url) {
-        let urlParser= document.createElement("a");
-        urlParser.href = url;
-        let query = urlParser.search;
-        if (!util.isNullOrEmpty(query) && 
-            ImageCollector.isWordPressHostedFile(urlParser.hostname) ) {
-            let noQuestionMark = query.substring(1);
-            urlParser.search = ImageCollector.removeSizeParamsFromQuery(noQuestionMark);
-            return urlParser.href;
+    static removeSizeParamsFromWordPressQuery(originalUrl) {
+        let url = new URL(originalUrl);
+        let searchParams = url.searchParams;
+        if (!util.isNullOrEmpty(searchParams.toString()) && 
+            ImageCollector.isWordPressHostedFile(url.hostname) ) {
+            ImageCollector.removeSizeParamsFromSearch(searchParams);
+            return url.toString();
         } else {
-            return url;
+            return originalUrl;
         }
     }
 
@@ -384,14 +380,10 @@ class ImageCollector {
         return hostname.endsWith("files.wordpress.com") || hostname.endsWith(".wp.com");
     }
 
-    static removeSizeParamsFromQuery(query) {
-        return query.split("&")
-            .filter(s => (s !== "") && !ImageCollector.isSizeParam(s))
-            .join("&");
-    }
-
-    static isSizeParam(p) {
-        return p.startsWith("w=") || p.startsWith("h=") || p.startsWith("resize=");
+    static removeSizeParamsFromSearch(searchParams) {
+        searchParams.delete("w");
+        searchParams.delete("h");
+        searchParams.delete("resize");
     }
 
     /**
