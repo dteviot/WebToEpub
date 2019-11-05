@@ -16,7 +16,22 @@ class NovelPlanetImageCollector extends ImageCollector {
         if (lazySrc != null) {
             img.src = lazySrc;
         }
+        else
+        {
+            let temp = NovelPlanetImageCollector.extractUrlFromGoogleUserContent(img);
+            if (temp !== null) {
+                img.src = temp;
+            }
+        }
         return img.src;
+    }
+
+    static extractUrlFromGoogleUserContent(img) {
+        let url = new URL(img.src);
+        if (url.hostname.toLowerCase() === "images2-focus-opensocial.googleusercontent.com") {
+            return url.searchParams.get("url");
+        }
+        return null;
     }
 }
 
