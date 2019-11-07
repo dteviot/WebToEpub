@@ -67,6 +67,9 @@ class FetchErrorHandler {
 
     static getAutomaticRetryBehaviourForStatus(status) {
         switch(status) {
+        case 429:
+            // server asked for rate limiting
+            return {maxRetry: 1, promptUser: true};
         case 500:
             // is fault at server, retry might clear
             return {maxRetry: 1, promptUser: false};
