@@ -59,12 +59,8 @@ class FetchErrorHandler {
         });
     }
 
-    static wait(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     retryFetch(url, wrapOptions) {
-        return FetchErrorHandler.wait(10000).then(function () {
+        return util.sleep(10000).then(function () {
             return HttpClient.wrapFetchImpl(url, wrapOptions);
         });
     }
