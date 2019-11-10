@@ -340,7 +340,7 @@
 		}
 	},
 	"gotHtmlExpectedImageWarning": {
-		"message": "Fetch of URL '$url$' returned HTML, expected an image.",
+		"message": "Attempt to fetch high resolution version of image from '$url$' failed.  Using lower resolution image instead.",
 		"description": "Warning message when try to fetch an image and instead get HTML",
 		"placeholders": {
 			"url": {
@@ -349,7 +349,7 @@
 		}
 	},
 	"httpFetchCanRetry": {
-		"message": "This is an intermittent error. Trying again may succeed.",
+		"message": "This is an intermittent error. If you retry in a few minutes, it may succeed.",
 		"description": "Added message that retrying HTTP operation may succeed."
 	},
 	"htmlFetchFailed": {
