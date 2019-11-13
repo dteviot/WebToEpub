@@ -24,6 +24,7 @@ function createDummyFetchErrorHandler(response) {
     handler.prompted = false;
     handler.retryFetch = function(url, wrapOptions) {
         ++handler.count;
+        wrapOptions.retry.retryDelay.pop();
         return handler.onResponseError(url, wrapOptions, response);
     }
     handler.promptUserForRetry = function(url, wrapOptions, response, failError) {
@@ -50,10 +51,10 @@ QUnit.test("onResponseError_404_error_fails_immediately", function (assert) {
     testOnResponseError(assert, 404, 0, false);
 });
 
-QUnit.test("onResponseError_500_error_retries_once", function (assert) {
-    testOnResponseError(assert, 500, 1, false);
+QUnit.test("onResponseError_500_error_retries_4_times", function (assert) {
+    testOnResponseError(assert, 500, 4, false);
 });
 
-QUnit.test("onResponseError_504_error_retries_10_times", function (assert) {
-    testOnResponseError(assert, 504, 10, true);
+QUnit.test("onResponseError_504_error_retries_4_times", function (assert) {
+    testOnResponseError(assert, 504, 4, true);
 });

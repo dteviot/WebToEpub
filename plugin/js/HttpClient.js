@@ -27,7 +27,7 @@ class FetchErrorHandler {
     onResponseError(url, wrapOptions, response) {
         let failError = new Error(this.makeFailMessage(url, response.status));
         let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response.status);
-        if (retry.maxRetry === 0) {
+        if (retry.retryDelay.length === 0) {
             return Promise.reject(failError);
         }
 
@@ -36,8 +36,7 @@ class FetchErrorHandler {
             return this.retryFetch(url, wrapOptions);
         }
 
-        --wrapOptions.retry.maxRetry;
-        if (0 < wrapOptions.retry.maxRetry) {
+        if (0 < wrapOptions.retry.retryDelay.length) {
             return this.retryFetch(url, wrapOptions);
         }
 
@@ -60,27 +59,30 @@ class FetchErrorHandler {
     }
 
     retryFetch(url, wrapOptions) {
-        return util.sleep(10000).then(function () {
+        let delayBeforeRetry = wrapOptions.retry.retryDelay.pop() * 1000;
+        return util.sleep(delayBeforeRetry).then(function () {
             return HttpClient.wrapFetchImpl(url, wrapOptions);
         });
     }
 
     static getAutomaticRetryBehaviourForStatus(status) {
+        // seconds to wait before each retry (note: order is reversed)
+        let retryDelay = [120, 60, 30, 15];
         switch(status) {
         case 429:
             // server asked for rate limiting
-            return {maxRetry: 1, promptUser: true};
+            return {retryDelay: retryDelay, promptUser: true};
         case 500:
             // is fault at server, retry might clear
-            return {maxRetry: 1, promptUser: false};
+            return {retryDelay: retryDelay, promptUser: false};
         case 502: 
         case 503: 
         case 504: 
             // intermittant fault
-            return {maxRetry: 10, promptUser: true};
+            return {retryDelay: retryDelay, promptUser: true};
         default:
             // it's dead Jim
-            return {maxRetry: 0, promptUser: false};
+            return {retryDelay: [], promptUser: false};
         }
     }
 }
