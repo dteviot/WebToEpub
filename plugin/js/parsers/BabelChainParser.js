@@ -8,9 +8,24 @@ class BabelChainParser extends Parser{
         super();
     }
     
+    static getStateJson(dom) {
+        let json = [...dom.querySelectorAll("script")]
+            .map(s => s.textContent)
+            .filter(t => t.includes("window.__STATE__"))
+            .map(r => JSON.parse(decodeURIComponent(util.extactSubstring(r, "\"", "\""))));
+        return json[0]; 
+    }
+
+    static getstylesToDelete(css) {
+        let lines = css.split("}")
+           .filter(l => l.includes("width:0; height:0;"));
+        return (0 < lines.length)
+           ? lines[0].split("{")[0]
+           : null;
+    }
+
     getBookEntity(dom) {
-        let __STATE__ = decodeURIComponent(dom.body.innerHTML.match(/window\.__STATE__\s=\s"([^"]+)"/)[1]);
-        let state = JSON.parse(__STATE__);
+        let state = BabelChainParser.getStateJson(dom);
         return state.bookDetailStore.bookEntity;
     }
 
@@ -75,25 +90,38 @@ class BabelChainParser extends Parser{
         return 1;
     }
 
-    fetchChapter(url) {
+    async fetchChapter(url) {
         const rateLimitTo20PagePerMinute = 3000;
-        let fetchUrl = url.replace("/books/", "/api//books/");
-        return util.sleep(rateLimitTo20PagePerMinute).then(
-            () => HttpClient.fetchJson(fetchUrl)
-        ).then(
-            (xhr) => BabelChainParser.jsonToHtml(xhr.json)
-        );
+        await util.sleep(rateLimitTo20PagePerMinute);
+        let cssFilter = await BabelChainParser.fetchCcsFilter(url);
+        let contentUrl = url.replace("/books/", "/api/books/") + "/content";
+        let xhr = await HttpClient.fetchJson(contentUrl);
+        let doc = BabelChainParser.jsonToHtml(xhr.json, cssFilter);
+        return doc;
+    }
+ 
+    static async fetchCcsFilter(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        let state = BabelChainParser.getStateJson(xhr.responseXML);
+        let cssUrl = "https://babelnovel.com" + state.chapterDetailStore.cssUrl;
+        let css = await HttpClient.fetchText(cssUrl);
+        return BabelChainParser.getstylesToDelete(css);
     }
 
-    static jsonToHtml(json) {
+    static jsonToHtml(json, cssFilter) {
         let newDoc = Parser.makeEmptyDocForContent();
         let header = newDoc.dom.createElement("h1");
-        header.textContent = json.data.canonicalName;
+        header.textContent = json.data.name || json.data.canonicalName;
         newDoc.content.appendChild(header);
-        let pre = newDoc.dom.createElement("div");
-        newDoc.content.appendChild(pre);
-        pre.textContent = json.data.content.replace("<blockquote>", "").replace("</blockquote>", "");
-        util.convertPreTagToPTags(newDoc.dom, pre, "\n\n");
+
+        let textContent = "<body>" + json.data.content + "</body>";
+        let imported = new DOMParser().parseFromString(textContent, "text/html");
+        util.removeChildElementsMatchingCss(imported.body, cssFilter);
+        for(let e of imported.body.children) {
+            let p = newDoc.dom.createElement("p");
+            p.appendChild(newDoc.dom.createTextNode(e.textContent))
+            newDoc.content.appendChild(p);
+        }
         return newDoc.dom;
     }
 }
