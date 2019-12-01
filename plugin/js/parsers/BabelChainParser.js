@@ -18,10 +18,10 @@ class BabelChainParser extends Parser{
 
     static getstylesToDelete(css) {
         let lines = css.split("}")
-           .filter(l => l.includes("width:0; height:0;"));
+            .filter(l => l.includes("width:0; height:0;"));
         return (0 < lines.length)
-           ? lines[0].split("{")[0]
-           : null;
+            ? lines[0].split("{")[0]
+            : null;
     }
 
     getBookEntity(dom) {
