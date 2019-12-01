@@ -94,6 +94,7 @@ class UserPreferences {
         this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
         this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
+        this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.observers = [];
         this.readingList = new ReadingList();
     };

@@ -235,6 +235,10 @@
 		"message": "Starting URL",
 		"description": "Label in front of 'URL' input"
 	},
+	"__MSG_label_Skip_Chapters_That_Fail_Fetch__": {
+		"message": "Skip chapters that return HTTP 404 error",
+		"description": "Label in front of checkbox for skipping chapters that can't be fetched"
+	},
 	"__MSG_label_Stylesheet__": {
 		"message": "Stylesheet:",
 		"description": "Label in front of edit field for setting the stylesheet (in Advanced settings)."
@@ -290,6 +294,18 @@
 	"__MSG_Shift_Click__": {
 		"message": "You can select or unselect a range of chapters by clicking on the checkbox for the first chapter, then  hold down the shift key and click the last chapter in the range.",
 		"description": "Tell user how to shift-click to multiselect."
+	},
+	"chapterPlaceholderMessage": {
+		"message": "This is a placeholder.  Attempt to fetch chapter from '$url$' failed with error: \r\n $error$",
+		"description": "Warning message when try to fetch an image and instead get HTML",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			},
+			"error": {
+			    "content": "$2"
+			}
+		}
 	},
 	"convertToXhtmlWarning": {
 		"message": "Warning, unable to convert chapter '$chapter$' from '$url$' to valid XHTML. Your epub viewer may fail when viewing that chapter. You may need to fix the chapter manually with Calibre. \r\nConversion error message was: ($error$)",

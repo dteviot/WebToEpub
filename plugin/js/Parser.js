@@ -55,7 +55,8 @@ class Parser {
     }
 
     isWebPagePackable(webPage) {
-        return (webPage.rawDom != null) && (webPage.isIncludeable);
+        return ((webPage.isIncludeable)
+         && ((webPage.rawDom != null) || (webPage.error != null)));
     }
 
     convertRawDomToContent(webPage) {
@@ -159,6 +160,15 @@ class Parser {
         return items;
     }
 
+    makePlacehoderEpubItem(webPage, epubItemIndex) {
+        let temp = Parser.makeEmptyDocForContent();
+        temp.content.textContent = chrome.i18n.getMessage("chapterPlaceholderMessage", 
+            [webPage.sourceUrl, webPage.error]
+        );
+        util.convertPreTagToPTags(temp.dom, temp.content);
+        return [new ChapterEpubItem(webPage, temp.content, epubItemIndex)];
+    }
+
     /**
     * default implementation
     */
@@ -260,7 +270,9 @@ class Parser {
         }
 
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
-            let newItems = webPage.parser.webPageToEpubItems(webPage, index);
+            let newItems = (webPage.error == null)
+                ? webPage.parser.webPageToEpubItems(webPage, index)
+                : this.makePlacehoderEpubItem(webPage, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
             delete(webPage.rawDom);
@@ -430,6 +442,7 @@ class Parser {
     }
 
     fetchWebPageContent(webPage) {
+        let that = this;
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
         return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
@@ -437,11 +450,18 @@ class Parser {
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
-                webPage.isIncludeable = false;
                 let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
                 throw new Error(errorMsg);
             }
             return pageParser.fetchImagesUsedInDocument(content, webPage);
+        }).catch(function (error) {
+            if (that.userPreferences.skipChaptersThatFailFetch.value) {
+                ErrorLog.log(error);
+                webPage.error = error;
+            } else {
+                webPage.isIncludeable = false;
+                throw error;
+            }
         }); 
     }
 
