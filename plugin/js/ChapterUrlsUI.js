@@ -74,6 +74,22 @@ class ChapterUrlsUI {
         util.removeElements([...ChapterUrlsUI.getRangeEndChapterSelect().options]);
     }
 
+    static limitNumOfChapterS(maxChapters) {
+        let max = util.isNullOrEmpty(maxChapters) ? 10000 : parseInt(maxChapters.replace(",", ""));
+        let selectedRows = [...ChapterUrlsUI.getChapterUrlsTable().querySelectorAll("[type='checkbox'")]
+            .filter(c => c.checked)
+            .map(c => c.parentElement.parentElement);
+        if (max< selectedRows.length ) {
+            let message = chrome.i18n.getMessage("__MSG_More_than_max_chapters_selected__", 
+                [selectedRows.length, max]);
+            if (confirm(message) === false) {
+                for(let row of selectedRows.slice(max)) {
+                    ChapterUrlsUI.setRowCheckboxState(row, false);
+                }
+            }
+        }
+    }
+
     /** @private */
     static setRangeOptionsToFirstAndLastChapters()
     {

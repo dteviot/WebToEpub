@@ -195,6 +195,10 @@
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"
 	},
+	"__MSG_label_Max_chapters_per_epub__": {
+		"message": "Max chapters per EPUB",
+		"description": "Label for control to set max chapters to put in single EPUB"
+	},
 	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
 		"message": "Max web pages to fetch simultaneously",
 		"description": "Label for drop down for maximum number of web pages to request at same time"
@@ -266,6 +270,18 @@
 	"__MSG_label_Write_Error_History_To_File__": {
 		"message": "Write error messages to file",
 		"description": "Label for checkbox to write recent error messages to file"
+	},
+	"__MSG_More_than_max_chapters_selected__": {
+		"message": "Caution: $selectedCount$ chapters have been selected to include in EPUB.  Click 'OK' if you want all of them included.  Click 'Cancel' if you want only the first $maxChapters$ included",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"selectedCount": {
+			    "content": "$1"
+			},
+			"maxChapters": {
+			    "content": "$2"
+			}
+		}
 	},
 	"__MSG_option_Class_Is__": {
 		"message": "Class is",

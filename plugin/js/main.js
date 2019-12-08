@@ -127,6 +127,7 @@ var main = (function () {
             return;
         }
 
+        ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
         ChapterUrlsUI.resetDownloadStateImages();
         ErrorLog.clearHistory();
         main.getPackEpubButton().disabled = true;

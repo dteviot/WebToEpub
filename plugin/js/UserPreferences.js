@@ -95,6 +95,7 @@ class UserPreferences {
         this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
+        this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.observers = [];
         this.readingList = new ReadingList();
     };
