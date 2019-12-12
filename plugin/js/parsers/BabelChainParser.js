@@ -16,14 +16,6 @@ class BabelChainParser extends Parser{
         return json[0]; 
     }
 
-    static getstylesToDelete(css) {
-        let lines = css.split("}")
-            .filter(l => l.includes("width:0; height:0;"));
-        return (0 < lines.length)
-            ? lines[0].split("{")[0]
-            : null;
-    }
-
     getBookEntity(dom) {
         let state = BabelChainParser.getStateJson(dom);
         return state.bookDetailStore.bookEntity;
@@ -31,18 +23,7 @@ class BabelChainParser extends Parser{
 
     getChapterUrls(dom) {
         let bookEntity = this.getBookEntity(dom);
-        let chaptersUrl = `https://babelnovel.com/api/books/${bookEntity.id}/chapters?bookId=${bookEntity.id}&pageSize=${bookEntity.chapterCount}&page=0&fields=id,name,canonicalName,hasContent,type,translateStatus,publishTime`;
-
-        return HttpClient.fetchJson(chaptersUrl).then((xhr) => {
-            return xhr.json.data.map((chapter) => {
-                return {
-                    sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${chapter.canonicalName}`,
-                    title: chapter.name
-                };
-            });
-        }).catch(
-            () => BabelChainParser.guessChapterList(bookEntity)
-        );
+        return Promise.resolve(BabelChainParser.guessChapterList(bookEntity));
     }
 
     static guessChapterList(bookEntity) {
@@ -93,33 +74,22 @@ class BabelChainParser extends Parser{
     async fetchChapter(url) {
         const rateLimitTo20PagePerMinute = 3000;
         await util.sleep(rateLimitTo20PagePerMinute);
-        let cssFilter = await BabelChainParser.fetchCcsFilter(url);
         let contentUrl = url.replace("/books/", "/api/books/") + "/content";
         let xhr = await HttpClient.fetchJson(contentUrl);
-        let doc = BabelChainParser.jsonToHtml(xhr.json, cssFilter);
+        let doc = BabelChainParser.jsonToHtml(xhr.json);
         return doc;
     }
  
-    static async fetchCcsFilter(url) {
-        let xhr = await HttpClient.wrapFetch(url);
-        let state = BabelChainParser.getStateJson(xhr.responseXML);
-        let cssUrl = "https://babelnovel.com" + state.chapterDetailStore.cssUrl;
-        let css = await HttpClient.fetchText(cssUrl);
-        return BabelChainParser.getstylesToDelete(css);
-    }
-
-    static jsonToHtml(json, cssFilter) {
+    static jsonToHtml(json) {
         let newDoc = Parser.makeEmptyDocForContent();
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.data.name || json.data.canonicalName;
         newDoc.content.appendChild(header);
-
-        let textContent = "<body>" + json.data.content + "</body>";
-        let imported = new DOMParser().parseFromString(textContent, "text/html");
-        util.removeChildElementsMatchingCss(imported.body, cssFilter);
-        for(let e of imported.body.children) {
+        let paragraphs = json.data.content.split("\n\n")
+            .filter(p => !util.isNullOrEmpty(p));
+        for (let text of paragraphs) {
             let p = newDoc.dom.createElement("p");
-            p.appendChild(newDoc.dom.createTextNode(e.textContent))
+            p.appendChild(newDoc.dom.createTextNode(text))
             newDoc.content.appendChild(p);
         }
         return newDoc.dom;

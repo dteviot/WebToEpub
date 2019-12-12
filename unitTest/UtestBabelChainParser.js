@@ -12,14 +12,6 @@ test("getStateJson", function (assert) {
     assert.equal(actual, null);
 });
 
-test("getstylesToDelete", function (assert) {
-    let actual = BabelChainParser.getstylesToDelete("");
-    assert.equal(actual, null);
-
-    actual = BabelChainParser.getstylesToDelete(BabelChainStyleSample);
-    assert.ok(actual.includes("#NGVKCLRJ, #WYOAWVHC, .UZNZNXGA,"));
-});
-
 let BabelChainChapterSample =
 `<!DOCTYPE html>
 <html lang="en">
@@ -39,8 +31,3 @@ window.__PUSH_KEY__ = "BFDkNGddhFKPHg1y_ntk0VKM8nBiW_onOlxtCRboFT4r2ILV6SgyNGVNz
 </body>
 </html>
 `
-
-let BabelChainStyleSample =
-`#GSUZQESU, #ZUHTREOE {margin-bottom: 1.5rem; display: block !important}
-@media screen and (max-width: 767px) {#GSUZQESU, #ZUHTREOE, .MKKSMTZQ,  #WQVBVSGW {margin-bottom: 1rem; display: block !important}}
-#NGVKCLRJ, #WYOAWVHC, .UZNZNXGA, .YHNQDVXR {width:0; height:0; overflow: hidden; display: block; margin: 0;}`
