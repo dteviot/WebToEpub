@@ -110,23 +110,19 @@ class HttpClient {
         return { credentials: "include" };
     }
 
-    static wrapFetch(url, fetchOptions) {
-        if (fetchOptions == null) {
-            fetchOptions = {
+    static wrapFetch(url, wrapOptions) {
+        if (wrapOptions == null) {
+            wrapOptions = {
                 errorHandler: new FetchErrorHandler()
             }
         }
-        if (fetchOptions.errorHandler == null) {
-            fetchOptions.errorHandler = new FetchErrorHandler();
+        if (wrapOptions.errorHandler == null) {
+            wrapOptions.errorHandler = new FetchErrorHandler();
         }
-        let responseHandler = new FetchResponseHandler();
-        if (fetchOptions.makeTextDecoder != null) {
-            responseHandler.makeTextDecoder = fetchOptions.makeTextDecoder;
+        wrapOptions.responseHandler = new FetchResponseHandler();
+        if (wrapOptions.makeTextDecoder != null) {
+            wrapOptions.responseHandler.makeTextDecoder = wrapOptions.makeTextDecoder;
         }
-        let wrapOptions = {
-            responseHandler: responseHandler,
-            errorHandler: fetchOptions.errorHandler
-        };
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
