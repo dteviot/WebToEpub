@@ -38,7 +38,17 @@ class WebNovelOnlineParser extends Parser{
     static buildContentHtml(dom) {
         let newDoc = Parser.makeEmptyDocForContent();
         newDoc.content.appendChild(dom.querySelector("div.chapter-info h3"));
-        let paragraphs = WebNovelOnlineParser.getStringWithContent(dom)
+        let text = WebNovelOnlineParser.getStringWithContent(dom);
+        if (text.includes("</p>")) {
+            WebNovelOnlineParser.addHtmlToDocument(newDoc.content, text);
+        } else {
+            WebNovelOnlineParser.addTextToDocument(newDoc, text);
+        }
+        return newDoc.dom;
+    }
+
+    static addTextToDocument(newDoc, text) {
+        let paragraphs = text
             .split("\n")
             .filter(p => (p !== null) && (0 < p.length));
         for (let text of paragraphs) {
@@ -46,7 +56,12 @@ class WebNovelOnlineParser extends Parser{
             p.appendChild(newDoc.dom.createTextNode(text))
             newDoc.content.appendChild(p);
         }
-        return newDoc.dom;
+    }
+
+    static addHtmlToDocument(content, text) {
+        text = "<div id=\"raw\">" + text + "</div>";
+        let rawDom = new DOMParser().parseFromString(text, "text/html");
+        content.appendChild(rawDom.querySelector("div#raw"));
     }
 
     static getStringWithContent(dom) {
