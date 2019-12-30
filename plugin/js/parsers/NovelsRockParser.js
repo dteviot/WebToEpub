@@ -14,7 +14,10 @@ class NovelsRockParser extends Parser{
     };
 
     findContent(dom) {
-        return dom.querySelector("div.reading-content");
+        let content = dom.querySelector("div.read-container");
+        return (content === null)
+            ? dom.querySelector("div.reading-content") 
+            : content;
     };
 
     extractTitleImpl(dom) {
