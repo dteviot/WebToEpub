@@ -9,6 +9,7 @@ class NovelsRockParser extends Parser{
 
     getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("li.wp-manga-chapter a")]
+            .filter(a => (a.querySelector("img") === null))
             .map(a => util.hyperLinkToChapter(a))
         return Promise.resolve(chapters.reverse());
     };

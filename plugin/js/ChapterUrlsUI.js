@@ -241,7 +241,9 @@ class ChapterUrlsUI {
     static resizeTitleColumnToFit(linksTable) {
         let inputs = [...linksTable.querySelectorAll("input[type='text']")];
         let width = inputs.reduce((acc, element) => Math.max(acc, element.value.length), 0);
-        inputs.forEach(i => i.size = width); 
+        if (0 < width) {
+            inputs.forEach(i => i.size = width); 
+        }
     }
 
     /** 
