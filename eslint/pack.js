@@ -98,8 +98,8 @@ getFileList("../plugin/popup.html").then(function(fileList) {
             index +=  makeIndexLine(f.fileName, lineCount, count);
             lineCount += count;
         }
-        fs.writeFile("packed.js", temp);
-        fs.writeFile("index.csv", index);
+        fs.writeFileSync("packed.js", temp);
+        fs.writeFileSync("index.csv", index);
     }).catch(function (err) {
         console.log(err);
     });

@@ -127,7 +127,7 @@ WebToEpub uses the following libraries:
 * (Remember to reset security.fileuri.strict_origin_policy to true when done.
 
 ### To run eslint (and build the plugin)
-* Install Node.js (if not already installed)
+* Install Node.js (if not already installed)  At time of writing, I'm using version 6.9.1.
 * Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (Needed by pack.js)
 * Use Node.js to run eslint/pack.js
 * This will produce 3 files in the eslint directory.
