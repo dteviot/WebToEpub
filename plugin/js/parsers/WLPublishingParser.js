@@ -21,7 +21,7 @@ class WLPublishingParser extends Parser{
     getChapterUrls(dom) {
         let index = dom.querySelector("div#index-list");
         for(let link of index.querySelectorAll("a")) {
-            if (link.hasAttribute('title') && (link.getAttribute('title') === 'download')) {
+            if (link.hasAttribute("title") && (link.getAttribute("title") === "download")) {
                 link.remove();
             }
         }
@@ -39,7 +39,7 @@ class WLPublishingParser extends Parser{
     extractAuthor(dom) {
         let title = dom.querySelector("title").textContent;
         if (title != null) {
-            return title.substring(0, title.indexOf(':'));
+            return title.substring(0, title.indexOf(":"));
         }
         return super.extractAuthor(dom);
     };
@@ -66,7 +66,6 @@ class WLPublishingParser extends Parser{
     }
 
     fetchChapter(url) {
-        console.log("Fetching chapter: ", url);
         let that = this;
         return HttpClient.wrapFetch(url).then(function (xhr) {
             let dom = xhr.responseXML;
@@ -103,7 +102,6 @@ class WLPublishingParser extends Parser{
         return HttpClient.wrapFetch(url).then(function (xhr) {
             let pageDom = xhr.responseXML;
             let pageContent = that.findContent(pageDom);
-            console.log("Adding page: ", pageContent);
             while (pageContent.childNodes.length > 0) {
                 let child = pageContent.childNodes[0];
                 // The chapter title appears on each page in the chapter and we only want it from the first.
