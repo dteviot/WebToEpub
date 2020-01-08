@@ -2,6 +2,7 @@
 
 parserFactory.register("listnovel.com", () => new ListNovelParser());
 parserFactory.register("readwebnovel.xyz", () => new ListNovelParser());
+parserFactory.register("wuxiaworld.site", () => new ListNovelParser());
 
 class ListNovelParser extends WordpressBaseParser{
     constructor() {
@@ -24,11 +25,19 @@ class ListNovelParser extends WordpressBaseParser{
         super.removeUnwantedElementsFromContentElement(element);
     }
 
+    findChapterTitle(dom) {
+        return dom.querySelector("ol.breadcrumb li.active").textContent;
+    }
+ 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.summary_image");
     }
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.summary__content")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "script");
     }
 }
