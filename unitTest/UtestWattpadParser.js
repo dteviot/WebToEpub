@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestWattpadParser");
+module("WattpadParser");
 
 QUnit.test("findURIsWithRestOfChapterContent", function (assert) {
     let dom = new DOMParser().parseFromString(
@@ -61,6 +61,23 @@ QUnit.test("fetchExtraChapterContent", function (assert) {
         assert.deepEqual(actual, watpaddExtraContent);
         done();
     });
+});
+
+QUnit.test("removeDuplicateParagraphs", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<body>" +
+        "<p data-p-id=\"ef11\">1</p>" +
+        "<p data-p-id=\"ef12\">2</p>" +
+        "<p data-p-id=\"ef11\">1</p>" +
+        "<p data-p-id=\"ef12\">2</p>" +
+        "<p data-p-id=\"ef13\">3</p>" +
+        "<p>4</p>" +
+        "<p>5</p>" +
+        "</body>",
+        "text/html");
+    let cleanDom = WattpadParser.removeDuplicateParagraphs(dom);
+    let actual = cleanDom.body.textContent;
+    assert.equal(actual, "12345");
 });
 
 let WattpadSample =

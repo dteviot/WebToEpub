@@ -72,6 +72,8 @@ class WattpadParser extends Parser{
     fetchAndAddExtraContentForChapter(dom, extraUris) {
         return this.fetchExtraChapterContent(extraUris).then(
             (extraContent) => this.addExtraContent(dom, extraContent)
+        ).then(
+            (dom) => WattpadParser.removeDuplicateParagraphs(dom)
         );
     }
 
@@ -95,6 +97,19 @@ class WattpadParser extends Parser{
         let content = this.findContent(dom);
         for (let s of extraContent) {
             content.appendChild(this.toHtml(s));
+        }
+        return dom;
+    }
+
+    static removeDuplicateParagraphs(dom) {
+        let s = new Set();
+        for(let p of [...dom.querySelectorAll("p[data-p-id]")]) {
+            let id = p.getAttribute("data-p-id");
+            if (s.has(id)) {
+                p.remove();
+            } else {
+                s.add(id);
+            }
         }
         return dom;
     }
