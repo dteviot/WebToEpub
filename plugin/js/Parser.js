@@ -467,7 +467,7 @@ class Parser {
 
     fetchImagesUsedInDocument(content, webPage) {
         let that = this;
-        return ImageCollector.replaceHyperlinksToImagesWithImages(content, webPage.sourceUrl)
+        return this.imageCollector.preprocessImageTags(content, webPage.sourceUrl)
             .then(function (revisedContent) {
                 that.imageCollector.findImagesUsedInDocument(revisedContent);
                 return that.imageCollector.fetchImages(() => { }, webPage.sourceUrl);

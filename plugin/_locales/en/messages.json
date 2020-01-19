@@ -235,6 +235,10 @@
 		"message": "Series",
 		"description": "Label in front input for series Novel is part of"
 	},
+	"__MSG_label_Skip_Images__": {
+		"message": "Skip Images",
+		"description": "Label for checkbox to not include images in EPUB"
+	},
 	"__MSG_label_Starting_URL__": {
 		"message": "Starting URL",
 		"description": "Label in front of 'URL' input"

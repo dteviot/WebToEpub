@@ -400,6 +400,15 @@ class ImageCollector {
         return null;
     }
 
+    preprocessImageTags(content, parentPageUrl) {
+        if (this.userPreferences.skipImages.value) {
+            util.removeChildElementsMatchingCss(content, "img, image");
+            return Promise.resolve(content);
+        } else {
+            return ImageCollector.replaceHyperlinksToImagesWithImages(content, parentPageUrl);
+        }
+    }
+
     static replaceHyperlinksToImagesWithImages(content, parentPageUrl) {
         let toReplace = util.getElements(content, "a", ImageCollector.isHyperlinkToImage);
         for(let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
