@@ -39,17 +39,25 @@ class Download {
         // on Chrome call to download() will resolve when "Save As" dialog OPENS
         // so need to delay return until after file is actually saved
         // Otherwise, we get multiple Save As Dialogs open.
-        return new Promise(resolve => {
+        return new Promise((resolve,reject) => {
             chrome.downloads.download(options, 
-                downloadId => Download.onDownloadStarted(downloadId, 
-                    () => { 
-                        const tenSeconds = 10 * 1000;
-                        setTimeout(cleanup, tenSeconds);
-                        resolve(); 
-                    }
-                )
+                downloadId => Download.downloadCallback(downloadId, cleanup, resolve, reject)
             );
         });
+    }
+
+    static downloadCallback(downloadId, cleanup, resolve, reject) {
+        if (downloadId === undefined) {
+            reject(new Error(chrome.runtime.lastError.message));
+        } else {
+            Download.onDownloadStarted(downloadId, 
+                () => { 
+                    const tenSeconds = 10 * 1000;
+                    setTimeout(cleanup, tenSeconds);
+                    resolve();
+                }
+            );
+        }
     }
 
     static saveOnFirefox(options, cleanup) {
@@ -89,5 +97,5 @@ class Download {
 }
 
 Download.toCleanup = new Map();
-Download.illegalWindowsFileNameChars = "/?<>\\:*|\"";
+Download.illegalWindowsFileNameChars = "~/?<>\\:*|\"";
 Download.init();
