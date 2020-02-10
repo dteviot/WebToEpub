@@ -35,6 +35,9 @@ class MtlnovelParser extends Parser{
             original = ", p.cn";
         }
         util.removeChildElementsMatchingCss(element, ".crumbs, .chapter-nav, .lang-btn, .sharer" + original);
+        for(let e of [...element.querySelectorAll("div.post-content")]) {
+            e.removeAttribute("[class]");
+        }
         super.removeUnwantedElementsFromContentElement(element);
     }
 
