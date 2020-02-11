@@ -13,13 +13,28 @@ class MtlnovelParser extends Parser{
         document.getElementById("removeOriginalRow").hidden = false;
     }
 
-    getChapterUrls(dom) {
-        let tocUrl = dom.baseURI + "chapter-list/";
-        return HttpClient.wrapFetch(tocUrl).then(
-            (xhr) => [...xhr.responseXML.querySelectorAll("div.ch-list a.ch-link")]
-                .map(a => util.hyperLinkToChapter(a))
-        );
+    async getChapterUrls(dom) {
+        let tocUrls = [...dom.querySelectorAll("div#panelchapterlist amp-list")]
+            .map(a => a.getAttribute("src"));
+        let chapters = [];
+        for(let url of tocUrls) {
+            let fragment = await MtlnovelParser.fetchTocFragment(url);
+            chapters = chapters.concat(fragment);
+        }
+        return Promise.resolve(chapters);
     };
+
+    static async fetchTocFragment(url) {
+        return HttpClient.fetchJson(url).then(function (handler) {
+            return handler.json.items.map(
+                item => ({
+                    sourceUrl:  item.permalink,
+                    title: item.no + " " + item.title,
+                    newArc: null 
+                })
+            );
+        });
+    }
 
     findContent(dom) {
         return dom.querySelector("div.single-page");
