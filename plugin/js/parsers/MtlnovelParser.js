@@ -25,15 +25,17 @@ class MtlnovelParser extends Parser{
     };
 
     static async fetchTocFragment(url) {
-        return HttpClient.fetchJson(url).then(function (handler) {
-            return handler.json.items.map(
-                item => ({
-                    sourceUrl:  item.permalink,
-                    title: item.no + " " + item.title,
-                    newArc: null 
-                })
-            );
-        });
+        return HttpClient.fetchJson(url).then(
+            handler => handler.json.items.map(MtlnovelParser.itemToChapter)
+        );
+    }
+
+    static itemToChapter(item) {
+        return {
+            sourceUrl:  item.permalink,
+            title: item.no + " " + item.title,
+            newArc: null 
+        };
     }
 
     findContent(dom) {
