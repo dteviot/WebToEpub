@@ -109,9 +109,16 @@ class RoyalRoadParser extends Parser{
 
     removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
         super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+        this.removeImgTagsWithnoSrc(webPageDom);
         if (this.userPreferences.removeAuthorNotes.value) {
             util.removeElements([...webPageDom.querySelectorAll("div.author-note-portlet")]);
         }
+    }
+
+    removeImgTagsWithnoSrc(webPageDom) {
+        [...webPageDom.querySelectorAll("img")]
+            .filter(i => util.isNullOrEmpty(i.src))
+            .forEach(i => i.remove());
     }
 
     getInformationEpubItemChildNodes(dom) {
