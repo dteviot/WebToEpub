@@ -18,14 +18,18 @@ class WLPublishingParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let index = dom.querySelector("div#index-list");
+        if (index === null) {
+            let baseUrl = this.getBaseUrl(dom);
+            return this.singleChapterStory(baseUrl, dom);
+        }
         for(let link of index.querySelectorAll("a")) {
             if (link.hasAttribute("title") && (link.getAttribute("title") === "download")) {
                 link.remove();
             }
         }
-        return Promise.resolve(util.hyperlinksToChapterList(index));
+        return util.hyperlinksToChapterList(index);
     };
 
     findContent(dom) {
