@@ -65,16 +65,14 @@ class WLPublishingParser extends Parser{
         return dom.querySelector("h2");
     }
 
-    fetchChapter(url) {
-        let that = this;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let dom = xhr.responseXML;
-            let extraURLs = WLPublishingParser.findURLsOfChapterPages(dom);
-            extraURLs.forEach(function(url) {
-                dom = that.fetchChapterPage(dom, url);
-            })
-            return Promise.resolve(dom);
-        });
+    async fetchChapter(url) {
+        let chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
+        let extraURLs = WLPublishingParser.findURLsOfChapterPages(chapterDom);
+        for (let pageUrl of extraURLs) {
+            let pageDom = (await HttpClient.wrapFetch(pageUrl)).responseXML;
+            chapterDom = this.addPageToChapter(chapterDom, pageDom);
+        }
+        return chapterDom;
     }
 
     /*
@@ -96,22 +94,18 @@ class WLPublishingParser extends Parser{
         return urls;
     }
 
-    fetchChapterPage(chapterDom, url) {
-        let that = this;
+    addPageToChapter(chapterDom, pageDom) {
         let chapterContent = this.findContent(chapterDom);
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let pageDom = xhr.responseXML;
-            let pageContent = that.findContent(pageDom);
-            while (pageContent.childNodes.length > 0) {
-                let child = pageContent.childNodes[0];
-                // The chapter title appears on each page in the chapter and we only want it from the first.
-                if ((child.tagName == "H1") || (child.tagName == "H2")) {
-                    child.remove()
-                } else {
-                    chapterContent.appendChild(child);
-                }
+        let pageContent = this.findContent(pageDom);
+        while (pageContent.childNodes.length > 0) {
+            let child = pageContent.childNodes[0];
+            // The chapter title appears on each page in the chapter and we only want it from the first.
+            if ((child.tagName == "H1") || (child.tagName == "H2")) {
+                child.remove()
+            } else {
+                chapterContent.appendChild(child);
             }
-            return chapterDom;
-        });
+        }
+        return chapterDom;
     }
 }
