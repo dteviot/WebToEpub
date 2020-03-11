@@ -135,15 +135,18 @@ var main = (function () {
         parser.fetchContent().then(function () {
             return packEpub(metaInfo);
         }).then(function (content) {
+            // Enable button here.  If user cancels save dialog
+            // the promise never returns
+            main.getPackEpubButton().disabled = false;
             return Download.save(content, fileName);
         }).then(function () {
             parser.updateReadingList();
             ErrorLog.showLogToUser();
             return dumpErrorLogToFile();
         }).catch(function (err) {
+            main.getPackEpubButton().disabled = false;
             ErrorLog.showErrorMessage(err);
         });
-        main.getPackEpubButton().disabled = false;
     }
 
     function epubVersionFromPreferences() {
