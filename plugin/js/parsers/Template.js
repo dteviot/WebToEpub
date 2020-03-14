@@ -33,13 +33,13 @@ class TemplateParser extends Parser{
     // returns promise with the URLs of the chapters to fetch
     // promise is used because may need to fetch the list of URLs from internet
     /*
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         // Most common implementation is to find element holding the hyperlinks to 
         // the web pages holding the chapters.  Then call util.hyperlinksToChapterList()
         // to convert the links into a list of URLs the parser will collect.
         let menu = dom.querySelector("div.su-tabs-panes");
-        return Promise.resolve(util.hyperlinksToChapterList(menu));
-    };
+        return util.hyperlinksToChapterList(menu);
+    }
     */
 
     // returns the element holding the story content in a chapter
@@ -48,7 +48,7 @@ class TemplateParser extends Parser{
         // typical implementation is find node with all wanted content
         // return is the element holding just the wanted content.
         return dom.querySelector("article");
-    };
+    }
     */
 
     // title of the story  (not to be confused with title of each chapter)
@@ -57,7 +57,7 @@ class TemplateParser extends Parser{
         // typical implementation is find node with the Title and return name from title
         // NOTE. Can return Title as a string, or an  HTML element
         return dom.querySelector("h1");
-    };
+    }
     */
 
     // author of the story
@@ -70,7 +70,7 @@ class TemplateParser extends Parser{
         //   2. If can't find Author, call the base implementation
         let authorLabel = util.getElement(dom, "strong", e => e.textContent === "Author:");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextElementSibling.textContent;
-    };
+    }
     */
 
     // language used
@@ -78,7 +78,7 @@ class TemplateParser extends Parser{
     /*
     extractLanguage(dom) {
         return dom.querySelector("html").getAttribute("lang");
-    };
+    }
     */
 
     // Optional, supply if need to do special manipulation of content
@@ -132,10 +132,8 @@ class TemplateParser extends Parser{
 
     // Optional, supply if need to chase hyperlinks in page to get all chapter content
     /*
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return Promise.resolve(xhr.responseXML);
-        });
+    async fetchChapter(url) {
+        return (await HttpClient.wrapFetch(url)).responseXML;
     }
     */
 
