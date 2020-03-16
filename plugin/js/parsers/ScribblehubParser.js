@@ -53,7 +53,7 @@ class ScribblehubParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.novel-cover");
+        return util.getFirstImgSrc(dom, "div.fic_image");
     }
 
     getInformationEpubItemChildNodes(dom) {
