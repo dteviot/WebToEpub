@@ -50,6 +50,15 @@ class ArchiveOfOurOwnParser extends Parser{
         return dom.querySelector("meta[name='language']").getAttribute("content");
     };
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, "h3.landmark.heading");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h3.title");
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("dl.meta, div.summary")];
     }
