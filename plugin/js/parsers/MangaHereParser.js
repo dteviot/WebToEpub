@@ -78,7 +78,7 @@ class MangaHereParser extends Parser {
             ErrorLog.log(err);
             return newDoc.dom;
         }
-        if (imgUrls.size === jsonUrls.length) {
+        if (jsonUrls.length <= imgUrls.size) {
             return newDoc.dom;
         }
         let tocUrl = jsonUrls[imgUrls.size];
