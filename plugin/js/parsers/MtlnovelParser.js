@@ -14,29 +14,15 @@ class MtlnovelParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let tocUrls = [...dom.querySelectorAll("div#panelchapterlist amp-list")]
-            .map(a => a.getAttribute("src"));
-        let chapters = [];
-        for(let url of tocUrls) {
-            let fragment = await MtlnovelParser.fetchTocFragment(url);
-            chapters = chapters.concat(fragment);
+        let url = dom.baseURI;
+        if (!url.endsWith("/")) {
+            url = url + "/";
         }
-        return Promise.resolve(chapters);
+        url = url + "chapter-list/";
+        let tocDom = (await HttpClient.wrapFetch(url)).responseXML;
+        let tocElement = tocDom.querySelector("div.ch-list");
+        return util.hyperlinksToChapterList(tocElement).reverse();
     };
-
-    static async fetchTocFragment(url) {
-        return HttpClient.fetchJson(url).then(
-            handler => handler.json.items.map(MtlnovelParser.itemToChapter)
-        );
-    }
-
-    static itemToChapter(item) {
-        return {
-            sourceUrl:  item.permalink,
-            title: item.no + " " + item.title,
-            newArc: null 
-        };
-    }
 
     findContent(dom) {
         return dom.querySelector("div.single-page");
