@@ -21,6 +21,11 @@ QUnit.test("buildChapter", function (assert) {
     );
 });
 
+QUnit.test("extractRestUrl", function (assert) {
+  let actual = NovelSpreadParser.extractRestUrl("https://m.novelspread.com/chapter/thriller-paradise/c-1-dont-pretend-to-be-friends");
+  assert.equal(actual, "https://api.novelspread.com/api/novel/thriller-paradise/chapter/1/content");
+});
+
 let NovelSpreadParserSample1 =
 `<!DOCTYPE html>
 <html lang="en">

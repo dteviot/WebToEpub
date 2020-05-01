@@ -1,20 +1,21 @@
 "use strict";
 
 parserFactory.register("novelspread.com", function() { return new NovelSpreadParser() });
+parserFactory.register("m.novelspread.com", function() { return new MNovelSpreadParser() });
 
 class NovelSpreadParser extends Parser{
     constructor() {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("div.volumeBox a")]
             .map(a => util.hyperLinkToChapter(a));
         for (let i = 0; i < chapters.length; ++i) {
             let chapter = chapters[i];
             chapter.title = `${i + 1}. ${chapter.title}`;
         }
-        return Promise.resolve(chapters);
+        return chapters;
     };
 
     findContent(dom) {
@@ -34,19 +35,19 @@ class NovelSpreadParser extends Parser{
         return util.getFirstImgSrc(dom, "div.novelimg");
     }
 
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let restUrl = NovelSpreadParser.extractRestUrl(xhr.responseXML);
-            return HttpClient.fetchJson(restUrl);
-        }).then(function (handler) {
-            return NovelSpreadParser.buildChapter(handler.json.data);
-        });
+    async fetchChapter(url) {
+        let restUrl = NovelSpreadParser.extractRestUrl(url);
+        let data = (await HttpClient.fetchJson(restUrl)).json.data;
+        return NovelSpreadParser.buildChapter(data);
     }
 
-    static extractRestUrl(dom) {
-        let div = dom.querySelector("div.text-body");
-        let chapterId = div.getAttribute("data-chapter-id");
-        return `https://www.novelspread.com/chapter/${chapterId}`;
+    static extractRestUrl(url) {
+        // assumes url is like http://hostname/chapter/{title}/c-{chapterNum}-chapterTitle
+        let path = new URL(url).pathname.split("/");
+        let last = path.length - 1;
+        let title = path[last - 1];
+        let chapterNum = path[last].split("-")[1];
+        return `https://api.novelspread.com/api/novel/${title}/chapter/${chapterNum}/content`;
     }
 
     static buildChapter(json) {
@@ -64,5 +65,26 @@ class NovelSpreadParser extends Parser{
     }
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.info, div.syn")];
+    }
+}
+
+class MNovelSpreadParser extends NovelSpreadParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let chapters = [...dom.querySelectorAll("a")]
+            .filter(a => a.href.includes("/chapter/"))
+            .map(a => util.hyperLinkToChapter(a));
+        return chapters;
+    };
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.book");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.synopsis div")];
     }
 }
