@@ -786,6 +786,10 @@ var util = (function () {
         return "OEBPS/Styles/stylesheet.css";
     }
 
+    var extractUrlFromBackgroundImage = function(img) {
+        return img.substring(5, img.length - 2);
+    }
+
     var extactSubstring = function(s, prefix, suffix) {
         if (typeof(prefix) !== "string") {
             let match = s.match(prefix);
@@ -964,6 +968,7 @@ var util = (function () {
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
         dctermsToTable: dctermsToTable,
+        extractUrlFromBackgroundImage: extractUrlFromBackgroundImage,
         extactSubstring: extactSubstring,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket,

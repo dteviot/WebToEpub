@@ -7,9 +7,9 @@ class MachineTranslationParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let toc = dom.querySelector("div.table-body");
-        return Promise.resolve(util.hyperlinksToChapterList(toc).reverse());
+    async getChapterUrls(dom) {
+        let toc = dom.querySelector("div.table-body, div.chapter-list");
+        return util.hyperlinksToChapterList(toc).reverse();
     }
 
     findContent(dom) {
@@ -17,11 +17,11 @@ class MachineTranslationParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.title b");
+        return dom.querySelector("div.title b, h2.title");
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.title span");
+        let authorLabel = dom.querySelector("div.title span, p.author");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
@@ -30,7 +30,14 @@ class MachineTranslationParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.book-img");
+        let bookimg = dom.querySelector("div.book-img");
+        if (bookimg.querySelector("img")) {
+            return util.getFirstImgSrc(dom, "div.book-img");
+        }
+        var img = bookimg.style.backgroundImage;
+        return (img != null)
+            ? util.extractUrlFromBackgroundImage(img)
+            : null;
     }
 
     getInformationEpubItemChildNodes(dom) {

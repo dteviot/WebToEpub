@@ -121,12 +121,8 @@ class PatreonParser extends Parser{
             .filter(img => !util.isNullOrEmpty(img.style.backgroundImage))
             .map(d => d.style.backgroundImage)
         if (0 < imgs.length) {
-            return this.extractUrlFromBackgroundImage(imgs[0]);
+            return util.extractUrlFromBackgroundImage(imgs[0]);
         }
         return null;
-    }
-
-    extractUrlFromBackgroundImage(img) {
-        return img.substring(5, img.length - 2);
     }
 }
