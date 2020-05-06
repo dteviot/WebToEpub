@@ -10,10 +10,10 @@ class MangaHereParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("div#chapterlist li a")]
-            .map(a => util.hyperLinkToChapter(a));
-        return Promise.resolve(chapters.reverse());
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div#chapterlist li a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .reverse();
     }
 
     findContent(dom) {
@@ -38,22 +38,31 @@ class MangaHereParser extends Parser {
         return util.getFirstImgSrc(dom, "div.detail-info-cover");
     }
 
-    fetchChapter(url) {
-        let tabToClose = -1
+    async fetchChapter(url) {
         // need to open chapter in tab so cookies are loaded
-        return MangaHereParser.createChapterTab(url).then(function(tablId) {
-            tabToClose = tablId;
-            return util.sleep(5000);
-        }).then(function() {
-            return MangaHereParser.closeChapterTab(tabToClose);
-        }).then(function () {
-            return HttpClient.wrapFetch(url);
-        }).then(function (xhr) {
-            let newDoc = Parser.makeEmptyDocForContent();
-            newDoc.dom.base = url;
-            let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
-            return MangaHereParser.buildPageWithImageTags(jsonUrls, new Set(), newDoc, "");
-        });
+        let tabToClose = await MangaHereParser.createChapterTab(url);
+        await util.sleep(5000);
+        await MangaHereParser.closeChapterTab(tabToClose);
+        let xhr = await HttpClient.wrapFetch(url);
+        let newDoc = Parser.makeEmptyDocForContent();
+        newDoc.dom.base = url;
+        let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
+        let imgUrls = MangaHereParser.extractImgUrlsFromDom(xhr.responseXML);
+        if (jsonUrls.length <= imgUrls.length) {
+            MangaHereParser.addImgsToNewDoc(newDoc, imgUrls, new Set());
+            return newDoc.dom;
+        }
+        return MangaHereParser.buildPageWithImageTags(jsonUrls, new Set(), newDoc, "");
+    }
+
+    static extractImgUrlsFromDom(dom) {
+        let script = [...dom.querySelectorAll("script")]
+            .filter(s => s.innerHTML.includes("eval(function(p,a,c,k,e,d){"))
+            .map(s => s.innerHTML);
+
+        return (script.length === 1)
+            ? MangaHereParser.decryptChapterFun(script[0], "")
+            : [];
     }
 
     static createChapterTab(url) {
@@ -72,7 +81,7 @@ class MangaHereParser extends Parser {
         });
     }
 
-    static buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err) {
+    static async buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err) {
 
         if (!util.isNullOrEmpty(err)) {
             ErrorLog.log(err);
@@ -82,10 +91,9 @@ class MangaHereParser extends Parser {
             return newDoc.dom;
         }
         let tocUrl = jsonUrls[imgUrls.size];
-        return HttpClient.fetchText(tocUrl).then(function (js) {
-            err = MangaHereParser.responseToImg(newDoc, js, tocUrl, imgUrls);
-            return MangaHereParser.buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err);
-        });
+        let js = await HttpClient.fetchText(tocUrl);
+        err = MangaHereParser.responseToImg(newDoc, js, tocUrl, imgUrls);
+        return MangaHereParser.buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err);
     }
 
     static makeImgJsonUrls(url, dom) {
@@ -115,22 +123,26 @@ class MangaHereParser extends Parser {
             return `No response for URL ${tocUrl}\r\n`;
         } else {
             let urls = MangaHereParser.decryptChapterFun(js);
-            for(let u of urls) {
-                if (!imgUrls.has(u)) {
-                    imgUrls.add(u);
-                    let img = newDoc.dom.createElement("img");
-                    img.src = u;
-                    newDoc.content.appendChild(img);
-                }
-            }
+            MangaHereParser.addImgsToNewDoc(newDoc, urls, imgUrls);
             return "";
         }
     }
 
-    static decryptChapterFun(js) {
+    static addImgsToNewDoc(newDoc, urls, imgUrls) {
+        for(let u of urls) {
+            if (!imgUrls.has(u)) {
+                imgUrls.add(u);
+                let img = newDoc.dom.createElement("img");
+                img.src = u;
+                newDoc.content.appendChild(img);
+            }
+        }
+    }
+
+    static decryptChapterFun(js, prefix) {
         let d = MangaHereParser.extractDataFromjs(js);
         let clearText = MangaHereParser.decrypt(d[0], d[1], d[2], d[3].split("|"), 0, {});
-        return MangaHereParser.extractFilenameFromClearText(clearText);
+        return MangaHereParser.extractFilenameFromClearText(clearText, prefix);
     }
 
     static extractDataFromjs(js) {
@@ -139,8 +151,13 @@ class MangaHereParser extends Parser {
         return JSON.parse("[\"" + text + "]");
     }
 
-    static extractFilenameFromClearText(clearText) {
-        let prefix = util.extactSubstring(clearText, "\"", "\"");
+    static extractFilenameFromClearText(clearText, prefix) {
+        if (prefix === undefined) {
+            prefix = util.extactSubstring(clearText, "\"", "\"");
+        }
+        if (!clearText.includes("[") || !clearText.includes("]")) {
+            return [];
+        }
         let urls = util.extactSubstring(clearText, "[", "]").split(",");
         return urls.map(u => "http:" + prefix + u.replace(/"/g, ""));
     }
