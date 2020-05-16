@@ -7,10 +7,10 @@ class BoxnovelParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("li.wp-manga-chapter a")]
-            .map(link => util.hyperLinkToChapter(link));
-        return Promise.resolve(chapters.reverse());
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("li.wp-manga-chapter a")]
+            .map(link => util.hyperLinkToChapter(link))
+            .reverse();
     };
 
     findContent(dom) {
@@ -18,7 +18,11 @@ class BoxnovelParser extends Parser{
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.post-title h3");
+        let title = dom.querySelector("div.post-title h3");
+        for(let e of [...title.querySelectorAll("span.manga-title-badges")]) {
+            e.remove();
+        }
+        return title;
     };
 
     extractAuthor(dom) {
