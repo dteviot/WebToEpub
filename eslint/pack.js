@@ -151,10 +151,27 @@ var addPopupHtmlToZip = function(zip) {
     })
 }
 
+var addBinaryFileToZip = function(zip, fileName, nameInZip) {
+    return readFilePromise(fileName)
+    .then(function(data) {
+        zip.file(nameInZip, data);
+    });
+}
+
+var addImageFileToZip = function(zip, fileName) {
+    let dest = "images/" + fileName;
+    return addBinaryFileToZip(zip, "../plugin/" + dest, dest);
+}
+
 var packNonManifestExtensionFiles = function(zip, packedFileName) {
-    return readFilePromise("../plugin/book128.png")
-    .then(function (data) {
-        zip.file("book128.png", data);
+    return addBinaryFileToZip(zip, "../plugin/book128.png", "book128.png")
+    .then(function () {
+        return addImageFileToZip(zip, "ChapterStateDownloading.svg");
+    }).then(function () {
+        return addImageFileToZip(zip, "ChapterStateLoaded.svg");
+    }).then(function () {
+        return addImageFileToZip(zip, "ChapterStateNone.svg");
+    }).then(function () {
         return getFileList("../plugin/popup.html");
     }).then(function(fileList) {
         return getLocaleFilesNames().then(function(localeNames) {
