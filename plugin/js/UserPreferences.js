@@ -97,6 +97,7 @@ class UserPreferences {
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.addPreference("skipImages", "skipImagesCheckbox", false);
+        this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.observers = [];
         this.readingList = new ReadingList();
     };

@@ -25,12 +25,15 @@ class Download {
     }
 
     /** write blob to "Downloads" directory */
-    static save(blob, fileName) {
+    static save(blob, fileName, overwriteExisting) {
         let options = {
             url: URL.createObjectURL(blob),
             filename: fileName,
             saveAs: true
         };
+        if (overwriteExisting) {
+            options.conflictAction = "overwrite";
+        }
         let cleanup = () => { URL.revokeObjectURL(options.url); };
         return Download.saveOn(options, cleanup);
     }

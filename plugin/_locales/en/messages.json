@@ -203,6 +203,10 @@
 		"message": "Max web pages to fetch simultaneously",
 		"description": "Label for drop down for maximum number of web pages to request at same time"
 	},
+	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
+		"message": "Overwrite existing EPUB file with same name",
+		"description": "Label for checkbox to toggle between 'overwrite exisitng Epub files' and 'make names unique'"
+	},
 	"__MSG_label_Range_End_Chapter__": {
 		"message": "Last Chapter",
 		"description": "Label in front of drop down for selecting last chapter to include in epub"
