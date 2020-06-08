@@ -13,6 +13,7 @@ class ChapterUrlsUI {
         document.getElementById("reverseChapterUrlsOrderButton").onclick = this.reverseUrls.bind(this);
         document.getElementById("editChaptersUrlsButton").onclick = this.setEditInputMode.bind(this);
         document.getElementById("copyUrlsToClipboardButton").onclick = this.copyUrlsToClipboard.bind(this);
+        document.getElementById("showChapterUrlsCheckbox").onclick = this.toggleShowUrlsForChapterRanges.bind(this);
         ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
         ChapterUrlsUI.getChapterUrlsTable().onmousedown = ChapterUrlsUI.onMouseDown;
     }
@@ -24,6 +25,7 @@ class ChapterUrlsUI {
         let index = 0;
         let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
+        let memberForTextOption = ChapterUrlsUI.textToShowInRange();
         chapters.forEach(function (chapter) {
             let row = document.createElement("tr");
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
@@ -31,8 +33,8 @@ class ChapterUrlsUI {
             chapter.row = row;
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
             linksTable.appendChild(row);
-            ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter);
-            ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter);
+            ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter, memberForTextOption);
+            ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter, memberForTextOption);
             ++index;
         });
         ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
@@ -152,6 +154,13 @@ class ChapterUrlsUI {
         return document.getElementById("selectRangeEndChapter");
     }
 
+    /** @private */
+    static textToShowInRange() {
+        return document.getElementById("showChapterUrlsCheckbox").checked
+            ? "sourceUrl"
+            : "title";
+    }
+
     /** 
     * @private
     */
@@ -233,8 +242,9 @@ class ChapterUrlsUI {
         row.appendChild(col);
     }
 
-    static appendOptionToSelect(select, value, chapter) {
-        select.add(new Option(chapter.sourceUrl, value));
+    static appendOptionToSelect(select, value, chapter, memberForTextOption) {
+        var option = new Option(chapter[memberForTextOption], value);
+        select.add(option);
     }
 
     /** @private */
@@ -310,6 +320,25 @@ class ChapterUrlsUI {
     copyUrlsToClipboard() {
         let text = this.chaptersToHTML([...this.parser.getPagesToFetch().values()]);
         navigator.clipboard.writeText(text);
+    }
+
+    /** @private */
+    toggleShowUrlsForChapterRanges() {
+        let chapters = [...this.parser.getPagesToFetch().values()];
+        this.toggleShowUrlsForChapterRange(ChapterUrlsUI.getRangeStartChapterSelect(), chapters);
+        this.toggleShowUrlsForChapterRange(ChapterUrlsUI.getRangeEndChapterSelect(), chapters);
+    }
+
+    toggleShowUrlsForChapterRange(select, chapters) {
+        
+        select.onchange = null;
+        let memberForTextOption = ChapterUrlsUI.textToShowInRange();
+        for(var o of [...select.querySelectorAll("Option")]) {
+            o.text = chapters[o.index][memberForTextOption];
+        }
+        var selectedIndex = select.selectedIndex;
+        select.selectedIndex = selectedIndex;
+        select.onchange = ChapterUrlsUI.onRangeChanged;
     }
 
     /** 
