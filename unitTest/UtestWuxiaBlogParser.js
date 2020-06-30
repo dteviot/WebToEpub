@@ -4,7 +4,8 @@
 module("WuxiaBlogParser");
 
 QUnit.test("getUrlsOfTocPages", function (assert) {
-    let urls = WuxiaBlogParser.getUrlsOfTocPages("https://www.wuxia.blog/novel/I-Have-a-Mansion-in-the-Postapocalyptic-World/11");
+    let dom = new DOMParser().parseFromString(WuxiaBlogToCSamplePage, "text/html");
+    let urls = WuxiaBlogParser.getUrlsOfTocPages(dom);
     assert.equal(urls.length, 10);
     assert.equal(urls[0], "https://www.wuxia.blog/novel/I-Have-a-Mansion-in-the-Postapocalyptic-World/2");
     assert.equal(urls[9], "https://www.wuxia.blog/novel/I-Have-a-Mansion-in-the-Postapocalyptic-World/11");

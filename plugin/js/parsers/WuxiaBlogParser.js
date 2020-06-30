@@ -8,19 +8,13 @@ class WuxiaBlogParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let chapters = WuxiaBlogParser.extractPartialChapterList(dom);
-        let paginationUrl = WuxiaBlogParser.getLastPaginationUrl(dom);
-        if (paginationUrl !== null) {
-            chapterUrlsUI.showTocProgress(chapters);
-            let tocPageUrls = WuxiaBlogParser.getUrlsOfTocPages(paginationUrl);
-            for(let url of tocPageUrls) {
-                let newDom = (await HttpClient.wrapFetch(url)).responseXML;
-                let partialList = WuxiaBlogParser.extractPartialChapterList(newDom);
-                chapterUrlsUI.showTocProgress(partialList);
-                chapters = chapters.concat(partialList);            
-            }
-        }
-        return chapters.reverse();
+        let tocPage1chapters = WuxiaBlogParser.extractPartialChapterList(dom);
+        let urlsOfTocPages  = WuxiaBlogParser.getUrlsOfTocPages(dom);
+        return (await Parser.getChaptersFromAllTocPages(tocPage1chapters,
+            WuxiaBlogParser.extractPartialChapterList,
+            urlsOfTocPages,
+            chapterUrlsUI
+        )).reverse();
     }
 
     static extractPartialChapterList(dom) {
@@ -28,13 +22,16 @@ class WuxiaBlogParser extends Parser{
         return util.hyperlinksToChapterList(menu);
     }
 
-    static getUrlsOfTocPages(paginationUrl) {
+    static getUrlsOfTocPages(dom) {
         let urls = [];
-        let index = paginationUrl.lastIndexOf("/");
-        let maxPage = parseInt(paginationUrl.substring(index + 1));
-        let prefix = paginationUrl.substring(0, index + 1)
-        for(let i = 2; i <= maxPage; ++i) {
-            urls.push(prefix + i);
+        let paginationUrl = WuxiaBlogParser.getLastPaginationUrl(dom);
+        if (paginationUrl !== null) {
+            let index = paginationUrl.lastIndexOf("/");
+            let maxPage = parseInt(paginationUrl.substring(index + 1));
+            let prefix = paginationUrl.substring(0, index + 1)
+            for(let i = 2; i <= maxPage; ++i) {
+                urls.push(prefix + i);
+            }
         }
         return urls;
     }

@@ -585,25 +585,24 @@ class Parser {
         return dom.querySelector("div." + Parser.WEB_TO_EPUB_CLASS_NAME);
     }
 
-    getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)  {
+    async getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)  {
         let chapters = extractPartialChapterList(dom);
-        chapterUrlsUI.showTocProgress(chapters);
-        let tocPageUrls = getUrlsOfTocPages(dom);
-        return Parser.fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, 0, chapterUrlsUI);
+        let urlsOfTocPages = getUrlsOfTocPages(dom);
+        return await Parser.getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
     }
 
-    static fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, index, chapterUrlsUI)
-    {
-        if (tocPageUrls.length <= index) {
-            return Promise.resolve(chapters);
+    static async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
+        if (0 < chapters.length) {
+            chapterUrlsUI.showTocProgress(chapters);
         }
-        return HttpClient.wrapFetch(tocPageUrls[index]).then(function (xhr) {
-            let partialList = extractPartialChapterList(xhr.responseXML);
+        for(let url of urlsOfTocPages) {
+            let newDom = (await HttpClient.wrapFetch(url)).responseXML;
+            let partialList = extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
-            return Parser.fetchAllTocPages(extractPartialChapterList, chapters, tocPageUrls, index + 1, chapterUrlsUI);
-        });
-    }
+        }
+        return chapters;
+    }    
 }
 
 Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";
