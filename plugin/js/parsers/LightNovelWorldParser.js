@@ -7,6 +7,10 @@ class LightNovelWorldParser extends Parser{
         super();
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     async getChapterUrls(dom, chapterUrlsUI) {
         let tocPage1chapters = LightNovelWorldParser.extractPartialChapterList(dom);
         let urlsOfTocPages  = LightNovelWorldParser.getUrlsOfTocPages(dom);
@@ -36,15 +40,25 @@ class LightNovelWorldParser extends Parser{
         let urls = []
         let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")];
         if (0 < paginateUrls.length) {
+            let maxPage = LightNovelWorldParser.maxPageId(paginateUrls);
             let lastUrl = paginateUrls.pop().href;
             let index = lastUrl.lastIndexOf("/");
-            let maxPage = parseInt(lastUrl.substring(index + 1));
             let prefix = lastUrl.substring(0, index + 1)
             for(let i = 2; i <= maxPage; ++i) {
                 urls.push(`${prefix}${i}?X-Requested-With=XMLHttpRequest`);
             }
         }
         return urls;
+    }
+
+    // last URL isn't always last ToC page
+    static maxPageId(urls) {
+        let pageNum = function(url) {
+            let text = url.href;
+            let index = text.lastIndexOf("/");
+            return parseInt(text.substring(index + 1));
+        }
+        return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
     }
 
     findContent(dom) {
