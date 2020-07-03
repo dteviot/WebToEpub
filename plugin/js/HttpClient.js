@@ -16,7 +16,7 @@ class FetchErrorHandler {
             chrome.i18n.getMessage("httpFetchCanRetry");
     }
 
-    getCancelButtonText() {
+    static getCancelButtonText() {
         return chrome.i18n.getMessage("__MSG_button_error_Cancel__");
     }
 

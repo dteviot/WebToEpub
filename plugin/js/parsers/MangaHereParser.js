@@ -40,7 +40,7 @@ class MangaHereParser extends Parser {
 
     async fetchChapter(url) {
         // need to open chapter in tab so cookies are loaded
-        let tabToClose = await MangaHereParser.createChapterTab(url);
+        let tabToClose = await util.createChapterTab(url);
         await util.sleep(5000);
         await MangaHereParser.closeChapterTab(tabToClose);
         let xhr = await HttpClient.wrapFetch(url);
@@ -63,16 +63,6 @@ class MangaHereParser extends Parser {
         return (script.length === 1)
             ? MangaHereParser.decryptChapterFun(script[0], "")
             : [];
-    }
-
-    static createChapterTab(url) {
-        return new Promise(function(resolve) {
-            chrome.tabs.create({ url: url, active: false },
-                function (tab) {
-                    resolve(tab.id);
-                }
-            );
-        });
     }
 
     static closeChapterTab(tabId) {

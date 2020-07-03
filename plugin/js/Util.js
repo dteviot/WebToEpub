@@ -872,6 +872,16 @@ var util = (function () {
         }
         return null;
     }
+
+    var createChapterTab = function(url) {
+        return new Promise(function(resolve) {
+            chrome.tabs.create({ url: url, active: false },
+                function (tab) {
+                    resolve(tab.id);
+                }
+            );
+        });
+    }    
     
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
@@ -973,6 +983,7 @@ var util = (function () {
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket,
         locateAndExtractJson: locateAndExtractJson,
+        createChapterTab: createChapterTab,
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad

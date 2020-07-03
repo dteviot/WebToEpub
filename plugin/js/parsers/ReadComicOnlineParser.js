@@ -58,6 +58,61 @@ class ReadComicOnlineParser extends Parser{
         return util.getFirstImgSrc(dom, "div#rightside div.barContent");
     }
 
+    async fetchChapter(url) {
+        let html = null;
+        while (html === null)  {
+            html = await ReadComicOnlineParser.tryFetchChapter(url);
+        }
+        return html;
+    }
+
+    static async tryFetchChapter(url) {
+        let response = await fetch(url, HttpClient.makeOptions());
+        if (response.ok) {
+            if (url !== response.url) {
+                await ReadComicOnlineParser.doCaptchaRequest(response.url);
+                return null;
+            }
+            let text = await response.text();
+            let html =  new DOMParser().parseFromString(text, "text/html");
+            util.setBaseTag(response.url, html);
+            return html;
+        }
+        if (response.status === 503) {
+            await ReadComicOnlineParser.do503Text(url);
+            return null;
+        }
+    }
+
+    static async doCaptchaRequest(url) {
+        await util.createChapterTab(url);
+        let errorText = "Site is probably trying to get you to complete a CAPTCHA.\n" +
+            " WebToEpub has tried to open a tab to url " + url + "\n" +
+            " If tab has not opened, you'll need to open it.\n" +
+            " Once open, complete the CAPTCHA, close tab and click the \"Retry\" button above.";
+        return ReadComicOnlineParser.promptUserForRetry(errorText);
+    }
+
+    static async do503Text(url) {
+        await util.createChapterTab(url);
+        let errorText = "Site is probably trying to run javascript to avoid DDOS.\n" +
+            " WebToEpub has tried to open a tab to url " + url + "\n" +
+            " If tab has not opened, you'll need to open it.\n" +
+            " Once open, wait for comic book chapter to load. then close tab and click the \"Retry\" button above";
+        return ReadComicOnlineParser.promptUserForRetry(errorText);
+    }
+
+    static async promptUserForRetry(errorText) {
+        let msg = new Error(errorText);
+        let cancelLabel = FetchErrorHandler.getCancelButtonText();
+        return new Promise(function(resolve, reject) {
+            msg.retryAction = () => resolve(true);
+            msg.cancelAction = () => reject(false);
+            msg.cancelLabel = cancelLabel;
+            ErrorLog.showErrorMessage(msg);
+        });
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [dom.querySelector("div.barContent")];
     }
