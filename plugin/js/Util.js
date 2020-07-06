@@ -256,7 +256,7 @@ var util = (function () {
     }
 
     var removeUnwantedWordpressElements = function(element) {
-        let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption, div.wpulike";
+        let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption, div.wpulike, div.wp-next-post-navi";
         util.removeChildElementsMatchingCss(element, ccs);
     }
 
