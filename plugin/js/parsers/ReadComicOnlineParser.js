@@ -30,8 +30,20 @@ class ReadComicOnlineParser extends Parser{
     }
 
     async getChapterUrls(dom) {
+        if (this.isIssuePage(dom)) {
+            ReadComicOnlineParser.rawDom = dom;
+            return [{
+                sourceUrl:  dom.baseURI,
+                title: "Issue",
+                newArc: null
+            }];
+        }
         let toc = dom.querySelector("table.listing");
         return util.hyperlinksToChapterList(toc).reverse();
+    }
+
+    isIssuePage(dom) {
+        return dom.querySelector("select#selectPage") !== null;
     }
 
     findContent(dom) {
@@ -51,7 +63,8 @@ class ReadComicOnlineParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("a.bigChar").textContent;
+        let title = dom.querySelector("a.bigChar");
+        return title === null ? null : title.textContent;
     }
 
     findCoverImageUrl(dom) {
@@ -59,6 +72,9 @@ class ReadComicOnlineParser extends Parser{
     }
 
     async fetchChapter(url) {
+        if (ReadComicOnlineParser.rawDom != null) {
+            return ReadComicOnlineParser.rawDom;
+        }
         let html = null;
         while (html === null)  {
             html = await ReadComicOnlineParser.tryFetchChapter(url);
