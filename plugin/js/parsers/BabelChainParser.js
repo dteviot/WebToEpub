@@ -8,38 +8,34 @@ class BabelChainParser extends Parser{
         super();
     }
     
-    static getStateJson(dom) {
-        let json = [...dom.querySelectorAll("script")]
-            .map(s => s.textContent)
-            .filter(t => t.includes("window.__STATE__"))
-            .map(r => JSON.parse(decodeURIComponent(util.extactSubstring(r, "\"", "\""))));
-        return json[0]; 
-    }
-
-    getBookEntity(dom) {
-        let state = BabelChainParser.getStateJson(dom);
-        return state.bookDetailStore.bookEntity;
-    }
-
-    getChapterUrls(dom) {
-        let bookEntity = this.getBookEntity(dom);
-        return Promise.resolve(BabelChainParser.guessChapterList(bookEntity));
-    }
-
-    static guessChapterList(bookEntity) {
-        let list = [];
-        for(let i = 1; i <= bookEntity.chapterCount; ++i) {
-            let name = `c${i}`;
-            list.push({
-                sourceUrl: `https://babelnovel.com/books/${bookEntity.canonicalName}/chapters/${name}`,
-                title: name
-            });
+    async getChapterUrls(dom) {
+        let chaptersPerTocPage = 100;
+        let bookId = new URL(dom.querySelector("link[rel='chapters'").href).pathname.split("/")[3];
+        let chapterUrlBase = dom.querySelector("link[rel='canonical'").href + "/chapters/";
+        let numChapters = [...dom.querySelectorAll("div.PC_item-tag-box___3zJQx")]
+            .map(d => d.textContent)
+            .filter(c => c.includes("Chapters"))
+            .map(c => parseInt(c))[0];
+        let numTocPages = Math.ceil(numChapters / chaptersPerTocPage);
+        let chapters = [];
+        for (let page = 0; page < numTocPages; ++page) {
+            let restUrl = `https://babelnovel.com/api/books/${bookId}/chapters?bookId=${bookId}&pageSize=${chaptersPerTocPage}&page=${page}&fields=id,name,canonicalName`;
+            let json = (await HttpClient.fetchJson(restUrl)).json;
+            chapters = chapters.concat(BabelChainParser.jsonToChapters(json, chapterUrlBase));
         }
-        return list;
+        return chapters;
+    }
+
+    static jsonToChapters(json, chapterUrlBase) {
+        return json.data.map(e => ({
+            sourceUrl: chapterUrlBase + e.canonicalName,
+            title: e.name,
+            newArc: null
+        }));
     }
 
     extractTitleImpl(dom) {
-        return this.getBookEntity(dom).name || null;
+        return dom.querySelector("h1");
     }
 
     findContent(dom) {
@@ -47,23 +43,11 @@ class BabelChainParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return this.getBookEntity(dom).cover || null;
+        return util.getFirstImgSrc(dom, "div.Image_image-wrapper___30T8h.PC_cover___u9Mov");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        let synopsis = [];
-        let entity = this.getBookEntity(dom);
-        this.addTextToSynopsis(synopsis, entity.subTitle);
-        this.addTextToSynopsis(synopsis, entity.synopsis);
-        return synopsis;
-    }
-
-    addTextToSynopsis(synopsis, text) {
-        if (text) {
-            let p = document.createElement("p");
-            p.textContent = text;
-            synopsis.push(p);
-        }
+        return [...dom.querySelectorAll("div.PC_synopsis-section___2GSXe")];
     }
 
     // rate limit site
