@@ -70,6 +70,18 @@ class NovelsplParser extends Parser{
         return dom.querySelector("h4[itemprop='name>']");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        for(let p of [...element.querySelectorAll("p")]) {
+            let c = p.textContent;
+            if ((c === "This chapter is updated by Novels.pl") || 
+                (c === "Liked it? Take a second to support Novels on Patreon!")) {
+                p.remove();
+            }
+        }
+        util.removeChildElementsMatchingCss(element, "ul.pager");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.imageCover");
     }
