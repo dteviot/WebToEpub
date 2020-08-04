@@ -38,12 +38,37 @@ class ReadComicOnlineParser extends Parser{
                 newArc: null
             }];
         }
-        let toc = dom.querySelector("table.listing");
-        return util.hyperlinksToChapterList(toc).reverse();
+        if (this.isComicTocPage(dom)) {
+            return this.getChapterListFromComicTocPage(dom);
+        }
+        return this.fetchMultipleTocPages(dom);
     }
 
     isIssuePage(dom) {
         return dom.querySelector("select#selectPage") !== null;
+    }
+
+    isComicTocPage(dom) {
+        let path = new URL(dom.baseURI).pathname.split("/");
+        return path[1].toLowerCase() === "comic";
+    }
+    
+    getChapterListFromComicTocPage(dom) {
+        let toc = dom.querySelector("table.listing");
+        return util.hyperlinksToChapterList(toc).reverse();
+    }
+
+    async fetchMultipleTocPages(dom) {
+        let chapters = [];
+        let toclinks = [...dom.querySelectorAll("table.listing a")]
+            .filter(l => new URL(l.href).search === "");
+        for(let link of toclinks) {
+            let html = await this.fetchChapter(link.href);
+            let subList = this.getChapterListFromComicTocPage(html);
+            subList[0].newArc = link.textContent.trim();
+            chapters = chapters.concat(subList);
+        }
+        return chapters;
     }
 
     findContent(dom) {
