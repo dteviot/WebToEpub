@@ -24,9 +24,28 @@ parserFactory.registerManualSelect(
     function() { return new BlogspotParser() }
 );
 
-class BlogspotParser extends Parser {
+class BlogspotParserImageCollector extends ImageCollector {
     constructor() {
         super();
+    }
+
+    extractWrappingUrl(element) {
+        let url = super.extractWrappingUrl(element);
+        return this.convertToUrlOfOriginalSizeImage(url);
+    }
+
+    convertToUrlOfOriginalSizeImage(originalUrl) {
+        let url = new URL(originalUrl);
+        let path = url.pathname.split("/");
+        path[path.length - 2] = "s0";
+        url.pathname = path.join("/");
+        return url.href;
+    }
+}
+
+class BlogspotParser extends Parser {
+    constructor() {
+        super(new BlogspotParserImageCollector());
     }
 
     getChapterUrls(dom) {
