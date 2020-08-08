@@ -48,16 +48,16 @@ class BlogspotParser extends Parser {
         super(new BlogspotParserImageCollector());
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let menu = this.findContent(dom);
         let chapters = util.hyperlinksToChapterList(menu);
         if (0 < chapters.length) {
-            return Promise.resolve(chapters);
+            return chapters;
         }
         // try "Blog Archive" links
         chapters = [...dom.querySelectorAll("ul.posts a")]
             .map(link => util.hyperLinkToChapter(link));
-        return Promise.resolve(chapters.reverse());
+        return chapters.reverse();
     }
 
     static findContentElement(dom) {
@@ -81,5 +81,10 @@ class BlogspotParser extends Parser {
     findParentNodeOfChapterLinkToRemoveAt(link) {
         let toRemove = util.moveIfParent(link, "span");
         return util.moveIfParent(toRemove, "div");
+    }
+
+    findCoverImageUrl(dom) {
+        let url = super.findCoverImageUrl(dom);
+        return this.imageCollector.convertToUrlOfOriginalSizeImage(url);
     }
 }
