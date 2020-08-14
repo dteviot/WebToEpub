@@ -3,7 +3,8 @@
 */
 "use strict";
 
-parserFactory.register("www.wuxiaworld.co", function() { return new WuxiaworldCoParser() });
+parserFactory.register("wuxiaworld.co", function() { return new WuxiaworldCoParser() });
+parserFactory.register("m.wuxiaworld.co", () => new WuxiaworldCoParser());
 
 class WuxiaworldCoParser extends Parser{
     constructor() {
