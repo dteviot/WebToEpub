@@ -9,6 +9,8 @@ parserFactory.register("novelonlinefull.com", function() { return new NovelOnlin
 parserFactory.register("wuxiaworld.online", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("chinesewuxia.world", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("bestlightnovel.com", function() { return new NovelOnlineFreeParser() });
+parserFactory.register("wuxia-world.online", function() { return new NovelOnlineFreeParser() });
+parserFactory.register("wuxiaworld.live", function() { return new NovelOnlineFreeParser() });
 
 class NovelOnlineFreeParser extends Parser{
     constructor() {
