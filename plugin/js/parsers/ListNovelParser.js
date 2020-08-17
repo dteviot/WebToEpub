@@ -3,6 +3,7 @@
 parserFactory.register("listnovel.com", () => new ListNovelParser());
 parserFactory.register("readwebnovel.xyz", () => new ListNovelParser());
 parserFactory.register("wuxiaworld.site", () => new ListNovelParser());
+parserFactory.register("pery.info", () => new ListNovelParser());
 
 class ListNovelParser extends WordpressBaseParser{
     constructor() {
@@ -10,7 +11,7 @@ class ListNovelParser extends WordpressBaseParser{
     }
 
     getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("li.wp-manga-chapter a")]
+        let chapters = [...dom.querySelectorAll("li.wp-manga-chapter a:not([title])")]
             .map(a => util.hyperLinkToChapter(a));
         return Promise.resolve(chapters.reverse());
     }
