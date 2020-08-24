@@ -226,7 +226,8 @@ class ImageCollector {
 
     findImagesUsedInDocument(content) {
         for(let imageElement of content.querySelectorAll("img")) {
-            let src = this.fixLazyLoadImageSource(imageElement);
+            this.fixLazyLoadImageSource(imageElement);
+            let src = this.findHighestResImage(imageElement);
             let wrappingElement = this.findImageWrappingElement(imageElement);
             let wrappingUrl = this.extractWrappingUrl(wrappingElement);
             let existing = this.imageInfoByUrl(wrappingUrl);
@@ -239,7 +240,42 @@ class ImageCollector {
         };
     }
 
+    findHighestResImage(img) {
+        let srcset = img.getAttribute("srcset");
+        if (srcset != null) {
+            let src = this.findHighestResInSrcset(srcset);
+            if (src != null) {
+                img.src = this.findHighestResInSrcset(srcset);
+            }
+        }
+        return img.src;
+    }
+
+    findHighestResInSrcset(srcset) {
+        let max = -1;
+        let url = null;
+        let pairs = srcset.split(",")
+            .map(o => o.trim().split(" "))
+            .filter(o => (o.length == 2) && o[0].startsWith("http"));
+        for(let pair of pairs) {
+            let size = parseInt(pair[1]);
+            if (max < size) {
+                max = size;
+                url = pair[0];
+            }
+        }
+        return url;
+    }
+
     fixLazyLoadImageSource(img) {
+        for(let attrib of ["data-lazy-srcset", "data-srcset"]) {
+            let lazySrcset = img.getAttribute(attrib);
+            if (lazySrcset != null) {
+                img.setAttribute("srcset", lazySrcset);
+                break;
+            }
+        }
+
         let lazySrc = img.getAttribute("data-lazy-src");
         if (lazySrc != null) {
             img.src = lazySrc;

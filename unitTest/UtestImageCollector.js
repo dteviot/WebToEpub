@@ -280,3 +280,30 @@ QUnit.test("urlHasFragment", function (assert) {
     assert.ok(ImageCollector.urlHasFragment("http://dummy.com/uploads/img004b.jpg?h=20#content"));
     assert.notOk(ImageCollector.urlHasFragment("http://dummy.com/uploads/img004b.jpg?h=20"));
 });
+
+QUnit.test("findHighestResInSrcset", function (assert) {
+    let srcset = "\"https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=736%2C1024&amp;ssl=1 736w, " + 
+    "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=216%2C300&amp;ssl=1 216w, "+
+    "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?w=1839&amp;ssl=1 1839w,\""+
+    "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=768%2C1069&amp;ssl=1 768w, "+
+    "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=300%2C418&amp;ssl=1 300w, "+
+    "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=850%2C1183&amp;ssl=1 850w";
+
+    let actual = new ImageCollector().findHighestResInSrcset(srcset);
+    assert.equal(actual, "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?w=1839&amp;ssl=1");
+});
+
+QUnit.test("findHighestResImage", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<img loading=\"lazy\" width=\"736\" height=\"1024\" "+
+        "src=\"https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=736%2C1024&#038;ssl=1\" "+
+        "alt class=\"wp-image-452 jetpack-lazy-image\" data-recalc-dims=\"1\" " + 
+        "srcset=\"https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=736%2C1024&amp;ssl=1 736w, https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=216%2C300&amp;ssl=1 216w, https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=768%2C1069&amp;ssl=1 768w, https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=300%2C418&amp;ssl=1 300w, https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=850%2C1183&amp;ssl=1 850w, https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?w=1839&amp;ssl=1 1839w\" "+
+        "data-lazy-sizes=\"(max-width: 736px) 100vw, 736px\" data-lazy-src=\"https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?resize=736%2C1024&amp;is-pending-load=1#038;ssl=1\" >",
+        "text/html"
+    );
+
+    let img = dom.querySelector("img");
+    let actual = new ImageCollector().findHighestResImage(img);
+    assert.equal(actual, "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?w=1839&ssl=1");
+});
