@@ -1,10 +1,8 @@
-/*
-  parser for http://www.wuxiaworld.co
-*/
 "use strict";
 
 parserFactory.register("wuxiaworld.co", function() { return new WuxiaworldCoParser() });
 parserFactory.register("m.wuxiaworld.co", () => new WuxiaworldCoParser());
+parserFactory.register("novelupdates.cc", () => new WuxiaworldCoParser());
 
 class WuxiaworldCoParser extends Parser{
     constructor() {
