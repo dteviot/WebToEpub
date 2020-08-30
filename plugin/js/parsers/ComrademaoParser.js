@@ -7,9 +7,9 @@ class ComrademaoParser extends Parser{
         super();
     }
 
-    disabled() {
-        return chrome.i18n.getMessage("warningParserDisabledComradeMao");
-    }
+    //disabled() {
+    //    return chrome.i18n.getMessage("warningParserDisabledComradeMao");
+    //}
 
     // This site can't handle more than 1 page at a time
     clampSimultanousFetchSize() {
@@ -67,7 +67,7 @@ class ComrademaoParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.entry-content");
+        return dom.querySelector(".site-main article");
     };
 
     extractTitleImpl(dom) {
@@ -105,7 +105,7 @@ class ComrademaoParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.page-title-product_2");
+        return util.getFirstImgSrc(dom, "#thumbnail");
     }
 
     getInformationEpubItemChildNodes(dom) {
