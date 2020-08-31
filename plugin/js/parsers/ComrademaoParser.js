@@ -21,17 +21,6 @@ class ComrademaoParser extends Parser{
         document.getElementById("removeOriginalRow").hidden = false; 
     }
 
-    customRawDomToContentStep(chapter, content) {
-        for(let s of content.querySelectorAll("div.collapse")) {
-            if (this.userPreferences.removeOriginal.value) {
-                s.remove();
-            } else {
-                let p = s.querySelector("p");
-                s.replaceWith(p);
-            }
-        } 
-    }
-
     getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             ComrademaoParser.extractPartialChapterList,
@@ -67,16 +56,11 @@ class ComrademaoParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.entry-content");
+        return dom.querySelector(".site-main article");
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.page-title-product_2 div.wrap-content h4");
-    };
-
-    extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.author");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+        return dom.querySelector(".entry-title");
     };
 
     removeUnwantedElementsFromContentElement(element) {
@@ -84,31 +68,11 @@ class ComrademaoParser extends Parser{
         super.removeUnwantedElementsFromContentElement(element);
     }
 
-    findChapterTitle(dom) {
-        return this.makeChapterTitleTextFromUrl(dom.baseURI)
-    }
-
-    makeChapterTitleTextFromUrl(url) {
-        let leaf = url
-            .split("/")
-            .filter(s => !util.isNullOrEmpty(s))
-            .reverse()[0];
-        let words = leaf
-            .split("-")
-            .map(this.capitalizeWord)
-            .join(" ");
-        return words;
-    }
-
-    capitalizeWord(word) {
-        return word.toUpperCase()[0] + word.substring(1);
-    }
-
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.page-title-product_2");
+        return util.getFirstImgSrc(dom, "#thumbnail");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.page-title-product_2 div.wrap-content, div.info-single-product")];
+        return [...dom.querySelectorAll("#Description")];
     }
 }

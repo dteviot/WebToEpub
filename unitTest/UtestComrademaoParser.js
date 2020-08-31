@@ -27,47 +27,6 @@ test("extractTitleImpl", function (assert) {
     assert.equal(actual.textContent, "The Legend of Futian");
 });
 
-test("extractAuthor", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let parser = new ComrademaoParser();
-    let actual = parser.extractAuthor(dom);
-    assert.equal(actual.trim(), "Jing Wu Hen & 净无痕");
-});
-
-test("customRawDomToContentStep_removeOriginal", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoChapterSample, "text/html");
-    let parser = new ComrademaoParser();
-    parser.userPreferences = { removeOriginal: { value: true} };
-    let content = parser.findContent(dom);
-    parser.customRawDomToContentStep(null, content);
-    let paragraphs = [...content.querySelectorAll("p")];
-    assert.equal(paragraphs.length, 2);
-});
-
-test("customRawDomToContentStep_keepOriginal", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoChapterSample, "text/html");
-    let parser = new ComrademaoParser();
-    parser.userPreferences = { removeOriginal: { value: false} };
-    let content = parser.findContent(dom);
-    parser.customRawDomToContentStep(null, content);
-    let paragraphs = [...content.querySelectorAll("p")];
-    assert.equal(paragraphs.length, 4);
-});
-
-test("getInformationEpubItemChildNodes", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoToCSample, "text/html");
-    let parser = new ComrademaoParser();
-    let nodes = parser.getInformationEpubItemChildNodes(dom);
-    assert.equal(nodes.length, 1);
-});
-
-test("findChapterTitle", function (assert) {
-    let dom = new DOMParser().parseFromString(ComrademaoChapterSample, "text/html");
-    let parser = new ComrademaoParser();
-    let title = parser.findChapterTitle(dom);
-    assert.equal(title, "Shoujo Grand Summoning Chapter 1994");
-});
-
 let ComrademaoToCSample =
 `<!DOCTYPE html>
 <html lang="en">
@@ -78,7 +37,7 @@ let ComrademaoToCSample =
 </head>
 <body>
     <div class="page-title-product_2">
-        <div class="wrap-content"><div class="author" style=""> <img src="https://comrademao.com/wp-content/themes/book-junky/assets/images/author.png" alt=""> Jing Wu Hen &amp; 净无痕</div><h4 style="">The Legend of Futian</h4><div><div class="woocommerce"><div class="woocommerce-product-rating"> <span class="star-rating  bj-color-#7151ed"> <span style="width:0%"></span> </span><span class="bj-rating-counts" style="color:#7151ed;">0 Ratings</span></div></div></div><p style="">In a time when the Divine Prefectures of the East Sea were in great disarray, Emperor Ye Qing and Donghuang the Great appeared to save the day. Under their rule, the prefectures united and all nations as well as their kings have been controlled. However, the legend of these two great heroes becomes altered when Emperor Ye Qing’s name is wiped from the history books after his sudden death. All statues and images of him were destroyed and his name a taboo. Only the legend of Donghuang the Great shall live on. Fifteen years later, a young man by the name of Ye Futian begins his journey in search for his true identity. The legend of Futian was going to be one for the history books.</p></div>
+        <div class="wrap-content"><div class="author" style=""> <img src="https://comrademao.com/wp-content/themes/book-junky/assets/images/author.png" alt=""> Jing Wu Hen &amp; 净无痕</div><h4 class="entry-title" style="">The Legend of Futian</h4><div><div class="woocommerce"><div class="woocommerce-product-rating"> <span class="star-rating  bj-color-#7151ed"> <span style="width:0%"></span> </span><span class="bj-rating-counts" style="color:#7151ed;">0 Ratings</span></div></div></div><p style="">In a time when the Divine Prefectures of the East Sea were in great disarray, Emperor Ye Qing and Donghuang the Great appeared to save the day. Under their rule, the prefectures united and all nations as well as their kings have been controlled. However, the legend of these two great heroes becomes altered when Emperor Ye Qing’s name is wiped from the history books after his sudden death. All statues and images of him were destroyed and his name a taboo. Only the legend of Donghuang the Great shall live on. Fifteen years later, a young man by the name of Ye Futian begins his journey in search for his true identity. The legend of Futian was going to be one for the history books.</p></div>
     </div>
     <input type="hidden" id="wdtNonceFrontendEdit" name="wdtNonceFrontendEdit" value="5b5e209fcb">
     <table id="table_1" class="responsive display nowrap data-t data-t wpDataTable dataTable no-footer" style="" data-described-by="table_1_desc" data-wpdatatable_id="3" role="grid">
