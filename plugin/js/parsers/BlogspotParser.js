@@ -85,6 +85,8 @@ class BlogspotParser extends Parser {
 
     findCoverImageUrl(dom) {
         let url = super.findCoverImageUrl(dom);
-        return this.imageCollector.convertToUrlOfOriginalSizeImage(url);
+        return url != null
+            ? this.imageCollector.convertToUrlOfOriginalSizeImage(url)
+            : null;
     }
 }
