@@ -12,10 +12,14 @@ class BabelChainParser extends Parser{
         let chaptersPerTocPage = 100;
         let bookId = new URL(dom.querySelector("link[rel='chapters'").href).pathname.split("/")[3];
         let chapterUrlBase = dom.querySelector("link[rel='canonical'").href + "/chapters/";
-        let numChapters = [...dom.querySelectorAll("div.PC_item-tag-box___3zJQx")]
-            .map(d => d.textContent)
-            .filter(c => c.includes("Chapters"))
-            .map(c => parseInt(c))[0];
+
+        let lastChapterLink = dom.querySelector("a[data-bca-position='latest']");
+        let numChapters = chaptersPerTocPage;
+        if (lastChapterLink != null) {
+            let lastChapter = new URL(lastChapterLink.href).pathname.split("/").pop();
+            numChapters = parseInt(lastChapter.substring(1));
+        }
+
         let numTocPages = Math.ceil(numChapters / chaptersPerTocPage);
         let chapters = [];
         for (let page = 0; page < numTocPages; ++page) {
@@ -43,11 +47,11 @@ class BabelChainParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.Image_image-wrapper___30T8h.PC_cover___u9Mov");
+        return util.getFirstImgSrc(dom, "div.style_cover__39J7K");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.PC_synopsis-section___2GSXe")];
+        return [...dom.querySelectorAll("div.style_synopsis__2XLCw")];
     }
 
     // rate limit site
