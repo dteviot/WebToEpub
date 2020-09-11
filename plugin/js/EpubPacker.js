@@ -161,7 +161,7 @@ class EpubPacker {
     
     buildManifest(opf, ns, epubItemSupplier) {
         let that = this;
-        var manifest = that.createAndAppendChildNS(opf.documentElement, ns, "manifest");
+        let manifest = that.createAndAppendChildNS(opf.documentElement, ns, "manifest");
         for(let i of epubItemSupplier.manifestItems()) {
             let item = that.addManifestItem(manifest, ns, i.getZipHref(), i.getId(), i.getMediaType());
             this.setSvgPropertyForManifestItem(item, i.hasSvg());
@@ -301,7 +301,7 @@ class EpubPacker {
     }
 
     removeEmptyNavLists(rootParent) {
-        for(var list of rootParent.querySelectorAll("ol")) {
+        for (let list of rootParent.querySelectorAll("ol")) {
             if (list.childElementCount === 0) {
                 list.remove();
             }
@@ -314,7 +314,7 @@ class EpubPacker {
         let parents = new NavPointParentElementsStack(navMap);
         let playOrder = 0;
         let id = 0;
-        var lastChapterSrc = null;
+        let lastChapterSrc = null;
         for(let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
             if(lastChapterSrc !== chapterInfo.src){

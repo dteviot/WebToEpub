@@ -134,7 +134,7 @@ class ReadingList {
 
     onClickRemove(evt) {
         if (evt.target.tagName === "BUTTON") {
-            var row = evt.target.parentElement.parentElement;
+            let row = evt.target.parentElement.parentElement;
             this.deleteEpub(row.querySelector("a").href);
             this.showReadingList(evt.currentTarget);
             this.writeToLocalStorage();

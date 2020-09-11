@@ -16,8 +16,8 @@ class ReadNovelFullParser extends Parser{
     };
 
     static fetchChapterList(dom) {
-        var novelId = dom.querySelector("div#rating").getAttribute("data-novel-id");
-        var url = `https://readnovelfull.com/ajax/chapter-archive?novelId=${novelId}`;
+        let novelId = dom.querySelector("div#rating").getAttribute("data-novel-id");
+        let url = `https://readnovelfull.com/ajax/chapter-archive?novelId=${novelId}`;
         return HttpClient.wrapFetch(url).then(function (xhr) {
             return ReadNovelFullParser.extractChapterList(xhr.responseXML);
         });

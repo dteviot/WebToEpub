@@ -127,7 +127,7 @@ class ChapterUrlsUI {
     }
 
     static selectionToRowIndex(selectElement) {
-        var selectedIndex = selectElement.selectedIndex;
+        let selectedIndex = selectElement.selectedIndex;
         return selectedIndex + 1;
     }
 
@@ -243,7 +243,7 @@ class ChapterUrlsUI {
     }
 
     static appendOptionToSelect(select, value, chapter, memberForTextOption) {
-        var option = new Option(chapter[memberForTextOption], value);
+        let option = new Option(chapter[memberForTextOption], value);
         select.add(option);
     }
 
@@ -333,10 +333,10 @@ class ChapterUrlsUI {
         
         select.onchange = null;
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
-        for(var o of [...select.querySelectorAll("Option")]) {
+        for (let o of [...select.querySelectorAll("Option")]) {
             o.text = chapters[o.index][memberForTextOption];
         }
-        var selectedIndex = select.selectedIndex;
+        let selectedIndex = select.selectedIndex;
         select.selectedIndex = selectedIndex;
         select.onchange = ChapterUrlsUI.onRangeChanged;
     }

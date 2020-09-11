@@ -8,7 +8,7 @@ class Imgur {
     }
 
     static expandGalleries(content, parentPageUrl) {
-        var sequence = Promise.resolve();
+        let sequence = Promise.resolve();
         for(let link of Imgur.getGalleryLinksToReplace(content)) {
             sequence = sequence.then(function () {
                 let href = Imgur.fixupImgurGalleryUrl(link.href);

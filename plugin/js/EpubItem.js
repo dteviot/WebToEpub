@@ -252,7 +252,7 @@ class ImageInfo extends EpubItem {
     getImageName(page) {
         let that = this;
         if(page){
-            var name = that.extractImageFileNameFromUrl(page);
+            let name = that.extractImageFileNameFromUrl(page);
             if(name){
                 return name.split(/\./gi)[0];
             }
@@ -284,7 +284,7 @@ class ImageInfo extends EpubItem {
         let body = doc.getElementsByTagName("body")[0];
         let wrapper = doc.createElementNS(util.XMLNS, wrappingTag);
         body.appendChild(wrapper);
-        var img = document.createElementNS(util.XMLNS,"img");
+        let img = document.createElementNS(util.XMLNS,"img");
         if (wrappingTag === "span") {
             img.className = "inline";
         }

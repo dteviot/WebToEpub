@@ -13,9 +13,9 @@ class IsekaiScanParser extends Parser{
     }
 
     findContent(dom) {
-        var content = dom.querySelector("div.reading-content");
+        let content = dom.querySelector("div.reading-content");
         for(let i of content.querySelectorAll("img")) {
-            var data_src = i.getAttribute("data-src");
+            let data_src = i.getAttribute("data-src");
             if (!util.isNullOrEmpty(data_src)) {
                 i.src = data_src;
             }

@@ -418,7 +418,7 @@ class Parser {
         let fetchFunc = (webPage) => this.fetchWebPageContent(webPage);
 
         return parserFactory.addParsersToPages(this, pagesToFetch).then(function () {
-            var sequence = Promise.resolve();
+            let sequence = Promise.resolve();
             let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
             simultanousFetchSize = that.clampSimultanousFetchSize(simultanousFetchSize);
             for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {

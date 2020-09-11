@@ -26,7 +26,7 @@ class EightMusesParser extends Parser{
 
     findContent(dom) {
         let content = dom.querySelector("div#content");
-//        this.removeOldPages(content);
+        // this.removeOldPages(content);
         for(let i of content.querySelectorAll("img")) {
             if (i.src === "") {
                 i.src = i.getAttribute("data-src");

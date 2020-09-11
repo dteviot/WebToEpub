@@ -94,9 +94,16 @@ For details on how to extend, see the following
 5. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
 6. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
 7. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-8. Open Firefox and type "about:debugging" into the URL bar.
+8. Open Firefox and type "about:addons" into the URL bar.
 9. Click "Load Temporary Add-on".
-10. Open the "plugin" directory from step 3 and select manifest.json.
+10. Select "Extensions"
+11. Click the icon that looks like a gear that is on the right of "Manage Your Extensions"
+12. Click "Debug Add-ons"
+13. Click "Load Temporary Add-on"
+14. Select "manifest.json" from the directory in step 4
+
+
+Open the "plugin" directory from step 3 and select manifest.json.
 
 ## License information
 Licenced under GPLv3.

@@ -34,7 +34,7 @@ class MachineTranslationParser extends Parser{
         if (bookimg.querySelector("img")) {
             return util.getFirstImgSrc(dom, "div.book-img");
         }
-        var img = bookimg.style.backgroundImage;
+        let img = bookimg.style.backgroundImage;
         return (img != null)
             ? util.extractUrlFromBackgroundImage(img)
             : null;

@@ -42,7 +42,7 @@ class DarkNovelsParser extends Parser{
             .split("/")
             .filter(p => p !== null)
             .reverse();
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("b", pathName[1]);
         formData.append("f", "html");
         formData.append("c", pathName[0]);

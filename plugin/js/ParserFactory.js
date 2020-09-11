@@ -25,7 +25,7 @@ class ParserFactory{
     }
 
     static stripWebArchive(url) {
-        var hostName = url.split("://");
+        let hostName = url.split("://");
         return hostName[2] ? "https://" + hostName[2] : url; 
     }
 
@@ -147,7 +147,7 @@ class ParserFactory{
             pages.push(page);
         }
 
-        var sequence = Promise.resolve();
+        let sequence = Promise.resolve();
         for(let pair of pagesByHost) {
             sequence = sequence.then(
                 () => this.assignParserToPages(pair[0], pair[1], initialParser)

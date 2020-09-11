@@ -8,10 +8,10 @@ class StocxParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        var scripts = StocxParser.findScriptElementWithChapterInfo(dom);
-        var chapters = [];
+        let scripts = StocxParser.findScriptElementWithChapterInfo(dom);
+        let chapters = [];
         if (0 < scripts.length) {
-            var chapInfo = StocxParser.extractChapterGenInfo(scripts[0]);
+            let chapInfo = StocxParser.extractChapterGenInfo(scripts[0]);
             for(let i = 1; i <= chapInfo.maxPage; ++i) {
                 chapters.push({
                     sourceUrl: `https://www.sto.cx/book-${chapInfo.bookId}-${i}.html`,
@@ -29,8 +29,8 @@ class StocxParser extends Parser{
     }
 
     static extractChapterGenInfo(script) {
-        var index = script.indexOf(StocxParser.chapterGenTag);
-        var split = script.substring(index).split(",");
+        let index = script.indexOf(StocxParser.chapterGenTag);
+        let split = script.substring(index).split(",");
         return {
             bookId: parseInt(split[1]),
             maxPage: parseInt(split[2]),
@@ -46,7 +46,7 @@ class StocxParser extends Parser{
     };
 
     customRawDomToContentStep(chapter, content) {
-        var fix = StocxParser.getTextNodesToFixUp(content);
+        let fix = StocxParser.getTextNodesToFixUp(content);
         for(let node of fix) {
             node.nodeValue = StocxParser.fixMangledText(node.nodeValue);
         }
@@ -72,7 +72,7 @@ class StocxParser extends Parser{
                 bytes.push(StocxParser.decodeByte(text, i));
                 i += 3
             } else {
-                var utf = StocxParser.getUtf8encoder().encode(text[i]);
+                let utf = StocxParser.getUtf8encoder().encode(text[i]);
                 for(let u of utf) {
                     bytes.push(u);
                 }

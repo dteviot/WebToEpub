@@ -138,7 +138,7 @@ var main = (function () {
             // Enable button here.  If user cancels save dialog
             // the promise never returns
             main.getPackEpubButton().disabled = false;
-            var overwriteExisting = userPreferences.overwriteExistingEpub.value;
+            let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             return Download.save(content, fileName, overwriteExisting);
         }).then(function () {
             parser.updateReadingList();
