@@ -60,7 +60,7 @@ class LightNovelWorldParser extends Parser{
             let maxPage = LightNovelWorldParser.maxPageId(paginateUrls);
             let url = new URL(paginateUrls.pop().href);
             for(let i = 2; i <= maxPage; ++i) {
-                url.searchParams.set("pageNo", i);
+                url.searchParams.set("page", i);
                 urls.push(url.href);
             }
         }
@@ -70,7 +70,7 @@ class LightNovelWorldParser extends Parser{
     // last URL isn't always last ToC page
     static maxPageId(urls) {
         let pageNum = function(url) {
-            let pageNo = new URL(url).searchParams.get("pageNo");
+            let pageNo = new URL(url).searchParams.get("page");
             return parseInt(pageNo);
         }
         return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
