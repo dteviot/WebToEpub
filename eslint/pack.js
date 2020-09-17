@@ -172,6 +172,8 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
     }).then(function () {
         return addImageFileToZip(zip, "ChapterStateNone.svg");
     }).then(function () {
+        return addBinaryFileToZip(zip, "../plugin/css/default.css", "css/default.css");
+    }).then(function () {
         return getFileList("../plugin/popup.html");
     }).then(function(fileList) {
         return getLocaleFilesNames().then(function(localeNames) {

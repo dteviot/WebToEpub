@@ -3,179 +3,137 @@
 <head>
     <meta charset="utf-8">
     <title>WebToEpub</title>
+    <link href="css/default.css" rel="stylesheet" type="text/css" />
     <base />
-    <style>
-        .expandedButton {
-            padding: 5px 10px;
-        }
-
-        .warning {
-            color: #ff0000;
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .scrollingtable {
-            overflow: scroll;
-            height: 300px;
-        }
-
-        table.chapterList {
-            width: 100%;
-        }
-
-        textarea.allSpace {
-            width:100%;
-            height:100%;
-            box-sizing:border-box;
-        }
-
-        section.minWidth {
-            min-width: 600px;
-        }
-
-        img.downloadState {
-            height: 1em;
-        }
-        
-        .withBorder {
-            border: 1px solid black;
-        }
-
-        .withMargin {
-            margin-left: 5px;
-        }
-
-        td.disabled {
-            opacity: 0.5;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #121212; 
-                color: #eee; 
-            }
-        }
-    </style>
 </head>
 <body>
-    <section id="readingListSection" hidden>
-        <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
-        <table id="readingListTable">
-        </table>
-    </section>
-    <section id="errorSection" class="minWidth" hidden>
-        <table id="errorSectionTable">
-            <tr>
-                <td>
-                    <button class="expandedButton" id="errorButtonOk">__MSG_button_error_OK__</button>
-                    <button class="expandedButton" id="errorButtonRetry">__MSG_button_error_Retry__</button>
-                    <button class="expandedButton" id="errorButtonCancel">__MSG_button_error_Cancel__</button>
-                </td>
-            </tr>
-            <tr id="errorMessageRow">
-                <td id="errorMessageText"><pre></pre></td>
-            </tr>
-        </table>
-    </section>
-    <section id="defaultParserSection" hidden>
-        <p class="i18n">__MSG_label_Using_Default_Parser__</p>
-        <table>
-            <tr>
-                <td>__MSG_label_Default_Parser_HostName__</td>
-                <td>
-                    <input id="defaultParserHostName" type="text" name="defaultParserHostNameInput" size="30" value="" />
-                </td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
-                <td>
-                    <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
-                </td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Default_Parser_Content_CSS__</td>
-                <td>
-                    <input id="defaultParserContentCss" type="text" name="defaultParserContentCssInput" size="30" value="" />
-                </td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Default_Parser_Chapter_Title_CSS__</td>
-                <td>
-                    <input id="defaultParserChapterTitleCss" type="text" name="defaultParserChapterTitleCssInput" size="30" value="" />
-                </td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Default_Parser_Unwanted_Elements_CSS__</td>
-                <td>
-                    <input id="defaultParserUnwantedElementsCss" type="text" name="defaultParserUnwantedElementsCssInput" size="30" value="" />
-                </td>
-            </tr>
-        </table>
-        <button id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
-        <button id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
-        <button id="defaultParserHelpButton">__MSG_button_Help__</button>
-        <br />
-        <br />
-        <div class="withBorder"">
-            <div class="scrollingtable withMargin" id="defaultParserVewResult"></div>
-        </div>
-        <div id="defaultParserInstructions" hidden>
-            <h3>Instructions</h3>
-            <p>WebToEpub does not know what content on each web page (chapter) to put into the EPUB.</p> 
-            <p>Use this screen to tell WebToEpub which element on the web page has the wanted content.</p>
-            <p>Give a <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors">CSS Selector</a> for the wanted element.</p>
-            <p>After providing the CSS Selector, test it works by clicking the "Test" button. Which will make this box show you what will be packed into the first chapter of the EPUB.</p>
+
+    <div class="container">
+        <section id="readingListSection" hidden>
+            <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
+            <table id="readingListTable">
+            </table>
+        </section>
+        <section id="errorSection" class="minWidth" hidden>
+            <table id="errorSectionTable">
+                <tr>
+                    <td>
+                        <button class="expandedButton" id="errorButtonOk">__MSG_button_error_OK__</button>
+                        <button class="expandedButton" id="errorButtonRetry">__MSG_button_error_Retry__</button>
+                        <button class="expandedButton" id="errorButtonCancel">__MSG_button_error_Cancel__</button>
+                    </td>
+                </tr>
+                <tr id="errorMessageRow">
+                    <td id="errorMessageText"><pre></pre></td>
+                </tr>
+            </table>
+        </section>
+        <section id="defaultParserSection" hidden>
+            <p class="i18n">__MSG_label_Using_Default_Parser__</p>
+            <table>
+                <tr>
+                    <td>__MSG_label_Default_Parser_HostName__</td>
+                    <td>
+                        <input id="defaultParserHostName" type="text" name="defaultParserHostNameInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
+                    <td>
+                        <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Content_CSS__</td>
+                    <td>
+                        <input id="defaultParserContentCss" type="text" name="defaultParserContentCssInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Chapter_Title_CSS__</td>
+                    <td>
+                        <input id="defaultParserChapterTitleCss" type="text" name="defaultParserChapterTitleCssInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Unwanted_Elements_CSS__</td>
+                    <td>
+                        <input id="defaultParserUnwantedElementsCss" type="text" name="defaultParserUnwantedElementsCssInput" size="30" value="" />
+                    </td>
+                </tr>
+            </table>
+            <button id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
+            <button id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
+            <button id="defaultParserHelpButton">__MSG_button_Help__</button>
             <br />
-            <p class="warning"><strong>For more details, and a worked example, click the "Help" button above.</strong></p>
-        </div>
-    </section>
-    <section id="inputSection">
-        <table id="inputTable">
-            <tr>
-                <td>__MSG_label_Starting_URL__</td>
-                <td><input id="startingUrlInput" type="url" name="startingUrlInput" size="80" />
-                    <button id="loadAndAnalyseButton">__MSG_button_load_and_analyse__</button>
-                </td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Title__</td>
-                <td><input id="titleInput" type="text" name="titleInput" size="80" /></td>
-            </tr>
-            <tr id="seriesRow" hidden>
-                <td>__MSG_label_Series__</td>
-                <td><input id="seriesNameInput" type="text" name="titleInput" size="80" /></td>
-            </tr>
-            <tr id="volumeRow" hidden>
-                <td>__MSG_label_Volume__</td>
-                <td><input id="seriesIndexInput" type="text" name="titleInput" size="80" /></td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Author__</td>
-                <td><input id="authorInput" type="text" name="authorInput" size="80" /></td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Language__</td>
-                <td><input id="languageInput" type="text" name="languageInput" size="80" /></td>
-            </tr>
-            <tr>
-                <td>__MSG_label_Filename__</td>
-                <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
-            </tr>
-            <tr id="removeAuthorNotesRow" hidden>
-                <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
-                <td>__MSG_label_Remove_Author_Notes__</td>
-            </tr>
-            <tr id="removeOriginalRow" hidden>
-                <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
-                <td>__MSG_label_Remove_Original__</td>
-            </tr>
-        </table>
-        <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
-        <progress id="fetchProgress" value=" 0" max="1"></progress>
-        <span id="progressString"></span>
-        <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
-        <section hidden id="advancedOptionsSection">
+            <br />
+            <div class="withBorder">
+                <div class="scrollingtable withMargin" id="defaultParserVewResult"></div>
+            </div>
+            <div id="defaultParserInstructions" hidden>
+                <h3>Instructions</h3>
+                <p>WebToEpub does not know what content on each web page (chapter) to put into the EPUB.</p>
+                <p>Use this screen to tell WebToEpub which element on the web page has the wanted content.</p>
+                <p>Give a <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors">CSS Selector</a> for the wanted element.</p>
+                <p>After providing the CSS Selector, test it works by clicking the "Test" button. Which will make this box show you what will be packed into the first chapter of the EPUB.</p>
+                <br />
+                <p class="warning"><strong>For more details, and a worked example, click the "Help" button above.</strong></p>
+            </div>
+        </section>
+        <section id="inputSection">
+            <table id="inputTable">
+                <tr>
+                    <td>__MSG_label_Starting_URL__</td>
+                    <td>
+                        <input id="startingUrlInput" type="url" name="startingUrlInput" size="80" />
+                        <button id="loadAndAnalyseButton">__MSG_button_load_and_analyse__</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Title__</td>
+                    <td><input id="titleInput" type="text" name="titleInput" size="80" /></td>
+                </tr>
+                <tr id="seriesRow" hidden>
+                    <td>__MSG_label_Series__</td>
+                    <td><input id="seriesNameInput" type="text" name="titleInput" size="80" /></td>
+                </tr>
+                <tr id="volumeRow" hidden>
+                    <td>__MSG_label_Volume__</td>
+                    <td><input id="seriesIndexInput" type="text" name="titleInput" size="80" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Author__</td>
+                    <td><input id="authorInput" type="text" name="authorInput" size="80" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Language__</td>
+                    <td><input id="languageInput" type="text" name="languageInput" size="80" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Filename__</td>
+                    <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
+                </tr>
+                <tr id="removeAuthorNotesRow" hidden>
+                    <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
+                    <td>__MSG_label_Remove_Author_Notes__</td>
+                </tr>
+                <tr id="removeOriginalRow" hidden>
+                    <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
+                    <td>__MSG_label_Remove_Original__</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="progressSection">
+                            <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
+                            <progress id="fetchProgress" value=" 0" max="1"></progress>
+                            <span id="progressString"></span>
+                            <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+          
+            <section hidden id="advancedOptionsSection">
                 <table id="advancedOptionsTable">
                     <tr id="translatorRow" hidden>
                         <td>__MSG_label_Translator__</td>
@@ -301,76 +259,79 @@
                         <td><input id="readOptionsInput" type="file" name="readOptionsInput"></td>
                     </tr>
                 </table>
+            </section>
         </section>
-    </section>
-    <section id="testSection"></section>
-    <section hidden id="imageSection">
-        <table id="imageOptionsTable">
-            <tr id="duplicateImagesRow">
-                <td>__MSG_label_Remove_Duplicate_Images__</td>
-                <td><input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false"></td>
-            </tr>
-            <tr id="coverFromUrlRow">
-                <td>__MSG_label_Cover_from_URL__</td>
-                <td><input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false"></td>
-            </tr>
-        </table>
-        <div id="imagesTableDiv" class="scrollingtable">
-            <table id="imagesTable"></table>
-        </div>
-    </section>
-    <section id="coverUrlSection">
-        <table id="imageOptionsTable">
-            <tr id="CoverImageUrlRow">
-                <td>__MSG_label_Cover_Image_URL__</td>
-                <td><input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
-                    <button id="clearCoverImageUrlButton">__MSG_button_Clear_Url__</button>
-                </td>
-                <td>
-                    <img id="sampleCoverImg" style="max-height: 120px; width: auto; " />
-                </td>
-            </tr>
-        </table>
-    </section>
-    <section id="outputSection" class="minWidth">
-        <div id="chapterSelectControlsDiv">
-            <table id="rangeSelectTable">
-                <tr id="rangeStartChapterRow">
-                    <td>__MSG_label_Range_Start_Chapter__</td>
-                    <td><select id="selectRangeStartChapter" /></td>
-                    <td><input id="showChapterUrlsCheckbox" type="checkbox" name="showChapterUrlsCheckbox" value="false"></td>
-                    <td>__MSG_label_Show_Chapter_Urls__</td>
+        <section id="testSection"></section>
+        <section hidden id="imageSection">
+            <table id="imageOptionsTable">
+                <tr id="duplicateImagesRow">
+                    <td>__MSG_label_Remove_Duplicate_Images__</td>
+                    <td><input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false"></td>
                 </tr>
-                <tr id="rangeEndChapterRow">
-                    <td>__MSG_label_Range_End_Chapter__</td>
-                    <td><select id="selectRangeEndChapter" /></td>
+                <tr id="coverFromUrlRow">
+                    <td>__MSG_label_Cover_from_URL__</td>
+                    <td><input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false"></td>
                 </tr>
-                <tr id="rangeChapterCountRow">
-                    <td>__MSG_label_Chapter_Count__</td>
-                    <td><span id="spanChapterCount" />0</td>
+            </table>
+            <div id="imagesTableDiv" class="scrollingtable">
+                <table id="imagesTable"></table>
+            </div>
+        </section>
+        <section id="coverUrlSection">
+            <table id="imageOptionsTable">
+                <tr id="CoverImageUrlRow">
+                    <td>__MSG_label_Cover_Image_URL__</td>
+                    <td>
+                        <input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
+                        <button id="clearCoverImageUrlButton">__MSG_button_Clear_Url__</button>
+                    </td>
+                    <td>
+                        <img id="sampleCoverImg" style="max-height: 120px; width: auto; " />
+                    </td>
+                </tr>
+            </table>
+        </section>
+        <section id="outputSection" class="minWidth">
+            <div id="chapterSelectControlsDiv">
+                <table id="rangeSelectTable">
+                    <tr id="rangeStartChapterRow">
+                        <td>__MSG_label_Range_Start_Chapter__</td>
+                        <td><select id="selectRangeStartChapter" /></td>
+                        <td><input id="showChapterUrlsCheckbox" type="checkbox" name="showChapterUrlsCheckbox" value="false"></td>
+                        <td>__MSG_label_Show_Chapter_Urls__</td>
+                    </tr>
+                    <tr id="rangeEndChapterRow">
+                        <td>__MSG_label_Range_End_Chapter__</td>
+                        <td><select id="selectRangeEndChapter" /></td>
+                    </tr>
+                    <tr id="rangeChapterCountRow">
+                        <td>__MSG_label_Chapter_Count__</td>
+                        <td><span id="spanChapterCount" />0</td>
+                    </tr>
+                </table>
+                <div>
+                    <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
+                    <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
+                    <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
+                    <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
+                    <button id="copyUrlsToClipboardButton">__MSG_button_Copy_Urls_To_Clipboard__</button>
+                </div>
+            </div>
+            <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
+            <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
+            <table id="chapterUrlsTable" class="chapterlist">
+                <tr>
+                    <th align="left">__MSG_column_Include__</th>
+                    <th align="left">__MSG_column_Title__</th>
+                    <th align="left">__MSG_column_URL__</th>
                 </tr>
             </table>
             <div>
-                <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
-                <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
-                <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
-                <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
-                <button id="copyUrlsToClipboardButton">__MSG_button_Copy_Urls_To_Clipboard__</button>
+                <textarea id="editChaptersUrlsInput" hidden class="allSpace" rows="20"></textarea>
             </div>
-        </div>
-        <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
-        <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
-        <table id="chapterUrlsTable" class="chapterlist">
-            <tr>
-                <th align="left">__MSG_column_Include__</th>
-                <th align="left">__MSG_column_Title__</th>
-                <th align="left">__MSG_column_URL__</th>
-            </tr>
-        </table>
-        <div>
-            <textarea id="editChaptersUrlsInput" hidden class="allSpace" rows="20"></textarea>
-        </div>
-    </section>
+        </section>
+
+    </div>
     <!-- scripts go here -->
     <script src="js/ReadingList.js"></script>
     <script src="js/UserPreferences.js"></script>
