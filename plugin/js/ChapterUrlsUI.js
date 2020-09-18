@@ -38,6 +38,7 @@ class ChapterUrlsUI {
             ++index;
         });
         ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
+        this.showHideChapterUrlsColumn();
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
@@ -327,6 +328,15 @@ class ChapterUrlsUI {
         let chapters = [...this.parser.getPagesToFetch().values()];
         this.toggleShowUrlsForChapterRange(ChapterUrlsUI.getRangeStartChapterSelect(), chapters);
         this.toggleShowUrlsForChapterRange(ChapterUrlsUI.getRangeEndChapterSelect(), chapters);
+        this.showHideChapterUrlsColumn();
+    }
+    
+    showHideChapterUrlsColumn() {
+        let hidden = !document.getElementById("showChapterUrlsCheckbox").checked;
+        let table = ChapterUrlsUI.getChapterUrlsTable();
+        for(let t of table.querySelectorAll("th:nth-of-type(3), td:nth-of-type(3)")) {
+            t.hidden = hidden;
+        }
     }
 
     toggleShowUrlsForChapterRange(select, chapters) {
