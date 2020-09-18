@@ -140,4 +140,8 @@ button:active {
         background: #2b2b2b; 
         color: #eee; 
     }
+
+    button:hover {
+        color: #222222; 
+    }
 }
