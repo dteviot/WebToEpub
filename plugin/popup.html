@@ -85,33 +85,35 @@
                 <tr>
                     <td>__MSG_label_Starting_URL__</td>
                     <td>
-                        <input id="startingUrlInput" type="url" name="startingUrlInput" size="80" />
+                        <input id="startingUrlInput" type="url" name="startingUrlInput" />
+                    </td>
+                    <td>
                         <button id="loadAndAnalyseButton">__MSG_button_load_and_analyse__</button>
                     </td>
                 </tr>
                 <tr>
                     <td>__MSG_label_Title__</td>
-                    <td><input id="titleInput" type="text" name="titleInput" size="80" /></td>
+                    <td><input id="titleInput" type="text" name="titleInput" /></td>
                 </tr>
                 <tr id="seriesRow" hidden>
                     <td>__MSG_label_Series__</td>
-                    <td><input id="seriesNameInput" type="text" name="titleInput" size="80" /></td>
+                    <td><input id="seriesNameInput" type="text" name="titleInput" /></td>
                 </tr>
                 <tr id="volumeRow" hidden>
                     <td>__MSG_label_Volume__</td>
-                    <td><input id="seriesIndexInput" type="text" name="titleInput" size="80" /></td>
+                    <td><input id="seriesIndexInput" type="text" name="titleInput" /></td>
                 </tr>
                 <tr>
                     <td>__MSG_label_Author__</td>
-                    <td><input id="authorInput" type="text" name="authorInput" size="80" /></td>
+                    <td><input id="authorInput" type="text" name="authorInput" /></td>
                 </tr>
                 <tr>
                     <td>__MSG_label_Language__</td>
-                    <td><input id="languageInput" type="text" name="languageInput" size="80" /></td>
+                    <td><input id="languageInput" type="text" name="languageInput" /></td>
                 </tr>
                 <tr>
                     <td>__MSG_label_Filename__</td>
-                    <td><input id="fileNameInput" type="text" name="fileNameInput" size="80" /></td>
+                    <td><input id="fileNameInput" type="text" name="fileNameInput" /></td>
                 </tr>
                 <tr id="removeAuthorNotesRow" hidden>
                     <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
@@ -121,18 +123,23 @@
                     <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
                     <td>__MSG_label_Remove_Original__</td>
                 </tr>
-                <tr>
+                <tr id="coverUrlSection">
+                    <td>__MSG_label_Cover_Image_URL__</td>
                     <td colspan="2">
-                        <div class="progressSection">
-                            <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
-                            <progress id="fetchProgress" value=" 0" max="1"></progress>
-                            <span id="progressString"></span>
-                            <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
-                        </div>
+                        <input id="coverImageUrlInput" style="width: 68%;" type="text" name="coverImageUrlInput">
+                        <button id="clearCoverImageUrlButton">__MSG_button_Clear_Url__</button>
                     </td>
+                    <td rowspan="2">   <img id="sampleCoverImg" /></td>
                 </tr>
             </table>
-          
+
+            <div class="progressSection">
+                <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
+                <progress id="fetchProgress" value=" 0" max="1"></progress>
+                <span id="progressString"></span>
+                <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
+            </div>
+
             <section hidden id="advancedOptionsSection">
                 <table id="advancedOptionsTable">
                     <tr id="translatorRow" hidden>
@@ -145,7 +152,7 @@
                     </tr>
                     <tr id="styleSheetRow">
                         <td>__MSG_label_Stylesheet__</td>
-                        <td><textarea id="stylesheetInput" rows="6" cols="70"></textarea></td>
+                        <td><textarea id="stylesheetInput" rows="6" cols="60"></textarea></td>
                     </tr>
                     <tr id="stylesheetToDefaultRow">
                         <td></td>
@@ -277,20 +284,6 @@
                 <table id="imagesTable"></table>
             </div>
         </section>
-        <section id="coverUrlSection">
-            <table id="imageOptionsTable">
-                <tr id="CoverImageUrlRow">
-                    <td>__MSG_label_Cover_Image_URL__</td>
-                    <td>
-                        <input id="coverImageUrlInput" type="text" name="coverImageUrlInput" size="70">
-                        <button id="clearCoverImageUrlButton">__MSG_button_Clear_Url__</button>
-                    </td>
-                    <td>
-                        <img id="sampleCoverImg" style="max-height: 120px; width: auto; " />
-                    </td>
-                </tr>
-            </table>
-        </section>
         <section id="outputSection" class="minWidth">
             <div id="chapterSelectControlsDiv">
                 <table id="rangeSelectTable">
@@ -357,7 +350,7 @@
     <script src="js/parsers/BakaTsukiParser.js"></script>
     <script src="js/parsers/BakaTsukiSeriesPageParser.js"></script>
     <script src="js/parsers/BlogspotParser.js"></script>
-    <script src="js/parsers/BoxnovelOrgParser.js"></script> 
+    <script src="js/parsers/BoxnovelOrgParser.js"></script>
     <script src="js/parsers/BoxnovelParser.js"></script>
     <script src="js/parsers/ChineseFantasyNovelsParser.js"></script>
     <script src="js/parsers/ComrademaoParser.js"></script>
@@ -400,7 +393,7 @@
     <script src="js/parsers/MMyWwuxiaWorldParser.js"></script>
     <script src="js/parsers/MtledNovelsParser.js"></script>
     <script src="js/parsers/MtlnovelParser.js"></script>
-    <script src="js/parsers/MoonQuillParser.js"></script> 
+    <script src="js/parsers/MoonQuillParser.js"></script>
     <script src="js/parsers/MuggleNetParser.js"></script>
     <script src="js/parsers/NanodesuParser.js"></script>
     <script src="js/parsers/NightcomicParser.js"></script>
@@ -437,7 +430,7 @@
     <script src="js/parsers/TapreadParser.js"></script>
     <script src="js/parsers/TomotranslationsParser.js"></script>
     <script src="js/parsers/TruyenfullParser.js"></script>
-    <script src="js/parsers/TruyenyyParser.js"></script>  
+    <script src="js/parsers/TruyenyyParser.js"></script>
     <script src="js/parsers/UltimaguilParser.js"></script>
     <script src="js/parsers/UnlimitedNovelFailuresParser.js"></script>
     <script src="js/parsers/VipNovelParser.js"></script>

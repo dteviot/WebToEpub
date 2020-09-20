@@ -17,29 +17,47 @@
     width: 36px;
     display: inline-block;
     position: absolute;
-    left: 40%;
-    top: 6px;
+    left: 46%;
     color: white;
+    z-index: 1000;
     font-weight: bolder;
+    margin-top: 7px;
 }
 
 #advancedOptionsSection {
     margin-top: 3px;
     margin-bottom: 20px;
-    border-top: 1px #CCC solid;
     border-bottom: 1px #CCC solid;
 }
 
 
 progress {
-    width: 52%;
+    width: 56%;
     height: 31px;
     margin: 0;
     padding: 0;
-    border-radius: 1px;
-    margin-left: 24px;
-    margin-right: 22px;
+    border-radius: 5px;
+    margin-left: 4px;
+    margin-right: 4px;
 }
+
+    progress::-webkit-progress-bar {
+        border: 0;
+        height: 31px;
+        border-radius: 5px;
+    }
+
+    progress::-webkit-progress-value {
+        border: 0;
+        height: 31px;
+        border-radius: 8px;
+    }
+
+    progress::-moz-progress-bar {
+        border: 0;
+        height: 31px;
+        border-radius: 5px;
+    }
 
 [hidden] {
     display: none;
@@ -83,7 +101,8 @@ td.disabled {
     display: table;
     padding: 10px;
     margin: auto;
-    border-radius:5px;    
+    border-radius: 5px;
+    position:relative;
 }
 
 
@@ -91,8 +110,43 @@ input[type=text], input[type=url], textarea, select {
     padding: 4px;
     border: 1px #CCC solid;
     border-radius: 3px;
+    max-width: 400px;
+    min-width: 356px;
 }
 
+#advancedOptionsSection textarea, #advancedOptionsSection select {
+    min-width: inherit !important;
+}
+
+
+#inputSection input {
+    width: 69%;
+}
+
+#inputSection table, #chapterUrlsTable {
+    width: 100%;
+}
+
+    #chapterUrlsTable input[type=text] {
+        width: 101.5%;
+        position: relative;
+        left: -17px;
+        max-width: 580px;
+    }
+
+    #chapterUrlsTable tbody > tr > th {
+        text-align: center;
+        border-bottom: 1px #CCC solid;
+        padding: 0;
+    }
+
+#inputSection tbody > tr > td:first-child {
+    width: 75px;
+}
+
+#chapterUrlsTable > tr > td:first-child, #chapterUrlsTable > tbody > tr > td:nth-child(2) {
+    width: 3px;
+}
 
 button {
     box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -105,43 +159,54 @@ button {
     color: #666666;
     font-family: Arial;
     font-size: 12px;
-    font-weight: bold;
     padding: 4px 8px;
     text-decoration: none;
     text-shadow: 0px 1px 0px #ffffff;
+    max-height: 30px;
 }
 
-button:hover {
-    background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
-    background-color: #f6f6f6;
-}
+    button:hover {
+        background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+        background-color: #f6f6f6;
+    }
 
-button:active {
-    position: relative;
-    top: 1px;
-}
+    button:active {
+        position: relative;
+        top: 1px;
+    }
 
 .progressSection {
-    margin: auto;
-    width: 100%;
+    width: 94%;
     position: relative;
     display: flex;
-    height: 30px;
-    margin-left: 69px;
+    height: 60px;
+    border: 1px #CCC solid;
+    padding-top: 30px;
+    padding-left: 39px;
+    border-radius: 8px;
+    max-width: 648px;
+}
+
+#coverUrlSection img {
+    max-height: 142px;
+    min-width: 106.5px;
+    position: absolute;
+    top: 14px;
+    right: 7%;
 }
 
 @media (prefers-color-scheme: dark) {
-    body { 
-        background: #333333; 
-        color: #eee; 
+    body {
+        background: #333333;
+        color: #eee;
     }
 
     input, button, select, progress, textarea {
-        background: #2b2b2b; 
-        color: #eee; 
+        background: #2b2b2b;
+        color: #eee;
     }
 
-    button:hover {
-        color: #222222; 
-    }
+        button:hover {
+            color: #222222;
+        }
 }
