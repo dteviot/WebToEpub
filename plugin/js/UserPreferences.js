@@ -98,8 +98,11 @@ class UserPreferences {
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
+        this.addPreference("themeColor", "themeColorTag", "");
         this.observers = [];
         this.readingList = new ReadingList();
+
+        document.getElementById("themeColorTag").addEventListener("change", UserPreferences.SetTheme);
     };
 
     /** @private */
@@ -161,6 +164,7 @@ class UserPreferences {
         for(let p of this.preferences) {
             p.writeToUi();
         }
+        UserPreferences.SetTheme();
     }
 
     hookupUi() {
@@ -249,5 +253,18 @@ class UserPreferences {
 
     static getReadingListCheckbox() {
         return document.getElementById("includeInReadingListCheckbox");
+    }
+
+    static SetTheme() {
+        let theme = document.querySelector("#themeColorTag").value;
+        let autodark = document.querySelector("link#autoDark");
+        let alwaysDark = document.querySelector("link#alwaysDark");
+        autodark.disabled = true;
+        alwaysDark.disabled = true;
+        if (theme == "") {
+            autodark.disabled = false;
+        } else if (theme == "DarkMode") {
+            alwaysDark.disabled = false;
+        }
     }
 }

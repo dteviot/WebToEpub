@@ -1,0 +1,15 @@
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #2f2f2f;
+        color: #eee;
+    }
+
+    input, button, select, progress, textarea {
+        background: #2b2b2b;
+        color: #eee;
+    }
+
+        button:hover {
+            color: #222222;
+        }
+}

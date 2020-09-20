@@ -259,6 +259,10 @@
 		"message": "Stylesheet:",
 		"description": "Label in front of edit field for setting the stylesheet (in Advanced settings)."
 	},
+	"__MSG_label_Theme__": {
+		"message": "Theme",
+		"description": "Label for drop down list to select theme colour."
+	},
 	"__MSG_label_Title__": {
 		"message": "Title",
 		"description": "Label in front of input for Novel's title."
@@ -314,6 +318,18 @@
 	"__MSG_option_ID_Starts_With__": {
 		"message": "ID Starts With",
 		"description": "Content is element having an ID starting with."
+	},
+	"__MSG_option_ID_Theme_Always_Dark__": {
+		"message": "Always Dark Mode",
+		"description": "GUI will always use dark mode theme."
+	},
+	"__MSG_option_ID_Theme_Always_Light__": {
+		"message": "Always Light Mode",
+		"description": "GUI will always use light mode theme."
+	},
+	"__MSG_option_ID_Theme_OS_Selection__": {
+		"message": "Use current OS selection",
+		"description": "GUI will use OS's selection of light or dark mode."
 	},
 	"__MSG_Searching_For_URLs_Please_Wait__": {
 		"message": "Searching for URLs.  Please wait.",

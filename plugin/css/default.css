@@ -194,19 +194,3 @@ button {
     top: 14px;
     right: 7%;
 }
-
-@media (prefers-color-scheme: dark) {
-    body {
-        background: #333333;
-        color: #eee;
-    }
-
-    input, button, select, progress, textarea {
-        background: #2b2b2b;
-        color: #eee;
-    }
-
-        button:hover {
-            color: #222222;
-        }
-}

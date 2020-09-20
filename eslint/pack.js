@@ -163,6 +163,11 @@ var addImageFileToZip = function(zip, fileName) {
     return addBinaryFileToZip(zip, "../plugin/" + dest, dest);
 }
 
+var addCssFileToZip = function(zip, fileName) {
+    let dest = "css/" + fileName;
+    return addBinaryFileToZip(zip, "../plugin/" + dest, dest);
+}
+
 var packNonManifestExtensionFiles = function(zip, packedFileName) {
     return addBinaryFileToZip(zip, "../plugin/book128.png", "book128.png")
     .then(function () {
@@ -172,7 +177,11 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
     }).then(function () {
         return addImageFileToZip(zip, "ChapterStateNone.svg");
     }).then(function () {
-        return addBinaryFileToZip(zip, "../plugin/css/default.css", "css/default.css");
+        return addCssFileToZip(zip, "default.css");
+    }).then(function () {
+        return addCssFileToZip(zip, "alwaysDark.css");
+    }).then(function () {
+        return addCssFileToZip(zip, "autoDark.css");
     }).then(function () {
         return getFileList("../plugin/popup.html");
     }).then(function(fileList) {
