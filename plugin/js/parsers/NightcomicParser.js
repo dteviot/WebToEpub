@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("nightcomic.com", function() { return new NightcomicParser() });
+parserFactory.register("webnovel.live", function() { return new NightcomicParser() });
 
 class NightcomicParser extends Parser{
     constructor() {
