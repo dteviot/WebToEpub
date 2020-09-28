@@ -36,6 +36,9 @@ class BlogspotParserImageCollector extends ImageCollector {
 
     convertToUrlOfOriginalSizeImage(originalUrl) {
         let url = new URL(originalUrl);
+        if (!url.hostname.toLowerCase().includes("blogspot")) {
+            return originalUrl;
+        }
         let path = url.pathname.split("/");
         path[path.length - 2] = "s0";
         url.pathname = path.join("/");
