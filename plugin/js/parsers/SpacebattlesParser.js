@@ -3,27 +3,6 @@
 parserFactory.register("forums.spacebattles.com", () => new SpacebattlesParser());
 parserFactory.register("forums.sufficientvelocity.com", () => new SpacebattlesParser());
 
-// Often multiple chapters per web page, so minimize calls
-class FetchCache {
-    constructor() {
-        this.path = null;
-        this.dom = null;
-    }
-
-    async fetch(url) {
-        if  (!this.inCache(url)) {
-            this.dom = (await HttpClient.wrapFetch(url)).responseXML;
-            this.path = new URL(url).pathname;
-        }
-        return this.dom;
-    }
-
-    inCache(url) {
-        return (((new URL(url).pathname) === this.path) 
-        && (this.dom !== null));
-    }
-}
-
 class SpacebattlesParser extends Parser{
     constructor() {
         super();

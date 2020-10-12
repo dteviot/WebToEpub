@@ -4,6 +4,29 @@
 "use strict";
 
 /**
+ * For sites that have multiple chapters per web page, this can minimize HTTP calls
+ */
+class FetchCache {
+    constructor() {
+        this.path = null;
+        this.dom = null;
+    }
+
+    async fetch(url) {
+        if  (!this.inCache(url)) {
+            this.dom = (await HttpClient.wrapFetch(url)).responseXML;
+            this.path = new URL(url).pathname;
+        }
+        return this.dom;
+    }
+
+    inCache(url) {
+        return (((new URL(url).pathname) === this.path) 
+        && (this.dom !== null));
+    }
+}
+
+/**
  * A Parser's state variables
 */
 class ParserState {
