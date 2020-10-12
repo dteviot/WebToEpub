@@ -4,6 +4,7 @@
 "use strict";
 
 parserFactory.register("novelfull.com", function () { return new NovelfullParser() });
+parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
 
 class NovelfullParser extends Parser{
     constructor() {
@@ -25,11 +26,19 @@ class NovelfullParser extends Parser{
             let limit = link.getAttribute("data-page") || "-1";
             limit = parseInt(limit) + 1;
             for (let i = 1; i <= limit; ++i) {
-                link.search = `?page=${i}&per-page=50`;
-                urls.push(link.href);
+                urls.push(NovelfullParser.buildUrlForTocPage(link, i));
             }
         }
         return urls;
+    }
+
+    static buildUrlForTocPage(link, i) {
+        if (link.hostname === "novelfull.com") {
+            link.search = `?page=${i}&per-page=50`;
+        } else {
+            link.pathname = link.pathname.split("/")[1] + "/" + i;
+        }
+        return link.href;
     }
 
     static extractPartialChapterList(dom) {
@@ -53,7 +62,7 @@ class NovelfullParser extends Parser{
     };
 
     findChapterTitle(dom) {
-        return dom.querySelector("a.chapter-title");
+        return dom.querySelector("a.chapter-title").textContent;
     }
 
     findCoverImageUrl(dom) {
