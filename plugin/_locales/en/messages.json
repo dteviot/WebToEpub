@@ -271,6 +271,10 @@
 		"message": "Translator",
 		"description": "Label in front of input for Translator (in Advanced settings)."
 	},
+	"__MSG_label_Use_Full_Title_As_File_Name__": {
+		"message": "Use full title as file name",
+		"description": "Label in front of checkbox to choose if Epub's filename will be truncated or not."
+	},
 	"__MSG_label_Use_SVG_for_Images__": {
 		"message": "Use <svg> for images",
 		"description": "Label in front of checkbox to choose between <img> and <svg> elements for images."

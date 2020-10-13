@@ -244,14 +244,14 @@ class Parser {
     extractSeriesInfo(dom, metaInfo) {  // eslint-disable-line no-unused-vars
     }
 
-    getEpubMetaInfo(dom){
+    getEpubMetaInfo(dom, useFullTitle){
         let that = this;
         let metaInfo = new EpubMetaInfo();
         metaInfo.uuid = dom.baseURI;
         metaInfo.title = that.extractTitle(dom);
         metaInfo.author = that.extractAuthor(dom).trim();
         metaInfo.language = that.extractLanguage(dom);
-        metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title);
+        metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title, useFullTitle);
         that.extractSeriesInfo(dom, metaInfo);
         return metaInfo;
     }
@@ -267,8 +267,9 @@ class Parser {
         return Array.from(dom.getElementsByTagName("base"))[0].href;
     }
 
-    makeSaveAsFileNameWithoutExtension(title) {
-        let fileName = (title == null)  ? "web" : util.safeForFileName(title);
+    makeSaveAsFileNameWithoutExtension(title, useFullTitle) {
+        let maxFiileNameLength = useFullTitle ? 512 : 20;
+        let fileName = (title == null)  ? "web" : util.safeForFileName(title, maxFiileNameLength);
         if (util.isStringWhiteSpace(fileName)) {
             // title is probably not English, so just use it as is
             fileName = title;
