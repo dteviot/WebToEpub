@@ -72,6 +72,12 @@ For details on how to extend, see the following
 * Click on "Download anyway"
 
 ## How to install from Source
+
+Note, I usually put copies of the current Development versions, including the jszip library, in https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing
+So, get the relevant zip, then 
+* For Chrome, just do step 2 then steps 6 to 9
+* For Firefox, just do step 3, then steps 8 to 14
+
 ### Chrome
 1. Download the extension. 
     1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
@@ -86,7 +92,7 @@ For details on how to extend, see the following
 9. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
 
 ### Firefox
-1. Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).
+1. ~~Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).~~
 2. Download the extension.
     1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
     2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
@@ -103,8 +109,6 @@ For details on how to extend, see the following
 13. Click "Load Temporary Add-on"
 14. Select "manifest.json" from the directory in step 4
 
-
-Open the "plugin" directory from step 3 and select manifest.json.
 
 ## License information
 Licenced under GPLv3.
