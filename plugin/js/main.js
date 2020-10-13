@@ -130,6 +130,7 @@ var main = (function () {
         ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
         ChapterUrlsUI.resetDownloadStateImages();
         ErrorLog.clearHistory();
+        window.workInProgress = true;
         main.getPackEpubButton().disabled = true;
         parser.onStartCollecting();
         parser.fetchContent().then(function () {
@@ -137,6 +138,7 @@ var main = (function () {
         }).then(function (content) {
             // Enable button here.  If user cancels save dialog
             // the promise never returns
+            window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             return Download.save(content, fileName, overwriteExisting);
@@ -145,6 +147,7 @@ var main = (function () {
             ErrorLog.showLogToUser();
             return dumpErrorLogToFile();
         }).catch(function (err) {
+            window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             ErrorLog.showErrorMessage(err);
         });
@@ -380,7 +383,19 @@ var main = (function () {
         table.onclick = (event) => userPreferences.readingList.onClickRemove(event);
     }
 
-    function addOnClickEventHandlers() {
+    /**
+     * If work in progress, give user chance to cancel closing the window
+     */
+    function onUnloadEvent(event) {
+        if (window.workInProgress === true) {
+            event.preventDefault();
+            event.returnValue = "";
+        } else {
+            delete event["returnValue"];
+        }
+    }
+
+    function addEventHandlers() {
         getPackEpubButton().onclick = fetchContentAndPackEpub;
         document.getElementById("diagnosticsCheckBoxInput").onclick = onDiagnosticsClick;
         document.getElementById("reloadButton").onclick = populateControls;
@@ -397,6 +412,7 @@ var main = (function () {
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
         UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
+        window.addEventListener("beforeunload", onUnloadEvent);
     }
 
     // actions to do when window opened
@@ -405,7 +421,7 @@ var main = (function () {
         if (isRunningInTabMode()) {
             localizeHtmlPage();
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
-            addOnClickEventHandlers();
+            addEventHandlers();
             populateControls();
             if (util.isFirefox()) {
                 Firefox.startWebRequestListeners();
