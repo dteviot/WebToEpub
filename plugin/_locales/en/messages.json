@@ -107,6 +107,10 @@
 		"message": "URL",
 		"description": "The 'URL to get chapter frorm' column in the table of chapters."
 	},
+	"__MSG_label_Add_Information_Page_To_Epub__": {
+		"message": "Add Information page to Epub",
+		"description": "Label for checkbox to add 'Information' page at beginning of Epub"
+	},
 	"__MSG_label_Advanced_Options_Visible_By_Default__": {
 		"message": "Advanced Options Visible by Default",
 		"description": "Label for checkbox to make Advanced Options visible when UI opens"

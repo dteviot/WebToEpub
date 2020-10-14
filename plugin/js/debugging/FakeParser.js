@@ -17,7 +17,7 @@ class FakeParser extends Parser{
         let chapters = [];
         for(let i = 1; i < 30; ++i) {
             chapters.push({
-                sourceUrl:  `https://dummy.com/Chapter/${i}.html`,
+                sourceUrl:  `https://rtd.moe/Chapter/${i}.html`,
                 title: `Chapter ${i}`,
                 newArc: null
             });
@@ -26,7 +26,7 @@ class FakeParser extends Parser{
     };
 
     findContent(dom) {
-        return dom.querySelector("div#content");
+        return Parser.findConstrutedContent(dom);
     };
 
     extractTitleImpl(dom) {
@@ -45,4 +45,8 @@ class FakeParser extends Parser{
         title.textContent = url;
         newDoc.content.appendChild(title);
     }
+
+    getInformationEpubItemChildNodes( /* dom */ ) {
+        return [];
+    }    
 }

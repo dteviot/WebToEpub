@@ -100,6 +100,7 @@ class UserPreferences {
         this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.addPreference("themeColor", "themeColorTag", "");
         this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", false);
+        this.addPreference("addInformationPage", "addInformationPageToEpubCheckbox", true);
         this.observers = [];
         this.readingList = new ReadingList();
 

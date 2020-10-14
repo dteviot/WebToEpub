@@ -25,6 +25,7 @@ function makePacker() {
 function makeEpubItemSupplier(imageCollector) {
     imageCollector = imageCollector || ImageCollector.StubCollector();
     let parser = new ArchiveOfOurOwnParser();
+    parser.userPreferences = new UserPreferences();
     let webPages = [];
     for (let i = 0; i < 2; ++i) {
         let title = "Title" + i;

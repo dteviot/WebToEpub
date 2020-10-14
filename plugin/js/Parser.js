@@ -288,7 +288,8 @@ class Parser {
         let epubItems = [];
         let index = 0;
 
-        if (this.getInformationEpubItemChildNodes !== undefined) {
+        if (this.userPreferences.addInformationPage.value &&
+            this.getInformationEpubItemChildNodes !== undefined) {
             epubItems.push(this.makeInformationEpubItem(this.state.firstPageDom));
             ++index;
         }
