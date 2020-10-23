@@ -2,6 +2,7 @@
 
 parserFactory.register("nightcomic.com", function() { return new NightcomicParser() });
 parserFactory.register("webnovel.live", function() { return new NightcomicParser() });
+parserFactory.register("noveltrench.com", function() { return new NightcomicParser() });
 
 class NightcomicParser extends Parser{
     constructor() {
