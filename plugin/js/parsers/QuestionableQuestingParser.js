@@ -37,7 +37,7 @@ class QuestionableQuestingParser extends Parser{
 
     linkToChapter(link) {
         let cleanUrl = new URL(link.href);
-        let path = cleanUrl.pathname.split("/").slice(1, 3).join("/") + "/";
+        let path = cleanUrl.pathname.split("/").slice(3, 6).join("/");
         cleanUrl.pathname = path;
         return {
             sourceUrl:  cleanUrl.href,
@@ -66,8 +66,18 @@ class QuestionableQuestingParser extends Parser{
         let post = fetchedDom.getElementById(id);
         let content = post.querySelector("article");
         this.addTitleToChapter(newDoc, post);
+        this.fixupImageUrls(content);
         newDoc.content.appendChild(content);
         return newDoc.dom;
+    }
+
+    fixupImageUrls(content) {
+        for(let i of content.querySelectorAll("img")) {
+            let dataUrl = i.getAttribute("data-url");
+            if (i.src !== dataUrl ) {
+                i.src = dataUrl;
+            }
+        }
     }
 
     addTitleToChapter(newDoc, post) {

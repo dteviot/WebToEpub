@@ -17,7 +17,7 @@ class FetchCache {
             this.dom = (await HttpClient.wrapFetch(url)).responseXML;
             this.path = new URL(url).pathname;
         }
-        return this.dom;
+        return this.dom.cloneNode(true);
     }
 
     inCache(url) {
