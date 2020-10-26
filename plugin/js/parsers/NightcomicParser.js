@@ -3,6 +3,7 @@
 parserFactory.register("nightcomic.com", function() { return new NightcomicParser() });
 parserFactory.register("webnovel.live", function() { return new NightcomicParser() });
 parserFactory.register("noveltrench.com", function() { return new NightcomicParser() });
+parserFactory.register("mangasushi.net", function() { return new NightcomicParser() });
 
 class NightcomicParser extends Parser{
     constructor() {
@@ -15,7 +16,14 @@ class NightcomicParser extends Parser{
     };
 
     findContent(dom) {
-        return dom.querySelector("div.reading-content");
+        let content = dom.querySelector("div.reading-content");
+        for(let i of content.querySelectorAll("img")) {
+            let data_src = i.getAttribute("data-src");
+            if (!util.isNullOrEmpty(data_src) && util.isNullOrEmpty(i.src)) {
+                i.src = data_src;
+            }
+        }
+        return content;
     };
 
     extractTitleImpl(dom) {
