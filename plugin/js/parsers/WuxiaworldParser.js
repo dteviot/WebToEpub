@@ -59,7 +59,9 @@ class WuxiaworldParser extends Parser {
     // find the node(s) holding the story content
     findContent(dom) {
         let candidates = [...dom.querySelectorAll("div.fr-view:not(.panel-body)")];
-        return WuxiaworldParser.elementWithMostParagraphs(candidates);
+        let content = WuxiaworldParser.elementWithMostParagraphs(candidates);
+        this.cleanContent(content);
+        return content;
     }
 
     static elementWithMostParagraphs(elements) {
@@ -73,12 +75,20 @@ class WuxiaworldParser extends Parser {
         ).e;
     }
 
+    cleanContent(content)
+    {
+        util.removeChildElementsMatchingCss(content, "button, #spoiler_teaser");
+        let toDelete = [...content.querySelectorAll("a")]
+            .filter(a => a.textContent === "Teaser");
+        util.removeElements(toDelete);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("div.caption h4");
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.media-left");
+        return util.getFirstImgSrc(dom, "div.novel-index");
     }
 
     getInformationEpubItemChildNodes(dom) {
