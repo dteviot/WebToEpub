@@ -4,6 +4,7 @@ parserFactory.register("nightcomic.com", function() { return new NightcomicParse
 parserFactory.register("webnovel.live", function() { return new NightcomicParser() });
 parserFactory.register("noveltrench.com", function() { return new NightcomicParser() });
 parserFactory.register("mangasushi.net", function() { return new NightcomicParser() });
+parserFactory.register("mangabob.com", function() { return new NightcomicParser() });
 
 class NightcomicParser extends Parser{
     constructor() {
