@@ -18,6 +18,10 @@ class FoxaholicParser extends WordpressBaseParser{
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
+    findChapterTitle(dom) {
+        return dom.querySelector("ol.breadcrumb li.active").textContent;
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.summary_image");
     }

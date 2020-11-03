@@ -21,6 +21,10 @@ class ShmtranslationsParser extends WordpressBaseParser{
         return content;
     };
 
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.page-title-text");
+    }
+
     static cleanLaterContent(content) {
         let junk = [...content.querySelectorAll("span[style='color: #ffffff;']")]
             .map(s => s.parentElement)
