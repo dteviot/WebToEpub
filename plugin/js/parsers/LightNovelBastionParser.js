@@ -7,9 +7,9 @@ class LightNovelBastionParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let menu = dom.querySelector("div.listing-chapters_wrap");
-        return Promise.resolve(util.hyperlinksToChapterList(menu).reverse());
+        return util.hyperlinksToChapterList(menu).reverse();
     }
 
     findContent(dom) {
@@ -37,6 +37,10 @@ class LightNovelBastionParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingCss(element, "div.lnbad-tag");
         super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    clampSimultanousFetchSize() {
+        return 1;
     }
 
     findCoverImageUrl(dom) {
