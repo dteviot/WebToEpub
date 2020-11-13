@@ -627,7 +627,21 @@ class Parser {
             chapters = chapters.concat(partialList);
         }
         return chapters;
-    }    
+    }
+
+    async walkTocPages2(dom, chaptersFromDom, nextTocPageUrl, chapterUrlsUI) {
+        let chapters = chaptersFromDom(dom);
+        chapterUrlsUI.showTocProgress(chapters);
+        let url = nextTocPageUrl(dom);
+        while (url !== null) {
+            dom = (await HttpClient.wrapFetch(url)).responseXML;
+            let partialList = chaptersFromDom(dom);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+            url = nextTocPageUrl(dom);
+        }
+        return chapters;
+    }
 }
 
 Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";
