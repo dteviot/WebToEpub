@@ -629,16 +629,16 @@ class Parser {
         return chapters;
     }
 
-    async walkTocPages2(dom, chaptersFromDom, nextTocPageUrl, chapterUrlsUI) {
+    async walkTocPages(dom, chaptersFromDom, nextTocPageUrl, chapterUrlsUI) {
         let chapters = chaptersFromDom(dom);
         chapterUrlsUI.showTocProgress(chapters);
-        let url = nextTocPageUrl(dom);
+        let url = nextTocPageUrl(dom, chapters, chapters);
         while (url !== null) {
             dom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = chaptersFromDom(dom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
-            url = nextTocPageUrl(dom);
+            url = nextTocPageUrl(dom, chapters, partialList);
         }
         return chapters;
     }

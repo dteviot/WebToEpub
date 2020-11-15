@@ -8,7 +8,7 @@ class JadeRabbitParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return this.walkTocPages2(dom, 
+        return this.walkTocPages(dom, 
             JadeRabbitParser.chaptersFromDom, 
             JadeRabbitParser.nextTocPageUrl, 
             chapterUrlsUI

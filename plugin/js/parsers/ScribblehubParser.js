@@ -7,28 +7,28 @@ class ScribblehubParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        return ScribblehubParser.walkTocPages(dom, [], dom.baseURI, 2);
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let baseUrl = dom.baseURI;
+        let nextTocIndex = 1;
+        let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
+        let nextTocPageUrl = function (dom, chapters, lastFetch) {
+            // site has bug, sometimes, won't return chapters, so 
+            // don't loop forever when this happens
+            return ((chapters.length < numChapters) && (0 < lastFetch.length))
+                ? `${baseUrl}?toc=${++nextTocIndex}`
+                : null;
+        };
+
+        return (await this.walkTocPages(dom,
+            ScribblehubParser.getChapterUrlsFromTocPage,
+            nextTocPageUrl,
+            chapterUrlsUI
+        )).reverse();
     };
 
     static getChapterUrlsFromTocPage(dom) {
         return [...dom.querySelectorAll("a.toc_a")]
             .map(a => util.hyperLinkToChapter(a))
-    }
-
-    static walkTocPages(dom, chapters, baseUrl, nextTocIndex) {
-        let newChaps = ScribblehubParser.getChapterUrlsFromTocPage(dom);
-        chapters = chapters.concat(newChaps);
-
-        // This is a hack, if less than 15 chapters in returned ToC, 
-        // assume we've reached end
-        if (newChaps.length < 15) {
-            return Promise.resolve(chapters.reverse());
-        }
-        let nextToc = ScribblehubParser.nextTocPageUrl(baseUrl, nextTocIndex);
-        return HttpClient.wrapFetch(nextToc).then(
-            response => ScribblehubParser.walkTocPages(response.responseXML, chapters, baseUrl, nextTocIndex + 1)
-        )
     }
 
     static nextTocPageUrl(baseUrl, nextTocIndex) {

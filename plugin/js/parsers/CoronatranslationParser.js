@@ -8,7 +8,7 @@ class CoronatranslationParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return (await this.walkTocPages2(dom, 
+        return (await this.walkTocPages(dom, 
             CoronatranslationParser.chaptersFromDom, 
             CoronatranslationParser.nextTocPageUrl, 
             chapterUrlsUI
