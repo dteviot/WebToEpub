@@ -14,7 +14,7 @@ Works with many sites, including the following:
 * moonbunnycafe.com
 * nanodesu (some of the *thetranslation.wordpress.com sites)
 * readlightnovel.com
-* royalroadl.com 
+* royalroad.com 
 * shikkakutranslations.org
 * sonako.wikia.com
 * wuxiaworld.com
