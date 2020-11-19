@@ -84,6 +84,18 @@ class LightNovelWorldParser extends Parser{
         return dom.querySelector("div.novel-info h1");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        let toRemove = [...element.querySelectorAll("span")]
+            .filter(this.isWatermark);
+        util.removeElements(toRemove);
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    isWatermark(element) {
+        let text = element.textContent.replace(/_/g, "");
+        return text.includes("lightnovelworld.com");
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h2");
     }
