@@ -21,7 +21,7 @@ class EngnovelParser extends Parser{
 
     static getTocFetchInfo(dom) {
         let pagination = [...dom.querySelectorAll("div#pagination a")]
-           .map(a => parseInt(a.getAttribute("data-page")));
+            .map(a => parseInt(a.getAttribute("data-page")));
 
         return {
             id: dom.querySelector("input#id_post").getAttribute("value"),

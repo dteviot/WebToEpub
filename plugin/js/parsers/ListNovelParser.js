@@ -4,6 +4,7 @@ parserFactory.register("listnovel.com", () => new ListNovelParser());
 parserFactory.register("readwebnovel.xyz", () => new ListNovelParser());
 parserFactory.register("wuxiaworld.site", () => new ListNovelParser());
 parserFactory.register("pery.info", () => new ListNovelParser());
+parserFactory.register("morenovel.net", () => new ListNovelParser());
 
 class ListNovelParser extends WordpressBaseParser{
     constructor() {
