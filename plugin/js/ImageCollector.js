@@ -391,13 +391,20 @@ class ImageCollector {
     *  Hook point to allow picking between high and low res images.
     */
     initialUrlToTry(imageInfo) {
-        let isImageUrl = !ImageCollector.urlHasFragment(imageInfo.wrappingUrl);
-        let urlToTry = isImageUrl ? imageInfo.wrappingUrl : imageInfo.sourceUrl;
+        let urlToTry = imageInfo.sourceUrl;
+        if (!util.isNullOrEmpty(imageInfo.wrappingUrl) 
+            && !ImageCollector.urlHasFragment(imageInfo.wrappingUrl)) {
+            urlToTry = imageInfo.wrappingUrl;
+        }
         return ImageCollector.removeSizeParamsFromWordPressQuery(urlToTry);
     }
 
     static urlHasFragment(url) {
-        return !util.isNullOrEmpty(new URL(url).hash);
+        try {
+            return !util.isNullOrEmpty(new URL(url).hash);
+        } catch (error) {
+            return false;
+        }
     }
     
     static removeSizeParamsFromWordPressQuery(originalUrl) {
