@@ -9,25 +9,26 @@ class BabelChainParser extends Parser{
     }
     
     async getChapterUrls(dom) {
-        let chaptersPerTocPage = 100;
-        let bookId = new URL(dom.querySelector("link[rel='chapters'").href).pathname.split("/")[3];
-        let chapterUrlBase = dom.querySelector("link[rel='canonical'").href + "/chapters/";
-
-        let lastChapterLink = dom.querySelector("a[data-bca-position='latest']");
-        let numChapters = chaptersPerTocPage;
-        if (lastChapterLink != null) {
-            let lastChapter = new URL(lastChapterLink.href).pathname.split("/").pop();
-            numChapters = parseInt(lastChapter.substring(1));
-        }
-
-        let numTocPages = Math.ceil(numChapters / chaptersPerTocPage);
-        let chapters = [];
-        for (let page = 0; page < numTocPages; ++page) {
-            let restUrl = `https://babelnovel.com/api/books/${bookId}/chapters?bookId=${bookId}&pageSize=${chaptersPerTocPage}&page=${page}&fields=id,name,canonicalName`;
-            let json = (await HttpClient.fetchJson(restUrl)).json;
-            chapters = chapters.concat(BabelChainParser.jsonToChapters(json, chapterUrlBase));
+        let chapters = this.extractChapterList(dom);
+        if (chapters.length === 0) {
+            let url = dom.baseURI + "/chapters";
+            var chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
+            chapters = this.extractChapterList(chapterDom);
         }
         return chapters;
+    }
+
+    findDiv(element, classPrefix) {
+        let candidates = [...element.querySelectorAll("div")]
+            .filter(e => e.className.startsWith(classPrefix));
+        return 0 < candidates.length ? candidates[0] : null;
+    }
+
+    extractChapterList(dom) {
+        let menu = this.findDiv(dom, "chapters_list__ttW1Q");
+        return (menu === null)
+            ? []
+            :  util.hyperlinksToChapterList(menu);
     }
 
     static jsonToChapters(json, chapterUrlBase) {
@@ -47,11 +48,15 @@ class BabelChainParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.style_cover__39J7K");
+        let coverImage = this.findDiv(dom, "book-info_wrapper");
+        return coverImage === null
+            ? null
+            : coverImage.querySelector("img").src;
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.style_synopsis__2XLCw")];
+        let synopsis = this.findDiv(dom, "book-info_synopsis-wrapper");
+        return synopsis === null ? [] : [synopsis];
     }
 
     // rate limit site
@@ -62,7 +67,7 @@ class BabelChainParser extends Parser{
     async fetchChapter(url) {
         const rateLimitTo20PagePerMinute = 3000;
         await util.sleep(rateLimitTo20PagePerMinute);
-        let contentUrl = url.replace("/books/", "/api/books/") + "/content";
+        let contentUrl = url.replace("//babelnovel.com/", "//api.babelnovel.com/v1/") + "/content";
         let xhr = await HttpClient.fetchJson(contentUrl);
         let doc = BabelChainParser.jsonToHtml(xhr.json);
         return doc;
