@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("fastnovel.net", () => new FastNovelParser());
+parserFactory.register("novelgate.net", () => new FastNovelParser());
 
 class FastNovelParser extends Parser{
     constructor() {
