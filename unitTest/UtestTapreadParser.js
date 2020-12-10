@@ -4,7 +4,7 @@
 module("TapreadParser");
 
 QUnit.test("jsonToHtml", function (assert) {
-    let dom = TapreadParser.jsonToHtml(null, TapreadSampleChapterJson);
+    let dom = TapreadParser.jsonToHtml(TapreadSampleChapterJson);
     let content = Parser.findConstrutedContent(dom);
     assert.equal(content.innerHTML, "<h1>Chapter 1-Marry Me</h1><p>\"Dear, marry me!\"  </p><p>Fastening his buttons, </p>");
 });

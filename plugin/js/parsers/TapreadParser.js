@@ -7,10 +7,13 @@ class TapreadParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("a.chapter-item")]
             .map(TapreadParser.linkToChapter);
-        return Promise.resolve(chapters);
+        if (chapters.length == 0) {
+            chapters = this.fetchToc(dom.baseURI);
+        }
+        return chapters;
     };
 
     static linkToChapter(link) {
@@ -20,6 +23,21 @@ class TapreadParser extends Parser{
             sourceUrl: link.href,
             title: title.textContent
         });
+    }
+
+    async fetchToc(url) {
+        let bookId = new URL(url).pathname.split("/").pop();
+        let body = `bookId=${bookId}`;
+        let fetchUrl = "http://www.tapread.com/ajax/book/contents";
+        let json = await this.fetchJson(fetchUrl, body);
+        return json.result.chapterList.map(j => this.jsonToChapterUrl(j, bookId));
+    }
+
+    jsonToChapterUrl(json, bookId) {
+        return {
+            sourceUrl: `http://www.tapread.com/book/index/${bookId}/${json.chapterId}`,
+            title: json.chapterName
+        };
     }
 
     findContent(dom) {
@@ -39,27 +57,35 @@ class TapreadParser extends Parser{
         return util.getFirstImgSrc(dom, "div.book-img");
     }
 
-    fetchChapter(url) {
-        let index = url.indexOf("?");
-        let fetchUrl = "https://www.tapread.com/book/chapter" + url.substring(index);
-        let options = {
-            method: "POST",
-            credentials: "include"
-        };
-        return HttpClient.fetchJson(fetchUrl, options).then(function (xhr) {
-            return TapreadParser.jsonToHtml(url, xhr.json);
-        });
+    async fetchChapter(url) {
+        let parts = new URL(url).pathname.split("/");
+        let chapterId = parts.pop();
+        let bookId = parts.pop();
+        let body = `bookId=${bookId}&chapterId=${chapterId}`;
+        let fetchUrl = "http://www.tapread.com/ajax/book/chapter";
+        let json = await this.fetchJson(fetchUrl, body);
+        return TapreadParser.jsonToHtml(json);
     }
 
-    static jsonToHtml(pageUrl, json) {
+    async fetchJson(url, body) {
+        let options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            credentials: "include",
+            body: body
+        };
+        return (await HttpClient.fetchJson(url, options)).json;
+    }
+
+    static jsonToHtml(json) {
         let newDoc = Parser.makeEmptyDocForContent();
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.result.chapterName;
         newDoc.content.appendChild(header);
         let content = new DOMParser().parseFromString(json.result.content, "text/html");
-        for(let n of [...content.body.childNodes]){
-            newDoc.content.appendChild(n);
-        }
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 
