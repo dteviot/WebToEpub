@@ -7,10 +7,9 @@ class AsianHobbyistParser extends WordpressBaseParser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let items = [...dom.querySelectorAll("#content .tabs div.wuji-row ul a")]
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.releases-wrap a")]
             .map(a => util.hyperLinkToChapter(a));
-        return Promise.resolve(items);
     };
 
     extractTitleImpl(dom) {
@@ -23,12 +22,18 @@ class AsianHobbyistParser extends WordpressBaseParser{
     }
 
     findChapterTitle(dom) {
-        let crumbs = [...dom.querySelectorAll("ol.breadcrumb li")]
-            .map(li => li.textContent);
-        return (0 < crumbs.length) ? crumbs[crumbs.length - 1] : null;
+        return dom.querySelector("header.page-header h2");
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.entry-content");
+        return util.getFirstImgSrc(dom, "div.thumb");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.details")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, ".btn");
+    }    
 }
