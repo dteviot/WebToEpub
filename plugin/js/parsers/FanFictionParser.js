@@ -73,6 +73,10 @@ class FanFictionParser extends Parser {
                 for(let a of clone.querySelectorAll('a[href]')) {
                     a.href = new URL(a['href'], dom.baseURI).href
                 }
+                // Fix for > from CSS
+                for(let s of clone.querySelectorAll('span.icon-chevron-right')) {
+                    s.textContent = ' > '
+                }
                 infoDiv.appendChild(sanitize.clean(clone));
             }
         }
