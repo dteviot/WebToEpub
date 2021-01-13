@@ -56,8 +56,37 @@ class FanFictionParser extends Parser {
         return this.extractTextFromProfile(dom, "a");
     }
 
+    populateInfoDiv(infoDiv, dom) {
+        let sanitize = new Sanitize();
+        // keep data-xutime for outside processing because locale time is local
+        sanitize.attributesForTag.set("span",["data-xutime"])
+        for(let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
+            let clone = n.cloneNode(true);
+            this.cleanInformationNode(clone);
+            if (clone != null) {
+                // convert dates to avoid '19hours ago'
+                for(let s of clone.querySelectorAll('span[data-xutime]')) {
+                    let time = new Date(1000*s.getAttribute("data-xutime"));
+                    s.textContent = time.toLocaleString();
+                }
+                // fix relative url links.
+                for(let a of clone.querySelectorAll('a[href]')) {
+                    a.href = new URL(a['href'], dom.baseURI).href
+                }
+                // Fix for > from CSS
+                for(let s of clone.querySelectorAll('span.icon-chevron-right')) {
+                    s.textContent = ' > '
+                }
+                infoDiv.appendChild(sanitize.clean(clone));
+            }
+        }
+        // this "page" doesn't go through image collector, so strip images
+        util.removeChildElementsMatchingCss(infoDiv, "img");
+    }
+
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div#profile_top")];
+        return [...dom.querySelectorAll("div#pre_story_links"),
+                ...dom.querySelectorAll("div#profile_top")];
     }
 
     cleanInformationNode(node) {

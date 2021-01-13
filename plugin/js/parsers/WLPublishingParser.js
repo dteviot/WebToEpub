@@ -9,7 +9,7 @@ parserFactory.register("scifistories.com", () => new WLPublishingParser());
 parserFactory.register("storiesonline.net", () => new WLPublishingParser());
 
 parserFactory.registerManualSelect(
-    "Default",
+    "WLPublishing",
     function() { return new WLPublishingParser() }
 );
 
