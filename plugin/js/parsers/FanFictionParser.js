@@ -65,17 +65,17 @@ class FanFictionParser extends Parser {
             this.cleanInformationNode(clone);
             if (clone != null) {
                 // convert dates to avoid '19hours ago'
-                for(let s of clone.querySelectorAll('span[data-xutime]')) {
+                for(let s of clone.querySelectorAll("span[data-xutime]")) {
                     let time = new Date(1000*s.getAttribute("data-xutime"));
                     s.textContent = time.toLocaleString();
                 }
                 // fix relative url links.
-                for(let a of clone.querySelectorAll('a[href]')) {
-                    a.href = new URL(a['href'], dom.baseURI).href
+                for(let a of clone.querySelectorAll("a[href]")) {
+                    a.href = new URL(a["href"], dom.baseURI).href
                 }
                 // Fix for > from CSS
-                for(let s of clone.querySelectorAll('span.icon-chevron-right')) {
-                    s.textContent = ' > '
+                for(let s of clone.querySelectorAll("span.icon-chevron-right")) {
+                    s.textContent = " > ";
                 }
                 infoDiv.appendChild(sanitize.clean(clone));
             }
@@ -85,8 +85,7 @@ class FanFictionParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div#pre_story_links"),
-                ...dom.querySelectorAll("div#profile_top")];
+        return [...dom.querySelectorAll("div#pre_story_links, div#profile_top")];
     }
 
     cleanInformationNode(node) {
