@@ -51,6 +51,10 @@
 		"message": "Load and Analyse",
 		"description": "Label on button to try loading url given by 'Starting URL'"
 	},
+	"__MSG_button_load_Metadata__": {
+		"message": "Load Additional Metadata",
+		"description": "Label on button to toggle Load and Analyse Additional Metadata"
+	},	
 	"__MSG_button_Pack_EPUB__": {
 		"message": "Pack EPUB",
 		"description": "Label on button to create the EPUB"
@@ -195,6 +199,10 @@
 		"message": "Language",
 		"description": "Label in front input for language EPUB will be in"
 	},
+	"__MSG_label_less_tags__": {
+		"message": "less tags",
+		"description": "Only extract genre"
+	},
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"
@@ -206,6 +214,18 @@
 	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
 		"message": "Max web pages to fetch simultaneously",
 		"description": "Label for drop down for maximum number of web pages to request at same time"
+	},
+	"__MSG_label_Metadata_description__": {
+		"message": "Epub description",
+		"description": "Preview description from the epub in Calibre"
+	},
+	"__MSG_label_Metadata_subject__": {
+		"message": "Tags",
+		"description": "Tags for epub"
+	},
+	"__MSG_label_Metadata_URL__": {
+		"message": "Additional Metadata URL",
+		"description": "Additional Metadata URL"
 	},
 	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
 		"message": "Overwrite existing EPUB file with same name",

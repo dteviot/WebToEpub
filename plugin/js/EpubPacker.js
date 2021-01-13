@@ -97,6 +97,12 @@ class EpubPacker {
         that.createAndAppendChildNS(metadata, dc_ns, "dc:title", that.metaInfo.title);
         that.createAndAppendChildNS(metadata, dc_ns, "dc:language", that.metaInfo.language);
         that.createAndAppendChildNS(metadata, dc_ns, "dc:date", that.getDateForMetaData());
+        if (!util.isNullOrEmpty(that.metaInfo.subject)) {
+            that.createAndAppendChildNS(metadata, dc_ns, "dc:subject", that.metaInfo.subject);
+        }
+        if (!util.isNullOrEmpty(that.metaInfo.description)) {
+            that.createAndAppendChildNS(metadata, dc_ns, "dc:description", that.metaInfo.description);
+        }
 
         let author = that.createAndAppendChildNS(metadata, dc_ns, "dc:creator", that.metaInfo.author);
         this.addMetaProperty(metadata, author, "file-as", "creator", that.metaInfo.getFileAuthorAs());

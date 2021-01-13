@@ -94,6 +94,8 @@ var main = (function () {
         metaInfo.author = getValueFromUiField("authorInput");
         metaInfo.language = getValueFromUiField("languageInput");
         metaInfo.fileName = getValueFromUiField("fileNameInput");
+        metaInfo.subject = getValueFromUiField("subjectInput");
+        metaInfo.description = getValueFromUiField("descriptionInput");
 
         if (document.getElementById("seriesRow").hidden === false) {
             metaInfo.seriesName = getValueFromUiField("seriesNameInput");
@@ -407,12 +409,84 @@ var main = (function () {
         document.getElementById("seriesPageHelpButton").onclick = onSeriesPageHelp;
         document.getElementById("defaultParserHelpButton").onclick = onDefaultParserHelp;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
+        document.getElementById("loadMetadataButton").onclick = onLoadMetadataButtonClick;
 
         document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
         UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
+    }
+
+    function onLoadMetadataButtonClick(){
+        let url = getValueFromUiField("metadataUrlInput");
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            populateMetadataAddWithDom(url, xhr.responseXML);
+        }).catch(function (error) {
+            getLoadAndAnalyseButton().disabled = false;
+            ErrorLog.showErrorMessage(error);
+        });
+    }
+
+    function populateMetadataAddWithDom(url, dom) {
+        try {
+            let metaAddInfo = getEpubMetaAddInfo(dom, userPreferences.useFullTitle.value, url);
+            setUiFieldToValue("subjectInput", metaAddInfo.subject);
+            setUiFieldToValue("descriptionInput", metaAddInfo.description);
+        } catch (error) {
+            ErrorLog.showErrorMessage(error);
+        }
+    }
+
+    function getEpubMetaAddInfo(dom, useFullTitle, url){
+        let metaAddInfo = new EpubAddMetaInfo();
+
+        //novelupdates
+        if (url.includes("novelupdates.com") == true){
+            metaAddInfo.subject = AddSubjectNovelupdate(dom);
+            metaAddInfo.description = AddDescriptionNovelupdate(dom);
+        }
+
+        //wlnupdates
+        else if(url.includes("wlnupdates.com") == true){
+            metaAddInfo.subject = AddSubjectWinupdates(dom);
+            metaAddInfo.description = AddDescriptionWinupdates(dom);
+        } else {
+            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com or wlnupdates.com.";
+            ErrorLog.showErrorMessage(test);
+        }
+        return metaAddInfo;
+    }
+    
+    class EpubAddMetaInfo {
+        constructor () {
+            this.subject = "";
+            this.description = "";
+        }
+    }
+
+    function AddSubjectNovelupdate(dom){
+        let tags = [...dom.querySelectorAll("#seriesgenre .genre")];
+        if (document.getElementById("lesstags").checked == false) {
+            tags = tags.concat([...dom.querySelectorAll("#showtags .genre")]);
+        }
+        return tags.map(e => e.textContent).join(", ");
+    }
+
+    function AddDescriptionNovelupdate(dom){
+        return dom.querySelector("#editdescription p").textContent;
+    }
+
+    function AddSubjectWinupdates(dom){
+        let tags = [...dom.querySelectorAll("#genre-container .multiitem a")];
+        if (document.getElementById("lesstags").checked == false) {
+            tags = tags.concat([...dom.querySelectorAll("#tag .multiitem a")]);
+        }
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    function AddDescriptionWinupdates(dom){
+        return dom.querySelector("#description .description p").textContent;
     }
 
     // actions to do when window opened
