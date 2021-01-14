@@ -70,6 +70,7 @@ class FetchErrorHandler {
         let retryDelay = [120, 60, 30, 15];
         switch(status) {
         case 429:
+        case 509:
             // server asked for rate limiting
             return {retryDelay: retryDelay, promptUser: true};
         case 500:
