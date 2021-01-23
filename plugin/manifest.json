@@ -9,8 +9,6 @@
   "permissions": [
     "clipboardWrite",
     "downloads",
-    "storage",
-    "tabs", 
     "webRequest",
     "webRequestBlocking",
     "<all_urls>"
