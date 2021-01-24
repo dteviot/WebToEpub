@@ -104,6 +104,13 @@ var util = (function () {
         return (filename == null) ? "" : filename;
     }
 
+    var extractFilenameFromUrl = function(url) {
+        return new URL(url)
+            .split("/")
+            .filter(p => p != "")
+            .pop();
+    }
+
     var getParamFromUrl = function(url, paramName) {
         return new URL(url).searchParams.get(paramName);
     }
@@ -912,6 +919,7 @@ var util = (function () {
         log: log,
         extractHostName: extractHostName,
         extractFilename: extractFilename,
+        extractFilenameFromUrl: extractFilenameFromUrl,
         getParamFromUrl: getParamFromUrl,
         setBaseTag: setBaseTag,
         decodeCloudflareProtectedEmails: decodeCloudflareProtectedEmails,
