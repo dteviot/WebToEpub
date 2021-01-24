@@ -105,7 +105,7 @@ var util = (function () {
     }
 
     var extractFilenameFromUrl = function(url) {
-        return new URL(url)
+        return new URL(url).pathname
             .split("/")
             .filter(p => p != "")
             .pop();
