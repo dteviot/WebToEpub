@@ -10,20 +10,23 @@ class WattpadParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
+    async getChapterUrls(dom) {
         let menu = dom.querySelector("ul.table-of-contents");
         if (menu == null) {
             return this.fetchChapterList(dom);
         }
-        return Promise.resolve(util.hyperlinksToChapterList(menu));
+        return util.hyperlinksToChapterList(menu);
     };
 
-    fetchChapterList(dom) {
+    async fetchChapterList(dom) {
         let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
         let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
-        return HttpClient.fetchJson(chaptersUrl).then(function (handler) {
-            return handler.json.parts.map(p => ({sourceUrl: p.url, title: p.title}))
-        });
+        let json = (await HttpClient.fetchJson(chaptersUrl)).json;
+        return json.parts.map(p => ({sourceUrl: p.url, title: p.title}))
     }
 
     static extractIdFromUrl(url) {
@@ -33,29 +36,24 @@ class WattpadParser extends Parser{
         return path.split("/").filter(s => s.includes("-"))[0].split("-")[0];
     }
 
-    fetchChapter(url) {
-        let that = this;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            let dom = xhr.responseXML;
-            let extraUris = that.findURIsWithRestOfChapterContent(dom);
-            return that.fetchAndAddExtraContentForChapter(dom, extraUris);
-        });
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let extraUris = this.findURIsWithRestOfChapterContent(dom);
+        return this.fetchAndAddExtraContentForChapter(dom, extraUris);
     }
 
     findURIsWithRestOfChapterContent(dom) {
-        let uris = [];
+        let info = { "pages" : 1 };
         let json = this.findJsonWithRestOfChapterUriInfo(dom);
         if (json != null) {
-            let pages = json.pages;
+            info.pages = json.pages;
+            info.refreshToken = json.text_url.refresh_token;
             let uri = json.text_url.text;
             let index = uri.indexOf("?");
-            let uriStart = uri.substring(0, index);
-            let uriEnd = uri.substring(index);
-            for(let i = 2; i <= pages; ++i) {
-                uris.push(uriStart + "-" + i + uriEnd);
-            }
+            info.uriStart = uri.substring(0, index);
+            info.uriEnd = uri.substring(index);
         }
-        return uris;
+        return info;
     }
 
     findJsonWithRestOfChapterUriInfo(dom) {
@@ -69,28 +67,42 @@ class WattpadParser extends Parser{
         }
     }
 
-    fetchAndAddExtraContentForChapter(dom, extraUris) {
-        return this.fetchExtraChapterContent(extraUris).then(
-            (extraContent) => this.addExtraContent(dom, extraContent)
-        ).then(
-            (dom) => WattpadParser.removeDuplicateParagraphs(dom)
-        );
+    async fetchAndAddExtraContentForChapter(dom, extraUris) {
+        let extraContent = (await this.fetchExtraChapterContent(extraUris));
+        this.addExtraContent(dom, extraContent);
+        return WattpadParser.removeDuplicateParagraphs(dom);
     }
 
-    fetchExtraChapterContent(extraUris) {
-        let sequence = Promise.resolve();
+    async fetchExtraChapterContent(extraUris) {
         let extraContent = [];
-        extraUris.forEach(function(uri) {
-            sequence = sequence.then(function () {
-                return HttpClient.fetchText(uri).then(
-                    text => extraContent.push(text)
-                );
-            }); 
-        });
-        sequence = sequence.then(
-            () => extraContent
-        );
-        return sequence;
+        for(let page = 2; page <= extraUris.pages; ++page) {
+            let text = (await this.fetchPage(extraUris, page));
+            extraContent.push(text);
+        }
+        return extraContent;
+    }
+
+    async fetchPage(extraUris, page) {
+        let text = null;
+        let retry = 4;
+        while ((text === null) && (0 <= --retry)) {
+            let url = `${extraUris.uriStart}-${page}${extraUris.uriEnd}`;
+            try {
+                text = (await HttpClient.fetchText(url));
+                return text;
+            } catch (err) { 
+                try {
+                    let json = (await HttpClient.fetchJson(extraUris.refreshToken)).json;
+                    if (!util.isNullOrEmpty(json.token)) {
+                        extraUris.uriEnd = "?" + json.token;
+                    }
+                } catch (err) { 
+                    // eslint-disable-line no-empty
+                }
+            }
+        }
+
+        throw new Error("Unable to fetch " + extraUris.uriStart);
     }
 
     addExtraContent(dom, extraContent) {

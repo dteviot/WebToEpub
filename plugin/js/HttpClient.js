@@ -78,7 +78,8 @@ class FetchErrorHandler {
             return {retryDelay: retryDelay, promptUser: false};
         case 502: 
         case 503: 
-        case 504: 
+        case 504:
+        case 520:
             // intermittant fault
             return {retryDelay: retryDelay, promptUser: true};
         default:

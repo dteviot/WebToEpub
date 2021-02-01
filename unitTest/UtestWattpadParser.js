@@ -8,8 +8,10 @@ QUnit.test("findURIsWithRestOfChapterContent", function (assert) {
         WattpadSample, "text/html");
     let parser = new WattpadParser();
     let out = parser.findURIsWithRestOfChapterContent(dom);
-    assert.equal(out.length, 1);
-    assert.equal(out[0], "https://s.wattpad.com/i68391941-256896823-959d99345-2?Policy=eyJTdGF0ZW&Key-Pair-Id=APKAJ54QS7Z2QYNU76UQ")
+    assert.equal(out.pages, 2);
+    assert.equal(out.uriStart, "https://s.wattpad.com/i68391941-256896823-959d99345");
+    assert.equal(out.uriEnd, "?Policy=eyJTdGF0ZW&Key-Pair-Id=APKAJ54QS7Z2QYNU76UQ");
+    assert.equal(out.refreshToken, "https://api.wattpad.com/v4/parts/256896823/token");
 });
 
 let watpaddExtraContent = [
@@ -57,7 +59,13 @@ HttpClient.wrapFetchImpl = function (url, wrapOptions) {
 
 QUnit.test("fetchExtraChapterContent", function (assert) {
     let done = assert.async();
-    new WattpadParser().fetchExtraChapterContent(watpaddExtraUris).then(function(actual) {
+
+    let extraUris = {
+        "pages": 3,
+        "uriStart": "https://s.wattpad.com/i",
+        "uriEnd": ""
+    };
+    new WattpadParser().fetchExtraChapterContent(extraUris).then(function(actual) {
         assert.deepEqual(actual, watpaddExtraContent);
         done();
     });
