@@ -12,7 +12,7 @@ class NovicetranslationsParser extends Parser{
         return dom.querySelector("div.entry-content");
     }
     extractTitleImpl(dom) {
-        return dom.querySelector("strong a");
+        return dom.querySelector("titel");
     }
     findChapterTitle(dom) {
         return dom.querySelector("h2.entry-title");
