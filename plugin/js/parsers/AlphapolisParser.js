@@ -5,7 +5,7 @@ class AlphapolisParser extends Parser{
         super();
     }
     async getChapterUrls(dom) {
-		let menu = dom.querySelector("div.episodes");
+        let menu = dom.querySelector("div.episodes");
         return util.hyperlinksToChapterList(menu);
     }
     findContent(dom) {
@@ -14,11 +14,11 @@ class AlphapolisParser extends Parser{
     extractTitleImpl(dom) {
         return dom.querySelector("h2.title");
     }
-extractAuthor(dom) {
-    let authorLink = dom.querySelector("div.author a");
-    return (authorLink === null) ? super.extractAuthor(dom) : authorLink.textContent;
-};
-    extractLanguage(dom) {
+    extractAuthor(dom) {
+        let authorLink = dom.querySelector("div.author a");
+        return (authorLink === null) ? super.extractAuthor(dom) : authorLink.textContent;
+    };
+    extractLanguage() {
         return "jp";
     }
     findChapterTitle(dom) {
@@ -27,7 +27,7 @@ extractAuthor(dom) {
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.content-info .cover");
     }
-	getInformationEpubItemChildNodes(dom) {
+    getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.abstract")];
     }
 }
