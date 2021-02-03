@@ -83,12 +83,11 @@ class WattpadParser extends Parser{
     }
 
     async fetchPage(extraUris, page) {
-        let text = null;
         let retry = 4;
-        while ((text === null) && (0 <= --retry)) {
+        while (0 <= --retry) {
             let url = `${extraUris.uriStart}-${page}${extraUris.uriEnd}`;
             try {
-                text = (await HttpClient.fetchText(url));
+                let text = (await HttpClient.fetchText(url));
                 return text;
             } catch (err) { 
                 try {
