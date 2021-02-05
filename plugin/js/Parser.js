@@ -239,6 +239,17 @@ class Parser {
     }
 
     /**
+    * default implementation, 
+    * if not available, return ''
+    */
+   extractSubject(dom) {
+    return "";
+    }
+    extractDescription(dom) {
+    return "";
+    }
+    
+    /**
     * default implementation, Derived classes will override
     */
     extractSeriesInfo(dom, metaInfo) {  // eslint-disable-line no-unused-vars
@@ -252,6 +263,8 @@ class Parser {
         metaInfo.author = that.extractAuthor(dom).trim();
         metaInfo.language = that.extractLanguage(dom);
         metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title, useFullTitle);
+        metaInfo.subject = that.extractSubject(dom);
+        metaInfo.description = that.extractDescription(dom);
         that.extractSeriesInfo(dom, metaInfo);
         return metaInfo;
     }
