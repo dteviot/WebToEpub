@@ -66,8 +66,6 @@ var main = (function () {
         setUiFieldToValue("authorInput", metaInfo.author);
         setUiFieldToValue("languageInput", metaInfo.language);
         setUiFieldToValue("fileNameInput", metaInfo.fileName);
-        setUiFieldToValue("subjectInput", metaInfo.subject);
-        setUiFieldToValue("descriptionInput", metaInfo.description);
 
         if (metaInfo.seriesName !== null) {
             document.getElementById("seriesRow").hidden = false;
@@ -121,10 +119,6 @@ var main = (function () {
     }
 
     function fetchContentAndPackEpub() {
-        if (document.getElementById("noAdditionalMetadata").checked == true) {
-            setUiFieldToValue("subjectInput", "");
-            setUiFieldToValue("descriptionInput", "");
-        }
         let metaInfo = metaInfoFromControls();
         let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
 

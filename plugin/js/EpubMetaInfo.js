@@ -21,8 +21,6 @@ class EpubMetaInfo {
 
         this.language = "en";
         this.fileName = "web.epub";
-        this.subject = "";
-        this.description = "";
         this.seriesName = null;
         this.seriesIndex = null;
         this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();

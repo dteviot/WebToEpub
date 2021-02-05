@@ -80,23 +80,6 @@ class TemplateParser extends Parser{
         return dom.querySelector("html").getAttribute("lang");
     }
     */
-   
-    // Genre of the story
-    // Optional, Genre for metadata, if not provided, will default to ""
-    /*
-   extractSubject(dom) {
-    let tags = [...dom.querySelectorAll('[property="genre"]')];
-    return tags.map(e => e.textContent.trim()).join(", ");
-    }
-    */
-
-    // Description of the story
-    // Optional, Description for metadata, if not provided, will default to ""
-    /*
-    extractDescription(dom) {
-    return dom.querySelector('div [property="description"]').textContent.trim();
-    }
-    */
 
     // Optional, supply if need to do special manipulation of content
     // e.g. decrypt content
