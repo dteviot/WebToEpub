@@ -88,15 +88,6 @@ class RoyalRoadParser extends Parser{
         return author.startsWith("by ") ? author.substring(3) : author;
     }
 
-    extractSubject(dom) {
-        let tags = [...dom.querySelectorAll('[property="genre"]')];
-        return tags.map(e => e.textContent.trim()).join(", ");
-    }
-
-    extractDescription(dom) {
-        return dom.querySelector('div [property="description"]').textContent.trim();
-    }
-
     findChapterTitle(dom) {
         return dom.querySelector("h1") ||
             dom.querySelector("h2");

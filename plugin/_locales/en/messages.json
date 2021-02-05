@@ -199,10 +199,6 @@
 		"message": "Language",
 		"description": "Label in front input for language EPUB will be in"
 	},
-	"__MSG_label_no_additional_metadata__": {
-		"message": "no Additional Metadata",
-		"description": "No tags and description in metadata"
-	},
 	"__MSG_label_less_tags__": {
 		"message": "less tags",
 		"description": "Only extract genre"
