@@ -88,6 +88,21 @@ class LightNovelWorldParser extends Parser{
         let toRemove = [...element.querySelectorAll("span")]
             .filter(this.isWatermark);
         util.removeElements(toRemove);
+        let new_watermark_class_search = [...element.querySelectorAll("p")].filter(a => a.textContent.includes("tnovelworld"));
+        let i=-1;
+        let new_watermark_class=".";
+        //to prevent errors when the autor wrote tnovelworld in his text
+        do{
+            i++;
+            //to prevent errors if it doesn't exist
+            try{new_watermark_class="."+new_watermark_class_search[i].className;
+            }catch{
+                new_watermark_class="notfound"}
+        }  while (new_watermark_class == ".");
+        if(new_watermark_class!="notfound"){
+            let new_watermark = [...element.querySelectorAll(new_watermark_class)];
+            util.removeElements(new_watermark);
+        }
         super.removeUnwantedElementsFromContentElement(element);
     }
 
