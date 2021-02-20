@@ -85,14 +85,14 @@ class LightNovelWorldParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let toRemove = [...element.querySelectorAll("span")]
-            .filter(this.isWatermark);
+        let toRemove = [...element.querySelectorAll("span, p")]
+            .filter(e => this.isWatermark(e.textContent));
         util.removeElements(toRemove);
         super.removeUnwantedElementsFromContentElement(element);
     }
 
-    isWatermark(element) {
-        let text = element.textContent.replace(/_/g, "");
+    isWatermark(textContent) {
+        let text = textContent.replace(/(\/|_|\[|\])/g, "");
         return text.includes("lightnovelworld.com");
     }
 
