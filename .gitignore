@@ -1,1 +1,7 @@
 eslint/node_modules/*
+eslint/error.txt
+eslint/index.csv
+eslint/packed.js
+eslint/WebToEpub0.0.0.127.xpi
+eslint/WebToEpub0.0.0.127.zip
+plugin/js/.eslintrc.js

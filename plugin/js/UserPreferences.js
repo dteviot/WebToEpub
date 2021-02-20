@@ -101,6 +101,9 @@ class UserPreferences {
         this.addPreference("themeColor", "themeColorTag", "");
         this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", false);
         this.addPreference("addInformationPage", "addInformationPageToEpubCheckbox", true);
+        this.addPreference("lesstags", "lesstagsCheckbox", true);
+        this.addPreference("autosearchmetadata", "autosearchmetadataCheckbox", false);
+        this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", true);
         this.observers = [];
         this.readingList = new ReadingList();
 

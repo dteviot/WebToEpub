@@ -66,7 +66,8 @@ var main = (function () {
         setUiFieldToValue("authorInput", metaInfo.author);
         setUiFieldToValue("languageInput", metaInfo.language);
         setUiFieldToValue("fileNameInput", metaInfo.fileName);
-
+        setUiFieldToValue("subjectInput", metaInfo.subject);
+        setUiFieldToValue("descriptionInput", metaInfo.description);
         if (metaInfo.seriesName !== null) {
             document.getElementById("seriesRow").hidden = false;
             document.getElementById("volumeRow").hidden = false;
@@ -119,6 +120,10 @@ var main = (function () {
     }
 
     function fetchContentAndPackEpub() {
+        if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
+            setUiFieldToValue("subjectInput", "");
+            setUiFieldToValue("descriptionInput", "");
+        }
         let metaInfo = metaInfoFromControls();
         let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
 
@@ -214,6 +219,9 @@ var main = (function () {
         // set the base tag, in case server did not supply it 
         util.setBaseTag(url, initalWebPage);
         processInitialHtml(url, initalWebPage);
+        if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
+            autosearchadditionalmetadata();
+        }
     }
 
     function setParser(url, dom) {
@@ -417,8 +425,67 @@ var main = (function () {
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
     }
+	
+	
+    // Additional metadata
+    function autosearchadditionalmetadata(){
+        getPackEpubButton().disabled = true;
+        let titelname = getValueFromUiField("titleInput");
+        let url ="https://www.novelupdates.com/?s="+titelname;
+        if (getValueFromUiField("subjectInput")==null){
+            autosearchnovelupdates(url, titelname);
+        }   
+        getPackEpubButton().disabled = false;     
+    }
+	
+    function autosearchnovelupdates(url, titelname){
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            findnovelupdatesurl(url, xhr.responseXML, titelname);
+        }).catch(function (error) {
+            getLoadAndAnalyseButton().disabled = false;
+            ErrorLog.showErrorMessage(error);
+        });
+    }
 
+    function autosearchwlnupdates(url, titelname){
+        url ="https://www.wlnupdates.com/search?title="+titelname;
+        return HttpClient.wrapFetch(url).then(function (xhr) {
+            findwlnupdatesurl(url, xhr.responseXML, titelname);
+        }).catch(function (error) {
+            getLoadAndAnalyseButton().disabled = false;
+            ErrorLog.showErrorMessage(error);
+        });
+    }
+
+    function findnovelupdatesurl(url, dom, titelname){
+        try{    
+            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname);
+            setUiFieldToValue("metadataUrlInput", searchurl);
+            url = getValueFromUiField("metadataUrlInput");
+            if (url.includes("novelupdates.com") == true){
+                onLoadMetadataButtonClick();
+            }
+        }catch{
+            autosearchwlnupdates(url, titelname);
+        }
+    }
+
+    function findwlnupdatesurl(url, dom, titelname){
+        try{    
+            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname);
+            setUiFieldToValue("metadataUrlInput", searchurl);
+            url = getValueFromUiField("metadataUrlInput");
+            if (url.includes("wlnupdates.com") == true){
+                onLoadMetadataButtonClick();
+            }
+        }catch{
+            let test = "Error: Failed to auto fetch additional Metadata on novelupdates.com or wlnupdates.";
+            ErrorLog.showErrorMessage(test);}
+        getPackEpubButton().disabled = false;
+    }
+	
     function onLoadMetadataButtonClick(){
+        getPackEpubButton().disabled = true;
         let url = getValueFromUiField("metadataUrlInput");
         return HttpClient.wrapFetch(url).then(function (xhr) {
             populateMetadataAddWithDom(url, xhr.responseXML);
@@ -433,8 +500,10 @@ var main = (function () {
             let metaAddInfo = getEpubMetaAddInfo(dom, userPreferences.useFullTitle.value, url);
             setUiFieldToValue("subjectInput", metaAddInfo.subject);
             setUiFieldToValue("descriptionInput", metaAddInfo.description);
+            getPackEpubButton().disabled = false;
         } catch (error) {
             ErrorLog.showErrorMessage(error);
+            getPackEpubButton().disabled = false;
         }
     }
 
@@ -467,26 +536,26 @@ var main = (function () {
 
     function AddSubjectNovelupdate(dom){
         let tags = [...dom.querySelectorAll("#seriesgenre .genre")];
-        if (document.getElementById("lesstags").checked == false) {
+        if (document.getElementById("lesstagsCheckbox").checked == false) {
             tags = tags.concat([...dom.querySelectorAll("#showtags .genre")]);
         }
         return tags.map(e => e.textContent).join(", ");
     }
 
     function AddDescriptionNovelupdate(dom){
-        return dom.querySelector("#editdescription p").textContent;
+        return dom.querySelector("#editdescription").textContent;
     }
 
     function AddSubjectWinupdates(dom){
         let tags = [...dom.querySelectorAll("#genre-container .multiitem a")];
-        if (document.getElementById("lesstags").checked == false) {
+        if (document.getElementById("lesstagsCheckbox").checked == false) {
             tags = tags.concat([...dom.querySelectorAll("#tag .multiitem a")]);
         }
         return tags.map(e => e.textContent.trim()).join(", ");
     }
 
     function AddDescriptionWinupdates(dom){
-        return dom.querySelector("#description .description p").textContent;
+        return dom.querySelector("#description .description").textContent;
     }
 
     // actions to do when window opened

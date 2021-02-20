@@ -88,10 +88,10 @@ class LightNovelWorldParser extends Parser{
         let toRemove = [...element.querySelectorAll("span")]
             .filter(this.isWatermark);
         util.removeElements(toRemove);
-        let new_watermark_class_search = [...element.querySelectorAll("p")].filter(a => a.textContent.includes("tnovelworld"));
+        let new_watermark_class_search = [...element.querySelectorAll("p")].filter(a => a.textContent.includes("ld"));
         let i=-1;
         let new_watermark_class=".";
-        //to prevent errors when the autor wrote tnovelworld in his text
+        //to prevent errors when the autor wrote 'ld' in his text
         do{
             i++;
             //to prevent errors if it doesn't exist

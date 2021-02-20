@@ -9,7 +9,7 @@ class GunnerkriggParser extends Parser{
 
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("select[name='page'] option")]
-           .map(this.optionToChapter);
+            .map(this.optionToChapter);
     }
 
     optionToChapter(option) {
