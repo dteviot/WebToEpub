@@ -36,6 +36,7 @@ Credits
 * Tom Goetz
 * Alen Toma (css styling)
 * JimmXinu
+* Kondeeza
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
