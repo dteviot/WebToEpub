@@ -203,6 +203,10 @@
 		"message": "less tags",
 		"description": "Only extract genre"
 	},
+	"__MSG_label_Manual_Delay_Per_Chapter__": {
+		"message": "Manual Throttle|Delay per chapter",
+		"description": "Manual Throttle|Delay per chapter"
+	},
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"

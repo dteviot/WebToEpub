@@ -436,11 +436,13 @@ class ChapterUrlsUI {
 ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
 ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING = 1;
 ChapterUrlsUI.DOWNLOAD_STATE_LOADED = 2;
+ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING = 3;
 
 ChapterUrlsUI.ImageForState = [
     "images/ChapterStateNone.svg",
     "images/ChapterStateDownloading.svg",
-    "images/ChapterStateLoaded.svg"
+    "images/ChapterStateLoaded.svg",
+    "images/ChapterStateSleeping.svg"
 ];
 
 ChapterUrlsUI.lastSelectedRow = null;

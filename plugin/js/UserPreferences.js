@@ -96,6 +96,7 @@ class UserPreferences {
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
+        this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
         this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.addPreference("themeColor", "themeColorTag", "");

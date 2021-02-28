@@ -281,6 +281,25 @@
                         </td>
                         <td>__MSG_label_Max_chapters_per_epub__</td>
                     </tr>
+                    <tr id="manualDelayPerChapter">
+                        <td>
+                            <select id="manualDelayPerChapterTag">
+                                <option value="0" selected>Default (No Chapter Throttle/Delay)</option>
+                                <option value="3000">3 Secs/Chapter</option>
+                                <option value="5000">5 Secs/Chapter </option>
+                                <option value="10000">10 Secs/Chapter</option>
+                                <option value="20000">20 Secs/Chapter </option>
+                                <option value="30000">30 Secs/Chapter</option>
+                                <option value="60000">1 Min/Chapter</option>
+                                <option value="300000">5 Mins/Chapter</option>
+                                <option value="600000">10 Mins/Chapter</option>
+                                <option value="1800000">30 Mins/Chapter</option>
+                                <option value="3600000">60 Mins/Chapter</option>
+                                <option value="simulate_reading">Simulate Reading (7-15 Mins/Chapter)</option>
+                            </select>
+                        </td>
+                        <td>__MSG_label_Manual_Delay_Per_Chapter__</td>
+                    </tr>
                     <tr id="IncludeInReadingListRow">
                         <td><input id="includeInReadingListCheckbox" type="checkbox" name="includeInReadingListCheckbox" value="false"></td>
                         <td>__MSG_label_Include_in_Reading_List__</td>
