@@ -1,0 +1,14 @@
+<svg version="1.1"
+     baseProfile="full"
+     width="32" height="32"
+     xmlns="http://www.w3.org/2000/svg">
+  <line stroke-width="2" y2="4.3" x2="15.1" y1="4.3" x1="6.2" stroke="#965607" />
+  <line stroke-width="2" y2="11.1" x2="15.0" y1="11.1" x1="6.0" stroke="#965607" />
+  <line y2="11.5" x2="6.7" y1="4.4" x1="14.4" stroke-dasharray="null" stroke-width="2" stroke="#965607" />
+  <line stroke-width="2" y2="9.0" x2="27.7" y1="9.0" x1="18.7" stroke="#965607" />
+  <line stroke-width="2" y2="15.8" x2="27.6" y1="15.8" x1="18.6" stroke="#965607" />
+  <line y2="16.2" x2="19.2" y1="9.1" x1="26.9" stroke-dasharray="null" stroke-width="2" stroke="#965607" />
+  <line stroke-width="2" y2="20.4" x2="16.3" y1="20.4" x1="7.3" stroke="#965607" />
+  <line stroke-width="2" y2="27.3" x2="16.2" y1="27.3" x1="7.2" stroke="#965607" />
+  <line y2="27.6" x2="7.9" y1="20.6" x1="15.6" stroke-dasharray="null" stroke-width="2" stroke="#965607" />
+</svg>

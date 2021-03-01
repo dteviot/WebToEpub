@@ -466,8 +466,11 @@ class Parser {
         return blocks;
     }
 
-    fetchWebPageContent(webPage) {
+    async fetchWebPageContent(webPage) {
         let that = this;
+        let manualDelayPerChapterValue = (that.userPreferences.manualDelayPerChapter.value == "simulate_reading" )? util.randomInteger(420000,900000): parseInt(that.userPreferences.manualDelayPerChapter.value);  
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING);
+        await util.sleep(manualDelayPerChapterValue);
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
         return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
