@@ -13,6 +13,10 @@ var util = (function () {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    var randomInteger = function(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     var isFirefox = function() {
         return (typeof(browser) !== "undefined");
     }
@@ -909,6 +913,7 @@ var util = (function () {
         HEADER_TAGS: ["h1", "h2", "h3", "h4", "h5", "h6" ],
 
         sleep: sleep,
+        randomInteger: randomInteger,
         isFirefox: isFirefox,
         extensionVersion: extensionVersion,
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
