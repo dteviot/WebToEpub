@@ -1,5 +1,5 @@
 ## Pull Request Check List
-* Do all existing unit tests pass?
+* Do all existing unit tests pass?  (FYI, I find it easier to get the unit tests to run under Firefox, instead of Chrome.)
 * Have all warnings and errors reported by eslint been fixed?
 * If you've added new behavior, 
     * Can a user turn it off?  

@@ -123,7 +123,11 @@ WebToEpub uses the following libraries:
 ## Other notes
 ### To run unit tests under Chrome
 * Close all running copies of Chrome 
-* Start Chrome with command line argument --allow-file-access-from-files
+* Start Chrome with command line argument --allow-file-access-from-files.  That is:
+    * Open a command propmt
+    * Browse to the directory holding Chrome
+    * Type in command "chrome.exe --allow-file-access-from-files" without the quotes. Press "Enter".
+    * If you don't do this, some tests will fail with error messages containing the text **_Failed to execute 'send' on 'XMLHttpRequest': Failed to load_**.
 * Load unitTest/Tests.html
 * If you get **_Failed to read the 'localStorage' property from 'Window': Access is denied for this document_** errors
     * Type **_chrome://settings/content_** into Chrome's search bar 
