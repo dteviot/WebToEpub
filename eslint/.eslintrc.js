@@ -4,7 +4,7 @@ module.exports = {
         "es6": true
     },
     "parserOptions": {
-        "ecmaVersion": 8
+        "ecmaVersion": 2019
     },    
     "extends": "eslint:recommended",
     "rules": {

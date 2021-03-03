@@ -87,7 +87,16 @@ class RoyalRoadParser extends Parser{
         author = author.innerText.trim();
         return author.startsWith("by ") ? author.substring(3) : author;
     }
+    /* eslint-disable */
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll('[property="genre"]')]);
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
 
+    extractDescription(dom) {
+        return dom.querySelector('div [property="description"]').textContent.trim();
+    }
+    /* eslint-enable */
     findChapterTitle(dom) {
         return dom.querySelector("h1") ||
             dom.querySelector("h2");
