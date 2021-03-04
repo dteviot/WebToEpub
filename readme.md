@@ -36,7 +36,7 @@ Credits
 * Tom Goetz
 * Alen Toma (css styling)
 * JimmXinu
-* gamebeaker (alphapolis, novicetranslations parser)
+* gamebeaker (additional metadata, alphapolis, novicetranslations parser)
 * Kondeeza
 
 ## How to use with Baka-Tsuki:
