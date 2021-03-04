@@ -50,12 +50,11 @@ class MadaraParser extends WordpressBaseParser{
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 	
-    /* eslint-disable */
     extractSubject(dom) {
-        let tags = [...dom.querySelector("div .genres-content").querySelectorAll('[rel="tag"]')];
+        let tags = [...dom.querySelector("div .genres-content").querySelectorAll("[rel='tag']")];
         return tags.map(e => e.textContent.trim()).join(", ");
     }
-    /* eslint-enable */
+
     extractDescription(dom) {
         return dom.querySelector("div .summary__content").textContent.trim();
     }
