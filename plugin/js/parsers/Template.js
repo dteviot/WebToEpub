@@ -84,9 +84,9 @@ class TemplateParser extends Parser{
     // Genre of the story
     // Optional, Genre for metadata, if not provided, will default to ""
     /*
-   extractSubject(dom) {
-    let tags = [...dom.querySelectorAll('[property="genre"]')];
-    return tags.map(e => e.textContent.trim()).join(", ");
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll("[property='genre']")];
+        return tags.map(e => e.textContent.trim()).join(", ");
     }
     */
 
@@ -94,7 +94,7 @@ class TemplateParser extends Parser{
     // Optional, Description for metadata, if not provided, will default to ""
     /*
     extractDescription(dom) {
-    return dom.querySelector('div [property="description"]').textContent.trim();
+        return dom.querySelector("div [property='description']").textContent.trim();
     }
     */
 

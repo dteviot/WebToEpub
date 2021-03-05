@@ -51,7 +51,7 @@ class MadaraParser extends WordpressBaseParser{
     }
 	
     extractSubject(dom) {
-        let tags = [...dom.querySelector("div .genres-content").querySelectorAll("[rel='tag']")];
+        let tags = [...dom.querySelectorAll("div .genres-content [rel='tag']")];
         return tags.map(e => e.textContent.trim()).join(", ");
     }
 

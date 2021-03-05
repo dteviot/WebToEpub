@@ -1,1 +1,3 @@
 eslint/node_modules/*
+/eslint/*.xpi
+/eslint/*.zip
