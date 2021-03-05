@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
+parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
 
 class LightNovelWorldParser extends Parser{
     constructor() {
