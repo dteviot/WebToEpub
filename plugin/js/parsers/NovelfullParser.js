@@ -4,6 +4,7 @@
 "use strict";
 
 parserFactory.register("novelfull.com", function () { return new NovelfullParser() });
+parserFactory.register("allnovel.org", function () { return new NovelfullParser() });
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
 
 class NovelfullParser extends Parser{
@@ -33,7 +34,8 @@ class NovelfullParser extends Parser{
     }
 
     static buildUrlForTocPage(link, i) {
-        if (link.hostname === "novelfull.com") {
+        let hostname = link.hostname;
+        if ((hostname === "novelfull.com") || (hostname === "allnovel.org")) {
             link.search = `?page=${i}&per-page=50`;
         } else {
             link.pathname = link.pathname.split("/")[1] + "/" + i;
