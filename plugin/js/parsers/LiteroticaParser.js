@@ -62,23 +62,20 @@ class LiteroticaParser extends Parser {
 
     static findUrlsOfAdditionalPagesMakingChapter(url, dom) {
         const paginationItems = dom.querySelectorAll("div.l_bH a.l_bJ");
-        const totalPages = parseInt(
-            paginationItems[paginationItems.length - 1].href.split("=")[1]
-        );
 
         let urls = [];
-        let i = 2;
-        while (i <= totalPages) {
-            urls.push(`${url}?page=${i}`);
-            i++;
+        if (paginationItems.length > 0) {
+            const totalPages = parseInt(
+                paginationItems[paginationItems.length - 1].href.split("=")[1]
+            );
+
+            let i = 2;
+            while (i <= totalPages) {
+                urls.push(`${url}?page=${i}`);
+                i++;
+            }
         }
-
         return urls;
-
-        // return [...dom.querySelectorAll("div.b-pager-pages select option")]
-        //     .map((o) => o.textContent)
-        //     .filter((t) => t !== "1")
-        //     .map((a) => `${url}?page=${a}`);
     }
 
     static fetchAdditionalPageContent(url) {
