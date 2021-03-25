@@ -29,11 +29,11 @@ class LiteroticaParser extends Parser{
     };
 
     static contentForPage(dom) {
-        return dom.querySelector("div.b-story-body-x");
+        return dom.querySelector("div.aa_ht");
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("div.b-story-header h1");
+        return dom.querySelector("h1.headline");
     }
 
     fetchChapter(url) {
@@ -48,10 +48,15 @@ class LiteroticaParser extends Parser{
     }
 
     static findUrlsOfAdditionalPagesMakingChapter(url, dom) {
-        return [...dom.querySelectorAll("div.b-pager-pages select option")]
-            .map(o => o.textContent)
-            .filter(t => t !== "1")
-            .map(a => `${url}?page=${a}`); 
+        let pageIds = [...dom.querySelectorAll("div.l_bH a.l_bJ")]
+            .map(o => parseInt(o.href.split("=")[1]))
+            .filter(t => t !== 1);
+        let urls = [];
+        const totalPages = (0 < pageIds.length) ? pageIds.pop() : 0;
+        for(let i = 2; i <= totalPages; ++i) {
+            urls.push(`${url}?page=${i}`);
+        }
+        return urls;
     }
 
     static fetchAdditionalPageContent(url) {

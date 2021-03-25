@@ -17,7 +17,7 @@ QUnit.test("findUrlsOfAdditionalPagesMakingChapter-0pages", function (assert) {
     let url = "https://www.literotica.com/s/angels-of-rain-and-lightning";
     let dom = new DOMParser().parseFromString(
         LiteroticaSampleChapterPage, "text/html");
-    [...dom.querySelectorAll("option")].forEach(o => o.remove());
+    [...dom.querySelectorAll("div.l_bH a.l_bJ")].forEach(o => o.remove());
     let urls = LiteroticaParser.findUrlsOfAdditionalPagesMakingChapter(url, dom);
     assert.equal(urls.length, 0);
 });
@@ -28,13 +28,13 @@ QUnit.test("assembleChapter", function (assert) {
         LiteroticaSampleChapterPage, "text/html");
 
     let fragment1 = new DOMParser().parseFromString(
-        "<div class=\"b-story-body-x x-r15\">" +
+        "<div class=\"aa_ht x-r15\">" +
         "<div><p>page2</p></div>" +
         "</div>",
         "text/html"
     );
     let fragment2 = new DOMParser().parseFromString(
-        "<div class=\"b-story-body-x x-r15\">" +
+        "<div class=\"aa_ht x-r15\">" +
         "<div><p>page3a</p></div>" +
         "<div><p>page3b</p></div>" +
         "</div>",
@@ -78,9 +78,9 @@ let LiteroticaSampleChapterPage =
     <title>Alien Artifact - Geek Pride - Sci-Fi &amp; Fantasy - Literotica.com</title>
     <base href="https://www.literotica.com/s/angels-of-rain-and-lightning" />
 </head>
-<body class="t-storypage font-set-1 c38 btoprel"><div id="content"><div class="b-story-body-x x-r15"><div><p>page1</p></div></div></div>
+<body class="t-storypage font-set-1 c38 btoprel"><div id="content"><div class="aa_ht x-r15"><div><p>page1</p></div></div></div>
 <div class="b-pager-pages">
-<select name="page"><option value="1" class="current" selected="selected">1</option><option value="2">2</option><option value="3">3</option></select>
+<div class="panel clearfix l_bH"><a disabled="" class="l_bJ l_bK" title="Previous Page" href="/s/xxx-ch-05"><i class="icon-angle-left l_bP"></i></a><a class="l_bJ l_bL" title="Next Page" href="/s/xxx-ch-05?page=2"><i class="icon-angle-right l_bP"></i></a><a class="l_bJ" href="/s/xxxx-ch-05">1</a><span class="l_bJ l_x">2</span><a class="l_bJ" href="/s/xxx-ch-05?page=3">3</a><form action="?" class="l_bQ"><input type="number" name="page" placeholder="Page #" class="l_bR" aria-label="Page Number"></form></div>
 </div>
 </body>
 </html>
@@ -94,7 +94,7 @@ let LiteroticaToCSamplePage1 =
     <base href="https://www.literotica.com/s/literotica-geek-pride-story-event-list" />
 </head>
 <body class="t-storypage font-set-1 c38 btoprel">
-<div id="content"><div class="b-story-body-x x-r15">
+<div id="content"><div class="aa_ht x-r15">
 <a href="https://www.literotica.com/s/alien-artifact-geek-pride" target="_blank">Alien Artifact - Geek Pride by HappyDom</a>
 <a href="https://www.literotica.com/s/an-infernal-folio" target="_blank">An Infernal Folio by yowser</a>
 </div>
@@ -114,7 +114,7 @@ let LiteroticaToCSamplePage2 =
 <tr class="sl"><td class="fc"><a class="bb" href="https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01">A Dirty TASK Needs Doing Pt. 01</a>&nbsp;(4.57)</td><td>Kimberly Woods is not your average high school senior...
                   &nbsp;</td><td>&nbsp;<a href="https://www.literotica.com/c/transsexuals-crossdressers" class="l-8 intext r-5"><span>Transsexuals &amp; Crossdressers</span></a>&nbsp;</td><td class="dt">03/15/18</td></tr>
 </tbody></table>
-<div id="content"><div class="b-story-body-x x-r15">
+<div id="content"><div class="aa_ht x-r15">
 <div class="b-story-list-box">
 <h3><a href=\"https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07\">Zelda - Avatar of the Golden Nymph Ch. 07</a></h3>
 <a href="https://www.literotica.com/stories/memberpage.php?uid=3586621&amp;page=submissions">SZENSEI</a>
