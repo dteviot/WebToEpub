@@ -19,7 +19,10 @@ class FoxaholicParser extends WordpressBaseParser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("ol.breadcrumb li.active").textContent;
+        let title = dom.querySelector("ol.breadcrumb li.active");
+        return (title === null) 
+            ? dom.querySelector(".item-title")
+            : title.textContent;
     }
 
     findCoverImageUrl(dom) {
