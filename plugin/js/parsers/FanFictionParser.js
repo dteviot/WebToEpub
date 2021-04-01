@@ -13,18 +13,13 @@ class FanFictionParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
-        let that = this;
-        let baseUrl = that.getBaseUrl(dom);
+    async getChapterUrls(dom) {
+        let baseUrl = this.getBaseUrl(dom);
         let options = [...dom.querySelectorAll("select#chap_select option")];
-        if (options.length ===0) {
-            // no list of chapters found, assume it's a single chapter story
-            return Promise.resolve(that.singleChapterStory(baseUrl, dom));
-        } else {
-            return Promise.resolve(
-                options.map(option => that.optionToChapterInfo(baseUrl, option))
-            );
-        }
+        // no list of chapters found, assume it's a single chapter story
+        return (options.length === 0) 
+            ? this.singleChapterStory(baseUrl, dom)
+            : options.map(option => this.optionToChapterInfo(baseUrl, option));
     }
 
     optionToChapterInfo(baseUrl, optionElement) {
