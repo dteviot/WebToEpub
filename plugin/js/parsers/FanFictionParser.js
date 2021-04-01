@@ -15,11 +15,15 @@ class FanFictionParser extends Parser {
 
     async getChapterUrls(dom) {
         let baseUrl = this.getBaseUrl(dom);
-        let options = [...dom.querySelectorAll("select#chap_select option")];
+        let options = this.getOptions(dom);
         // no list of chapters found, assume it's a single chapter story
         return (options.length === 0) 
             ? this.singleChapterStory(baseUrl, dom)
             : options.map(option => this.optionToChapterInfo(baseUrl, option));
+    }
+
+    getOptions(dom) {
+        return [...dom.querySelectorAll("select#chap_select option")]
     }
 
     optionToChapterInfo(baseUrl, optionElement) {
@@ -49,6 +53,26 @@ class FanFictionParser extends Parser {
 
     extractAuthor(dom) {
         return this.extractTextFromProfile(dom, "a");
+    }
+
+    async fetchChapter(url) {
+        let dom = await super.fetchChapter(url);
+        this.addTitleToChapter(url, dom)
+        return dom;
+    }
+
+    addTitleToChapter(url, dom) {
+        let path = url.split("/");
+        let chapterId = path[path.length - 2];
+        for(let option of this.getOptions(dom)) {
+            if (chapterId === option.getAttribute("value")) {
+                let title = dom.createElement("H1");
+                title.appendChild(dom.createTextNode(option.textContent))
+                let content = this.findContent(dom);
+                content.insertBefore(title, content.firstChild);
+                break;
+            }
+        }
     }
 
     populateInfoDiv(infoDiv, dom) {
