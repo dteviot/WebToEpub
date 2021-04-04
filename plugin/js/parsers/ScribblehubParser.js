@@ -49,7 +49,7 @@ class ScribblehubParser extends Parser{
     };
     
     findChapterTitle(dom) {
-        return dom.querySelector("div.chapter-title");
+        return dom.querySelector("div.chapter-title").textContent;
     }
 
     findCoverImageUrl(dom) {
