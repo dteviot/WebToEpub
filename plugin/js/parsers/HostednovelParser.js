@@ -11,7 +11,6 @@ class HostednovelParser extends Parser{
         let url = dom.baseURI;
         if (util.extractFilenameFromUrl(url) !== "chapters") {
             url += "/chapters";
-            dom = (await HttpClient.wrapFetch(url)).responseXML;
         }
         let urlsOfTocPages = this.extractTocPageUrls(dom, url);
         let chapters = [];
@@ -20,7 +19,7 @@ class HostednovelParser extends Parser{
     }
 
     extractTocPageUrls(dom, initialTocUrl) {
-        return [...dom.querySelectorAll("article.card.chaptergroup")]
+        return [...dom.querySelectorAll(".chaptergroup")]
             .map(article => article.className.split(" ").filter(s => s.startsWith("chaptergroup-")))
             .map(s => s[0].split("-")[1])
             .filter(s => s != "")
@@ -46,8 +45,18 @@ class HostednovelParser extends Parser{
         return dom.querySelector("h1");
     }
 
+    findCoverImageUrl(dom) {
+        let card = this.getInfoCard(dom);
+        return card === null ? null : card.querySelector("img").src;
+    }
+
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("div.card")]
+        return [this.getInfoCard(dom)]
             .filter(c => c != null);
+    }
+
+    getInfoCard(dom) {
+        let cards = [...dom.querySelectorAll("div.card-body")]
+        return 1 < cards.length ? cards[1] : [];
     }
 }
