@@ -45,20 +45,19 @@ class ActiveTranslationsParser extends Parser{
 
     parseStyle(content) {
         let rules = new Map();
-        let style = content.querySelector("style");
-        let lines = style.textContent.split("\n")
+        let style = [...content.querySelectorAll("style")].pop();
+        let lines = style.textContent.split("}")
             .map(l => l.trim())
             .filter(l => !util.isNullOrEmpty(l));
-        for(let i = 0; i < lines.length; i += 3) {
-            let line = lines[i];
+        for(let line of lines) {
             let index = line.indexOf("::before {");
             if (0 < index) {
-                this.addBefore(lines[i + 1], line, index, rules);
+                this.addBefore(line, index, rules);
                 continue;
             }
             index = line.indexOf("::after {");
             if (0 < index) {
-                this.addAfter(lines[i + 1], line, index, rules);
+                this.addAfter(line, index, rules);
                 continue;
             }
             break;
@@ -67,9 +66,9 @@ class ActiveTranslationsParser extends Parser{
         return rules;
     }
 
-    addBefore(contextLine, line, index, rules) {
+    addBefore(line, index, rules) {
         let className = line.substring(1, index);
-        let context = this.extractContent(contextLine);
+        let context = this.extractContent(line);
         let rule = rules.get(className);
         if (rule === undefined) {
             rules.set(className, { before: context});
@@ -78,9 +77,9 @@ class ActiveTranslationsParser extends Parser{
         }
     }
 
-    addAfter(contextLine, line, index, rules) {
+    addAfter(line, index, rules) {
         let className = line.substring(1, index);
-        let context = this.extractContent(contextLine);
+        let context = this.extractContent(line);
         let rule = rules.get(className);
         if (rule === undefined) {
             rules.set(className, { after: context});
