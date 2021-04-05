@@ -14,7 +14,9 @@ class ActiveTranslationsParser extends Parser{
 
     findContent(dom) {
         let content = dom.querySelector("div.entry-content");
-        util.removeChildElementsMatchingCss(content, ".code-block, #comments");
+        if (content !== null) {
+            util.removeChildElementsMatchingCss(content, ".code-block, #comments");
+        }
         return content;
     }
 
