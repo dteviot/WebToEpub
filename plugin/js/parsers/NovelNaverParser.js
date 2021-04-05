@@ -2,9 +2,24 @@
 
 parserFactory.register("novel.naver.com", () => new NovelNaverParser());
 
-class NovelNaverParser extends Parser{
+class NovelNaverImageCollector extends ImageCollector {
     constructor() {
         super();
+    }
+
+    //  Ignore address of hyperlink that wraps an image tag
+    extractWrappingUrl(element) {
+        let tagName = element.tagName.toLowerCase();
+        let img = (tagName === "img")
+            ? element
+            : element.querySelector("img")
+        return img.src;
+    }
+}
+
+class NovelNaverParser extends Parser{
+    constructor() {
+        super(new NovelNaverImageCollector());
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
