@@ -17,6 +17,9 @@ class ActiveTranslationsParser extends Parser{
         if (content === null) {
             content = dom.querySelector("div.entry-content-container");
         }
+        if (content === null) {
+            content = dom.querySelector("div.nv-content-wrap");
+        }
         if (content !== null) {
             util.removeChildElementsMatchingCss(content, ".code-block, #comments");
         }
