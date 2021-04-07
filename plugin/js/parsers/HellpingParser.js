@@ -11,7 +11,7 @@ class HellpingParser extends WordpressBaseParser {
     }
 
     getChapterUrls(dom) {
-        let menu = dom.querySelector("nav[id='main-navigation']");
+        let menu = dom.querySelector("#primary-menu");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     }
 }
