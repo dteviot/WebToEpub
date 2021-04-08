@@ -145,7 +145,7 @@ class ReadComicOnlineParser extends Parser{
 
     static async promptUserForRetry(errorText) {
         let msg = new Error(errorText);
-        let cancelLabel = FetchErrorHandler.getCancelButtonText();
+        let cancelLabel = FetchErrorHandler.cancelButtonText();
         return new Promise(function(resolve, reject) {
             msg.retryAction = () => resolve(true);
             msg.cancelAction = () => reject(false);
