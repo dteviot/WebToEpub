@@ -29,7 +29,8 @@ class LiteroticaParser extends Parser{
     };
 
     static contentForPage(dom) {
-        return dom.querySelector("div.aa_ht");
+        return dom.querySelector("div.aa_ht")
+            || dom.querySelector("body div");
     }
 
     findChapterTitle(dom) {
