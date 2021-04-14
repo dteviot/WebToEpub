@@ -459,8 +459,8 @@ var main = (function () {
 
     function findnovelupdatesurl(url, dom, titelname){
         try{    
-            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname);
-            setUiFieldToValue("metadataUrlInput", searchurl);
+            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname)[0];
+            setUiFieldToValue("metadataUrlInput", searchurl.href);
             url = getValueFromUiField("metadataUrlInput");
             if (url.includes("novelupdates.com") == true){
                 onLoadMetadataButtonClick();
@@ -472,8 +472,8 @@ var main = (function () {
 
     function findwlnupdatesurl(url, dom, titelname){
         try{    
-            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname);
-            setUiFieldToValue("metadataUrlInput", searchurl);
+            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname)[0];
+            setUiFieldToValue("metadataUrlInput", searchurl.href);
             url = getValueFromUiField("metadataUrlInput");
             if (url.includes("wlnupdates.com") == true){
                 onLoadMetadataButtonClick();
