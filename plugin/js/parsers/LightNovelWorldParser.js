@@ -94,7 +94,7 @@ class LightNovelWorldParser extends Parser{
 
     isWatermark(textContent) {
         let text = textContent.replace(/(\/|_|\[|\])/g, "");
-        return text.includes("lightnovelworld.com");
+        return text.includes("lightnovelpub.com");
     }
 
     findChapterTitle(dom) {
