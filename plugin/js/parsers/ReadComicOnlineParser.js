@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("readcomiconline.to", () => new ReadComicOnlineParser());
+parserFactory.register("readcomiconline.li", () => new ReadComicOnlineParser());
 
 /**
  * This one kind of works, 
