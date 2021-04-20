@@ -129,7 +129,7 @@ class ParserFactory{
         }
     }
 
-    addParsersToPages(initialParser, webPages) {
+    async addParsersToPages(initialParser, webPages) {
         let pagesByHost = new Map()
         let initialUrl = initialParser.state.chapterListUrl;
         let initialHostName = ParserFactory.hostNameForParserSelection(initialUrl);
@@ -147,25 +147,19 @@ class ParserFactory{
             pages.push(page);
         }
 
-        let sequence = Promise.resolve();
         for(let pair of pagesByHost) {
-            sequence = sequence.then(
-                () => this.assignParserToPages(pair[0], pair[1], initialParser)
-            ); 
+            await this.assignParserToPages(pair[1], initialParser);
         }
-        return sequence;
     }
 
-    assignParserToPages(hostName, webPages, initialParser) {
+    async assignParserToPages(webPages, initialParser) {
         let url = webPages[0].sourceUrl;
         let parser = this.fetchByUrl(url);
-        if (parser != null) {
-            return ParserFactory.copyParserToPages(parser, webPages, initialParser);
+        if (parser == null) {
+            let responseXML = (await HttpClient.wrapFetch(url)).responseXML;
+            parser = parserFactory.fetch(url, responseXML);
         }
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            parser = parserFactory.fetch(url, xhr.responseXML);
-            return ParserFactory.copyParserToPages(parser, webPages, initialParser);
-        });
+        ParserFactory.copyParserToPages(parser, webPages, initialParser);
     }
 
     static copyParserToPages(parser, webPages, initialParser) {
@@ -173,7 +167,6 @@ class ParserFactory{
         for(let page of webPages) {
             page.parser = parser;
         }
-        return Promise.resolve();
     }
 }
 

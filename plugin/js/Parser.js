@@ -440,7 +440,7 @@ class Parser {
         ProgressBar.setValue(1);
     }
 
-    fetchWebPages() {
+    async fetchWebPages() {
         let that = this;
 
         let pagesToFetch = [...this.state.webPages.values()].filter(c => c.isIncludeable);
@@ -453,30 +453,27 @@ class Parser {
         that.imageCollector.reset();
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
-        let fetchFunc = (webPage) => this.fetchWebPageContent(webPage);
-
-        return parserFactory.addParsersToPages(this, pagesToFetch).then(function () {
-            let sequence = Promise.resolve();
-            let simultanousFetchSize = parseInt(that.userPreferences.maxPagesToFetchSimultaneously.value);
-            simultanousFetchSize = that.clampSimultanousFetchSize(simultanousFetchSize);
-            for(let group of Parser.groupPagesToFetch(pagesToFetch, simultanousFetchSize)) {
-                sequence = sequence.then(function () {
-                    return Promise.all(group.map(fetchFunc));
-                }); 
+        await parserFactory.addParsersToPages(this, pagesToFetch);
+        let index = 0;
+        try
+        {
+            let group = this.groupPagesToFetch(pagesToFetch, index);
+            while (0 < group.length) {
+                await Promise.all(group.map(async (webPage) => this.fetchWebPageContent(webPage)));
+                index += group.length;
+                group = this.groupPagesToFetch(pagesToFetch, index);
             }
-            sequence = sequence.catch(function (err) {
-                ErrorLog.log(err);
-            });
-            return sequence;
-        }).catch(err => ErrorLog.log(err));
+        }
+        catch (err)
+        {
+            ErrorLog.log(err);
+        }
     }
 
-    static groupPagesToFetch(webPages, blockSize) {
-        let blocks = [];
-        for(let i = 0; i < webPages.length; i += blockSize) {
-            blocks.push(webPages.slice(i, i + blockSize));
-        }
-        return blocks;
+    groupPagesToFetch(webPages, index) {
+        let blockSize = parseInt(this.userPreferences.maxPagesToFetchSimultaneously.value);
+        blockSize = this.clampSimultanousFetchSize(blockSize);
+        return webPages.slice(index, index + blockSize);
     }
 
     async fetchWebPageContent(webPage) {
