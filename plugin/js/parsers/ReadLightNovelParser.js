@@ -91,6 +91,7 @@ class ReadLightNovelParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         super.removeUnwantedElementsFromContentElement(element);
         util.removeChildElementsMatchingCss(element, "div.row, " +
+            ".alert, .ads-title, " +
             "img[src*='/magnify-clip.png'], div.hidden");
         this.removeShareThisLinks(element);
     }
