@@ -38,6 +38,7 @@ Credits
 * JimmXinu
 * gamebeaker (additional metadata, alphapolis, novicetranslations parser)
 * Kondeeza
+* Mathnerd314
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
@@ -80,6 +81,7 @@ Note, I usually put copies of the current Development versions, including the js
 So, get the relevant zip, then 
 * For Chrome, just do step 2 then steps 6 to 9
 * For Firefox, just do step 3, then steps 8 to 14
+** Note, if you don't intend to change the code, you can skip unziping the zip file (step 3) and at step 14, select the zip file (instead of "manifest.json" from the zip file.)
 
 ### Chrome
 1. Download the extension. 

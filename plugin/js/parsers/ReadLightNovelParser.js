@@ -89,71 +89,73 @@ class ReadLightNovelParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let firstBr = element.querySelector('br:first-of-type');
+        let firstBr = element.querySelector("br:first-of-type");
         if(firstBr.nextSibling.data.includes("Chapter") &&
            firstBr.nextSibling.nextSibling.tagName == "BR") {
             util.removeElements([firstBr, firstBr.nextSibling,
                 firstBr.nextSibling.nextSibling]);
-        } else {
-            util.log("missing chapter")
         }
 
-        for(let a of element.querySelectorAll('.adsbyvli')) {
+        for(let a of element.querySelectorAll(".adsbyvli")) {
+            let toDelete = [];
             let center = a.parentNode;
-            let br2 = center.previousElementSibling;
-            let br1 = br2.previousElementSibling;
-            let br3 = center.nextElementSibling;
-            let br4 = br3.nextElementSibling;
-            let hr = br4.nextElementSibling;
-
-            if(br1.tagName == "BR" &&
-                br2.tagName == "BR" &&
-                br3.tagName == "BR" &&
-                br4.tagName == "BR" &&
-                hr.tagName == "HR" &&
-                center.tagName == "CENTER") {
-                util.removeElements([br1, br2, center, br3, br4, hr]);
-            } else {
-                util.log("incorrect adsbyvli pattern")
-            }
-        }
-
-        for(let small of element.querySelectorAll('.ads-title')) {
-            let br1 = small.previousElementSibling;
-            let br2 = small.nextElementSibling;
-            let center = br2.nextElementSibling;
-            let hr = center.nextElementSibling;
-
-            if(br1.tagName == "BR" &&
-                br2.tagName == "BR" &&
-                hr.tagName == "HR" &&
-                small.tagName == "SMALL" &&
-                center.tagName == "CENTER") {
-                util.removeElements([br1, small, br2, center, hr]);
-            } else {
-                util.log("incorrect ads-title pattern")
-            }
-        }
-
-        for(let s of element.querySelectorAll('center > script')) {
-            let center = s.parentNode;
-            let hr = center.nextElementSibling;
+            let temp =  this.addPreviousSiblingIfMatches(center, "BR", toDelete);
+            this.addPreviousSiblingIfMatches(temp, "BR", toDelete);
+            temp = this.addNextSiblingIfMatches(center, "BR", toDelete);
+            temp = this.addNextSiblingIfMatches(temp, "BR", toDelete);
+            this.addNextSiblingIfMatches(temp, "HR", toDelete);
 
             if(center.tagName == "CENTER") {
-                util.removeElements([center]);
-            } else {
-                util.log("incorrect ads-title pattern")
+                center.remove();
             }
-            if(hr.tagName == "HR") {
-                util.removeElements([hr]);
-            }
+            util.removeElements(toDelete);
+        }
 
+        for(let small of element.querySelectorAll(".ads-title")) {
+            let toDelete = [];
+            this.addPreviousSiblingIfMatches(small, "BR", toDelete);
+            let temp = this.addNextSiblingIfMatches(small, "BR", toDelete);
+            temp = this.addNextSiblingIfMatches(temp, "CENTER", toDelete);
+            this.addNextSiblingIfMatches(temp, "HR", toDelete);
+
+            small.remove();
+            util.removeElements(toDelete);
+        }
+
+        for(let s of element.querySelectorAll("center > script")) {
+            let toDelete = [];
+            let center = s.parentNode;
+            this.addNextSiblingIfMatches(center, "HR", toDelete);
+
+            center.remove();
+            util.removeElements(toDelete);
         }
 
         super.removeUnwantedElementsFromContentElement(element);
         util.removeChildElementsMatchingCss(element, "div.row, " +
             ".alert, img[src*='/magnify-clip.png'], div.hidden");
         this.removeShareThisLinks(element);
+    }
+
+    addPreviousSiblingIfMatches(element, tagName, list) {
+        return this.addSiblingIfMatches(element, tagName, list, e => e.previousElementSibling);
+    }
+
+    addNextSiblingIfMatches(element, tagName, list) {
+        return this.addSiblingIfMatches(element, tagName, list, e => e.nextElementSibling);
+    }
+
+    addSiblingIfMatches(element, tagName, list, op) {
+        if (element === null) {
+            return null;
+        }
+        let sibling = op(element);
+        if (sibling !== null) {
+            if (sibling.tagName === tagName) {
+                list.push(sibling);
+            }
+        }
+        return sibling;
     }
 
     removeShareThisLinks(element) {
