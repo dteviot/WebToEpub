@@ -90,10 +90,12 @@ class ReadLightNovelParser extends Parser {
 
     removeUnwantedElementsFromContentElement(element) {
         let firstBr = element.querySelector("br:first-of-type");
-        if(firstBr.nextSibling.data.includes("Chapter") &&
-           firstBr.nextSibling.nextSibling.tagName == "BR") {
-            util.removeElements([firstBr, firstBr.nextSibling,
-                firstBr.nextSibling.nextSibling]);
+        let ch = firstBr.nextSibling;
+        if(ch && ch.data.includes("Chapter")) {
+            let secondBr = ch.nextSibling;
+            if(secondBr && secondBr.tagName == "BR") {
+                util.removeElements([firstBr, ch, secondBr]);
+            }
         }
 
         for(let a of element.querySelectorAll(".adsbyvli")) {
@@ -150,9 +152,16 @@ class ReadLightNovelParser extends Parser {
             return null;
         }
         let sibling = op(element);
+
+        if(!sibling) {
+            sibling = op(element.parentNode);
+        }
+
         if (sibling !== null) {
             if (sibling.tagName === tagName) {
                 list.push(sibling);
+            } else {
+                sibling = null;
             }
         }
         return sibling;
