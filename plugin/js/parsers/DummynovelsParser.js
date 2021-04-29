@@ -8,16 +8,19 @@ class DummynovelsParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("div.bdt-accordion-container");
-        return util.hyperlinksToChapterList(menu);
+        return [...dom.querySelectorAll("div.chapter-arc-accordion p a")]
+            .map(link => ({
+                sourceUrl:  link.href,
+                title: link.querySelector("label").innerText.trim(),            
+            }));
     }
 
     findContent(dom) {
-        return dom.querySelector("div.elementor-widget-theme-post-content");
+        return dom.querySelector("div#wtr-content");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector(".elementor-heading-title");
     }
 
     findChapterTitle(dom) {
@@ -31,4 +34,8 @@ class DummynovelsParser extends Parser{
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.novel-synopsis-content")];
     }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "script, iframe");
+    }    
 }
