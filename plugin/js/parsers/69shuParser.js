@@ -7,40 +7,28 @@ class ShuParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let linkToChapters = dom.querySelector("a.button.read");
-        return HttpClient.wrapFetch(linkToChapters.href, this.makeOptions()).then(function (xhr) {
-            let lists = [...xhr.responseXML.querySelectorAll("ul.mulu_list")];
-            return util.hyperlinksToChapterList(lists[1]);
-        });
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector("a.more-btn").href;
+        let toc = (await HttpClient.wrapFetch(tocUrl, this.makeOptions())).responseXML;
+        let menu = toc.querySelector("#catalog");
+        return util.hyperlinksToChapterList(menu);
     }
 
     findContent(dom) {
-        return dom.querySelector("div.yd_text2");
+        return dom.querySelector("div.txtnav");
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.status h1 a");
+        return dom.querySelector("div.booknav2 h1").textContent;
     };
-
-    extractAuthor(dom) {
-        let authorLabel = dom.querySelector("p.author a");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
-    };
-
-    findChapterTitle(dom) {
-        return dom.querySelector("td.ydleft h1");
-    }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.imgbox");
+        return util.getFirstImgSrc(dom, "div.bookbox");
     }
 
-    fetchChapter(url) {
+    async fetchChapter(url) {
         // site does not tell us gb18030 is used to encode text
-        return HttpClient.wrapFetch(url, this.makeOptions()).then(function (xhr) {
-            return Promise.resolve(xhr.responseXML);
-        });
+        return (await HttpClient.wrapFetch(url, this.makeOptions())).responseXML;
     }
 
     makeOptions() {
