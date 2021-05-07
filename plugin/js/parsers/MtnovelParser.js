@@ -40,6 +40,15 @@ class MtnovelParser extends Parser{
         return dom.querySelector("h1.booktitle");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        let links = [...element.querySelectorAll("a")]
+            .filter(link => link.textContent.includes("Back to top"));
+        for(let link of links) {
+            link.replaceWith(link.ownerDocument.createElement("br"));
+        }
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("#acontent h1");
     }
