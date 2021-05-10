@@ -18,7 +18,12 @@ class FreeWebNovelParser extends Parser {
 
     static getUrlsOfTocPages(dom) {
         // lastUrl should be example https://freewebnovel.com/<some-novel-name>/<index>.html
-        let lastUrl = dom.querySelectorAll(".page a.lastTocIndex-container-btn")[3].href;
+        let lastUrl = dom.querySelectorAll(".page a.lastTocIndex-container-btn")[3];
+        if (lastUrl == null) {
+            lastUrl = dom.querySelectorAll("a.index-container-btn")[3];
+        }
+        lastUrl = lastUrl.href;
+
         let lastTocIndex = lastUrl.lastIndexOf("/");
         let lastIndexPageName = lastUrl.substring(lastTocIndex + 1);
         let lastIndex = parseInt(lastIndexPageName.substr(0, lastIndexPageName.length - ".html".length));
@@ -60,4 +65,7 @@ class FreeWebNovelParser extends Parser {
         return dom.querySelector("div.txt");
     }
 
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.inner")];
+    }
 }
