@@ -9,28 +9,26 @@ class FreeWebNovelParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return (await this.getChapterUrlsFromMultipleTocPages(dom,
+        return this.getChapterUrlsFromMultipleTocPages(dom,
             FreeWebNovelParser.extractPartialChapterList,
             FreeWebNovelParser.getUrlsOfTocPages,
             chapterUrlsUI
-        ));
+        );
     }
 
     static getUrlsOfTocPages(dom) {
         // lastUrl should be example https://freewebnovel.com/<some-novel-name>/<index>.html
-        let lastUrl = dom.querySelectorAll(".page a.lastTocIndex-container-btn")[3];
-        if (lastUrl == null) {
-            lastUrl = dom.querySelectorAll("a.index-container-btn")[3];
-        }
-        lastUrl = lastUrl.href;
-
+        let lastUrl = dom.querySelectorAll(".page a.index-container-btn")[3].href;
         let lastTocIndex = lastUrl.lastIndexOf("/");
         let lastIndexPageName = lastUrl.substring(lastTocIndex + 1);
         let lastIndex = parseInt(lastIndexPageName.substr(0, lastIndexPageName.length - ".html".length));
-        let baseUrl = lastUrl.substring(0, lastTocIndex + 1);
         let urls = [];
-        for (var i = 2; i <= lastIndex; ++i) {
-            urls.push(baseUrl + i + ".html");
+        let tocHasMultiplePages = !isNaN(lastIndex);
+        if (tocHasMultiplePages) {
+            let baseUrl = lastUrl.substring(0, lastTocIndex + 1);
+            for (var i = 2; i <= lastIndex; ++i) {
+                urls.push(baseUrl + i + ".html");
+            }
         }
         return urls;
     }
