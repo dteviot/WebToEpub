@@ -485,6 +485,7 @@ class Parser {
         let pageParser = webPage.parser;
         return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
             webPage.rawDom = webPageDom;
+            pageParser.preprocessRawDom(webPageDom);
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
@@ -512,6 +513,14 @@ class Parser {
             }).then(function () {
                 that.updateLoadState(webPage);
             });
+    }
+
+    /**
+    * default implementation
+    * derivied classes override if need to do something to fetched DOM before
+    * normal processing steps
+    */
+    preprocessRawDom(webPageDom) { // eslint-disable-line no-unused-vars
     }
 
     /**

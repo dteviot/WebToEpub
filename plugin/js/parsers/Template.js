@@ -154,10 +154,17 @@ class TemplateParser extends Parser{
     }
     */
 
+    // Optional, supply if need to modify DOM before normal processing steps
+    /*
+    preprocessRawDom(webPageDom) {
+    }
+    */
+
     // Optional, supply if source has 100s of chapters and there's lots of
     // elements in DOM that are not included in the epub.
     /*
     removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+        super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
     }
     */
 

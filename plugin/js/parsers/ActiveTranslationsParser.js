@@ -34,7 +34,7 @@ class ActiveTranslationsParser extends Parser{
         return dom.querySelector("div.nv-page-title h1");
     }
 
-    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+    preprocessRawDom(chapterDom) {
         this.unscrambleText(chapterDom, this.findContent(chapterDom));
     }
 
