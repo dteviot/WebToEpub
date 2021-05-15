@@ -21,7 +21,7 @@
     "url": "git+https://github.com/dteviot/WebToEpub.git"
   },
   "keywords": ["epub"],
-  "author": { 
+  "author": {
     "name": "David Teviotdale",
     "email": "dteviot@gmail.com"
   },
@@ -43,7 +43,8 @@
     { "name": "gamebeaker"},
     { "name": "Mathnerd314"},
     { "name": "Kondeeza"},
-    { "name": "Sickan90"}
+    { "name": "Sickan90"},
+    { "name": "Miracutor"}
   ],
   "license": "GPL-3.0-only",
   "bugs": {
