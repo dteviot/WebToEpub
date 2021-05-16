@@ -32,11 +32,10 @@ class WordpressBaseParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
-        let that = this;
-        let content = that.findContent(dom).cloneNode(true);
-        that.removeUnwantedElementsFromContentElement(content);
-        return Promise.resolve(util.hyperlinksToChapterList(content));
+    async getChapterUrls(dom) {
+        let content = this.findContent(dom).cloneNode(true);
+        this.removeUnwantedElementsFromContentElement(content);
+        return util.hyperlinksToChapterList(content);
     }
 
     static findContentElement(dom) {
