@@ -1,13 +1,30 @@
-/*
-  Parser for www.wattpad.com
-*/
 "use strict";
 
 parserFactory.register("wattpad.com", function() { return new WattpadParser() });
 
-class WattpadParser extends Parser{
+class WattpadImageCollector extends ImageCollector {
     constructor() {
         super();
+    }
+
+    extractWrappingUrl(element) {
+        let url = super.extractWrappingUrl(element);
+        return this.removeSizeParamsFromQuery(url);
+    }
+
+    removeSizeParamsFromQuery(originalUrl) {
+        let url = new URL(originalUrl);
+        if (!url.hostname.toLowerCase().includes("wattpad")) {
+            return originalUrl;
+        }
+        url.search = "";
+        return url.href;
+    }
+}
+
+class WattpadParser extends Parser{
+    constructor() {
+        super(new WattpadImageCollector());
     }
 
     clampSimultanousFetchSize() {
