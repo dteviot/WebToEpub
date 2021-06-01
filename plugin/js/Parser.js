@@ -615,8 +615,11 @@ class Parser {
         return fetchSize;
     }
 
-    static makeEmptyDocForContent() {
+    static makeEmptyDocForContent(baseUrl) {
         let dom = document.implementation.createHTMLDocument("");
+        if (baseUrl != null) {
+            util.setBaseTag(baseUrl, dom);        
+        }
         let content = dom.createElement("div");
         content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
         dom.body.appendChild(content);

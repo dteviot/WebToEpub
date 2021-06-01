@@ -174,11 +174,6 @@ class ImageCollector {
         return (element.tagName.toLowerCase() === "a") ? element.href : element.getElementsByTagName("a")[0].href;
     }
 
-    // get src value of <img> element
-    extractImageSrc(element) {
-        return (element.tagName.toLowerCase() === "img") ?  element.src : element.getElementsByTagName("img")[0].src;
-    }
-
     makeImageTagReplacer(element) {
         let that = this;
         let wrappingElement = that.findImageWrappingElement(element);
