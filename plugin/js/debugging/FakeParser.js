@@ -34,7 +34,7 @@ class FakeParser extends Parser{
     };
 
     async fetchChapter(url) {
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(url);
         this.addTitleToChapter(newDoc, url);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return newDoc.dom; 

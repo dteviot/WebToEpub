@@ -64,7 +64,7 @@ class TapreadParser extends Parser{
         let body = `bookId=${bookId}&chapterId=${chapterId}`;
         let fetchUrl = "http://www.tapread.com/ajax/book/chapter";
         let json = await this.fetchJson(fetchUrl, body);
-        return TapreadParser.jsonToHtml(json);
+        return TapreadParser.jsonToHtml(json, fetchUrl);
     }
 
     async fetchJson(url, body) {
@@ -79,8 +79,8 @@ class TapreadParser extends Parser{
         return (await HttpClient.fetchJson(url, options)).json;
     }
 
-    static jsonToHtml(json) {
-        let newDoc = Parser.makeEmptyDocForContent();
+    static jsonToHtml(json, fetchUrl) {
+        let newDoc = Parser.makeEmptyDocForContent(fetchUrl);
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.result.chapterName;
         newDoc.content.appendChild(header);

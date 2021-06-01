@@ -69,12 +69,12 @@ class BabelChainParser extends Parser{
         await util.sleep(rateLimitTo20PagePerMinute);
         let contentUrl = url.replace("//babelnovel.com/", "//api.babelnovel.com/v1/") + "/content";
         let xhr = await HttpClient.fetchJson(contentUrl);
-        let doc = BabelChainParser.jsonToHtml(xhr.json);
+        let doc = BabelChainParser.jsonToHtml(xhr.json, contentUrl);
         return doc;
     }
  
-    static jsonToHtml(json) {
-        let newDoc = Parser.makeEmptyDocForContent();
+    static jsonToHtml(json, contentUrl) {
+        let newDoc = Parser.makeEmptyDocForContent(contentUrl);
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.data.name || json.data.canonicalName;
         newDoc.content.appendChild(header);

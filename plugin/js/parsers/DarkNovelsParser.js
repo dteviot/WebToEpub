@@ -34,7 +34,7 @@ class DarkNovelsParser extends Parser{
             body: formData
         };
         let xhr = await HttpClient.wrapFetch(fetchUrl, {fetchOptions: options});
-        return DarkNovelsParser.buildContentHtml(xhr);
+        return DarkNovelsParser.buildContentHtml(xhr, fetchUrl);
     }
 
     static convertUrlToForm(url) {
@@ -49,8 +49,8 @@ class DarkNovelsParser extends Parser{
         return formData;
     }
 
-    static async buildContentHtml(xhr) {
-        let newDoc = Parser.makeEmptyDocForContent();
+    static async buildContentHtml(xhr, fetchUrl) {
+        let newDoc = Parser.makeEmptyDocForContent(fetchUrl);
         let rawContent = await DarkNovelsParser.getStringFromZip(xhr.arrayBuffer);
         let text = "<div id=\"raw\">" + rawContent + "</div>";
         let rawDom = new DOMParser().parseFromString(text, "text/html");

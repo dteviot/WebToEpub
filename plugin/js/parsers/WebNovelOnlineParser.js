@@ -32,11 +32,11 @@ class WebNovelOnlineParser extends Parser{
 
     async fetchChapter(url) {
         let xhr = await HttpClient.wrapFetch(url);
-        return WebNovelOnlineParser.buildContentHtml(xhr.responseXML);
+        return WebNovelOnlineParser.buildContentHtml(xhr.responseXML, url);
     }
  
-    static buildContentHtml(dom) {
-        let newDoc = Parser.makeEmptyDocForContent();
+    static buildContentHtml(dom, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
         newDoc.content.appendChild(dom.querySelector("div.chapter-info h3"));
         let text = WebNovelOnlineParser.getStringWithContent(dom);
         if (text.includes("</p>")) {

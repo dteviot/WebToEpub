@@ -30,7 +30,7 @@ class MtlreaderParser extends Parser{
         var contentUrl = "https://www.mtlreader.com/api/chapter-content/" + chapterId;
         var rawContent = (await HttpClient.fetchJson(contentUrl)).json;
         var chapterDom = new DOMParser().parseFromString(rawContent, "text/html");
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(contentUrl);
         let title = dom.querySelector("h1");
         newDoc.content.appendChild(title);
         for(let e of [...chapterDom.body.childNodes]) {

@@ -34,7 +34,7 @@ class MangadexParser extends Parser{
     }
 
     static jsonToHtmlWithImgTags(pageUrl, json) {
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(pageUrl);
         let server = json.server;
         if (server === "/data/") {
             let hostName = util.extractHostName(pageUrl);

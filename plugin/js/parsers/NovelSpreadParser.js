@@ -51,9 +51,8 @@ class NovelSpreadParser extends Parser{
     }
 
     static buildChapter(json) {
-        let newDoc = Parser.makeEmptyDocForContent();
         let base = "https://www.novelspread.com" + json.path;
-        util.setBaseTag(base, newDoc.dom);        
+        let newDoc = Parser.makeEmptyDocForContent(base);
         let title = newDoc.dom.createElement("h1");
         title.textContent = `${json.chapter_number}. ${json.chapter_title}`;
         newDoc.content.appendChild(title);

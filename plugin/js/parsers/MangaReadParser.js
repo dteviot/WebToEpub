@@ -31,7 +31,7 @@ class MangaReadParser extends Parser{
 
     async fetchChapter(url) {
         let responseXML = (await HttpClient.wrapFetch(url)).responseXML;
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(url);
         newDoc.dom.base = url;
         let imgUrls = this.makeImgUrls(responseXML);
         return this.buildPageWithImageTags(imgUrls, newDoc);

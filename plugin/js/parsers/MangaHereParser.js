@@ -44,7 +44,7 @@ class MangaHereParser extends Parser {
         await util.sleep(5000);
         await MangaHereParser.closeChapterTab(tabToClose);
         let xhr = await HttpClient.wrapFetch(url);
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(url);
         newDoc.dom.base = url;
         let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
         let imgUrls = MangaHereParser.extractImgUrlsFromDom(xhr.responseXML);

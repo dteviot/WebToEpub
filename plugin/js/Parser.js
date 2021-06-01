@@ -184,7 +184,7 @@ class Parser {
     }
 
     makePlacehoderEpubItem(webPage, epubItemIndex) {
-        let temp = Parser.makeEmptyDocForContent();
+        let temp = Parser.makeEmptyDocForContent(webPage.sourceUrl);
         temp.content.textContent = chrome.i18n.getMessage("chapterPlaceholderMessage", 
             [webPage.sourceUrl, webPage.error]
         );

@@ -61,7 +61,7 @@ class QuestionableQuestingParser extends Parser{
 
     async fetchChapter(url) {
         let fetchedDom = await this.cache.fetch(url);
-        let newDoc = Parser.makeEmptyDocForContent();
+        let newDoc = Parser.makeEmptyDocForContent(url);
         let id = (new URL(url)).hash.substring(1);
         let post = fetchedDom.getElementById(id);
         let content = post.querySelector("article");
