@@ -408,7 +408,7 @@ class ImageCollector {
     }
     
     static removeSizeParamsFromWordPressQuery(originalUrl,parentPageUrl) {
-        let url = new URL(originalUrl,parentPageUrl);//Todo: get base URL, send it as second argument
+        let url = new URL(originalUrl,parentPageUrl);
         let searchParams = url.searchParams;
         if (!util.isNullOrEmpty(searchParams.toString()) && 
             ImageCollector.isWordPressHostedFile(url.hostname) ) {
