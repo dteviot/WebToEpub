@@ -331,7 +331,7 @@ class ImageCollector {
 
     fetchImage(imageInfo, progressIndicator, parentPageUrl) {
         let that = this;
-        let initialUrl = this.initialUrlToTry(imageInfo);
+        let initialUrl = this.initialUrlToTry(imageInfo,parentPageUrl);
         this.urlIndex.set(initialUrl, imageInfo.index);
         let fetchOptions = {errorHandler: new FetchImageErrorHandler(parentPageUrl) };
         return HttpClient.wrapFetch(initialUrl, fetchOptions).then(function (xhr) {
@@ -390,13 +390,13 @@ class ImageCollector {
     /*
     *  Hook point to allow picking between high and low res images.
     */
-    initialUrlToTry(imageInfo) {
+    initialUrlToTry(imageInfo,parentPageUrl) {
         let urlToTry = imageInfo.sourceUrl;
         if (!util.isNullOrEmpty(imageInfo.wrappingUrl) 
             && !ImageCollector.urlHasFragment(imageInfo.wrappingUrl)) {
             urlToTry = imageInfo.wrappingUrl;
         }
-        return ImageCollector.removeSizeParamsFromWordPressQuery(urlToTry);
+        return ImageCollector.removeSizeParamsFromWordPressQuery(urlToTry,parentPageUrl);
     }
 
     static urlHasFragment(url) {
@@ -407,8 +407,8 @@ class ImageCollector {
         }
     }
     
-    static removeSizeParamsFromWordPressQuery(originalUrl) {
-        let url = new URL(originalUrl);
+    static removeSizeParamsFromWordPressQuery(originalUrl,parentPageUrl) {
+        let url = new URL(originalUrl,parentPageUrl);//Todo: get base URL, send it as second argument
         let searchParams = url.searchParams;
         if (!util.isNullOrEmpty(searchParams.toString()) && 
             ImageCollector.isWordPressHostedFile(url.hostname) ) {
