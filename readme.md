@@ -83,7 +83,7 @@ Note, I usually put copies of the current Development versions, including the js
 So, get the relevant zip, then 
 * For Chrome, just do step 2 then steps 6 to 9
 * For Firefox, just do step 3, then steps 8 to 14
-** Note, if you don't intend to change the code, you can skip unziping the zip file (step 3) and at step 14, select the zip file (instead of "manifest.json" from the zip file.)
+  * **Note, if you don't intend to change the code, you can skip unziping the zip file (step 3) and at step 14, select the zip file (instead of "manifest.json" from the zip file.)**
 
 ### Chrome
 1. Download the extension. 
@@ -108,7 +108,7 @@ So, get the relevant zip, then
 5. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
 6. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
 7. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-8. Open Firefox and type "about:addons" into the URL bar.
+8. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
 9. Click "Load Temporary Add-on".
 10. Select "Extensions"
 11. Click the icon that looks like a gear that is on the right of "Manage Your Extensions"
