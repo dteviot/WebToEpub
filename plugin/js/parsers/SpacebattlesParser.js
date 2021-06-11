@@ -45,6 +45,7 @@ class SpacebattlesParser extends Parser{
         let parent = fetchedDom.getElementById(id).parentElement;
         this.addTitleToChapter(newDoc, parent);
         let content = parent.querySelector("article.message-body");
+        util.resolveLazyLoadedImages(content, "img.lazyload");
         newDoc.content.appendChild(content);
         return newDoc.dom;
     }

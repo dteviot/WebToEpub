@@ -47,12 +47,7 @@ class TapasParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        for(let img of webPageDom.querySelectorAll("article img.js-lazy")) {
-            let dataSrc = img.getAttribute("data-src");
-            if (dataSrc !== null) {
-                img.src = dataSrc;
-            }
-        }
+        util.resolveLazyLoadedImages(webPageDom, "article img.js-lazy");
     }
 
     getInformationEpubItemChildNodes(dom) {

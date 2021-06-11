@@ -418,6 +418,15 @@ var util = (function () {
         return (index === -1) ? null : uri.substring(index + 1);
     }
 
+    var resolveLazyLoadedImages = function(content, imgCss) {
+        for(let img of content.querySelectorAll(imgCss)) {
+            let dataSrc = img.getAttribute("data-src");
+            if (dataSrc !== null) {
+                img.src = dataSrc;
+            }
+        }
+    }
+
     var makeHyperlinksRelative = function(baseUri, content) {
         for(let link of util.getElements(content, "a", e => this.isLocalHyperlink(baseUri, e))) {
             link.href = "#" + this.extractHashFromUri(link.href);
@@ -963,6 +972,7 @@ var util = (function () {
         makeStorageFileName: makeStorageFileName,
         extractHashFromUri: extractHashFromUri,
         makeHyperlinksRelative: makeHyperlinksRelative, 
+        resolveLazyLoadedImages: resolveLazyLoadedImages,
         isLocalHyperlink: isLocalHyperlink,
         findPrimaryStyleSettings: findPrimaryStyleSettings,
         removeStyleValue: removeStyleValue,
