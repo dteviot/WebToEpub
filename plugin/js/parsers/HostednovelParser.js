@@ -7,28 +7,9 @@ class HostednovelParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
-        let url = dom.baseURI;
-        if (util.extractFilenameFromUrl(url) !== "chapters") {
-            url += "/chapters";
-        }
-        let urlsOfTocPages = this.extractTocPageUrls(dom, url);
-        let chapters = [];
-        return Parser.getChaptersFromAllTocPages(chapters, 
-            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
-    }
-
-    extractTocPageUrls(dom, initialTocUrl) {
-        return [...dom.querySelectorAll(".chaptergroup")]
-            .map(article => article.className.split(" ").filter(s => s.startsWith("chaptergroup-")))
-            .map(s => s[0].split("-")[1])
-            .filter(s => s != "")
-            .map(s => initialTocUrl + "/" + s);
-    }
-
-    extractPartialChapterList(dom) {
-        let article = dom.querySelector("article.chaptergroup");
-        return util.hyperlinksToChapterList(article);
+    async getChapterUrls(dom) {
+        let chapterList = dom.querySelector("div.chaptergroup");
+        return util.hyperlinksToChapterList(chapterList);
     }
 
     findContent(dom) {
