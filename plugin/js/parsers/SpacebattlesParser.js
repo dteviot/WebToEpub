@@ -33,11 +33,6 @@ class SpacebattlesParser extends Parser{
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     };
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.bbCodeSpoiler");
-        super.removeUnwantedElementsFromContentElement(element);
-    }
-
     async fetchChapter(url) {
         let fetchedDom = await this.cache.fetch(url);
         let newDoc = Parser.makeEmptyDocForContent(url);
