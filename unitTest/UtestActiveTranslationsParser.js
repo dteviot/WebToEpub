@@ -20,6 +20,7 @@ QUnit.test("unscrambleText", function (assert) {
     let paragraphs = [...dom.querySelectorAll("p")];
     assert.equal(paragraphs[0].textContent, "“Oh, well, you really came out.”");
     assert.equal(paragraphs[1].textContent, "There was Min Ha-Yul, who freaked him out.");
+    assert.equal(paragraphs[2].textContent, "{Uploaded for Premium Users on Sep. 29, 2020}");
 });
 
 let ActiveTranslationsParserSamplePage =
@@ -33,7 +34,9 @@ let ActiveTranslationsParserSamplePage =
 <div class="entry-content">
 <p class=""><span class=" wf4214c10952dc478f1fb93d23f43555a"> came </span></p>
 <p><span class=" z164e488f661f2e907e2d1cd362e204aa"> him </span></p>
+<p><span class=" a0fdfb5e8cc4ea6c3bbf56ff708a2ddd3"> Premium Users on </span></p>
 <style>
+.a0fdfb5e8cc4ea6c3bbf56ff708a2ddd3::before {content: '{Uploaded for';}.a0fdfb5e8cc4ea6c3bbf56ff708a2ddd3::after {content: 'Sep. 29, 2020}';}
 .wf4214c10952dc478f1fb93d23f43555a::before {
   content: '“Oh, well, you really';
 }

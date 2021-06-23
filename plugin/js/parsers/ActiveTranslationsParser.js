@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("activetranslations.xyz", () => new ActiveTranslationsParser());
+parserFactory.register("a-t.nu", () => new ActiveTranslationsParser());
 
 class ActiveTranslationsParser extends Parser{
     constructor() {
@@ -8,8 +8,9 @@ class ActiveTranslationsParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("a.panel-title")]
-            .map(a => util.hyperLinkToChapter(a));
+        return [...dom.querySelectorAll("li.wp-manga-chapter.free-chap a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .reverse();
     }
 
     findContent(dom) {
@@ -26,12 +27,8 @@ class ActiveTranslationsParser extends Parser{
         return content;
     }
 
-    extractTitleImpl(dom) {
-        return dom.querySelector("div.nv-page-title h1");
-    }
-
     findChapterTitle(dom) {
-        return dom.querySelector("div.nv-page-title h1");
+        return dom.querySelector("h1#chapter-heading");
     }
 
     preprocessRawDom(chapterDom) {
@@ -54,18 +51,18 @@ class ActiveTranslationsParser extends Parser{
     parseStyle(content) {
         let rules = new Map();
         let style = [...content.querySelectorAll("style")].pop();
-        let lines = style.textContent.split("}")
+        let lines = style.textContent.split(/;\s*}/)
             .map(l => l.trim())
             .filter(l => !util.isNullOrEmpty(l));
         for(let line of lines) {
             let index = line.indexOf("::before {");
             if (0 < index) {
-                this.addBefore(line, index, rules);
+                this.addPsudoElement(line, index, rules, "before");
                 continue;
             }
             index = line.indexOf("::after {");
             if (0 < index) {
-                this.addAfter(line, index, rules);
+                this.addPsudoElement(line, index, rules, "after");
                 continue;
             }
             break;
@@ -74,26 +71,15 @@ class ActiveTranslationsParser extends Parser{
         return rules;
     }
 
-    addBefore(line, index, rules) {
+    addPsudoElement(line, index, rules, name) {
         let className = line.substring(1, index);
         let context = this.extractContent(line);
         let rule = rules.get(className);
         if (rule === undefined) {
-            rules.set(className, { before: context});
-        } else {
-            rule.before = context;
+            rule = {};
+            rules.set(className, rule);
         }
-    }
-
-    addAfter(line, index, rules) {
-        let className = line.substring(1, index);
-        let context = this.extractContent(line);
-        let rule = rules.get(className);
-        if (rule === undefined) {
-            rules.set(className, { after: context});
-        } else {
-            rule.after = context;
-        }
+        rule[name] = context;
     }
 
     extractContent(contextLine) {
@@ -118,5 +104,9 @@ class ActiveTranslationsParser extends Parser{
                 span[1].replaceWith(textNode);
             }
         }
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.tab-summary");
     }
 }
