@@ -14,7 +14,7 @@ class ChapterUrlsUI {
         document.getElementById("editChaptersUrlsButton").onclick = this.setEditInputMode.bind(this);
         document.getElementById("copyUrlsToClipboardButton").onclick = this.copyUrlsToClipboard.bind(this);
         document.getElementById("showChapterUrlsCheckbox").onclick = this.toggleShowUrlsForChapterRanges.bind(this);
-        ChapterUrlsUI.getApplyChangesButton().onclick = this.setTableMode.bind(this);
+        ChapterUrlsUI.modifyApplyChangesButtons(button => button.onclick = this.setTableMode.bind(this));
         ChapterUrlsUI.getChapterUrlsTable().onmousedown = ChapterUrlsUI.onMouseDown;
     }
 
@@ -165,8 +165,9 @@ class ChapterUrlsUI {
     /** 
     * @private
     */
-    static getApplyChangesButton() {
-        return document.getElementById("applyChangesButton");
+    static modifyApplyChangesButtons(mutator) {
+        mutator(document.getElementById("applyChangesButton"));
+        mutator(document.getElementById("applyChangesButton2"));
     }
 
     /** 
@@ -278,7 +279,7 @@ class ChapterUrlsUI {
         document.getElementById("inputSection").hidden = !toTable;
         document.getElementById("coverUrlSection").hidden = !toTable;
         document.getElementById("chapterSelectControlsDiv").hidden = !toTable;
-        ChapterUrlsUI.getApplyChangesButton().hidden = toTable;
+        ChapterUrlsUI.modifyApplyChangesButtons(button => button.hidden = toTable);
     }
 
     /** 
