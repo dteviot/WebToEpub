@@ -11,13 +11,12 @@ class RanobesParser extends Parser{
         let menu = dom.querySelector("ul.chapters-scroll-list");
         let chapters = util.hyperlinksToChapterList(menu);
 
-        let tocLinks = [...dom.querySelectorAll("div.r-fullstory-chapters-foot a")];
-        if (tocLinks.length <= 2) {
+        let tocLink = dom.querySelector("div.r-fullstory-chapters-foot a[title='Go to table of contents']");
+        if (tocLink == null) {
             return chapters.reverse();
         }
-        let baseUrl = tocLinks[1].href;
-        let tocDom = (await HttpClient.wrapFetch(baseUrl)).responseXML;
-        let urlsOfTocPages = this.extractTocPageUrls(tocDom, baseUrl);
+        let tocDom = (await HttpClient.wrapFetch(tocLink.href)).responseXML;
+        let urlsOfTocPages = this.extractTocPageUrls(tocDom, tocLink.href.replace("/novels/", "/"));
         return (await Parser.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
     }
