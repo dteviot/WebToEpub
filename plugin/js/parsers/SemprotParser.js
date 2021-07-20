@@ -49,12 +49,6 @@ class SemprotParser extends Parser{
         return (authorLabel == null) ? super.extractAuthor(dom) : authorLabel;
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".bbCodeBlock-expandLink");
-        super.removeUnwantedElementsFromContentElement(element);
-    }
-
-
     preprocessRawDom(webPageDom) {
         let articles = [...webPageDom.querySelectorAll("article.message")];
         for(let article of articles) {
@@ -62,6 +56,7 @@ class SemprotParser extends Parser{
                 article.remove();
             } else {
                 let body = article.querySelector("article.message-body");
+                util.removeChildElementsMatchingCss(body, ".bbCodeBlock-expandLink, .semprotnenenmontok_sq");
                 util.resolveLazyLoadedImages(body, "img");
                 article.replaceWith(body);
             }
