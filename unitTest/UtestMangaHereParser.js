@@ -16,9 +16,7 @@ test("decrypt", function (assert) {
         "l b(){3 4=\"//a.e.9/5/c/6/7.1/8\";3 2=[\"/k.j?o=n&m=h\"];f(3 i=0;i<2.g;i++){p(i==0){2[i]=\"//a.e.9/5/c/6/7.1/8\"+2[i];t}2[i]=4+2[i]}r 2}3 d;d=b();q=s;",
         30,
         30,
-        "||pvalue|var|pix|store|11110|061|compressed|cc||dm5imagefun|manga||mangahere|for|length|1548025200||jpg|k20190103_161010_2748|function|ttl|c9cbbe3a58535b9040d5d23708a3d5d7d6d2a89a|token|if|currentimageid|return|14300825|continue".split("|"),
-        0,
-        {}
+        "||pvalue|var|pix|store|11110|061|compressed|cc||dm5imagefun|manga||mangahere|for|length|1548025200||jpg|k20190103_161010_2748|function|ttl|c9cbbe3a58535b9040d5d23708a3d5d7d6d2a89a|token|if|currentimageid|return|14300825|continue".split("|")
     );
     let filtered = MangaHereParser.extractFilenameFromClearText(actual);
     assert.equal(filtered, "http://a.mangahere.cc/store/manga/11110/061.1/compressed/k20190103_161010_2748.jpg?token=c9cbbe3a58535b9040d5d23708a3d5d7d6d2a89a&ttl=1548025200");

@@ -131,7 +131,7 @@ class MangaHereParser extends Parser {
 
     static decryptChapterFun(js, prefix) {
         let d = MangaHereParser.extractDataFromjs(js);
-        let clearText = MangaHereParser.decrypt(d[0], d[1], d[2], d[3].split("|"), 0, {});
+        let clearText = MangaHereParser.decrypt(d[0], d[1], d[2], d[3].split("|"));
         return MangaHereParser.extractFilenameFromClearText(clearText, prefix);
     }
 
@@ -152,23 +152,19 @@ class MangaHereParser extends Parser {
         return urls.map(u => "http:" + prefix + u.replace(/"/g, ""));
     }
 
-    // extracted from MangaHere
-    static decrypt(p, a, c, k, e, d) {
-        e = function (c) {
-            return (c < a ? "" : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
+    // extracted from MangaHere (and deobfuscated)
+    static decrypt(p, max, len, fragments) {
+        let makeKey = function (index) {
+            return (index < max ? "" : makeKey(parseInt(index / max))) + ((index = index % max) > 35 ? String.fromCharCode(index + 29) : index.toString(36))
         };
-        if (!"".replace(/^/, String)) {
-            while (c--)
-                d[e(c)] = k[c] || e(c);
-            k = [function (e) {
-                return d[e]
-            }];
-            e = function () { return "\\w+" };
-            c = 1;
-        };
-        while (c--)
-            if (k[c])
-                p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c]);
+        let replacements = {};
+        while (len--)
+        {
+            let key = makeKey(len);
+            replacements[key] = fragments[len] || key;
+        }
+        let replacerFunction = (key) => replacements[key];
+        p = p.replace(new RegExp("\\b\\w+\\b", "g"), replacerFunction);
         return p;        
     }
 }
