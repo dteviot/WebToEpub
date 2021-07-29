@@ -103,6 +103,17 @@ class FanFictionParser extends Parser {
         util.removeChildElementsMatchingCss(infoDiv, "img");
     }
 
+    findCoverImageUrl(dom) {
+        let big = dom.querySelector("div#img_large img");
+        if (big !== null) {
+            let img = big.getAttribute("data-original");
+            if (!util.isNullOrEmpty(img)) {
+                return "https://www.fanfiction.net" + img;
+            }
+        }
+        return util.getFirstImgSrc(dom, "div#profile_top");
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div#pre_story_links, div#profile_top")];
     }
