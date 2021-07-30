@@ -57,7 +57,7 @@ class MangaHereParser extends Parser {
 
     static extractImgUrlsFromDom(dom) {
         let script = [...dom.querySelectorAll("script")]
-            .filter(s => s.innerHTML.includes("eval(function(p,a,c,k,e,d){"))
+            .filter(s => s.innerHTML.includes("al(function(p,a,c,k,e,d){"))
             .map(s => s.innerHTML);
 
         return (script.length === 1)

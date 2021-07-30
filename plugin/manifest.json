@@ -7,7 +7,6 @@
     "128": "book128.png"
   },
   "permissions": [
-    "clipboardWrite",
     "downloads",
     "webRequest",
     "webRequestBlocking",
