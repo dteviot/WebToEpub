@@ -1,7 +1,9 @@
 "use strict";
-
-// Use one or more of these to specify when the parser is to be used
 parserFactory.register("mtlnovel.com", () => new MtlnovelParser());
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).endsWith(".mtlnovel.com")),
+    () => new MtlnovelParser()
+);
 
 class MtlnovelParser extends Parser{
     constructor() {
