@@ -48,7 +48,7 @@ class RanobesParser extends Parser{
 
     extractTitleImpl(dom) {
         let title = dom.querySelector("h1.title");
-        util.removeChildElementsMatchingCss(title, "span");
+        util.removeChildElementsMatchingCss(title, "span.subtitle, span[hidden]");
         return title;
     }
 
