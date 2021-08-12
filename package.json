@@ -6,7 +6,7 @@
     "jszip": "3.1.5"
   },
   "devDependencies" : {
-    "xmldom": "^0.5.0",
+    "xmldom": ">=0.7.0",
     "qunit": "1.19.0"
   },
   "main": "popup.html",
