@@ -8,21 +8,8 @@ class FimfictionParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let links = [...dom.querySelectorAll("h1.chapter-title div[style='float:right'] ul.scrollable a")];
-        if (links.length === 0) {
-            return [{
-                sourceUrl:  dom.baseURI,
-                title: this.extractTitleImpl(dom).textContent
-            }]
-        }
-        return links.map(this.linkToChapter)
-    }
-
-    linkToChapter(link) {
-        return {
-            sourceUrl:  link.href,
-            title: link.querySelector("span.chapter-selector__title").textContent
-        };
+        return [...dom.querySelectorAll("ul.chapters a.chapter-title")]
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
@@ -30,11 +17,11 @@ class FimfictionParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1 a");
+        return dom.querySelector("a.story_name").textContent;
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("span.author");
+        let authorLabel = dom.querySelector("div.info-container a");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
@@ -44,10 +31,13 @@ class FimfictionParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.story-page-header");
+        return util.getFirstImgSrc(dom, "div.story_container__story_image");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.story-page-header div.info-container div.desktop p")];
+        let likes = dom.querySelector("span.likes");
+        likes.textContent = "Likes: " + likes.textContent;
+        return [...dom.querySelectorAll("span.description-text, "
+            + "div.chapters-footer div.word_count")].concat(likes);
     }
 }
