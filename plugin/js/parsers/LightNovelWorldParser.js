@@ -13,14 +13,14 @@ class LightNovelWorldParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
+        if (!dom.baseURI.endsWith("/chapters")) {
+            dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
+        }
         let chapters = LightNovelWorldParser.extractPartialChapterList(dom);
         let urlsOfTocPages  = LightNovelWorldParser.getUrlsOfTocPages(dom);
 
-        chapterUrlsUI.showTocProgress(chapters);
-        let options = {
-        };
         for(let url of urlsOfTocPages) {
-            let newDom = (await HttpClient.wrapFetch(url, {fetchOptions: options})).responseXML;
+            let newDom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = LightNovelWorldParser.extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
@@ -102,7 +102,7 @@ class LightNovelWorldParser extends Parser{
 
     findCoverImageUrl(dom) {
         var metaImage = dom.querySelector("meta[property*='og:image']");
-        if (!!metaImage)
+        if (metaImage)
         {
             metaImage = metaImage.content;
         }
