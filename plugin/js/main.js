@@ -263,7 +263,7 @@ var main = (function () {
     function openTabWindow() {
         // open new tab window, passing ID of open tab with content to convert to epub as query parameter.
         getActiveTab().then(function (tabId) {
-            let url = chrome.extension.getURL("popup.html") + "?id=";
+            let url = chrome.runtime.getURL("popup.html") + "?id=";
             url += tabId;
             chrome.tabs.create({ url: url });
             window.close();
