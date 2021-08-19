@@ -18,12 +18,6 @@ class LightNovelWorldParser extends Parser{
 
         chapterUrlsUI.showTocProgress(chapters);
         let options = {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "x-requested-with": "XMLHttpRequest",
-                "requestverificationtoken": this.getVerificationToken(dom)
-            }
         };
         for(let url of urlsOfTocPages) {
             let newDom = (await HttpClient.wrapFetch(url, {fetchOptions: options})).responseXML;
@@ -61,8 +55,7 @@ class LightNovelWorldParser extends Parser{
             let maxPage = LightNovelWorldParser.maxPageId(paginateUrls);
             let url = new URL(paginateUrls.pop().href);
             for(let i = 2; i <= maxPage; ++i) {
-                url.searchParams.set("page", i);
-                urls.push(url.href);
+                urls.push(url.href.replace(/page-\d+/g, `page-${i}`));
             }
         }
         return urls;
@@ -72,7 +65,14 @@ class LightNovelWorldParser extends Parser{
     static maxPageId(urls) {
         let pageNum = function(url) {
             let pageNo = new URL(url).searchParams.get("page");
-            return parseInt(pageNo);
+            pageNo = parseInt(pageNo);
+            if (!pageNo)
+            {
+                let regExResult = /page-(\d+)/g.exec(url);
+                if (regExResult.length > 1)
+                    return parseInt(regExResult[1]);
+            }
+            return pageNo;
         }
         return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
     }
@@ -86,15 +86,14 @@ class LightNovelWorldParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let toRemove = [...element.querySelectorAll("span, p")]
-            .filter(e => this.isWatermark(e.textContent));
+        let toRemove = [...element.querySelectorAll("p")]
+            .filter(this.isWatermark);
         util.removeElements(toRemove);
         super.removeUnwantedElementsFromContentElement(element);
     }
 
-    isWatermark(textContent) {
-        let text = textContent.replace(/(\/|_|\[|\])/g, "");
-        return text.includes("lightnovelpub.com");
+    isWatermark(element) {
+        return !!element.className;
     }
 
     findChapterTitle(dom) {
@@ -102,7 +101,12 @@ class LightNovelWorldParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.header-body");
+        var metaImage = dom.querySelector("meta[property*='og:image']");
+        if (!!metaImage)
+        {
+            metaImage = metaImage.content;
+        }
+        return metaImage || util.getFirstImgSrc(dom, "div.header-body");
     }
 
     getInformationEpubItemChildNodes(dom) {
