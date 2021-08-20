@@ -10,27 +10,43 @@ class ArchiveOfOurOwnParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let that = this;
-        let baseUrl = that.getBaseUrl(dom);
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let isSeries = dom.baseURI.includes("/series/");
+        if (isSeries) {
+            let chapters = [];
+            let urlsOfTocPages = [...dom.querySelectorAll("dd.chapters a")]
+                .map(this.linkToTocUrl);
+            for(let url of urlsOfTocPages) {
+                let partialList = await ArchiveOfOurOwnParser.fetchChapterUrls(url);
+                chapterUrlsUI.showTocProgress(partialList);
+                chapters = chapters.concat(partialList);
+            }
+            return chapters;
+        }
+    
+        let baseUrl = this.getBaseUrl(dom);
         let chaptersElement = dom.querySelector("li.chapter");
         if (chaptersElement === null) {
-            return Promise.resolve(that.singleChapterStory(baseUrl, dom));
+            return this.singleChapterStory(baseUrl, dom);
         } else {
             let chaptersUrl = dom.querySelector("ul#chapter_index a");
             return ArchiveOfOurOwnParser.fetchChapterUrls(chaptersUrl);
         }
     };
 
-    static fetchChapterUrls(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return [...xhr.responseXML.querySelectorAll("ol.chapter a")].map(
-                url => ({
-                    sourceUrl: url.href + "?view_adult=true",
-                    title: url.textContent
-                })
-            );
-        });
+    static async fetchChapterUrls(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        return [...dom.querySelectorAll("ol.chapter a")].map(
+            url => ({
+                sourceUrl: url.href + "?view_adult=true",
+                title: url.textContent
+            })
+        );
+    }
+
+    linkToTocUrl(link) {
+        let index = link.href.indexOf("/chapters/");
+        return link.href.substring(0, index) + "/navigate";
     }
 
     // find the node(s) holding the story content
@@ -39,11 +55,15 @@ class ArchiveOfOurOwnParser extends Parser{
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h2.title.heading");
+        return dom.querySelector("h2.heading")
     };
 
     extractAuthor(dom) {
-        return dom.querySelector("h3.byline.heading").innerText;
+        let author = dom.querySelector("h3.byline.heading");
+        if (author === null) {
+            author = dom.querySelector("a[rel='author']");
+        }
+        return author === null ? super.extractAuthor(dom) : author.innerText;
     };
 
     extractLanguage(dom) {
