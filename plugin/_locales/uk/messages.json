@@ -259,6 +259,10 @@
 		"message": "Том у серії:",
 		"description": "Label in front of input for novel's position in series."
 	},
+	"__MSG_label_No_Download_Popup__": {
+		"message": "Зберегти epub у фоновому режимі",
+		"description": "Label for checkbox to download the final epub without a popup"
+	},
 	"__MSG_label_Write_Error_History_To_File__": {
 		"message": "Зберігати помилки у файл",
 		"description": "Label for checkbox to write recent error messages to file"
