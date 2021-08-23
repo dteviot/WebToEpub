@@ -323,6 +323,10 @@
 		"message": "Volume",
 		"description": "Label in front of input for novel's position in series."
 	},
+	"__MSG_label_No_Download_Popup__": {
+		"message": "Save epub in background",
+		"description": "Label for checkbox to download the final epub without a popup"
+	},
 	"__MSG_label_Write_Error_History_To_File__": {
 		"message": "Write error messages to file",
 		"description": "Label for checkbox to write recent error messages to file"

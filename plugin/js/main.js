@@ -148,7 +148,8 @@ var main = (function () {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
-            return Download.save(content, fileName, overwriteExisting);
+            let backgroundDownload = userPreferences.noDownloadPopup.value;
+            return Download.save(content, fileName, overwriteExisting, backgroundDownload);
         }).then(function () {
             parser.updateReadingList();
             ErrorLog.showLogToUser();

@@ -87,6 +87,7 @@ class UserPreferences {
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
+        this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", false);
         this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", false);
         this.addPreference("createEpub3", "createEpub3Checkbox", false);
         this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);

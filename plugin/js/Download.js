@@ -25,11 +25,11 @@ class Download {
     }
 
     /** write blob to "Downloads" directory */
-    static save(blob, fileName, overwriteExisting) {
+    static save(blob, fileName, overwriteExisting, backgroundDownload) {
         let options = {
             url: URL.createObjectURL(blob),
             filename: fileName,
-            saveAs: true
+            saveAs: !backgroundDownload
         };
         if (overwriteExisting) {
             options.conflictAction = "overwrite";
