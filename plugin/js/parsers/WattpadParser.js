@@ -183,6 +183,6 @@ class WattpadParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.cover");
+        return util.getFirstImgSrc(dom, "div.story-cover");
     }
 }
