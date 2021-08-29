@@ -83,6 +83,10 @@ class PatreonParser extends Parser{
             this.addImage(dom, content);
             return content;
         }
+        content = dom.querySelector("div[data-tag='post-content']");
+        if (content === null) {
+            this.addContentFromScript(dom)        
+        }
         return dom.querySelector("div[data-tag='post-content']");
     }
 
@@ -95,6 +99,23 @@ class PatreonParser extends Parser{
                 img.src = link.getAttribute("content");
                 placeholder.replaceWith(img);
             }
+        }
+    }
+
+    addContentFromScript(dom) {
+        let script = [...dom.querySelectorAll("script")]
+            .map(e => e.textContent)
+            .filter(t => t.includes("\"post\": {"));
+        if (0 < script.length) {
+            let json = util.locateAndExtractJson(script[0], "\"post\":");
+            let attributes = json.data.attributes;
+            let dp = new DOMParser();
+            let title = dp.parseFromString("<span data-tag='post-title'>" 
+                + attributes.title + "</span>", "text/html");
+            dom.body.appendChild(title.querySelector("span"));
+            let content = dp.parseFromString("<div data-tag='post-content'>" 
+                + attributes.content + "</div>", "text/html");
+            dom.body.appendChild(content.querySelector("div"));
         }
     }
 
