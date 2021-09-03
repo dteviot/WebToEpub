@@ -56,7 +56,12 @@ class MadaraParser extends WordpressBaseParser{
     }
 
     extractDescription(dom) {
-        return dom.querySelector("div .summary__content").textContent.trim();
+        let selectedElement = dom.querySelector("div .summary__content");
+        if (selectedElement)
+        {
+            return selectedElement.textContent.trim();
+        }
+        return "";
     }
     
 
