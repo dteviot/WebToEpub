@@ -13,30 +13,19 @@ class MtlreaderParser extends Parser{
     }
 
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        return dom.querySelector("div.chapter-content");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h3");
+        return dom.querySelector("div.agent-title");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.text-center").textContent;
     }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.container");
-    }
-
-    async fetchChapter(url) {
-        var dom = (await HttpClient.wrapFetch(url)).responseXML;
-        var chapterId = new URL(url).pathname.split("/").pop();
-        var contentUrl = "https://www.mtlreader.com/api/chapter-content/" + chapterId;
-        var rawContent = (await HttpClient.fetchJson(contentUrl)).json;
-        var chapterDom = new DOMParser().parseFromString(rawContent, "text/html");
-        let newDoc = Parser.makeEmptyDocForContent(contentUrl);
-        let title = dom.querySelector("h1");
-        newDoc.content.appendChild(title);
-        for(let e of [...chapterDom.body.childNodes]) {
-            newDoc.content.appendChild(e);
-        }
-        return newDoc.dom;        
     }
 
     getInformationEpubItemChildNodes(dom) {
