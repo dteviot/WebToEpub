@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("readwn.com", () => new ReadwnParser());
+parserFactory.register("novelmt.com", () => new ReadwnParser());
 
 class ReadwnParser extends Parser{
     constructor() {
@@ -23,7 +24,7 @@ class ReadwnParser extends Parser{
         let maxPage = Math.max(...pageIds);
         let baseUrl = tocLinks[0];
         let urls = [];
-        for (var i = 1; i <= maxPage; ++i) {
+        for (let i = 1; i <= maxPage; ++i) {
             let params = baseUrl.searchParams;
             params.set("page", i);
             baseUrl.search = params.toString();
@@ -36,9 +37,16 @@ class ReadwnParser extends Parser{
         return [...dom.querySelectorAll("ul.chapter-list a")]
             .map(link => ({
                 sourceUrl:  link.href,
-                title: link.querySelector(".chapter-no").textContent.trim() + ":" +
-                    link.querySelector(".chapter-title").textContent.trim()
+                title: ReadwnParser.makeTitle(link)
             }));
+    }
+
+    static makeTitle(link) {
+        let num = link.querySelector(".chapter-no").textContent.trim();
+        let title = link.querySelector(".chapter-title").textContent.trim();
+        return title.includes(num)
+            ? title
+            : num + ": " + title;
     }
 
     findContent(dom) {
