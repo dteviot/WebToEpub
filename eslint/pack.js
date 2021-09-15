@@ -3,7 +3,7 @@
 
 var fs = require('fs');
 var JSZip = require('../plugin/jszip/dist/jszip.min.js');
-var DOMParser = require('xmldom').DOMParser;
+var DOMParser = require('@xmldom/xmldom').DOMParser;
 
 var extractFileListFromHtml = function(htmlAsString) {
     let dom = new DOMParser().parseFromString(htmlAsString, "text/html");
