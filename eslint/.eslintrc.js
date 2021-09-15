@@ -1,7 +1,8 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+		"webextensions": true,
     },
     "parserOptions": {
         "ecmaVersion": 2019
@@ -27,5 +28,8 @@ module.exports = {
             "off",
             "never"
         ],
-    }
+    },
+	"globals": {
+		"JSZip": "readable",
+	}
 };
