@@ -5,14 +5,15 @@
   "dependencies": {},
   "devDependencies": {
     "@xmldom/xmldom": "^0.7.5",
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "http-server": "^13.0.2"
   },
   "main": "popup.html",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
-    "test": "start unitTest/Tests.html",
+    "test": "http-server -o unitTest/Tests.html",
     "lint": "cd eslint && node pack.js && eslint packed.js",
     "build": "cd eslint && node pack.js"
   },
