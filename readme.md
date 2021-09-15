@@ -127,37 +127,18 @@ WebToEpub uses the following libraries:
 * quint: http://qunitjs.com/, licensed under MIT license.
 
 ## Other notes
-### To run unit tests under Chrome
-* Close all running copies of Chrome 
-* Start Chrome with command line argument --allow-file-access-from-files.  That is:
-    * Open a command propmt
-    * Browse to the directory holding Chrome
-    * Type in command "chrome.exe --allow-file-access-from-files" without the quotes. Press "Enter".
-    * If you don't do this, some tests will fail with error messages containing the text **_Failed to execute 'send' on 'XMLHttpRequest': Failed to load_**.
-* Load unitTest/Tests.html
-* If you get **_Failed to read the 'localStorage' property from 'Window': Access is denied for this document_** errors
-    * Type **_chrome://settings/content_** into Chrome's search bar 
-    * Uncheck **_Block third-party cookies and site data_**
-    * Click **_Finished_**
-    * Re-run unit tests
-* When finished with unit tests. 
-    * Restore original value of **_Block third-party cookies and site data_** (if you changed it).
-    * close all running copies of Chrome
-
-### To run unit tests under Firefox
-* Start Firefox 
-* Go to about:config
-* Find security.fileuri.strict_origin_policy parameter
-* Set it to false
-* Load unitTest/Tests.html
-* (Remember to reset security.fileuri.strict_origin_policy to true when done.
-
 ### To run eslint (and build the plugin)
-* Install Node.js (if not already installed)  At time of writing, I'm using version 6.9.1.
-* Use node's package manager to download and install eslint and the "xmldom" https://www.npmjs.com/package/xmldom package. (Needed by pack.js)
-* Use Node.js to run eslint/pack.js
+* Install [Node.js](https://nodejs.org/) (if not already installed)
+* Run `npm install` to install dependencies
+* Run `npm run lint` to build plugin and lint
 * This will produce 3 files in the eslint directory.
     * WebToEpub0.0.0.x.xpi   (Firefox version of plug-in.)
     * WebToEpub0.0.0.x.zip   (Chrome version of plug-in.)
-    * packed.js  (All JavaScript files packaged into single file, for eslint to examine.)
-* Command line for eslint is "eslint packed.js > error.txt"
+    * packed.js
+* Lint tests are OK if output ends with `Wrote Zip to disk; Done in XXXs.`
+
+### To run unit tests
+* Install [Node.js](https://nodejs.org/) (if not already installed)
+* Run `npm install` to install dependencies
+* Run `npm test`
+* Tests will be launched in your default browser. To open them in different browser, open the page URL in it.
