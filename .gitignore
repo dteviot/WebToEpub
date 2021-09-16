@@ -1,3 +1,7 @@
-eslint/node_modules/*
-/eslint/*.xpi
-/eslint/*.zip
+eslint/*.xpi
+eslint/*.zip
+eslint/packed.js
+eslint/index.csv
+node_modules
+plugin/**/*.*
+!plugin/jszip/dist/jszip.min.js

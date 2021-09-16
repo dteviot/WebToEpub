@@ -1,9 +1,9 @@
 // simple node.js script to pack the files making up WebToEpub into single file
 "use strict";
 
-var fs = require('fs');
-var JSZip = require('../plugin/jszip/dist/jszip.min.js');
-var DOMParser = require('xmldom').DOMParser;
+var fs = require("fs");
+var JSZip = require("../plugin/jszip/dist/jszip.min.js");
+var DOMParser = require("@xmldom/xmldom").DOMParser;
 
 var extractFileListFromHtml = function(htmlAsString) {
     let dom = new DOMParser().parseFromString(htmlAsString, "text/html");
@@ -21,11 +21,9 @@ var getFileList = function(fileName) {
 }
 
 var adjustedFileListForEslint = function(fileList) {
-    return [ "polyfillEslint.js" ]
-        .concat(fileList
-            .filter(e => e !== "jszip/dist/jszip.min.js")
-            .map(f => "../plugin/" + f)
-        );
+    return fileList
+        .filter(e => e !== "jszip/dist/jszip.min.js")
+        .map(f => "../plugin/" + f);
 }
 
 // wrap readFile in a promise
@@ -75,7 +73,7 @@ var countLines = function(fileText) {
 }
 
 var makeIndexLine = function(fileName, startIndex, count) {
-    return '"' + fileName + '", ' + (startIndex + 1) + ', ' + (startIndex + count) + '\r\n';
+    return "\"" + fileName + "\", " + (startIndex + 1) + ", " + (startIndex + count) + "\r\n";
 }
 
 
@@ -85,24 +83,24 @@ var makeIndexLine = function(fileName, startIndex, count) {
 
 var loadedFiles = [];
 getFileList("../plugin/popup.html").then(function(fileList) {
-        fileList =  adjustedFileListForEslint(fileList);
-        console.log(fileList);
-        return readAllFiles(fileList, loadedFiles);
-    }).then(function (data) {
-        let temp = "";
-        let lineCount = 0;
-        let index = "";
-        for(let f of loadedFiles) {
-            temp += f.text;
-            let count = countLines(f.text);
-            index +=  makeIndexLine(f.fileName, lineCount, count);
-            lineCount += count;
-        }
-        fs.writeFileSync("packed.js", temp);
-        fs.writeFileSync("index.csv", index);
-    }).catch(function (err) {
-        console.log(err);
-    });
+    fileList =  adjustedFileListForEslint(fileList);
+    console.log(fileList);
+    return readAllFiles(fileList, loadedFiles);
+}).then(function (data) {
+    let temp = "";
+    let lineCount = 0;
+    let index = "";
+    for(let f of loadedFiles) {
+        temp += f.text;
+        let count = countLines(f.text);
+        index +=  makeIndexLine(f.fileName, lineCount, count);
+        lineCount += count;
+    }
+    fs.writeFileSync("packed.js", temp);
+    fs.writeFileSync("index.csv", index);
+}).catch(function (err) {
+    console.log(err);
+});
 
 //=================================================================
 // This is bit where we pack the extension into a zip & xpi files.
@@ -142,20 +140,20 @@ var getLocaleFilesNames = function() {
 
 var addPopupHtmlToZip = function(zip) {
     return readFilePromise("../plugin/popup.html")
-    .then(function (data) {
-        let htmlAsString = data.toString()
-            .split("\r")
-            .filter(s => !s.includes("/experimental/"))
-            .join("\r");
-        zip.file("popup.html", htmlAsString);
-    })
+        .then(function (data) {
+            let htmlAsString = data.toString()
+                .split("\r")
+                .filter(s => !s.includes("/experimental/"))
+                .join("\r");
+            zip.file("popup.html", htmlAsString);
+        })
 }
 
 var addBinaryFileToZip = function(zip, fileName, nameInZip) {
     return readFilePromise(fileName)
-    .then(function(data) {
-        zip.file(nameInZip, data);
-    });
+        .then(function(data) {
+            zip.file(nameInZip, data);
+        });
 }
 
 var addImageFileToZip = function(zip, fileName) {
@@ -170,38 +168,38 @@ var addCssFileToZip = function(zip, fileName) {
 
 var packNonManifestExtensionFiles = function(zip, packedFileName) {
     return addBinaryFileToZip(zip, "../plugin/book128.png", "book128.png")
-    .then(function () {
-        return addImageFileToZip(zip, "ChapterStateDownloading.svg");
-    }).then(function () {
-        return addImageFileToZip(zip, "ChapterStateLoaded.svg");
-    }).then(function () {
-        return addImageFileToZip(zip, "ChapterStateNone.svg");
-    }).then(function () {
-        return addImageFileToZip(zip, "ChapterStateSleeping.svg");
-    }).then(function () {
-        return addCssFileToZip(zip, "default.css");
-    }).then(function () {
-        return addCssFileToZip(zip, "alwaysDark.css");
-    }).then(function () {
-        return addCssFileToZip(zip, "autoDark.css");
-    }).then(function () {
-        return getFileList("../plugin/popup.html");
-    }).then(function(fileList) {
-        return getLocaleFilesNames().then(function(localeNames) {
-            return ["js/ContentScript.js"].concat(localeNames)
-            .concat(fileList.filter(n => !n.includes("/experimental/")));
+        .then(function () {
+            return addImageFileToZip(zip, "ChapterStateDownloading.svg");
+        }).then(function () {
+            return addImageFileToZip(zip, "ChapterStateLoaded.svg");
+        }).then(function () {
+            return addImageFileToZip(zip, "ChapterStateNone.svg");
+        }).then(function () {
+            return addImageFileToZip(zip, "ChapterStateSleeping.svg");
+        }).then(function () {
+            return addCssFileToZip(zip, "default.css");
+        }).then(function () {
+            return addCssFileToZip(zip, "alwaysDark.css");
+        }).then(function () {
+            return addCssFileToZip(zip, "autoDark.css");
+        }).then(function () {
+            return getFileList("../plugin/popup.html");
+        }).then(function(fileList) {
+            return getLocaleFilesNames().then(function(localeNames) {
+                return ["js/ContentScript.js"].concat(localeNames)
+                    .concat(fileList.filter(n => !n.includes("/experimental/")));
+            });
+        }).then(function (fileList) {
+            return addFilesToZip(zip, fileList);
+        }).then(function () {
+            return addPopupHtmlToZip(zip);
+        }).then(function() {
+            return writeZipToDisk(zip, packedFileName);
+        }).then(function() {
+            console.log("Wrote Zip to disk");
+        }).catch(function (err) {
+            console.log(err);    
         });
-    }).then(function (fileList) {
-        return addFilesToZip(zip, fileList);
-    }).then(function () {
-        return addPopupHtmlToZip(zip);
-    }).then(function() {
-        return writeZipToDisk(zip, packedFileName);
-    }).then(function() {
-        console.log("Wrote Zip to disk");
-    }).catch(function (err) {
-        console.log(err);    
-    });
 }
 
 var makeManifestForFirefox = function(data) {
@@ -227,9 +225,9 @@ var packExtension = function(manifest, fileExtension) {
 
 // pack the extensions for Chrome and firefox
 readFilePromise("../plugin/manifest.json")
-.then(function (data) {
-    packExtension(makeManifestForFirefox(data), ".xpi");
-    packExtension(makeManifestForChrome(data), ".zip");
-}).catch(function (err) {
-    console.log(err);
-});
+    .then(function (data) {
+        packExtension(makeManifestForFirefox(data), ".xpi");
+        packExtension(makeManifestForChrome(data), ".zip");
+    }).catch(function (err) {
+        console.log(err);
+    });
