@@ -142,3 +142,32 @@ WebToEpub uses the following libraries:
 * Run `npm install` to install dependencies
 * Run `npm test`
 * Tests will be launched in your default browser. To open them in different browser, open the page URL in it.
+
+> ### To run unit tests without Node.js
+> * If you are not trying to run unit tests in `/unitTest/` folder, you do not need this
+> * If you can use nodejs, see previous paragraph instead
+> * If you can not install nodejs or http-server is not working when you run `npm test`, and you have no alternative ways to serve files (like [chrome Web Server app](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb) for example), you have to allow browser to run local html files to run tests.
+> #### To run unit tests (without local server) under Chrome
+> * Close all running copies of Chrome 
+> * Start Chrome with command line argument `--allow-file-access-from-files`.  That is:
+>     * Open a command propmt
+>     * Browse to the directory holding Chrome
+>     * Type in command `chrome.exe --allow-file-access-from-files` . Press "Enter".
+>     * If you don't do this, some tests will fail with error messages containing the text **_Failed to execute 'send' on 'XMLHttpRequest': Failed to load_**.
+> * Load `unitTest/Tests.html`
+> * If you get **_Failed to read the 'localStorage' property from 'Window': Access is denied for this document_** errors
+>     * Type **_chrome://settings/content_** into Chrome's search bar 
+>     * Uncheck **_Block third-party cookies and site data_**
+>     * Click **_Finished_**
+>     * Re-run unit tests
+> * When finished with unit tests. 
+>     * Restore original value of **_Block third-party cookies and site data_** (if you changed it).
+>     * close all running copies of Chrome
+> 
+> #### To run unit tests (without local server) under Firefox
+> * Start Firefox 
+> * Go to `about:config`
+> * Find `security.fileuri.strict_origin_policy` parameter
+> * Set it to false
+> * Load `unitTest/Tests.html`
+> * (Remember to reset `security.fileuri.strict_origin_policy` to true when done.
