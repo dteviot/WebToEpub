@@ -18,9 +18,7 @@ class VipNovelParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        let title = dom.querySelector("div.post-title h3");
-        util.removeChildElementsMatchingCss(title, "span.hot");
-        return title;
+        return dom.querySelector("div.post-title h1");
     }
 
     extractAuthor(dom) {
