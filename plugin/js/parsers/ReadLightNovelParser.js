@@ -136,7 +136,7 @@ class ReadLightNovelParser extends Parser {
 
         super.removeUnwantedElementsFromContentElement(element);
         util.removeChildElementsMatchingCss(element, "div.row, " +
-            ".alert, img[src*='/magnify-clip.png'], div.hidden");
+            ".alert, img[src*='/magnify-clip.png'], div.hidden, p.hid");
         this.removeShareThisLinks(element);
     }
 
@@ -154,7 +154,7 @@ class ReadLightNovelParser extends Parser {
         }
         let sibling = op(element);
 
-        if(!sibling) {
+        if(!sibling && (element.parentNode !== null)) {
             sibling = op(element.parentNode);
         }
 
