@@ -181,7 +181,9 @@ var util = (function () {
     }
 
     var removeChildElementsMatchingCss = function (element, css) {
-        util.removeElements(element.querySelectorAll(css));
+        if (element !== null) {
+            util.removeElements(element.querySelectorAll(css));
+        }
     }
 
     var removeComments = function (root) {
