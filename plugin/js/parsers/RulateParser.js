@@ -37,4 +37,10 @@ class RulateParser extends Parser {
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "#slick-slide00") || util.getFirstImgSrc(dom, ".slick");
     }
+
+    addTitleToContent(webPage, content) {
+        let h2 = webPage.rawDom.createElement("h2");
+        h2.innerText = webPage.title.trim();
+        content.prepend(h2);
+    }
 }
