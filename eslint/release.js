@@ -8,6 +8,7 @@ let version = JSON.parse(fs.readFileSync("plugin/manifest.json", 'utf-8')).versi
 let isDraft = process.argv.includes('draft');
 let isPrerelease = process.argv.includes('pre');
 let commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+let commitLongHash = execSync('git rev-parse HEAD').toString().trim();
 let nameVersion = isPrerelease ? `${version}.pre-${commitHash}` : version;
 
 execSync('npm run lint');
@@ -27,7 +28,7 @@ let command = `
 	--title ${version}${isPrerelease ? '.pre-' + commitHash : ''}
 	${chromeCopyName}
 	${firefoxCopyName}
-	--target ${isPrerelease ? 'ExperimentalTabMode' : 'master'}
+	--target ${isPrerelease ? commitLongHash : 'master'}
 	--notes ""
 	${isPrerelease ? '--prerelease' : ''}
 	${isDraft ? '--draft' : ''}
