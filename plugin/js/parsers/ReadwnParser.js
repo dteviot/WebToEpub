@@ -3,6 +3,7 @@
 parserFactory.register("readwn.com", () => new ReadwnParser());
 parserFactory.register("novelmt.com", () => new ReadwnParser());
 parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
+parserFactory.register("novelmtl.com", () => new ReadwnParser());
 
 class ReadwnParser extends Parser{
     constructor() {
