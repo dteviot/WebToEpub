@@ -11,9 +11,15 @@ let commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 let commitLongHash = execSync('git rev-parse HEAD').toString().trim();
 let nameVersion = isPrerelease ? `${version}.pre-${commitHash}` : version;
 let branch = execSync('git rev-parse --abbrev-ref HEAD');
+let masterCommitHash = execSync('git rev-parse origin/master').toString().trim();
 
-if (branch != 'master' && !isPrerelease) {
-	throw new Error('Can not make a full release: not on master branch');
+if (!isPrerelease) {
+	if (branch != 'master') {
+		throw new Error('Can not make a full release: not on master branch');
+	}
+	if (commitLongHash != masterCommitHash) {
+		throw new Error('Can not make a full release: master is not pushed to remote');
+	}
 }
 
 execSync('npm run lint');
