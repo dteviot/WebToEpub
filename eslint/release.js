@@ -24,8 +24,8 @@ if (!isPrerelease) {
 
 execSync("npm run lint");
 
-let chromeName = `./eslint/WebToEpub.chrome.${version}.zip`;
-let firefoxName = `./eslint/WebToEpub.firefox.${version}.xpi`;
+let chromeName = `./eslint/WebToEpub${version}.zip`;
+let firefoxName = `./eslint/WebToEpub${version}.xpi`;
 let chromeCopyName = `./eslint/WebToEpub.chrome.${nameVersion}.zip`
 let firefoxCopyName = `./eslint/WebToEpub.firefox.${nameVersion}.zip`;
 

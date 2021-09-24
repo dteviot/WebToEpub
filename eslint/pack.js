@@ -217,17 +217,17 @@ var makeManifestForChrome = function(data) {
     return manifest;    
 }
 
-var packExtension = function(manifest, fileExtension, browser) {
+var packExtension = function(manifest, fileExtension) {
     let zip = new JSZip();
     zip.file("manifest.json", JSON.stringify(manifest));
-    return packNonManifestExtensionFiles(zip, "WebToEpub." + browser + "." + manifest.version + fileExtension);
+    return packNonManifestExtensionFiles(zip, "WebToEpub" + manifest.version + fileExtension);
 }
 
 // pack the extensions for Chrome and firefox
 readFilePromise("../plugin/manifest.json")
     .then(function (data) {
-        packExtension(makeManifestForFirefox(data), ".xpi", "firefox");
-        packExtension(makeManifestForChrome(data), ".zip", "chrome");
+        packExtension(makeManifestForFirefox(data), ".xpi");
+        packExtension(makeManifestForChrome(data), ".zip");
     }).catch(function (err) {
         console.log(err);
     });
