@@ -8,11 +8,12 @@ class HostednovelParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let url = dom.baseURI;
-        if (util.extractFilenameFromUrl(url) !== "chapters") {
-            url += "/chapters";
+        let url = new URL(dom.baseURI);
+        url.hash = "";
+        if (!url.pathname.endsWith("/chapters")) {
+            url.pathname += "/chapters";
         }
-        let urlsOfTocPages = this.extractTocPageUrls(dom, url);
+        let urlsOfTocPages = this.extractTocPageUrls(dom, url.toString());
         let chapters = [];
         return Parser.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
