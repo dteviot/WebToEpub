@@ -16,7 +16,7 @@ class DummynovelsParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div#wtr-content");
+        return dom.querySelector(".elementor-widget-theme-post-content");
     }
 
     extractTitleImpl(dom) {
@@ -36,6 +36,6 @@ class DummynovelsParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "script, iframe");
+        util.removeChildElementsMatchingCss(node, "script, iframe, .code-block");
     }    
 }
