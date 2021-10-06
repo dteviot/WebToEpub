@@ -116,20 +116,19 @@ So, get the relevant zip, then
 6. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
 
 ### Firefox
-1. ~~Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).~~
-2. Download the extension.
+1. Download the extension.
     1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
     2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
-3. Unpack zip file.
+2. Unpack zip file.
     1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
     2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 10 below.
-4. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
-5. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-6. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-7. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-8. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-9. Click "Load Temporary Add-on".
-10. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
+3. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
+4. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
+5. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
+6. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
+7. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
+8. Click "Load Temporary Add-on".
+9. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
 
 ## License information
 Licenced under GPLv3.
