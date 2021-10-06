@@ -1,7 +1,6 @@
 "use strict";
 
 var fs = require("fs");
-var npm = require("npm-commands");
 var { execSync } = require("child_process");
 
 let version = JSON.parse(fs.readFileSync("plugin/manifest.json", "utf-8")).version;
