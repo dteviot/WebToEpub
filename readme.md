@@ -92,40 +92,17 @@ For details on how to extend, see the following
 Get the latest zip (see video above), and choose it at `about:debugging#/runtime/this-firefox` in `load temporal extension` menu
 
 
-## How to install from Source
-
-Note, I usually put copies of the current Development versions, including the jszip library, in https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing
-So, get the relevant zip, then 
-* The easiest way is using Firefox.
-  1. Download the Firefox version from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
-  2. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-  3. Click "Load Temporary Add-on".
-  4. Click on the zip file you downloaded in step 1.
-* For Chrome, just do step 2 then steps 6 to 9 of the Chrome instructions.
+## How to install from Source (for developers)
 
 ### Chrome
-1. Download the extension. 
-    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
-2. Unpack zip file
-    1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
-    2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 8 below.
-3. Open Chrome and type "chrome://extensions" into the browser.
-4. Make sure "Developer Mode" at the top of the page is checked.
-5. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
-6. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
+1. Clone this repo
+  * if you don't know how to do it, download https://github.com/dteviot/WebToEpub/archive/refs/heads/ExperimentalTabMode.zip and unzip it
+2. Load extension same as in a video above, but drag-n-drop the `/package` folder of this repo
 
 ### Firefox
-1. Download the extension.
-    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
-2. Unpack zip file.
-    1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
-    2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 10 below.
-3. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
-4. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-5. Click "Load Temporary Add-on".
-6. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
+1. Clone this repo
+  * if you don't know how to do it, download https://github.com/dteviot/WebToEpub/archive/refs/heads/ExperimentalTabMode.zip and unzip it
+2. Select `/plugin/manifest.json` at `about:debugging#/runtime/this-firefox` in `load temporal extension` menu
 
 ## License information
 Licenced under GPLv3.
