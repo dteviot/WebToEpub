@@ -123,12 +123,9 @@ So, get the relevant zip, then
     1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
     2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 10 below.
 3. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
-4. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-5. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-6. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-7. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-8. Click "Load Temporary Add-on".
-9. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
+4. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
+5. Click "Load Temporary Add-on".
+6. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
 
 ## License information
 Licenced under GPLv3.
