@@ -155,6 +155,17 @@ WebToEpub uses the following libraries:
 * Run `npm test`
 * Tests will be launched in your default browser. To open them in different browser, open the page URL in it.
 
+### To package and upload to Github
+* Fork this repo, and clone it to your PC
+* Run `npm install` to install dependencies
+* Make the changes you want, commit them with git, and upload to github
+* Run `npm run release pre`
+  * this will package extension, make a tag on 
+  * `npm run release` has two optional arguments:
+    * `pre` makes a prerelease. Unlike the release, prerelease may be made on any branch on any commit.
+    * `draft` makes a draft of release, which requires confirmation on github website to actually create the release
+* The link to new release will be in the end of console output
+
 > ### To run unit tests without Node.js
 > * If you are not trying to run unit tests in `/unitTest/` folder, you do not need this
 > * If you can use nodejs, see previous paragraph instead
