@@ -98,13 +98,10 @@ So, get the relevant zip, then
 2. Unpack zip file
     1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
     2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 8 below.
-3. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-4. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-5. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 3.
-6. Open Chrome and type "chrome://extensions" into the browser.
-7. Make sure "Developer Mode" at the top of the page is checked.
-8. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
-9. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
+3. Open Chrome and type "chrome://extensions" into the browser.
+4. Make sure "Developer Mode" at the top of the page is checked.
+5. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
+6. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
 
 ### Firefox
 1. ~~Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).~~
