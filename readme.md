@@ -84,6 +84,14 @@ For details on how to extend, see the following
 * Get yourself `Kiwi browser`, `Yandex browser`, or `Firefox nightly` (*not* default firefox branch, it does not supports extensions)
 * Install from `Chrome web store` for Kiwi and Yandex, of from `Mozilla addons` for Firefox Nightly (links above).  
 
+
+## Installing beta vesion
+### on Chrome
+![wte-chrome-small](https://user-images.githubusercontent.com/20068737/136224439-57af48bd-21fb-463d-99db-74f44769327e.gif)
+### on Firefox
+Get the latest zip (see video above), and choose it at `about:debugging#/runtime/this-firefox` in `load temporal extension` menu
+
+
 ## How to install from Source
 
 Note, I usually put copies of the current Development versions, including the jszip library, in https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing
