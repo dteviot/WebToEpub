@@ -80,47 +80,33 @@ For details on how to extend, see the following
 * Go to https://addons.mozilla.org/en-US/firefox/addon/webtoepub-for-baka-tsuki
 * Click on "Download anyway"
 
-## How to install from Source
+### on Android
+* Caution I have not (and do not test) on Android.  I've been told the following work, but I can't guarantee them.
+* Get yourself `Kiwi browser`, `Yandex browser`, or `Firefox nightly` (*not* default Firefox branch, it does not supports extensions.)
+* Install from `Chrome web store` for Kiwi and Yandex, of from `Mozilla addons` for Firefox Nightly (links above). 
 
-Note, I usually put copies of the current Development versions, including the jszip library, in https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing
-So, get the relevant zip, then 
-* The easiest way is using Firefox.
-  1. Download the Firefox version from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
-  2. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-  3. Click "Load Temporary Add-on".
-  4. Click on the zip file you downloaded in step 1.
-* For Chrome, just do step 2 then steps 6 to 9 of the Chrome instructions.
-
-### Chrome
-1. Download the extension. 
-    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
-2. Unpack zip file
-    1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
-    2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 8 below.
-3. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-4. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-5. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 3.
-6. Open Chrome and type "chrome://extensions" into the browser.
-7. Make sure "Developer Mode" at the top of the page is checked.
-8. Press the "Load unpacked extension.." button and browse to the "plugin" directory from step 2.
-9. On Chrome you may see a warning message "Unrecognized manifest key 'applications'."  This can be safely ignored.  (The source version supports both Firefox and Chrome. The 'applications' key is needed by Firefox, but Chrome does not recognise it.)
+## How to install from Source (for people who are not developers)
 
 ### Firefox
-1. ~~Make sure you can install unsigned addons (only possible in Nightly and Developer Edition).~~
-2. Download the extension.
-    1. For most recent release, go to https://github.com/dteviot/WebToEpub and click on the "Download Zip" button.
-    2. For current development branch, go to https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode and click on the "Download Zip" button.
-3. Unpack zip file.
-    1. If you downloaded the zip file from Github, move the "plugin" directory to the location you want to keep it.
-    2. If you downloaded the zip file from Google Drive, move the unpacked contents to wherever you want to keep them.  This the the "plugin" directory referred to in step 10 below.
-4. Open the file manifest.json in the plugin directory with a text editor and delete the line that goes: <br>"incognito": "split",<br>
-5. In the "plugin" directory from the previous step there is a "jszip" directory.  Create a "dist" directory inside this "jszip" directory.
-6. Download jszip library v3.0.0 from https://github.com/Stuk/jszip
-7. Extract jszip.min.js from the jszip library and copy to the "dist" directory you created in step 4.
-8. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
-9. Click "Load Temporary Add-on".
-10. Select "manifest.json" from the directory in step 3. Or, if you don't intend to change the code, just select the zip file you downloaded.
+The easiest set of steps is using Firefox.
+1. Download prebuilt Firefox version of extension from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
+2. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
+3. Click "Load Temporary Add-on".
+4. Click on the zip file you downloaded in step 1.
+![Installing in Firefox screenshot](doc/FirefoxLoadFromSource.png?raw=true)
+
+### Chrome
+1. Download prebuilt Chrome version of extension from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
+2. Unpack zip file
+3. Open Chrome and type "chrome://extensions" into the browser.
+4. Make sure "Developer Mode" at the top of the page is checked.
+5. Press the "Load unpacked extension.." button and browse to unpacked zip directory from step 2.
+![wte-chrome-small](https://user-images.githubusercontent.com/20068737/136224439-57af48bd-21fb-463d-99db-74f44769327e.gif)
+
+## How to install from Source (for developers)
+1. Clone this repo
+2. Build extension. See "To run Eslint (and build the plugin)" in "Other notes" below.
+3. Install extension in browser of choice, using instructions above.
 
 ## License information
 Licenced under GPLv3.
@@ -130,7 +116,7 @@ WebToEpub uses the following libraries:
 * quint: http://qunitjs.com/, licensed under MIT license.
 
 ## Other notes
-### To run eslint (and build the plugin)
+### To run Eslint (and build the plugin)
 * Install [Node.js](https://nodejs.org/) (if not already installed)
 * Run `npm install` to install dependencies
 * Run `npm run lint` to build plugin and lint
