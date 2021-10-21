@@ -43,8 +43,7 @@ class HostednovelParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let card = this.getInfoCard(dom);
-        return card === null ? null : card.querySelector("img").src;
+        return dom.querySelector("img.cover-image")?.src ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {
@@ -54,6 +53,6 @@ class HostednovelParser extends Parser{
 
     getInfoCard(dom) {
         let cards = [...dom.querySelectorAll("div.card-body")]
-        return 1 < cards.length ? cards[1] : [];
+        return 1 < cards.length ? cards[1] : null;
     }
 }
