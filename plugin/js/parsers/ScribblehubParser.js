@@ -39,6 +39,11 @@ class ScribblehubParser extends Parser{
         return dom.querySelector("div#chp_contents");
     };
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
     extractTitleImpl(dom) {
         return dom.querySelector("div.fic_title");
     };
@@ -54,6 +59,12 @@ class ScribblehubParser extends Parser{
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.fic_image");
+    }
+
+    preprocessRawDom(webPageDom) {
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeChildElementsMatchingCss(webPageDom, ".wi_authornotes");
+        }
     }
 
     getInformationEpubItemChildNodes(dom) {
