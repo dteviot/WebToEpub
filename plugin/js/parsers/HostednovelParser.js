@@ -15,8 +15,9 @@ class HostednovelParser extends Parser{
         }
         let urlsOfTocPages = this.extractTocPageUrls(dom, url.toString());
         let chapters = [];
-        return Parser.getChaptersFromAllTocPages(chapters, 
-            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
+        return (await Parser.getChaptersFromAllTocPages(chapters, 
+            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI))
+            .concat(this.chapterUrlsOnPage(dom));
     }
 
     extractTocPageUrls(dom, initialTocUrl) {
@@ -26,6 +27,11 @@ class HostednovelParser extends Parser{
 
     extractPartialChapterList(dom) {
         return util.hyperlinksToChapterList(dom);
+    }
+
+    chapterUrlsOnPage(dom) {
+        return [...dom.querySelectorAll(".chaptergroup a:not([rel])")]
+            .map(a => util.hyperLinkToChapter(a))
     }
 
     findContent(dom) {
