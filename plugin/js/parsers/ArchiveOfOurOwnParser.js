@@ -51,19 +51,22 @@ class ArchiveOfOurOwnParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return dom.querySelector("div.userstuff, div[class^='storytext']");
+        return dom.querySelector("div#chapters");
     };
+
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h2.heading")
     };
 
     extractAuthor(dom) {
-        let author = dom.querySelector("h3.byline.heading");
-        if (author === null) {
-            author = dom.querySelector("a[rel='author']");
-        }
-        return author === null ? super.extractAuthor(dom) : author.innerText;
+        let author = dom.querySelector("h3.byline.heading a[rel='author']")
+            ?.innerText
+        return author ?? super.extractAuthor(dom);
     };
 
     extractLanguage(dom) {
@@ -71,6 +74,13 @@ class ArchiveOfOurOwnParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
+        if (this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...element.querySelectorAll(".chapter.preface.group")];
+            let title = element.querySelector("h3.title");
+            notes[0].replaceWith(title);
+            util.removeElements(notes.slice(1));
+        }
+
         util.removeChildElementsMatchingCss(element, "h3.landmark.heading");
         super.removeUnwantedElementsFromContentElement(element);
     }

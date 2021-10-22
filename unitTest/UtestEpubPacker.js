@@ -6,6 +6,7 @@ function makeDummyXhtmlFile(title) {
     let xhtml = util.createEmptyXhtmlDoc();
     let content = xhtml.createElement("div");
     content.className = "userstuff module";
+    content.id = "chapters";
     xhtml.getElementsByTagName("body")[0].appendChild(content);
     let h1 = xhtml.createElement("h1");
     h1.innerText = title;

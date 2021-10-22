@@ -31,9 +31,7 @@ function syncLoadArchiveOfOurOwnSampleDoc() {
 QUnit.test("findContent", function (assert) {
     let parser = new ArchiveOfOurOwnParser();
     let content = parser.findContent(syncLoadArchiveOfOurOwnSampleDoc());
-    equal(content.childNodes.length, 5);
-    equal(content.childNodes[1].innerText, "Chapter Text");
-    equal(content.childNodes[3].innerText, "If you're like me, you will have...");
+    equal(content.firstElementChild.className, "chapter");
 });
 
 QUnit.test("getEpubMetaInfo", function (assert) {
