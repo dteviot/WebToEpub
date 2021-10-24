@@ -38,10 +38,22 @@ class HostednovelParser extends Parser{
         return dom.querySelector("#chapter");
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
     extractTitleImpl(dom) {
         let link = dom.querySelector("h1");
         util.removeChildElementsMatchingCss(link, "a");
         return link;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeChildElementsMatchingCss(element, ".notes");
+        }
+        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findChapterTitle(dom) {
