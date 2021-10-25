@@ -90,6 +90,6 @@ class ArchiveOfOurOwnParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("dl.meta, div.summary")];
+        return [...dom.querySelectorAll("dl.meta, div.summary, .notes.module")];
     }
 }
