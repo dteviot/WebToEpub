@@ -7,6 +7,10 @@ class MtlnationParser extends MadaraParser{
         super();
     }
 
+    disabled() {
+        return chrome.i18n.getMessage("parserDisabledNotification");
+    }
+
     findContent(dom) {
         let content = dom.querySelector("div.reading-content");
         if (content === null) {

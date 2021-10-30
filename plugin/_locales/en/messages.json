@@ -522,6 +522,10 @@
 		"message": "No parser found for this URL.  Default parser will be used.  You will need to specify how to obtain content for each chapter.",
 		"description": "Warning message when can't figure out how to extract info from web page."
 	},
+	"parserDisabledNotification": {
+		"message": "Support for this site has been disabled at the request of site owners.",
+		"description": "Warning message when user tries to process disabled parser."
+	},
 	"setCover": {
 		"message": "Set Cover",
 		"description": "Label for checkboxes used to select the cover image."
