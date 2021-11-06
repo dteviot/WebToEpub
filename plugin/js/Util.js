@@ -353,6 +353,15 @@ var util = (function () {
         };
     }
 
+    var fixDelayLoadedImages = function(element, delayAttrib) {
+        for(let i of element.querySelectorAll("img")) {
+            let url = i.getAttribute(delayAttrib);
+            if (!util.isNullOrEmpty(url)) {
+                i.src = url;
+            }
+        }
+    }
+
     var fixBlockTagsNestedInInlineTags = function(contentElement) {
         // if an inline tag contains block tags, move contents out of inline tag
         // refer https://github.com/dteviot/WebToEpub/issues/62
@@ -906,7 +915,7 @@ var util = (function () {
             );
         });
     }    
-    
+
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
 
@@ -964,6 +973,7 @@ var util = (function () {
         convertElement: convertElement,
         moveChildElements: moveChildElements,
         copyAttributes: copyAttributes,
+        fixDelayLoadedImages: fixDelayLoadedImages,
         fixBlockTagsNestedInInlineTags: fixBlockTagsNestedInInlineTags, 
         isBlockElementInside: isBlockElementInside,
         moveElementsOutsideTag: moveElementsOutsideTag,

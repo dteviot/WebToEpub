@@ -86,11 +86,6 @@ class SonakoParser extends BakaTsukiParser {
         util.removeElements(element.querySelectorAll("table, span.editsection"));
 
         // fix source for delay loaded image tags
-        for(let img of element.querySelectorAll("img[src^='data:image']")) {
-            let href = img.getAttribute("data-src");
-            if (href != null) {
-                img.src = href;
-            };
-        };
+        util.fixDelayLoadedImages(element, "data-src");
     }
 }
