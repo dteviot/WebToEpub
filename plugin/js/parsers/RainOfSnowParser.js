@@ -7,9 +7,22 @@ class RainOfSnowParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom) {
-        let menu = dom.querySelector("div#chapter");
-        return util.hyperlinksToChapterList(menu);
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            RainOfSnowParser.extractPartialChapterList,
+            RainOfSnowParser.getUrlsOfTocPages,
+            chapterUrlsUI
+        );
+    }
+
+    static extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("div#chapter a:not(.page-numbers)")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    static getUrlsOfTocPages(dom) {
+        return [...dom.querySelectorAll("ul.page-numbers a.page-numbers:not(.next)")]
+            .map(a => a.href);
     }
 
     findContent(dom) {
