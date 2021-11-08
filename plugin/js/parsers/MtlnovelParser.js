@@ -15,16 +15,27 @@ class MtlnovelParser extends Parser{
         document.getElementById("removeOriginalRow").hidden = false;
     }
 
-    async getChapterUrls(dom) {
-        let url = dom.baseURI;
-        if (!url.endsWith("/")) {
-            url = url + "/";
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let tocUrls = [...dom.querySelectorAll("#panelchapterlist amp-list")]
+            .map(e => e.getAttribute("src"));
+        let chapters = [];
+        for (let tocUrl of tocUrls) {
+            let json = (await HttpClient.fetchJson(tocUrl)).json;
+            let partialList = this.chaptersFromJson(json);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
         }
-        url = url + "chapter-list/";
-        let tocDom = (await HttpClient.wrapFetch(url)).responseXML;
-        let tocElement = tocDom.querySelector("div.ch-list");
-        return util.hyperlinksToChapterList(tocElement).reverse();
+        return chapters;
     };
+
+    chaptersFromJson(json) {
+        return json.items.map(
+            i => ({
+                title: i.no + " " + i.title,
+                sourceUrl: i.permalink
+            })
+        )
+    }
 
     findContent(dom) {
         return dom.querySelector("div.single-page");
