@@ -101,15 +101,11 @@ class ImageCollector {
         return this.imagesToFetch.length;
     }
 
-    fetchImages(progressIndicator, parentPageUrl) {
-        let that = this;
-        let temp = that.imagesToFetch.reduce(function(sequence, imageInfo) {
-            return sequence.then(function() {
-                return that.fetchImage(imageInfo, progressIndicator, parentPageUrl);
-            })
-        }, Promise.resolve());
-        that.imagesToFetch = [];
-        return temp;
+    async fetchImages(progressIndicator, parentPageUrl) {
+        for(let imageInfo of this.imagesToFetch) {
+            await this.fetchImage(imageInfo, progressIndicator, parentPageUrl);
+        }
+        this.imagesToFetch = [];
     }
 
     /**
@@ -324,25 +320,26 @@ class ImageCollector {
         });
     }
 
-    fetchImage(imageInfo, progressIndicator, parentPageUrl) {
-        let that = this;
-        let initialUrl = this.initialUrlToTry(imageInfo);
-        this.urlIndex.set(initialUrl, imageInfo.index);
-        let fetchOptions = {errorHandler: new FetchImageErrorHandler(parentPageUrl) };
-        return HttpClient.wrapFetch(initialUrl, fetchOptions).then(function (xhr) {
-            return that.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
-        }).then(function (xhr) {
+    async fetchImage(imageInfo, progressIndicator, parentPageUrl) {
+        try
+        {
+            let initialUrl = this.initialUrlToTry(imageInfo);
+            this.urlIndex.set(initialUrl, imageInfo.index);
+            let fetchOptions = {errorHandler: new FetchImageErrorHandler(parentPageUrl) };
+            let xhr = await HttpClient.wrapFetch(initialUrl, fetchOptions);
+            xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
-            return that.getImageDimensions(imageInfo);
-        }).then(function () {
+            await this.getImageDimensions(imageInfo);
             progressIndicator();
-            that.addToPackList(imageInfo)
-        }).catch(function(error) {
+            this.addToPackList(imageInfo)
+        }
+        catch (error)
+        {
             // ToDo, implement error handler.
-            that.imagesToPack.push(imageInfo);
+            this.imagesToPack.push(imageInfo);
             ErrorLog.log(error);
-        });
+        }
     }
 
     findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, fetchOptions) {
