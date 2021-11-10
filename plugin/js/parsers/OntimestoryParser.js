@@ -13,7 +13,7 @@ class OntimestoryParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.post-content");
+        return dom.querySelector("div.post-content, div.entry-content");
     }
 
     extractTitleImpl(dom) {
@@ -21,11 +21,11 @@ class OntimestoryParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.post-title");
+        return dom.querySelector("h1.post-title, .entry-title");
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.page-excerpt");
+        return util.getFirstImgSrc(dom, "article");
     }
 
     getInformationEpubItemChildNodes(dom) {
