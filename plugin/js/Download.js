@@ -64,14 +64,41 @@ class Download {
     }
 
     static saveOnFirefox(options, cleanup) {
-        if (Download.isAndroid()) {
-            options.saveAs = false;
-        }
-        return browser.downloads.download(options).then(
-            // on Firefox, resolves when "Save As" dialog CLOSES, so no
-            // need to delay past this point.
-            downloadId => Download.onDownloadStarted(downloadId, cleanup)
-        ).catch(cleanup);
+        return browser.runtime.getPlatformInfo().then(platformInfo => {
+            // If the extension's web page is opened with the
+            // "Reqeust Desktop Site" toggle enabled then only the second check
+            // will correctly detect android.
+            //
+            // This is important to support since fetch requests can be
+            // redirected to mobile versions of web sites when the toggle is
+            // disabled.
+            if (Download.isAndroid() || platformInfo.os.toLowerCase().includes("android")) {
+                options.saveAs = false;
+
+                // `browser.downloads.download` isn't implemented in
+                // "Firefox for Android" yet, so we starts downloads
+                // the same way any normal web page would do it:
+                const link = document.createElement("a");
+                link.style.display = "hidden";
+
+                link.href = options.url;
+                link.download = options.filename;
+
+                document.body.appendChild(link);
+                try {
+                    link.click();
+                } finally {
+                    document.body.removeChild(link);
+                }
+                cleanup();
+            } else {
+                return browser.downloads.download(options).then(
+                    // on Firefox, resolves when "Save As" dialog CLOSES, so no
+                    // need to delay past this point.
+                    downloadId => Download.onDownloadStarted(downloadId, cleanup)
+                );
+            }
+        }).catch(cleanup);
     }
 
     static isAndroid() {
