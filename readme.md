@@ -43,6 +43,7 @@ Credits
 * Miracutor
 * Kiradien
 * lamaesus
+* Lej77
 * Dimava
 
 ## How to use with Baka-Tsuki:
