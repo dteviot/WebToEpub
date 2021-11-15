@@ -42,7 +42,7 @@ Credits
 * Sickan90
 * Miracutor
 * Kiradien
-* lamaesus
+* Synteresis
 * Lej77
 * Dimava
 
