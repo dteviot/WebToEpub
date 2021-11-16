@@ -1,14 +1,16 @@
 "use strict";
 
 class Download {
-    constructor () {
+    constructor() {
     }
 
     static init() {
         Download.saveOn = util.isFirefox() ? Download.saveOnFirefox : Download.saveOnChrome;
-        if (util.isFirefox()) {
+        if (typeof browser.runtime.getBrowserInfo === "function") {
             Download.saveOn = Download.saveOnFirefox;
             browser.downloads.onChanged.addListener(Download.onChanged);
+        } else if (util.isFirefox()) {
+            Download.saveOn = Download.saveOnSafari;
         } else {
             Download.saveOn = Download.saveOnChrome;
             chrome.downloads.onChanged.addListener(Download.onChanged);
@@ -16,7 +18,7 @@ class Download {
     }
 
     static isFileNameIllegalOnWindows(fileName) {
-        for(let c of Download.illegalWindowsFileNameChars) {
+        for (let c of Download.illegalWindowsFileNameChars) {
             if (fileName.includes(c)) {
                 return true;
             }
@@ -34,16 +36,43 @@ class Download {
         if (overwriteExisting) {
             options.conflictAction = "overwrite";
         }
-        let cleanup = () => { URL.revokeObjectURL(options.url); };
+        let cleanup = () => {
+            URL.revokeObjectURL(options.url);
+        };
         return Download.saveOn(options, cleanup);
+    }
+
+    static saveOnSafari(options, cleanup) {
+        return new Promise((resolve, reject) => {
+            Download.safariSave(options);
+        });
+    }
+
+    static safariSave(options) {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        const iDocument = iframe.contentWindow.document;
+        const url = options.url;
+        const a = iDocument.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = options.filename;
+        iDocument.body.appendChild(a);
+        a.click();
+        window.setTimeout(function () {
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+        }, 0);
     }
 
     static saveOnChrome(options, cleanup) {
         // on Chrome call to download() will resolve when "Save As" dialog OPENS
         // so need to delay return until after file is actually saved
         // Otherwise, we get multiple Save As Dialogs open.
-        return new Promise((resolve,reject) => {
-            chrome.downloads.download(options, 
+        return new Promise((resolve, reject) => {
+            chrome.downloads.download(options,
                 downloadId => Download.downloadCallback(downloadId, cleanup, resolve, reject)
             );
         });
@@ -53,8 +82,8 @@ class Download {
         if (downloadId === undefined) {
             reject(new Error(chrome.runtime.lastError.message));
         } else {
-            Download.onDownloadStarted(downloadId, 
-                () => { 
+            Download.onDownloadStarted(downloadId,
+                () => {
                     const tenSeconds = 10 * 1000;
                     setTimeout(cleanup, tenSeconds);
                     resolve();
