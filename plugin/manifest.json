@@ -8,17 +8,20 @@
   },
   "permissions": [
     "downloads",
-    "webRequest",
-    "webRequestBlocking",
-    "<all_urls>"
+    "<all_urls>",
+    "*://*/*",
+    "tabs"
   ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "browser_action": {
     "browser_style": false,
     "default_title": "",
-    "default_icon": "book128.png",
-    "default_popup": "popup.html"
+    "default_icon": "book128.png"
   },
-  "incognito": "split",
+  "incognito": "spanning",
   "applications": {
     "gecko": {
       "id": "WebToEpub@Baka-tsuki.org",

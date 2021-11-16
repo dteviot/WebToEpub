@@ -261,28 +261,6 @@ var main = (function () {
         userPreferences.readFromUi();
     }
 
-    function openTabWindow() {
-        // open new tab window, passing ID of open tab with content to convert to epub as query parameter.
-        getActiveTab().then(function (tabId) {
-            let url = chrome.runtime.getURL("popup.html") + "?id=";
-            url += tabId;
-            chrome.tabs.create({ url: url });
-            window.close();
-        });
-    }
-
-    function getActiveTab() {
-        return new Promise(function (resolve, reject) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                if ((tabs != null) && (0 < tabs.length)) {
-                    resolve(tabs[0].id);
-                } else {
-                    reject();
-                };
-            });
-        });
-    }
-
     function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
         let url = getValueFromUiField("startingUrlInput");
@@ -576,17 +554,15 @@ var main = (function () {
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
-        if (isRunningInTabMode()) {
-            localizeHtmlPage();
-            getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
-            addEventHandlers();
-            populateControls();
-            if (util.isFirefox()) {
-                Firefox.startWebRequestListeners();
-            }
-        } else {
-            openTabWindow();
+        localizeHtmlPage();
+        getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
+        addEventHandlers();
+        populateControls();
+        /*
+        if (util.isFirefox()) {
+            Firefox.startWebRequestListeners();
         }
+        */
     }
 
     return {
