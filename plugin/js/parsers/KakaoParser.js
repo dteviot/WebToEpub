@@ -103,15 +103,15 @@ class KakaoParser extends Parser {
 
     // extractAuthor
     extractAuthor(dom) {
-        return dom.querySelector('[property="article:author"]').content;
+        return dom.querySelector("[property='article:author']").content;
     }
     // extractSubject
     extractSubject(dom) {
-        return dom.querySelector('[name="tiara-pageMeta-category"]').content;
+        return dom.querySelector("[name='tiara-pageMeta-category']").content;
     }
     // extractDescription
     extractDescription(dom) {
-        return dom.querySelector('[property="og:description"]').content;
+        return dom.querySelector("[property='og:description']").content;
     }
     // findChapterTitle
     findChapterTitle(dom) {
@@ -120,6 +120,6 @@ class KakaoParser extends Parser {
 
     // findCoverImageUrl
     findCoverImageUrl(dom) {
-        return dom.querySelector('[property="og:image"]').content;
+        return dom.querySelector("[property='og:image']").content;
     }
 }
