@@ -8,25 +8,23 @@ class RanobesParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let menu = dom.querySelector("ul.chapters-scroll-list");
-        let chapters = util.hyperlinksToChapterList(menu);
-
-        let tocLink = dom.querySelector("div.r-fullstory-chapters-foot a[title='Go to table of contents']");
-        if (tocLink == null) {
+        let chapters = [...dom.querySelectorAll("ul.chapters-scroll-list a")]
+            .map(a => ({
+                sourceUrl:  a.href,
+                title: a.querySelector(".title").textContent
+            }));
+        let tocUrl = dom.querySelector("div.r-fullstory-chapters-foot a[title='Go to table of contents']")?.href;
+        if (tocUrl == null) {
             return chapters.reverse();
         }
-        let tocDom = (await HttpClient.wrapFetch(tocLink.href)).responseXML;
-        let urlsOfTocPages = this.extractTocPageUrls(tocDom, tocLink.href.replace("/novels/", "/"));
+        let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        let urlsOfTocPages = RanobesParser.extractTocPageUrls(tocDom, tocUrl);
         return (await Parser.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
     }
 
-    extractTocPageUrls(dom, baseUrl) {
-        let pages = [...dom.querySelectorAll("div.pages a")]
-            .map(a => a.textContent);
-        let max = 1 < pages.length
-            ? parseInt(pages.pop())
-            : 0;
+    static extractTocPageUrls(dom, baseUrl) {
+        let max = RanobesParser.extractTocJson(dom)?.pages_count ?? 0;
         let tocUrls = [];
         for(let i = 2; i <= max; ++i) {
             tocUrls.push(`${baseUrl}page/${i}/`);
@@ -34,12 +32,20 @@ class RanobesParser extends Parser{
         return tocUrls;
     }
 
+    static extractTocJson(dom) {
+        let startString = "window.__DATA__ = ";
+        let scriptElement = [...dom.querySelectorAll("script")]
+            .filter(s => s.textContent.includes(startString))[0];
+        return (scriptElement != null)
+            ? util.locateAndExtractJson(scriptElement.textContent, startString)
+            : {chapters: [], pages_count: 0};
+    }
+
     extractPartialChapterList(dom) {
-        return [...dom.querySelectorAll("div#dle-content a[title]")]
-            .map(a => ({
-                sourceUrl:  a.href,
-                title: a.getAttribute("title")
-            }));
+        return RanobesParser.extractTocJson(dom).chapters.map(c => ({
+            sourceUrl:  `https://ranobes.net/read-${c.id}.html`,
+            title: c.title
+        }));
     }
 
     findContent(dom) {
@@ -53,7 +59,9 @@ class RanobesParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.title");
+        let title = dom.querySelector("h1.title");
+        util.removeChildElementsMatchingCss(title, "span, div");
+        return title.textContent;
     }
 
     findCoverImageUrl(dom) {
