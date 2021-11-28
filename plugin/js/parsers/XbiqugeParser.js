@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("xbiquge.cc", () => new XbiqugeParser());
+parserFactory.register("xbiquge.so", () => new XbiqugeParser());
 
 class XbiqugeParser extends Parser{
     constructor() {
