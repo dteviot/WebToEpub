@@ -28,7 +28,8 @@ class TravistranslationsParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "#primary .container");
+        return util.getFirstImgSrc(dom, "#primary .container")
+            ?.replace("q=55", "q=100") ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {
