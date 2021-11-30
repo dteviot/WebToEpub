@@ -57,7 +57,6 @@ class EpubMetaInfo {
         // Centered headings and some margin to make sure it's not too close to the content.
         "h1, h2 {\r"+
         "   text-align: center;\r"+
-        "   page-break-before: always;\r"+
         "   margin-bottom: 10%;\r"+
         "   margin-top: 10%;\r"+
         "}\r"+
