@@ -5,9 +5,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ ExperimentalTabMode ]
   pull_request:
-    branches: [ master ]
+    branches: [ ExperimentalTabMode ]
 
 jobs:
   build:
@@ -35,4 +35,3 @@ jobs:
         path: |
           eslint/*.xpi
           eslint/*.zip
-          eslint/packed.js
