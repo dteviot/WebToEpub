@@ -2,7 +2,7 @@ module.exports = {
     "env": {
         "browser": true,
         "es6": true,
-		"webextensions": true,
+        "webextensions": true,
     },
     "parserOptions": {
         "ecmaVersion": 2020
