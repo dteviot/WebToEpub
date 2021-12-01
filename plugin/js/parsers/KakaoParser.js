@@ -10,6 +10,35 @@ class KakaoParser extends Parser {
         super();
     }
 
+    async setAuthorizationToken() {
+        if(typeof this.token === "undefined") {
+            const jsonUrl = "https://api-pagestage.kakao.com/users/login";
+
+            const fetchOptions = {
+                method: "POST",
+                credentials: "include"
+            }
+
+            return HttpClient.fetchJson(jsonUrl, fetchOptions);
+        }
+    }
+
+    async wrapFetch(jsonUrl){
+        return this.setAuthorizationToken().then(jsonResponse => {
+            this.token = this.token || jsonResponse.json.accessToken;
+        }).then(() => {
+            const fetchOptions = (this.token) ?
+                {
+                    credentials: "include",
+                    headers: {
+                        "Authorization": this.token
+                    }
+                } : {credentials: "include"};
+
+            return HttpClient.fetchJson(jsonUrl, fetchOptions);
+        });
+    }
+
     static isValidUrl(url) {
         // Return true when is on the table of contents page.
         // Perhaps narrow this down so it can't execute on the chapters, but needs
@@ -17,14 +46,10 @@ class KakaoParser extends Parser {
         if (util.extractHostName(url).includes("api-pagestage.kakao.com")) {
             return true;
         }
-        if (util.extractHostName(url).includes("pagestage.kakao.com")) {
-            if(!url.includes("episode")) {
-                if(url.includes("novel")) {
-                    return true;
-                }
-            }
-        }
-        return false;
+
+        return (util.extractHostName(url).includes("pagestage.kakao.com")
+            && !url.includes("episode")
+            && url.includes("novel"));
     }
 
     async fetchChapter(url) {
@@ -35,42 +60,44 @@ class KakaoParser extends Parser {
             jsonUrl = url + "/body";
         }
 
-        let json = (await HttpClient.fetchJson(jsonUrl)).json;
+        return this.wrapFetch(jsonUrl).then((jsonResponse) => {
+            let json = jsonResponse.json;
 
-        let doc = Parser.makeEmptyDocForContent(url);
+            let doc = Parser.makeEmptyDocForContent(url);
 
-        let metaChapId = doc.dom.createElement("meta");
-        metaChapId.id = "chapterId";
-        metaChapId.content = url.split("/")[6];
-        doc.content.appendChild(metaChapId);
+            let metaChapId = doc.dom.createElement("meta");
+            metaChapId.id = "chapterId";
+            metaChapId.content = url.split("/")[6];
+            doc.content.appendChild(metaChapId);
 
-        let metaNovelId = doc.dom.createElement("meta");
-        metaNovelId.id = "novelId";
-        metaNovelId.content = url.split("/")[4];
-        doc.content.appendChild(metaNovelId);
+            let metaNovelId = doc.dom.createElement("meta");
+            metaNovelId.id = "novelId";
+            metaNovelId.content = url.split("/")[4];
+            doc.content.appendChild(metaNovelId);
 
-        let novelTitle = doc.dom.createElement("meta");
-        novelTitle.id = "novelTitle";
-        novelTitle.content = json.novelTitle;
-        doc.content.appendChild(novelTitle);
+            let novelTitle = doc.dom.createElement("meta");
+            novelTitle.id = "novelTitle";
+            novelTitle.content = json.novelTitle;
+            doc.content.appendChild(novelTitle);
 
-        let body = json.body.split("\n").filter(s => !util.isNullOrEmpty(s));
+            let body = json.body.split("\n").filter(s => !util.isNullOrEmpty(s));
 
-        let title = doc.dom.createElement("h1");
-        title.id = "title";
-        title.textContent = json.title + " - " + body[0];
-        doc.content.appendChild(title);
+            let title = doc.dom.createElement("h1");
+            title.id = "title";
+            title.textContent = json.title + " - " + body[0];
+            doc.content.appendChild(title);
 
-        let div = doc.dom.createElement("div");
-        div.id = "content";
-        for(let i = 1; i < body.length; ++i){
-            let p = doc.dom.createElement("p");
-            p.textContent = body[i];
-            div.appendChild(p);
-        }
-        doc.content.appendChild(div);
+            let div = doc.dom.createElement("div");
+            div.id = "content";
+            for(let i = 1; i < body.length; ++i){
+                let p = doc.dom.createElement("p");
+                p.textContent = body[i];
+                div.appendChild(p);
+            }
+            doc.content.appendChild(div);
 
-        return doc.dom;
+            return doc.dom;
+        });
     }
 
     findContent(dom) {
@@ -79,26 +106,30 @@ class KakaoParser extends Parser {
 
     async getChapterUrls(dom) {
         let jsonUrl = dom.baseURI.replace("pagestage", "api-pagestage");
-        let json = (await HttpClient.fetchJson(jsonUrl)).json;
+        return this.wrapFetch(jsonUrl).then(jsonResponse => {
+            let json = jsonResponse.json;
 
-        jsonUrl = dom.baseURI.replace("pagestage", "api-pagestage")
-                        + "/episodes?size=" + json.publishedEpisodeCount
-                        + "&sort=publishedAt,id,asc";
-        json = (await HttpClient.fetchJson(jsonUrl)).json;
+            jsonUrl = dom.baseURI.replace("pagestage", "api-pagestage")
+                + "/episodes?size=" + json.publishedEpisodeCount
+                + "&sort=publishedAt,id,asc";
+            return this.wrapFetch(jsonUrl);
+        }).then(jsonResponse => {
+            let json = jsonResponse.json;
 
-        let chapterList = [];
-        for(let chapter of json.content) {
-            let url = dom.baseURI.replace("pagestage", "api-pagestage")
+            let chapterList = [];
+            for(let chapter of json.content) {
+                let url = dom.baseURI.replace("pagestage", "api-pagestage")
                     + "/episodes/" + chapter.id;
-            let chapterInfo = {
-                sourceUrl: url,
-                title: chapter.title,
-                newArc: null
-            };
-            chapterList.push(chapterInfo);
-        }
+                let chapterInfo = {
+                    sourceUrl: url,
+                    title: chapter.title,
+                    newArc: null
+                };
+                chapterList.push(chapterInfo);
+            }
 
-        return Promise.resolve(chapterList);
+            return chapterList;
+        });
     }
 
     // extractAuthor
