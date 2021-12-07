@@ -25,7 +25,7 @@ class NovelNaverParser extends Parser{
     async getChapterUrls(dom, chapterUrlsUI) {
         let chapters = this.extractPartialChapterList(dom);
         let urlsOfTocPages = this.extractTocPageUrls(dom);
-        return (await Parser.getChaptersFromAllTocPages(chapters, 
+        return (await this.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
     }
 

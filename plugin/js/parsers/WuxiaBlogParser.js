@@ -10,7 +10,7 @@ class WuxiaBlogParser extends Parser{
     async getChapterUrls(dom, chapterUrlsUI) {
         let tocPage1chapters = WuxiaBlogParser.extractPartialChapterList(dom);
         let urlsOfTocPages  = WuxiaBlogParser.getUrlsOfTocPages(dom);
-        return (await Parser.getChaptersFromAllTocPages(tocPage1chapters,
+        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
             WuxiaBlogParser.extractPartialChapterList,
             urlsOfTocPages,
             chapterUrlsUI

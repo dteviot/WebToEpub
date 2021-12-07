@@ -10,7 +10,7 @@ class BoxnovelOrgParser extends Parser{
     async getChapterUrls(dom, chapterUrlsUI) {
         let tocPage1chapters = BoxnovelOrgParser.extractPartialChapterList(dom);
         let urlsOfTocPages  = BoxnovelOrgParser.getUrlsOfTocPages(dom);
-        return (await Parser.getChaptersFromAllTocPages(tocPage1chapters,
+        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
             BoxnovelOrgParser.extractPartialChapterList,
             urlsOfTocPages,
             chapterUrlsUI

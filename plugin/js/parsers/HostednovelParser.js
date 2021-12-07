@@ -15,7 +15,7 @@ class HostednovelParser extends Parser{
         }
         let urlsOfTocPages = this.extractTocPageUrls(dom, url.toString());
         let chapters = [];
-        return (await Parser.getChaptersFromAllTocPages(chapters, 
+        return (await this.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI))
             .concat(this.chapterUrlsOnPage(dom));
     }

@@ -478,9 +478,8 @@ class Parser {
 
     async fetchWebPageContent(webPage) {
         let that = this;
-        let manualDelayPerChapterValue = (that.userPreferences.manualDelayPerChapter.value == "simulate_reading" )? util.randomInteger(420000,900000): parseInt(that.userPreferences.manualDelayPerChapter.value);  
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING);
-        await util.sleep(manualDelayPerChapterValue);
+        await this.rateLimitDelay();
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
         return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
@@ -636,14 +635,20 @@ class Parser {
     async getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)  {
         let chapters = extractPartialChapterList(dom);
         let urlsOfTocPages = getUrlsOfTocPages(dom);
-        return await Parser.getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
+        return await this.getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
     }
 
-    static async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
+    async rateLimitDelay() {
+        let manualDelayPerChapterValue = (this.userPreferences.manualDelayPerChapter.value == "simulate_reading" )? util.randomInteger(420000,900000): parseInt(this.userPreferences.manualDelayPerChapter.value);  
+        await util.sleep(manualDelayPerChapterValue);
+    }
+
+    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
         if (0 < chapters.length) {
             chapterUrlsUI.showTocProgress(chapters);
         }
         for(let url of urlsOfTocPages) {
+            await this.rateLimitDelay();
             let newDom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);

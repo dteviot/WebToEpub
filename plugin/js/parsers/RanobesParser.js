@@ -19,7 +19,7 @@ class RanobesParser extends Parser{
         }
         let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
         let urlsOfTocPages = RanobesParser.extractTocPageUrls(tocDom, tocUrl);
-        return (await Parser.getChaptersFromAllTocPages(chapters, 
+        return (await this.getChaptersFromAllTocPages(chapters, 
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
     }
 
