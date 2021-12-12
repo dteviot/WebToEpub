@@ -12,25 +12,25 @@ class CangjiParser extends Parser{
             CangjiParser.chaptersFromDom, 
             CangjiParser.nextTocPageUrl, 
             chapterUrlsUI
-        )).reverse();
+        ));
     }
 
     static chaptersFromDom(dom) {
-        return [...dom.querySelectorAll("div.sp-col-12 .entry-title a")]
+        return [...dom.querySelectorAll("main .entry-title a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     static nextTocPageUrl(dom) {
-        let link = dom.querySelector(".zlotus-pagination .older a")
+        let link = dom.querySelector(".pagination-wrap .older a")
         return link === null ? null : link.href;
     }
 
     findContent(dom) {
-        return dom.querySelector("div.post-entry");
+        return dom.querySelector("div.entry-content");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("div.post-header .entry-title");
+        return dom.querySelector("h1.archive-title");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -39,7 +39,7 @@ class CangjiParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("div.post-header .entry-title").textContent;
+        return dom.querySelector("h1.entry-title");
     }
 
     findCoverImageUrl(dom) {
