@@ -7,12 +7,19 @@ class WorldnovelOnlineParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom) {
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let chapters = [];
         let category = dom.body.getAttribute("attr");
-        let url = "https://www.worldnovel.online/wp-json/novel-id/v1/dapatkan_chapter_dengan_novel?category=" + 
-            category + "&perpage=10000&order=ASC&paged=1";
-        let json = (await HttpClient.fetchJson(url)).json;
-        return json.map(this.jsonToChapter);
+        let numTocPages = [...dom.querySelectorAll("div[data-paged]")].length;
+        for(let page = 1; page <= numTocPages; ++page) {
+            let url = "https://www.worldnovel.online/wp-json/novel-id/v1/dapatkan_chapter_dengan_novel?category=" + 
+                category + "&perpage=100&order=ASC&paged=" + page;
+            let partialList = (await HttpClient.fetchJson(url)).json
+                .map(this.jsonToChapter);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
     }
 
     jsonToChapter(json) {
