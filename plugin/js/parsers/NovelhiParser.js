@@ -11,13 +11,13 @@ class NovelhiParser extends Parser{
         let tocUrl = dom.querySelector("div.bookChapter a.fr");
         let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
         return [...tocDom.querySelectorAll("div.dirList a")]
-            .map(NovelhiParser.LinkToChapter);
+            .map(a => NovelhiParser.LinkToChapter(a, dom.baseURI));
     }
 
-    static LinkToChapter(link) {
+    static LinkToChapter(link, baseURI) {
         let onclick = link.getAttribute("onClick").split("'");
         return {
-            sourceUrl: `https://novelhi.com/book/${onclick[1]}/${onclick[3]}.html`,
+            sourceUrl: baseURI + "/" + onclick[1],
             title: link.querySelector("span").textContent            
         }
     }
