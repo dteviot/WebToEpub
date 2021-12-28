@@ -27,13 +27,13 @@ class FanFictionParser extends Parser {
     }
 
     optionToChapterInfo(baseUrl, optionElement) {
-        // constructing the URL is a bit complicated as the value is not final part of URL.
-        let relativeUrl = "../" + optionElement.getAttribute("value");
-        let pathNodes = baseUrl.split("/");
-        relativeUrl = relativeUrl + "/" + pathNodes[pathNodes.length - 1];
-        let url = util.resolveRelativeUrl(baseUrl, relativeUrl);
+        // constructing the URL is a bit complicated as the value is only part of URL.
+        let onchange = optionElement.parentElement.getAttribute("onchange");
+        onchange = onchange.split("'");
+        let url = new URL(baseUrl);
+        url.pathname = onchange[1] + optionElement.getAttribute("value") + onchange[3];
         return {
-            sourceUrl:  url,
+            sourceUrl:  url.href,
             title: optionElement.innerText
         };
     }
