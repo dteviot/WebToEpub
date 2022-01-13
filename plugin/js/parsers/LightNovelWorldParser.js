@@ -2,6 +2,7 @@
 
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
+parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 
 class LightNovelWorldParser extends Parser{
     constructor() {
@@ -89,6 +90,11 @@ class LightNovelWorldParser extends Parser{
         let toRemove = [...element.querySelectorAll("p")]
             .filter(this.isWatermark);
         util.removeElements(toRemove);
+
+        toRemove = [...element.querySelectorAll("strong")]
+            .filter(e => e.parentNode.tagName == "STRONG")
+            .map(e => e.parentNode);
+        util.removeElements(toRemove);
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -97,11 +103,11 @@ class LightNovelWorldParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h2");
+        return dom.querySelector("span.chapter-title");
     }
 
     findCoverImageUrl(dom) {
-        var metaImage = dom.querySelector("meta[property*='og:image']");
+        let metaImage = dom.querySelector("meta[property*='og:image']");
         if (metaImage)
         {
             metaImage = metaImage.content;
