@@ -85,10 +85,6 @@ class ArchiveOfOurOwnParser extends Parser{
         super.removeUnwantedElementsFromContentElement(element);
     }
 
-    findChapterTitle(dom) {
-        return dom.querySelector("h3.title");
-    }
-
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("dl.meta, div.summary, .notes.module")];
     }
