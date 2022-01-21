@@ -21,10 +21,10 @@ QUnit.test("linkToChapter_Locked", function (assert) {
     assert.equal(actual.isIncludeable, false);
 });
 
-QUnit.test("extractTitleImpl", function (assert) {
+QUnit.test("extractTitle", function (assert) {
     let dom = new DOMParser().parseFromString(QidianChatperLinkSample, "text/html");
-    let actual = new QidianParser().extractTitleImpl(dom);
-    assert.equal(actual, "King of Gods ");
+    let actual = new QidianParser().extractTitle(dom);
+    assert.equal(actual, "King of Gods");
 });
 
 let QidianChatperLinkSample =
@@ -35,6 +35,7 @@ let QidianChatperLinkSample =
     <base href="https://www.webnovel.com/book/9017100806001205/King-of-Gods" />
 </head>
 <body">
+<div class="page"><h2 class="pt4 pb4 oh mb4 auto_height">King of Gods <small>KOG</small></h2><div>
 <ol>
 <li class="g_col_6" data-report-eid="E10" data-bid="King of Gods" data-report-bid="9017100806001205" data-cid="30995441462068685" data-report-cid="30995441462068685">
     <a href="//www.webnovel.com/book/9017100806001205/30995441462068685/King-of-Gods/Young-Zhao-Feng-" class="c_000 db pr clearfix pt8 pb8 pr8 pl8">

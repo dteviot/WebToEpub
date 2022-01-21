@@ -10,12 +10,12 @@ class QidianParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let links = Array.from(dom.querySelectorAll("ul.content-list a"));
         if (links.length === 0) {
             links = Array.from(dom.querySelectorAll("div.volume-item ol a"));
         }
-        return Promise.resolve(links.map(QidianParser.linkToChapter));
+        return links.map(QidianParser.linkToChapter);
     };
 
     static isLinkLocked(link) {
@@ -43,18 +43,29 @@ class QidianParser extends Parser{
         return dom.querySelector("div.cha-content");
     };
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
     // title of the story
     extractTitleImpl(dom) {
-        return dom.title.split("-")[0];
+        let title = dom.querySelector("div.page h2");
+        if (title !== null) {
+            util.removeChildElementsMatchingCss(title, "small");
+        }
+        return title;
     };
 
     extractAuthor(dom) {
-        let element = dom.querySelector("address p span");
-        return (element === null) ? super.extractAuthor(dom) : element.textContent;
+        return dom.querySelector("a.c_primary")?.textContent ?? super.extractAuthor(dom);
     }
  
     removeUnwantedElementsFromContentElement(content) {
-        util.removeElements(content.querySelectorAll("form.cha-score, div.cha-bts, pirate"));
+        util.removeChildElementsMatchingCss(content, "form.cha-score, div.cha-bts, pirate");
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeChildElementsMatchingCss(content, "div.m-thou");
+        }
         super.removeUnwantedElementsFromContentElement(content);
     }
 
@@ -64,7 +75,10 @@ class QidianParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.det-hd");
+        let imgs = [...dom.querySelectorAll("div.det-hd i.g_thumb img")];
+        return 0 === imgs.length 
+            ? util.getFirstImgSrc(dom, "div.det-hd")
+            : imgs.pop().src;
     }
 
     removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
