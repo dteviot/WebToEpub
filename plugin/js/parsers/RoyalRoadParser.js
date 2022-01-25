@@ -11,13 +11,12 @@ class RoyalRoadParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         // Page in browser has links reduced to "Number of links to show"
         // Fetch new page to get all chapter links.
-        return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
-            let table = xhr.responseXML.querySelector("table#chapters");
-            return util.hyperlinksToChapterList(table);
-        });
+        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+        let table = tocHtml.querySelector("table#chapters");
+        return util.hyperlinksToChapterList(table);
     }
 
     // find the node(s) holding the story content
@@ -112,8 +111,7 @@ class RoyalRoadParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector("img.img-offset");
-        return (img === null) ? img : img.src;   
+        return dom.querySelector("img.thumbnail")?.src ?? null;
     }
 
     removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
