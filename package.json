@@ -55,7 +55,11 @@
     { "name": "Miracutor"},
     { "name": "Synteresis"},
     { "name": "Lej77"},
-    { "name": "Dimava"}
+    { "name": "Dimava"},
+    { 
+      "name": "Tianxa Wushuang",
+      "email": "chrisus8080@gmail.com
+    }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
