@@ -8,7 +8,7 @@ class ChickengegeParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("ul#novelList, ul#extraList");
+        let menu = dom.querySelector("ul#novelList, ul#extraList, table#novelList");
         return util.hyperlinksToChapterList(menu);
     }
 
