@@ -7,9 +7,21 @@ class UntamedAlleyParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("p a")]
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return (await this.walkTocPages(dom, 
+            this.chaptersFromDom, 
+            this.nextTocPageUrl, 
+            chapterUrlsUI
+        )).reverse();
+    }
+
+    chaptersFromDom(dom) {
+        return [...dom.querySelectorAll("#primary h2 a")]
             .map(a => util.hyperLinkToChapter(a));
+    }
+
+    nextTocPageUrl(dom) {
+        return dom.querySelector("div.nav-previous a")?.href;
     }
 
     findContent(dom) {
@@ -17,15 +29,10 @@ class UntamedAlleyParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.hestia-title");
+        return dom.querySelector(".page-title");
     }
 
-    findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.wp-block-image");
-    }
-
-    getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("article p")]
-            .filter(p => p.querySelector("a") === null);
+    findChapterTitle(dom) {
+        return dom.querySelector(".entry-title");
     }
 }

@@ -661,7 +661,7 @@ class Parser {
         let chapters = chaptersFromDom(dom);
         chapterUrlsUI.showTocProgress(chapters);
         let url = nextTocPageUrl(dom, chapters, chapters);
-        while (url !== null) {
+        while (url != null) {
             dom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = chaptersFromDom(dom);
             chapterUrlsUI.showTocProgress(partialList);
