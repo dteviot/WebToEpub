@@ -164,6 +164,7 @@ class ImageInfo extends EpubItem {
         this.height = null;
         this.width = null;
         this.dataOrigFileUrl = dataOrigFileUrl;
+        this.queuedForFetch = false;
     }
 
     getZipHref() {

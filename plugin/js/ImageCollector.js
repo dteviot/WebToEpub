@@ -103,7 +103,10 @@ class ImageCollector {
 
     async fetchImages(progressIndicator, parentPageUrl) {
         for(let imageInfo of this.imagesToFetch) {
-            await this.fetchImage(imageInfo, progressIndicator, parentPageUrl);
+            if (!imageInfo.queuedForFetch) {
+                imageInfo.queuedForFetch = true;
+                await this.fetchImage(imageInfo, progressIndicator, parentPageUrl);
+            }
         }
         this.imagesToFetch = [];
     }
