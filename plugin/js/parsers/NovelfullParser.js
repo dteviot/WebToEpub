@@ -1,6 +1,3 @@
-/*
-  Parser for novelfull.com
-*/
 "use strict";
 
 parserFactory.register("novelfull.com", function () { return new NovelfullParser() });
@@ -15,13 +12,13 @@ class NovelfullParser extends Parser{
 
     getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
-            NovelfullParser.extractPartialChapterList,
-            NovelfullParser.getUrlsOfTocPages,
+            this.extractPartialChapterList,
+            this.getUrlsOfTocPages,
             chapterUrlsUI
         );
     };
 
-    static getUrlsOfTocPages(dom) {
+    getUrlsOfTocPages(dom) {
         let link = dom.querySelector("li.last a");
         let urls = [];
         if (link != null) {
@@ -45,7 +42,7 @@ class NovelfullParser extends Parser{
         return link.href;
     }
 
-    static extractPartialChapterList(dom) {
+    extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("ul.list-chapter a")]
             .map(link => util.hyperLinkToChapter(link));
     }
