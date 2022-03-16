@@ -16,13 +16,21 @@ class AsianHobbyistParser extends WordpressBaseParser{
         return dom.querySelector(".post-title.entry-title a");
     };
 
+    findContent(dom) {
+        let content = super.findContent(dom);
+        if (content == null) {
+            content = dom.querySelector(".reader-content");
+        }
+        return content;
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingCss(element, "div.code-block, div.osny-nightmode");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("header.page-header h2");
+        return dom.querySelector("header.page-header h2, header.page-header h1");
     }
 
     findCoverImageUrl(dom) {
