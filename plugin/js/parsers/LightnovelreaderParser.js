@@ -8,32 +8,40 @@ class LightnovelreaderParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("div.js-load-chapters");
+        let menu = dom.querySelector("div#cmtb-1");
         return util.hyperlinksToChapterList(menu).reverse();
     }
 
     findContent(dom) {
-        return dom.querySelector("article");
+        return dom.querySelector("#chapterText");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector(".section-header-title h2");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = [...dom.querySelectorAll("a[href*='author']")].map(x => x.textContent.trim())
+        return (authorLabel.length === 0) ? super.extractAuthor(dom) : authorLabel.join(", ");
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "p.display-hide");
+        let toRemove = [...element.querySelectorAll("center, p")]
+            .filter(s => s.textContent.trim().toLowerCase() === "sponsored content");
+        util.removeElements(toRemove);
+        util.removeChildElementsMatchingCss(element, ".display-hide, .hidden");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h2");
+        return [...dom.querySelectorAll(".cm-breadcrumb li")].pop();
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.flex-1");
+        return util.getFirstImgSrc(dom, ".novels-detail-left");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.flex-1 div.text-sm")];
+        return [...dom.querySelectorAll("div.empty-box:not(.gray-bg-color)")];
     }
 }
