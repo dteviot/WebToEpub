@@ -8,8 +8,8 @@ class LightnovelreaderParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("div#cmtb-1");
-        return util.hyperlinksToChapterList(menu).reverse();
+        return [...dom.querySelectorAll(".novels-detail-chapters a")]
+            .map(a => util.hyperLinkToChapter(a)).reverse();
     }
 
     findContent(dom) {
