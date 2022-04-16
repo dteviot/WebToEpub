@@ -43,6 +43,50 @@ class QidianParser extends Parser{
         return dom.querySelector("div.cha-content");
     };
 
+    preprocessRawDom(webPage) {
+        let content = this.findContent(webPage);
+        if (content !== null) {
+            return;
+        }
+        let json = this.findChapterContentJson(webPage);
+        if (json === null) {
+            return;
+        }
+        content = webPage.createElement("div");
+        content.className = "cha-content";
+        webPage.body.appendChild(content);
+        let h = webPage.createElement("h3");
+        h.textContent = json.chapterInfo.chapterName;
+        content.appendChild(h);
+        for(let c of json.chapterInfo.contents) {
+            let p = webPage.createElement("p");
+            p.textContent = c.content;
+            content.appendChild(p);
+        }
+    }
+
+    findChapterContentJson(dom) {
+        const searchString = "var chapInfo=";
+        return [...dom.querySelectorAll("script")]
+            .map(s => s.textContent)
+            .filter(s => s.startsWith(searchString))
+            .map(s => util.locateAndExtractJson(this.fixExcaping(s), searchString))[0];
+    } 
+
+    fixExcaping(s) {
+        return s.replace(/\\ /g, " ")
+            .replace(/\\'/g, "'")
+            .replace(/\\n/g, "")
+            .replace(/\\r/g, "")
+            .replace(/\n/g, "")
+            .replace(/\r/g, "")
+            .replace(/\\\//g, "/")
+            .replace(/\\</g, "<")
+            .replace(/\\>/g, ">")
+            .replace(/<p>/g, "")
+            .replace(/<\/p>/g, "")
+    }
+
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeAuthorNotesRow").hidden = false; 
@@ -67,11 +111,6 @@ class QidianParser extends Parser{
             util.removeChildElementsMatchingCss(content, "div.m-thou");
         }
         super.removeUnwantedElementsFromContentElement(content);
-    }
-
-    // Optional, supply if individual chapter titles are not inside the content element
-    findChapterTitle(dom) {
-        return dom.querySelector("h3");
     }
 
     findCoverImageUrl(dom) {
