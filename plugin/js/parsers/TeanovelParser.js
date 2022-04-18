@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("teanovel.com", () => new TeanovelParser());
+parserFactory.register("teanovel.net", () => new TeanovelParser());
 
 class TeanovelParser extends Parser{
     constructor() {
