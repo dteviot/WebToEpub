@@ -60,7 +60,7 @@ class QidianParser extends Parser{
         content.appendChild(h);
         for(let c of json.chapterInfo.contents) {
             let p = webPage.createElement("p");
-            p.textContent = c.content;
+            p.innerHTML = c.content;
             content.appendChild(p);
         }
     }
@@ -74,17 +74,34 @@ class QidianParser extends Parser{
     } 
 
     fixExcaping(s) {
-        return s.replace(/\\ /g, " ")
-            .replace(/\\'/g, "'")
-            .replace(/\\n/g, "")
-            .replace(/\\r/g, "")
-            .replace(/\n/g, "")
-            .replace(/\r/g, "")
-            .replace(/\\\//g, "/")
-            .replace(/\\</g, "<")
-            .replace(/\\>/g, ">")
-            .replace(/<p>/g, "")
-            .replace(/<\/p>/g, "")
+        return this.stripBackslash(s)
+            .replace(/\n|\r|<\/?p>/g, "");
+    }
+
+    stripBackslash(s) {
+        const singleEscapeChars = "\"\\";
+        const stripChars = "bfnrtv";
+        let temp = "";
+        let i = 0;
+        while (i < (s.length)) {
+            if (s[i] === "\\") {
+                ++i;
+                if (stripChars.includes(s[i])) {
+                    temp += " ";
+                }
+                else { 
+                    if (singleEscapeChars.includes(s[i])) {
+                        temp += "\\";
+                    }
+                    temp += s[i];
+                }
+            }
+            else {
+                temp += s[i];
+            }
+            ++i;
+        }
+        return temp;
     }
 
     populateUI(dom) {
