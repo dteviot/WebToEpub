@@ -48,7 +48,14 @@ class PandaNovelParser extends Parser {
     }
 
     customRawDomToContentStep(webPage, content) {
-        content.innerHTML = "<p>" + content.innerHTML.replaceAll("<br><br>", "</p>\n<p>") + "</p>"
+        let html = "<p>" + content.innerHTML.replaceAll("<br><br>", "</p>\n<p>") + "</p>";
+        let parsed = new DOMParser().parseFromString(html, "text/html");
+        while (content.firstChild) {
+            content.removeChild(content.firstChild);
+        }
+        for (const tag of [...parsed.querySelector("body").children]) {
+            content.appendChild(tag)
+        }        
     }
 
     extractTitleImpl(dom) {

@@ -38,7 +38,7 @@ class QidianParser extends Parser{
             isIncludeable: !QidianParser.isLinkLocked(link)
         };
     }
-    
+
     findContent(dom) {
         return dom.querySelector("div.cha-content");
     };
@@ -58,10 +58,10 @@ class QidianParser extends Parser{
         let h = webPage.createElement("h3");
         h.textContent = json.chapterInfo.chapterName;
         content.appendChild(h);
+        let domParser = new DOMParser();
         for(let c of json.chapterInfo.contents) {
-            let p = webPage.createElement("p");
-            p.innerHTML = c.content;
-            content.appendChild(p);
+            let parsed = domParser.parseFromString("<p>" + c.content + "</p>", "text/html");
+            content.appendChild(parsed.querySelector("p"));
         }
     }
 
@@ -111,7 +111,7 @@ class QidianParser extends Parser{
 
     // title of the story
     extractTitleImpl(dom) {
-        let title = dom.querySelector("div.page h2");
+        let title = dom.querySelector("div.page h1");
         if (title !== null) {
             util.removeChildElementsMatchingCss(title, "small");
         }
