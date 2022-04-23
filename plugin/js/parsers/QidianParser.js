@@ -58,10 +58,10 @@ class QidianParser extends Parser{
         let h = webPage.createElement("h3");
         h.textContent = json.chapterInfo.chapterName;
         content.appendChild(h);
-        let domParser = new DOMParser();
         for(let c of json.chapterInfo.contents) {
-            let parsed = domParser.parseFromString("<p>" + c.content + "</p>", "text/html");
-            content.appendChild(parsed.querySelector("p"));
+            let p = webPage.createElement("p");
+            p.textContent = c.content;
+            content.appendChild(p);
         }
     }
 
