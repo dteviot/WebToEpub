@@ -51,7 +51,7 @@ class MtlnovelParser extends Parser{
             original = ", p.cn";
         }
         util.removeChildElementsMatchingCss(element, ".crumbs, .chapter-nav, .lang-btn, .sharer," +
-            " amp-embed, .link-title, ol.link-box, a.view-more, button" + original);
+            " amp-embed, .link-title, ol.link-box, a.view-more, button, span[hidden]" + original);
         for(let e of [...element.querySelectorAll("div")]) {
             e.removeAttribute("[class]");
         }
