@@ -5,6 +5,7 @@ parserFactory.register("novelmt.com", () => new ReadwnParser());
 parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
 parserFactory.register("novelmtl.com", () => new ReadwnParser());
 parserFactory.register("wuxiapub.com", () => new ReadwnParser());
+parserFactory.register("wuxiahere.com", () => new ReadwnParser());
 
 class ReadwnParser extends Parser{
     constructor() {
@@ -61,8 +62,8 @@ class ReadwnParser extends Parser{
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.author a");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+        let authorLabel = dom.querySelector("span[itemprop='author']");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
     removeUnwantedElementsFromContentElement(element) {
