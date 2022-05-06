@@ -26,7 +26,7 @@ class FreeWebNovelParser extends Parser {
         let tocHasMultiplePages = !isNaN(lastIndex);
         if (tocHasMultiplePages) {
             let baseUrl = lastUrl.substring(0, lastTocIndex + 1);
-            for (var i = 2; i <= lastIndex; ++i) {
+            for (let i = 2; i <= lastIndex; ++i) {
                 urls.push(baseUrl + i + ".html");
             }
         }
@@ -39,7 +39,7 @@ class FreeWebNovelParser extends Parser {
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.tit").textContent;
+        return dom.querySelector("h1.tit");
     }
 
     extractAuthor(dom) {
@@ -56,7 +56,7 @@ class FreeWebNovelParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("span.chapter").textContent;
+        return dom.querySelector("span.chapter");
     }
 
     findContent(dom) {

@@ -108,12 +108,20 @@ class Parser {
         let title = this.findChapterTitle(webPage.rawDom);
         if (title != null) {
             if (title instanceof HTMLElement) {
-                title = title.textContent.trim();
+                title = title.textContent;
             }
-            let titleElement = webPage.rawDom.createElement("h1");
-            titleElement.appendChild(webPage.rawDom.createTextNode(title.trim()));
-            content.insertBefore(titleElement, content.firstChild);
+            if (!this.titleAlreadyPresent(title, content)) {
+                let titleElement = webPage.rawDom.createElement("h1");
+                titleElement.appendChild(webPage.rawDom.createTextNode(title.trim()));
+                content.insertBefore(titleElement, content.firstChild);
+            }
         };
+    }
+
+    titleAlreadyPresent(title, content) {
+        let existingTitle = content.querySelector("h1, h2, h3, h4, h5, h6");
+        return (existingTitle != null)
+            && (title.trim() === existingTitle.textContent.trim());
     }
 
     /**
