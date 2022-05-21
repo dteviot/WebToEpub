@@ -55,13 +55,16 @@ class QidianParser extends Parser{
         content = webPage.createElement("div");
         content.className = "cha-content";
         webPage.body.appendChild(content);
-        let h = webPage.createElement("h3");
-        h.textContent = json.chapterInfo.chapterName;
-        content.appendChild(h);
+        this.addHeader(webPage, content, json.chapterInfo.chapterName)
         for(let c of json.chapterInfo.contents) {
-            let p = webPage.createElement("p");
-            p.textContent = c.content;
-            content.appendChild(p);
+            this.addParagraph(webPage, content, c.content);
+        }
+        if (!this.userPreferences.removeAuthorNotes.value) {
+            let notes = json.chapterInfo.notes?.note ?? null;
+            if (!util.isNullOrEmpty(notes)) {
+                this.addHeader(webPage, content, "Notes");
+                this.addParagraph(webPage, content, notes);
+            }
         }
     }
 
@@ -76,6 +79,20 @@ class QidianParser extends Parser{
     fixExcaping(s) {
         return this.stripBackslash(s)
             .replace(/\n|\r|<\/?p>/g, "");
+    }
+
+    addHeader(webPage, content, text) {
+        this.addElement(webPage, content, "h3", text);
+    }
+
+    addParagraph(webPage, content, text) {
+        this.addElement(webPage, content, "p", text);
+    }
+
+    addElement(webPage, content, tag, text) {
+        let t = webPage.createElement(tag);
+        t.textContent = text;
+        content.appendChild(t);
     }
 
     stripBackslash(s) {
