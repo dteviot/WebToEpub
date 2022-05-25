@@ -179,7 +179,7 @@ class WattpadParser extends Parser{
 
     // individual chapter titles are not inside the content element
     findChapterTitle(dom) {
-        return dom.querySelector("h2");
+        return dom.querySelector("h1.h2");
     }
 
     findCoverImageUrl(dom) {
