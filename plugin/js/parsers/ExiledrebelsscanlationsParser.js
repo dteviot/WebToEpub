@@ -16,6 +16,11 @@ class ExiledrebelsscanlationsParser extends Parser{
         return dom.querySelector("div#wtr-content");
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
     extractTitleImpl(dom) {
         return dom.querySelector(".entry-title");
     }
@@ -26,5 +31,15 @@ class ExiledrebelsscanlationsParser extends Parser{
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "article");
+    }
+
+    preprocessRawDom(webPageDom) {
+        if (!this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...webPageDom.querySelectorAll("div.easy-footnote-title, ol.easy-footnotes-wrapper")];
+            let content = this.findContent(webPageDom);
+            for(let e of notes) {
+                content.appendChild(e);
+            }
+        }
     }
 }
