@@ -11,8 +11,8 @@ class InoveltranslationParser extends Parser{
         let novelId = dom.baseURI.split("/").pop();
         let tocUrl = `https://api.inoveltranslation.com/novels/${novelId}/feed?limit=100000`;
         return (await HttpClient.fetchJson(tocUrl)).json.chapters
-            .map(c => this.jsonChapterToChapter(c))
-            .reverse();
+            .sort((a, b) => a.volume === b.volume ? a.chapter - b.chapter : a.volume - b.volume)
+            .map(c => this.jsonChapterToChapter(c));
     }
 
     jsonChapterToChapter(jsonChapter) {
