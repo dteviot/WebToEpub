@@ -4,6 +4,7 @@ parserFactory.register("novelfull.com", function () { return new NovelfullParser
 parserFactory.register("allnovel.org", function () { return new NovelfullParser() });
 parserFactory.register("allnovelfull.com", function () { return new NovelfullParser() });
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
+parserFactory.register("novel35.com", function () { return new Novel35Parser() });
 
 class NovelfullParser extends Parser{
     constructor() {
@@ -73,4 +74,32 @@ class NovelfullParser extends Parser{
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.desc-text, div.info")];
     }
+}
+
+class Novel35Parser extends NovelfullParser{
+    constructor() {
+        super();
+    }
+
+    getUrlsOfTocPages(dom) {
+        let urls = []
+        let paginateUrls = [...dom.querySelectorAll("ul.pagination li a:not([rel])")];
+        if (0 < paginateUrls.length) {
+            let url = new URL(paginateUrls.pop().href);
+            let maxPage = url.searchParams.get("page");
+            for(let i = 2; i <= maxPage; ++i) {
+                url.searchParams.set("page", i);
+                urls.push(url.href);
+            }
+        }
+        return urls;
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.chapter-content");
+    };
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.chapter-title").textContent;
+    }    
 }
