@@ -27,7 +27,7 @@ class WnmtlOrgParser extends Parser{
 
     makeTocUrl(bookId, page) {
         return "https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/page?sortDirection=ASC" +
-            `&bookId=${bookId}&pageNumber=${page}&pageSize=1000`;
+            `&bookId=${bookId}&pageNumber=${page}&pageSize=100`;
     }
 
     makeUrlsOfTocPages(bookId, totalPages) {
