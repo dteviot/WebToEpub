@@ -44,18 +44,26 @@ class PandaNovelParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("div.novel-content div");
+        let contentNode = dom.querySelector("div.novel-content div")
+        if ((contentNode.innerHTML == "") || contentNode.innerText.trim().startsWith("Please wait for page data to load...")){
+            const scriptNode = [...dom.querySelectorAll("script:not([src])")]
+                .filter(x => x.text.includes("_pageParameter['contents']"))[0];
+            let contentText = (scriptNode && scriptNode.text) || "";
+            contentText = contentText.trim()
+                .replace(/\\(?=["/])/g, "")
+                .replace(/.*?_pageParameter\['contents'\] *= *"/, "")
+                .replace(/";?$/, "")
+            try {
+                contentText = JSON.parse(JSON.stringify(contentText).replace(/\\\\/g, "\\")); //For proper Unicode conversion
+            } catch (e) { }  // eslint-disable-line no-empty
+            util.parseHtmlAndInsertIntoContent(contentText, contentNode)
+        }
+        return contentNode;
     }
 
     customRawDomToContentStep(webPage, content) {
-        let html = "<p>" + content.innerHTML.replaceAll("<br><br>", "</p>\n<p>") + "</p>";
-        let parsed = new DOMParser().parseFromString(html, "text/html");
-        while (content.firstChild) {
-            content.removeChild(content.firstChild);
-        }
-        for (const tag of [...parsed.querySelector("body").children]) {
-            content.appendChild(tag)
-        }        
+        let html = "\n<p>" + content.innerHTML.replaceAll(/<br><br>|<\/p><p>/g, "</p>\n<p>").replaceAll(/(?<!\n)<p>/g, "\n<p>") + "</p>";
+        util.parseHtmlAndInsertIntoContent(html, content)
     }
 
     extractTitleImpl(dom) {
@@ -73,7 +81,7 @@ class PandaNovelParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".novel-ins");
+        util.removeChildElementsMatchingCss(element, ".novel-ins, sub");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

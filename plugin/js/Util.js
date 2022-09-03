@@ -799,6 +799,16 @@ var util = (function () {
         return table;
     }
 
+    var parseHtmlAndInsertIntoContent = function(htmlText, content) {
+        let parsed = new DOMParser().parseFromString(htmlText, "text/html");
+        while (content.firstChild) {
+            content.removeChild(content.firstChild);
+        }
+        for (const tag of [...parsed.querySelector("body").children]) {
+            content.appendChild(tag)
+        }        
+    }
+
     // allow disabling loging from one place
     var log = function(arg) { // eslint-disable-line no-unused-vars
         // ToDo: uncomment this for debug logging
@@ -1015,6 +1025,7 @@ var util = (function () {
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
         dctermsToTable: dctermsToTable,
+        parseHtmlAndInsertIntoContent: parseHtmlAndInsertIntoContent,
         extractUrlFromBackgroundImage: extractUrlFromBackgroundImage,
         extactSubstring: extactSubstring,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
