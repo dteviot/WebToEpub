@@ -7,20 +7,9 @@ class GoblinsguideParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
-        let bookmenu = dom.querySelector("aside#bookmenu");
-        let script = bookmenu.querySelector("script").textContent;
-        let cat_id = new RegExp("const cat_id1 = (\\d+);").exec(script)[1];
-        let cat_slug = new RegExp("const cat_slug = \"([^\"]+)").exec(script)[1];
-        let chapters = [];
-        for(let e of bookmenu.querySelectorAll("li.ex1 span.caret")) {
-            let chapter = e.getAttribute("data-id");
-            let html = (await this.fetchTocPage(cat_id, cat_slug, chapter)).responseXML;
-            let partialList = util.hyperlinksToChapterList(html.body);
-            chapterUrlsUI.showTocProgress(partialList);
-            chapters = chapters.concat(partialList);
-        }
-        return chapters;
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div#chapters a")]
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     async fetchTocPage(cat_id, cat_slug, chapter) {
@@ -44,7 +33,7 @@ class GoblinsguideParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.entry-title");
+        return dom.querySelector(".category-title");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -55,15 +44,11 @@ class GoblinsguideParser extends Parser{
         super.removeUnwantedElementsFromContentElement(element);
     }
 
-    getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.entry-content")];
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.js-bookcard");
     }
 
-    cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "noscript");
-        let link = node.querySelector("a");
-        if (link != null) {
-            link.remove();
-        }
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.category-exerpt p")];
     }
 }
