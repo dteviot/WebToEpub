@@ -90,6 +90,6 @@ class InoveltranslationParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("p.chakra-text")];
+        return [...dom.querySelectorAll("p.chakra-text")];
     }
 }
