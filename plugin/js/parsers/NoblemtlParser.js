@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
+parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 
 class NoblemtlParser extends Parser{
     constructor() {
@@ -36,6 +37,10 @@ class NoblemtlParser extends Parser{
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".thumbook");
+    }
+
+    preprocessRawDom(webPageDom) {
+        util.removeChildElementsMatchingCss(webPageDom, "div.saboxplugin-wrap");
     }
 
     getInformationEpubItemChildNodes(dom) {
