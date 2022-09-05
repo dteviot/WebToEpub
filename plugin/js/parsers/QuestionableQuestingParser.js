@@ -66,6 +66,7 @@ class QuestionableQuestingParser extends Parser{
         let post = fetchedDom.getElementById(id);
         let content = post.querySelector("article");
         this.addTitleToChapter(newDoc, post);
+        this.removeBlockquotes(content);
         this.fixupImageUrls(content);
         newDoc.content.appendChild(content);
         return newDoc.dom;
@@ -89,5 +90,12 @@ class QuestionableQuestingParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = titleElement.textContent.trim();
         newDoc.content.appendChild(title);
+    }
+
+    removeBlockquotes(content) {
+        let blocks = [...content.querySelectorAll("blockquote")];
+        for(let block of blocks) {
+            block.replaceWith(...block.childNodes);
+        }
     }
 }
