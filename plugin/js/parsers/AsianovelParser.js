@@ -38,7 +38,10 @@ class AsianovelParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("article");
+        let articles = [...dom.querySelectorAll("article")];
+        return (articles.length === 1)
+            ? articles[0]
+            : articles[1];
     }
 
     extractTitleImpl(dom) {
@@ -47,5 +50,13 @@ class AsianovelParser extends Parser{
 
     findChapterTitle(dom) {
         return dom.querySelector("h2");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "article");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.summary-classic__text")];
     }
 }
