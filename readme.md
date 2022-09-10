@@ -45,6 +45,7 @@ Credits
 * Synteresis
 * Lej77
 * nandakishore2009 (Parsers for madnovel.com, www.panda-novel.com)
+* courli79
 * Dimava
 
 ## How to use with Baka-Tsuki:
