@@ -2,6 +2,8 @@
 
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
+parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
+parserFactory.register("knoxt.space", () => new NoblemtlParser());
 
 class NoblemtlParser extends Parser{
     constructor() {
@@ -44,6 +46,6 @@ class NoblemtlParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.entry-content")];
+        return [...dom.querySelectorAll("div.synp .entry-content")];
     }
 }
