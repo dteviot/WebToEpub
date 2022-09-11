@@ -72,7 +72,8 @@ class EpubMetaInfo {
         "}\r"+
 
         "body {\r"+
-        "  margin: 2%;\r"+
+        "   text-align: center;\r"+
+        "   margin: 2%;\r"+
         "}\r"+
 
         //Breaks extremely long words, screams, wails etc to fit viewer window.

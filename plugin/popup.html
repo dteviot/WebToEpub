@@ -150,7 +150,7 @@
                         <button id="loadMetadataButton">__MSG_button_load_Metadata__</button></td>
                     </tr>
                     <tr>
-                        <td><input id="noAdditionalMetadataCheckbox" type="checkbox" name="noAdditionalMetadataCheckbox" checked="true"></td>
+                        <td><input id="noAdditionalMetadataCheckbox" type="checkbox" name="noAdditionalMetadataCheckbox" checked="false"></td>
                         <td>__MSG_label_no_additional_metadata__</td>
                     </tr>
                     <tr>
@@ -158,7 +158,7 @@
                         <td>__MSG_label_auto_search_metadata__</td>
                     </tr>
                     <tr>
-                        <td><input id="lesstagsCheckbox" type="checkbox" name="lesstagsCheckbox" value="true"></td>
+                        <td><input id="lesstagsCheckbox" type="checkbox" name="lesstagsCheckbox" value="false"></td>
                         <td>__MSG_label_less_tags__</td>
                     </tr>
                     <tr>
@@ -198,11 +198,11 @@
                         <td><button id="stylesheetToDefaultButton">__MSG_button_Reset_stylesheet__</button></td>
                     </tr>
                     <tr id="skipImagesRow">
-                        <td><input id="skipImagesCheckbox" type="checkbox" name="skipImagesCheckbox" value="true"></td>
+                        <td><input id="skipImagesCheckbox" type="checkbox" name="skipImagesCheckbox" value="false"></td>
                         <td>__MSG_label_Skip_Images__</td>
                     </tr>
                     <tr id="includeImageSourceUrlRow">
-                        <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="true"></td>
+                        <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="false"></td>
                         <td>__MSG_label_Include_URL_of_Images__</td>
                     </tr>
                     <tr id="higestResolutionImagesRow" hidden>
@@ -214,7 +214,7 @@
                         <td>__MSG_label_Remove_Superscript_From_Alternate_Translations__</td>
                     </tr>
                     <tr id="useSvgForImages">
-                        <td><input id="useSvgForImagesInput" type="checkbox" name="useSvgForImagesInput" value="true"></td>
+                        <td><input id="useSvgForImagesInput" type="checkbox" name="useSvgForImagesInput" value="false"></td>
                         <td>__MSG_label_Use_SVG_for_Images__</td>
                     </tr>
                     <tr id="advancedOptionsVisibleByDefaultRow">
@@ -232,19 +232,19 @@
                         <td><button id="resetButton">__MSG_button_Reset__</button></td>
                     </tr>
                     <tr id="noDownloadPopupFileRow">
-                        <td><input id="noDownloadPopupCheckbox" type="checkbox" name="noDownloadPopupCheckbox" value="false"></td>
+                        <td><input id="noDownloadPopupCheckbox" type="checkbox" name="noDownloadPopupCheckbox" value="true"></td>
                         <td>__MSG_label_No_Download_Popup__</td>
                     </tr>
                     <tr id="writeErrorHistoryToFileRow">
-                        <td><input id="writeErrorHistoryToFileCheckbox" type="checkbox" name="writeErrorHistoryToFileCheckbox" value="false"></td>
+                        <td><input id="writeErrorHistoryToFileCheckbox" type="checkbox" name="writeErrorHistoryToFileCheckbox" value="true"></td>
                         <td>__MSG_label_Write_Error_History_To_File__</td>
                     </tr>
                     <tr id="createEpub3FileRow">
-                        <td><input id="createEpub3Checkbox" type="checkbox" name="createEpub3Checkbox" value="false"></td>
+                        <td><input id="createEpub3Checkbox" type="checkbox" name="createEpub3Checkbox" value="true"></td>
                         <td>__MSG_label_Create_Epub_3__</td>
                     </tr>
                     <tr id="useFullTitleAsFileName">
-                        <td><input id="useFullTitleAsFileNameCheckbox" type="checkbox" name="useFullTitleAsFileNameCheckbox" value="false"></td>
+                        <td><input id="useFullTitleAsFileNameCheckbox" type="checkbox" name="useFullTitleAsFileNameCheckbox" value="true"></td>
                         <td>__MSG_label_Use_Full_Title_As_File_Name__</td>
                     </tr>
                     <tr id="overwriteEpubWhenDuplicateFilename">
@@ -271,12 +271,14 @@
                                 <option value="2">2</option>
                                 <option value="4">4</option>
                                 <option value="8">8</option>
+                                <option value="16">16</options>
+                                <option value="32">32</options>
                             </select>
                         </td>
                         <td>__MSG_label_Max_pages_to_fetch_simultaneously__</td>
                     </tr>
                     <tr id="skipChaptersThatFailFetch">
-                        <td><input id="skipChaptersThatFailFetchCheckbox" type="checkbox" name="skipChaptersThatFailFetchCheckbox" value="false"></td>
+                        <td><input id="skipChaptersThatFailFetchCheckbox" type="checkbox" name="skipChaptersThatFailFetchCheckbox" value="true"></td>
                         <td>__MSG_label_Skip_Chapters_That_Fail_Fetch__</td>
                     </tr>
                     <tr id="maxChaptersPerEpub">
