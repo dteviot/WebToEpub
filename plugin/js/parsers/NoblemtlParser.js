@@ -33,6 +33,13 @@ class NoblemtlParser extends Parser{
         return dom.querySelector("h1.entry-title");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        let toRemove = [...element.querySelectorAll("p")]
+            .filter(p => p.style.opacity === "0");
+        util.removeElements(toRemove);
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h1.entry-title");
     }
