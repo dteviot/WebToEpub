@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("booktoki152.com", () => new Booktoki152Parser());
+parserFactory.register("booktoki156.com", () => new Booktoki152Parser());
 
 class Booktoki152Parser extends Parser{
     constructor() {
