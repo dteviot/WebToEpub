@@ -42,7 +42,7 @@ class MayanovelParser extends Parser{
     }
 
     nextPageOfChapterUrl(dom) {
-        var nextUrl = dom.querySelector("a[rel='next']")?.href;
+        let nextUrl = dom.querySelector("a[rel='next']")?.href;
         return (nextUrl != null) && nextUrl.includes("_")
             ? nextUrl
             : null;

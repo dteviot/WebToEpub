@@ -46,7 +46,7 @@ class EngnovelParser extends Parser{
     }
 
     static extractPartialChapterList(dom) {
-        var chapterlist = [...dom.querySelectorAll("ul.list-chapter")].pop();
+        let chapterlist = [...dom.querySelectorAll("ul.list-chapter")].pop();
         return util.hyperlinksToChapterList(chapterlist);
     }    
 
