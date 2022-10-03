@@ -39,7 +39,7 @@ class MadaraParser extends WordpressBaseParser{
         for(let i of content.querySelectorAll("img")) {
             let data_src = i.getAttribute("data-src");
             if (!util.isNullOrEmpty(data_src) && util.isNullOrEmpty(i.src)) {
-                i.src = data_src;
+                i.src = data_src.trim();
             }
         }
         return content;
