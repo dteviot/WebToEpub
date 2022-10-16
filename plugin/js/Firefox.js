@@ -25,5 +25,15 @@ class Firefox {
             ["blocking", "requestHeaders"]
         );
     }
+
+    static injectContentScript(tabId) {
+        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
+            function (result) {   // eslint-disable-line no-unused-vars
+                if (chrome.runtime.lastError) {
+                    util.log(chrome.runtime.lastError.message);
+                };
+            }
+        );
+    }
 }
 

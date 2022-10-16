@@ -185,13 +185,28 @@ var main = (function () {
 
     function getActiveTabDOM(tabId) {
         addMessageListener();
-        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
-            function (result) {   // eslint-disable-line no-unused-vars
-                if (chrome.runtime.lastError) {
-                    util.log(chrome.runtime.lastError.message);
-                };
-            }
-        );
+        injectContentScript(tabId);
+    }
+
+    function injectContentScript(tabId) {
+        if (util.isFirefox()) {
+            Firefox.injectContentScript(tabId);
+        } else {
+            chromeInjectContentScript(tabId);
+        }
+    }
+
+    function chromeInjectContentScript(tabId) {
+        try {
+            chrome.scripting.executeScript({
+                target: {tabId: tabId},
+                files: ["js/ContentScript.js"]
+            });
+        } catch {
+            if (chrome.runtime.lastError) {
+                util.log(chrome.runtime.lastError.message);
+            };
+        }
     }
 
     function populateControls() {
