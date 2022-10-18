@@ -25,8 +25,8 @@ class FoxtellerParser extends Parser{
     }
 
     async fetchChapter(url) {
-        var chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
-        var content = (await this.fetchContentForChapter(chapterDom));
+        let chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
+        let content = (await this.fetchContentForChapter(chapterDom));
         let newDoc = Parser.makeEmptyDocForContent(url);
         let header = newDoc.dom.createElement("h1");
         header.textContent = chapterDom.querySelector("div.page-header h3").textContent;

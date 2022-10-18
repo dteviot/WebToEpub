@@ -491,6 +491,7 @@ class Parser {
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
         return pageParser.fetchChapter(webPage.sourceUrl).then(function (webPageDom) {
+            delete webPage.error;
             webPage.rawDom = webPageDom;
             pageParser.preprocessRawDom(webPageDom);
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);

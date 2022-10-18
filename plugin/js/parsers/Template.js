@@ -33,7 +33,7 @@ class TemplateParser extends Parser{
     // returns promise with the URLs of the chapters to fetch
     // promise is used because may need to fetch the list of URLs from internet
     /*
-    async getChapterUrls(dom) {
+    async getChapterUrls(dom, chapterUrlsUI) {
         // Most common implementation is to find element holding the hyperlinks to 
         // the web pages holding the chapters.  Then call util.hyperlinksToChapterList()
         // to convert the links into a list of URLs the parser will collect.

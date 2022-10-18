@@ -434,7 +434,7 @@ var util = (function () {
         for(let img of content.querySelectorAll(imgCss)) {
             let dataSrc = img.getAttribute("data-src");
             if (dataSrc !== null) {
-                img.src = dataSrc;
+                img.src = dataSrc.trim();
             }
         }
     }

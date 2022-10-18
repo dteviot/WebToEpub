@@ -205,13 +205,24 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
 var makeManifestForFirefox = function(data) {
     let manifest = JSON.parse(data.toString());
     delete(manifest.incognito);
+    manifest.manifest_version = 2;
+
+    // fix permissions/host_permissions
+    let permissions = manifest.permissions;
+    permissions = permissions.filter(p => p != "scripting");
+    manifest.permissions = permissions.concat(manifest.host_permissions);
+    delete manifest.host_permissions;
+    
+    // rename action => browser_action
+    manifest.browser_action = manifest.action;
+    delete manifest.action;
     return manifest;    
 }
 
 var makeManifestForChrome = function(data) {
     let manifest = JSON.parse(data.toString());
     delete(manifest.applications);
-    delete(manifest.browser_action.browser_style);
+    delete(manifest.action.browser_style);
     manifest.permissions = manifest.permissions
         .filter(p => !p.startsWith("webRequest"));
     return manifest;    

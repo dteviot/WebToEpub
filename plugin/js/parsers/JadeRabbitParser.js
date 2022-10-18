@@ -48,7 +48,7 @@ class JadeRabbitParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        var summary = dom.querySelector("div.post-entry");
+        let summary = dom.querySelector("div.post-entry");
         return summary === null ? [] : [summary];
     }
 }

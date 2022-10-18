@@ -12,7 +12,7 @@ class BabelChainParser extends Parser{
         let chapters = this.extractChapterList(dom);
         if (chapters.length === 0) {
             let url = dom.baseURI + "/chapters";
-            var chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
+            let chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
             chapters = this.extractChapterList(chapterDom);
         }
         return chapters;

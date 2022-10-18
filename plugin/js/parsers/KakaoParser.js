@@ -12,7 +12,7 @@ class KakaoParser extends Parser {
 
     async setAuthorizationToken() {
         if(typeof this.token === "undefined") {
-            const jsonUrl = "https://api-pagestage.kakao.com/users/login";
+            const jsonUrl = "https://page.kakao.com/api/login";
 
             const fetchOptions = {
                 method: "POST",

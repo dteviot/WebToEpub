@@ -41,16 +41,18 @@ class WtrlabParser extends Parser{
     preprocessRawDom(webPageDom) {
         let json = this.extractApplicationJson(webPageDom);
         let chapterdata = json.props.pageProps.serie.chapter_data.data;
-        let content = webPageDom.createElement("div");
-        content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
-        webPageDom.body.appendChild(content);
-        let header = webPageDom.createElement("h1");
-        header.textContent = chapterdata.title;
-        content.appendChild(header);
-        for (let text of chapterdata.body) {
-            let p = webPageDom.createElement("p");
-            p.appendChild(webPageDom.createTextNode(text))
-            content.appendChild(p);
+        if (chapterdata.title) {
+            let content = webPageDom.createElement("div");
+            content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
+            webPageDom.body.appendChild(content);
+            let header = webPageDom.createElement("h1");
+            header.textContent = chapterdata.title;
+            content.appendChild(header);
+            for (let text of chapterdata.body) {
+                let p = webPageDom.createElement("p");
+                p.appendChild(webPageDom.createTextNode(text))
+                content.appendChild(p);
+            }
         }
     }
 
