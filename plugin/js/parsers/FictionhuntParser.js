@@ -8,13 +8,13 @@ class FictionhuntParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("ul.Story__contents-list a")]
+        return [...dom.querySelectorAll("a.StoryContents__chapter-name")]
             .map(this.linkToChapter);
     }
 
     linkToChapter(link) {
-        let label = link.querySelector("label").textContent;
-        let title = link.querySelector("div.Story__contents-chapter-title span").textContent;
+        let label = link.querySelector(".chapter-number").textContent;
+        let title = link.querySelector(".chapter-title").textContent;
         return ({
             sourceUrl:  link.href,
             title: label + ": " + title
