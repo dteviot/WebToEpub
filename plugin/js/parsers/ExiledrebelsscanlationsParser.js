@@ -37,6 +37,7 @@ class ExiledrebelsscanlationsParser extends Parser{
         if (!this.userPreferences.removeAuthorNotes.value) {
             let notes = [...webPageDom.querySelectorAll("div.easy-footnote-title, ol.easy-footnotes-wrapper")];
             let content = this.findContent(webPageDom);
+            this.tagAuthorNotes(notes);
             for(let e of notes) {
                 content.appendChild(e);
             }
