@@ -117,9 +117,7 @@ class RoyalRoadParser extends Parser{
     removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
         super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
         this.removeImgTagsWithNoSrc(webPageDom);
-        if (this.userPreferences.removeAuthorNotes.value) {
-            util.removeElements([...webPageDom.querySelectorAll("div.author-note-portlet")]);
-        }
+        this.tagAuthorNotesBySelector(webPageDom, "div.author-note-portlet");
     }
 
     removeImgTagsWithNoSrc(webPageDom) {

@@ -74,6 +74,7 @@ class ArchiveOfOurOwnParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
+        this.tagAuthorNotes(element.querySelectorAll(".notes"));
         if (this.userPreferences.removeAuthorNotes.value) {
             let notes = [...element.querySelectorAll(".chapter.preface.group")];
             let title = element.querySelector("h3.title");

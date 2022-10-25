@@ -623,6 +623,21 @@ class Parser {
         return fetchSize;
     }
 
+    tagAuthorNotes(elements) {
+        for(let e of elements) {
+            e.classList.add("webToEpub-author-note");
+        }
+    }
+
+    tagAuthorNotesBySelector(element, selector) {
+        let notes = element.querySelectorAll(selector);
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeElements(notes);
+        } else {
+            this.tagAuthorNotes(notes);
+        }
+    }
+
     static makeEmptyDocForContent(baseUrl) {
         let dom = document.implementation.createHTMLDocument("");
         if (baseUrl != null) {

@@ -64,9 +64,7 @@ class HostednovelParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        if (this.userPreferences.removeAuthorNotes.value) {
-            util.removeChildElementsMatchingCss(element, "div.bg-light-200");
-        }
+        this.tagAuthorNotesBySelector(element, "div.bg-light-200");
         util.removeChildElementsMatchingCss(element, "div.adbox");
         super.removeUnwantedElementsFromContentElement(element);
     }

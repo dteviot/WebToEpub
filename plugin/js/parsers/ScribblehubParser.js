@@ -62,9 +62,7 @@ class ScribblehubParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        if (this.userPreferences.removeAuthorNotes.value) {
-            util.removeChildElementsMatchingCss(webPageDom, ".wi_authornotes");
-        }
+        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes");
     }
 
     getInformationEpubItemChildNodes(dom) {

@@ -148,6 +148,11 @@ class EpubMetaInfo {
         "}\r"+
         "table, th, td {\r"+
         "   border: 1px solid black;\r"+
-        "}\r";
+        "}\r"+
+
+        // Box around author notes
+        ".webToEpub-author-note {\r" +
+        "    border: 1px solid black; padding: 0.5em\r" +
+        "}";
     }
 }

@@ -62,8 +62,9 @@ class QidianParser extends Parser{
         if (!this.userPreferences.removeAuthorNotes.value) {
             let notes = json.chapterInfo.notes?.note ?? null;
             if (!util.isNullOrEmpty(notes)) {
-                this.addHeader(webPage, content, "Notes");
-                this.addParagraph(webPage, content, notes);
+                let container = this.addNoteContainer(webPage, content);
+                this.addHeader(webPage, container, "Notes");
+                this.addParagraph(webPage, container, notes);
             }
         }
     }
@@ -89,10 +90,17 @@ class QidianParser extends Parser{
         this.addElement(webPage, content, "p", text);
     }
 
+    addNoteContainer(webPage, content) {
+        let container = this.addElement(webPage, content, "div", "");
+        this.tagAuthorNotes([container]);
+        return container;
+    }
+
     addElement(webPage, content, tag, text) {
         let t = webPage.createElement(tag);
         t.textContent = text;
         content.appendChild(t);
+        return t;
     }
 
     stripBackslash(s) {
@@ -141,9 +149,7 @@ class QidianParser extends Parser{
  
     removeUnwantedElementsFromContentElement(content) {
         util.removeChildElementsMatchingCss(content, "form.cha-score, div.cha-bts, pirate");
-        if (this.userPreferences.removeAuthorNotes.value) {
-            util.removeChildElementsMatchingCss(content, "div.m-thou");
-        }
+        this.tagAuthorNotesBySelector(content, "div.m-thou");
         super.removeUnwantedElementsFromContentElement(content);
     }
 
