@@ -8,41 +8,55 @@ class NovelonomiconParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return (await this.walkTocPages(dom,
-            this.getChapterUrlsFromTocPage,
-            this.nextTocPageUrl,
+        return (await this.getChapterUrlsFromMultipleTocPages(dom,
+            this.extractPartialChapterList,
+            this.getUrlsOfTocPages,
             chapterUrlsUI
-        ))
+        )).reverse();
     }
 
-    getChapterUrlsFromTocPage(dom) {
-        return [...dom.querySelectorAll("h3.entry-title a")]
-            .map(a => util.hyperLinkToChapter(a))
-            .reverse();
+    getUrlsOfTocPages(dom) {
+        let urls = []
+        let lastLink = dom.querySelector(".page-nav a.last")
+            || [...dom.querySelectorAll(".page-nav a.page")].slice(-1)[0];
+        if (lastLink !== null)
+        {
+            let max = parseInt(lastLink.textContent);
+            let href = lastLink.href;
+            let index = href.lastIndexOf("/", href.length - 2);
+            href = href.substring(0, index + 1);
+            for(let i = 2; i <= max; ++i) {
+                urls.push(href + i + "/");
+            }
+        }
+        return urls;
     }
 
-    nextTocPageUrl(dom) {
-        let current = dom.querySelector("li.g1-pagination-item-current");
-        let sibling = current?.previousElementSibling;
-        return ((sibling === null) || sibling.classList.contains("g1-pagination-item-prev")) 
-            ? null
-            : sibling.querySelector("a").href;
+    extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("#tdi_70 h3 a, #tdi_61 h3 a")]
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
-        return dom.querySelector("div.entry-inner");
+        return dom.querySelector("#tdi_68 .tdi_73 .tdb-block-inner");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector(".archive-title");
+        return dom.querySelector("h1");
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".entry-before-title, a.su-button");
-        super.removeUnwantedElementsFromContentElement(element);
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
     }
 
+    findCoverImageUrl(dom) {
+        let span = dom.querySelector("#tdi_70 span.entry-thumb")?.getAttribute("data-img-url");
+        return span == null
+            ? null
+            : "https:" + span;
+    }
+    
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("h2.page-subtitle p")];
+        return [...dom.querySelectorAll(".td-main-content-wrap .tdb_category_description .tdb-block-inner")];
     }
 }
