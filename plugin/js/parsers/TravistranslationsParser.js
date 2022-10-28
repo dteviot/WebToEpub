@@ -24,7 +24,9 @@ class TravistranslationsParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("div.header h2");
+        let h2 = dom.querySelector("div.header h2");
+        let span = h2.parentElement.querySelector("span")?.textContent ?? "";
+        return h2.textContent + " " + span;
     }
 
     findCoverImageUrl(dom) {
