@@ -21,10 +21,11 @@ class RoyalRoadParser extends Parser{
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return util.getElement(dom, "div", 
+        let content = util.getElement(dom, "div", 
             e => (e.className === "portlet-body") &&
             (e.querySelector("div.chapter-inner") !== null)
         );
+        return content || dom.querySelector(".page-content-wrapper");
     }
 
     populateUI(dom) {
@@ -50,8 +51,9 @@ class RoyalRoadParser extends Parser{
         let className = element.className;
         return (tagName === "h1") || 
             ((tagName === "div") && 
-                (className.startsWith("chapter-inner")) ||
-                (className.includes("author-note-portlet"))
+                (className.startsWith("chapter-inner") ||
+                className.includes("author-note-portlet") ||
+                className.includes("page-content"))
             );
     }
 

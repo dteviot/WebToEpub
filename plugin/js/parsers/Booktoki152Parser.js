@@ -1,7 +1,9 @@
 "use strict";
 
-parserFactory.register("booktoki152.com", () => new Booktoki152Parser());
-parserFactory.register("booktoki156.com", () => new Booktoki152Parser());
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).startsWith("booktoki")),
+    () => new Booktoki152Parser()
+);
 
 class Booktoki152Parser extends Parser{
     constructor() {
@@ -28,6 +30,10 @@ class Booktoki152Parser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.view-content span b");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.toon-title");
     }
 
     findCoverImageUrl(dom) {

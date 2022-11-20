@@ -17,7 +17,8 @@ class TumblrParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("main div.post");
+        return dom.querySelector("main div.post") ||
+            dom.querySelector("main div.post-main");
     }
 
     async fetchChapter(url) {
