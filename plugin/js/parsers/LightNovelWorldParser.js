@@ -96,6 +96,11 @@ class LightNovelWorldParser extends Parser{
             .filter(e => e.parentNode.tagName == "STRONG")
             .map(e => e.parentNode);
         util.removeElements(toRemove);
+
+        toRemove = [...element.querySelectorAll("div > dl > dt")]
+            .map(e => e.parentNode.parentNode);
+        util.removeElements(toRemove);
+
         super.removeUnwantedElementsFromContentElement(element);
     }
 
