@@ -4,6 +4,7 @@ parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new NoblemtlParser());
+parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
 class NoblemtlParser extends Parser{
     constructor() {
