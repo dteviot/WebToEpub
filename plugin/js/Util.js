@@ -829,8 +829,9 @@ var util = (function () {
         return "OEBPS/Styles/stylesheet.css";
     }
 
-    var extractUrlFromBackgroundImage = function(img) {
-        return img.substring(5, img.length - 2);
+    var extractUrlFromBackgroundImage = function(element) {
+        var background = element?.style?.backgroundImage;
+        return background?.substring(5, background.length - 2) ?? null;
     }
 
     var extactSubstring = function(s, prefix, suffix) {

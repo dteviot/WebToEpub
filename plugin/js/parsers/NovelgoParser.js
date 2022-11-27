@@ -47,7 +47,7 @@ class NovelgoParser extends Parser{
 
     findCoverImageUrl(dom) {
         let div = dom.querySelector("div.novel-thumbnail");
-        return div.style.backgroundImage.split("\"")[1];
+        return util.extractUrlFromBackgroundImage(div);
     }
 
     getInformationEpubItemChildNodes(dom) {
