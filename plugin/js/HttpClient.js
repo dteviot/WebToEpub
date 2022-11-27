@@ -30,7 +30,7 @@ class FetchErrorHandler {
 
     onResponseError(url, wrapOptions, response) {
         let failError = new Error(this.makeFailMessage(url, response.status));
-        let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response.status);
+        let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response);
         if (retry.retryDelay.length === 0) {
             return Promise.reject(failError);
         }
@@ -69,11 +69,13 @@ class FetchErrorHandler {
         });
     }
 
-    static getAutomaticRetryBehaviourForStatus(status) {
+    static getAutomaticRetryBehaviourForStatus(response) {
         // seconds to wait before each retry (note: order is reversed)
         let retryDelay = [120, 60, 30, 15];
-        switch(status) {
+        switch(response.status) {
         case 429:
+            FetchErrorHandler.show429Error(response);
+            return {retryDelay: retryDelay, promptUser: true};
         case 509:
             // server asked for rate limiting
             return {retryDelay: retryDelay, promptUser: true};
@@ -92,7 +94,16 @@ class FetchErrorHandler {
             return {retryDelay: [], promptUser: false};
         }
     }
+
+    static show429Error(response) {
+        let host = new URL(response.url).hostname;
+        if (!FetchErrorHandler.rateLimitedHosts.has(host)) {
+            FetchErrorHandler.rateLimitedHosts.add(host);
+            alert(chrome.i18n.getMessage("warning429ErrorResponse", host));
+        }
+    }
 }
+FetchErrorHandler.rateLimitedHosts = new Set();
 
 class FetchImageErrorHandler extends FetchErrorHandler{
     constructor(parentPageUrl) {
@@ -237,7 +248,7 @@ class FetchResponseHandler {
         return FetchResponseHandler.DEFAULT_CHARSET;
     }
 }
-FetchResponseHandler.DEFAULT_CHARSET = "utf-8"
+FetchResponseHandler.DEFAULT_CHARSET = "utf-8";
 
 class FetchJsonResponseHandler extends FetchResponseHandler {
     constructor() {

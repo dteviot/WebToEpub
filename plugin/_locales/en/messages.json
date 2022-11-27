@@ -538,6 +538,15 @@
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
 	},
+	"warning429ErrorResponse": {
+		"message": "WARNING: Site '$host$' has requested WebToEpub to slow down rate of chapter requests.  WebToEpub will try to automatically adjust.  However, if this does not work, you may need to adjust manually.  Under 'Advanced Options' -> lower 'Max web pages to fetch simultaneously' and/or increase 'Manual Throttle|Delay per chapter'",
+		"description": "Warning message for user when site sends a 429 response.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
+			}
+		}
+	},
 	"warningParserDisabledComradeMao": {
 		"message": "WARNING: Support for comrademao.com has been disabled at the request of site owners, due to WebToEpub causing problems for other users of site.  For more details, see: https://github.com/dteviot/WebToEpub/issues/279",
 		"description": "Warning message when user tries to process comrademao.com."
