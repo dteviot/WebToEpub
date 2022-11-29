@@ -539,7 +539,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning429ErrorResponse": {
-		"message": "WARNING: Site '$host$' has requested WebToEpub to slow down rate of chapter requests.  WebToEpub will try to automatically adjust.  However, if this does not work, you may need to adjust manually.  Under 'Advanced Options' -> lower 'Max web pages to fetch simultaneously' and/or increase 'Manual Throttle|Delay per chapter'",
+		"message": "WARNING: Site '$host$' has requested WebToEpub to slow down rate of chapter requests.  WebToEpub will wait until site allows requesting chapters again.  However, if this does not work, you may need to adjust manually.  Under 'Advanced Options' -> lower 'Max web pages to fetch simultaneously' and/or increase 'Manual Throttle|Delay per chapter'",
 		"description": "Warning message for user when site sends a 429 response.",
 		"placeholders": {
 			"host": {
