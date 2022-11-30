@@ -69,6 +69,11 @@ class RanobesParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div[itemprop='description']")];
+        return [...dom.querySelectorAll("div.moreless__full")];
     }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "a");
+        return node;
+    }    
 }

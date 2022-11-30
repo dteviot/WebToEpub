@@ -139,11 +139,7 @@ class PatreonParser extends Parser{
 
     findCoverImageUrl(dom) {
         let imgs = [...dom.querySelectorAll("div")]
-            .filter(img => !util.isNullOrEmpty(img.style.backgroundImage))
-            .map(d => d.style.backgroundImage)
-        if (0 < imgs.length) {
-            return util.extractUrlFromBackgroundImage(imgs[0]);
-        }
-        return null;
+            .filter(img => !util.isNullOrEmpty(img.style.backgroundImage));
+        return util.extractUrlFromBackgroundImage(imgs[0]);
     }
 }
