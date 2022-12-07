@@ -140,6 +140,16 @@ class EpubMetaInfo {
         "}\r"+
         "a:active {\r"+
         "   text-decoration: underline;\r"+
+        "}\r"+
+
+        // red link for BT non-existent page //
+        "a.new {\r"+
+        "   color: #ba0000;\r"+
+        "}\r"+
+
+        // some groups use <pre> tag for character status with no wrapping, thus breaking the view in ebook //
+        "pre {\r"+
+        "   white-space: pre-wrap;\r"+
         "}"+
 
         "table {\r"+
