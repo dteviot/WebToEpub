@@ -34,6 +34,10 @@ class TravistranslationsParser extends Parser{
             ?.replace("q=55", "q=100") ?? null;
     }
 
+    preprocessRawDom(webPageDom) {
+        util.resolveLazyLoadedImages(webPageDom, "img");
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div[property='description']")];
     }
