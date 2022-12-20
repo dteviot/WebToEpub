@@ -6,6 +6,8 @@ parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
+parserFactory.register("pandamtl.com", () => new PandamtlParser());
+
 class NoblemtlParser extends Parser{
     constructor() {
         super();
@@ -55,5 +57,19 @@ class NoblemtlParser extends Parser{
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.synp .entry-content")];
+    }
+}
+
+class PandamtlParser extends NoblemtlParser{
+    constructor() {
+        super();
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".sertothumb");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.sersys.entry-content")];
     }
 }
