@@ -2,6 +2,7 @@
 
 parserFactory.register("lightnovels.me", () => new LightnovelsmeParser());
 parserFactory.register("pandapama.com", () => new LightnovelsmeParser());
+parserFactory.register("lightnovels.live", () => new LightnovelsmeParser());
 
 class LightnovelsmeParser extends Parser{
     constructor() {
@@ -30,6 +31,6 @@ class LightnovelsmeParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("main p")];
+        return [dom.querySelector("main div.overflow-hidden")];
     }
 }
