@@ -197,3 +197,15 @@ button {
     top: 14px;
     right: 7%;
 }
+
+.LibCover {
+    max-height: 115.5px;
+    min-width: 106.5px;
+}
+
+.HiddenButtonSection {
+    position: relative;
+    display: flex;
+  justify-content: center;
+    border-radius: 8px;
+}

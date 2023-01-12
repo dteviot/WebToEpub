@@ -3,6 +3,18 @@
 		"message": "Advanced Options",
 		"description": "Label on button to toggle showing 'Advanced Options'"
 	},
+	"__MSG_button_Library__": {
+		"message": "Library",
+		"description": "Label on button to toggle showing 'Library'"
+	},
+	"__MSG_button_Clear_Library__": {
+		"message": "Clear Library",
+		"description": "Label on button to clear Local Storage"
+	},
+	"__MSG_button_Invisible_Button_Readerslist": {
+		"message": "Invisible Button",
+		"description": "Invisible Button to toggel Readerlist Checkbox"
+	},
 	"__MSG_button_Apply_Changes__": {
 		"message": "Apply Changes",
 		"description": "Label on button to end manually editing list of URLs to fetch"
