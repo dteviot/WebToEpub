@@ -36,7 +36,7 @@ Credits
 * Tom Goetz
 * Alen Toma (css styling)
 * JimmXinu
-* gamebeaker (additional metadata, alphapolis, novicetranslations parser)
+* gamebeaker (additional metadata, Library)
 * Kondeeza
 * Mathnerd314
 * Sickan90
