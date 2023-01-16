@@ -24,35 +24,30 @@ class NovelNaverParser extends Parser{
 
     async getChapterUrls(dom, chapterUrlsUI) {
         let chapters = this.extractPartialChapterList(dom);
-        let urlsOfTocPages = this.extractTocPageUrls(dom);
+        let urlsOfTocPages = await this.extractTocPageUrls(dom);
         return (await this.getChaptersFromAllTocPages(chapters, 
-            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
+            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI));
     }
 
-    extractTocPageUrls(dom) {
-        let tocLinks = [...dom.querySelectorAll("div.paging a:not(.paging_next)")];
-        let pages = tocLinks
-            .map(a => a.textContent);
-        if (pages.length <= 1) {
-            return [];
+    async extractTocPageUrls(dom) {
+        let found = new Set();
+        let urls = this.extractPartialTocPages(dom, found);
+        let nextTocPageUrl = null;
+        while ((nextTocPageUrl = dom.querySelector("div.default_paging a.ico_next")?.href) != null) {
+            dom = (await HttpClient.wrapFetch(nextTocPageUrl)).responseXML;
+            urls = urls.concat(this.extractPartialTocPages(dom, found));
         }
-        let max = parseInt(pages.pop());
-        let baseUrl = tocLinks[0].href;
-        baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+        return urls;
+    }
 
-        // might be more ToC pages than given in paging control
-        // so check against num chapters
-        let volume = dom.querySelector("div.cont_sub > ul.list_type2 li.volumeComment");
-        if (volume != null) {
-            let maxChapters = parseInt(volume.getAttribute("value"));
-            max = Math.floor(maxChapters + 9) / 10;
+    extractPartialTocPages(dom, found) {
+        let urls = [...dom.querySelectorAll("div.default_paging a")]
+            .map(l => l.href)
+            .filter(u => !found.has(u));
+        for(let u of urls) {
+            found.add(u);
         }
-
-        let tocUrls = [];
-        for(let i = 2; i <= max; ++i) {
-            tocUrls.push(baseUrl + i);
-        }
-        return tocUrls;
+        return urls;
     }
 
     extractPartialChapterList(dom) {
@@ -77,6 +72,6 @@ class NovelNaverParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.section_area_info p.dsc")];
+        return [...dom.querySelectorAll("#summaryText")];
     }
 }

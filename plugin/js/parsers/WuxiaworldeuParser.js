@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("wuxiaworld.eu", () => new WuxiaworldeuParser());
+parserFactory.register("wuxia.click", () => new WuxiaworldeuParser());
 
 class WuxiaworldeuParser extends Parser{
     constructor() {
@@ -8,14 +9,15 @@ class WuxiaworldeuParser extends Parser{
     }
 
     async getChapterUrls(dom) {
+        let host = new URL(dom.baseURI).host;
         let tocUrl = dom.baseURI.replace("/novel/", "/api/chapters/") + "/";
         let json = (await HttpClient.fetchJson(tocUrl)).json;
-        return json.map(this.toChapter);
+        return json.map(j => this.toChapter(j, host));
     }
 
-    toChapter(json) {
+    toChapter(json, host) {
         return ({
-            sourceUrl:  "https://www.wuxiaworld.eu/chapter/" + json.novSlugChapSlug,
+            sourceUrl:  `https://${host}/chapter/${json.novSlugChapSlug}`,
             title: json.title
         });
     }
