@@ -1,5 +1,6 @@
 "use strict";
 
+parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
