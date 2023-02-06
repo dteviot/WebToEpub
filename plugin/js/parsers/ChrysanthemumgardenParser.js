@@ -9,13 +9,16 @@ class ChrysanthemumgardenParser extends WordpressBaseParser{
 
     populateUI(dom) {
         super.populateUI(dom);
-        document.getElementById("passwordRow").hidden = false; 
+        document.getElementById("passwordRow").hidden = false;
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 
     customRawDomToContentStep(chapter, content) {
-        let notes = [...chapter.rawDom.querySelectorAll("div.tooltip-container")];
-        for(let n of notes) {
-            content.appendChild(n);
+        if (!this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...chapter.rawDom.querySelectorAll("div.tooltip-container")];
+            for(let n of notes) {
+                content.appendChild(n);
+            }
         }
     }
 
