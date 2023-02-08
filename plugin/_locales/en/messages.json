@@ -305,7 +305,7 @@
 	},
 	"__MSG_label_Metadata_Save__": {
 		"message": "Save Metadata",
-		"description": "Tags for epub"
+		"description": "Label on button to Save Metadata"
 	},
 	"__MSG_label_Metadata_URL__": {
 		"message": "Additional Metadata URL",

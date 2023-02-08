@@ -298,13 +298,11 @@ class Library {
                 LibRenderString += "<td>"+LibTemplateFilename+"</td>";
                 LibRenderString += "<td><input id='LibFilename"+CurrentLibKeys[i]+"' type='text' value='"+items["LibFilename"+CurrentLibKeys[i]]+"'></td>";
                 LibRenderString += "</tr>";
-                if (ShowAdvancedOptions) {
-                    LibRenderString += "<tr id='LibRenderMetadataSave"+CurrentLibKeys[i]+"'></tr>";
-                    LibRenderString += "<tr id='LibRenderMetadataSubject"+CurrentLibKeys[i]+"'></tr>";
-                    LibRenderString += "<tr id='LibRenderMetadataDescription"+CurrentLibKeys[i]+"'></tr>";
-                }
                 LibRenderString += "</tbody>";
                 LibRenderString += "</table>";
+                if (ShowAdvancedOptions) {
+                    LibRenderString += "<table id='LibRenderMetadata"+CurrentLibKeys[i]+"'></table>";
+                }
             }
             LibRenderResult.innerHTML = LibRenderString;
             if (ShowAdvancedOptions) {
@@ -382,33 +380,47 @@ class Library {
     
     static async LibEditMetadata(objbtn){
         let LibTemplateMetadataSave = document.getElementById("LibTemplateMetadataSave").innerHTML;
+        let LibTemplateMetadataTitle = document.getElementById("LibTemplateMetadataTitle").innerHTML;
+        let LibTemplateMetadataAuthor = document.getElementById("LibTemplateMetadataAuthor").innerHTML;
+        let LibTemplateMetadataLanguage = document.getElementById("LibTemplateMetadataLanguage").innerHTML;
         let LibTemplateMetadataSubject = document.getElementById("LibTemplateMetadataSubject").innerHTML;
         let LibTemplateMetadataDescription = document.getElementById("LibTemplateMetadataDescription").innerHTML;
-        let LibRenderResult = document.getElementById("LibRenderMetadataSave" + objbtn.dataset.libepubid);
-        let LibRenderString = "<tr id='LibRenderMetadataSave"+objbtn.dataset.libepubid+"'>";
+        let LibRenderResult = document.getElementById("LibRenderMetadata" + objbtn.dataset.libepubid);
+        let LibMetadata = await Library.LibGetMetadata(objbtn.dataset.libepubid);
+        let LibRenderString = "";
+        LibRenderString += "<tr id='LibRenderMetadataSave"+objbtn.dataset.libepubid+"'>";
         LibRenderString += "<td></td>";
         LibRenderString += "<td></td>";
         LibRenderString += "<td>";
         LibRenderString += "<button data-libepubid="+objbtn.dataset.libepubid+" id='LibMetadataSave"+objbtn.dataset.libepubid+"'>"+LibTemplateMetadataSave+"</button>";
         LibRenderString += "</td>";
         LibRenderString += "</tr>";
-        LibRenderResult.outerHTML = LibRenderString;
-        LibRenderResult = document.getElementById("LibRenderMetadataSubject" + objbtn.dataset.libepubid);
-        LibRenderString = "<tr id='LibRenderMetadataSubject"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<tr id='LibRenderMetadataTitle"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<td>"+LibTemplateMetadataTitle+"</td>";
+        LibRenderString += "<td colspan='2'><input id='LibTitleInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[0]+"'></input></td>";
+        LibRenderString += "</tr>";
+        LibRenderString += "</tr>";
+        LibRenderString += "<tr id='LibTemplateMetadataAuthor"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<td>"+LibTemplateMetadataAuthor+"</td>";
+        LibRenderString += "<td colspan='2'><input id='LibAutorInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[1]+"'></input></td>";
+        LibRenderString += "</tr>";
+        LibRenderString += "<tr id='LibTemplateMetadataLanguage"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<td>"+LibTemplateMetadataLanguage+"</td>";
+        LibRenderString += "<td colspan='2'><input id='LibLanguageInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[2]+"'></input></td>";
+        LibRenderString += "</tr>";
+        LibRenderString += "<tr id='LibRenderMetadataSubject"+objbtn.dataset.libepubid+"'>";
         LibRenderString += "<td>"+LibTemplateMetadataSubject+"</td>";
-        LibRenderString += "<td colspan='2'><textarea rows='2' cols='60' id='LibSubjectInput"+objbtn.dataset.libepubid+"' type='text' name='subjectInput'>"+await Library.LibGetMetadata(objbtn.dataset.libepubid, "dc:subject")+"</textarea></td>";
+        LibRenderString += "<td colspan='2'><textarea rows='2' cols='60' id='LibSubjectInput"+objbtn.dataset.libepubid+"' type='text' name='subjectInput'>"+LibMetadata[3]+"</textarea></td>";
         LibRenderString += "</tr>";
-        LibRenderResult.outerHTML = LibRenderString;
-        LibRenderResult = document.getElementById("LibRenderMetadataDescription" + objbtn.dataset.libepubid);
-        LibRenderString = "<tr id='LibRenderMetadataDescription" + objbtn.dataset.libepubid + "'>";
+        LibRenderString += "<tr id='LibRenderMetadataDescription" + objbtn.dataset.libepubid + "'>";
         LibRenderString += "<td>"+LibTemplateMetadataDescription+"</td>";
-        LibRenderString += "<td colspan='2'><textarea  rows='2' cols='60' id='LibDescriptionInput"+objbtn.dataset.libepubid+"' type='text' name='descriptionInput'>"+await Library.LibGetMetadata(objbtn.dataset.libepubid, "dc:description")+"</textarea></td>";
+        LibRenderString += "<td colspan='2'><textarea  rows='2' cols='60' id='LibDescriptionInput"+objbtn.dataset.libepubid+"' type='text' name='descriptionInput'>"+LibMetadata[4]+"</textarea></td>";
         LibRenderString += "</tr>";
-        LibRenderResult.outerHTML = LibRenderString;
+        LibRenderResult.innerHTML = LibRenderString;
         document.getElementById("LibMetadataSave"+objbtn.dataset.libepubid).addEventListener("click", function(){Library.LibSaveMetadataChange(this)});
     }
     
-    static async LibSaveMetadataChange(obj) {
+    static async LibSaveMetadataChangeold(obj) {
         let LibSubjectInput = document.getElementById("LibSubjectInput"+obj.dataset.libepubid).value;
         let LibDescriptionInput = document.getElementById("LibDescriptionInput"+obj.dataset.libepubid).value;
         Library.LibShowLoadingText();
@@ -436,20 +448,61 @@ class Library {
             ErrorLog.showErrorMessage(e);
         });
     }
+
+    static async LibSaveMetadataChange(obj){
+        let LibTitleInput = document.getElementById("LibTitleInput"+obj.dataset.libepubid).value;
+        let LibAutorInput = document.getElementById("LibAutorInput"+obj.dataset.libepubid).value;
+        let LibLanguageInput = document.getElementById("LibLanguageInput"+obj.dataset.libepubid).value;
+        let LibSubjectInput = document.getElementById("LibSubjectInput"+obj.dataset.libepubid).value;
+        let LibDescriptionInput = document.getElementById("LibDescriptionInput"+obj.dataset.libepubid).value;
+        Library.LibShowLoadingText();
+        let LibDateCreated = new EpubPacker().getDateForMetaData();
+        let EpubAsBlob = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub"+obj.dataset.libepubid));
+        JSZip.loadAsync(EpubAsBlob).then(async function(zip) {
+            try{
+                let opfFile = await zip.file("OEBPS/content.opf").async("string");
+                let regex1 = opfFile.match(new RegExp("<dc:title>.+?</dc:creator>", "gs"));
+                if ( regex1 == null) {
+                    ErrorLog.showErrorMessage("An error occurd during the editing of the Metadata");
+                }
+                let LibSaveMetadataString = "";
+                LibSaveMetadataString += "<dc:title>"+LibTitleInput+"</dc:title>";
+                LibSaveMetadataString += "<dc:language>"+LibLanguageInput+"</dc:language>";
+                LibSaveMetadataString += "<dc:date>"+LibDateCreated+"</dc:date>";
+                LibSaveMetadataString += "<dc:subject>"+LibSubjectInput+"</dc:subject>";
+                LibSaveMetadataString += "<dc:description>"+LibDescriptionInput+"</dc:description>";
+                LibSaveMetadataString += "<dc:creator opf:file-as=\""+LibAutorInput+"\" opf:role=\"aut\">"+LibAutorInput+"</dc:creator>";
+
+                opfFile = opfFile.replace(new RegExp("<dc:title>.+?</dc:creator>", "gs"), LibSaveMetadataString);
+                zip.file("OEBPS/content.opf", opfFile, { compression: "DEFLATE" });
+                let content = await zip.generateAsync({ type: "blob", mimeType: "application/epub+zip",});
+                Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL"+obj.dataset.libepubid), await Library.LibGetFromStorage("LibFilename"+obj.dataset.libepubid), obj.dataset.libepubid);
+            }catch {
+            //
+            }
+        }, function (e) {
+            ErrorLog.showErrorMessage(e);
+        });
+    }
     
-    static async LibGetMetadata(libepubid, type) {
+    static async LibGetMetadata(libepubid) {
         let EpubAsBlob = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub"+libepubid));
         return new Promise((resolve) => {
+            let LibMetadata = [];
             JSZip.loadAsync(EpubAsBlob).then(async function(zip) {
-                try{
-                    let opfFile = await zip.file("OEBPS/content.opf").async("string");
-                    resolve(opfFile.match(new RegExp("<"+type+">.+?</"+type+">", "gs"))[0].replace(new RegExp("<"+type+">"),"").replace(new RegExp("</"+type+">"),""));
-                }catch {
-                    resolve("");
-                }
+                let LibMetadataTags = ["dc:title", "dc:creator", "dc:language", "dc:subject", "dc:description"];
+                let opfFile = await zip.file("OEBPS/content.opf").async("string");
+                let opfFileMatch;
+                LibMetadataTags.forEach((element, index) => {
+                    LibMetadata[index] = "";
+                    if (( opfFileMatch = opfFile.match(new RegExp("<"+element+".*?>.*?</"+element+">", "gs"))) != null) {
+                        LibMetadata[index] = opfFileMatch[0].replace(new RegExp("<"+element+".*?>"),"").replace(new RegExp("</"+element+">"),"");
+                    }
+                });
+                resolve(LibMetadata);
             }, function (e) {
                 ErrorLog.showErrorMessage(e);
-                resolve("");
+                resolve(LibMetadata);
             });
         });
     }
