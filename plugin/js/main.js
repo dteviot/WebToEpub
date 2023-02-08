@@ -291,16 +291,6 @@ var main = (function () {
         section.hidden = true;
     }
 
-    function onlibinvisbutton(){
-    //messy didn't find other solution to activate reading list from lib after load
-        onLoadAndAnalyseButtonClick().then(function() {
-            if (document.getElementById("includeInReadingListCheckbox").checked != true) {
-                document.getElementById("includeInReadingListCheckbox").click();
-            }},function(e) {
-            ErrorLog.showErrorMessage(e);
-        });
-    }
-
     function onStylesheetToDefaultClick() {
         document.getElementById("stylesheetInput").value = EpubMetaInfo.getDefaultStyleSheet();
         userPreferences.readFromUi();
@@ -463,10 +453,8 @@ var main = (function () {
         getManuallySelectParserTag().onchange = populateControls;
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("hiddenBibButton").onclick = onLibraryClick;
-        document.getElementById("libdeleteall").addEventListener("click", library.Libdeleteall);
-        document.getElementById("libinvisbutton").addEventListener("click", onlibinvisbutton);
+        document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", function(){Library.LibRenderSavedEpubs()});
         document.getElementById("LibAddToLibrary").addEventListener("click", fetchContentAndPackEpub);
-        document.getElementById("LibEpubNewUpload").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
@@ -651,7 +639,8 @@ var main = (function () {
     }
 
     return {
-        getPackEpubButton: getPackEpubButton
+        getPackEpubButton: getPackEpubButton,
+        onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick
     };
 })();
 

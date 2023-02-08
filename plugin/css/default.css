@@ -200,7 +200,10 @@ button {
 
 .LibCover {
     max-height: 115.5px;
-    min-width: 106.5px;
+    max-width: 106.5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .HiddenButtonSection {

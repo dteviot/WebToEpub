@@ -106,6 +106,8 @@ class UserPreferences {
         this.addPreference("lesstags", "lesstagsCheckbox", true);
         this.addPreference("autosearchmetadata", "autosearchmetadataCheckbox", false);
         this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", true);
+        this.addPreference("LibShowAdvancedOptions", "LibShowAdvancedOptionsCheckbox", false);
+        this.addPreference("LibDownloadEpubAfterUpdate", "LibDownloadEpubAfterUpdateCheckbox", false);
         this.observers = [];
         this.readingList = new ReadingList();
 
