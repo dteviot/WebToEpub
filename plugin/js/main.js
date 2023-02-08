@@ -281,7 +281,7 @@ var main = (function () {
         getActiveTab().then(function (tabId) {
             let url = chrome.runtime.getURL("popup.html") + "?id=";
             url += tabId;
-            chrome.tabs.create({ url: url });
+            chrome.tabs.create({ url: url, openerTabId: tabId });
             window.close();
         });
     }
