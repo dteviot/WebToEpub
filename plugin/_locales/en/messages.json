@@ -243,6 +243,10 @@
 		"message": "Overwrite existing EPUB file with same name",
 		"description": "Label for checkbox to toggle between 'overwrite exisitng Epub files' and 'make names unique'"
 	},
+	"__MSG_label_Password__": {
+		"message": "Password",
+		"description": "Label for textbox to collect password needed for site"
+	},
 	"__MSG_label_Range_End_Chapter__": {
 		"message": "Last Chapter",
 		"description": "Label in front of drop down for selecting last chapter to include in epub"
