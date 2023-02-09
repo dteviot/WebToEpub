@@ -77,6 +77,7 @@ class Library {
                     let AddEpubImageFile;
                     let PreviousEpubContentText = await PreviousEpubzip.file("OEBPS/content.opf").async("string");
                     let PreviousEpubTocText = await PreviousEpubzip.file("OEBPS/toc.ncx").async("string");
+                    let PreviousEpubTocEpub3Text =  await PreviousEpubzip.file("OEBPS/toc.xhtml").async("string");
                     let AddEpubContentText = await AddEpubzip.file("OEBPS/content.opf").async("string");
                     let AddEpubTocText = await AddEpubzip.file("OEBPS/toc.ncx").async("string");
                     let regex1, regex2, regex3, regex4, string1, string2, string3, string4;
@@ -153,11 +154,21 @@ class Library {
                         // eslint-disable-next-line
                         string4 = '<content src="' + newChaptername.slice(6) + '"/>';
                         PreviousEpubTocText = Library.LibManipulateContentFromTO(AddEpubTocText, PreviousEpubTocText, regex1, string1, regex2, string2, regex3, string3, regex4, string4);
+                        if (PreviousEpubTocEpub3Text != null) {
+                            string1 = "</ol></nav>";
+                            regex2 = new RegExp(".+<text>");
+                            regex3 = new RegExp("</text>.+");
+                            string2 = "<li><a href=\""+ newChaptername.slice(6) + "\">"+AddEpubTocText.match(regex1)[0].replace(regex2, "").replace(regex3, "")+"</a></li>";
+                            PreviousEpubTocEpub3Text = PreviousEpubTocEpub3Text.replace(string1, string2+string1);
+                        }
                         TextnumberPreviousEpub++;
                         TextnumberAddEpub++;
                     }
                     ToMergeEpubzip.file("OEBPS/content.opf", PreviousEpubContentText, { compression: "DEFLATE" });
                     ToMergeEpubzip.file("OEBPS/toc.ncx", PreviousEpubTocText, { compression: "DEFLATE" });
+                    if (PreviousEpubTocEpub3Text != null) {
+                        ToMergeEpubzip.file("OEBPS/toc.xhtml", PreviousEpubTocEpub3Text, { compression: "DEFLATE" });
+                    }
                     let ToMergeEpubzipgenerated = await ToMergeEpubzip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/epub+zip",});
                     PreviousEpubzip.loadAsync(ToMergeEpubzipgenerated).then(async function (zip) {
                         let content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/epub+zip",});
@@ -463,7 +474,8 @@ class Library {
                 let opfFile = await zip.file("OEBPS/content.opf").async("string");
                 let regex1 = opfFile.match(new RegExp("<dc:title>.+?</dc:creator>", "gs"));
                 if ( regex1 == null) {
-                    ErrorLog.showErrorMessage("An error occurd during the editing of the Metadata");
+                    ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorEditMetadata"));
+                    return;
                 }
                 let LibSaveMetadataString = "";
                 LibSaveMetadataString += "<dc:title>"+LibTitleInput+"</dc:title>";

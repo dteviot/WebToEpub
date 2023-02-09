@@ -136,6 +136,13 @@ var main = (function () {
             return;
         }
 
+        if ("yes" == libclick.dataset.libclick) {
+            if (document.getElementById("chaptersPageInChapterListCheckbox").checked) {
+                ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorAddToLibraryLibraryAddPageWithChapters"));
+                return;
+            }
+        }
+
         ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
         ChapterUrlsUI.resetDownloadStateImages();
         ErrorLog.clearHistory();

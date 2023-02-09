@@ -494,6 +494,14 @@
 		"message": "No UUID supplied",
 		"description": "Default UUID value to use when one is not supplied"
 	},
+	"errorEditMetadata": {
+		"message": "An error occurd during the editing of the Metadata. Couldn't find the string to replace in  OEBPS/content.opf",
+		"description": "Error message when regex can't find the string to replace in OEBPS/content.opf"
+	},
+	"errorAddToLibraryLibraryAddPageWithChapters": {
+		"message": "\"Add to Library\" doesn't work with Advanced Option \"Add Page with Chapters to Chapters List\" enabled.",
+		"description": "Error message when user tries to Add to Library if Add Page with Chapters to Chapters List is enabled"
+	},
 	"errorContentNotFound": {
 		"message": "Could not find content element for web page '$url$'.",
 		"description": "Warning message when can't find content element for a web page",
