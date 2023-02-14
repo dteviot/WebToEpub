@@ -77,7 +77,7 @@ class Library {
                     let AddEpubImageFile;
                     let PreviousEpubContentText = await PreviousEpubzip.file("OEBPS/content.opf").async("string");
                     let PreviousEpubTocText = await PreviousEpubzip.file("OEBPS/toc.ncx").async("string");
-                    let PreviousEpubTocEpub3Text =  await PreviousEpubzip.file("OEBPS/toc.xhtml").async("string");
+                    let PreviousEpubTocEpub3Text =  (await PreviousEpubzip.file("OEBPS/toc.xhtml"))?.async("string");
                     let AddEpubContentText = await AddEpubzip.file("OEBPS/content.opf").async("string");
                     let AddEpubTocText = await AddEpubzip.file("OEBPS/toc.ncx").async("string");
                     let regex1, regex2, regex3, regex4, string1, string2, string3, string4;
