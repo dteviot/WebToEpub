@@ -47,6 +47,7 @@ class Library {
 
     static async LibMergeEpub(PreviousEpub, AddEpub, LibidURL){
         return new Promise((resolve, reject) => {
+            Library.LibShowLoadingText();
             let Prevjszip = new JSZip();
             let Addjszip = new JSZip();
             Prevjszip.loadAsync(PreviousEpub).then(async function(PreviousEpubzip) {
@@ -161,16 +162,21 @@ class Library {
                             string2 = "<li><a href=\""+ newChaptername.slice(6) + "\">"+AddEpubTocText.match(regex1)[0].replace(regex2, "").replace(regex3, "")+"</a></li>";
                             PreviousEpubTocEpub3Text = PreviousEpubTocEpub3Text.replace(string1, string2+string1);
                         }
+                        PreviousEpubzip = await PreviousEpubzip.loadAsync(await ToMergeEpubzip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/epub+zip",}));
+                        ToMergeEpubzip = new JSZip();
                         TextnumberPreviousEpub++;
                         TextnumberAddEpub++;
                     }
-                    ToMergeEpubzip.file("OEBPS/content.opf", PreviousEpubContentText, { compression: "DEFLATE" });
-                    ToMergeEpubzip.file("OEBPS/toc.ncx", PreviousEpubTocText, { compression: "DEFLATE" });
-                    if (PreviousEpubTocEpub3Text != null) {
-                        ToMergeEpubzip.file("OEBPS/toc.xhtml", PreviousEpubTocEpub3Text, { compression: "DEFLATE" });
-                    }
                     let ToMergeEpubzipgenerated = await ToMergeEpubzip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/epub+zip",});
                     PreviousEpubzip.loadAsync(ToMergeEpubzipgenerated).then(async function (zip) {
+                        zip.remove("OEBPS/content.opf");
+                        zip.file("OEBPS/content.opf", PreviousEpubContentText, { compression: "DEFLATE" });
+                        zip.remove("OEBPS/toc.ncx");
+                        zip.file("OEBPS/toc.ncx", PreviousEpubTocText, { compression: "DEFLATE" });
+                        if (PreviousEpubTocEpub3Text != null) {
+                            zip.remove("OEBPS/toc.xhtml");
+                            zip.file("OEBPS/toc.xhtml", PreviousEpubTocEpub3Text, { compression: "DEFLATE" });
+                        }
                         let content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/epub+zip",});
                         Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL" + LibidURL), await Library.LibGetFromStorage("LibFilename" + LibidURL), LibidURL);
                         resolve(content);
