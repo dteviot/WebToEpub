@@ -4,6 +4,7 @@ parserFactory.register("novelfull.com", function () { return new NovelfullParser
 parserFactory.register("allnovel.org", function () { return new NovelfullParser() });
 parserFactory.register("allnovelfull.com", function () { return new NovelfullParser() });
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
+parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinParser() });
 parserFactory.register("novel35.com", function () { return new Novel35Parser() });
 
 class NovelfullParser extends Parser{
@@ -102,4 +103,27 @@ class Novel35Parser extends NovelfullParser{
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
     }    
+}
+
+class NovelHyphenBinParser extends NovelfullParser{
+    constructor() {
+        super();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#chr-content");
+    };
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h2").textContent;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let marks = [...element.querySelectorAll(".novel_online")];
+        for(let mark of marks) {
+            mark.nextSibling.nextSibling.remove();
+            mark.remove();
+        }
+        super.removeUnwantedElementsFromContentElement(element);
+    }
 }

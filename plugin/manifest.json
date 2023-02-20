@@ -10,7 +10,9 @@
     "downloads",
     "webRequest",
     "webRequestBlocking",
-    "scripting"
+    "scripting",
+    "storage",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "<all_urls>"
