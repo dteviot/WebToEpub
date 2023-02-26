@@ -69,33 +69,21 @@ class RoyalRoadParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        let isTitleElement = function (element) {
-            let tag = element.tagName.toLowerCase();
-            let isTitle = ((tag[0] === "h") && (element.getAttribute("property") === "name"));
-            return isTitle ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-        }
-
-        for(let e of util.iterateElements(dom.body, e => isTitleElement(e))) {
-            return e;
-        }
+        return dom.querySelector("div.fic-header div.col h1");
     }
 
     extractAuthor(dom) {
-        let author = dom.querySelector("h4[property='author']");
-        if (author === null) {
-            return super.extractAuthor(dom);
-        }
-        author = author.innerText.trim();
-        return author.startsWith("by ") ? author.substring(3) : author;
+        let author = dom.querySelector("div.fic-header h4 span a");
+        return author?.textContent?.trim() ?? super.extractAuthor(dom);
     }
 
     extractSubject(dom) {
-        let tags = ([...dom.querySelectorAll("[property='genre']")]);
+        let tags = ([...dom.querySelectorAll("div.fiction-info span.tags .label")]);
         return tags.map(e => e.textContent.trim()).join(", ");
     }
 
     extractDescription(dom) {
-        return dom.querySelector("div [property='description']").textContent.trim();
+        return dom.querySelector("div.fiction-info div.description").textContent.trim();
     }
 
     findChapterTitle(dom) {
