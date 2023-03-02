@@ -255,6 +255,7 @@ class Library {
             let LibTemplateMergeUploadButton = "";
             let LibTemplateEditMetadataButton = "";
 
+            LibRenderString += "<div class='LibDivRenderWraper'>";
             if (!util.isFirefox()) {
                 let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
                 LibRenderString += LibTemplateLibraryUses;
@@ -318,10 +319,11 @@ class Library {
                 LibRenderString += "</tbody>";
                 LibRenderString += "</table>";
                 if (ShowAdvancedOptions) {
-                    LibRenderString += "<table id='LibRenderMetadata"+CurrentLibKeys[i]+"'></table>";
+                    LibRenderString += "<div id='LibRenderMetadata"+CurrentLibKeys[i]+"'></div>";
                 }
             }
-            LibRenderResult.innerHTML = LibRenderString;
+            LibRenderString += "</div>";
+            Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
             if (ShowAdvancedOptions) {
                 document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
@@ -405,6 +407,9 @@ class Library {
         let LibRenderResult = document.getElementById("LibRenderMetadata" + objbtn.dataset.libepubid);
         let LibMetadata = await Library.LibGetMetadata(objbtn.dataset.libepubid);
         let LibRenderString = "";
+        LibRenderString += "<div class='LibDivRenderWraper'>";
+        LibRenderString += "<table>";
+        LibRenderString += "<tbody>";
         LibRenderString += "<tr id='LibRenderMetadataSave"+objbtn.dataset.libepubid+"'>";
         LibRenderString += "<td></td>";
         LibRenderString += "<td></td>";
@@ -433,7 +438,10 @@ class Library {
         LibRenderString += "<td>"+LibTemplateMetadataDescription+"</td>";
         LibRenderString += "<td colspan='2'><textarea  rows='2' cols='60' id='LibDescriptionInput"+objbtn.dataset.libepubid+"' type='text' name='descriptionInput'>"+LibMetadata[4]+"</textarea></td>";
         LibRenderString += "</tr>";
-        LibRenderResult.innerHTML = LibRenderString;
+        LibRenderString += "</tbody>";
+        LibRenderString += "</table>";
+        LibRenderString += "</div>";
+        Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
         document.getElementById("LibMetadataSave"+objbtn.dataset.libepubid).addEventListener("click", function(){Library.LibSaveMetadataChange(this)});
     }
     
@@ -527,10 +535,13 @@ class Library {
 
     static LibShowLoadingText(){
         let LibRenderResult = document.getElementById("LibRenderResult");
-        let LibRenderString = "<div class='warning'>";
-        LibRenderString += document.getElementById("LibTemplateWarningInProgress").innerHTML;;
+        let LibRenderString = "";
+        LibRenderString += "<div class='LibDivRenderWraper'>";
+        LibRenderString += "<div class='warning'>";
+        LibRenderString += document.getElementById("LibTemplateWarningInProgress").innerHTML;
         LibRenderString += "</div>";
-        LibRenderResult.innerHTML = LibRenderString;
+        LibRenderString += "</div>";
+        Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
     }
 
     static async LibHandelUpdate(objbtn, Blobdata, StoryURL, Filename, Id){
@@ -647,7 +658,9 @@ class Library {
 
     static LibShowTextURLWarning(obj){
         let LibTemplateWarningURLChange = document.getElementById("LibTemplateWarningURLChange").innerHTML;
-        document.getElementById("LibURLWarning"+obj.dataset.libepubid).innerHTML = "<tr><td style='color:yellow;'>"+LibTemplateWarningURLChange+"</td></tr>";
+        let LibWarningElement = document.getElementById("LibURLWarning"+obj.dataset.libepubid);
+        LibWarningElement.innerHTML = "<tr><td style='color:yellow;'></td></tr>";
+        LibWarningElement.firstChild.firstChild.textContent = LibTemplateWarningURLChange;
     }
 
     static LibHideTextURLWarning(obj){
@@ -675,5 +688,15 @@ class Library {
                 resolve(item[Key]);
             });
         });
+    }
+
+    static AppendHtmlInDiv(HTMLstring, DivObjectInject, DivClassWraper ){
+        let parser = new DOMParser();
+        let parsed = parser.parseFromString(HTMLstring, "text/html");
+        let tags = parsed.getElementsByClassName(DivClassWraper);
+        DivObjectInject.innerHTML = "";
+        for (let  tag of tags) {
+            DivObjectInject.appendChild(tag);
+        }
     }
 }
