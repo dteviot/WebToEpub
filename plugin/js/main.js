@@ -308,7 +308,13 @@ var main = (function () {
         getActiveTab().then(function (tabId) {
             let url = chrome.runtime.getURL("popup.html") + "?id=";
             url += tabId;
-            chrome.tabs.create({ url: url, openerTabId: tabId });
+            try {
+                chrome.tabs.create({ url: url, openerTabId: tabId });
+            }
+            catch(err) {
+                //firefox android catch
+                chrome.tabs.create({ url: url});
+            }
             window.close();
         });
     }

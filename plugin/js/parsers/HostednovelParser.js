@@ -17,7 +17,8 @@ class HostednovelParser extends Parser{
 
     extractTocPageUrls(dom) {
         let urls = [];
-        let lastLink = [...dom.querySelectorAll("nav[aria-label='Pagination'] a")].pop();
+        let pagination = dom.querySelector("nav[aria-label='Pagination']");
+        let lastLink = [...pagination.querySelectorAll("a")].pop();
         if (lastLink !== null) {
             let url = new URL(lastLink.href);
             let maxPage = parseInt(url.searchParams.get("page"));

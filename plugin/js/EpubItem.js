@@ -66,8 +66,17 @@ class EpubItem {
             let clone = doc.importNode(node, true);
             body.appendChild(Sanitize.stripInvalidChars(clone));
         };
+        this.populateTitle(doc, body);
         delete(this.nodes);
         return doc;
+    }
+
+    populateTitle(doc, body) {
+        let title = doc.querySelector("title");
+        let h1 = body.querySelector("h1");
+        if (util.isNullOrEmpty(title.textContent) && (h1 !== null)) {
+            title.textContent = h1.textContent;
+        }
     }
 
     // convert type of heading element to nesting depth on Table of Contents
