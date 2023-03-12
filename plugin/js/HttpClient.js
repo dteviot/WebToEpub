@@ -144,6 +144,13 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
+    static fetchHtml(url) {
+        let wrapOptions = {
+            responseHandler: new FetchHtmlResponseHandler()
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
     static fetchJson(url, fetchOptions) {
         let wrapOptions = {
             responseHandler: new FetchJsonResponseHandler(),
@@ -267,5 +274,15 @@ class FetchTextResponseHandler extends FetchResponseHandler {
 
     extractContentFromResponse(response) {
         return super.responseToText(response);
+    }
+}
+
+class FetchHtmlResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToHtml(response);
     }
 }
