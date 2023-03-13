@@ -17,6 +17,9 @@ class KemonopartyParser extends Parser{
 
     getUrlsOfTocPages(dom) {
         let paginator = dom.querySelector("div.paginator menu");
+        if (paginator === null) {
+            return [];
+        }
         return [...paginator.querySelectorAll("a:not(next)")]
             .map(link => link.href);
     }
