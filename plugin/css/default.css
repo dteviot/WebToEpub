@@ -192,7 +192,7 @@ button {
 
 #coverUrlSection img {
     max-height: 142px;
-    min-width: 106.5px;
+    max-width: 106.5px;
     position: absolute;
     top: 14px;
     right: 7%;
