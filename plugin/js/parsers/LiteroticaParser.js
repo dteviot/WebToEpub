@@ -10,18 +10,89 @@ class LiteroticaParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let chapters = this.chaptersFromMemberPage(dom);
-        return Promise.resolve(chapters);
-    };
+    getChapterUrls(dom, chapterUrlsUI) {
+        const section = dom.baseURI.split("//")[1].split("/")[1]
+
+        return this.getChapterUrlsFromMultipleTocPages(
+            dom,
+            this.chaptersFromMemberPage,
+            section === "top"
+                ? this.getUrlOfTopTocPages
+                : this.getUrlOfCategoryTocPages,
+            chapterUrlsUI
+        )
+    }
+
+    getUrlOfTopTocPages(dom) {
+        const link = dom.querySelector("span.pwrpr a:last-child ")
+        let urls = []
+        if (link != null) {
+            const limit = parseInt(link.text)
+            for (let i = 1; i <= limit; i++) {
+                urls.push(LiteroticaParser.buildTopUrl(link, i))
+            }
+        }
+        return urls
+    }
+    getUrlOfCategoryTocPages(dom) {
+        const link = dom.querySelector("div.b-alpha-links li:last-child a")
+
+        let urls = []
+        if (link != null) {
+            const limit = parseInt(link.href.split("/").pop())
+
+            for (let i = 1; i <= limit; i++) {
+                urls.push(LiteroticaParser.buildCategoryUrl(link, i))
+            }
+        }
+
+        return urls
+    }
+
+    static buildTopUrl(link, i) {
+        link.search = `?page=${i}`
+        return link.href
+    }
+    static buildCategoryUrl(link, i) {
+        const pathname = link.pathname.split("/").slice(0, -1)
+        link.pathname = pathname.join("/") + `/${i}-page`
+        // link.search = `?page=${i}`
+        return link.href
+    }
 
     chaptersFromMemberPage(dom) {
-        let links = [...dom.querySelectorAll("td.fc a, div.b-story-list-box h3 a, div.b-story-list h3 a")];
-        if (0 < links.length) {
-            return links.map(a => util.hyperLinkToChapter(a));
+        const section = dom.baseURI.split("//")[1].split("/")[1]
+
+        if (section === "series") {
+            let links = [...dom.querySelectorAll("ul.series__works li a.br_rj")]
+            return links.map((a) => util.hyperLinkToChapter(a))
+        } else if (section === "s") {
+            let content = dom.querySelector("div.aa_ht")
+            return content === null ? [] : util.hyperlinksToChapterList(content)
+        } else {
+            let links = [...dom.querySelectorAll("td.mcol a:first-child")]
+            if (0 < links.length) {
+                return links.map((a) => util.hyperLinkToChapter(a))
+            }
+            let content = dom.querySelector("div.b-story-list")
+            return content === null ? [] : util.hyperlinksToChapterList(content)
         }
-        let content = dom.querySelector("div#content");
-        return content === null ? [] : util.hyperlinksToChapterList(content);
+    }
+
+    extractTitleImpl(dom) {
+        // typical implementation is find node with the Title and return name from title
+        // NOTE. Can return Title as a string, or an  HTML element
+        return dom.querySelector("h1.headline");
+    }
+
+    extractAuthor(dom) {
+
+        let authorLabel = dom.querySelector('div.y_eS a')?.text;
+        return authorLabel || 'Various Authors';
+    }
+    findCoverImageUrl(dom) {
+        // Most common implementation is get first image in specified container. e.g. 
+        return util.getFirstImgSrc(dom, "#tabpanel-info");
     }
 
     findContent(dom) {
