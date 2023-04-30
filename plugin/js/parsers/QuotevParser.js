@@ -10,9 +10,13 @@ class QuotevParser extends Parser{
     async getChapterUrls(dom) {
         let baseUrl = dom.baseURI;
         if (!baseUrl.endsWith("/")) {
-            baseUrl += "/";
+            const index = baseUrl.lastIndexOf("/");
+            baseUrl = baseUrl.substring(0, index + 1);
         }
         let select = dom.querySelector("div#footer_pages select");
+        if (select === null) {
+            return this.makeUrlListForSingleChapterStory(dom);
+        }
         return [...select.querySelectorAll("option")]
             .map(o => this.optionToChapter(o, baseUrl));
     }
@@ -22,6 +26,14 @@ class QuotevParser extends Parser{
             sourceUrl:  baseUrl + option.getAttribute("value"),
             title: option.textContent,
         }
+    }
+
+    makeUrlListForSingleChapterStory(dom) {
+        let title = this.extractTitleImpl(dom).textContent.trim();
+        return [({
+            sourceUrl:  dom.baseURI,
+            title: title,
+        })];
     }
 
     findContent(dom) {
