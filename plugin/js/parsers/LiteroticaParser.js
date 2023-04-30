@@ -10,7 +10,7 @@ class LiteroticaParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom, chapterUrlsUI) {
         const section = dom.baseURI.split("//")[1].split("/")[1]
 
         return this.getChapterUrlsFromMultipleTocPages(
@@ -56,7 +56,6 @@ class LiteroticaParser extends Parser{
     static buildCategoryUrl(link, i) {
         const pathname = link.pathname.split("/").slice(0, -1)
         link.pathname = pathname.join("/") + `/${i}-page`
-        // link.search = `?page=${i}`
         return link.href
     }
 
@@ -80,18 +79,16 @@ class LiteroticaParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        // typical implementation is find node with the Title and return name from title
-        // NOTE. Can return Title as a string, or an  HTML element
         return dom.querySelector("h1.headline");
     }
 
     extractAuthor(dom) {
 
-        let authorLabel = dom.querySelector('div.y_eS a')?.text;
-        return authorLabel || 'Various Authors';
+        let authorLabel = dom.querySelector("div.y_eS a")?.text;
+        return authorLabel || "Various Authors";
     }
+
     findCoverImageUrl(dom) {
-        // Most common implementation is get first image in specified container. e.g. 
         return util.getFirstImgSrc(dom, "#tabpanel-info");
     }
 

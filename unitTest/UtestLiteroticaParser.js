@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestLiteroticaParser");
+module("LiteroticaParser");
 
 QUnit.test("findUrlsOfAdditionalPagesMakingChapter-2pages", function (assert) {
     let url = "https://www.literotica.com/s/angels-of-rain-and-lightning";
