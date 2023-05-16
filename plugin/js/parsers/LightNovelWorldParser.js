@@ -53,12 +53,14 @@ class LightNovelWorldParser extends Parser{
 
     static getUrlsOfTocPages(dom) {
         let urls = []
-        let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")];
+        let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")]
+            .map(a => a.href);
         if (0 < paginateUrls.length) {
             let maxPage = LightNovelWorldParser.maxPageId(paginateUrls);
-            let url = new URL(paginateUrls.pop().href);
+            let url = new URL(paginateUrls[0]);
             for(let i = 2; i <= maxPage; ++i) {
-                urls.push(url.href.replace(/page-\d+/g, `page-${i}`));
+                url.searchParams.set("page", i);
+                urls.push(url.href);
             }
         }
         return urls;
@@ -68,14 +70,7 @@ class LightNovelWorldParser extends Parser{
     static maxPageId(urls) {
         let pageNum = function(url) {
             let pageNo = new URL(url).searchParams.get("page");
-            pageNo = parseInt(pageNo);
-            if (!pageNo)
-            {
-                let regExResult = /page-(\d+)/g.exec(url);
-                if (regExResult.length > 1)
-                    return parseInt(regExResult[1]);
-            }
-            return pageNo;
+            return parseInt(pageNo);
         }
         return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
     }

@@ -16,8 +16,11 @@ class HostednovelParser extends Parser{
     }
 
     extractTocPageUrls(dom) {
-        let urls = [];
         let pagination = dom.querySelector("nav[aria-label='Pagination']");
+        if (pagination === null) {
+            return [];
+        }
+        let urls = [];
         let lastLink = [...pagination.querySelectorAll("a")].pop();
         if (lastLink !== null) {
             let url = new URL(lastLink.href);

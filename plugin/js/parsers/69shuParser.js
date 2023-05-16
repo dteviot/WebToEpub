@@ -26,6 +26,11 @@ class ShuParser extends Parser{
         return util.getFirstImgSrc(dom, "div.bookbox");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, ".txtinfo, #txtright, .bottom-ad");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     async fetchChapter(url) {
         // site does not tell us gb18030 is used to encode text
         return (await HttpClient.wrapFetch(url, this.makeOptions())).responseXML;

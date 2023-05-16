@@ -1,7 +1,7 @@
 
 "use strict";
 
-module("UtestLiteroticaParser");
+module("LiteroticaParser");
 
 QUnit.test("findUrlsOfAdditionalPagesMakingChapter-2pages", function (assert) {
     let url = "https://www.literotica.com/s/angels-of-rain-and-lightning";
@@ -72,7 +72,8 @@ QUnit.test("chaptersFromMemberPage", function (assert) {
 });
 
 let LiteroticaSampleChapterPage =
-`<!DOCTYPE html>
+  /*html*/
+  `<!DOCTYPE html>
 <html lang="en-US" class="dark-skin">
 <head>
     <title>Alien Artifact - Geek Pride - Sci-Fi &amp; Fantasy - Literotica.com</title>
@@ -87,7 +88,8 @@ let LiteroticaSampleChapterPage =
 `
 
 let LiteroticaToCSamplePage1 =
-`<!DOCTYPE html>
+  /*html*/
+  `<!DOCTYPE html>
 <html lang="en-US" class="dark-skin">
 <head>
     <title>Literotica Geek Pride Story Event List - Sci-Fi &amp; Fantasy - Literotica.com</title>
@@ -103,23 +105,18 @@ let LiteroticaToCSamplePage1 =
 `
 
 let LiteroticaToCSamplePage2 =
-`<!DOCTYPE html>
+  /*html*/
+  `<!DOCTYPE html>
+
 <html lang="en-US" class="dark-skin">
 <head>
     <title>Literotica Geek Pride Story Event List - Sci-Fi &amp; Fantasy - Literotica.com</title>
-    <base href="https://www.literotica.com/s/literotica-geek-pride-story-event-list" />
+    <base href="https://www.literotica.com/series/se/92137097" />
 </head>
-<body class="t-storypage font-set-1 c38 btoprel">
-<table><tbody>
-<tr class="sl"><td class="fc"><a class="bb" href="https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01">A Dirty TASK Needs Doing Pt. 01</a>&nbsp;(4.57)</td><td>Kimberly Woods is not your average high school senior...
-                  &nbsp;</td><td>&nbsp;<a href="https://www.literotica.com/c/transsexuals-crossdressers" class="l-8 intext r-5"><span>Transsexuals &amp; Crossdressers</span></a>&nbsp;</td><td class="dt">03/15/18</td></tr>
-</tbody></table>
-<div id="content"><div class="aa_ht x-r15">
-<div class="b-story-list-box">
-<h3><a href=\"https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07\">Zelda - Avatar of the Golden Nymph Ch. 07</a></h3>
-<a href="https://www.literotica.com/stories/memberpage.php?uid=3586621&amp;page=submissions">SZENSEI</a>
-<div>
-</div>
+<body >
+<div class="aa_ht"><div><h2 class="series__header">TABLE OF CONTENTS</h2><ul class="series__works">
+<li class="br_ri"><a href="https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01" class="br_rj">A Dirty TASK Needs Doing Pt. 01</a><p class="br_rk">Kimberly Woods is not your average high school senior...<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
+<li class="br_ri"><a href="https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07" class="br_rj">A Dirty TASK Needs Doing Pt. 02</a><p class="br_rk">Kimberly goes on her first mission!<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
 </body>
 </html>
 `
