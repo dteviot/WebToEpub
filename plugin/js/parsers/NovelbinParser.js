@@ -21,6 +21,15 @@ class NovelbinParser extends Parser{
         return dom.querySelector("h3.title");
     }
 
+    extractAuthor(dom) {
+        let items = [...dom.querySelectorAll("ul.info-meta li")]
+            .filter(u => u.querySelector("h3")?.textContent === "Author:")
+            .map(u => u.querySelector("a")?.textContent)
+        return 0 < items.length 
+            ? items[0]
+            : super.extractAuthor(dom);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h2");
     }
