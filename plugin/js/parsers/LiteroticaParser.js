@@ -68,7 +68,7 @@ class LiteroticaParser extends Parser{
         } else if (section === "s") {
             let content = dom.querySelector("div.aa_ht")
             return content === null ? [] : util.hyperlinksToChapterList(content)
-        } else if (section === 'stories'){
+        } else if (section === "stories"){
             let links = [...dom.querySelectorAll("td.fc a, div.b-story-list-box h3 a, div.b-story-list h3 a")];
             if (0 < links.length) {
                 return links.map((a) => util.hyperLinkToChapter(a))
