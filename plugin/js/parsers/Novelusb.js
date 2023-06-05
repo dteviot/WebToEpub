@@ -1,9 +1,9 @@
 "use strict";
 
-parserFactory.register("novelbin.com", () => new NovelbinParser());
-parserFactory.register("novelbin.net", () => new NovelbinParser());
+parserFactory.register("novelusb.com", () => new NovelusbParser());
+parserFactory.register("novelusb.net", () => new NovelusbParser());
 
-class NovelbinParser extends Parser{
+class NovelusbParser extends Parser{
     constructor() {
         super();
     }
