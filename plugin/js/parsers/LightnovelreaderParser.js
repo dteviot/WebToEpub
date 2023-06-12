@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("lightnovelreader.org", () => new LightnovelreaderParser());
+parserFactory.register("lnreader.org", () => new LightnovelreaderParser());
 
 class LightnovelreaderParser extends Parser{
     constructor() {
