@@ -8,6 +8,7 @@ parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinP
 parserFactory.register("novel35.com", function () { return new Novel35Parser() });
 parserFactory.register("novelbin.com", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
+parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
