@@ -44,6 +44,7 @@ class NoblemtlParser extends Parser{
             .filter(p => p.style.opacity === "0");
         util.removeElements(toRemove);
         util.removeChildElementsMatchingCss(element, "span.modern-footnotes-footnote__note");
+        util.removeChildElementsMatchingCss(element, "span.footnote_tooltip");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
