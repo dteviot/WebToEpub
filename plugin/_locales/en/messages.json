@@ -622,6 +622,15 @@
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
 	},
+	"warning403ErrorResponse": {
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon or satisy a CAPTCHA before WenToEpub can continue.",
+		"description": "Warning message for user when site sends a 403 response.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
+			}
+		}
+	},
 	"warning429ErrorResponse": {
 		"message": "WARNING: Site '$host$' has requested WebToEpub to slow down rate of chapter requests.  WebToEpub will wait until site allows requesting chapters again.  However, if this does not work, you may need to adjust manually.  Under 'Advanced Options' -> lower 'Max web pages to fetch simultaneously' and/or increase 'Manual Throttle|Delay per chapter'",
 		"description": "Warning message for user when site sends a 429 response.",

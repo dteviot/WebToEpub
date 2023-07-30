@@ -6,13 +6,16 @@ parserFactory.register("allnovelfull.com", function () { return new NovelfullPar
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
 parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinParser() });
 parserFactory.register("novel35.com", function () { return new Novel35Parser() });
+parserFactory.register("novelbin.com", () => new NovelfullParser());
+parserFactory.register("novelbin.net", () => new NovelfullParser());
+parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
         super();
     }
 
-    getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom, chapterUrlsUI) {
         return this.getChapterUrlsFromMultipleTocPages(dom,
             this.extractPartialChapterList,
             this.getUrlsOfTocPages,
@@ -51,7 +54,7 @@ class NovelfullParser extends Parser{
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
-        return dom.querySelector("div#chapter-content");
+        return dom.querySelector("#chr-content");
     };
 
     // title of the story  (not to be confused with title of each chapter)
@@ -60,12 +63,16 @@ class NovelfullParser extends Parser{
     };
 
     extractAuthor(dom) {
-        let authorLink = dom.querySelector("div.info a");
-        return (authorLink === null) ? super.extractAuthor(dom) : authorLink.textContent;
-    };
+        let items = [...dom.querySelectorAll("ul.info-meta li")]
+            .filter(u => u.querySelector("h3")?.textContent === "Author:")
+            .map(u => u.querySelector("a")?.textContent)
+        return 0 < items.length 
+            ? items[0]
+            : super.extractAuthor(dom);
+    }
 
     findChapterTitle(dom) {
-        return dom.querySelector("a.chapter-title").textContent;
+        return dom.querySelector("h2").textContent;
     }
 
     findCoverImageUrl(dom) {
@@ -108,14 +115,6 @@ class Novel35Parser extends NovelfullParser{
 class NovelHyphenBinParser extends NovelfullParser{
     constructor() {
         super();
-    }
-
-    findContent(dom) {
-        return dom.querySelector("#chr-content");
-    };
-
-    findChapterTitle(dom) {
-        return dom.querySelector("h2").textContent;
     }
 
     removeUnwantedElementsFromContentElement(element) {

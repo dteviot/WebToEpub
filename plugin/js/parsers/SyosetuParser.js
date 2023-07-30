@@ -9,7 +9,8 @@ class SyosetuParser extends Parser{
     }
 
     getChapterUrls(dom) {
-        let menu = dom.querySelector("div.index_box");
+        let menu = dom.querySelector("div.index_box")
+            || dom.querySelector("div.novel_sublist")
         return Promise.resolve(util.hyperlinksToChapterList(menu));
     };
 
@@ -18,7 +19,7 @@ class SyosetuParser extends Parser{
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector("p.novel_title");
+        return dom.querySelector(".novel_title");
     };
 
     extractAuthor(dom) {
@@ -27,7 +28,7 @@ class SyosetuParser extends Parser{
     };
 
     findChapterTitle(dom) {
-        let element = dom.querySelector("p.novel_subtitle");
+        let element = dom.querySelector(".novel_subtitle");
         return (element === null) ? null : element.textContent;
     }
 }
