@@ -43,9 +43,8 @@ class RanobesParser extends Parser{
     }
 
     extractPartialChapterList(dom) {
-        let host = new URL(dom.baseURI).hostname;
         return RanobesParser.extractTocJson(dom).chapters.map(c => ({
-            sourceUrl:  `https://${host}/read-${c.id}.html`,
+            sourceUrl:  c.link,
             title: c.title
         }));
     }
