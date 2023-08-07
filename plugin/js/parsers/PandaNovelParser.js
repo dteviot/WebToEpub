@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("panda-novel.com", () => new PandaNovelParser());
+parserFactory.register("pandasnovel.com", () => new PandaNovelParser());
 
 class PandaNovelParser extends Parser {
     constructor() {
