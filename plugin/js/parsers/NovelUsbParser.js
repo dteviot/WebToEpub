@@ -2,6 +2,7 @@
 
 parserFactory.register("novelusb.com", () => new NovelUsbParser());
 parserFactory.register("novelusb.net", () => new NovelUsbParser());
+parserFactory.register("novelbin.me", () => new NovelUsbParser());
 
 class NovelUsbParser extends Parser{
     constructor() {
