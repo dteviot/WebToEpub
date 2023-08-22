@@ -8,14 +8,15 @@ class PawreadParser extends Parser{
     }
 
     async getChapterUrls(dom) {
+        let rootUrl = dom.baseURI;
         let items = [...dom.querySelectorAll("div.filtr-item .item-box")];
-        return items.map(this.itemToChapter);
+        return items.map(i => this.itemToChapter(i, rootUrl));
     }
 
-    itemToChapter(item) {
-        let path = item.getAttribute("onclick").split("'")[1];
+    itemToChapter(item, rootUrl) {
+        let pathTip = item.getAttribute("onclick").split("'")[1];
         return ({
-            sourceUrl:  "https://www.pawread.com" + path,
+            sourceUrl:  rootUrl + pathTip + ".html",
             title: item.querySelector(".c_title").textContent,
         });
     }
