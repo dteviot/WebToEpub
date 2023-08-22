@@ -2,6 +2,8 @@
 
 parserFactory.register("novelbin.com", () => new NovelbinParser());
 parserFactory.register("novelbin.net", () => new NovelbinParser());
+parserFactory.register("novelusb.com", () => new NovelbinParser());
+parserFactory.register("novelusb.net", () => new NovelbinParser());
 
 class NovelbinParser extends Parser{
     constructor() {
