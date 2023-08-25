@@ -45,6 +45,11 @@ class MtlnovelParser extends Parser{
         return dom.querySelector(".entry-title");
     };
 
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("#author");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         let original = "";
         if (this.userPreferences.removeOriginal.value) {
