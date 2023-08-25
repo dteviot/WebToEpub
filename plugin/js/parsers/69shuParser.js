@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("69shu.com", function() { return new ShuParser() });
+parserFactory.register("69shuba.com", function() { return new ShuParser() });
 
 class ShuParser extends Parser{
     constructor() {
