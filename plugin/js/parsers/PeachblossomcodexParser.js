@@ -34,21 +34,8 @@ class PeachblossomcodexParser extends Parser{
         if (note !== null) {
             content.append(note);
         }
-        this.moveFootnotes(webPageDom, content);
-    }
-
-    moveFootnotes(dom, content) {
         let footnotes = [...content.querySelectorAll(".wpcmtt")];
-        if (0 < footnotes.length) {
-            let list = dom.createElement("ol");
-            for(let f of footnotes) {
-                let item = dom.createElement("li");
-                f.removeAttribute("style");
-                item.appendChild(f);
-                list.appendChild(item);
-            }
-            content.appendChild(list);
-        }
+        this.moveFootnotes(webPageDom, content, footnotes);
     }
 
     getInformationEpubItemChildNodes(dom) {

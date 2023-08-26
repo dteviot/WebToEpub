@@ -29,6 +29,12 @@ class SecondlifetranslationsParser extends Parser{
         return img === null ? null : img.src;
     }
 
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        let footnotes = [...content.querySelectorAll("span.modern-footnotes-footnote__note")];
+        this.moveFootnotes(webPageDom, content, footnotes);
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.novel-entry-content")];
     }
