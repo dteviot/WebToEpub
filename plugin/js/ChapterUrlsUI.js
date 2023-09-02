@@ -315,7 +315,7 @@ class ChapterUrlsUI {
     htmlToChapters(innerHtml) {
         let html = "<html><head><title></title><body>" + innerHtml + "</body></html>";
         let doc = new DOMParser().parseFromString(html, "text/html");
-        return util.hyperlinksToChapterList(doc.body);
+        return [...doc.body.querySelectorAll("a")].map(a => util.hyperLinkToChapter(a));
     }
 
     /** @private */
