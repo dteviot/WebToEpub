@@ -39,6 +39,26 @@ class TemplateParser extends Parser{
         // to convert the links into a list of URLs the parser will collect.
         let menu = dom.querySelector("div.su-tabs-panes");
         return util.hyperlinksToChapterList(menu);
+
+        // Almost as common, find links on page and convert.
+        return [...dom.querySelectorAll("li.wp-manga-chapter.free-chap a")]
+            .map(a => util.hyperLinkToChapter(a));
+
+        // Need to walk multiple ToC pages, page by page
+        return (await this.walkTocPages(dom, 
+            TemplateParser.chaptersFromDom, 
+            TemplateParser.nextTocPageUrl, 
+            chapterUrlsUI
+        ));
+
+        // Can get list of all ToC pages
+        let tocPage1chapters = TemplateParser.extractPartialChapterList(dom);
+        let urlsOfTocPages  = TemplateParser.getUrlsOfTocPages(dom);
+        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
+            TemplateParser.extractPartialChapterList,
+            urlsOfTocPages,
+            chapterUrlsUI
+        ));
     }
     */
 
