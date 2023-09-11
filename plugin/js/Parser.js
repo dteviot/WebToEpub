@@ -694,6 +694,22 @@ class Parser {
         }
         return chapters;
     }
+
+    moveFootnotes(dom, content, footnotes) {
+        if (0 < footnotes.length) {
+            let list = dom.createElement("ol");
+            for(let f of footnotes) {
+                let item = dom.createElement("li");
+                f.removeAttribute("style");
+                item.appendChild(f);
+                list.appendChild(item);
+            }
+            let header = dom.createElement("h2");
+            header.appendChild(dom.createTextNode("Footnotes"));
+            content.appendChild(header);
+            content.appendChild(list);
+        }
+    }    
 }
 
 Parser.WEB_TO_EPUB_CLASS_NAME = "webToEpubContent";

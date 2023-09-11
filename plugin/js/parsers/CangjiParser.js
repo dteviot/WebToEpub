@@ -16,12 +16,12 @@ class CangjiParser extends Parser{
     }
 
     static chaptersFromDom(dom) {
-        return [...dom.querySelectorAll("main .entry-title a")]
+        return [...dom.querySelectorAll("#content .entry-title a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     static nextTocPageUrl(dom) {
-        let link = dom.querySelector(".pagination-wrap .older a")
+        let link = dom.querySelector("a.next")
         return link === null ? null : link.href;
     }
 

@@ -24,19 +24,22 @@ class KakaoParser extends Parser {
     }
 
     async wrapFetch(jsonUrl){
-        return this.setAuthorizationToken().then(jsonResponse => {
-            this.token = this.token || jsonResponse.json.accessToken;
-        }).then(() => {
-            const fetchOptions = (this.token) ?
-                {
-                    credentials: "include",
-                    headers: {
-                        "Authorization": this.token
-                    }
-                } : {credentials: "include"};
+        // disable doing authentication, seems to have changed.
+        return HttpClient.fetchJson(jsonUrl);        
 
-            return HttpClient.fetchJson(jsonUrl, fetchOptions);
-        });
+        // return this.setAuthorizationToken().then(jsonResponse => {
+        //     this.token = this.token || jsonResponse.json.accessToken;
+        // }).then(() => {
+        //     const fetchOptions = (this.token) ?
+        //         {
+        //             credentials: "include",
+        //             headers: {
+        //                 "Authorization": this.token
+        //             }
+        //         } : {credentials: "include"};
+
+        //     return HttpClient.fetchJson(jsonUrl, fetchOptions);
+        // });
     }
 
     static isValidUrl(url) {

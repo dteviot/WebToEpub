@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("ptwxz.com", () => new PtwxzParser());
+parserFactory.register("piaotian.com", () => new PtwxzParser());
 
 class PtwxzParser extends Parser{
     constructor() {
