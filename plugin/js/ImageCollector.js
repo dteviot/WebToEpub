@@ -270,9 +270,12 @@ class ImageCollector {
             }
         }
 
-        let lazySrc = img.getAttribute("data-lazy-src");
-        if (lazySrc != null) {
-            img.src = lazySrc;
+        for(let attrib of ["data-lazy-src", "data-src"]) {
+            let lazySrc = img.getAttribute(attrib);
+            if (lazySrc != null) {
+                img.src = lazySrc;
+                break;
+            }
         }
         return img.src;
     }
