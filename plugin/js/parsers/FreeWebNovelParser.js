@@ -8,34 +8,9 @@ class FreeWebNovelParser extends Parser {
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
-        return this.getChapterUrlsFromMultipleTocPages(dom,
-            FreeWebNovelParser.extractPartialChapterList,
-            FreeWebNovelParser.getUrlsOfTocPages,
-            chapterUrlsUI
-        );
-    }
-
-    static getUrlsOfTocPages(dom) {
-        // lastUrl should be example https://freewebnovel.com/<some-novel-name>/<index>.html
-        let lastUrl = dom.querySelectorAll(".page a.index-container-btn")[3].href;
-        let lastTocIndex = lastUrl.lastIndexOf("/");
-        let lastIndexPageName = lastUrl.substring(lastTocIndex + 1);
-        let lastIndex = parseInt(lastIndexPageName.substr(0, lastIndexPageName.length - ".html".length));
-        let urls = [];
-        let tocHasMultiplePages = !isNaN(lastIndex);
-        if (tocHasMultiplePages) {
-            let baseUrl = lastUrl.substring(0, lastTocIndex + 1);
-            for (let i = 2; i <= lastIndex; ++i) {
-                urls.push(baseUrl + i + ".html");
-            }
-        }
-        return urls;
-    }
-
-    static extractPartialChapterList(dom) {
-        return [...dom.querySelector(".m-newest2").querySelectorAll("ul li a")]
-            .map(a => util.hyperLinkToChapter(a));
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul#idData");
+        return util.hyperlinksToChapterList(menu);
     }
 
     extractTitleImpl(dom) {
