@@ -623,7 +623,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon or satisy a CAPTCHA before WenToEpub can continue.",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon or satisy a CAPTCHA before WebToEpub can continue.",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {
