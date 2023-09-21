@@ -1,6 +1,8 @@
 "use strict";
 
 parserFactory.register("freewebnovel.com", () => new FreeWebNovelParser());
+parserFactory.register("bednovel.com", () => new FreeWebNovelParser());
+parserFactory.register("innnovel.com", () => new FreeWebNovelParser());
 
 class FreeWebNovelParser extends Parser {
 
