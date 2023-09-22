@@ -57,7 +57,8 @@ class NovelfullParser extends Parser{
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
-        return dom.querySelector("#chr-content");
+        return dom.querySelector("#chr-content")
+            || dom.querySelector("#chapter-content");
     };
 
     // title of the story  (not to be confused with title of each chapter)
