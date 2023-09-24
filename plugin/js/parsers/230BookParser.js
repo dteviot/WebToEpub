@@ -1,8 +1,9 @@
 "use strict";
 
 parserFactory.register("230book.net", () => new _230BookParser() );
+parserFactory.register("38xs.com", () => new _38xsParser() );
 
-class _230BookParser extends Parser{
+class _230BookBaseParser extends Parser{
     constructor() {
         super();
     }
@@ -28,11 +29,6 @@ class _230BookParser extends Parser{
         return util.getFirstImgSrc(dom, "#fmimg");
     }
 
-    async fetchChapter(url) {
-        // site does not tell us gbk is used to encode text
-        return (await HttpClient.wrapFetch(url, this.makeOptions())).responseXML;
-    }
-
     makeOptions() {
         return ({
             makeTextDecoder: () => new TextDecoder("gbk")
@@ -41,5 +37,30 @@ class _230BookParser extends Parser{
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div#intro")];
+    }
+}
+
+class _230BookParser extends _230BookBaseParser{
+    constructor() {
+        super();
+    }
+
+    async fetchChapter(url) {
+        // site does not tell us gbk is used to encode text
+        return (await HttpClient.wrapFetch(url, this.makeOptions())).responseXML;
+    }
+}
+
+class _38xsParser extends _230BookBaseParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let list = await super.getChapterUrls(dom);
+        // has 12 most recent chapters at start of table
+        return 25 < list.length 
+            ? list.slice(13)
+            : list;
     }
 }
