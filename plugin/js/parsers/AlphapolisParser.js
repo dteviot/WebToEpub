@@ -9,10 +9,10 @@ class AlphapolisParser extends Parser{
         return util.hyperlinksToChapterList(menu);
     }
     findContent(dom) {
-        return dom.querySelector("div#novelBoby");
+        return dom.querySelector("div#novelBody");
     }
     extractTitleImpl(dom) {
-        return dom.querySelector("h2.title");
+        return dom.querySelector("div.content-main .title");
     }
     extractAuthor(dom) {
         let authorLink = dom.querySelector("div.author a");
