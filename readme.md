@@ -53,6 +53,7 @@ Credits
 * xRahul
 * Oleksii Taranenko
 * Naheulf
+* praschke
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
