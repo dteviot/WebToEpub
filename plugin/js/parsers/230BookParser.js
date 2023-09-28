@@ -63,4 +63,16 @@ class _38xsParser extends _230BookBaseParser{
             ? list.slice(13)
             : list;
     }
+
+    async fetchChapter(url) {
+        return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
+    }
+
+    moreChapterTextUrl(dom) {
+        let nextUrl = dom.querySelector("a#pager_next");
+        return (nextUrl != null && nextUrl.href.includes("_"))
+            ? nextUrl.href
+            : null;
+    }
+
 }

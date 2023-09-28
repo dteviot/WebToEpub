@@ -62,17 +62,7 @@ class GzbpParser extends Parser{
     }
 
     async fetchChapter(url) {
-        let dom = (await HttpClient.wrapFetch(url)).responseXML;
-        let count = 2;
-        let nextUrl = this.moreChapterTextUrl(dom, url, count);
-        let oldContent = this.findContent(dom);
-        while(nextUrl != null) {
-            let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
-            let newContent = this.findContent(nextDom);
-            util.moveChildElements(newContent, oldContent);
-            nextUrl = this.moreChapterTextUrl(nextDom, url, ++count);
-        }
-        return dom;
+        return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
     }
 
     moreChapterTextUrl(dom, url, count) {
