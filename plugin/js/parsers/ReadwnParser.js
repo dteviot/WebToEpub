@@ -6,7 +6,7 @@ parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
 parserFactory.register("novelmtl.com", () => new ReadwnParser());
 parserFactory.register("wuxiapub.com", () => new ReadwnParser());
 parserFactory.register("wuxiahere.com", () => new ReadwnParser());
-parserFactory.register("wuxiax.com", () => new ReadwnParser());
+parserFactory.register("wuxiau.com", () => new ReadwnParser());
 parserFactory.register("fannovel.com", () => new ReadwnParser());
 parserFactory.register("wuxiap.com", () => new ReadwnParser());
 
