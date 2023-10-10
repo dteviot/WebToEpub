@@ -5,7 +5,6 @@ parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
-parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
