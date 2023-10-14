@@ -17,7 +17,7 @@ class _4kswParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector(".panel-heading").textContent;
+        return dom.querySelector(".panel-heading");
     }
 
     findCoverImageUrl(dom) {
