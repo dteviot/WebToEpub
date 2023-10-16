@@ -4,6 +4,7 @@ parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
+parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new NoblemtlParser());
