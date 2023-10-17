@@ -44,9 +44,15 @@ class NoblemtlParser extends Parser{
         let toRemove = [...element.querySelectorAll("p")]
             .filter(p => p.style.opacity === "0");
         util.removeElements(toRemove);
+        util.removeElements(this.findEmptySpanElements(element));
         util.removeChildElementsMatchingCss(element, "span.modern-footnotes-footnote__note");
         util.removeChildElementsMatchingCss(element, "span.footnote_tooltip");
         super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findEmptySpanElements(element) {
+        return [...element.querySelectorAll("span")]
+            .filter(s => !s.firstChild);
     }
 
     findChapterTitle(dom) {
