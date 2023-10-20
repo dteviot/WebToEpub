@@ -709,6 +709,20 @@ class Parser {
             content.appendChild(header);
             content.appendChild(list);
         }
+    }
+
+    async walkPagesOfChapter(url, moreChapterTextUrl) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let count = 2;
+        let nextUrl = moreChapterTextUrl(dom, url, count);
+        let oldContent = this.findContent(dom);
+        while(nextUrl != null) {
+            let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
+            let newContent = this.findContent(nextDom);
+            util.moveChildElements(newContent, oldContent);
+            nextUrl = moreChapterTextUrl(nextDom, url, ++count);
+        }
+        return dom;
     }    
 }
 

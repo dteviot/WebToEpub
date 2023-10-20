@@ -8,6 +8,7 @@ parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinP
 parserFactory.register("novel35.com", function () { return new Novel35Parser() });
 parserFactory.register("novelbin.com", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
+parserFactory.register("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
@@ -57,7 +58,8 @@ class NovelfullParser extends Parser{
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
-        return dom.querySelector("#chr-content");
+        return dom.querySelector("#chr-content")
+            || dom.querySelector("#chapter-content");
     };
 
     // title of the story  (not to be confused with title of each chapter)

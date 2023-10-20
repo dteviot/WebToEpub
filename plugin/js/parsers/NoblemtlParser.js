@@ -1,11 +1,12 @@
 "use strict";
 
+parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
+parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
-parserFactory.register("novelsemperor.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
@@ -43,9 +44,15 @@ class NoblemtlParser extends Parser{
         let toRemove = [...element.querySelectorAll("p")]
             .filter(p => p.style.opacity === "0");
         util.removeElements(toRemove);
+        util.removeElements(this.findEmptySpanElements(element));
         util.removeChildElementsMatchingCss(element, "span.modern-footnotes-footnote__note");
         util.removeChildElementsMatchingCss(element, "span.footnote_tooltip");
         super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findEmptySpanElements(element) {
+        return [...element.querySelectorAll("span")]
+            .filter(s => !s.firstChild);
     }
 
     findChapterTitle(dom) {

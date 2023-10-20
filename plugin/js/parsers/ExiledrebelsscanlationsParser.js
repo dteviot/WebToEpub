@@ -13,7 +13,8 @@ class ExiledrebelsscanlationsParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div#wtr-content");
+        return dom.querySelector("div#wtr-content")
+            || dom.querySelector("div.entry-content");
     }
 
     populateUI(dom) {
