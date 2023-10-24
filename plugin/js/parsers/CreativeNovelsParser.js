@@ -1,6 +1,3 @@
-/*
-  https://fantasy-books.live/ was renamed to creativenovels.com
-*/
 "use strict";
 parserFactory.register("creativenovels.com", function() { return new CreativeNovelsParser() });
 class CreativeNovelsParser extends Parser{
@@ -8,14 +5,13 @@ class CreativeNovelsParser extends Parser{
         super();
     }
 
-    getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("div.post_box a")]
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div#chapter_list_novel_page, div.post_box a")]
             .map(a => util.hyperLinkToChapter(a));
-        return Promise.resolve(chapters);
     }
 
     findContent(dom) {
-        return dom.querySelector("div.content");
+        return dom.querySelector("div.entry-content.content");
     };
 
     removeUnwantedElementsFromContentElement(element) {
