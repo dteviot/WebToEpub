@@ -31,6 +31,7 @@ class SecondlifetranslationsParser extends Parser{
 
     preprocessRawDom(webPageDom) {
         let content = this.findContent(webPageDom);
+        util.removeChildElementsMatchingCss(content, ".code-block");
         let footnotes = [...content.querySelectorAll("span.modern-footnotes-footnote__note")];
         this.moveFootnotes(webPageDom, content, footnotes);
     }
