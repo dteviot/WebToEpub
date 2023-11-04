@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("kemono.party", () => new KemonopartyParser());
+parserFactory.register("kemono.su", () => new KemonopartyParser());
 
 class KemonopartyParser extends Parser{
     constructor() {
