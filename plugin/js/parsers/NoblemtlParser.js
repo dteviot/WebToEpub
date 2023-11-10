@@ -64,7 +64,7 @@ class NoblemtlParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        util.removeChildElementsMatchingCss(webPageDom, "div.saboxplugin-wrap");
+        util.removeChildElementsMatchingCss(webPageDom, "div.saboxplugin-wrap, div.code-block");
     }
 
     getInformationEpubItemChildNodes(dom) {
