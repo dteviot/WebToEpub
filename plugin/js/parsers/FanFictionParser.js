@@ -61,6 +61,33 @@ class FanFictionParser extends Parser {
         return dom;
     }
 
+    async fetchWebPageContent(webPage)
+    {
+        try
+        {
+            return await super.fetchWebPageContent(webPage);
+        }
+        catch(ex)
+        {
+            //Determine if path contains extra parameters. Immediately fail if already shortened.
+            //Shortened URI is not always ideal solution; apparently related to caching on server. 
+            let regex = /(https?:\/\/(?:www\.)?\w+\.\w+\/s\/\d+\/\d+)\/[a-z\-0-9]+/i
+            let shortUri = regex.exec(webPage.sourceUrl);
+            if (shortUri)
+            {
+                console.log(`Failed to load URI [${webPage.sourceUrl}] - Attempting alternative. [${shortUri[1]}]`);
+                //Await throttle timer again for second page fetch.
+                await this.rateLimitDelay();
+                webPage.sourceUrl = shortUri[1];
+                return await super.fetchWebPageContent(webPage);
+            }
+            else
+            {
+                throw ex;
+            }
+        }
+    }
+
     addTitleToChapter(url, dom) {
         let path = url.split("/");
         let chapterId = path[path.length - 2];
