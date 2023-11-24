@@ -10,6 +10,7 @@ parserFactory.register("wuxiau.com", () => new ReadwnParser());
 parserFactory.register("wuxiar.com", () => new ReadwnParser());
 parserFactory.register("fannovel.com", () => new ReadwnParser());
 parserFactory.register("wuxiap.com", () => new ReadwnParser());
+parserFactory.register("wuxiabee.com", () => new ReadwnParser());
 
 class ReadwnParser extends Parser{
     constructor() {
