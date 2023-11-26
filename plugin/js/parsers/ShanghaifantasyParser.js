@@ -8,16 +8,29 @@ class ShanghaifantasyParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("div.elementor-posts-container");
-        return util.hyperlinksToChapterList(menu);
+        let tocUrl = this.buildTocUrl(dom);
+        let json = (await HttpClient.fetchJson(tocUrl)).json;
+        return this.buildChapterUrls(json);
+    }
+
+    buildTocUrl(dom) {
+        let category = dom.querySelector("ul#chapterList")?.getAttribute("data-cat");
+        return `https://shanghaifantasy.com/wp-json/fiction/v1/chapters?category=${category}&order=asc&page=1&per_page=10000`;
+    }
+
+    buildChapterUrls(json) {
+        return json.map(a => ({
+            title: a.title,
+            sourceUrl: a.permalink 
+        }));
     }
 
     findContent(dom) {
-        return dom.querySelector("div[data-widget_type='theme-post-content.default']");
+        return dom.querySelector("div.contenta");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector("title")?.textContent ?? null;;
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -26,14 +39,14 @@ class ShanghaifantasyParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector("title")?.textContent ?? null;
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div[data-widget_type='image.default']");
+        return util.getFirstImgSrc(dom, ".flex-col");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div[role='tablist'] p")];
+        return [...dom.querySelectorAll("div#editdescription")];
     }
 }
