@@ -11,6 +11,7 @@ parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());
+parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
 class NoblemtlParser extends Parser{
     constructor() {
@@ -83,5 +84,20 @@ class PandamtlParser extends NoblemtlParser{
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.sersys.entry-content")];
+    }
+}
+
+class WhitemoonlightnovelsParser extends PandamtlParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.eplister a")]
+            .map(this.linkToChapter)
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, ".code-block");
     }
 }
