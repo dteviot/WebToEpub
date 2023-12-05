@@ -29,16 +29,12 @@ class KakuyomuParser extends Parser{
     }
 
     buildSubToc(chapters, tocc, json, baseURI) {
-        let chapter = json[tocc.chapter.__ref];
-        let arcStart = true;
+        let arcStartIndex = chapters.length;
         for(let episoderef of tocc.episodes) {
             let episode = this.buildEpisode(json[episoderef.__ref], baseURI);
-            if (arcStart) {
-                episode.newArc = chapter.title;
-                arcStart = false;
-            }
             chapters.push(episode);
         }
+        this.addArcTitleToEpisode(chapters[arcStartIndex], tocc, json);
     }
 
     buildEpisode(episode, baseURI) {
@@ -48,12 +44,24 @@ class KakuyomuParser extends Parser{
         });   
     }
 
+    addArcTitleToEpisode(episode, tocc, json) {
+        let id = tocc?.chapter?.__ref;
+        if (id && episode) {
+            episode.newArc = json[id].title;
+        }
+    }
+
     findContent(dom) {
         return dom.querySelector("div.widget-episode");
     }
 
     extractTitleImpl(dom) {
         return dom.querySelector("a[title]");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".partialGiftWidgetActivityName a");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
     findChapterTitle(dom) {
