@@ -14,7 +14,7 @@ class PatreonParser extends Parser{
         }
 
         return [...dom.querySelectorAll("span[data-tag='post-title'] a")]
-            .map(util.hyperLinkToChapter).reverse();
+            .map(a => util.hyperLinkToChapter(a)).reverse();
     }
 
     findCampaignId(dom) {

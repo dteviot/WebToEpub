@@ -10,7 +10,7 @@ class TemplateParser extends Parser{
     async getChapterUrls(dom) {
         let links = [...dom.querySelectorAll("div.post-entry ul a")]
             .filter(a => a.host !== "graverobbertl.wordpress.com")
-        return links.map(util.hyperLinkToChapter);
+        return links.map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
