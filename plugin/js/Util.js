@@ -430,9 +430,10 @@ var util = (function () {
         return (index === -1) ? null : uri.substring(index + 1);
     }
 
-    var resolveLazyLoadedImages = function(content, imgCss) {
+    var resolveLazyLoadedImages = function(content, imgCss, attrName) {
+        attrName = attrName || "data-src";
         for(let img of content.querySelectorAll(imgCss)) {
-            let dataSrc = img.getAttribute("data-src");
+            let dataSrc = img.getAttribute(attrName);
             if (dataSrc !== null) {
                 img.src = dataSrc.trim();
             }
