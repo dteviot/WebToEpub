@@ -78,6 +78,11 @@ class QuestionableQuestingParser extends Parser{
             if (i.src !== dataUrl ) {
                 i.src = dataUrl;
             }
+
+            if (i.src.indexOf("/threads/") < 40) //Simple check to see if early proxy link is misdirected through thread uri.
+            {
+                i.src = i.src.replace(/https:\/\/questionablequesting\.com\/threads\/[\w\-\d.]+?\/proxy\.php\?/i, "https://questionablequesting.com/proxy.php?");
+            }
         }
     }
 
