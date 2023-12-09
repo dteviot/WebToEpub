@@ -3,6 +3,7 @@
 parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
+parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
 parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
@@ -48,6 +49,7 @@ class NoblemtlParser extends Parser{
         util.removeElements(this.findEmptySpanElements(element));
         util.removeChildElementsMatchingCss(element, "span.modern-footnotes-footnote__note");
         util.removeChildElementsMatchingCss(element, "span.footnote_tooltip");
+        util.removeChildElementsMatchingCss(element, "div#hpk");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
