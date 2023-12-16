@@ -29,6 +29,9 @@ class NovelsemperorParser extends Parser{
 
     static nextTocPageUrl(dom) {
         let pagination = dom.querySelector("ul.pagination");
+        if (pagination === null) {
+            return null;
+        }
         return [...pagination.querySelectorAll("li.pagination-link")]?.pop()
             ?.getAttribute("onclick")
             ?.split("'")?.[1];
