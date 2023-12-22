@@ -75,14 +75,25 @@ class QuestionableQuestingParser extends Parser{
     fixupImageUrls(content) {
         for(let i of content.querySelectorAll("img")) {
             let dataUrl = i.getAttribute("data-url");
-            if (i.src !== dataUrl ) {
+            if (dataUrl && (i.src !== dataUrl)) {
                 i.src = dataUrl;
+                i.removeAttribute("data-url");
+                i.removeAttribute("data-src");
             }
+            this.cleanupMangledImageSrc(i);
+        }
+    }
 
-            if (i.src.indexOf("/threads/") < 40) //Simple check to see if early proxy link is misdirected through thread uri.
-            {
-                i.src = i.src.replace(/https:\/\/questionablequesting\.com\/threads\/[\w\-\d.]+?\/proxy\.php\?/i, "https://questionablequesting.com/proxy.php?");
+    cleanupMangledImageSrc(img) {
+        let url = new URL(img.src);
+        let hostname = url.hostname;
+        if (hostname.includes("questionablequesting")) {
+            let path = url.pathname;
+            let index = path.indexOf("/proxy.php");
+            if (0 < index) {
+                url.pathname = path.substring(index);
             }
+            img.src = url;
         }
     }
 
