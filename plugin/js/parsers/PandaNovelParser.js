@@ -2,6 +2,7 @@
 
 parserFactory.register("panda-novel.com", () => new PandaNovelParser());
 parserFactory.register("pandasnovel.com", () => new PandaNovelParser());
+parserFactory.register("www.lightsnovel.com", () => new PandaNovelParser());
 
 class PandaNovelParser extends Parser {
     constructor() {

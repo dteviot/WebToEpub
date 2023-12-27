@@ -30,7 +30,7 @@ class KakuyomuParser extends Parser{
 
     buildSubToc(chapters, tocc, json, baseURI) {
         let arcStartIndex = chapters.length;
-        for(let episoderef of tocc.episodes) {
+        for(let episoderef of tocc.episodeUnions) {
             let episode = this.buildEpisode(json[episoderef.__ref], baseURI);
             chapters.push(episode);
         }
