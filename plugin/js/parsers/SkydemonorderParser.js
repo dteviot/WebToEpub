@@ -22,7 +22,7 @@ class SkydemonorderParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector("div.font-medium.text-sm");
     }
 
     findCoverImageUrl(dom) {
