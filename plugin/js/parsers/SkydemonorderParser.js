@@ -14,7 +14,7 @@ class SkydemonorderParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.prose");
+        return dom.querySelector("[wire\\:ignore]");
     }
 
     extractTitleImpl(dom) {
@@ -22,14 +22,15 @@ class SkydemonorderParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector("h1").nextElementSibling;
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "main");
+        let div = dom.querySelector(".bg-cover");
+        return util.extractUrlFromBackgroundImage(div);
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.prose")];
+        return [...dom.querySelectorAll(".lg\\:col-span-2 .text-primary-500")];
     }
 }
