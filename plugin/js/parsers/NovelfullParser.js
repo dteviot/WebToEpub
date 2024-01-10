@@ -16,6 +16,7 @@ parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
+parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
