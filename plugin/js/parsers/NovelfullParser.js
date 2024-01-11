@@ -12,6 +12,7 @@ parserFactory.register("novelbin.com", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
+parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
