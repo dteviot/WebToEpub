@@ -16,12 +16,19 @@ class KemonopartyParser extends Parser{
     };
 
     getUrlsOfTocPages(dom) {
+        let urls = [];
         let paginator = dom.querySelector("div.paginator menu");
         if (paginator === null) {
-            return [];
+          return urls;
         }
-        return [...paginator.querySelectorAll("a:not(next)")]
-            .map(link => link.href);
+        let pages = [...paginator.querySelectorAll("a:not(.next)")];
+        let url = new URL(pages[pages.length - 1]);
+        let lastPageOffset = url.searchParams.get("o");
+        for(let i = 50; i <= lastPageOffset; i += 50) {
+          url.searchParams.set("o", i);
+          urls.push(url.href);
+        }
+        return urls;
     }
     
     extractPartialChapterList(dom) {
