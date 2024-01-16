@@ -32,8 +32,14 @@ class KemonopartyParser extends Parser{
         }));
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, ".ad-container");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findContent(dom) {
-        return dom.querySelector(".post__body");
+        //the text of the chapter is always in .post__content, but if there is no chapter(e.g. only files), return .post__body instead of throwing an error
+        return dom.querySelector(".post__content") ?? dom.querySelector(".post__body");
     }
 
     extractTitleImpl(dom) {
@@ -41,6 +47,6 @@ class KemonopartyParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.post__title");
+        return dom.querySelector("h1.post__title > span");
     }
 }
