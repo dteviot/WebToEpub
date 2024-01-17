@@ -16,12 +16,19 @@ class KemonopartyParser extends Parser{
     };
 
     getUrlsOfTocPages(dom) {
+        let urls = [];
         let paginator = dom.querySelector("div.paginator menu");
         if (paginator === null) {
-            return [];
+          return urls;
         }
-        return [...paginator.querySelectorAll("a:not(next)")]
-            .map(link => link.href);
+        let pages = [...paginator.querySelectorAll("a:not(.next)")];
+        let url = new URL(pages[pages.length - 1]);
+        let lastPageOffset = url.searchParams.get("o");
+        for(let i = 50; i <= lastPageOffset; i += 50) {
+          url.searchParams.set("o", i);
+          urls.push(url.href);
+        }
+        return urls;
     }
     
     extractPartialChapterList(dom) {
@@ -32,8 +39,14 @@ class KemonopartyParser extends Parser{
         }));
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, ".ad-container");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findContent(dom) {
-        return dom.querySelector(".post__body");
+        //the text of the chapter is always in .post__content, but if there is no chapter(e.g. only files), return .post__body instead of throwing an error
+        return dom.querySelector(".post__content") ?? dom.querySelector(".post__body");
     }
 
     extractTitleImpl(dom) {
@@ -41,6 +54,6 @@ class KemonopartyParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.post__title");
+        return dom.querySelector("h1.post__title > span");
     }
 }
