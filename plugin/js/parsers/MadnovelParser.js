@@ -1,7 +1,8 @@
 "use strict";
 
 parserFactory.register("madnovel.com", () => new MadnovelParser());
-
+parserFactory.register("novelbuddy.com", () => new MadnovelParser());
+parserFactory.register("novelbuddy.io", () => new MadnovelParser());
 
 class MadnovelParser extends Parser {
     constructor() {
@@ -34,8 +35,8 @@ class MadnovelParser extends Parser {
     }
 
     extractSubject(dom) {
-        let tags = [...dom.querySelectorAll("a[href*='genres'] span")]
-        return tags.map(e => e.textContent.trim()).join(", ");
+        let tags = [...dom.querySelectorAll("a[href*='genres']")]
+        return tags.map(e => e.textContent.trim()).join("");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -43,8 +44,15 @@ class MadnovelParser extends Parser {
         super.removeUnwantedElementsFromContentElement(element);
     }
 
+    findChapterTitle(dom) {
+        return dom.querySelector("#chapter__content h1");
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".img-cover");
     }
 
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".section-body.summary")];
+    }
 }
