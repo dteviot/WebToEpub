@@ -53,6 +53,7 @@ Credits
 * xRahul
 * Oleksii Taranenko
 * Naheulf
+* perishableloc
 * praschke
 
 ## How to use with Baka-Tsuki:

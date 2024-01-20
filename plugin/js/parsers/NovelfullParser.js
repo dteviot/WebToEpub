@@ -3,14 +3,17 @@
 parserFactory.register("novelfull.com", function () { return new NovelfullParser() });
 parserFactory.register("allnovel.org", function () { return new NovelfullParser() });
 parserFactory.register("allnovelfull.com", function () { return new NovelfullParser() });
+parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
 parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinParser() });
+parserFactory.register("novel-bin.com", function () { return new NovelHyphenBinParser() });
 parserFactory.register("novel-next.com", () => new NovelfullParser());
 parserFactory.register("novel35.com", function () { return new Novel35Parser() });
 parserFactory.register("novelbin.com", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
+parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());

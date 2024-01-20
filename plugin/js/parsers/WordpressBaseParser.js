@@ -14,6 +14,7 @@ parserFactory.register("rainingtl.org", function() { return new WordpressBasePar
 parserFactory.register("raisingthedead.ninja", function() { return new WordpressBaseParser() });
 parserFactory.register("skythewoodtl.com", function() { return new WordpressBaseParser() });
 parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
+parserFactory.register("wanderertl130.id", function() { return new Wanderertl130Parser() });
 
 parserFactory.registerRule(
     // return probability (0.0 to 1.0) web page is a Wordpress page
@@ -47,8 +48,7 @@ class WordpressBaseParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        let content = WordpressBaseParser.findContentElement(dom);
-        return content;
+        return WordpressBaseParser.findContentElement(dom);
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -73,5 +73,17 @@ class WordpressBaseParser extends Parser {
 
     findChapterTitle(dom) {
         return WordpressBaseParser.findChapterTitleElement(dom);
+    }
+}
+
+class Wanderertl130Parser extends  WordpressBaseParser {
+    constructor() {
+        super();
+    }
+
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        let footnotes = [...webPageDom.querySelectorAll("span.modern-footnotes-footnote__note")];
+        this.moveFootnotes(webPageDom, content, footnotes);
     }
 }
