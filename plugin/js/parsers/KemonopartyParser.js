@@ -39,9 +39,8 @@ class KemonopartyParser extends Parser{
         }));
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".ad-container");
-        super.removeUnwantedElementsFromContentElement(element);
+    preprocessRawDom(webPageDom) {
+        util.removeChildElementsMatchingCss(webPageDom, ".ad-container");
     }
 
     findContent(dom) {
