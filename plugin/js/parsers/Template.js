@@ -88,8 +88,8 @@ class TemplateParser extends Parser{
         // Major points to note
         //   1. Return the Author's name as a string, not a HTML element
         //   2. If can't find Author, call the base implementation
-        let authorLabel = util.getElement(dom, "strong", e => e.textContent === "Author:");
-        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextElementSibling.textContent;
+        let authorLabel = dom.querySelector(".meta span a");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
     */
 
