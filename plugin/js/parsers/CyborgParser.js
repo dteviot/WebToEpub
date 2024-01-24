@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("cyborg-tl.com", function () {return new CyborgParser();});
+parserFactory.register("cyborg-tl.com", () => new CyborgParser());
 
 class CyborgParser extends Parser {
     constructor() {
@@ -8,11 +8,9 @@ class CyborgParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        return ([...dom.querySelectorAll("div.lightnovel-episode a")]
-            .map(link => ({
-                sourceUrl: link.href,
-                title: link.title,
-            }))).reverse();
+        return [...dom.querySelectorAll("div.lightnovel-episode a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .reverse();
     }
 
     findContent(dom) {
@@ -38,9 +36,9 @@ class CyborgParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let mark = [...element.querySelectorAll("#hpk")];
-        mark[0].nextElementSibling.remove();
-        mark[0].remove()
+        let mark = element.querySelector("#hpk");
+        mark.nextElementSibling.remove();
+        mark.remove()
         super.removeUnwantedElementsFromContentElement(element);
     }
 }
