@@ -37,6 +37,26 @@ class RoyalRoadParser extends Parser{
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 
+    preprocessRawDom(webPageDom) { 
+        this.removeWatermarks(webPageDom);
+    }
+
+    //watermarks are regular <p> elements set to "display: none" by internal css
+    removeWatermarks(webPageDom) {
+        let internalStyles = [...webPageDom.querySelectorAll("style")]
+            .map(style => style.sheet?.rules);
+        let allCssRules = [];
+        for(let ruleList of internalStyles) {
+            for(let rule of ruleList) {
+                allCssRules.push(rule);
+            }
+        }
+        for(let rule of allCssRules.filter(s => s.style.display == "none")) {
+            console.log(webPageDom.querySelector(rule.selectorText).textContent);
+            webPageDom.querySelector(rule.selectorText)?.remove();
+        }        
+    }
+
     removeUnwantedElementsFromContentElement(content) {
         // only keep the <div class="chapter-inner" elements of content
         for(let i = content.childElementCount - 1; 0 <= i; --i) {
