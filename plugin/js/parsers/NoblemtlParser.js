@@ -5,7 +5,7 @@ parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
-parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
+parserFactory.register("moonlightnovel.com", () => new MoonlightNovelParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
@@ -102,5 +102,16 @@ class WhitemoonlightnovelsParser extends PandamtlParser{
 
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, ".code-block");
+    }
+}
+
+class MoonlightNovelParser extends PandamtlParser{
+    constructor() {
+        super();
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".cat-series")
+            || super.findChapterTitle(dom);
     }
 }
