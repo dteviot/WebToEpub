@@ -5,6 +5,7 @@ parserFactory.register("allnovel.org", function () { return new NovelfullParser(
 parserFactory.register("allnovelfull.com", function () { return new NovelfullParser() });
 parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
+parserFactory.register("freewn.com", () => new NovelfullParser());
 parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinParser() });
 parserFactory.register("novel-bin.com", function () { return new NovelHyphenBinParser() });
 parserFactory.register("novel-next.com", () => new NovelfullParser());
