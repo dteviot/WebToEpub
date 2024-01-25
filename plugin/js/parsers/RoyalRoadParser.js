@@ -52,7 +52,6 @@ class RoyalRoadParser extends Parser{
             }
         }
         for(let rule of allCssRules.filter(s => s.style.display == "none")) {
-            console.log(webPageDom.querySelector(rule.selectorText).textContent);
             webPageDom.querySelector(rule.selectorText)?.remove();
         }        
     }
