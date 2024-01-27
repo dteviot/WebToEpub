@@ -14,6 +14,7 @@ parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());
+parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
 class NoblemtlParser extends Parser{
