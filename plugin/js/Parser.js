@@ -531,10 +531,6 @@ class Parser {
     preprocessRawDom(webPageDom) { // eslint-disable-line no-unused-vars
     }
 
-    /**
-    * default implementation
-    * derivied classes can override if DOM has lots of elements not used in epub
-    */
     removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
         util.removeElements(webPageDom.querySelectorAll("select, iframe"));
     }

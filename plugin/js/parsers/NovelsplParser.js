@@ -86,7 +86,7 @@ class NovelsplParser extends Parser{
         return util.getFirstImgSrc(dom, "div.imageCover");
     }
 
-    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+    preprocessRawDom(chapterDom) {
         util.removeChildElementsMatchingCss(chapterDom, "a[href='https://www.patreon.com/novelspl']");
     }
 

@@ -20,7 +20,7 @@ class ShirokunsParser extends Parser{
         return dom.querySelector("div.main h1");
     }
 
-    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+    preprocessRawDom(chapterDom) {
         util.removeChildElementsMatchingCss(chapterDom, "p.author, div.col-md-12 img")
     }
 

@@ -33,7 +33,7 @@ class NovelCrushParser extends Parser{
         return util.getFirstImgSrc(dom, "div.summary_image");
     }
 
-    removeUnusedElementsToReduceMemoryConsumption(chapterDom) {
+    preprocessRawDom(chapterDom) {
         util.removeChildElementsMatchingCss(chapterDom, "ins[data-ad-format]");
     }
 
