@@ -5,6 +5,7 @@ parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
+parserFactory.register("jobnib.com", () => new PandamtlParser());
 parserFactory.register("moonlightnovel.com", () => new MoonlightNovelParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
@@ -13,6 +14,7 @@ parserFactory.register("knoxt.space", () => new NoblemtlParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());
+parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
 class NoblemtlParser extends Parser{
