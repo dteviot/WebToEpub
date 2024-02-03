@@ -3,6 +3,7 @@
 parserFactory.register("allnovel.org", () => new NovelfullParser());
 parserFactory.register("allnovelbin.net", () => new NovelfullParser());
 parserFactory.register("allnovelfull.com", () => new NovelfullParser());
+parserFactory.register("allnovelnext.com", () => new NovelfullParser());
 parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 parserFactory.register("freenovelsread.com", () => new NovelfullParser());
 parserFactory.register("freewn.com", () => new NovelfullParser());
