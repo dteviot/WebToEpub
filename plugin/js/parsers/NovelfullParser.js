@@ -1,24 +1,28 @@
 "use strict";
 
-parserFactory.register("novelfull.com", function () { return new NovelfullParser() });
-parserFactory.register("allnovel.org", function () { return new NovelfullParser() });
-parserFactory.register("allnovelfull.com", function () { return new NovelfullParser() });
+parserFactory.register("allnovel.org", () => new NovelfullParser());
+parserFactory.register("allnovelbin.net", () => new NovelfullParser());
+parserFactory.register("allnovelfull.com", () => new NovelfullParser());
+parserFactory.register("allnovelnext.com", () => new NovelfullParser());
 parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
-parserFactory.register("freenovelsread.com", function () { return new NovelfullParser() });
+parserFactory.register("freenovelsread.com", () => new NovelfullParser());
 parserFactory.register("freewn.com", () => new NovelfullParser());
-parserFactory.register("novel-bin.net", function () { return new NovelHyphenBinParser() });
-parserFactory.register("novel-bin.com", function () { return new NovelHyphenBinParser() });
+parserFactory.register("novel-bin.com", () => new new NovelHyphenBinParser());
+parserFactory.register("novel-bin.net", () => new new NovelHyphenBinParser());
+parserFactory.register("novel-bin.org", () => new new NovelHyphenBinParser());
 parserFactory.register("novel-next.com", () => new NovelfullParser());
-parserFactory.register("novel35.com", function () { return new Novel35Parser() });
+parserFactory.register("novel35.com", () => new new Novel35Parser());
 parserFactory.register("novelbin.com", () => new NovelfullParser());
+parserFactory.register("novelbin.me", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelebook.net", () => new NovelfullParser());
+parserFactory.register("novelfull.com", () => new NovelfullParser());
+parserFactory.register("novelfull.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
+parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
-parserFactory.register("novelbin.me", () => new NovelfullParser());
-parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{

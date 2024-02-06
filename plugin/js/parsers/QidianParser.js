@@ -67,6 +67,9 @@ class QidianParser extends Parser{
                 this.addParagraph(webPage, container, notes);
             }
         }
+        for(let e of [...webPage.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
+            e.remove()
+        }
     }
 
     findChapterContentJson(dom) {
@@ -158,13 +161,6 @@ class QidianParser extends Parser{
         return 0 === imgs.length 
             ? util.getFirstImgSrc(dom, "div.det-hd")
             : imgs.pop().src;
-    }
-
-    removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
-        super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
-        for(let e of [...webPageDom.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
-            e.remove()
-        }
     }
 
     getInformationEpubItemChildNodes(dom) {

@@ -39,6 +39,8 @@ class RoyalRoadParser extends Parser{
 
     preprocessRawDom(webPageDom) { 
         this.removeWatermarks(webPageDom);
+        this.removeImgTagsWithNoSrc(webPageDom);
+        this.tagAuthorNotesBySelector(webPageDom, "div.author-note-portlet");
     }
 
     //watermarks are regular <p> elements set to "display: none" by internal css
@@ -125,12 +127,6 @@ class RoyalRoadParser extends Parser{
 
     findCoverImageUrl(dom) {
         return dom.querySelector("img.thumbnail")?.src ?? null;
-    }
-
-    removeUnusedElementsToReduceMemoryConsumption(webPageDom) {
-        super.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
-        this.removeImgTagsWithNoSrc(webPageDom);
-        this.tagAuthorNotesBySelector(webPageDom, "div.author-note-portlet");
     }
 
     removeImgTagsWithNoSrc(webPageDom) {
