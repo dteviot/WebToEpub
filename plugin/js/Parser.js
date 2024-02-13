@@ -105,7 +105,7 @@ class Parser {
     }
 
     addTitleToContent(webPage, content) {
-        let title = this.findChapterTitle(webPage.rawDom);
+        let title = this.findChapterTitle(webPage.rawDom, webPage);
         if (title != null) {
             if (title instanceof HTMLElement) {
                 title = title.textContent;
