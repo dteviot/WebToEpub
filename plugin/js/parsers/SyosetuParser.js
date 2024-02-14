@@ -20,8 +20,8 @@ class SyosetuParser extends Parser{
         let lastPage = dom.querySelector("a.novelview_pager-last");
         let urls = [];
         if (lastPage) {
-            const lastPageNumber = parseInt(lastPage.href.split('?p=')[1]);
-            const baseUrl = lastPage.href.substring(0, lastPage.href.lastIndexOf('?p='));
+            const lastPageNumber = parseInt(lastPage.href.split("?p=")[1]);
+            const baseUrl = lastPage.href.substring(0, lastPage.href.lastIndexOf("?p="));
             for (let i = 2; i <= lastPageNumber; i++) {
                 urls.push(`${baseUrl}?p=${i}`);
             }
