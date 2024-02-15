@@ -13,8 +13,16 @@ class PatreonParser extends Parser{
             return this.walkToc(campaignId);
         }
 
-        return [...dom.querySelectorAll("span[data-tag='post-title'] a")]
-            .map(a => util.hyperLinkToChapter(a)).reverse();
+        return [...dom.querySelectorAll("span[data-tag='post-title']")]
+            .map(s => this.spanToChapter(s)).reverse();
+    }
+
+    spanToChapter(span) {
+        let link = span.parentNode.nextElementSibling.querySelector("a");
+        return ({
+            title: span.textContent.trim(),
+            sourceUrl:  link.href
+        });
     }
 
     findCampaignId(dom) {

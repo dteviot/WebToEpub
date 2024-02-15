@@ -8,8 +8,8 @@ class ExiledrebelsscanlationsParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("div.lcp_catlist");
-        return util.hyperlinksToChapterList(menu);
+        return [...dom.querySelectorAll("div.lcp_catlist a")]
+            .map((a) => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
