@@ -1,7 +1,7 @@
 "use strict";
 
 parserFactory.register("bookalb.com", () => new NoblemtlParser());
-parserFactory.register("ckandawrites.online", () => new NoblemtlParser());
+parserFactory.register("ckandawrites.online", () => new KnoxtspaceParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
@@ -10,7 +10,7 @@ parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
-parserFactory.register("knoxt.space", () => new NoblemtlParser());
+parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());
@@ -65,6 +65,19 @@ class NoblemtlParser extends Parser{
         return webPage.title;
     }
 
+    static buildChapterTitle(dom) {
+        let title = "";
+        let addText = (selector) => {
+            let element = dom.querySelector(selector);
+            if (element != null) {
+                title += " " +  element.textContent;
+            }
+        }
+        addText("h1.entry-title");
+        addText(".cat-series");
+        return title;
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".thumbook");
     }
@@ -92,6 +105,16 @@ class PandamtlParser extends NoblemtlParser{
     }
 }
 
+class KnoxtspaceParser extends NoblemtlParser{
+    constructor() {
+        super();
+    }
+
+    findChapterTitle(dom) {
+        return NoblemtlParser.buildChapterTitle(dom);
+    }
+}
+
 class WhitemoonlightnovelsParser extends PandamtlParser{
     constructor() {
         super();
@@ -100,6 +123,10 @@ class WhitemoonlightnovelsParser extends PandamtlParser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.eplister a")]
             .map(this.linkToChapter)
+    }
+
+    findChapterTitle(dom) {
+        return NoblemtlParser.buildChapterTitle(dom);
     }
 
     cleanInformationNode(node) {
