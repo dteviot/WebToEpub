@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("lightnovelcave.com", () => new LightNovelWorldParser());
+parserFactory.register("lightnovelworld.co", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
@@ -82,6 +83,11 @@ class LightNovelWorldParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.novel-info h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("span[itemprop='author']");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
     removeUnwantedElementsFromContentElement(element) {
