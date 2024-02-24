@@ -1,5 +1,6 @@
 "use strict";
 
+parserFactory.register("fansmtl.com", () => new ReadwnParser());
 parserFactory.register("readwn.com", () => new ReadwnParser());
 parserFactory.register("novelmt.com", () => new ReadwnParser());
 parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
