@@ -11,6 +11,7 @@ parserFactory.register("wuxiahub.com", () => new ReadwnParser());
 parserFactory.register("wuxiau.com", () => new ReadwnParser());
 parserFactory.register("wuxiar.com", () => new ReadwnParser());
 parserFactory.register("fannovel.com", () => new ReadwnParser());
+parserFactory.register("fannovels.com", () => new ReadwnParser());
 parserFactory.register("wuxiap.com", () => new ReadwnParser());
 parserFactory.register("wuxiabee.com", () => new ReadwnParser());
 parserFactory.register("wuxiabee.net", () => new ReadwnParser());
