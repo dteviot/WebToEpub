@@ -22,10 +22,12 @@ parserFactory.register("novelfull.com", () => new NovelfullParser());
 parserFactory.register("novelfull.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
+parserFactory.register("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
+parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
