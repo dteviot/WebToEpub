@@ -36,7 +36,8 @@ class SpacebattlesParser extends Parser{
     async fetchChapter(url) {
         let fetchedDom = await this.cache.fetch(url);
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let id = (new URL(url)).hash.substring(1);
+        let newUrl = new URL(url);
+        let id = newUrl.hash.substring(1) || newUrl.href.substring(newUrl.href.lastIndexOf("/") + 1);
         let parent = fetchedDom.getElementById(id).parentElement;
         this.addTitleToChapter(newDoc, parent);
         let content = parent.querySelector("article.message-body");
