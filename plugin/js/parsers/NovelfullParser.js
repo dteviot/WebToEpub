@@ -14,6 +14,7 @@ parserFactory.register("novel-bin.net", () => new NovelHyphenBinParser());
 parserFactory.register("novel-bin.org", () => new NovelHyphenBinParser());
 parserFactory.register("novel-next.com", () => new NovelfullParser());
 parserFactory.register("novel35.com", () => new Novel35Parser());
+parserFactory.register("novelactive.org", () => new NovelfullParser());
 parserFactory.register("novelbin.com", () => new NovelfullParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
