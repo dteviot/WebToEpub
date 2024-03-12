@@ -33,12 +33,12 @@ class NovelonomiconParser extends Parser{
     }
 
     extractPartialChapterList(dom) {
-        return [...dom.querySelectorAll("#tdi_70 h3 a, #tdi_61 h3 a")]
+        return [...dom.querySelectorAll(".td-block-span6 h3 a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
-        return dom.querySelector("#tdi_68 .tdi_73 .tdb-block-inner");
+        return dom.querySelector(".tdi_48 .wpb_wrapper .tdb_single_content");
     }
 
     extractTitleImpl(dom) {
