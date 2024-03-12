@@ -6,14 +6,23 @@ parserFactory.register("novel18.syosetu.com", () => new SyosetuParser());
 class SyosetuParser extends Parser{
     constructor() {
         super();
+        this.infoPageDom = null;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
+        await this.fetchAndAttachInfoPage(dom);
         return this.getChapterUrlsFromMultipleTocPages(dom,
             this.extractPartialChapterList,
             this.getUrlsOfTocPages,
             chapterUrlsUI
         );
+    }
+
+    async fetchAndAttachInfoPage(dom) {
+        const infoPageUrl = dom.querySelector("#head_nav > li:nth-child(2) > a").href;
+        const response = await fetch(infoPageUrl);
+        const htmlString = await response.text();
+        this.infoPageDom = new DOMParser().parseFromString(htmlString, "text/html"); // Parse and store the info page DOM
     }
 
     getUrlsOfTocPages(dom) {
@@ -55,4 +64,20 @@ class SyosetuParser extends Parser{
         let element = dom.querySelector(".novel_subtitle");
         return (element === null) ? null : element.textContent;
     }
+
+    getInformationEpubItemChildNodes() {
+        const infoNodes = [];
+        const infoTable = this.infoPageDom.querySelector("#infodata");
+        const infoTableClone = infoTable.cloneNode(true);
+        infoNodes.push(infoTableClone);
+        return infoNodes;
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, "#qr, #pre_info > a");
+        const preInfoDiv = node.querySelector("#pre_info");
+        preInfoDiv.innerHTML = preInfoDiv.innerHTML.replace(/\|/g, "");
+        const novelTypeNotEnd = preInfoDiv.querySelector("#noveltype_notend");
+        novelTypeNotEnd.nextSibling.textContent = novelTypeNotEnd.nextSibling.textContent.replace(/^全/, " 全");
+    }    
 }
