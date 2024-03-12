@@ -20,9 +20,7 @@ class SyosetuParser extends Parser{
 
     async fetchAndAttachInfoPage(dom) {
         const infoPageUrl = dom.querySelector("#head_nav > li:nth-child(2) > a").href;
-        const response = await fetch(infoPageUrl);
-        const htmlString = await response.text();
-        this.infoPageDom = new DOMParser().parseFromString(htmlString, "text/html"); // Parse and store the info page DOM
+        this.infoPageDom = (await HttpClient.fetchHtml(infoPageUrl)).responseXML; // Parse and store the info page DOM
     }
 
     getUrlsOfTocPages(dom) {
