@@ -50,13 +50,15 @@ class NovelonomiconParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let span = dom.querySelector("#tdi_70 span.entry-thumb")?.getAttribute("data-img-url");
-        return span == null
-            ? null
-            : "https:" + span;
+        return util.getFirstImgSrc(dom, ".td-module-image a");
     }
     
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".td-main-content-wrap .tdb_category_description .tdb-block-inner")];
+        return [...dom.querySelectorAll(".td-category-description")];
     }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, ".su-spoiler");
+        return node;
+    }    
 }
