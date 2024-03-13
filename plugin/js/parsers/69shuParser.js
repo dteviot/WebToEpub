@@ -1,6 +1,9 @@
 "use strict";
 
-parserFactory.register("69xinshu.com", function() { return new ShuParser() });
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).includes("69shu")),
+    () => new ShuParser()
+);
 
 class ShuParser extends Parser{
     constructor() {

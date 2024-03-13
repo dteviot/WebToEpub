@@ -24,6 +24,12 @@ class IdleturtletranslationsParser extends Parser{
         return dom.querySelector("article h1");
     }
 
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        let footnotes = new FootnoteExtractor().scriptElementsToFootnotes(webPageDom);
+        this.moveFootnotes(webPageDom, content, footnotes);
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "article");
     }

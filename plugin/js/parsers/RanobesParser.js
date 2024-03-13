@@ -59,6 +59,11 @@ class RanobesParser extends Parser{
         return title;
     }
 
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("span[itemprop='creator'] a");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
     findChapterTitle(dom) {
         let title = dom.querySelector("h1.title");
         util.removeChildElementsMatchingCss(title, "span, div");
