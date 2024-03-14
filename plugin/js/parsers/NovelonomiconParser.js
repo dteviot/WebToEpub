@@ -33,12 +33,12 @@ class NovelonomiconParser extends Parser{
     }
 
     extractPartialChapterList(dom) {
-        return [...dom.querySelectorAll("#tdi_70 h3 a, #tdi_61 h3 a")]
+        return [...dom.querySelectorAll(".td-block-span6 h3 a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
-        return dom.querySelector("#tdi_68 .tdi_73 .tdb-block-inner");
+        return dom.querySelector(".tdi_48 .wpb_wrapper .tdb_single_content");
     }
 
     extractTitleImpl(dom) {
@@ -50,13 +50,15 @@ class NovelonomiconParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let span = dom.querySelector("#tdi_70 span.entry-thumb")?.getAttribute("data-img-url");
-        return span == null
-            ? null
-            : "https:" + span;
+        return util.getFirstImgSrc(dom, ".td-module-image a");
     }
     
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".td-main-content-wrap .tdb_category_description .tdb-block-inner")];
+        return [...dom.querySelectorAll(".td-category-description")];
     }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingCss(node, ".su-spoiler");
+        return node;
+    }    
 }
