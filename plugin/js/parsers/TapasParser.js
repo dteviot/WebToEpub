@@ -9,12 +9,12 @@ class TapasParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let seriesId = dom.querySelector("meta[property='al:android:url']").getAttribute("content").split("/").pop();
+        let seriesId = dom.querySelector("meta[property='al:android:url']").getAttribute("content").split("/", 4).pop();
         let restUrl = `https://tapas.io/series/${seriesId}/episodes?page=1&sort=OLDEST&max_limit=9999`;
         let body = (await HttpClient.fetchJson(restUrl)).json.data.body;
         let html = new DOMParser().parseFromString(body, "text/html");
         return [...html.querySelectorAll("li")]
-            .filter(li => li.querySelector(".ico--lock") == null)
+            .filter(li => !li.querySelector(".thumb__overlay--locked, .ico--schedule"))
             .map(this.listItemToChapter);
     }
 
