@@ -51,6 +51,6 @@ class TapasParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".js-series-description, .description")];
+        return [...dom.querySelectorAll(".description__body")];
     }
 }
