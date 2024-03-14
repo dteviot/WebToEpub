@@ -2,6 +2,7 @@
 
 parserFactory.register("lightnovelreader.org", () => new LightnovelreaderParser());
 parserFactory.register("lnreader.org", () => new LightnovelreaderParser());
+parserFactory.register("readlitenovel.com", () => new LightnovelreaderParser());
 
 class LightnovelreaderParser extends Parser{
     constructor() {
