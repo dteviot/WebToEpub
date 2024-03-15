@@ -30,7 +30,7 @@ class TapasParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("a.title").textContent;
+        return dom.querySelector(".series-root a.title").textContent;
     }
 
     extractAuthor(dom) {
