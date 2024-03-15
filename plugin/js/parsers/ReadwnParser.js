@@ -1,23 +1,24 @@
 "use strict";
 
-parserFactory.register("fansmtl.com", () => new ReadwnParser());
-parserFactory.register("readwn.com", () => new ReadwnParser());
-parserFactory.register("novelmt.com", () => new ReadwnParser());
-parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
-parserFactory.register("novelmtl.com", () => new ReadwnParser());
-parserFactory.register("wuxiapub.com", () => new ReadwnParser());
-parserFactory.register("wuxiahere.com", () => new ReadwnParser());
-parserFactory.register("wuxiahub.com", () => new ReadwnParser());
-parserFactory.register("wuxiau.com", () => new ReadwnParser());
-parserFactory.register("wuxiar.com", () => new ReadwnParser());
 parserFactory.register("fannovel.com", () => new ReadwnParser());
 parserFactory.register("fannovels.com", () => new ReadwnParser());
-parserFactory.register("wuxiap.com", () => new ReadwnParser());
+parserFactory.register("fansmtl.com", () => new ReadwnParser());
+parserFactory.register("novelmt.com", () => new ReadwnParser());
+parserFactory.register("novelmtl.com", () => new ReadwnParser());
+parserFactory.register("readwn.com", () => new ReadwnParser());
 parserFactory.register("wuxiabee.com", () => new ReadwnParser());
 parserFactory.register("wuxiabee.net", () => new ReadwnParser());
 parserFactory.register("wuxiabee.org", () => new ReadwnParser());
+parserFactory.register("wuxiafox.com", () => new ReadwnParser());
 parserFactory.register("wuxiago.com", () => new ReadwnParser());
+parserFactory.register("wuxiahere.com", () => new ReadwnParser());
+parserFactory.register("wuxiahub.com", () => new ReadwnParser());
+parserFactory.register("wuxiamtl.com", () => new ReadwnParser());
 parserFactory.register("wuxiaone.com", () => new ReadwnParser());
+parserFactory.register("wuxiap.com", () => new ReadwnParser());
+parserFactory.register("wuxiapub.com", () => new ReadwnParser());
+parserFactory.register("wuxiar.com", () => new ReadwnParser());
+parserFactory.register("wuxiau.com", () => new ReadwnParser());
 parserFactory.register("wuxiazone.com", () => new ReadwnParser());
 
 class ReadwnParser extends Parser{
