@@ -26,7 +26,11 @@ class ShanghaifantasyParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.contenta");
+        let content = dom.querySelector("div.contenta");
+        let childCount = content.querySelectorAll("div, p").length;
+        return (childCount <= 3)
+            ? dom.querySelector("body > div.flex")
+            : content;
     }
 
     extractTitleImpl(dom) {
@@ -34,7 +38,15 @@ class ShanghaifantasyParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".patreon1");
+        util.removeChildElementsMatchingCss(element, ".patreon1, section, nav, button, template, #comments, footer, .hideme");
+
+        for(let e of [...element.querySelectorAll("div")]) {
+            e.removeAttribute(":style");
+            e.removeAttribute(":class");
+            e.removeAttribute(":class");
+            e.removeAttribute("@click.outside");
+        }
+
         super.removeUnwantedElementsFromContentElement(element);
     }
 
