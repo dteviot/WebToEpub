@@ -36,6 +36,14 @@ class TravistranslationsParser extends Parser{
 
     preprocessRawDom(webPageDom) {
         util.resolveLazyLoadedImages(webPageDom, "img");
+        this.addAuthorNotes(webPageDom);
+    }
+
+    addAuthorNotes(webPageDom) {
+        let content = this.findContent(webPageDom); 
+        for(let n of [...content.parentElement.querySelectorAll("div.py-1")]) {
+            content.append(n);
+        }
     }
 
     getInformationEpubItemChildNodes(dom) {

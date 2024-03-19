@@ -43,7 +43,6 @@ class ShanghaifantasyParser extends Parser{
         for(let e of [...element.querySelectorAll("div")]) {
             e.removeAttribute(":style");
             e.removeAttribute(":class");
-            e.removeAttribute(":class");
             e.removeAttribute("@click.outside");
         }
 
