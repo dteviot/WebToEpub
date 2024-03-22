@@ -16,7 +16,7 @@ parserFactory.registerRule(
         return (util.extractHostName(url).indexOf(".blogspot.") != -1) ||
             ((BlogspotParser.findContentElement(dom) != null) * 0.5);
     },
-    function() { return new BlogspotParser() }
+    () => new BlogspotParser()
 );
 
 parserFactory.registerManualSelect(

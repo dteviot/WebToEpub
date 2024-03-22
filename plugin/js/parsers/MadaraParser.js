@@ -13,11 +13,8 @@ parserFactory.register("mangabob.com", function() { return new MadaraParser() })
 
 
 parserFactory.registerRule(
-    // return probability (0.0 to 1.0) web page is a Madara Themed page
-    function(url, dom) {
-        return MadaraParser.isMadaraTheme(dom) * 0.6;
-    },
-    function() { return new MadaraParser() }
+    (url, dom) => MadaraParser.isMadaraTheme(dom) * 0.6,
+    () => new MadaraParser()
 );
 
 class MadaraParser extends WordpressBaseParser{
