@@ -204,14 +204,6 @@ var main = (function () {
     }
 
     function injectContentScript(tabId) {
-        if (util.isFirefox()) {
-            Firefox.injectContentScript(tabId);
-        } else {
-            chromeInjectContentScript(tabId);
-        }
-    }
-
-    function chromeInjectContentScript(tabId) {
         try {
             chrome.scripting.executeScript({
                 target: {tabId: tabId},
