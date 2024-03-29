@@ -24,10 +24,10 @@
     "default_popup": "popup.html"
   },
   "incognito": "split",
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "WebToEpub@Baka-tsuki.org",
-      "strict_min_version": "79.0"
+      "strict_min_version": "109.0"
     }
   },
   "minimum_chrome_version": "88"
