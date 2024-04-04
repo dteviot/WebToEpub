@@ -22,7 +22,7 @@ parserFactory.registerRule(
         return ((WordpressBaseParser.findContentElement(dom) != null) &&
             (WordpressBaseParser.findChapterTitleElement(dom) != null)) * 0.5;
     },
-    function() { return new WordpressBaseParser() }
+    () => new WordpressBaseParser()
 );
 
 parserFactory.registerManualSelect(

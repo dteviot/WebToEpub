@@ -221,7 +221,7 @@ var makeManifestForFirefox = function(data) {
 
 var makeManifestForChrome = function(data) {
     let manifest = JSON.parse(data.toString());
-    delete(manifest.applications);
+    delete(manifest.browser_specific_settings);
     delete(manifest.action.browser_style);
     manifest.permissions = manifest.permissions
         .filter(p => !p.startsWith("webRequest"));

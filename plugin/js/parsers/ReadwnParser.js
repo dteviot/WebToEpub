@@ -22,9 +22,19 @@ parserFactory.register("wuxiar.com", () => new ReadwnParser());
 parserFactory.register("wuxiau.com", () => new ReadwnParser());
 parserFactory.register("wuxiazone.com", () => new ReadwnParser());
 
+parserFactory.registerRule(
+    (url, dom) => ReadwnParser.isReadwn(dom) * 0.8,
+    () => new ReadwnParser()
+);
+
 class ReadwnParser extends Parser{
     constructor() {
         super();
+    }
+
+    static isReadwn(dom) {
+        return (dom.querySelector(ReadwnParser.CoverSelector) !== null)
+            && (dom.querySelector(ReadwnParser.AuthorSelector) !== null)
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
@@ -77,7 +87,7 @@ class ReadwnParser extends Parser{
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("span[itemprop='author']");
+        let authorLabel = dom.querySelector(ReadwnParser.AuthorSelector);
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
@@ -91,10 +101,13 @@ class ReadwnParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "figure.cover");
+        return util.getFirstImgSrc(dom, ReadwnParser.CoverSelector);
     }
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll(".summary .content")];
     }
 }
+
+ReadwnParser.CoverSelector = "figure.cover";
+ReadwnParser.AuthorSelector = "span[itemprop='author']";

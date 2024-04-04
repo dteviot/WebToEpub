@@ -1,10 +1,8 @@
 "use strict";
 
 parserFactory.registerRule(
-    function(url) {
-        return AdultfanfictionParser.isAdultFanFiction(url) * 0.9;
-    },
-    function() { return new AdultfanfictionParser() }
+    (url) => AdultfanfictionParser.isAdultFanFiction(url) * 0.9,
+    () => new AdultfanfictionParser()
 );
 
 class AdultfanfictionParser extends Parser{

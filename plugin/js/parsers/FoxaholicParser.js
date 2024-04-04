@@ -1,6 +1,9 @@
 "use strict";
 
-parserFactory.register("foxaholic.com", () => new FoxaholicParser());
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).endsWith("foxaholic.com")),
+    () => new FoxaholicParser()
+);
 
 class FoxaholicParser extends WordpressBaseParser{
     constructor() {

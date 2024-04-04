@@ -74,8 +74,18 @@ class SyosetuParser extends Parser{
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, "#qr, #pre_info > a");
         const preInfoDiv = node.querySelector("#pre_info");
-        preInfoDiv.innerHTML = preInfoDiv.innerHTML.replace(/\|/g, "");
-        const novelTypeNotEnd = preInfoDiv.querySelector("#noveltype_notend");
-        novelTypeNotEnd.nextSibling.textContent = novelTypeNotEnd.nextSibling.textContent.replace(/^全/, " 全");
+        this.removePipeCharacter(preInfoDiv);
+        let sibling = preInfoDiv.querySelector("#noveltype_notend")?.nextSibling;
+        if (sibling) {
+            sibling.textContent = sibling.textContent.replace(/^全/, " 全");
+        }
+    }
+    
+    removePipeCharacter(contentElement) {
+        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+            let node = walker.currentNode;
+            node.textContent = node.textContent.replace(/\|/g, "");
+        };
     }    
 }
