@@ -57,11 +57,22 @@ class _38xsParser extends _230BookBaseParser{
     }
 
     async getChapterUrls(dom) {
-        let list = await super.getChapterUrls(dom);
-        // has 12 most recent chapters at start of table
-        return 25 < list.length 
-            ? list.slice(13)
-            : list;
+        let links = [...dom.querySelectorAll("#list dd a")];
+        return this.removeDuplicatesFromFrontOfList(links)
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    removeDuplicatesFromFrontOfList(list) {
+        let keys = new Set();
+        let filtered = [];
+        while (0 < list.length) {
+            let item = list.pop();
+            if (!keys.has(item.href)) {
+                keys.add(item.href);
+                filtered.push(item);
+            }
+        }
+        return filtered.reverse();
     }
 
     async fetchChapter(url) {
