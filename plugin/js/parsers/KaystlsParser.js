@@ -8,7 +8,7 @@ class KaystlsParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("div.wp-block-columns a.wp-block-navigation-link__content")]
+        return [...dom.querySelectorAll("div.wp-block-columns a.wp-block-navigation-item__content")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
@@ -18,6 +18,12 @@ class KaystlsParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.wp-block-columns.alignwide h1");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, 
+            "div.code-block, #nav_inner_page_backwards, #nav_inner_page_forwards, #message_content, .donate");
+        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findCoverImageUrl(dom) {
