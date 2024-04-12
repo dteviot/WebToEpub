@@ -7,49 +7,21 @@ class AsianovelParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
-        return this.getChapterUrlsFromMultipleTocPages(dom,
-            AsianovelParser.extractPartialChapterList,
-            AsianovelParser.getUrlsOfTocPages,
-            chapterUrlsUI
-        );
-    };
-
-    static getUrlsOfTocPages(dom) {
-        let urls = []
-        let lastLink = [...dom.querySelectorAll(".summary__container .pagination a")]
-            .slice(-1);
-        if (0 < lastLink.length)
-        {
-            let max = parseInt(lastLink[0].textContent);
-            let href = lastLink[0].href;
-            let index = href.lastIndexOf("/", href.length - 2);
-            href = href.substring(0, index + 1);
-            for(let i = 2; i <= max; ++i) {
-                urls.push(href + i + "/");
-            }
-        }
-        return urls;
-    }
-
-    static extractPartialChapterList(dom) {
-        return [...dom.querySelectorAll(".summary__container .title a")]
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll(".chapter-group__list a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
-        let articles = [...dom.querySelectorAll("article")];
-        return (articles.length === 1)
-            ? articles[0]
-            : articles[1];
+        return dom.querySelector("#chapter-content");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector(".summary-classic__content .title a");
+        return dom.querySelector(".story__identity-title");
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h2");
+        return dom.querySelector(".chapter__title");
     }
 
     findCoverImageUrl(dom) {
@@ -57,6 +29,6 @@ class AsianovelParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.summary-classic__text")];
+        return [...dom.querySelectorAll(".story__summary")];
     }
 }

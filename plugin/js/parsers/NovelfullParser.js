@@ -2,10 +2,12 @@
 
 parserFactory.register("allnovel.org", () => new NovelfullParser());
 parserFactory.register("allnovelbin.net", () => new NovelfullParser());
+parserFactory.register("allnovelfull.app", () => new NovelfullParser());
 parserFactory.register("allnovelfull.com", () => new NovelfullParser());
 parserFactory.register("allnovelfull.org", () => new NovelfullParser());
 parserFactory.register("allnovelfull.net", () => new NovelfullParser());
 parserFactory.register("allnovelnext.com", () => new NovelfullParser());
+parserFactory.register("all-novelfull.net", () => new NovelfullParser());
 parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 parserFactory.register("freenovelsread.com", () => new NovelfullParser());
 parserFactory.register("freewn.com", () => new NovelfullParser());
@@ -27,6 +29,7 @@ parserFactory.register("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
+parserFactory.register("novelxo.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 
