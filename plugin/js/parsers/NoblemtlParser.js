@@ -10,6 +10,7 @@ parserFactory.register("jobnib.com", () => new PandamtlParser());
 parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
+parserFactory.register("readfreebooksonline.org", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
