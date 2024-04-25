@@ -8,128 +8,47 @@ class PatreonParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let campaignId = this.findCampaignId(dom);
-        if (campaignId !== null) {
-            return this.walkToc(campaignId);
-        }
-
-        return [...dom.querySelectorAll("span[data-tag='post-title']")]
-            .map(s => this.spanToChapter(s)).reverse();
+        let cards = [...dom.querySelectorAll("div[data-tag='all-posts-layout'] div[data-tag='post-card'] ")]
+        return cards
+            .filter(c => this.hasAccessableContent(c))
+            .map(s => this.cardToChapter(s)).reverse();
     }
 
-    spanToChapter(span) {
-        let link = span.parentNode.nextElementSibling.querySelector("a");
+    cardToChapter(card) {
+        let title = card.querySelector("span[data-tag='post-title']").textContent;
+        let link = card.querySelector("div.iorWWT a");
         return ({
-            title: span.textContent.trim(),
+            title: title.trim(),
             sourceUrl:  link.href
         });
     }
 
-    findCampaignId(dom) {
-        let prefix = "\"self\": \"https://www.patreon.com/api/campaigns/";
-        let text = [...dom.querySelectorAll("script")]
-            .map(s => s.textContent)
-            .filter(s => s.includes(prefix));
-        return (0 < text.length)
-            ? util.extactSubstring(text[0], prefix, "\"")
-            : null;
-    }
-
-    async walkToc(campaignId) {
-        let chapters = [];
-        let cursor = null;
-        do {
-            let url = this.buildUrlForTocRequest(campaignId, cursor);
-            let json = (await HttpClient.fetchJson(url)).json;
-            chapters = chapters.concat(this.jsonToChapters(json));
-            cursor = this.cursorFromJson(json);
-        } while (cursor != null);
-        return chapters.reverse();
-    }
-
-    buildUrlForTocRequest(campaignId, cursor) {
-        let url = new URL("https://www.patreon.com/api/posts");
-        let params = url.searchParams;
-        params.append("include", "campaign,access_rules,attachments,audio,images,media,user");
-        params.append("fields[campaign]", "name,url");
-        params.append("fields[post]", "current_user_can_view,title,url");
-        params.append("fields[user]", "url");
-        params.append("fields[access_rule]", "access_rule_type");
-        params.append("fields[media]", "id,image_urls,download_url,metadata,file_name");
-        params.append("filter[campaign_id]", campaignId);
-        params.append("filter[contains_exclusive_posts]", "true");
-        params.append("filter[is_draft]", "false");
-        params.append("sort", "-published_at");
-        params.append("json-api-version", "1.0");
-        if (cursor !== null) {
-            params.append("page[cursor]", cursor);
-        }
-        return url.href;
-    }
-
-    jsonToChapters(json) {
-        return json.data.map(this.jsonToChapter);
-    }
-
-    jsonToChapter(json) {
-        return {
-            sourceUrl:  json.attributes.url,
-            title: json.attributes.title,
-            newArc: null,
-            isIncludeable: json.attributes.current_user_can_view
-        };
-    }
-
-    cursorFromJson(json) {
-        let cursors = json.meta.pagination.cursors;
-        return cursors == null ? null : cursors.next;
+    hasAccessableContent(card) {
+        return card.querySelector("div.iorWWT a") != null;
     }
 
     findContent(dom) {
-        let content = dom.querySelector("div[data-tag='post-card']");
-        if (content !== null) {
-            this.addImage(dom, content);
-            return content;
-        }
-        content = dom.querySelector("div[data-tag='post-content']");
-        if (content === null) {
-            this.addContentFromScript(dom)        
-        }
-        return dom.querySelector("div[data-tag='post-content']");
+        return Parser.findConstrutedContent(dom);
     }
 
-    addImage(dom, content) {
-        let placeholder = content.querySelector("div.lazyload-placeholder");
-        if (placeholder !== null) {
-            let link = dom.querySelector("link[rel='image_src']");
-            if (link !== null) {
-                let img = dom.createElement("img");
-                img.src = link.getAttribute("content");
-                placeholder.replaceWith(img);
-            }
-        }
+    async fetchChapter(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        let script = xhr.responseXML.querySelector("script#__NEXT_DATA__").textContent;
+        let json = JSON.parse(script);
+        json = json.props.pageProps.bootstrapEnvelope.bootstrap.post.data.attributes;
+        return this.jsonToHtml(json, url);
     }
 
-    addContentFromScript(dom) {
-        let script = [...dom.querySelectorAll("script")]
-            .map(e => e.textContent)
-            .filter(t => t.includes("\"post\": {"));
-        if (0 < script.length) {
-            let json = util.locateAndExtractJson(script[0], "\"post\":");
-            let attributes = json.data.attributes;
-            let dp = new DOMParser();
-            let title = dp.parseFromString("<span data-tag='post-title'>" 
-                + attributes.title + "</span>", "text/html");
-            dom.body.appendChild(title.querySelector("span"));
-            let content = dp.parseFromString("<div data-tag='post-content'>" 
-                + attributes.content + "</div>", "text/html");
-            dom.body.appendChild(content.querySelector("div"));
-        }
-    }
-
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div[data-tag='post-tags']");
-        super.removeUnwantedElementsFromContentElement(element);
+    jsonToHtml(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let header = newDoc.dom.createElement("h1");
+        header.textContent = json.title;
+        newDoc.content.appendChild(header);
+        let content =  "<div>" + json.content + "</div>"
+        content = new DOMParser().parseFromString(content, "text/html")
+            .querySelector("div");
+        newDoc.content.append(content);
+        return newDoc.dom;
     }
 
     extractTitleImpl(dom) {
@@ -141,13 +60,7 @@ class PatreonParser extends Parser{
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
-    findChapterTitle(dom) {
-        return dom.querySelector("span[data-tag='post-title']").textContent;
-    }
-
     findCoverImageUrl(dom) {
-        let imgs = [...dom.querySelectorAll("div")]
-            .filter(img => !util.isNullOrEmpty(img.style.backgroundImage));
-        return util.extractUrlFromBackgroundImage(imgs[0]);
+        return util.getFirstImgSrc(dom, "picture");
     }
 }
