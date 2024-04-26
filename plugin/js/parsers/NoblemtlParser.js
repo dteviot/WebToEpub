@@ -1,5 +1,6 @@
 "use strict";
 
+parserFactory.register("arcanetranslations.com", () => new PandamtlParser());
 parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new KnoxtspaceParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
