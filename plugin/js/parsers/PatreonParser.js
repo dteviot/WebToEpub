@@ -16,7 +16,7 @@ class PatreonParser extends Parser{
 
     cardToChapter(card) {
         let title = card.querySelector("span[data-tag='post-title']").textContent;
-        let link = card.querySelector("div.iorWWT a");
+        let link = this.getUrlOfContent(card);
         return ({
             title: title.trim(),
             sourceUrl:  link.href
@@ -24,7 +24,11 @@ class PatreonParser extends Parser{
     }
 
     hasAccessableContent(card) {
-        return card.querySelector("div.iorWWT a") != null;
+        return this.getUrlOfContent(card) != null;
+    }
+ 
+    getUrlOfContent(card) {
+        return card.querySelector("a[data-tag='post-published-at']");
     }
 
     findContent(dom) {
