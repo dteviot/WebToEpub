@@ -3,6 +3,8 @@
 parserFactory.register("forums.spacebattles.com", () => new SpacebattlesParser());
 parserFactory.register("forums.sufficientvelocity.com", () => new SpacebattlesParser());
 parserFactory.register("alternatehistory.com", () => new SpacebattlesParser());
+parserFactory.register("forum.questionablequesting.com", () => new SpacebattlesParser());
+parserFactory.register("questionablequesting.com", () => new SpacebattlesParser());
 
 class SpacebattlesParser extends Parser{
     constructor() {
