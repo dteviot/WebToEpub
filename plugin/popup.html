@@ -1,11 +1,12 @@
+﻿
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>WebToEpub</title>
     <link href="css/default.css" rel="stylesheet" type="text/css" />
-    <link href="css/autoDark.css" rel="stylesheet" type="text/css"  id="autoDark" />
-    <link href="css/alwaysDark.css" rel="stylesheet" type="text/css" id="alwaysDark" disabled="true"/>
+    <link href="css/autoDark.css" rel="stylesheet" type="text/css" id="autoDark" />
+    <link href="css/alwaysDark.css" rel="stylesheet" type="text/css" id="alwaysDark" disabled="true" />
     <base />
 </head>
 <body>
@@ -125,7 +126,7 @@
                     <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
                     <td>__MSG_label_Remove_Original__</td>
                 </tr>
-                <tr  id="passwordRow" hidden>
+                <tr id="passwordRow" hidden>
                     <td>__MSG_label_Password__</td>
                     <td><input id="passwordInput" type="text" name="passwordInput" /></td>
                 </tr>
@@ -179,7 +180,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td id="LibTemplateURL">__MSG_label_Lib_Template_Story_URL__</td><td style="padding:0;">
+                                <td id="LibTemplateURL">__MSG_label_Lib_Template_Story_URL__</td>
+                                <td style="padding:0;">
                                     <table style="border-spacing:0;">
                                         <tbody id="LibTemplateURLWarning">
                                             <tr>
@@ -221,7 +223,7 @@
                             <tr>
                                 <td id="LibTemplateMetadataDescription">__MSG_label_Metadata_description__</td>
                                 <td id="LibTemplateWarningInProgress">__MSG_label_Lib_Warning_In_Progress___</td>
-                                </tr>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -243,8 +245,10 @@
                 <table id="AdditionalMetadatatable">
                     <tr>
                         <td>__MSG_label_Metadata_URL__</td>
-                        <td><input id="metadataUrlInput" type="text" name="metadataUrlInput" />
-                        <button id="loadMetadataButton">__MSG_button_load_Metadata__</button></td>
+                        <td>
+                            <input id="metadataUrlInput" type="text" name="metadataUrlInput" />
+                            <button id="loadMetadataButton">__MSG_button_load_Metadata__</button>
+                        </td>
                     </tr>
                     <tr>
                         <td><input id="noAdditionalMetadataCheckbox" type="checkbox" name="noAdditionalMetadataCheckbox" checked="true"></td>
@@ -561,6 +565,7 @@
     <script src="js/parsers/ComrademaoParser.js"></script>
     <script src="js/parsers/CoronatranslationParser.js"></script>
     <script src="js/parsers/CreativeNovelsParser.js"></script>
+    <script src="js/parsers/CrimsontranslationsParser.js"></script>
     <script src="js/parsers/CzbooksParser.js"></script>
     <script src="js/parsers/DarkNovelsParser.js"></script>
     <script src="js/parsers/DefaultParser.js"></script>
@@ -693,6 +698,7 @@
     <script src="js/parsers/PtwxzParser.js"></script>
     <script src="js/parsers/QidianParser.js"></script>
     <script src="js/parsers/QinxiaoshuoParser.js"></script>
+    <script src="js/parsers/QqxsParser.js"></script>
     <script src="js/parsers/QuanbenParser.js"></script>
     <script src="js/parsers/QuotevParser.js"></script>
     <script src="js/parsers/RaeitranslationsParser.js"></script>
