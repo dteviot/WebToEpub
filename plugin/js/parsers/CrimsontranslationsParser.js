@@ -36,7 +36,7 @@ class CrimsontranslationsParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.title;
         newDoc.content.appendChild(header);
-        let paragraphs = json.content.split("\r\n")
+        let paragraphs = json.content.replace(/\n\n/g, "\r\n").split("\r\n")
         for (let text of paragraphs) {
             let p = newDoc.dom.createElement("p");
             p.appendChild(newDoc.dom.createTextNode(text))
