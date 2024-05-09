@@ -743,7 +743,7 @@ var util = (function () {
     var safeForFileName = function (title, maxLength = 20) {
         if(title) {
             // Allow only a-z regardless of case and numbers as well as hyphens and underscores; replace spaces and no-break spaces with underscores
-            title = title.replace(/ ||\u00a0/gi, "_").replace(/([^a-z0-9_-]+)/gi, "");
+            title = title.replace(/ |\u00a0/gi, "_").replace(/([^a-z0-9_-]+)/gi, "");
             // There is technically a 255 character limit in windows for file paths. 
             // So we will allow files to have 20 characters and when they go over we split them 
             // we then truncate the middle so that the file name is always different
