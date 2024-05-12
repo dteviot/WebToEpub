@@ -41,11 +41,20 @@ class KemonopartyParser extends Parser{
 
     preprocessRawDom(webPageDom) {
         util.removeChildElementsMatchingCss(webPageDom, ".ad-container");
+        this.copyImagesIntoContent(webPageDom);
     }
 
     findContent(dom) {
         //the text of the chapter is always in .post__content, but if there is no chapter(e.g. only files), return .post__body instead of throwing an error
         return dom.querySelector(".post__content") ?? dom.querySelector(".post__body");
+    }
+
+    copyImagesIntoContent(dom) {
+        let content = this.findContent(dom);
+        let images = [...dom.querySelectorAll("div.post__files div.post__thumbnail figure a img")];
+        for(let img of images) {
+            content.append(img);
+        }
     }
 
     extractTitleImpl(dom) {
