@@ -34,6 +34,7 @@ parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("novelxo.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
+parserFactory.register("topnovelfull.com", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
