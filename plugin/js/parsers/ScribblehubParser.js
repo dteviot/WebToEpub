@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("scribblehub.com", function() { return new ScribblehubParser() });
+parserFactory.register("scribblehub.com", function () { return new ScribblehubParser() });
 
-class ScribblehubParser extends Parser{
+class ScribblehubParser extends Parser {
     constructor() {
         super();
     }
@@ -41,7 +41,7 @@ class ScribblehubParser extends Parser{
 
     populateUI(dom) {
         super.populateUI(dom);
-        document.getElementById("removeAuthorNotesRow").hidden = false; 
+        document.getElementById("removeAuthorNotesRow").hidden = false;
     }
 
     extractTitleImpl(dom) {
@@ -52,7 +52,7 @@ class ScribblehubParser extends Parser{
         let author = dom.querySelector("span.auth_name_fic");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
     };
-    
+
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
     }
@@ -63,6 +63,7 @@ class ScribblehubParser extends Parser{
 
     preprocessRawDom(webPageDom) {
         this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes");
+        this.tagAuthorNotesBySelector(webPageDom, ".wi_news");
     }
 
     getInformationEpubItemChildNodes(dom) {
