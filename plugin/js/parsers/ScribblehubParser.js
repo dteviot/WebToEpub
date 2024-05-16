@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("scribblehub.com", function () { return new ScribblehubParser() });
+parserFactory.register("scribblehub.com", () => new ScribblehubParser());
 
 class ScribblehubParser extends Parser {
     constructor() {
@@ -62,8 +62,7 @@ class ScribblehubParser extends Parser {
     }
 
     preprocessRawDom(webPageDom) {
-        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes");
-        this.tagAuthorNotesBySelector(webPageDom, ".wi_news");
+        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes", ".wi_news");
     }
 
     getInformationEpubItemChildNodes(dom) {
