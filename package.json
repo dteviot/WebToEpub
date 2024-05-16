@@ -67,7 +67,8 @@
     { "name": "perishableloc"}, 
     { "name": "praschke"},
     { "name": "ImmortalDreamer"},
-    { "name": "ktrin"}
+    { "name": "ktrin"},
+    { "name": "nozwock" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
