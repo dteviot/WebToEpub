@@ -11,7 +11,7 @@ class ScribblehubParser extends Parser {
         let baseUrl = dom.baseURI;
         let nextTocIndex = 1;
         let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
-        let nextTocPageUrl = function (dom, chapters, lastFetch) {
+        let nextTocPageUrl = function (_dom, chapters, lastFetch) {
             // site has bug, sometimes, won't return chapters, so 
             // don't loop forever when this happens
             return ((chapters.length < numChapters) && (0 < lastFetch.length))
@@ -29,10 +29,6 @@ class ScribblehubParser extends Parser {
     static getChapterUrlsFromTocPage(dom) {
         return [...dom.querySelectorAll("a.toc_a")]
             .map(a => util.hyperLinkToChapter(a))
-    }
-
-    static nextTocPageUrl(baseUrl, nextTocIndex) {
-        return `${baseUrl}?toc=${nextTocIndex}`;
     }
 
     findContent(dom) {
