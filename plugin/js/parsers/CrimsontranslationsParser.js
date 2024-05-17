@@ -27,7 +27,7 @@ class CrimsontranslationsParser extends Parser{
     async fetchChapter(url) {
         let contentUrl = url.replace(".com/", ".com/api/");
         let xhr = await HttpClient.fetchJson(contentUrl);
-        let doc = this.jsonToHtml(xhr.json);
+        let doc = this.jsonToHtml(xhr.json.chapterContent);
         return doc;
     }
  
