@@ -8,7 +8,7 @@ class PatreonParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let cards = [...dom.querySelectorAll("div[data-tag='all-posts-layout'] div[data-tag='post-card'] ")]
+        let cards = [...dom.querySelectorAll("div[data-tag='post-card']")]
         return cards
             .filter(c => this.hasAccessableContent(c))
             .map(s => this.cardToChapter(s)).reverse();

@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("scribblehub.com", function() { return new ScribblehubParser() });
+parserFactory.register("scribblehub.com", () => new ScribblehubParser());
 
-class ScribblehubParser extends Parser{
+class ScribblehubParser extends Parser {
     constructor() {
         super();
     }
@@ -11,7 +11,7 @@ class ScribblehubParser extends Parser{
         let baseUrl = dom.baseURI;
         let nextTocIndex = 1;
         let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
-        let nextTocPageUrl = function (dom, chapters, lastFetch) {
+        let nextTocPageUrl = function (_dom, chapters, lastFetch) {
             // site has bug, sometimes, won't return chapters, so 
             // don't loop forever when this happens
             return ((chapters.length < numChapters) && (0 < lastFetch.length))
@@ -31,17 +31,13 @@ class ScribblehubParser extends Parser{
             .map(a => util.hyperLinkToChapter(a))
     }
 
-    static nextTocPageUrl(baseUrl, nextTocIndex) {
-        return `${baseUrl}?toc=${nextTocIndex}`;
-    }
-
     findContent(dom) {
-        return dom.querySelector("div#chp_contents");
+        return dom.querySelector("div#chp_raw");
     };
 
     populateUI(dom) {
         super.populateUI(dom);
-        document.getElementById("removeAuthorNotesRow").hidden = false; 
+        document.getElementById("removeAuthorNotesRow").hidden = false;
     }
 
     extractTitleImpl(dom) {
@@ -52,7 +48,7 @@ class ScribblehubParser extends Parser{
         let author = dom.querySelector("span.auth_name_fic");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
     };
-    
+
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
     }
@@ -62,7 +58,7 @@ class ScribblehubParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes");
+        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes", ".wi_news");
     }
 
     getInformationEpubItemChildNodes(dom) {
