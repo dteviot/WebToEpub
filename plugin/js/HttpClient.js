@@ -169,6 +169,7 @@ class HttpClient {
     }
 
     static async wrapFetchImpl(url, wrapOptions) {
+        await HttpClient.setPartitionCookies(url);
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
@@ -193,6 +194,25 @@ class HttpClient {
             let handler = wrapOptions.responseHandler;
             handler.setResponse(response);
             return handler.extractContentFromResponse(response);
+        }
+    }
+
+    static async setPartitionCookies(url) {
+        if (!util.isFirefox()) {
+            // get partitionKey in the form of https://<site name>.<tld>
+            let cookie = await chrome.cookies.getAll({url: url});
+
+            //  get all cookie from the site which use the partitionKey (e.g. cloudflare)
+            let cookies = await chrome.cookies.getAll({partitionKey: {topLevelSite: "https://"+cookie[0].domain.substring(1)}});
+
+            //create new cookies for the site without the partitionKey
+            //cookies without the partitionKey get sent with fetch
+            cookies.forEach(element => chrome.cookies.set({
+                domain: element.domain,
+                url: "https://"+element.domain.substring(1),
+                name: element.name, 
+                value: element.value
+            }));
         }
     }
 }
