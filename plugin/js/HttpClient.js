@@ -62,11 +62,10 @@ class FetchErrorHandler {
         });
     }
 
-    retryFetch(url, wrapOptions) {
+    async retryFetch(url, wrapOptions) {
         let delayBeforeRetry = wrapOptions.retry.retryDelay.pop() * 1000;
-        return util.sleep(delayBeforeRetry).then(function () {
-            return HttpClient.wrapFetchImpl(url, wrapOptions);
-        });
+        await util.sleep(delayBeforeRetry);
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
     static getAutomaticRetryBehaviourForStatus(response) {
@@ -169,18 +168,22 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
-    static wrapFetchImpl(url, wrapOptions) {
+    static async wrapFetchImpl(url, wrapOptions) {
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
         }
-        return fetch(url, wrapOptions.fetchOptions).catch(function (error) {
+        try
+        {
+            let response = await fetch(url, wrapOptions.fetchOptions);
+            return HttpClient.checkResponseAndGetData(url, wrapOptions, response)
+        }
+        catch (error)
+        {
             return wrapOptions.errorHandler.onFetchError(url, error);
-        }).then(function(response) {
-            return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
-        });
+        }
     }
 
     static checkResponseAndGetData(url, wrapOptions, response) {
