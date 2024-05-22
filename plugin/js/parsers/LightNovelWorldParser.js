@@ -7,6 +7,7 @@ parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
+parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
 
 class LightNovelWorldParser extends Parser{
     constructor() {
