@@ -24,7 +24,8 @@ class PatreonParser extends Parser{
     }
 
     hasAccessableContent(card) {
-        return this.getUrlOfContent(card) != null;
+        let link = this.getUrlOfContent(card);
+        return !util.isNullOrEmpty(link?.getAttribute("href"));
     }
  
     getUrlOfContent(card) {
@@ -39,8 +40,9 @@ class PatreonParser extends Parser{
         let xhr = await HttpClient.wrapFetch(url);
         let script = xhr.responseXML.querySelector("script#__NEXT_DATA__").textContent;
         let json = JSON.parse(script);
-        json = json.props.pageProps.bootstrapEnvelope.bootstrap.post.data.attributes;
-        return this.jsonToHtml(json, url);
+        let envelope = json.props.pageProps.bootstrapEnvelope;
+        let bootstrap = envelope.bootstrap || envelope.pageBootstrap;
+        return this.jsonToHtml(bootstrap.post.data.attributes, url);
     }
 
     jsonToHtml(json, url) {
@@ -48,6 +50,11 @@ class PatreonParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.title;
         newDoc.content.appendChild(header);
+        if (json.image) {
+            let img = new Image();
+            img.src = json.image.url;
+            newDoc.content.append(img);    
+        }
         let content =  "<div>" + json.content + "</div>"
         content = new DOMParser().parseFromString(content, "text/html")
             .querySelector("div");
