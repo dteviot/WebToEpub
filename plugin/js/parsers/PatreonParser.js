@@ -53,7 +53,7 @@ class PatreonParser extends Parser{
         if (json.image) {
             let img = new Image();
             img.src = json.image.url;
-            newDoc.content.append(img);    
+            newDoc.content.append(img);
         }
         let content =  "<div>" + json.content + "</div>"
         content = new DOMParser().parseFromString(content, "text/html")
