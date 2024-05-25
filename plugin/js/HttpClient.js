@@ -203,17 +203,21 @@ class HttpClient {
             let parsedUrl = new URL(url);
             let topLevelSite = parsedUrl.protocol + "//" + parsedUrl.hostname;
 
-            //  get all cookie from the site which use the partitionKey (e.g. cloudflare)
-            let cookies = await chrome.cookies.getAll({partitionKey: {topLevelSite: topLevelSite}});
+            try {
+                //  get all cookie from the site which use the partitionKey (e.g. cloudflare)
+                let cookies = await chrome.cookies.getAll({partitionKey: {topLevelSite: topLevelSite}});
 
-            //create new cookies for the site without the partitionKey
-            //cookies without the partitionKey get sent with fetch
-            cookies.forEach(element => chrome.cookies.set({
-                domain: element.domain,
-                url: "https://"+element.domain.substring(1),
-                name: element.name, 
-                value: element.value
-            }));
+                //create new cookies for the site without the partitionKey
+                //cookies without the partitionKey get sent with fetch
+                cookies.forEach(element => chrome.cookies.set({
+                    domain: element.domain,
+                    url: "https://"+element.domain.substring(1),
+                    name: element.name, 
+                    value: element.value
+                }));
+            } catch {
+                // Probably running browser that doesn't support partitionKey, e.g. Kiwi
+            } 
         }
     }
 }
