@@ -42,11 +42,24 @@ class JjwxcParser extends Parser{
 
     removeUnwantedElementsFromContentElement(element) {
         element.querySelector("#report_box")?.parentElement?.remove();
-        util.removeChildElementsMatchingCss(element, ".readsmall, #note_danmu_wrapper, div[align='right']");
+        util.removeChildElementsMatchingCss(element, ".readsmall, div[align='right']");
+        this.fixupAuthorNote(element);
         for(let div of element.querySelectorAll("div")) {
             div.style = null;
         }
         super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    fixupAuthorNote(element) {
+        let wrapper = element.querySelector("#note_danmu_wrapper");
+        if (wrapper) {
+            let note = wrapper.querySelector("#note_str");
+            note.setAttribute("style", null);
+            let title = document.createElement("div");
+            title.innerText = "作者有话说";
+            title.appendChild(note);
+            wrapper.replaceWith(title);
+        }
     }
 
     findCoverImageUrl(dom) {
