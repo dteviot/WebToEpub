@@ -1,6 +1,3 @@
-/*
-  Parses gravitytales.com
-*/
 "use strict";
 
 parserFactory.register("gravitytales.com", function() { return new GravityTalesParser() });
@@ -10,10 +7,14 @@ class GravityTalesParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
-        let that = this;
+    async getChapterUrls(dom) {
+        let chaptersElement = dom.querySelector("ul.list");
+        if (chaptersElement) {
+            return util.hyperlinksToChapterList(chaptersElement);
+        }
+
         // logic as @ 2018-06-10
-        let chaptersElement = dom.querySelector("div#chapters div.tab-content");
+        chaptersElement = dom.querySelector("div#chapters div.tab-content");
         let chapters = util.hyperlinksToChapterList(chaptersElement);
         if (0 < chapters.length) {
             return Promise.resolve(chapters);
@@ -24,10 +25,10 @@ class GravityTalesParser extends Parser {
         if (novelId !== null) {
             return GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
         }
-        let content = that.findContent(dom) ||
+        let content = this.findContent(dom) ||
             dom.querySelector("chapters") ||
             dom.body;
-        return Promise.resolve(util.hyperlinksToChapterList(content, that.isChapterHref));
+        return util.hyperlinksToChapterList(content, this.isChapterHref);
     }
 
     isChapterHref(link) {
@@ -45,12 +46,13 @@ class GravityTalesParser extends Parser {
 
     // find the node(s) holding the story content
     findContent(dom) {
-        return dom.querySelector("div.entry-content");
+        return dom.querySelector("div.entry-content")
+            || dom.querySelector("div.content");
     }
 
     findChapterTitle(dom) {
         return dom.querySelector("h1.entry-title") ||
-            dom.querySelector("h4");
+            dom.querySelector("#single h1");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -161,6 +163,10 @@ class GravityTalesParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
+        if (dom.querySelector("div.cover")) {
+            return util.getFirstImgSrc(dom, "div.cover");            
+        }
+
         let img = dom.querySelector("div#coverImg");
         if (img !== null) {
             let style = img.getAttribute("style");
@@ -176,6 +182,6 @@ class GravityTalesParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("div.desc")];
+        return [dom.querySelector("div.desc, p.description")];
     }
 }
