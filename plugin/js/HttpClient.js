@@ -62,11 +62,10 @@ class FetchErrorHandler {
         });
     }
 
-    retryFetch(url, wrapOptions) {
+    async retryFetch(url, wrapOptions) {
         let delayBeforeRetry = wrapOptions.retry.retryDelay.pop() * 1000;
-        return util.sleep(delayBeforeRetry).then(function () {
-            return HttpClient.wrapFetchImpl(url, wrapOptions);
-        });
+        await util.sleep(delayBeforeRetry);
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
     static getAutomaticRetryBehaviourForStatus(response) {
@@ -169,18 +168,23 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
-    static wrapFetchImpl(url, wrapOptions) {
+    static async wrapFetchImpl(url, wrapOptions) {
+        await HttpClient.setPartitionCookies(url);
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
         }
-        return fetch(url, wrapOptions.fetchOptions).catch(function (error) {
+        try
+        {
+            let response = await fetch(url, wrapOptions.fetchOptions);
+            return HttpClient.checkResponseAndGetData(url, wrapOptions, response)
+        }
+        catch (error)
+        {
             return wrapOptions.errorHandler.onFetchError(url, error);
-        }).then(function(response) {
-            return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
-        });
+        }
     }
 
     static checkResponseAndGetData(url, wrapOptions, response) {
@@ -190,6 +194,30 @@ class HttpClient {
             let handler = wrapOptions.responseHandler;
             handler.setResponse(response);
             return handler.extractContentFromResponse(response);
+        }
+    }
+
+    static async setPartitionCookies(url) {
+        if (!util.isFirefox()) {
+            // get partitionKey in the form of https://<site name>.<tld>
+            let parsedUrl = new URL(url);
+            let topLevelSite = parsedUrl.protocol + "//" + parsedUrl.hostname;
+
+            try {
+                //  get all cookie from the site which use the partitionKey (e.g. cloudflare)
+                let cookies = await chrome.cookies.getAll({partitionKey: {topLevelSite: topLevelSite}});
+
+                //create new cookies for the site without the partitionKey
+                //cookies without the partitionKey get sent with fetch
+                cookies.forEach(element => chrome.cookies.set({
+                    domain: element.domain,
+                    url: "https://"+element.domain.substring(1),
+                    name: element.name, 
+                    value: element.value
+                }));
+            } catch {
+                // Probably running browser that doesn't support partitionKey, e.g. Kiwi
+            } 
         }
     }
 }

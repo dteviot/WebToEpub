@@ -7,6 +7,7 @@ parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("daotranslate.us", () => new NoblemtlParser());
 parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
+parserFactory.register("hoxionia.com", () => new NoblemtlParser());
 parserFactory.register("jobnib.com", () => new PandamtlParser());
 parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());

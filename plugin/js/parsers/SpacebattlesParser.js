@@ -18,9 +18,14 @@ class SpacebattlesParser extends Parser{
 
     async getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("div.structItem--threadmark a")]
-            .filter(a => !a.querySelector("date"));
+            .filter(this.isLinkToChapter);
         return chapters.map(a => util.hyperLinkToChapter(a));
     };
+
+    isLinkToChapter(link) {
+        return !link.querySelector("date")
+            && !(new URL(link.href).pathname.startsWith("/awards/award"));
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
