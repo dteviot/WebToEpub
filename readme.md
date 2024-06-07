@@ -13,7 +13,6 @@ Works with many sites, including the following:
 * krytykal.org
 * moonbunnycafe.com
 * nanodesu (some of the *thetranslation.wordpress.com sites)
-* readlightnovel.com
 * royalroad.com 
 * shikkakutranslations.org
 * sonako.wikia.com

@@ -3,9 +3,10 @@
 */
 "use strict";
 
-parserFactory.register("readlightnovel.today", function() { return new ReadLightNovelParser() });
-parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser() });
 parserFactory.register("readlightnovel.me", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.meme", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.today", function() { return new ReadLightNovelParser() });
 
 class ReadLightNovelParser extends Parser {
     constructor() {
