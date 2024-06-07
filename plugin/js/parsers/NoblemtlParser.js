@@ -17,6 +17,7 @@ parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("taonovel.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
+parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
