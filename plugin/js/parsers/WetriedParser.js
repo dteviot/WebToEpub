@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("wetriedtls.site", function () {return new WetriedParser();});
+parserFactory.register("wetriedtls.com", function () {return new WetriedParser();});
 
 class WetriedParser extends Parser {
     constructor() {
@@ -23,16 +23,8 @@ class WetriedParser extends Parser {
     }
 
     async fetchTocPage(seriesId, page, perPage) {
-        let options = {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: `{"series_id":${seriesId},"page":${page},"perPage":${perPage}}`
-        };
-        let json = (await HttpClient.fetchJson("https://api.wetriedtls.site/chapter/query", options)).json;
+        const query = `page=${page}&perPage=${perPage}&series_id=${seriesId}` 
+        let json = (await HttpClient.fetchJson(`https://api.wetriedtls.com/chapter/query?${query}`)).json;
         return json.data.map(c => this.jsonToChapter(c))
             .reverse();
     }
@@ -41,7 +33,7 @@ class WetriedParser extends Parser {
         let seriesSlug = json.series.series_slug;;
         let chapterLeaf = json.chapter_slug;
         return ({
-            sourceUrl:  `https://wetriedtls.site/series/${seriesSlug}/${chapterLeaf}`,
+            sourceUrl:  `https://wetriedtls.com/series/${seriesSlug}/${chapterLeaf}`,
             title: json.chapter_name + ": " + json.chapter_title,
         });;
     }
