@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("wetriedtls.com", function () {return new WetriedParser();});
+parserFactory.register("wetriedtls.com", () => new WetriedParser());
 
 class WetriedParser extends Parser {
     constructor() {
@@ -13,6 +13,10 @@ class WetriedParser extends Parser {
     }
 
     findSeriesId(dom) {
+        if (dom.baseURI == "https://wetriedtls.com/series/infinite-mage") {
+            // Special case. Only 14 stores on the site, and only infinite mage doesn't work.
+            return 11;
+        }
         let prefix = "series_id\\\":";
         let script = [...dom.querySelectorAll("script")]
             .map(s => s.textContent)
