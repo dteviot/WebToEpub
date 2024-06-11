@@ -33,6 +33,7 @@ let QidianChatperLinkSample =
 <head>
     <title>King of Gods - Eastern Fantasy - Webnovel - Your Fictional Stories Hub</title>
     <base href="https://www.webnovel.com/book/9017100806001205/King-of-Gods" />
+    <meta property="og:title" content="King of Gods">
 </head>
 <body">
 <div class="page"><h1 class="pt4 pb4 oh mb4 auto_height">King of Gods <small>KOG</small></h2><div>

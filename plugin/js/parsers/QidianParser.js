@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("webnovel.com", function() { return new QidianParser() });
+parserFactory.register("webnovel.com", () => new QidianParser());
 
 class QidianParser extends Parser{
     constructor() {
