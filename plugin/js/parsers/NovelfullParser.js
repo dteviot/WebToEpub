@@ -36,9 +36,19 @@ parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 parserFactory.register("topnovelfull.com", () => new NovelfullParser());
 
+parserFactory.registerUrlRule(
+    url => NovelfullParser.IsNovelfullHost(url),
+    () => new NovelfullParser()
+);
+
 class NovelfullParser extends Parser{
     constructor() {
         super();
+    }
+
+    static IsNovelfullHost(url) {
+        let host = ParserFactory.hostNameForParserSelection(url);
+        return host.endsWith(".novelcenter.net") || host.endsWith(".noveljar.org");
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
