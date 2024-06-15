@@ -23,19 +23,19 @@ class ChaleuriaParser extends WordpressBaseParser{
     }
 
     findContent(dom) {
-        return dom.querySelector(".entry-content");
+        return dom.querySelector(".entry-content, div.elementor-widget-theme-post-content div.elementor-widget-container");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.entry-title");
+        return dom.querySelector("h1.entry-title, h1.elementor-heading-title");
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.entry-title");
+        return dom.querySelector("h1.entry-title, h1.elementor-heading-title");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".entry-content p")];
+        return [...dom.querySelectorAll(".entry-content p, div.elementor-widget-theme-post-content div.elementor-widget-container p")];
     }
 
     cleanInformationNode(node) {
