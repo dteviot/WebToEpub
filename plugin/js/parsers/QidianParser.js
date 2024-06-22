@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("webnovel.com", function() { return new QidianParser() });
+parserFactory.register("webnovel.com", () => new QidianParser());
 
 class QidianParser extends Parser{
     constructor() {
@@ -40,7 +40,7 @@ class QidianParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.cha-content");
+        return dom.querySelector("div.chapter_content");
     };
 
     preprocessRawDom(webPage) {
@@ -53,7 +53,7 @@ class QidianParser extends Parser{
             return;
         }
         content = webPage.createElement("div");
-        content.className = "cha-content";
+        content.className = "chapter_content";
         webPage.body.appendChild(content);
         this.addHeader(webPage, content, json.chapterInfo.chapterName)
         for(let c of json.chapterInfo.contents) {
@@ -139,10 +139,7 @@ class QidianParser extends Parser{
 
     // title of the story
     extractTitleImpl(dom) {
-        let title = dom.querySelector("div.page h1");
-        if (title !== null) {
-            util.removeChildElementsMatchingCss(title, "small");
-        }
+        let title = dom.querySelector("div.chapter_content h1");
         return title;
     };
 
@@ -151,7 +148,7 @@ class QidianParser extends Parser{
     }
  
     removeUnwantedElementsFromContentElement(content) {
-        util.removeChildElementsMatchingCss(content, "form.cha-score, div.cha-bts, pirate");
+        util.removeChildElementsMatchingCss(content, "form.cha-score, div.cha-bts, pirate, div.cha-content div.user-links-wrap, div.tac");
         this.tagAuthorNotesBySelector(content, "div.m-thou");
         super.removeUnwantedElementsFromContentElement(content);
     }

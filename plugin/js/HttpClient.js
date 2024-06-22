@@ -78,6 +78,9 @@ class FetchErrorHandler {
         case 429:
             FetchErrorHandler.show429Error(response);
             return {retryDelay: retryDelay, promptUser: true};
+        case 445:
+            //Random Unique exception thrown on Webnovel/Qidian. Not part of w3 spec.
+            return {retryDelay: retryDelay, promptUser: false};
         case 509:
             // server asked for rate limiting
             return {retryDelay: retryDelay, promptUser: true};
