@@ -8,9 +8,8 @@ class StorySeedlingParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll(".grid.w-full a")]
-            .map(link => this.linkToChapter(link))
-            .reverse();
+        return [...dom.querySelectorAll("main .grid.w-full a")]
+            .map(link => this.linkToChapter(link));
     }
 
     linkToChapter(link) {
@@ -23,7 +22,7 @@ class StorySeedlingParser extends Parser {
 
     findContent(dom) {
         return (
-            dom.querySelector("div.mx-auto .mb-4") || dom.querySelector("#chapter-content")
+            dom.querySelector("div.prose .mb-4") || dom.querySelector("#chapter-content")
         );
     }
 
