@@ -46,6 +46,7 @@ class QidianParser extends Parser{
     preprocessRawDom(webPage) {
         let content = this.findContent(webPage);
         if (content !== null) {
+            content = this.cleanRawDom(content);
             return;
         }
         let json = this.findChapterContentJson(webPage);
@@ -70,6 +71,14 @@ class QidianParser extends Parser{
         for(let e of [...webPage.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
             e.remove()
         }
+    }
+
+    cleanRawDom(content)
+    {
+        //Remove repeating & unused metadata from document. Approximately halves body length.
+        content.querySelectorAll("i.para-comment_num, i.para-comment").forEach(i => i.remove());
+        content.querySelectorAll("div.db").forEach(i => i.removeAttribute("data-ejs"));
+        return content;
     }
 
     findChapterContentJson(dom) {
