@@ -28,6 +28,7 @@ parserFactory.register("novelhulk.net", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelnext.com", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
+parserFactory.register("novelnextz.com", () => new NovelfullParser());
 parserFactory.register("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
