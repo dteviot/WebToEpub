@@ -36,15 +36,29 @@ class CrimsontranslationsParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.title;
         newDoc.content.appendChild(header);
-        let paragraphs = json.content.replace(/\n\n/g, "\r\n").split("\r\n")
-        for (let text of paragraphs) {
-            let p = newDoc.dom.createElement("p");
-            p.appendChild(newDoc.dom.createTextNode(text))
-            newDoc.content.appendChild(p);
-        }
+        this.insertParagraphs(json.content, newDoc.content, newDoc.dom);
+        this.addSection(json.footnote, newDoc.content, newDoc.dom, "Footnote:");
+        this.addSection(json.chapter_author_note, newDoc.content, newDoc.dom, "Author Note:");
+        this.addSection(json.chapter_tl_note, newDoc.content, newDoc.dom, "TL Note:");
         return newDoc.dom;
     }
 
+    addSection(paragraphs, content, dom, title) {
+        if (paragraphs != null) {
+            let header = dom.createElement("h2");
+            header.textContent = title;
+            content.appendChild(header);
+            this.insertParagraphs(paragraphs, content, dom)
+        }
+    }
+
+    insertParagraphs(paragraphs, content, dom) {
+        for (let text of paragraphs.replace(/\n\n/g, "\r\n").split("\r\n")) {
+            let p = dom.createElement("p");
+            p.appendChild(dom.createTextNode(text))
+            content.appendChild(p);
+        }
+    }
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.border-2.text-tertiary")];
