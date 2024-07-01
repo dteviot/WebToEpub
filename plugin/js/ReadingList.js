@@ -22,6 +22,15 @@ class ReadingList {
         this.epubs.delete(url);
     }
 
+    tryDeleteEpubAndSave(url) {
+        if (this.getEpub(url)){
+            this.deleteEpub(url);
+            this.writeToLocalStorage();
+            return true;
+        }
+        return false;
+    }
+
     getEpub(url) {
         return this.epubs.get(url);
     }
