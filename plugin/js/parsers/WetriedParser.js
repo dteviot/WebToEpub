@@ -53,10 +53,10 @@ class WetriedParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.space-y-3");
+        return util.getFirstImgSrc(dom, "#content .p-1");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("div.space-y-3 p").parentNode];
+        return [dom.querySelector("#content div.text-muted-foreground")];
     }
 }
