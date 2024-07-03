@@ -44,6 +44,10 @@ class Library {
             }
         });
     }
+    
+    onUserPreferencesUpdate(userPreferences) {
+        Library.userPreferences = userPreferences;
+    }
 
     static async LibMergeEpub(PreviousEpub, AddEpub, LibidURL){
         return new Promise((resolve, reject) => {
@@ -618,6 +622,7 @@ class Library {
     
     static LibDeleteEpub(objbtn){
         let LibRemove = ["LibEpub" + objbtn.dataset.libepubid, "LibStoryURL" + objbtn.dataset.libepubid, "LibFilename" + objbtn.dataset.libepubid, "LibCover" + objbtn.dataset.libepubid];
+        Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
         Library.LibRenderSavedEpubs();
     }
