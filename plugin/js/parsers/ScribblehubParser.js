@@ -32,7 +32,7 @@ class ScribblehubParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("div#chp_raw");
+        return dom.querySelector("div.fic_row, div#chp_raw");
     };
 
     populateUI(dom) {
