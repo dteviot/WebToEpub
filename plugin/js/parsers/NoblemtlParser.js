@@ -11,6 +11,7 @@ parserFactory.register("hoxionia.com", () => new NoblemtlParser());
 parserFactory.register("jobnib.com", () => new PandamtlParser());
 parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
+parserFactory.register("novelcranel.org", () => new NoblemtlParser());
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
 parserFactory.register("readfreebooksonline.org", () => new NoblemtlParser());
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
