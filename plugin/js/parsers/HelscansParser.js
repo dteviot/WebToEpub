@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("helscans.com", () => new HelscansParser());
+parserFactory.register("helscans.org", () => new HelscansParser());
 
 class HelscansParser extends Parser{
     constructor() {
