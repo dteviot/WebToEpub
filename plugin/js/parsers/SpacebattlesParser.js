@@ -45,7 +45,7 @@ class SpacebattlesParser extends Parser{
         let newDoc = Parser.makeEmptyDocForContent(url);
         let newUrl = new URL(url);
         let id = newUrl.hash.substring(1) || newUrl.href.substring(newUrl.href.lastIndexOf("/") + 1);
-        let parent = fetchedDom.getElementById(id).parentElement;
+        let parent = fetchedDom.querySelector(`article.hasThreadmark[data-content='${id}']`);
         this.addTitleToChapter(newDoc, parent);
         let content = parent.querySelector("article.message-body");
         util.resolveLazyLoadedImages(content, "img.lazyload");

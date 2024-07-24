@@ -41,6 +41,17 @@ class RoyalRoadParser extends Parser{
         this.removeWatermarks(webPageDom);
         this.removeImgTagsWithNoSrc(webPageDom);
         this.tagAuthorNotesBySelector(webPageDom, "div.author-note-portlet");
+
+        let re_cnRandomClass = new RegExp("^cn[A-Z][a-zA-Z0-9]{41}$");
+        webPageDom.querySelectorAll("p").forEach(element =>
+        {
+            let className = Array.from(element.classList).filter(item => re_cnRandomClass.test(item))[0];
+            if (className)
+            {
+                element.classList.remove(className);
+            }
+        }
+        );
     }
 
     //watermarks are regular <p> elements set to "display: none" by internal css
