@@ -27,6 +27,7 @@ parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelhulk.net", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelnext.com", () => new NovelfullParser());
+parserFactory.register("novelnext.dramanovels.io", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
 parserFactory.register("novelnextz.com", () => new NovelfullParser());
 parserFactory.register("noveltop1.org", () => new NovelfullParser());
@@ -37,6 +38,8 @@ parserFactory.register("novelxo.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 parserFactory.register("topnovelfull.com", () => new NovelfullParser());
+
+parserFactory.registerManualSelect("NovelNext", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
