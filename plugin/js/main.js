@@ -559,7 +559,8 @@ var main = (function () {
 
     function populateMetadataAddWithDom(url, dom) {
         try {
-            let metaAddInfo = getEpubMetaAddInfo(dom, userPreferences.useFullTitle.value, url);
+            let allTags = document.getElementById("lesstagsCheckbox").checked == false;
+            let metaAddInfo = EpubMetaInfo.getEpubMetaAddInfo(dom, url, allTags);
             setUiFieldToValue("subjectInput", metaAddInfo.subject);
             setUiFieldToValue("descriptionInput", metaAddInfo.description);
             if (getValueFromUiField("authorInput")=="<unknown>"){
@@ -572,68 +573,6 @@ var main = (function () {
             getPackEpubButton().disabled = false;
             document.getElementById("LibAddToLibrary").disabled = false;
         }
-    }
-
-    function getEpubMetaAddInfo(dom, useFullTitle, url){
-        let metaAddInfo = new EpubAddMetaInfo();
-
-        //novelupdates
-        if (url.includes("novelupdates.com") == true){
-            metaAddInfo.subject = AddSubjectNovelupdate(dom);
-            metaAddInfo.description = AddDescriptionNovelupdate(dom);
-            metaAddInfo.author = AddAuthorNovelupdate(dom);
-        }
-
-        //wlnupdates
-        else if(url.includes("wlnupdates.com") == true){
-            metaAddInfo.subject = AddSubjectWinupdates(dom);
-            metaAddInfo.description = AddDescriptionWinupdates(dom);
-            metaAddInfo.author = AddAuthorWinupdates(dom);
-        } else {
-            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com or wlnupdates.com.";
-            ErrorLog.showErrorMessage(test);
-        }
-        return metaAddInfo;
-    }
-    
-    class EpubAddMetaInfo {
-        constructor () {
-            this.subject = "";
-            this.description = "";
-            this.author = "";
-        }
-    }
-
-    function AddSubjectNovelupdate(dom){
-        let tags = [...dom.querySelectorAll("#seriesgenre .genre")];
-        if (document.getElementById("lesstagsCheckbox").checked == false) {
-            tags = tags.concat([...dom.querySelectorAll("#showtags .genre")]);
-        }
-        return tags.map(e => e.textContent).join(", ");
-    }
-
-    function AddDescriptionNovelupdate(dom){
-        return dom.querySelector("#editdescription").textContent;
-    }
-    
-    function AddAuthorNovelupdate(dom){
-        return dom.querySelector("#authtag").textContent;
-    }
-
-    function AddSubjectWinupdates(dom){
-        let tags = [...dom.querySelectorAll("#genre-container .multiitem a")];
-        if (document.getElementById("lesstagsCheckbox").checked == false) {
-            tags = tags.concat([...dom.querySelectorAll("#tag .multiitem a")]);
-        }
-        return tags.map(e => e.textContent.trim()).join(", ");
-    }
-
-    function AddDescriptionWinupdates(dom){
-        return dom.querySelector("#description .description").textContent;
-    }
-        
-    function AddAuthorWinupdates(dom){
-        return dom.querySelector("#author .multiitem a").textContent;
     }
 
     // actions to do when window opened

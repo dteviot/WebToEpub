@@ -154,4 +154,124 @@ class EpubMetaInfo {
         "    border: 1px solid black; padding: 0.5em\r" +
         "}";
     }
+
+    static getEpubMetaAddInfo(dom, url, allTags){
+        let metaAddInfo = new EpubAddMetaInfo();
+
+        //novelupdates
+        if (url.includes("novelupdates.com") == true){
+            metaAddInfo.subject = EpubMetaInfo.addSubjectNovelupdate(dom, allTags);
+            metaAddInfo.description = EpubMetaInfo.addDescriptionNovelupdate(dom);
+            metaAddInfo.author = EpubMetaInfo.addAuthorNovelupdate(dom);
+        }
+
+        //wlnupdates
+        else if(url.includes("wlnupdates.com") == true){
+            metaAddInfo.subject = EpubMetaInfo.addSubjectWinupdates(dom, allTags);
+            metaAddInfo.description = EpubMetaInfo.addDescriptionWinupdates(dom);
+            metaAddInfo.author = EpubMetaInfo.addAuthorWinupdates(dom);
+        } else {
+            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com or wlnupdates.com.";
+            ErrorLog.showErrorMessage(test);
+        }
+        return metaAddInfo;
+    }
+    
+    static addSubjectNovelupdate(dom, allTags){
+        let selector = "#seriesgenre .genre";
+        if (allTags) {
+            selector += ", #showtags .genre";
+        }
+        return EpubMetaInfo.buildSubjectFromTags(dom, selector);
+    }
+
+    static addDescriptionNovelupdate(dom){
+        return dom.querySelector("#editdescription").textContent;
+    }
+    
+    static addAuthorNovelupdate(dom){
+        return dom.querySelector("#authtag").textContent;
+    }
+
+    static addSubjectWinupdates(dom, allTags){
+        let selector = "#genre-container .multiitem a";
+        if (allTags) {
+            selector += ", #tag .multiitem a";
+        }
+        return EpubMetaInfo.buildSubjectFromTags(dom, selector);
+    }
+
+    static addDescriptionWinupdates(dom){
+        return dom.querySelector("#description .description").textContent;
+    }
+        
+    static addAuthorWinupdates(dom){
+        return dom.querySelector("#author .multiitem a").textContent;
+    }
+
+    static buildSubjectFromTags(dom, selector) {
+        return [...dom.querySelectorAll(selector)]
+            .map(e => EpubMetaInfo.decensor(e.textContent.trim()))
+            .join(", ");
+    }
+
+    static decensor(tag) {
+        if (tag.includes("*")) {
+            for(let j = 0; j < EpubMetaInfo.decensorList.length; j += 2) {
+                let cyphertext = EpubMetaInfo.decensorList[j];
+                let cleartext = EpubMetaInfo.decensorList[j + 1];
+                if (tag.includes(cyphertext)) {
+                    return tag.replace(cyphertext, cleartext);
+                }
+            }
+        }
+        return tag;
+    }
 }
+
+EpubMetaInfo.decensorList = [
+    "Ab*se", "Abuse",
+    "An*l", "Anal",
+    "B*tch", "Bitch",
+    "C*astity", "Chastity",
+    "C*ck", "Cock",
+    "C*nnilingus", "Cunnilingus",
+    "C*otch", "Crotch",
+    "E*oge", "Eroge",
+    "Ens*aved", "Enslaved",
+    "Erot*c", "Erotic",
+    "F**anari", "Futanari",
+    "F**k", "Fuck",
+    "F*llatio", "Fellatio",
+    "H**ny", "Horny",
+    "H*ndjob", "Handjob",
+    "Imp**gnation", "Impregnation",
+    "In*est", "Incest",
+    "Interc**rse", "Intercourse",
+    "M*sturbation", "Masturbation",
+    "N*dist", "Nudist",
+    "On**ole", "Onahole",
+    "Or*y", "Orgy",
+    "P**is", "Penis",
+    "P*rnographic", "Pornographic",
+    "Pe*vert", "Pervert",
+    "R*pe", "Rape",
+    "S**ked", "Sucked",
+    "S**tty", "Slutty",
+    "S*ave", "Slave",
+    "S*men", "Semen",
+    "S*um", "Scum",
+    "S*x", "Sex",
+    "s*x", "sex",
+    "Su*cide", "Suicide",
+    "Tr*sh", "Trash",
+    "Virg*n", "Virgin"];
+
+class EpubAddMetaInfo {
+    constructor () {
+        this.subject = "";
+        this.description = "";
+        this.author = "";
+    }
+}
+
