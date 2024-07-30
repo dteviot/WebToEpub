@@ -221,7 +221,7 @@ class EpubMetaInfo {
                 let cyphertext = EpubMetaInfo.decensorList[j];
                 let cleartext = EpubMetaInfo.decensorList[j + 1];
                 if (tag.includes(cyphertext)) {
-                    return tag.replace(cyphertext, cleartext);
+                    tag = tag.replace(cyphertext, cleartext);
                 }
             }
         }
