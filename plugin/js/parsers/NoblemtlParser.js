@@ -41,12 +41,20 @@ class NoblemtlParser extends Parser{
     }
 
     linkToChapter(link) {
-        let title = link.querySelector(".epl-num").textContent + " "
-            + link.querySelector(".epl-title").textContent;
+        let title = NoblemtlParser.extractChapterNum(link).trim() + " "
+            + link.querySelector(".epl-title").textContent.trim();
         return ({
             sourceUrl:  link.href,
             title: title
         });
+    }
+
+    static extractChapterNum(link) {
+        let eplnum = link.querySelector(".epl-num");
+        let chapnum = eplnum.querySelector(".chapter_num");
+        return chapnum == null
+            ? eplnum.textContent
+            : chapnum.textContent;
     }
 
     findContent(dom) {
