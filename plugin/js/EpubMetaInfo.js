@@ -186,7 +186,7 @@ class EpubMetaInfo {
     }
 
     static addDescriptionNovelupdate(dom){
-        return dom.querySelector("#editdescription").textContent;
+        return dom.querySelector("#editdescription").textContent.replace(/\n+/g, "\n").replace(/\n/g, "\n\n");
     }
     
     static addAuthorNovelupdate(dom){
@@ -255,6 +255,7 @@ EpubMetaInfo.decensorList = [
     "P**is", "Penis",
     "P*rnographic", "Pornographic",
     "Pe*vert", "Pervert",
+    "Prostit**es", "Prostitutes",
     "R*pe", "Rape",
     "S**ked", "Sucked",
     "S**tty", "Slutty",
