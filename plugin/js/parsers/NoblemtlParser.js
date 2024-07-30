@@ -25,6 +25,11 @@ parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
 parserFactory.registerRule(
+    (url, dom) => NoblemtlParser.isNoblemtlTheme(dom) * 0.7,
+    () => new NoblemtlParser()
+);
+
+parserFactory.registerRule(
     (url, dom) => PandamtlParser.isPandamtlTheme(dom) * 0.7,
     () => new PandamtlParser()
 );
@@ -32,6 +37,11 @@ parserFactory.registerRule(
 class NoblemtlParser extends Parser{
     constructor() {
         super();
+    }
+
+    static isNoblemtlTheme(dom) {
+        return (dom.querySelector("div.eplister a") != null) &&
+            (dom.querySelector(".thumbook") != null)
     }
 
     async getChapterUrls(dom) {
