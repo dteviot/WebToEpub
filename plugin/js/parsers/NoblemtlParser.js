@@ -24,6 +24,11 @@ parserFactory.register("pandamtl.com", () => new PandamtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
+parserFactory.registerRule(
+    (url, dom) => PandamtlParser.isPandamtlTheme(dom) * 0.7,
+    () => new PandamtlParser()
+);
+
 class NoblemtlParser extends Parser{
     constructor() {
         super();
@@ -101,6 +106,11 @@ class NoblemtlParser extends Parser{
 class PandamtlParser extends NoblemtlParser{
     constructor() {
         super();
+    }
+
+    static isPandamtlTheme(dom) {
+        return (dom.querySelector("div.eplister a") != null) &&
+            (dom.querySelector(".sertothumb") != null)
     }
 
     findCoverImageUrl(dom) {
