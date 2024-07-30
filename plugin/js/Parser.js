@@ -461,7 +461,7 @@ class Parser {
         that.imageCollector.reset();
         that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
 
-        await parserFactory.addParsersToPages(this, pagesToFetch);
+        await this.addParsersToPages(pagesToFetch);
         let index = 0;
         try
         {
@@ -476,6 +476,10 @@ class Parser {
         {
             ErrorLog.log(err);
         }
+    }
+
+    async addParsersToPages(pagesToFetch) {
+        parserFactory.addParsersToPages(this, pagesToFetch);
     }
 
     groupPagesToFetch(webPages, index) {

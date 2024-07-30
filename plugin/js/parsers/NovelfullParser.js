@@ -27,6 +27,7 @@ parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelhulk.net", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelnext.com", () => new NovelfullParser());
+parserFactory.register("novelnext.dramanovels.io", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
 parserFactory.register("novelnextz.com", () => new NovelfullParser());
 parserFactory.register("noveltop1.org", () => new NovelfullParser());
@@ -38,19 +39,21 @@ parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 parserFactory.register("topnovelfull.com", () => new NovelfullParser());
 
-parserFactory.registerUrlRule(
-    url => NovelfullParser.IsNovelfullHost(url),
-    () => new NovelfullParser()
-);
+parserFactory.registerManualSelect("NovelNext", () => new NovelfullParser());
 
 class NovelfullParser extends Parser{
     constructor() {
         super();
     }
 
-    static IsNovelfullHost(url) {
-        let host = ParserFactory.hostNameForParserSelection(url);
-        return host.endsWith(".novelcenter.net") || host.endsWith(".noveljar.org");
+    // This site uses lots of hostname aliases in the chapter URLs
+    // and changes them frequently.  Resulting in WtE not picking the
+    // correct parser for the chapters
+    // See: https://github.com/dteviot/WebToEpub/issues/1345
+    async addParsersToPages(pagesToFetch) {
+        for(let page of pagesToFetch) {
+            page.parser = this;
+        }
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
