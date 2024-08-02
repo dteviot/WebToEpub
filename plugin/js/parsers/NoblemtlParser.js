@@ -24,9 +24,24 @@ parserFactory.register("pandamtl.com", () => new PandamtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
+parserFactory.registerRule(
+    (url, dom) => NoblemtlParser.isNoblemtlTheme(dom) * 0.7,
+    () => new NoblemtlParser()
+);
+
+parserFactory.registerRule(
+    (url, dom) => PandamtlParser.isPandamtlTheme(dom) * 0.7,
+    () => new PandamtlParser()
+);
+
 class NoblemtlParser extends Parser{
     constructor() {
         super();
+    }
+
+    static isNoblemtlTheme(dom) {
+        return (dom.querySelector("div.eplister a") != null) &&
+            (dom.querySelector(".thumbook") != null)
     }
 
     async getChapterUrls(dom) {
@@ -36,12 +51,20 @@ class NoblemtlParser extends Parser{
     }
 
     linkToChapter(link) {
-        let title = link.querySelector(".epl-num").textContent + " "
-            + link.querySelector(".epl-title").textContent;
+        let title = NoblemtlParser.extractChapterNum(link).trim() + " "
+            + link.querySelector(".epl-title").textContent.trim();
         return ({
             sourceUrl:  link.href,
             title: title
         });
+    }
+
+    static extractChapterNum(link) {
+        let eplnum = link.querySelector(".epl-num");
+        let chapnum = eplnum.querySelector(".chapter_num");
+        return chapnum == null
+            ? eplnum.textContent
+            : chapnum.textContent;
     }
 
     findContent(dom) {
@@ -101,6 +124,11 @@ class NoblemtlParser extends Parser{
 class PandamtlParser extends NoblemtlParser{
     constructor() {
         super();
+    }
+
+    static isPandamtlTheme(dom) {
+        return (dom.querySelector("div.eplister a") != null) &&
+            (dom.querySelector(".sertothumb") != null)
     }
 
     findCoverImageUrl(dom) {

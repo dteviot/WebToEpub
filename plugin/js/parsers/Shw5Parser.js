@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("shw5.cc", () => new Shw5Parser());
+parserFactory.register("bqka.cc", () => new Shw5Parser());
 
 class Shw5Parser extends Parser{
     constructor() {
