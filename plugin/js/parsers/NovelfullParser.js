@@ -38,6 +38,7 @@ parserFactory.register("novelxo.net", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());
 parserFactory.register("topnovelfull.com", () => new NovelfullParser());
+parserFactory.register("zinnovel.net", () => new NovelfullParser());
 
 parserFactory.registerManualSelect("NovelNext", () => new NovelfullParser());
 
