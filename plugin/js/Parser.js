@@ -51,8 +51,9 @@ class ParserState {
     }
 }
 
-class Parser {
+class Parser {    
     constructor(imageCollector) {
+        this.minimumThrottle = null;
         this.state = new ParserState();
         this.imageCollector = imageCollector || new ImageCollector();
         this.userPreferences = null;
@@ -662,8 +663,24 @@ class Parser {
         return await this.getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
     }
 
+    getRateLimit()
+    {
+        if (this.userPreferences.manualDelayPerChapter.value == "simulate_reading")
+        {
+            return this.userPreferences.manualDelayPerChapter.value;
+        }
+        let manualDelayPerChapterValue = parseInt(this.userPreferences.manualDelayPerChapter.value);
+
+        if (!this.userPreferences.overrideMinimumDelay.value)
+        {
+            return Math.max(this.minimumThrottle, manualDelayPerChapterValue);
+        }
+        return manualDelayPerChapterValue;
+    }
+
     async rateLimitDelay() {
-        let manualDelayPerChapterValue = (this.userPreferences.manualDelayPerChapter.value == "simulate_reading" )? util.randomInteger(420000,900000): parseInt(this.userPreferences.manualDelayPerChapter.value);  
+        let manualDelayPerChapterValue = this.getRateLimit();
+        manualDelayPerChapterValue = (manualDelayPerChapterValue == "simulate_reading" )? util.randomInteger(420000,900000): manualDelayPerChapterValue;
         await util.sleep(manualDelayPerChapterValue);
     }
 
