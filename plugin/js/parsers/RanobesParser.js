@@ -6,6 +6,7 @@ parserFactory.register("ranobes.top", () => new RanobesParser());
 class RanobesParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 1000;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {

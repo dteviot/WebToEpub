@@ -28,6 +28,13 @@ parserFactory.registerRule(
 class TemplateParser extends Parser{
     constructor() {
         super();
+        //Optional Parameters:
+
+        /*
+        // Minimum delay (in ms) between page requests. Useful for 403 error prevention.
+        // If the sites this parser accesses throttles requests or uses cloudflare, it is recommended to set this.
+        this.minimumThrottle = 3000;
+        */
     }
 
     // returns promise with the URLs of the chapters to fetch
