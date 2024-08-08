@@ -8,6 +8,7 @@ parserFactory.registerUrlRule(
 class ShuParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 1000;
     }
 
     async getChapterUrls(dom) {

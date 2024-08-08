@@ -98,6 +98,7 @@ class UserPreferences {
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
+        this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.addPreference("themeColor", "themeColorTag", "");
