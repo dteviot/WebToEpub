@@ -45,6 +45,7 @@ parserFactory.registerManualSelect("NovelNext", () => new NovelfullParser());
 class NovelfullParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 1000;
     }
 
     // This site uses lots of hostname aliases in the chapter URLs
