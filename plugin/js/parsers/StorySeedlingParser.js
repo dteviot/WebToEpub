@@ -26,6 +26,19 @@ class StorySeedlingParser extends Parser {
         );
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
+    preprocessRawDom(webPageDom) {
+        let notes = webPageDom.querySelector("div.prose .mb-4:nth-of-type(2)");
+        if ((notes != null) && !this.userPreferences.removeAuthorNotes.value) {
+            this.tagAuthorNotes([notes]);
+            this.findContent(webPageDom).appendChild(notes);
+        }
+    }
+
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
     }

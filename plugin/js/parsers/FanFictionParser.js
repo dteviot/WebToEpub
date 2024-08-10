@@ -11,6 +11,7 @@ parserFactory.register("www.fictionpress.com", function() { return new FanFictio
 class FanFictionParser extends Parser {
     constructor() {
         super();
+        this.minimumThrottle = 3000;
     }
 
     async getChapterUrls(dom) {
