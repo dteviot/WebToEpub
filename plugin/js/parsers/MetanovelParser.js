@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.metanovel.org", () => new MetanovelParser());
 
 class MetanovelParser extends Parser{

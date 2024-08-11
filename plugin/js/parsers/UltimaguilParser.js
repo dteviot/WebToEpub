@@ -3,6 +3,7 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("ultimaguil.org", function() { return new UltimaguilParser(new VariableSizeImageCollector()) });
 
 class UltimaguilParser extends Parser {

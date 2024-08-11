@@ -3,6 +3,7 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("shinsori.com", function() { return new ShinsoriParser() });
 
 class ShinsoriParser extends Parser{

@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("ossantl.com", () => new OssantlParser());
 
 class OssantlParser extends Parser{

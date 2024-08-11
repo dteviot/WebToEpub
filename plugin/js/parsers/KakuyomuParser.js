@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("kakuyomu.jp", () => new KakuyomuParser());
 
 class KakuyomuParser extends Parser{

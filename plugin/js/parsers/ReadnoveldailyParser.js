@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url
 parserFactory.register("readnoveldaily.com", () => new ReadnoveldailyParser());
 parserFactory.register("allnovelbook.com", () => new ReadnoveldailyParser());
 

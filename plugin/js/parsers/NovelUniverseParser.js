@@ -3,6 +3,7 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("noveluniverse.com", function() { return new NovelUniverseParser() });
 
 class NovelUniverseParser extends Parser{

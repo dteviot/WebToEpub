@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("novelgreat.net", function () { return new NovelgreatParser() });
 
 class NovelgreatParser extends NovelfullParser{

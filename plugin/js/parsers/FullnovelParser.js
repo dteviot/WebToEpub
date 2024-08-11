@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("fullnovel.co", () => new FullnovelParser());
 
 class FullnovelParser extends Parser{

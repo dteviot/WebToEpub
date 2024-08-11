@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("gamefaqs.gamespot.com", () => new GamefaqsGamespotParser());
 
 class GamefaqsGamespotParser extends Parser{

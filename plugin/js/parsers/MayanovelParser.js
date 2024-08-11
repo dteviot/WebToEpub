@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("mayanovel.com", () => new MayanovelParser());
 
 class MayanovelParser extends Parser{

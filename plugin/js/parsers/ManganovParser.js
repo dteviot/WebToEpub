@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("manganov.com", () => new ManganovParser());
 
 class ManganovParser extends Parser{

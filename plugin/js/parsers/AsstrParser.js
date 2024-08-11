@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("asstr.org", () => new AsstrParser());
 
 class AsstrParser extends Parser{

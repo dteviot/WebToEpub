@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("wnmtl.com", function() { return new WnmtlParser() });
 class WnmtlParser extends Parser{
     constructor() {

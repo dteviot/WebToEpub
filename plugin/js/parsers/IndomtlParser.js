@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("indomtl.com", () => new IndomtlParser());
 
 class IndomtlParser extends Parser{

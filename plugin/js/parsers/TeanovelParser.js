@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("teanovel.com", () => new TeanovelParser());
+//dead url
 parserFactory.register("teanovel.net", () => new TeanovelParser());
 
 class TeanovelParser extends Parser{

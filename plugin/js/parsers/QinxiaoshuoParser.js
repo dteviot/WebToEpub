@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("qinxiaoshuo.com", () => new QinxiaoshuoParser());
 
 class QinxiaoshuoParser extends Parser{

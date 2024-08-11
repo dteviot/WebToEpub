@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("isekaiscan.com", () => new IsekaiScanParser());
 
 class IsekaiScanParser extends Parser{

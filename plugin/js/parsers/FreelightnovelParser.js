@@ -1,6 +1,8 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("freelightnovel.net", () => new FreelightnovelParser());
+//dead url
 parserFactory.register("m.freelightnovel.net", () => new MFreelightnovelParser());
 
 class FreelightnovelParser extends Parser{

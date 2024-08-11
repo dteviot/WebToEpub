@@ -1,5 +1,6 @@
 "use strict";
 
+//broken url
 parserFactory.register("230book.net", () => new _230BookParser() );
 parserFactory.register("38xs.com", () => new _38xsParser() );
 

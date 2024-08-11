@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("storyseedling.com", () => new StorySeedlingParser());
 
 class StorySeedlingParser extends Parser {

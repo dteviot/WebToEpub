@@ -1,6 +1,8 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
+//dead url
 parserFactory.register("babelnovel.com", () => new BabelChainParser());
 
 class BabelChainParser extends Parser{

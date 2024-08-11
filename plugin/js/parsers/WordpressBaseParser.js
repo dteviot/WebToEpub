@@ -9,9 +9,13 @@ parserFactory.register("shalvationtranslations.wordpress.com", function() { retu
 parserFactory.register("frostfire10.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("isekaicyborg.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("moonbunnycafe.com", function() { return new WordpressBaseParser() });
+//dead url
 parserFactory.register("rainingtl.org", function() { return new WordpressBaseParser() });
+//dead url
 parserFactory.register("raisingthedead.ninja", function() { return new WordpressBaseParser() });
+//dead url
 parserFactory.register("skythewoodtl.com", function() { return new WordpressBaseParser() });
+//dead url
 parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("wanderertl130.id", function() { return new Wanderertl130Parser() });
 

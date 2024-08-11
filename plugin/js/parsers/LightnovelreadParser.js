@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url
 parserFactory.register("lightnovelread.com", () => new LightnovelreadParser());
 parserFactory.register("goblinsguide.com", () => new GoblinsguideParser());
 

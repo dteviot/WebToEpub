@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.bqg225.com", () => new Bqg225Parser());
 
 class Bqg225Parser extends Parser{

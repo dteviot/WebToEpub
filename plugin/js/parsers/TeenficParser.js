@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("teenfic.net", () => new TeenficParser());
 
 class TeenficParser extends Parser{

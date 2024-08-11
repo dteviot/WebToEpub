@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("vipnovel.com", () => new VipNovelParser());
 
 class VipNovelParser extends Parser{
