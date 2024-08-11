@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("fictionhunt.com", () => new FictionhuntParser());
 
 class FictionhuntParser extends Parser{

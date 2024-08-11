@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("webnovelonline.com", () => new WebNovelOnlineParser());
 
 class WebNovelOnlineParser extends Parser{

@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.mywuxiaworld.com", () => new MMyWwuxiaWorldParser());
 
 class MMyWwuxiaWorldParser extends Parser{

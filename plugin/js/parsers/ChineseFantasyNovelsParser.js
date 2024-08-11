@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.chinesefantasynovels.com", function() { return new ChineseFantasyNovelsParser() });
 
 class ChineseFantasyNovelsParser extends Parser{

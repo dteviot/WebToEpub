@@ -3,6 +3,7 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("fanfiction.mugglenet.com", function() { return new MuggleNetParser() });
 
 class MuggleNetParser extends Parser{

@@ -10,6 +10,7 @@
 
 // Use this function if site's host name is sufficient.  
 // i.e. All pages are on same site, and use same format.
+//dead url/ parser
 parserFactory.register("gutenberg.spiegel.de", function() { return new GutenbergDEParser() });
 
 class GutenbergDEParser extends Parser{

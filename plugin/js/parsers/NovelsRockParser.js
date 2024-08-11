@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("novelsrock.com", () => new NovelsRockParser());
 
 class NovelsRockParser extends Parser{

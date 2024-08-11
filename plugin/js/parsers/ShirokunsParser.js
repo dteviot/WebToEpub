@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("shirokuns.com", () => new ShirokunsParser());
 
 class ShirokunsParser extends Parser{

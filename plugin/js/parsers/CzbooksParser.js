@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("czbooks.net", () => new CzbooksParser());
 
 class CzbooksParser extends Parser{

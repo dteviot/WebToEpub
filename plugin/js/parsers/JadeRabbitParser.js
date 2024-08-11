@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("jade-rabbit.net", () => new JadeRabbitParser());
 
 class JadeRabbitParser extends Parser{

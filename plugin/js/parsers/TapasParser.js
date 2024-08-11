@@ -1,6 +1,8 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("tapas.io", () => new TapasParser());
+//dead url
 parserFactory.register("m.tapas.io", () => new TapasParser());
 
 class TapasParser extends Parser{

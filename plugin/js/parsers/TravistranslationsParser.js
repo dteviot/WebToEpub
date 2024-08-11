@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("travistranslations.com", () => new TravistranslationsParser());
 
 class TravistranslationsParser extends Parser{

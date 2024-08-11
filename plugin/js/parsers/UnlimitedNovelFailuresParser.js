@@ -3,6 +3,7 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("unlimitednovelfailures.mangamatters.com", 
     function() { return new UnlimitedNovelFailuresParser() }
 );

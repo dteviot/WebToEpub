@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("onlinenovelbook.com", () => new OnlinenovelbookParser());
 
 class OnlinenovelbookParser extends WordpressBaseParser{

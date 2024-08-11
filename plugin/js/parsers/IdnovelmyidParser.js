@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("idnovel.my.id", () => new IdnovelmyidParser());
 
 class IdnovelmyidParser extends Parser{

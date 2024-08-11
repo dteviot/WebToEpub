@@ -1,6 +1,8 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("novelspread.com", function() { return new NovelSpreadParser() });
+//dead url
 parserFactory.register("m.novelspread.com", function() { return new MNovelSpreadParser() });
 
 class NovelSpreadParser extends Parser{

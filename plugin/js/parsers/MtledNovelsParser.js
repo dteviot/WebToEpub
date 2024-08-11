@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("mtled-novels.com", () => new MtledNovelsParser());
 
 class MtledNovelsParser extends Parser{

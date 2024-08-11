@@ -1,7 +1,10 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("lightnovels.me", () => new LightnovelsmeParser());
+//dead url
 parserFactory.register("pandapama.com", () => new LightnovelsmeParser());
+//dead url
 parserFactory.register("lightnovels.live", () => new LightnovelsmeParser());
 
 class LightnovelsmeParser extends Parser{

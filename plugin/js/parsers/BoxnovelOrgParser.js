@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("boxnovel.org", () => new BoxnovelOrgParser());
 
 class BoxnovelOrgParser extends Parser{

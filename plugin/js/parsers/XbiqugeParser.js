@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("xbiquge.so", () => new XbiqugeParser());
 
 class XbiqugeParser extends Parser{
