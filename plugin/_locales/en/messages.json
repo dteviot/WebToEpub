@@ -627,13 +627,17 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon to site, or browse site normally until you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA before WebToEpub can continue.",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon to site, or browse site normally until you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA before WebToEpub can continue. Open Page?",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {
 				"content": "$1"
 			}
 		}
+	},
+	"wait403ErrorResponse": {
+		"message": "Wait until you cleared cloudflare or login.",
+		"description": "Wait message for user when site sends a 403 response."
 	},
 	"warning429ErrorResponse": {
 		"message": "WARNING: Site '$host$' has requested WebToEpub to slow down rate of chapter requests.  WebToEpub will wait until site allows requesting chapters again.  However, if this does not work, you may need to adjust manually.  Under 'Advanced Options' -> lower 'Max web pages to fetch simultaneously' and/or increase 'Manual Throttle|Delay per chapter'",
