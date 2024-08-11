@@ -75,7 +75,7 @@ class FetchErrorHandler {
         case 403:
             if (confirm(chrome.i18n.getMessage("warning403ErrorResponse", new URL(response.url).hostname))) {
                 // Open site
-                window.open(new URL(response.url), '_blank').focus();
+                window.open(new URL(response.url), "_blank").focus();
                 alert(chrome.i18n.getMessage("wait403ErrorResponse", new URL(response.url).hostname));
             } else {
                 // Do nothing!
