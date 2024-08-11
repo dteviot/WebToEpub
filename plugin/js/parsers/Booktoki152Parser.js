@@ -8,6 +8,7 @@ parserFactory.registerUrlRule(
 class Booktoki152Parser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 1500;
     }
 
     async getChapterUrls(dom) {

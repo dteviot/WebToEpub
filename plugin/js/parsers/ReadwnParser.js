@@ -3,6 +3,7 @@
 parserFactory.register("fannovel.com", () => new ReadwnParser());
 parserFactory.register("fannovels.com", () => new ReadwnParser());
 parserFactory.register("fansmtl.com", () => new ReadwnParser());
+parserFactory.register("fanmtl.com", () => new ReadwnParser());
 parserFactory.register("novelmt.com", () => new ReadwnParser());
 parserFactory.register("novelmtl.com", () => new ReadwnParser());
 parserFactory.register("readwn.com", () => new ReadwnParser());
@@ -30,6 +31,7 @@ parserFactory.registerRule(
 class ReadwnParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 3000;
     }
 
     static isReadwn(dom) {

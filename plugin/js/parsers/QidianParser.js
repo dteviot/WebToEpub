@@ -8,6 +8,7 @@ parserFactory.register("webnovel.com", () => new QidianParser());
 class QidianParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 50; //Minimal delay to reduce frequency of 445 errors.
     }
 
     async getChapterUrls(dom) {
