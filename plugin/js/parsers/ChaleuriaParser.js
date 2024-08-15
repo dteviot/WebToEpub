@@ -8,9 +8,14 @@ class ChaleuriaParser extends WordpressBaseParser{
     }
 
     async getChapterUrls(dom) {
-        let rows = [...dom.querySelectorAll("table.toctable tr.tocrow")]
-            .map(this.rowToChapter);
-        return rows;
+        let rows = dom.querySelectorAll("table.toctable tr.tocrow");
+        if (rows.length>0) {
+            return [...rows].map(row => this.rowToChapter(row));
+        }
+        else {
+            let menu = dom.querySelector(".entry-content");
+            return util.hyperlinksToChapterList(menu);
+        }
     }
     
     rowToChapter(row) {
