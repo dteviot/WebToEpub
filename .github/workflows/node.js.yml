@@ -35,3 +35,34 @@ jobs:
         path: |
           eslint/*.xpi
           eslint/*.zip
+        
+    - name: Release latest developer build
+      run: |
+        
+        # create a developer-build release notes:
+        echo "Create developer-build release notes."
+        echo "Latest developer build of WebToEpub with the latest fixes." >> output.txt
+        echo "" >> output.txt
+        echo "This release was created on **$(date +'%Y-%m-%d %H:%M')** and may contain unexpected bugs." >> output.txt
+        echo "To install the Addon pick the file suitable for you," >> output.txt
+        echo "*WebToEpubx.x.x.x.xpi for Firefox" >> output.txt
+        echo "*WebToEpubx.x.x.x.zip for Chrome" >> output.txt
+        echo "follow the [How to install from Source (for people who are not developers)](https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-how-to-install-from-source-for-people-who-are-not-developers) instructions" >> output.txt
+        echo "" >> output.txt
+        echo "**Full Changelog**: https://github.com/dteviot/WebToEpub/compare/0.0.0.159...ExperimentalTabMode" >> output.txt
+
+        # delete old developer-build release:
+        echo "delete old developer-build release."
+        gh release delete developer-build
+
+        # create developer-build release:
+        echo "create developer-build release."
+        gh release create developer-build -p --verify-tag \
+          -t "ExperimentalTabMode" \
+          -F output.txt
+        
+        # add files to release.
+        gh release upload developer-build eslint/*.xpi
+        gh release upload developer-build eslint/*.zip
+
+        
