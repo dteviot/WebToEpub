@@ -59,7 +59,7 @@ jobs:
         echo "create developer-build release."
         gh release create developer-build -p --verify-tag \
           -t "Latest developer build" \
-          --target ExperimentalTabMode \
+          --target "ExperimentalTabMode" \
           -F output.txt
         
         # add files to release.
