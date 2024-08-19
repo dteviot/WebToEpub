@@ -62,5 +62,6 @@ jobs:
         # add files to release.
         gh release upload developer-build eslint/*.xpi
         gh release upload developer-build eslint/*.zip
-
+      env:
+          GH_TOKEN: ${{ github.token }}
         
