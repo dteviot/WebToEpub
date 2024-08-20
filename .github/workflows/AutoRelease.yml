@@ -1,0 +1,90 @@
+# This workflow will release a new developer build version on github
+
+name: Auto release developer-build
+
+on:
+  push:
+    branches: [ ExperimentalTabMode ] 
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+
+    - name: Increase Version in manifest.json and push it
+      shell: cmd
+      run: |
+
+        Get-Command "jq.exe"
+        jq.exe --version
+        echo %cd%
+        echo increament last version number and save it in new_version.txt
+        jq.exe (.version^|sub(\"[0-9]?.[0-9]?.[0-9]?.\";\"\")^|tonumber+1) < plugin/manifest.json > new_version.txt
+        set /p Build=<new_version.txt
+
+        echo save complete version number in new_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|(.[3]^|=%Build%)^|map(tostring)^|join(\".\")) < plugin/manifest.json > new_version.txt
+        set /p Build=<new_version.txt
+
+        echo save new_manifest.json with new version number
+        jq.exe (.version^|=\"%Build%\") plugin/manifest.json > new_manifest.json
+        echo move new_manifest.json to manifest.json
+        move /y new_manifest.json plugin/manifest.json
+
+        echo cleanup new_version.txt
+        jq.exe -r . new_version.txt > new_clean_version.txt
+        
+        echo do some configuration
+        git config user.name github-actions
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+        git add plugin/manifest.json
+        git commit -m "Auto commit for Version %Build%"
+        git push
+
+    - run: npm install
+    - run: npm run lint
+        
+    - name: Release latest developer build
+      shell: cmd
+      run: |
+        
+        set /p Build=<new_clean_version.txt
+
+        echo zip release files
+        cd eslint
+        tar -a -c -f WebToEpub-developer-build-%Build%.zip WebToEpub%Build%.xpi WebToEpub%Build%.zip
+        cd ..
+
+        echo Create developer-build release notes.
+        echo Latest developer build of WebToEpub with the latest fixes. > output.txt
+        echo To install the Addon pick the file suitable for you, >> output.txt
+        echo * WebToEpub%Build%.xpi for Firefox >> output.txt
+        echo * WebToEpub%Build%.zip for Chrome >> output.txt
+        echo.>> output.txt
+        echo follow the [How to install from Source (for people who are not developers)](https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-how-to-install-from-source-for-people-who-are-not-developers) instructions to install it.>> output.txt
+        echo.>> output.txt
+        echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/0.0.0.159...ExperimentalTabMode >> output.txt
+
+        echo delete old developer-build release:
+        gh release delete developer-build
+
+        echo create developer-build release:
+        gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
+        
+        echo add files to release.
+        gh release upload developer-build eslint/WebToEpub-developer-build-%Build%.zip
+      env:
+          GH_TOKEN: ${{ github.token }}
