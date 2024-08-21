@@ -4,11 +4,14 @@
 "use strict";
 
 parserFactory.register("novelonlinefree.com", function() { return new NovelOnlineFreeParser() });
+//dead url
 parserFactory.register("novelonlinefree.info", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("novelonlinefull.com", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("wuxiaworld.online", function() { return new NovelOnlineFreeParser() });
+//dead url
 parserFactory.register("chinesewuxia.world", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("bestlightnovel.com", function() { return new NovelOnlineFreeParser() });
+//dead url
 parserFactory.register("wuxia-world.online", function() { return new NovelOnlineFreeParser() });
 parserFactory.register("wuxiaworld.live", function() { return new NovelOnlineFreeParser() });
 

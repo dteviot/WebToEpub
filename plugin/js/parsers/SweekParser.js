@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("sweek.com", () => new SweekParser());
 
 class SweekParser extends Parser{

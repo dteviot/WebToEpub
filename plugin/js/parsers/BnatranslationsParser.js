@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("bnatranslations.com", () => new BnatranslationsParser());
 
 class BnatranslationsParser extends Parser{

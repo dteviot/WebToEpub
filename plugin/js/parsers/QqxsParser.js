@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.qqxs.vip", () => new QqxsParser());
 
 class QqxsParser extends Parser{

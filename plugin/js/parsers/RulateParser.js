@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("tl.rulate.ru", () => new RulateParser());
 
 class RulateParser extends Parser {

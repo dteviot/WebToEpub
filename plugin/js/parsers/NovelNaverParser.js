@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("novel.naver.com", () => new NovelNaverParser());
 
 class NovelNaverImageCollector extends ImageCollector {

@@ -1,6 +1,8 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("fastnovel.net", () => new FastNovelParser());
+//dead url
 parserFactory.register("novelgate.net", () => new FastNovelParser());
 
 class FastNovelParser extends Parser{

@@ -3,7 +3,9 @@
 */
 "use strict";
 
+//dead url/ parser
 parserFactory.register("liberspark.com", function() { return new LibersparkParser() });
+//dead url
 parserFactory.register("veratales.com", function() { return new LibersparkParser() });
 
 class LibersparkParser extends Parser{

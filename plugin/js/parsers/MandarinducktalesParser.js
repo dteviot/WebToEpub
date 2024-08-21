@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("mandarinducktales.com", () => new MandarinducktalesParser());
 
 class MandarinducktalesParser extends Parser{

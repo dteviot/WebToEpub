@@ -1,14 +1,19 @@
 "use strict";
 
 parserFactory.register("listnovel.com", () => new MadaraParser());
+//dead url
 parserFactory.register("readwebnovel.xyz", () => new MadaraParser());
 parserFactory.register("wuxiaworld.site", () => new MadaraParser());
+//dead url
 parserFactory.register("pery.info", () => new MadaraParser());
 parserFactory.register("morenovel.net", () => new MadaraParser());
 parserFactory.register("nightcomic.com", function() { return new MadaraParser() });
+//dead url
 parserFactory.register("webnovel.live", function() { return new MadaraParser() });
+//dead url
 parserFactory.register("noveltrench.com", function() { return new MadaraParser() });
 parserFactory.register("mangasushi.net", function() { return new MadaraParser() });
+//dead url
 parserFactory.register("mangabob.com", function() { return new MadaraParser() });
 
 

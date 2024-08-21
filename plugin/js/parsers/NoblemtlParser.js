@@ -1,23 +1,31 @@
 "use strict";
 
 parserFactory.register("arcanetranslations.com", () => new PandamtlParser());
+//dead url
 parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new KnoxtspaceParser());
 parserFactory.register("daotranslate.com", () => new NoblemtlParser());
 parserFactory.register("daotranslate.us", () => new NoblemtlParser());
+//dead url
 parserFactory.register("faloomtl.com", () => new NoblemtlParser());
+//dead url
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
 parserFactory.register("hoxionia.com", () => new NoblemtlParser());
 parserFactory.register("jobnib.com", () => new PandamtlParser());
 parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelcranel.org", () => new NoblemtlParser());
+//dead url
 parserFactory.register("novelsparadise.net", () => new PandamtlParser());
+//dead url
 parserFactory.register("readfreebooksonline.org", () => new NoblemtlParser());
+//dead url
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("taonovel.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
+//dead url
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
+//dead url
 parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
 
 parserFactory.register("pandamtl.com", () => new PandamtlParser());

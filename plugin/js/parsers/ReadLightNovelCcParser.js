@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("readlightnovel.cc", () => new ReadLightNovelCcParser());
 
 class ReadLightNovelCcParser extends Parser{

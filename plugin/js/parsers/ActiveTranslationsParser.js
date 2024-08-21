@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("a-t.nu", () => new ActiveTranslationsParser());
 
 class ActiveTranslationsParser extends Parser{

@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("m.gzbpi.com", () => new GzbpParser());
 
 class GzbpParser extends Parser{

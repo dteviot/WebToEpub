@@ -1,5 +1,6 @@
 "use strict";
 
+//dead url/ parser
 parserFactory.register("noveltranslatedbyc.blogspot.com", () => new NoveltranslatedbycParser());
 
 class NoveltranslatedbycParser extends BlogspotParser{
