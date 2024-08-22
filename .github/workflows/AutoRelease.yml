@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Define release "milestone" "majore" "minore" or "dev"'
+        description: 'Define release "milestone", "major", "minor" or "dev"'
         required: true
         default: 'dev'
 
@@ -50,13 +50,13 @@ jobs:
 
         echo extract version numbers
         jq.exe (.version^|split(\".\")^|map(tonumber)^|.[0]) < plugin/manifest.json > milestone_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[1]) < plugin/manifest.json > majore_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[2]) < plugin/manifest.json > minore_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[1]) < plugin/manifest.json > major_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[2]) < plugin/manifest.json > minor_version.txt
         jq.exe (.version^|split(\".\")^|map(tonumber)^|.[3]) < plugin/manifest.json > dev_version.txt
         
         set /p var_mil=<milestone_version.txt
-        set /p var_maj=<majore_version.txt
-        set /p var_min=<minore_version.txt
+        set /p var_maj=<major_version.txt
+        set /p var_min=<minor_version.txt
         set /p var_dev=<dev_version.txt
         jq.exe -r (.version^|split(\".\")^|map(tonumber)^|(.[0]^|=%var_mil%)^|(.[1]^|=%var_maj%)^|(.[2]^|=%var_min%)^|(.[3]^|=0)^|map(tostring)^|join(\".\")) < plugin/manifest.json > old_change_log_version.txt
 
@@ -70,14 +70,14 @@ jobs:
           set var_min=0
           set var_dev=0
         ) else (
-          if "majore"=="%version%" (
-            echo if majore
+          if "major"=="%version%" (
+            echo if major
             set /A var_maj+=1
             set var_min=0
             set var_dev=0
           ) else (
-            if "minore"=="%version%" (
-              echo if minore
+            if "minor"=="%version%" (
+              echo if minor
               set /A var_min+=1
               set var_dev=0
             ) else (
@@ -132,10 +132,10 @@ jobs:
         if "milestone"=="%version%" (
           set normal_release=1
         ) else (
-          if "majore"=="%version%" (
+          if "major"=="%version%" (
             set normal_release=1
           ) else (
-            if "minore"=="%version%" (
+            if "minor"=="%version%" (
               set normal_release=1
             ) else (
               set normal_release=0
