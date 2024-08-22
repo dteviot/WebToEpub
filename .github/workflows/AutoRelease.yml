@@ -5,6 +5,12 @@ name: Auto release developer-build
 on:
   push:
     branches: [ ExperimentalTabMode ] 
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Define release "milestone" "majore" "minore" or "dev"'
+        required: true
+        default: 'dev'
 
 jobs:
   build:
@@ -24,67 +30,164 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
 
-    - name: Increase Version in manifest.json and push it
+    - name: Increase Version in manifest.json
       shell: cmd
       run: |
-
+        set version=${{ github.event.inputs.version }}
         Get-Command "jq.exe"
         jq.exe --version
-        echo %cd%
-        echo increament last version number and save it in new_version.txt
-        jq.exe (.version^|sub(\"[0-9]?.[0-9]?.[0-9]?.\";\"\")^|tonumber+1) < plugin/manifest.json > new_version.txt
-        set /p Build=<new_version.txt
+
+        echo do some git configuration
+        git config user.name github-actions
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+        git status
+        git branch --show-current > git_branch.txt
+        set /p var_git_branch=<git_branch.txt
+        if NOT "ExperimentalTabMode"=="%var_git_branch%" (
+          echo this workflow only works in the ExperimentalTabMode branch
+          exit 1
+        )
+
+        echo extract version numbers
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[0]) < plugin/manifest.json > milestone_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[1]) < plugin/manifest.json > majore_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[2]) < plugin/manifest.json > minore_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[3]) < plugin/manifest.json > dev_version.txt
+        
+        set /p var_mil=<milestone_version.txt
+        set /p var_maj=<majore_version.txt
+        set /p var_min=<minore_version.txt
+        set /p var_dev=<dev_version.txt
+        jq.exe -r (.version^|split(\".\")^|map(tonumber)^|(.[0]^|=%var_mil%)^|(.[1]^|=%var_maj%)^|(.[2]^|=%var_min%)^|(.[3]^|=0)^|map(tostring)^|join(\".\")) < plugin/manifest.json > old_change_log_version.txt
+
+        set /p var_old_change_log_version=<old_change_log_version.txt
+        echo save old_change_log_version with %var_old_change_log_version%
+        
+        if "milestone"=="%version%" (
+          echo if milestone
+          set /A var_mil+=1
+          set var_maj=0
+          set var_min=0
+          set var_dev=0
+        ) else (
+          if "majore"=="%version%" (
+            echo if majore
+            set /A var_maj+=1
+            set var_min=0
+            set var_dev=0
+          ) else (
+            if "minore"=="%version%" (
+              echo if minore
+              set /A var_min+=1
+              set var_dev=0
+            ) else (
+          	  echo else dev
+              set /A var_dev+=1
+            )
+          )
+        )
 
         echo save complete version number in new_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|(.[3]^|=%Build%)^|map(tostring)^|join(\".\")) < plugin/manifest.json > new_version.txt
-        set /p Build=<new_version.txt
+        jq.exe (.version^|split(\".\")^|map(tonumber)^|(.[0]^|=%var_mil%)^|(.[1]^|=%var_maj%)^|(.[2]^|=%var_min%)^|(.[3]^|=%var_dev%)^|map(tostring)^|join(\".\")) < plugin/manifest.json > new_version.txt
+        set /p var_build=<new_version.txt
 
-        echo save new_manifest.json with new version number
-        jq.exe (.version^|=\"%Build%\") plugin/manifest.json > new_manifest.json
+        echo save new_manifest.json with new version number %var_build%
+        jq.exe (.version^|=\"%var_build%\") plugin/manifest.json > new_manifest.json
         echo move new_manifest.json to manifest.json
         move /y new_manifest.json plugin/manifest.json
 
         echo cleanup new_version.txt
         jq.exe -r . new_version.txt > new_clean_version.txt
         
-        echo do some configuration
-        git config user.name github-actions
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-        git add plugin/manifest.json
-        git commit -m "Auto commit for Version %Build%"
-        git push
-
+        echo npm install/ run
     - run: npm install
     - run: npm run lint
+    
+    - name: commit/ push git changes
+      shell: cmd
+      run: |
+        echo commit git changes
+        set /p var_build=<new_version.txt
+        git status
+        git add plugin/manifest.json
+        git commit -m "Auto version bump for Version %var_build%"
+        git push
+        git rev-parse --verify HEAD > commit_sha.txt
+
         
     - name: Release latest developer build
       shell: cmd
       run: |
         
-        set /p Build=<new_clean_version.txt
+        set version=${{ github.event.inputs.version }}
 
-        echo zip release files
+        set /p var_build=<new_clean_version.txt
+        set /p var_old_change_log_version=<old_change_log_version.txt
+        set /p var_commit_sha=<commit_sha.txt
+
+        if "0.0.0.0" == "%var_old_change_log_version%" (
+          set var_old_change_log_version=0.0.0.160
+        )
+     
+        if "milestone"=="%version%" (
+          set normal_release=1
+        ) else (
+          if "majore"=="%version%" (
+            set normal_release=1
+          ) else (
+            if "minore"=="%version%" (
+              set normal_release=1
+            ) else (
+              set normal_release=0
+            )
+          )
+        )
+
+        echo rename release files
         cd eslint
-        tar -a -c -f WebToEpub-developer-build-%Build%.zip WebToEpub%Build%.xpi WebToEpub%Build%.zip
+        move /y WebToEpub%var_build%.xpi WebToEpub%var_build%.Firefox.zip
+        move /y WebToEpub%var_build%.zip WebToEpub%var_build%.Chrome.zip
         cd ..
 
-        echo Create developer-build release notes.
-        echo Latest developer build of WebToEpub with the latest fixes. > output.txt
-        echo To install the Addon pick the file suitable for you, >> output.txt
-        echo * WebToEpub%Build%.xpi for Firefox >> output.txt
-        echo * WebToEpub%Build%.zip for Chrome >> output.txt
-        echo.>> output.txt
-        echo follow the [How to install from Source (for people who are not developers)](https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-how-to-install-from-source-for-people-who-are-not-developers) instructions to install it.>> output.txt
-        echo.>> output.txt
-        echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/0.0.0.159...ExperimentalTabMode >> output.txt
+        if %normal_release% == 1 (
 
-        echo delete old developer-build release:
-        gh release delete developer-build
+          echo Create release notes.
+          echo ## What's Changed> output.txt
+          echo.>> output.txt
+          echo placeholder >> output.txt
+          echo.>> output.txt
+          echo ## New Contributors>> output.txt
+          echo.>> output.txt
+          echo placeholder >> output.txt
+          echo.>> output.txt
+          echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...%var_build% >> output.txt
 
-        echo create developer-build release:
-        gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
-        
-        echo add files to release.
-        gh release upload developer-build eslint/WebToEpub-developer-build-%Build%.zip
+          echo create %var_build% release:
+          gh release create %var_build% --latest -t "Release %var_build%" --target "ExperimentalTabMode" -F output.txt
+          
+          echo add files to release.
+          gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.zip
+          gh release upload %var_build% eslint/WebToEpub%var_build%.Chrome.zip
+        ) else (
+          echo Create developer-build release notes.
+          echo Latest developer build of WebToEpub with the latest fixes. > output.txt
+          echo To install the Addon pick the file suitable for you, >> output.txt
+          echo * WebToEpub%var_build%.Firefox.zip for Firefox >> output.txt
+          echo * WebToEpub%var_build%.Chrome.zip for Chrome >> output.txt
+          echo.>> output.txt
+          echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-how-to-install-from-source-for-people-who-are-not-developers>> output.txt
+          echo.>> output.txt
+          echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...developer-build >> output.txt
+
+          echo delete old developer-build release:
+          gh release delete developer-build --cleanup-tag
+
+          echo create developer-build release:
+          gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
+          
+          echo add files to release.
+          gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.zip
+          gh release upload developer-build eslint/WebToEpub%var_build%.Chrome.zip
+        )
       env:
           GH_TOKEN: ${{ github.token }}
