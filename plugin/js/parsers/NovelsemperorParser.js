@@ -35,7 +35,8 @@ class NovelsemperorParser extends Parser{
         }
         return [...pagination.querySelectorAll("li.pagination-link")]?.pop()
             ?.getAttribute("onclick")
-            ?.split("'")?.[1];
+            ?.split("'")?.[1]
+            ?.replace("//", "https://");
     }
 
     findContent(dom) {
