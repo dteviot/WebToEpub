@@ -126,7 +126,7 @@ jobs:
         set /p var_commit_sha=<commit_sha.txt
 
         if "0.0.0.0" == "%var_old_change_log_version%" (
-          set var_old_change_log_version=0.0.0.160
+          set var_old_change_log_version=0.0.0.167
         )
      
         if "milestone"=="%version%" (
