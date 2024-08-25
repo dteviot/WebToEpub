@@ -217,7 +217,7 @@ class HttpClient {
                 //  get all cookie from the site which use the partitionKey (e.g. cloudflare)
                 //keep old code for reference in case it changes again
                 //let cookies = await chrome.cookies.getAll({partitionKey: {topLevelSite: topLevelSite}});
-                let cookies = await chrome.cookies.getAll({domain: parsedUrl.hostname,partitionKey: {}});
+                let cookies = await chrome.cookies.getAll({domain: parsedUrl.hostname.replace(/^www./, ""),partitionKey: {}});
 
                 //create new cookies for the site without the partitionKey
                 //cookies without the partitionKey get sent with fetch
