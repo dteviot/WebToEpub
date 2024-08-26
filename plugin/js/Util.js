@@ -421,8 +421,7 @@ var util = (function () {
     }
 
     var getFirstImgSrc = function(dom, selector) {
-        let img = dom.querySelector(selector + " img");
-        return (img === null) ? img : img.src;   
+        return  dom.querySelector(selector)?.querySelector("img")?.src ?? null;
     }
 
     var extractHashFromUri = function(uri) {

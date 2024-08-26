@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("arcanetranslations.com", () => new PandamtlParser());
+parserFactory.register("arcanetranslations.com", () => new NoblemtlParser());
 //dead url
 parserFactory.register("bookalb.com", () => new NoblemtlParser());
 parserFactory.register("ckandawrites.online", () => new KnoxtspaceParser());
@@ -11,35 +11,31 @@ parserFactory.register("faloomtl.com", () => new NoblemtlParser());
 //dead url
 parserFactory.register("genesistls.com", () => new NoblemtlParser());
 parserFactory.register("hoxionia.com", () => new NoblemtlParser());
-parserFactory.register("jobnib.com", () => new PandamtlParser());
-parserFactory.register("moonlightnovel.com", () => new PandamtlParser());
+parserFactory.register("jobnib.com", () => new NoblemtlParser());
+parserFactory.register("moonlightnovel.com", () => new NoblemtlParser());
 parserFactory.register("noblemtl.com", () => new NoblemtlParser());
 parserFactory.register("novelcranel.org", () => new NoblemtlParser());
 //dead url
-parserFactory.register("novelsparadise.net", () => new PandamtlParser());
+parserFactory.register("novelsparadise.net", () => new NoblemtlParser());
 //dead url
 parserFactory.register("readfreebooksonline.org", () => new NoblemtlParser());
 //dead url
 parserFactory.register("tamagotl.com", () => new NoblemtlParser());
 parserFactory.register("taonovel.com", () => new NoblemtlParser());
 parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
+parserFactory.register("lazygirltranslations.com", () => new LazygirltranslationsParser());
 //dead url
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 //dead url
 parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
 
-parserFactory.register("pandamtl.com", () => new PandamtlParser());
+parserFactory.register("pandamtl.com", () => new NoblemtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
 parserFactory.registerRule(
     (url, dom) => NoblemtlParser.isNoblemtlTheme(dom) * 0.7,
     () => new NoblemtlParser()
-);
-
-parserFactory.registerRule(
-    (url, dom) => PandamtlParser.isPandamtlTheme(dom) * 0.7,
-    () => new PandamtlParser()
 );
 
 class NoblemtlParser extends Parser{
@@ -49,7 +45,7 @@ class NoblemtlParser extends Parser{
 
     static isNoblemtlTheme(dom) {
         return (dom.querySelector("div.eplister a") != null) &&
-            (dom.querySelector(".thumbook") != null)
+            (dom.querySelector(".thumbook, .sertothumb") != null);
     }
 
     async getChapterUrls(dom) {
@@ -117,7 +113,7 @@ class NoblemtlParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".thumbook");
+        return util.getFirstImgSrc(dom, ".thumbook, .sertothumb");
     }
 
     preprocessRawDom(webPageDom) {
@@ -125,26 +121,10 @@ class NoblemtlParser extends Parser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.synp .entry-content")];
-    }
-}
-
-class PandamtlParser extends NoblemtlParser{
-    constructor() {
-        super();
-    }
-
-    static isPandamtlTheme(dom) {
-        return (dom.querySelector("div.eplister a") != null) &&
-            (dom.querySelector(".sertothumb") != null)
-    }
-
-    findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".sertothumb");
-    }
-
-    getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.sersys.entry-content")];
+        let info = dom.querySelector("div.synp .entry-content, div.sersys.entry-content");
+        return info == null
+            ? []
+            : [info];
     }
 }
 
@@ -158,7 +138,7 @@ class KnoxtspaceParser extends NoblemtlParser{
     }
 }
 
-class WhitemoonlightnovelsParser extends PandamtlParser{
+class WhitemoonlightnovelsParser extends NoblemtlParser{
     constructor() {
         super();
     }
@@ -174,5 +154,20 @@ class WhitemoonlightnovelsParser extends PandamtlParser{
 
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, ".code-block");
+    }
+}
+
+class LazygirltranslationsParser extends KnoxtspaceParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        if (dom.querySelector("div.eplister a"))
+        {
+            return super.getChapterUrls(dom);
+        }
+        let menu = dom.querySelector(".page");
+        return util.hyperlinksToChapterList(menu);        
     }
 }
