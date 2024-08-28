@@ -8,10 +8,20 @@ class PatreonParser extends Parser{
     }
 
     async getChapterUrls(dom) {
+        if (this.state.chapterListUrl?.indexOf("collection") != -1) {
+            return this.getCollectionLinks(dom);
+        }
         let cards = [...dom.querySelectorAll("div[data-tag='post-card']")]
         return cards
             .filter(c => this.hasAccessableContent(c))
             .map(s => this.cardToChapter(s)).reverse();
+    }
+
+    getCollectionLinks(dom) {
+        return [...dom.querySelectorAll("a[href*='posts/']")]
+            .filter((a) => a.querySelector("h3") != null)
+            .map(util.hyperLinkToChapter)
+            .reverse();
     }
 
     cardToChapter(card) {
