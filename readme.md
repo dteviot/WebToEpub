@@ -57,6 +57,7 @@ Credits
 * ImmortalDreamer
 * ktrin
 * nozwock
+* Tyderion
 
 ## How to use with Baka-Tsuki:
 * Browse to a Baka-Tsuki web page that has the full text of a story.
@@ -95,21 +96,21 @@ For details on how to extend, see the following
 
 ### on Android
 * Caution I have not (and do not test) on Android.  I've been told the following work, but I can't guarantee them.
-* Get yourself `Kiwi browser`, `Yandex browser`, or `Firefox nightly` (*not* default Firefox branch, it does not supports extensions.)
-* Install from `Chrome web store` for Kiwi and Yandex, of from `Mozilla addons` for Firefox Nightly (links above). 
+* Get yourself `Kiwi browser`, `Yandex browser`, or `Firefox`
+* Install from `Chrome web store` for Kiwi and Yandex, of from `Mozilla addons` for Firefox. 
 
 ## How to install from Source (for people who are not developers)
 
 ### Firefox
 The easiest set of steps is using Firefox.
-1. Download prebuilt Firefox version of extension from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
+1. Download prebuilt Firefox version of extension from https://github.com/dteviot/WebToEpub/releases/tag/developer-build.
 2. Open Firefox and type "about:debugging#/runtime/this-firefox" into the URL bar.
 3. Click "Load Temporary Add-on".
 4. Click on the zip file you downloaded in step 1.
 ![Installing in Firefox screenshot](doc/FirefoxLoadFromSource.png?raw=true)
 
 ### Chrome
-1. Download prebuilt Chrome version of extension from https://drive.google.com/drive/folders/1B_X2WcsaI_eg9yA-5bHJb8VeTZGKExl8?usp=sharing.
+1. Download prebuilt Chrome version of extension from https://github.com/dteviot/WebToEpub/releases/tag/developer-build.
 2. Unpack zip file
 3. Open Chrome and type "chrome://extensions" into the browser.
 4. Make sure "Developer Mode" at the top of the page is checked.
