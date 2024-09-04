@@ -8,9 +8,12 @@ class SystemTranslationParser extends WordpressBaseParser{
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("ul.wplp_listposts li.parent:not(.clone) div.top a")]
-            .map(a => util.hyperLinkToChapter(a))
-            .reverse();
+        let menu = dom.querySelector("div.eplisterfull ul");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.thumb");
     }
 
     removeUnwantedElementsFromContentElement(element) {
