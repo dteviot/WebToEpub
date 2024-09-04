@@ -14,8 +14,8 @@ class ShuParser extends Parser{
     async getChapterUrls(dom) {
         let tocUrl = dom.querySelector("a.more-btn").href;
         let toc = (await HttpClient.wrapFetch(tocUrl, this.makeOptions())).responseXML;
-        let menu = toc.querySelector("#catalog");
-        return util.hyperlinksToChapterList(menu);
+        let menu = toc.querySelector("#catalog ul");
+        return util.hyperlinksToChapterList(menu).reverse();
     }
 
     findContent(dom) {
