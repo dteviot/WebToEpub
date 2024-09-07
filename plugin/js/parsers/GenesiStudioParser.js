@@ -30,12 +30,11 @@ class GenesiStudioParser extends Parser{
         let newDoc = Parser.makeEmptyDocForContent(url);
 
         this.appendElement(newDoc, "h1", this.titleFromJson(json));
-        //this.appendParagraphs(newDoc, json.nodes[2].data[json.nodes[2].data[0].content]);
         this.appendContent(newDoc, json.nodes[2].data[json.nodes[2].data[0].content]);
         let notes = json.nodes[2].data[json.nodes[2].data[0].footnotes];
         if (notes !== null && notes != "") {
             this.appendElement(newDoc, "h3", "Notes");
-            this.appendParagraphs(newDoc, notes);
+            this.appendContent(newDoc, notes);
         }
         return newDoc.dom; 
     }
@@ -45,13 +44,6 @@ class GenesiStudioParser extends Parser{
         div.innerHTML = content;
         while (div.children.length > 0) {
             newDoc.content.appendChild(div.children[0]);
-        }
-    }
-
-    appendParagraphs(newDoc, content) {
-        let paragraphs = content.split("\n\n");
-        for(let text of paragraphs) {
-            this.appendElement(newDoc, "p", text);
         }
     }
 
