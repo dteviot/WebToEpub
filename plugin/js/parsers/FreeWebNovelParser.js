@@ -5,6 +5,7 @@ parserFactory.register("bednovel.com", () => new FreeWebNovelParser());
 parserFactory.register("innnovel.com", () => new FreeWebNovelParser());
 parserFactory.register("libread.com", () => new FreeWebNovelParser());
 parserFactory.register("novellive.com", () => new NovelliveParser());
+parserFactory.register("novellive.app", () => new NovelliveParser());
 parserFactory.register("novellive.net", () => new NovelliveParser());
 parserFactory.register("readwn.org", () => new NovelliveParser());
 
