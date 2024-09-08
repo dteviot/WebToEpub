@@ -44,11 +44,9 @@ class GenesiStudioParser extends Parser{
     }
 
     appendContent(newDoc, content) {
-        var div = document.createElement("div");
-        div.innerHTML = content;
-        while (div.children.length > 0) {
-            newDoc.content.appendChild(div.children[0]);
-        }
+        let div = new DOMParser().parseFromString("<div>" + content + "</div>", "text/html")
+            .querySelector("div");
+        newDoc.content.append(div);
     }
 
     appendElement(newDoc, tag, text) {
@@ -58,11 +56,7 @@ class GenesiStudioParser extends Parser{
     }
     
     titleFromJson(json) {
-        let title = "";
-        title += util.isNullOrEmpty(json.nodes[1].data[json.nodes[1].data[1].chapter_title])
-            ? ""
-            : `${json.nodes[1].data[json.nodes[1].data[1].chapter_title]}`;
-        return title;
+        return json.nodes[1].data[json.nodes[1].data[1].chapter_title] ?? "";
     }
     
     findContent(dom) {
@@ -74,12 +68,9 @@ class GenesiStudioParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let imgs = dom.querySelectorAll("img");
-        for (let i = 0; i < imgs.length; i++) {
-            if (imgs[i].src.search("https://api.genesistudio.com/storage/v1/render/image/public")==0) {
-                return imgs[i].src;
-            }
-        }
-        return null;
+        let img = [...dom.querySelectorAll("img")]
+            .map(i => i.src)
+            .filter(i => i.startsWith("https://api.genesistudio.com/storage/v1/render/image/public"))[0];
+        return img ?? null;
     }
 }
