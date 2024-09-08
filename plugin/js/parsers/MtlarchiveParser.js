@@ -1,7 +1,8 @@
 "use strict";
 
-parserFactory.register("mtlarchive.com", () => new MtlarchiveParser());
 parserFactory.register("fictionzone.net", () => new MtlarchiveParser());
+parserFactory.register("mtlarchive.com", () => new MtlarchiveParser());
+parserFactory.register("reader-hub.com", () => new MtlarchiveParser());
 
 class MtlarchiveParser extends Parser{
     constructor() {
@@ -14,7 +15,7 @@ class MtlarchiveParser extends Parser{
             .map(a => this.toChapter(a));
 
         chapterUrlsUI.showTocProgress(chapters);
-        let storyId = this.findStoryId(dom);
+        let storyId = await this.findStoryId(dom.baseURI);
         if (0 < storyId) {
             let numTocPages = this.findNumTocPages(dom);
             for(let page = 2; page <= numTocPages; ++page) {
@@ -33,7 +34,23 @@ class MtlarchiveParser extends Parser{
         });
     }
 
-    findStoryId(dom) {
+    async findStoryId(url) {
+        let baseurl = new URL(url);
+        let payload = `{"path": "${baseurl.pathname}",` +
+            "\"headers\": {\"content-type\":\"application/json\"}, \"method\": \"get\" }";
+        let options = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: payload
+        };
+        let json = (await HttpClient.fetchJson(baseurl.origin + "/api/__api_party/api-v1", options)).json;
+        return json._data.id;
+        /* old logic
+        
         let json = JSON.parse(dom.querySelector("script#__NUXT_DATA__").textContent);
         // exact position of story ID moves, but it's before string with cover image's URL slug
         for(let index = 15; index <= 30; ++index) {
@@ -43,6 +60,7 @@ class MtlarchiveParser extends Parser{
             }
         }
         return 0;  
+        */
     }
 
     findNumTocPages(dom) {
@@ -54,6 +72,7 @@ class MtlarchiveParser extends Parser{
     }
 
     async fetchTocData(storyId, page, url) {
+        let baseurl = new URL(url);
         let payload = `{"path": "/chapter/all/${storyId}", "query": {"page":${page}},` +
             "\"headers\": {\"content-type\":\"application/json\"}, \"method\": \"get\" }";
         let options = {
@@ -65,7 +84,7 @@ class MtlarchiveParser extends Parser{
             credentials: "include",
             body: payload
         };
-        let json = (await HttpClient.fetchJson("https://mtlarchive.com/api/__api_party/mtlarchive-api", options)).json;
+        let json = (await HttpClient.fetchJson(baseurl.origin + "/api/__api_party/api-v1", options)).json;
         return json._data.map(j => this.jsonToChapter(j, url));
     }
 
