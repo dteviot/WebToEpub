@@ -222,6 +222,7 @@ class HttpClient {
             let cookies = "";
             if (!util.isFirefox()) {
                 cookies = await chrome.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
+                cookies = cookies.filter(item => item.session || item.sameSite == "no_restriction");
             }else{
                 cookies = await browser.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
             }
