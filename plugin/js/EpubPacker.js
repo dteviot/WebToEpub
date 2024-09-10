@@ -257,13 +257,20 @@ class EpubPacker {
         navDoc.documentElement.setAttribute("xml:lang", this.metaInfo.language);
         navDoc.documentElement.setAttribute("xmlns:epub", "http://www.idpf.org/2007/ops");
         navDoc.documentElement.setAttribute("lang", this.metaInfo.language);
-        this.createAndAppendChildNS(navDoc.documentElement, ns, "head");
+        let head = this.createAndAppendChildNS(navDoc.documentElement, ns, "head");
+        this.createAndAppendChildNS(head, ns, "title").textContent = "Table of Contents";
+        this.addDocType(navDoc);
         let body = this.createAndAppendChildNS(navDoc.documentElement, ns, "body");
         let nav = this.createAndAppendChildNS(body, ns, "nav");
         nav.setAttribute("epub:type", "toc");
         nav.setAttribute("id", "toc");
         this.populateNavElement(nav, ns, epubItemSupplier);
         return util.xmlToString(navDoc);
+    }
+
+    addDocType(navDoc) {
+        let docTypeNode = navDoc.implementation.createDocumentType("html", "", "");
+        navDoc.insertBefore(docTypeNode, navDoc.childNodes[0]);
     }
 
     populateHead(head, ns, depth) {

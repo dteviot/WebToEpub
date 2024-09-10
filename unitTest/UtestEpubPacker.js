@@ -503,8 +503,10 @@ test("buildNavigationDocument", function (assert) {
     // firefox adds /r/n after some elements. Remove so string same for Chrome and Firefox.
     assert.equal(navDocument.replace(/\r|\n/g, ""),
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+        "<!DOCTYPE html>" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" xmlns:epub=\"http://www.idpf.org/2007/ops\" lang=\"en\">" +
           "<head>" +
+          "<title>Table of Contents</title>" +
           "</head>" +
           "<body>" +
             "<nav epub:type=\"toc\" id=\"toc\">" +
