@@ -49,6 +49,19 @@ class ScribblehubParser extends Parser {
         let author = dom.querySelector("span.auth_name_fic");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
     };
+    
+    extractSubject(dom) {
+        let selector = "[property='genre']";
+        if (!document.getElementById("lesstagsCheckbox").checked) {
+            selector += ", .stag";
+        }
+        let tags = [...dom.querySelectorAll(selector)];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+    
+    extractDescription(dom) {
+        return dom.querySelector("div [property='description']").textContent.trim();
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
