@@ -12,6 +12,7 @@ class SpacebattlesParser extends Parser{
     constructor() {
         super();
         this.cache = new FetchCache();
+        this.minimumThrottle = 50; //182 at 20
     }
 
     clampSimultanousFetchSize() {

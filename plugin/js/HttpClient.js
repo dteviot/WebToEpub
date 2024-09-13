@@ -225,6 +225,7 @@ class HttpClient {
             }else{
                 cookies = await browser.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
             }
+            cookies = cookies.filter(item => item.partitionKey != undefined);
             //create new cookies for the site without the partitionKey
             //cookies without the partitionKey get sent with fetch
             cookies.forEach(element => chrome.cookies.set({
