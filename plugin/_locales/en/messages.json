@@ -23,6 +23,14 @@
 		"message": "Clear Library",
 		"description": "Label on button to clear Local Storage"
 	},
+	"__MSG_button_Lib_Template_Export_Library__": {
+		"message": "Export Library",
+		"description": "Label on button to export Library in json format"
+	},
+	"__MSG_button_Lib_Template_Import_Library__": {
+		"message": "Import Library",
+		"description": "Label on button to import Library in json format"
+	},
 	"__MSG_button_Lib_Template_Upload_Epub__": {
 		"message": "Upload Epub",
 		"description": "Label on button to Upload Epub in Library"
