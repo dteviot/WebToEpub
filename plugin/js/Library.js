@@ -702,10 +702,6 @@ class Library {
             retobj.ReadingList.epubs = retobj.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
             let serialized = JSON.stringify(retobj);
             let blob = new Blob([serialized], {type : "application/json"});
-            let test = {};
-            test.files = [];
-            test.files[0] = blob;
-            Library.LibHandelImport(test);
             return Download.save(blob, "Libraryexport.json").catch (err => ErrorLog.showErrorMessage(err));
         });
     }
