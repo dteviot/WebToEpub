@@ -254,8 +254,14 @@ class Parser {
     extractSubject(dom) {   // eslint-disable-line no-unused-vars
         return "";
     }
-    extractDescription(dom) {   // eslint-disable-line no-unused-vars
-        return "";
+
+    extractDescription(dom) {
+        let infoDiv = document.createElement("div");
+        if (this.getInformationEpubItemChildNodes !== undefined)
+        {
+            this.populateInfoDiv(infoDiv, dom);
+        }
+        return infoDiv.textContent;
     }
 
     /**
