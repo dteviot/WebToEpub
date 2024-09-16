@@ -5,6 +5,7 @@ parserFactory.register("lightnovelworld.co", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
+parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
@@ -22,12 +23,12 @@ class LightNovelWorldParser extends Parser{
         if (!dom.baseURI.endsWith("/chapters")) {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
         }
-        let chapters = LightNovelWorldParser.extractPartialChapterList(dom);
-        let urlsOfTocPages  = LightNovelWorldParser.getUrlsOfTocPages(dom);
+        let chapters = this.extractPartialChapterList(dom);
+        let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
 
         for(let url of urlsOfTocPages) {
             let newDom = (await HttpClient.wrapFetch(url)).responseXML;
-            let partialList = LightNovelWorldParser.extractPartialChapterList(newDom);
+            let partialList = this.extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
         }
@@ -39,27 +40,30 @@ class LightNovelWorldParser extends Parser{
         return element.getAttribute("value");
     }
 
-    static extractPartialChapterList(dom) {
+    extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("ul.chapter-list a")]
-            .map(LightNovelWorldParser.linkToChapterIfo);
+            .map(this.linkToChapterIfo);
     }
 
-    static linkToChapterIfo(link) {
-        let chaperNo = link.querySelector(".chapter-no").textContent.trim();
+    linkToChapterIfo(link) {
+        let chaperNo = link.querySelector(".chapter-no")?.textContent?.trim() ?? "";
+        if (chaperNo !== "") {
+            chaperNo += ": ";
+        }
         let title = link.querySelector(".chapter-title").textContent.trim();
         return {
             sourceUrl:  link.href,
-            title: `${chaperNo}: ${title}`,
+            title: chaperNo + title,
             newArc: null
         };
     }
 
-    static getUrlsOfTocPages(dom) {
+    getUrlsOfTocPages(dom) {
         let urls = []
         let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")]
             .map(a => a.href);
         if (0 < paginateUrls.length) {
-            let maxPage = LightNovelWorldParser.maxPageId(paginateUrls);
+            let maxPage = this.maxPageId(paginateUrls);
             let url = new URL(paginateUrls[0]);
             for(let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("page", i);
@@ -70,7 +74,7 @@ class LightNovelWorldParser extends Parser{
     }
 
     // last URL isn't always last ToC page
-    static maxPageId(urls) {
+    maxPageId(urls) {
         let pageNum = function(url) {
             let pageNo = new URL(url).searchParams.get("page");
             return parseInt(pageNo);
@@ -79,7 +83,8 @@ class LightNovelWorldParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("div.chapter-content");
+        return dom.querySelector("div.chapter-content")
+            || dom.querySelector("div#content");
     }
 
     extractTitleImpl(dom) {
