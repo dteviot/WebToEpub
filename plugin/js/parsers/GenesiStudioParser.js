@@ -8,7 +8,7 @@ parserFactory.register("genesistudio.com", () => new GenesiStudioParser());
 class GenesiStudioParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 3000;
+        this.minimumThrottle = 1000;
     }
     
     clampSimultanousFetchSize() {

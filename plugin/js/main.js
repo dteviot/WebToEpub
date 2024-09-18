@@ -40,7 +40,6 @@ var main = (function () {
         if (setParser(url, dom)) {
             try {
                 userPreferences.addObserver(parser);
-                userPreferences.addObserver(library);
                 let metaInfo = parser.getEpubMetaInfo(dom, userPreferences.useFullTitle.value);
                 populateMetaInfo(metaInfo);
                 setUiToDefaultState();

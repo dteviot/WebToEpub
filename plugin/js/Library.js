@@ -24,7 +24,11 @@ class Library {
             }
             if (LibidURL == -1) {
                 Library.LibHandelUpdate(-1, AddEpub, document.getElementById("startingUrlInput").value, fileName.replace(".epub", ""), LibidURL);
-                return Download.save(AddEpub, fileName, overwriteExisting, backgroundDownload);
+                if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked) {
+                    return Download.save(AddEpub, fileName, overwriteExisting, backgroundDownload);
+                }else{
+                    return new Promise((resolve) => {resolve();});
+                }
             }
             
             fileName = EpubPacker.addExtensionIfMissing(items["LibFilename" + LibidURL]);
@@ -43,10 +47,6 @@ class Library {
                 return new Promise((resolve) => {resolve();});
             }
         });
-    }
-    
-    onUserPreferencesUpdate(userPreferences) {
-        Library.userPreferences = userPreferences;
     }
 
     static async LibMergeEpub(PreviousEpub, AddEpub, LibidURL){
@@ -241,8 +241,23 @@ class Library {
     }
 
     static Libdeleteall(){
-        chrome.storage.local.clear();
-        Library.LibRenderSavedEpubs();
+        chrome.storage.local.get(null, async function(items) {
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let storyurls = [];
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
+            }
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
+            }
+            let userPreferences = new UserPreferences;
+            userPreferences = UserPreferences.readFromLocalStorage();
+            for (let i = 0; i < storyurls.length; i++) {
+                userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
+            }
+            chrome.storage.local.clear();
+            Library.LibRenderSavedEpubs();
+        });
     }
 
     static LibRenderSavedEpubs(){
@@ -271,6 +286,10 @@ class Library {
                 LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
                 LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
                 LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
+                LibRenderString += "<button id='libexportall'>"+document.getElementById("LibTemplateExportLibrary").innerHTML+"</button>";
+                LibRenderString += "<label data-libbuttonid='LibImportLibraryButton' data-libepubid='' id='LibImportLibraryLabel' for='LibImportLibraryFile' style='cursor: pointer;'>";
+                LibRenderString += "<button id='LibImportLibraryButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateImportEpubButton").innerHTML+"</button></label>";
+                LibRenderString += "<input type='file' data-libepubid='LibImportLibrary' id='LibImportLibraryFile' hidden>";
                 LibRenderString += "<br>";
                 LibRenderString += "<p>"+document.getElementById("LibTemplateUploadEpubFileLabel").innerHTML+"</p>";
                 LibRenderString += "<label data-libbuttonid='LibUploadEpubButton' data-libepubid='' id='LibUploadEpubLabel' for='LibEpubNewUploadFile' style='cursor: pointer;'>";
@@ -330,6 +349,10 @@ class Library {
             Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
             if (ShowAdvancedOptions) {
                 document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
+                document.getElementById("libexportall").addEventListener("click", function(){Library.Libexportall()});
+                document.getElementById("LibImportLibraryLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+                document.getElementById("LibImportLibraryLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+                document.getElementById("LibImportLibraryFile").addEventListener("change", function(){Library.LibHandelImport(this)});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
                 document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
@@ -560,6 +583,7 @@ class Library {
         LibFileReader.LibStorageValueId = Id;
         LibFileReader.readAsDataURL(Blobdata);
     }
+
     static async LibFileReaderload(){
         if (-1 == LibFileReader.LibStorageValueId) {
             let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
@@ -622,7 +646,9 @@ class Library {
     
     static LibDeleteEpub(objbtn){
         let LibRemove = ["LibEpub" + objbtn.dataset.libepubid, "LibStoryURL" + objbtn.dataset.libepubid, "LibFilename" + objbtn.dataset.libepubid, "LibCover" + objbtn.dataset.libepubid];
-        Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
+        let userPreferences = new UserPreferences;
+        userPreferences = UserPreferences.readFromLocalStorage();
+        userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
         Library.LibRenderSavedEpubs();
     }
@@ -652,6 +678,70 @@ class Library {
             let blobdata = Library.LibConvertDataUrlToBlob(items["LibEpub" + objbtn.dataset.libepubid]);
             return Download.save(blobdata , items["LibFilename" + objbtn.dataset.libepubid] + ".epub", overwriteExisting, backgroundDownload);
         });
+    }
+
+    static Libexportall(){
+        chrome.storage.local.get(null, async function(items) {
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            var retobj = {};
+            retobj.Library = [];
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
+            }
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                retobj.Library[i] = {};
+                retobj.Library[i].LibCover = items["LibCover" + CurrentLibKeys[i]];
+                retobj.Library[i].LibEpub = items["LibEpub" + CurrentLibKeys[i]];
+                retobj.Library[i].LibFilename = items["LibFilename" + CurrentLibKeys[i]];
+                retobj.Library[i].LibStoryURL = items["LibStoryURL" + CurrentLibKeys[i]];
+            }
+            let storyurls = retobj.Library.map(a => a.LibStoryURL);
+            let readingList = new ReadingList();
+            readingList.readFromLocalStorage();
+            retobj.ReadingList = JSON.parse(readingList.toJson());
+            retobj.ReadingList.epubs = retobj.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
+            let serialized = JSON.stringify(retobj);
+            let blob = new Blob([serialized], {type : "application/json"});
+            return Download.save(blob, "Libraryexport.json").catch (err => ErrorLog.showErrorMessage(err));
+        });
+    }
+
+    static async LibHandelImport(objbtn){
+        Library.LibShowLoadingText();
+        await Library.LibFileReaderAddListenersImport(LibFileReader);
+        let Blobdata = objbtn.files[0];
+        LibFileReader.readAsText(Blobdata);
+    }
+
+    static LibFileReaderAddListenersImport(LibFileReader){
+        LibFileReader.addEventListener("load", function(){Library.LibFileReaderloadImport()});
+        LibFileReader.addEventListener("error", function(event){Library.LibFileReadererror(event)});
+        LibFileReader.addEventListener("abort", function(event){Library.LibFileReaderabort(event)});
+    }
+
+    static async LibFileReaderloadImport(){
+        let json = JSON.parse(LibFileReader.result);
+        let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+        let HighestLibEpub = 0;
+        CurrentLibKeys.forEach(element => {
+            element = element.replace("LibEpub","");
+            if (parseInt(element)>=HighestLibEpub) {
+                HighestLibEpub = parseInt(element)+1; 
+            }
+        });
+        for (let i = 0; i < json.Library.length; i++) {
+            chrome.storage.local.set({
+                ["LibEpub" + HighestLibEpub]: json.Library[i].LibEpub,
+                ["LibStoryURL" + HighestLibEpub]: json.Library[i].LibStoryURL,
+                ["LibCover" + HighestLibEpub]: json.Library[i].LibCover,
+                ["LibFilename" + HighestLibEpub]: json.Library[i].LibFilename
+            });
+            HighestLibEpub++;
+        }
+        let userPreferences = new UserPreferences;
+        userPreferences = UserPreferences.readFromLocalStorage();
+        userPreferences.loadReadingListFromJson(json);
+        Library.LibRenderSavedEpubs();
     }
 
     static LibSaveTextURLChange(obj){
