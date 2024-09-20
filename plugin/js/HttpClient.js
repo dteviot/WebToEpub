@@ -82,14 +82,6 @@ class FetchErrorHandler {
         let retryDelay = [120, 60, 30, 15];
         switch(response.status) {
         case 403:
-        /*
-            if (confirm(chrome.i18n.getMessage("warning403ErrorResponse", new URL(response.url).hostname))) {
-                // Open site
-                window.open(new URL(response.url), "_blank").focus();
-                alert(chrome.i18n.getMessage("wait403ErrorResponse", new URL(response.url).hostname));
-            } else {
-                // Do nothing!
-            }*/
             return {retryDelay: [1], promptUser: true, HTTP: 403};
         case 429:
             FetchErrorHandler.show429Error(response);
