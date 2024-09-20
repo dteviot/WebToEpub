@@ -89,6 +89,8 @@ class ErrorLog {
         let okButton = document.getElementById("errorButtonOk");
         let retryButton = document.getElementById("errorButtonRetry");
         let cancelButton = document.getElementById("errorButtonCancel");
+        let OpenURLButton = document.getElementById("errorButtonOpenURL");
+        let BlockURLButton = document.getElementById("errorButtonBlockURL");
         if (msg.retryAction !== undefined) {
             okButton.hidden = true;
             retryButton.hidden = false;
@@ -105,11 +107,30 @@ class ErrorLog {
             if (msg.cancelLabel !== undefined) {
                 cancelButton.textContent =  msg.cancelLabel;
             };
+            if (msg.openurl !== undefined) {
+                OpenURLButton.hidden = false;
+                OpenURLButton.onclick = function() {
+                    //window.open(new URL(msg.openurl), "_blank").focus();
+                    //use chrome.tabs.create to prevent auto popup block from browser
+                    chrome.tabs.create({ url: msg.openurl});
+                };
+                BlockURLButton.hidden = false;
+                BlockURLButton.onclick = function() {
+                    close();
+                    BlockedHostNames.add(new URL(msg.blockurl).hostname);
+                    msg.cancelAction();
+                };
+            } else {
+                OpenURLButton.hidden = true;
+                BlockURLButton.hidden = true;
+            }
         } else {
             okButton.hidden = false;
             okButton.onclick = close;
             retryButton.hidden = true;
             cancelButton.hidden = true;
+            OpenURLButton.hidden = true;
+            BlockURLButton.hidden = true;
         }
     }
 
