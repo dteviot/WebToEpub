@@ -115,6 +115,14 @@
 		"message": "Retry",
 		"description": "Label on 'Retry' button when show error"
 	},
+	"__MSG_button_error_Open_URL__": {
+		"message": "Open URL for Captcha",
+		"description": "Label on 'Open URL for Captcha' button when show error HTTP 403"
+	},
+	"__MSG_button_error_Block_URL__": {
+		"message": "Block Website for future requests",
+		"description": "Label on 'Block Website for future requests' button when show error HTTP 403"
+	},
 	"__MSG_button_finished_default_parser__": {
 		"message": "Apply",
 		"description": "Label on button to finish configuring default parser"
@@ -635,7 +643,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.  You may need to logon to site, or browse site normally until you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA before WebToEpub can continue. Open Page?",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\n",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {
