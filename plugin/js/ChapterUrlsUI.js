@@ -422,6 +422,9 @@ class ChapterUrlsUI {
         if (event.shiftKey || (ChapterUrlsUI.lastSelectedRow === null)) {
             return;
         }
+        if (ChapterUrlsUI.ConsecutiveRowClicks == 5) {
+            return;
+        }
         let distance = Math.abs(row.rowIndex - ChapterUrlsUI.lastSelectedRow);
         if (distance !== 1) {
             ChapterUrlsUI.ConsecutiveRowClicks = 0;
