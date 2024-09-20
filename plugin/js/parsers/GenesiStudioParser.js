@@ -39,7 +39,6 @@ class GenesiStudioParser extends Parser{
         this.appendContent(newDoc, content);
         let notes = json.nodes[2].data[json.nodes[2].data[0].footnotes];
         if (notes !== null && notes != "") {
-            this.appendElement(newDoc, "h3", "Notes");
             this.appendContent(newDoc, notes);
         }
         return newDoc.dom; 
