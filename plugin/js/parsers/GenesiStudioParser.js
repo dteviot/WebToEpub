@@ -18,7 +18,7 @@ class GenesiStudioParser extends Parser{
     async getChapterUrls(dom) {
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
         let tmpids = data.nodes[2].data[0].chapters;
-        tmpids = data.nodes[2].data[tmpids].free;
+        tmpids = data.nodes[2].data[tmpids].free_chapters;
         let freeChapterids = data.nodes[2].data[tmpids];
         
         let returnchapters = freeChapterids.map(e => ({
@@ -34,7 +34,9 @@ class GenesiStudioParser extends Parser{
         let newDoc = Parser.makeEmptyDocForContent(url);
 
         this.appendElement(newDoc, "h1", this.titleFromJson(json));
-        this.appendContent(newDoc, json.nodes[2].data[json.nodes[2].data[0].content]);
+        let hash = json.nodes[2].data[json.nodes[2].data[0].akezmZmaAOMmegnQAlkRnalAJnr];
+        let content = json.nodes[2].data[json.nodes[2].data[0][hash]];
+        this.appendContent(newDoc, content);
         let notes = json.nodes[2].data[json.nodes[2].data[0].footnotes];
         if (notes !== null && notes != "") {
             this.appendElement(newDoc, "h3", "Notes");
