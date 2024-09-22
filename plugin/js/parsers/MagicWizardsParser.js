@@ -1,3 +1,6 @@
+/*
+  parser for mtgstory.com (redirect)
+*/
 "use strict";
 
 // Register the parser for magic.wizards.com (archive.org is implicit) TODO: mtglore.com
@@ -65,23 +68,11 @@ class MagicWizardsParser extends Parser {
             return dom.querySelector("#article-body article, #primary-area section, section article, section");
         }
     }
-    
-findCoverImageUrl(dom) {
-    // Try to find an image inside the '.swiper-slide' or inside an 'article'
-    let imgElement = dom.querySelector(".swiper-slide img, article img");
-
-    // If an image is found, return its 'src' attribute
-    if (imgElement) {
-        return imgElement.getAttribute("src");
-    // Check if the URL starts with '//' (protocol-relative URL)
-        if (imgSrc && imgSrc.startsWith("//")) {
-            // Add 'https:' to the start of the URL
-            imgSrc = "https:" + imgSrc;
-        }
+   
+    // Grab cover image
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".swiper-slide img, article img");
     }
-    // Fallback if no image was found
-    return null;
-}
 
 
 }

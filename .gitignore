@@ -4,4 +4,5 @@ eslint/packed.js
 eslint/index.csv
 node_modules
 !plugin/**/*.*
-!plugin/jszip/dist/jszip.min.js
+plugin/jszip/dist/jszip.min.js
+package-lock.json
