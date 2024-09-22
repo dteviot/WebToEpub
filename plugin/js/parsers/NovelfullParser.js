@@ -121,6 +121,10 @@ class NovelfullParser extends Parser{
             : super.extractAuthor(dom);
     }
 
+    preprocessRawDom(dom) {
+        this.tagWatermark(dom);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h2").textContent;
     }
@@ -131,6 +135,38 @@ class NovelfullParser extends Parser{
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.desc-text, div.info")];
+    }
+
+    tagWatermark(dom) {
+        const watermark = this.findWatermark(dom);
+        if (watermark) {
+            let paragraphs = [...dom.querySelectorAll("p")]
+                .filter(p => p.textContent.includes(watermark));
+            for(let p of paragraphs) {
+                p.textContent = p.textContent.replace(watermark, "");
+                p.appendChild(this.makeSpanWithWatermark(dom, watermark));
+            }
+        }
+    }
+
+    findWatermark(dom) {
+        const searchToken = "original11Content.replace(\"";
+        const script = [...dom.querySelectorAll("script")]
+            .filter(s => s.innerHTML.includes(searchToken))
+            .map(s => s.innerHTML)[0];
+        if (!script) {
+            return null;
+        }
+        const line = script.substring(script.indexOf(searchToken) + searchToken.length);
+        return line.substring(0, line.indexOf("\""));
+    }
+
+    makeSpanWithWatermark(dom, watermark) {
+        let span = dom.createElement("span");
+        span.textContent = watermark;
+        span.id = "span";
+        span.hidden = true;
+        return span;
     }
 }
 
