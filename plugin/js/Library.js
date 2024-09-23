@@ -9,6 +9,10 @@ class Library {
     constructor() {
     }
     
+    onUserPreferencesUpdate(userPreferences) {
+        Library.userPreferences = userPreferences;
+    }
+    
     LibAddToLibrary(AddEpub, fileName, overwriteExisting, backgroundDownload){
         if (document.getElementById("includeInReadingListCheckbox").checked != true) {
             document.getElementById("includeInReadingListCheckbox").click();
@@ -250,10 +254,8 @@ class Library {
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
             }
-            let userPreferences = new UserPreferences;
-            userPreferences = UserPreferences.readFromLocalStorage();
             for (let i = 0; i < storyurls.length; i++) {
-                userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
+                Library.userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
             }
             chrome.storage.local.clear();
             Library.LibRenderSavedEpubs();
@@ -646,9 +648,7 @@ class Library {
     
     static LibDeleteEpub(objbtn){
         let LibRemove = ["LibEpub" + objbtn.dataset.libepubid, "LibStoryURL" + objbtn.dataset.libepubid, "LibFilename" + objbtn.dataset.libepubid, "LibCover" + objbtn.dataset.libepubid];
-        let userPreferences = new UserPreferences;
-        userPreferences = UserPreferences.readFromLocalStorage();
-        userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
+        Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
         Library.LibRenderSavedEpubs();
     }
@@ -738,9 +738,7 @@ class Library {
             });
             HighestLibEpub++;
         }
-        let userPreferences = new UserPreferences;
-        userPreferences = UserPreferences.readFromLocalStorage();
-        userPreferences.loadReadingListFromJson(json);
+        Library.userPreferences.loadReadingListFromJson(json);
         Library.LibRenderSavedEpubs();
     }
 
