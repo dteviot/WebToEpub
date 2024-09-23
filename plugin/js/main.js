@@ -232,6 +232,7 @@ var main = (function () {
 
     function loadUserPreferences() {
         userPreferences = UserPreferences.readFromLocalStorage();
+        userPreferences.addObserver(library);
         userPreferences.writeToUi();
         userPreferences.hookupUi();
         BakaTsukiSeriesPageParser.registerBakaParsers(userPreferences.autoSelectBTSeriesPage.value);
