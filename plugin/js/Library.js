@@ -261,7 +261,6 @@ class Library {
     }
 
     static LibRenderSavedEpubs(){
-        var startTime = performance.now()
         chrome.storage.local.get(null, async function(items) {
             let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
             let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
@@ -376,8 +375,6 @@ class Library {
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 document.getElementById("LibCover"+CurrentLibKeys[i]).src = await items["LibCover" + CurrentLibKeys[i]];
             }
-        var endTime = performance.now()
-        console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
         });
     }
 
