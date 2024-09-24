@@ -10,7 +10,7 @@ class Book18Parser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom) {
         let menu = dom.querySelector(".list-group");
         return util.hyperlinksToChapterList(menu);
     }
