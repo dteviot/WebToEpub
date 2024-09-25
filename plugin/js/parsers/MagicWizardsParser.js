@@ -26,10 +26,10 @@ class MagicWizardsParser extends Parser {
     // Extract the list of chapter URLs
     async getChapterUrls(dom) {
         let chapterLinks = [];
-            chapterLinks = [...dom.querySelectorAll("article a, .article-content a, window.location.hostname, #content article a, #content .article-content a, .articles-listing .article-item a, .articles-bloc .article .details a")];
-            // Filter out author links using their URL pattern
-            chapterLinks = chapterLinks.filter(link => !this.isAuthorLink(link));
-            return chapterLinks.map(this.linkToChapter);
+        chapterLinks = [...dom.querySelectorAll("article a, .article-content a, window.location.hostname, #content article a, #content .article-content a, .articles-listing .article-item a, .articles-bloc .article .details a")];
+        // Filter out author links using their URL pattern
+        chapterLinks = chapterLinks.filter(link => !this.isAuthorLink(link));
+        return chapterLinks.map(this.linkToChapter);
     }
 
     // Helper function to detect if a link is an author link
