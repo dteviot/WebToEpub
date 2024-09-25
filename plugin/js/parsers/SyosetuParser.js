@@ -10,7 +10,6 @@ class SyosetuParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        await this.fetchAndAttachInfoPage(dom);
         return this.getChapterUrlsFromMultipleTocPages(dom,
             this.extractPartialChapterList,
             this.getUrlsOfTocPages,
@@ -18,13 +17,8 @@ class SyosetuParser extends Parser{
         );
     }
 
-    async fetchAndAttachInfoPage(dom) {
-        const infoPageUrl = dom.querySelector("#head_nav > li:nth-child(2) > a").href;
-        this.infoPageDom = (await HttpClient.fetchHtml(infoPageUrl)).responseXML; // Parse and store the info page DOM
-    }
-
     getUrlsOfTocPages(dom) {
-        let lastPage = dom.querySelector("a.novelview_pager-last");
+        let lastPage = dom.querySelector("a.c-pager__item--last");
         let urls = [];
         if (lastPage) {
             const lastPageNumber = parseInt(lastPage.href.split("?p=")[1]);
@@ -37,20 +31,20 @@ class SyosetuParser extends Parser{
     }
 
     extractPartialChapterList(dom) {
-        let chapterList = dom.querySelector("div.index_box") || dom.querySelector("div.novel_sublist");
+        let chapterList = dom.querySelector("div.index_box") || dom.querySelector("div.p-eplist");
         return [...chapterList.querySelectorAll("a")].map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
-        return dom.querySelector("div#novel_honbun");
+        return dom.querySelector("div.p-novel__body");
     };
 
     extractTitleImpl(dom) {
-        return dom.querySelector(".novel_title");
+        return dom.querySelector(".p-novel__title");
     };
 
     extractAuthor(dom) {
-        const authorDiv = dom.querySelector("div.novel_writername");
+        const authorDiv = dom.querySelector("div.p-novel__author");
         if (authorDiv) {
             const authorText = authorDiv.textContent.trim().replace(/^作者：/, "");
             return authorDiv.querySelector("a")?.textContent.trim() || authorText;
@@ -59,33 +53,15 @@ class SyosetuParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        let element = dom.querySelector(".novel_subtitle");
+        let element = dom.querySelector(".p-novel__title");
         return (element === null) ? null : element.textContent;
     }
 
-    getInformationEpubItemChildNodes() {
-        const infoNodes = [];
-        const infoTable = this.infoPageDom.querySelector("#infodata");
-        const infoTableClone = infoTable.cloneNode(true);
-        infoNodes.push(infoTableClone);
-        return infoNodes;
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("h1.p-novel__title, #novel_ex")];
     }
 
-    cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "#qr, #pre_info > a");
-        const preInfoDiv = node.querySelector("#pre_info");
-        this.removePipeCharacter(preInfoDiv);
-        let sibling = preInfoDiv.querySelector("#noveltype_notend")?.nextSibling;
-        if (sibling) {
-            sibling.textContent = sibling.textContent.replace(/^全/, " 全");
-        }
-    }
-    
-    removePipeCharacter(contentElement) {
-        let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_TEXT);
-        while (walker.nextNode()) {
-            let node = walker.currentNode;
-            node.textContent = node.textContent.replace(/\|/g, "");
-        };
-    }    
+    extractDescription(dom) {
+        return dom.querySelector(".p-novel__summary").textContent.trim();
+    }  
 }

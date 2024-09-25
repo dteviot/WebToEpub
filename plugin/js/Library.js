@@ -9,12 +9,16 @@ class Library {
     constructor() {
     }
     
+    onUserPreferencesUpdate(userPreferences) {
+        Library.userPreferences = userPreferences;
+    }
+    
     LibAddToLibrary(AddEpub, fileName, overwriteExisting, backgroundDownload){
         if (document.getElementById("includeInReadingListCheckbox").checked != true) {
             document.getElementById("includeInReadingListCheckbox").click();
         }
         chrome.storage.local.get(null, async function(items) {
-            let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL");
+            let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL", Object.keys(items));
             let LibidURL = -1;
             for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
                 if (items[CurrentLibStoryURLKeys[i]] == document.getElementById("startingUrlInput").value) {
@@ -242,7 +246,7 @@ class Library {
 
     static Libdeleteall(){
         chrome.storage.local.get(null, async function(items) {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
             let storyurls = [];
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
@@ -250,10 +254,8 @@ class Library {
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
             }
-            let userPreferences = new UserPreferences;
-            userPreferences = UserPreferences.readFromLocalStorage();
             for (let i = 0; i < storyurls.length; i++) {
-                userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
+                Library.userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
             }
             chrome.storage.local.clear();
             Library.LibRenderSavedEpubs();
@@ -263,7 +265,7 @@ class Library {
     static LibRenderSavedEpubs(){
         chrome.storage.local.get(null, async function(items) {
             let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
             let LibRenderResult = document.getElementById("LibRenderResult");
             let LibRenderString = "";
             let LibTemplateDeleteEpub = document.getElementById("LibTemplateDeleteEpub").innerHTML;
@@ -646,9 +648,7 @@ class Library {
     
     static LibDeleteEpub(objbtn){
         let LibRemove = ["LibEpub" + objbtn.dataset.libepubid, "LibStoryURL" + objbtn.dataset.libepubid, "LibFilename" + objbtn.dataset.libepubid, "LibCover" + objbtn.dataset.libepubid];
-        let userPreferences = new UserPreferences;
-        userPreferences = UserPreferences.readFromLocalStorage();
-        userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
+        Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
         Library.LibRenderSavedEpubs();
     }
@@ -682,7 +682,7 @@ class Library {
 
     static Libexportall(){
         chrome.storage.local.get(null, async function(items) {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
             var retobj = {};
             retobj.Library = [];
             for (let i = 0; i < CurrentLibKeys.length; i++) {
@@ -738,9 +738,7 @@ class Library {
             });
             HighestLibEpub++;
         }
-        let userPreferences = new UserPreferences;
-        userPreferences = UserPreferences.readFromLocalStorage();
-        userPreferences.loadReadingListFromJson(json);
+        Library.userPreferences.loadReadingListFromJson(json);
         Library.LibRenderSavedEpubs();
     }
 
@@ -762,18 +760,28 @@ class Library {
         document.getElementById("LibURLWarning"+obj.dataset.libepubid).innerHTML = "<tr><td></td></tr>";
     }
 
-    static async LibGetAllLibStorageKeys(Substring){
+    static async LibGetAllLibStorageKeys(Substring, AllStorageKeysList){
         return new Promise((resolve) => {
-            chrome.storage.local.get(null, function(items){
-                let AllStorageKeys = Object.keys(items);
+            if (AllStorageKeysList == undefined) {
+                chrome.storage.local.get(null, function(items){
+                    let AllStorageKeys = Object.keys(items);
+                    let AllLibStorageKeys = [];
+                    for (let i = 0, end = AllStorageKeys.length; i < end; i++) {
+                        if(AllStorageKeys[i].includes(Substring)){
+                            AllLibStorageKeys.push(AllStorageKeys[i]);
+                        }   
+                    }
+                    resolve(AllLibStorageKeys);
+                });
+            } else {
                 let AllLibStorageKeys = [];
-                for (let i = 0, end = AllStorageKeys.length; i < end; i++) {
-                    if(AllStorageKeys[i].includes(Substring)){
-                        AllLibStorageKeys.push(AllStorageKeys[i]);
+                for (let i = 0, end = AllStorageKeysList.length; i < end; i++) {
+                    if(AllStorageKeysList[i].includes(Substring)){
+                        AllLibStorageKeys.push(AllStorageKeysList[i]);
                     }   
                 }
                 resolve(AllLibStorageKeys);
-            });
+            }
         });
     }
 
