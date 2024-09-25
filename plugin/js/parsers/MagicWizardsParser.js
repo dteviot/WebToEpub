@@ -38,11 +38,7 @@ class MagicWizardsParser extends Parser {
         const authorPattern = /\/archive\?author=/;
         
         // Check if the link matches the author URL pattern or CSS selector
-        if (authorPattern.test(href)) {
-            return true;
-        } else {
-            return false;
-        }
+        return authorPattern.test(href);
     }
 
     // Format chapter links into a standardized structure
