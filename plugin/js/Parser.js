@@ -89,6 +89,7 @@ class Parser {
         util.decodeCloudflareProtectedEmails(content);
         this.removeNextAndPreviousChapterHyperlinks(webPage, content);
         this.removeUnwantedElementsFromContentElement(content);
+        this.convertTabletoDiv(content);
         this.addTitleToContent(webPage, content);
         util.fixBlockTagsNestedInInlineTags(content);
         this.imageCollector.replaceImageTags(content);
@@ -141,6 +142,12 @@ class Parser {
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
         util.removeLeadingWhiteSpace(element);
+    };
+
+    convertTabletoDiv(element) {
+        if (this.userPreferences.styleSheet.value.includes(".WebToEpub-table")) {
+            util.convertTableToDiv(element);
+        }
     };
 
     customRawDomToContentStep(chapter, content) { // eslint-disable-line no-unused-vars
