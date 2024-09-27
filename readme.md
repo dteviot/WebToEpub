@@ -547,7 +547,9 @@ For details on how to extend, see the following
 
 ## Contributing
 
-> [Note] Read [CONTRIBUTING.md](/CONTRIBUTING.md) first.
+> [!NOTE]
+> 
+> Read [CONTRIBUTING.md](/CONTRIBUTING.md) first.
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
@@ -560,16 +562,16 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Top contributors:
+### Top contributors
 
 <a href="https://github.com/dteviot/WebToEpub/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=dteviot/WebToEpub" alt="contrib.rocks image" />
 </a>
 
-### Credits:
+### Credits
 
 <details>
-  <summary>Credits:</summary>
+  <summary>Contributors (39)</summary>
   <ul>
     <li>Firefox port by Markus Vieth</li>
     <li>Michael Fox (Belldandu)</li>
