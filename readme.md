@@ -550,7 +550,7 @@ For details on how to extend, see the following
 ## Contributing
 
 > [!NOTE]
-> 
+>
 > Read [CONTRIBUTING.md](/CONTRIBUTING.md) first.
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -573,7 +573,7 @@ Don't forget to give the project a star! Thanks again!
 ### Credits
 
 <details>
-  <summary>Contributors (39)</summary>
+  <summary>Contributors (40)</summary>
   <ul>
     <li>Firefox port by Markus Vieth</li>
     <li>Michael Fox (Belldandu)</li>
@@ -614,6 +614,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Tyderion</li>
     <li>Darthagnon</li>
     <li>LucasFreitaslpf1</li>
+    <li>Jemeni11</li>
   </ul>
 </details>
 
