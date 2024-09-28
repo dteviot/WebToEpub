@@ -287,7 +287,15 @@ class ChapterUrlsUI {
     */
     setTableMode() {
         try {
-            let chapters = this.htmlToChapters(ChapterUrlsUI.getEditChaptersUrlsInput().value);
+            let inputvalue = ChapterUrlsUI.getEditChaptersUrlsInput().value;
+            let chapters;
+            let lines = inputvalue.split('\n');
+            if (URL.canParse(lines[0])) {
+                lines = lines.filter(function(line) { return line.trim() != ''; });
+                chapters = this.URLsToChapters(lines);
+            } else {
+                chapters = this.htmlToChapters(inputvalue);
+            }
             this.parser.setPagesToFetch(chapters);
             this.populateChapterUrlsTable(chapters);
             this.usingTable = true;
@@ -316,6 +324,17 @@ class ChapterUrlsUI {
         let html = "<html><head><title></title><body>" + innerHtml + "</body></html>";
         let doc = new DOMParser().parseFromString(html, "text/html");
         return [...doc.body.querySelectorAll("a")].map(a => util.hyperLinkToChapter(a));
+    }
+
+    /** 
+    * @private
+    */
+    URLsToChapters(URLs) {
+        let returnchapters = URLs.map(e => ({
+            sourceUrl: e,
+            title: `[placeholder]`
+        }));
+        return returnchapters;
     }
 
     /** @private */
