@@ -108,23 +108,23 @@ class Parser {
 
     addTitleToContent(webPage, content) {
         let title = this.findChapterTitle(webPage.rawDom, webPage);
-        if (webPage.title == "[placeholder]") {
-            if (title != null) {
-                webPage.title = title.trim();
-            } else {
-                webPage.title = webPage.rawDom.title;
-            }
-        }
         if (title != null) {
             if (title instanceof HTMLElement) {
                 title = title.textContent;
+            }
+            if (webPage.title == "[placeholder]") {
+                webPage.title = title.trim();
             }
             if (!this.titleAlreadyPresent(title, content)) {
                 let titleElement = webPage.rawDom.createElement("h1");
                 titleElement.appendChild(webPage.rawDom.createTextNode(title.trim()));
                 content.insertBefore(titleElement, content.firstChild);
             }
-        };
+        } else {
+            if (webPage.title == "[placeholder]") {
+                webPage.title = webPage.rawDom.title;
+            }
+        }
     }
 
     titleAlreadyPresent(title, content) {
