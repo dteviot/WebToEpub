@@ -290,7 +290,7 @@ class ChapterUrlsUI {
             let inputvalue = ChapterUrlsUI.getEditChaptersUrlsInput().value;
             let chapters;
             let lines = inputvalue.split("\n");
-            lines = lines.filter(function(line) { return line.trim() != ""; });
+            lines = lines.filter(a => a.trim() != "").map(a => a.trim());
             if (URL.canParse(lines[0])) {
                 chapters = this.URLsToChapters(lines);
             } else {
