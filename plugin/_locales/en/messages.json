@@ -256,7 +256,7 @@
 		"description": "Label in front input for CCS selector for elements to remove"
 	},
 	"__MSG_label_Edit_URLs_Hint__": {
-		"message": "You can edit the URLs in html format or as a simle URL list (one URL per line).",
+		"message": "You can edit the URLs in html format or as a simple URL list (one URL per line).",
 		"description": "Label in Edit Chapter URLs to help the user."
 	},
 	"__MSG_label_Element_With_Chapter_Content__": {
