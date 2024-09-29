@@ -18,12 +18,13 @@ class GenesiStudioParser extends Parser{
     async getChapterUrls(dom) {
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
         let tmpids = data.nodes[2].data[0].chapters;
-        tmpids = data.nodes[2].data[tmpids].free_chapters;
-        let freeChapterids = data.nodes[2].data[tmpids];
-        
-        let returnchapters = freeChapterids.map(e => ({
-            sourceUrl:  `https://genesistudio.com/viewer/${data.nodes[2].data[data.nodes[2].data[e].id]}`,
-            title: `${data.nodes[2].data[data.nodes[2].data[e].chapter_title]}`
+        let jsdata = data.nodes[2].data[tmpids];
+        let extractfreechapter = [...jsdata.match(/\'free\'.*\'premium\'/)[0].matchAll(/'id':0.*?,/g)];
+        let freechapterids = extractfreechapter.map(e => Number(e[0].replace("'id':","").replace(",","")));
+
+        let returnchapters = freechapterids.map(e => ({
+            sourceUrl:  "https://genesistudio.com/viewer/"+e,
+            title: "[placeholder]"
         }));
         return returnchapters;
     }
@@ -34,8 +35,8 @@ class GenesiStudioParser extends Parser{
         let newDoc = Parser.makeEmptyDocForContent(url);
 
         this.appendElement(newDoc, "h1", this.titleFromJson(json));
-        let hash = json.nodes[2].data[json.nodes[2].data[0].akezmZmaAOMmegnQAlkRnalAJnr];
-        let content = json.nodes[2].data[json.nodes[2].data[0][hash]];
+        let index = json.nodes[2].data[0].content;
+        let content = json.nodes[2].data[index];
         this.appendContent(newDoc, content);
         let notes = json.nodes[2].data[json.nodes[2].data[0].footnotes];
         if (notes !== null && notes != "") {
