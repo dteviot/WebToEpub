@@ -37,14 +37,10 @@ class XenforoBatchParser extends Parser{
             }
             pagingUriComponent = new RegExp(baseURI+"(.*?)\\d+/?$").exec(lastPage.href)[1] ?? pagingUriComponent;
         }
-        let chapters = [...Array(pageCount).keys()].map(index => { 
-            var link = dom.createElement("a");
-            link.setAttribute("href", `${baseURI}${pagingUriComponent}${index}`); //ChangeMe!
-            link.appendChild(dom.createTextNode(`Page ${index + 1}`));
-            return link;
-        });
-
-        return chapters.map(a => util.hyperLinkToChapter(a));
+        return [...Array(pageCount).keys()].map(index => ({ 
+            sourceUrl: `${baseURI}${pagingUriComponent}${index}`,
+            title: `Page ${index + 1}`
+        }));
     }
     
     async fetchChapter(url) {
