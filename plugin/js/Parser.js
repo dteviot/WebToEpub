@@ -112,12 +112,19 @@ class Parser {
             if (title instanceof HTMLElement) {
                 title = title.textContent;
             }
+            if (webPage.title == "[placeholder]") {
+                webPage.title = title.trim();
+            }
             if (!this.titleAlreadyPresent(title, content)) {
                 let titleElement = webPage.rawDom.createElement("h1");
                 titleElement.appendChild(webPage.rawDom.createTextNode(title.trim()));
                 content.insertBefore(titleElement, content.firstChild);
             }
-        };
+        } else {
+            if (webPage.title == "[placeholder]") {
+                webPage.title = webPage.rawDom.title;
+            }
+        }
     }
 
     titleAlreadyPresent(title, content) {
