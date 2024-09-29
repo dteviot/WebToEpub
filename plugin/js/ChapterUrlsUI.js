@@ -280,6 +280,7 @@ class ChapterUrlsUI {
         document.getElementById("coverUrlSection").hidden = !toTable;
         document.getElementById("chapterSelectControlsDiv").hidden = !toTable;
         ChapterUrlsUI.modifyApplyChangesButtons(button => button.hidden = toTable);
+        document.getElementById("editURLsHint").hidden = toTable;
     }
 
     /** 
