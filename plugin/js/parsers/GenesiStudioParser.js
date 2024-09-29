@@ -64,6 +64,10 @@ class GenesiStudioParser extends Parser{
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
     }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
     
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
