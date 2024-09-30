@@ -8,7 +8,7 @@ parserFactory.register("genesistudio.com", () => new GenesiStudioParser());
 class GenesiStudioParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 1000;
+        this.minimumThrottle = 3000;
     }
     
     clampSimultanousFetchSize() {
@@ -19,7 +19,7 @@ class GenesiStudioParser extends Parser{
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
         let tmpids = data.nodes[2].data[0].chapters;
         let jsdata = data.nodes[2].data[tmpids];
-        let extractfreechapter = [...jsdata.match(/'free'.*'premium'/)[0].matchAll(/'id':0.*?,/g)];
+        let extractfreechapter = [...jsdata.match(/return{.*}}],/)[0].matchAll(/'id':0.*?,/g)];
         let freechapterids = extractfreechapter.map(e => Number(e[0].replace("'id':","").replace(",","")));
 
         let returnchapters = freechapterids.map(e => ({
