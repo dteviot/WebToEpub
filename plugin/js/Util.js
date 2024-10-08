@@ -234,33 +234,6 @@ var util = (function () {
         node.remove();
     }
 
-    var convertTableToDiv = function(element) {
-        for(let table of [...element.querySelectorAll("table")]) {
-            replaceTableToDivHelper(table, "td", "WebToEpub-cell");
-            replaceTableToDivHelper(table, "tr", "WebToEpub-row");
-            replaceTableToDivHelper(table, "tbody", "");
-            replaceTableToDivHelper(table.parentNode, "table", "WebToEpub-table");
-        }
-    }
-
-    var replaceTableToDivHelper =  function(element, elementtoreplace, divclass) {
-        if (element == null || element == undefined) {
-            return;
-        }
-        for(let node of [...element.querySelectorAll(elementtoreplace)]) {
-            let elementchildren = [...node.childNodes];
-            let div = document.createElement("div");
-            div.append(...elementchildren);
-            if (elementtoreplace == "table") {
-                node.parentNode.style.overflow = "visible";
-            }
-            if (divclass != "") {
-                div.classList.add(divclass);
-            }
-            node.replaceWith(div);
-        }
-    }
-
     /**
     * @todo expand to remove ALL event handlers
     */
@@ -1062,8 +1035,7 @@ var util = (function () {
         createChapterTab: createChapterTab,
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
-        zeroPad: zeroPad,
-        convertTableToDiv: convertTableToDiv
+        zeroPad: zeroPad
     };
 })();
 
