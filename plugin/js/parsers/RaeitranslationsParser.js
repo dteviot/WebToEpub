@@ -43,7 +43,7 @@ class RaeitranslationsParser extends Parser{
 
     makeRestUrl(chapterUrl) {
         let path = new URL(chapterUrl).pathname.split("/");
-        let restUrl = new URL("https://api.raeitranslations.com/api/chapters/");
+        let restUrl = new URL("https://api.raeitranslations.com/api/chapters/single");
         restUrl.searchParams.set("id", path[1]);
         restUrl.searchParams.set("num", path[2]);
         return restUrl;
