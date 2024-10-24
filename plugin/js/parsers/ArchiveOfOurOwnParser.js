@@ -1,6 +1,3 @@
-/*
-  Parses files on archiveofourown.net
-*/
 "use strict";
 
 parserFactory.register("archiveofourown.org", function() { return new ArchiveOfOurOwnParser() });
@@ -14,10 +11,9 @@ class ArchiveOfOurOwnParser extends Parser{
         let isSeries = dom.baseURI.includes("/series/");
         if (isSeries) {
             let chapters = [];
-            let urlsOfTocPages = [...dom.querySelectorAll("dd.chapters a")]
-                .map(this.linkToTocUrl);
-            for(let url of urlsOfTocPages) {
-                let partialList = await ArchiveOfOurOwnParser.fetchChapterUrls(url);
+            let works = [...dom.querySelectorAll("ul.series.work > li")];
+            for(let work of works) {
+                let partialList = await this.processWorkElement(work);
                 chapterUrlsUI.showTocProgress(partialList);
                 chapters = chapters.concat(partialList);
             }
@@ -30,18 +26,44 @@ class ArchiveOfOurOwnParser extends Parser{
             return this.singleChapterStory(baseUrl, dom);
         } else {
             let chaptersUrl = dom.querySelector("ul#chapter_index a");
-            return ArchiveOfOurOwnParser.fetchChapterUrls(chaptersUrl);
+            return this.fetchChapterUrls(chaptersUrl);
         }
     };
 
-    static async fetchChapterUrls(url) {
+    async processWorkElement(work) {
+        let chaptersLink = work.querySelector("dd.chapters a");
+        return chaptersLink === null 
+            ? this.processSingleChapterWork(work)
+            : this.processMultiChapterWork(chaptersLink);
+    }
+
+    async processSingleChapterWork(work) {
+        let link = work.querySelector("h4.heading a");
+        return [this.linkToTocEntry(link)];
+    }
+
+    async processMultiChapterWork(chaptersLink) {
+        let url = this.linkToTocUrl(chaptersLink);
+        return this.fetchChapterUrls(url);
+    }
+
+    async fetchChapterUrls(url) {
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
-        return [...dom.querySelectorAll("ol.chapter a")].map(
-            url => ({
-                sourceUrl: url.href + "?view_adult=true",
-                title: url.textContent
-            })
-        );
+        return [...dom.querySelectorAll("ol.chapter a")]
+            .map(link => this.linkToTocEntry(link));
+    }
+
+    linkToTocEntry(link) {
+        return ({
+            sourceUrl: this.setViewAdultFlag(link.href),
+            title: link.textContent
+        });
+    }
+
+    setViewAdultFlag(url) {
+        url = new URL(url);
+        url.searchParams.set("view_adult", "true");
+        return url.href;
     }
 
     linkToTocUrl(link) {
@@ -72,6 +94,13 @@ class ArchiveOfOurOwnParser extends Parser{
     extractLanguage(dom) {
         return dom.querySelector("meta[name='language']").getAttribute("content");
     };
+
+    findChapterTitle(dom) {
+        let contentHasTitle = dom.querySelector("h3.title");
+        return contentHasTitle
+            ? null
+            : dom.querySelector("h2.heading");
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         this.tagAuthorNotes(element.querySelectorAll(".notes"));
