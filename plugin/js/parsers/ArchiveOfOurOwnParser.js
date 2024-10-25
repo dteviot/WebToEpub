@@ -86,8 +86,7 @@ class ArchiveOfOurOwnParser extends Parser{
     };
 
     extractAuthor(dom) {
-        let author = dom.querySelector("h3.byline.heading a[rel='author']")
-            ?.innerText
+        let author = dom.querySelector("a[rel='author']")?.innerText;
         return author ?? super.extractAuthor(dom);
     };
 
