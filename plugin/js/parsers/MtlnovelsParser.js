@@ -1,11 +1,16 @@
 "use strict";
-parserFactory.register("mtlnovel.com", () => new MtlnovelParser());
+parserFactory.register("mtlnovels.com", () => new MtlnovelsParser());
+parserFactory.register("mtlnovel.com", () => new MtlnovelsParser());
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).endsWith(".mtlnovels.com")),
+    () => new MtlnovelsParser()
+);
 parserFactory.registerUrlRule(
     url => (util.extractHostName(url).endsWith(".mtlnovel.com")),
-    () => new MtlnovelParser()
+    () => new MtlnovelsParser()
 );
 
-class MtlnovelParser extends Parser{
+class MtlnovelsParser extends Parser{
     constructor() {
         super();
     }
@@ -15,27 +20,18 @@ class MtlnovelParser extends Parser{
         document.getElementById("removeOriginalRow").hidden = false;
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
-        let tocUrls = [...dom.querySelectorAll("#panelchapterlist amp-list")]
-            .map(e => e.getAttribute("src"));
-        let chapters = [];
-        for (let tocUrl of tocUrls) {
-            let json = (await HttpClient.fetchJson(tocUrl)).json;
-            let partialList = this.chaptersFromJson(json);
-            chapterUrlsUI.showTocProgress(partialList);
-            chapters = chapters.concat(partialList);
-        }
-        return chapters;
-    };
+    async getChapterUrls(dom) {
+        const tocUrl = dom.querySelector("#panelchapterlist > a").href
 
-    chaptersFromJson(json) {
-        return json.items.map(
-            i => ({
-                title: i.no + " " + i.title,
-                sourceUrl: i.permalink
-            })
-        )
-    }
+        const chapterDom = (await HttpClient.fetchHtml(tocUrl)).responseXML;
+
+        return [...chapterDom.querySelectorAll(".ch-list > p > a")]
+            .map(a => ({
+                title: a.textContent.trim(),
+                sourceUrl: a.href
+            }))
+            .reverse();
+    };
 
     findContent(dom) {
         return dom.querySelector("div.single-page");
