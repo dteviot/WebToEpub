@@ -54,7 +54,7 @@ class StorySeedlingParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div[x-data='']");
+        return util.getFirstImgSrc(dom, "div[x-data]");
     }
 
     getInformationEpubItemChildNodes(dom) {
