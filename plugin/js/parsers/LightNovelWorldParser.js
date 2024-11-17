@@ -6,6 +6,7 @@ parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser())
 parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldParser());
+parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
