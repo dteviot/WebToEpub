@@ -12,7 +12,7 @@ Please note, I'm basically the only developer working on WebToEpub, and I'm not 
 ### Provide URL for web page that contains Table of Contents (list of chapters) of a typical story on the site
 
 ### Did you try using the Default Parser for the site?  If not, why not?
-Instructions for using the default parser can be found at https://dteviot.github.io/Projects/webToEpub_DefaultParser.html
+Instructions for using the default parser can be found at https://github.com/dteviot/WebToEpub/wiki/FAQ#how-to-convert-a-new-site-using-the-default-parser
 
 ### What settings did you use?  What didn't work?
 * URL of first chapter
@@ -21,7 +21,7 @@ Instructions for using the default parser can be found at https://dteviot.github
 * CSS selector for element(s) to remove
 
 ### If the Default Parser did not work, if you have developer skills, did you try writing a new parser?
-Instructions https://dteviot.github.io/Projects/webToEpub_FAQ.html#write-parser
+Instructions https://github.com/dteviot/WebToEpub/wiki/FAQ#how-to-write-a-new-parser
 
 ### If you don't have developer skills, can you ask a friend who does have them if they can do it for you?
 
