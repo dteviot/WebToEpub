@@ -159,13 +159,9 @@ class WattpadParser extends Parser{
     };
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.author-info a.on-navigate");
-        if (authorLabel === null) {
-            return super.extractAuthor(dom)
-        }
-        let path = authorLabel.getAttribute("href").split("/");
-        return path[path.length - 1];
-    };
+        let authorLabel = dom.querySelector("div.o94Sz a");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
 
     // custom cleanup of content
     removeUnwantedElementsFromContentElement(element) {
@@ -183,6 +179,6 @@ class WattpadParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.story-cover");
+        return util.getFirstImgSrc(dom, "div[data-testid='cover']");
     }
 }
