@@ -18,7 +18,7 @@ class MvlempyrParser extends Parser {
             let link = `https://www.mvlempyr.com/chapter/${slug}-${i}`;
             chapterList.push({
                 sourceUrl: link,
-                title: `Chapter ${i}`
+                title: "[placeholder]",
             });
         }
         return chapterList;
