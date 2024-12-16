@@ -11,6 +11,7 @@ class MvlempyrParser extends Parser {
         let imgLink = dom.querySelector("div.novel-image-wrapper img").src;
         let slug = imgLink.split("/").pop().split(".")[0];
         let chapterCount = parseInt(dom.querySelector("div#chapter-count").textContent);
+        let chapterTitles = [...dom.querySelectorAll("div.chapter-item h3")].map((el) => el.textContent.replace(/^\d+\.\s*/, "")); 
 
         let chapterList = [];
 
@@ -18,7 +19,7 @@ class MvlempyrParser extends Parser {
             let link = `https://www.mvlempyr.com/chapter/${slug}-${i}`;
             chapterList.push({
                 sourceUrl: link,
-                title: "[placeholder]",
+                title: chapterTitles[i-1],
             });
         }
         return chapterList;
