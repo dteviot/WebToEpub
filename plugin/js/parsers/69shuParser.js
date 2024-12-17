@@ -4,6 +4,7 @@ parserFactory.registerUrlRule(
     url => (util.extractHostName(url).includes("69shu")),
     () => new ShuParser()
 );
+parserFactory.register("69yuedu.net", () => new _69yueduParser());
 
 class ShuParser extends Parser{
     constructor() {
@@ -45,4 +46,31 @@ class ShuParser extends Parser{
             makeTextDecoder: () => new TextDecoder("gb18030")
         });
     }
+}
+
+class _69yueduParser extends ShuParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector("a.btn").href;
+        let toc = (await HttpClient.wrapFetch(tocUrl, this.makeOptions())).responseXML;
+        let menu = toc.querySelector("#chapters ul");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    makeOptions() {
+        return ({
+            makeTextDecoder: () => new TextDecoder("gbk")
+        });
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.content");
+    };
 }
