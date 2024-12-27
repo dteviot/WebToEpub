@@ -26,8 +26,7 @@ class SkydemonorderParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        let div = dom.querySelector(".bg-cover");
-        return util.extractUrlFromBackgroundImage(div);
+        return util.getFirstImgSrc(dom, "div.w-full");
     }
 
     getInformationEpubItemChildNodes(dom) {
