@@ -36,10 +36,10 @@ class AkknovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.grid");
+        return util.getFirstImgSrc(dom, "div.aspect-h-4");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div#intro")];
+        return [...dom.querySelectorAll("div.leading-7")];
     }
 }
