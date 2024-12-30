@@ -35,6 +35,7 @@ class KemonopartyParser extends Parser{
             newDoc.content.appendChild(n);
         }
         this.copyImagesIntoContent(newDoc.dom);
+        this.addFileImages(json, newDoc);
         return newDoc.dom;
     }
 
@@ -94,5 +95,20 @@ class KemonopartyParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
+    }
+
+    addFileImages(json, newDoc) {
+        let images = json?.previews?.filter(p => p.type == "thumbnail");
+        if (!images || images.length == 0) {
+            return;
+        }
+        let filesheader = newDoc.dom.createElement("h2");
+        newDoc.content.appendChild(filesheader);
+        filesheader.textContent = "Files";
+        for(let i of images) {
+            let img = newDoc.dom.createElement("img");
+            img.src = i.server + "/data" + i.path;
+            newDoc.content.append(img);
+        }
     }
 }
