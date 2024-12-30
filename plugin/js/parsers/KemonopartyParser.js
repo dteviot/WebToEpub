@@ -8,60 +8,34 @@ class KemonopartyParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return (await this.getChapterUrlsFromMultipleTocPages(dom,
-            this.extractPartialChapterList,
-            this.getUrlsOfTocPages,
-            chapterUrlsUI
-        )).reverse();
-    };
-
-    async getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)  {
-        let urlsOfTocPages = getUrlsOfTocPages(dom);
-        return await this.getChaptersFromAllTocPages([], extractPartialChapterList, urlsOfTocPages, chapterUrlsUI);
-    }
-
-    async fetchChapter(url) {
-        return (new TextDecoder().decode((await HttpClient.wrapFetch(url)).arrayBuffer));
-    }
-
-    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
-        if (0 < chapters.length) {
-            chapterUrlsUI.showTocProgress(chapters);
-        }
+        let chapters = [];
+        let urlsOfTocPages = this.getUrlsOfTocPages(dom);
         for(let url of urlsOfTocPages) {
             await this.rateLimitDelay();
-            let json_string = await this.fetchChapter(url);
-            let partialList = extractPartialChapterList(json_string);
+            let json = (await HttpClient.fetchJson(url)).json;
+            let partialList = this.extractPartialChapterList(json);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
         }
-        return chapters;
+        return chapters.reverse();
+    };
+
+    async fetchChapter(url) {
+        let json = (await HttpClient.fetchJson(url)).json;
+        return this.buildChapter(json, url);
     }
 
-    async fetchWebPageContent(webPage) {
-        let that = this;
-        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING);
-        await this.rateLimitDelay();
-        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
-        let pageParser = webPage.parser;
-        return pageParser.fetchChapter(webPage.sourceUrl).then(function (json_string) {
-            delete webPage.error;
-            webPage.rawDom = Document.parseHTMLUnsafe(`<html><script>${json_string}</script></html>`);
-            let content = pageParser.findContent(webPage.rawDom);
-            if (content == null) {
-                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
-                throw new Error(errorMsg);
-            }
-            return pageParser.fetchImagesUsedInDocument(content, webPage);
-        }).catch(function (error) {
-            if (that.userPreferences.skipChaptersThatFailFetch.value) {
-                ErrorLog.log(error);
-                webPage.error = error;
-            } else {
-                webPage.isIncludeable = false;
-                throw error;
-            }
-        }); 
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let header = newDoc.dom.createElement("h1");
+        newDoc.content.appendChild(header);
+        header.textContent = json.post.title;
+        let content = new DOMParser().parseFromString(json.post.content, "text/html");
+        for(let n of [...content.body.childNodes]) {
+            newDoc.content.appendChild(n);
+        }
+        this.copyImagesIntoContent(newDoc.dom);
+        return newDoc.dom;
     }
 
     findCoverImageUrl(dom) {
@@ -90,10 +64,9 @@ class KemonopartyParser extends Parser{
         return urls;
     }
 
-    extractPartialChapterList(json_string) {
+    extractPartialChapterList(data) {
         // get href from the dom, not the url of the page
         try {
-            let data = JSON.parse(json_string);
             let authorid = data.props.id;
             let ids = data.results.map(result => result.id);
             let titles = data.results.map(result => result.title);
@@ -108,13 +81,7 @@ class KemonopartyParser extends Parser{
     }
 
     findContent(dom) {
-        //the text of the chapter is always in .post__content, but if there is no chapter(e.g. only files), return .post__body instead of throwing an error
-        // return dom.querySelector(".post__content") ?? dom.querySelector(".post__body");
-        let data = JSON.parse(dom.querySelector("script").innerHTML);
-        // create a dom element from data.post.content;
-        let content_dom = document.createElement("div");
-        content_dom.innerHTML = data.post.content;
-        return content_dom;
+        return Parser.findConstrutedContent(dom);
     }
 
     copyImagesIntoContent(dom) {
@@ -127,9 +94,5 @@ class KemonopartyParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
-    }
-
-    findChapterTitle(dom) {
-        return JSON.parse(dom.querySelector("script").innerHTML).post.title;
     }
 }
