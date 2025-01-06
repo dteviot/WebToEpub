@@ -142,9 +142,9 @@ class WxscsParser extends Parser {
         if (coverImg?.src) {
             return coverImg.src;
         }
-}
+    }
 
-    getInformationEpubItemChildNodes(dom) {
+    getInformationEpubItemChildNodes() {
         if (this.state.indexDom) {
             // Get book description
             let description = this.state.indexDom.querySelector("div.book-detail");
