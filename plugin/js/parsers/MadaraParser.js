@@ -77,7 +77,11 @@ class MadaraParser extends WordpressBaseParser{
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.summary__content")];
+        let nodes = [...dom.querySelectorAll("div.summary__content")];
+        if (nodes.length === 0) {
+            nodes = [...dom.querySelectorAll("div.manga-summary p")]
+        }
+        return nodes;
     }
 
     cleanInformationNode(node) {
