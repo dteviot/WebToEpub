@@ -572,6 +572,7 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>wuxiaworld.site</li>
     <li>wuxiaworld.world</li>
     <li>wuxiazone.com</li>
+    <li>wxscs.com</li>
     <li>xbiquge.so</li>
     <li>xiaoshuogui.com</li>
     <li>xiaxuenovels.xyz</li>
@@ -775,6 +776,7 @@ Don't forget to give the project a star! Thanks again!
     <li>LucasFreitaslpf1</li>
     <li>Jemeni11</li>
     <li>maforn</li>
+    <li>phazei</li>
   </ul>
 </details>
 
