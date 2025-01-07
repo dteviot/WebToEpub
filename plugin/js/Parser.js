@@ -750,8 +750,9 @@ class Parser {
         while(nextUrl != null) {
             let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
             let newContent = this.findContent(nextDom);
-            util.moveChildElements(newContent, oldContent);
             nextUrl = moreChapterTextUrl(nextDom, url, ++count);
+            oldContent.appendChild(dom.createElement("br"));
+            util.moveChildElements(newContent, oldContent);
         }
         return dom;
     }    
