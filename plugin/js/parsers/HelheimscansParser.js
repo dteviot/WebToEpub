@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("helheimscans.com", () => new HelheimscansParser());
+parserFactory.register("helheimscans.org", () => new HelheimscansParser());
 
 class HelheimscansParser extends Parser{
     constructor() {
