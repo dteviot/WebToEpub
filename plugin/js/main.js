@@ -414,11 +414,11 @@ var main = (function () {
     }
 
     function onSeriesPageHelp() {
-        chrome.tabs.create({ url: "https://dteviot.github.io/Projects/webToEpub_FAQ.html#baka-tsuki-series-page" });
+        chrome.tabs.create({ url: "https://github.com/dteviot/WebToEpub/wiki/FAQ#using-baka-tsuki-series-page-parser" });
     }
 
     function onDefaultParserHelp() {
-        chrome.tabs.create({ url: "https://dteviot.github.io/Projects/webToEpub_DefaultParser.html" });
+        chrome.tabs.create({ url: "https://github.com/dteviot/WebToEpub/wiki/FAQ#how-to-convert-a-new-site-using-the-default-parser" });
     }
 
     function onReadOptionsFromFile(event) {
