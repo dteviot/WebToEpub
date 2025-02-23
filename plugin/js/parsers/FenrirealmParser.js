@@ -36,7 +36,7 @@ class FenrirealmParser extends Parser{
 
     removeDuplicatedChapterPrefix(titleText) {
         let parts = titleText.split(":");
-        return (parts.length > 2) && (parts[0].trim() === parts[1].trim())
+        return (parts.length >= 2) && (parts[0].trim() === parts[1].trim())
             ? parts.slice(1).join(":")
             : titleText
     }
