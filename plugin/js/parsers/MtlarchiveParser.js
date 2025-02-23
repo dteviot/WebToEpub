@@ -1,8 +1,8 @@
 "use strict";
 
 parserFactory.register("fictionzone.net", () => new MtlarchiveParser());
-parserFactory.register("mtlarchive.com", () => new MtlarchiveParser());
-parserFactory.register("reader-hub.com", () => new MtlarchiveParser());
+
+// mtlarchive.com and reader-hub.com were previous names of site
 
 class MtlarchiveParser extends Parser{
     constructor() {
@@ -15,11 +15,10 @@ class MtlarchiveParser extends Parser{
             .map(a => this.toChapter(a));
 
         chapterUrlsUI.showTocProgress(chapters);
-        let storyId = await this.findStoryId(dom.baseURI);
-        if (0 < storyId) {
-            let numTocPages = this.findNumTocPages(dom);
-            for(let page = 2; page <= numTocPages; ++page) {
-                let partialList = await this.fetchTocData(storyId, page, dom.baseURI);
+        let info = await this.findStoryInfo(dom.baseURI);
+        if (0 < info.storyId) {
+            for(let page = 2; page <= info.numTocPages; ++page) {
+                let partialList = await this.fetchTocData(info.storyId, page, dom.baseURI);
                 chapterUrlsUI.showTocProgress(partialList);
                 chapters = chapters.concat(partialList);
             }
@@ -34,7 +33,7 @@ class MtlarchiveParser extends Parser{
         });
     }
 
-    async findStoryId(url) {
+    async findStoryInfo(url) {
         let baseurl = new URL(url);
         let payload = `{"path": "${baseurl.pathname}",` +
             "\"headers\": {\"content-type\":\"application/json\"}, \"method\": \"get\" }";
@@ -48,7 +47,10 @@ class MtlarchiveParser extends Parser{
             body: payload
         };
         let json = (await HttpClient.fetchJson(baseurl.origin + "/api/__api_party/api-v1", options)).json;
-        return json._data.id;
+        return ({
+            storyId: json._data.id,
+            numTocPages: Math.ceil(json._data.chapter_count / 100)
+        });
         /* old logic
         
         let json = JSON.parse(dom.querySelector("script#__NUXT_DATA__").textContent);
@@ -100,12 +102,17 @@ class MtlarchiveParser extends Parser{
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector(".novel-title h1");
     }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector(".novel-author .content");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, ".ad-slot");
+        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findCoverImageUrl(dom) {
