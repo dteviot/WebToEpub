@@ -13,15 +13,6 @@ class ChrysanthemumgardenParser extends WordpressBaseParser{
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 
-    customRawDomToContentStep(chapter, content) {
-        if (!this.userPreferences.removeAuthorNotes.value) {
-            let notes = [...chapter.rawDom.querySelectorAll("div.tooltip-container")];
-            for(let n of notes) {
-                content.appendChild(n);
-            }
-        }
-    }
-
     async fetchChapter(url) {
         let newDom = (await HttpClient.wrapFetch(url)).responseXML;
         let passwordForm = ChrysanthemumgardenParser.getPasswordForm(newDom);
@@ -48,6 +39,17 @@ class ChrysanthemumgardenParser extends WordpressBaseParser{
         formData.append("nonce-site-pass", ChrysanthemumgardenParser.getInputValue(form, "#nonce-site-pass"));
         formData.append("_wp_http_referer", ChrysanthemumgardenParser.getInputValue(form, "[name='_wp_http_referer']"));
         return formData;
+    }
+
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        if (!this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...webPageDom.querySelectorAll("div.tooltip-container")];
+            for(let n of notes) {
+                content.appendChild(n);
+            }
+        }
+        util.resolveLazyLoadedImages(webPageDom, "img.br-lazy", "data-breeze");
     }
 
     static getInputValue(form, selector) {
