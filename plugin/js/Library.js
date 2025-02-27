@@ -500,6 +500,7 @@ class Library {
                 LibSaveMetadataString += "<dc:creator opf:file-as=\""+LibAutorInput+"\" opf:role=\"aut\">"+LibAutorInput+"</dc:creator>";
 
                 opfFile = opfFile.replace(new RegExp("<dc:title>.+?</dc:creator>", "gs"), LibSaveMetadataString);
+                zip.remove("OEBPS/content.opf");
                 zip.file("OEBPS/content.opf", opfFile, { compression: "DEFLATE" });
                 let content = await zip.generateAsync({ type: "blob", mimeType: "application/epub+zip",});
                 Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL"+obj.dataset.libepubid), await Library.LibGetFromStorage("LibFilename"+obj.dataset.libepubid), obj.dataset.libepubid);
