@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Extension for Chrome and Firefox that converts a story on Baka-Tsuki (or a number of other sites) into an EPUB.",
   "dependencies": {
-    "jszip": "^3.7.1"
+    "@zip.js/zip.js": "^2.7.57"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.7.5",
@@ -16,8 +16,8 @@
     "doc": "doc"
   },
   "scripts": {
-    "up": "npm add jszip@latest && npm install",
-    "postinstall": "copyfiles -V -u 1 node_modules/jszip/dist/jszip.min.js plugin",
+    "up": "npm add @zip.js/zip.js@latest && npm install",
+    "postinstall": "copyfiles -V -u 1 node_modules/@zip.js/zip.js/dist/zip-full.min.js plugin",
     "test": "http-server -o unitTest/Tests.html",
     "lint": "cd eslint && node pack.js && eslint packed.js",
     "build": "cd eslint && node pack.js",
