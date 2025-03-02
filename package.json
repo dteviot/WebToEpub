@@ -17,7 +17,7 @@
   },
   "scripts": {
     "up": "npm add @zip.js/zip.js@latest && npm install",
-    "postinstall": "copyfiles -V -u 1 node_modules/@zip.js/zip.js/dist/zip-full.min.js plugin",
+    "postinstall": "copyfiles -V -u 1 node_modules/@zip.js/zip.js/dist/zip-no-worker.min.js plugin",
     "test": "http-server -o unitTest/Tests.html",
     "lint": "cd eslint && node pack.js && eslint packed.js",
     "build": "cd eslint && node pack.js",

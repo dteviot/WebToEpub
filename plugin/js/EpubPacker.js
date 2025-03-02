@@ -40,14 +40,15 @@ class EpubPacker {
         let that = this;
         const zipFileWriter = new zip.BlobWriter("application/epub+zip");
         const zipWriter = new zip.ZipWriter(zipFileWriter);
+        zipWriter.add("test.txt", new zip.TextReader("Hello World"),{useWebWorkers: false});
         that.addRequiredFiles(zipWriter);
-        zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)));
-        zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)));
+        zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)),{useWebWorkers: false});
+        zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)),{useWebWorkers: false});
         if (this.version === EpubPacker.EPUB_VERSION_3) {
-            zipWriter.add("OEBPS/toc.xhtml", new zip.TextReader(that.buildNavigationDocument(epubItemSupplier)));
+            zipWriter.add("OEBPS/toc.xhtml", new zip.TextReader(that.buildNavigationDocument(epubItemSupplier)),{useWebWorkers: false});
         }
         that.packXhtmlFiles(zipWriter, epubItemSupplier);
-        zipWriter.add(util.styleSheetFileName(), new zip.TextReader(that.metaInfo.styleSheet));
+        zipWriter.add(util.styleSheetFileName(), new zip.TextReader(that.metaInfo.styleSheet),{useWebWorkers: false});
         return zipWriter.close();
     }
 
@@ -58,14 +59,14 @@ class EpubPacker {
 
     // every EPUB must have a mimetype and a container.xml file
     addRequiredFiles(zipFile) {
-        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"));
+        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"),{useWebWorkers: false});
         zipFile.add("META-INF/container.xml",
             new zip.TextReader("<?xml version=\"1.0\"?>" +
             "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">" +
                 "<rootfiles>" +
                     "<rootfile full-path=\"OEBPS/content.opf\" media-type=\"application/oebps-package+xml\"/>" +
                 "</rootfiles>" +
-            "</container>")
+            "</container>"),{useWebWorkers: false}
         );
     }
 
@@ -352,11 +353,11 @@ class EpubPacker {
     packXhtmlFiles(zipFile, epubItemSupplier) {
         for(let file of epubItemSupplier.files()) {
             let content = file.fileContentForEpub(this.emptyDocFactory, this.contentValidator);
-            zipFile.add(file.getZipHref(), new zip.TextReader(content));
+            zipFile.add(file.getZipHref(), new zip.TextReader(content),{useWebWorkers: false});
         };
         if (epubItemSupplier.hasCoverImageFile()) {
             let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
-            zipFile.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
+            zipFile.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent),{useWebWorkers: false});
         };
     }
 
