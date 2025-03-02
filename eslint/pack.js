@@ -23,6 +23,7 @@ var getFileList = function(fileName) {
 var adjustedFileListForEslint = function(fileList) {
     return fileList
         .filter(e => e !== "jszip/dist/jszip.min.js")
+        .filter(e => e !== "@zip.js/zip.js/dist/zip-full.min.js")
         .map(f => "../plugin/" + f);
 }
 
