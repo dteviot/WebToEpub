@@ -677,7 +677,7 @@ class Library {
             dlzip.file("LibraryVersion.txt", "1");
             //simplyfies import espacially for zip.js as the api is different from jszip currenty not needed for import
             //it is for the change to zip.js from jszip
-            dlzip.file("LibraryCountEntries.txt", CurrentLibKeys.length);
+            dlzip.file("LibraryCountEntries.txt", CurrentLibKeys.length + "");
 
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 dlzip.file("Library/"+i+"/LibCover", items["LibCover" + CurrentLibKeys[i]]);
