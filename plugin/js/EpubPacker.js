@@ -38,8 +38,8 @@ class EpubPacker {
 
     assemble(epubItemSupplier) {
         let that = this;
-        const zipFileWriter = new zip.BlobWriter("application/epub+zip");
-        const zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
+        let zipFileWriter = new zip.BlobWriter("application/epub+zip");
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
         that.addRequiredFiles(zipWriter);
         zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)));
         zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)));

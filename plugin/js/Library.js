@@ -58,6 +58,13 @@ class Library {
             Library.LibShowLoadingText();
             let Prevjszip = new JSZip();
             let Addjszip = new JSZip();
+
+            let zipFileReader = new zip.BlobReader(PreviousEpub);
+            let zipReader = new zip.ZipReader(zipFileReader);
+
+            let zipFileWriter = new zip.BlobWriter("application/epub+zip");
+            let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
+
             Prevjszip.loadAsync(PreviousEpub).then(async function(PreviousEpubzip) {
                 let PreviousEpubImageFolder = PreviousEpubzip.folder("OEBPS/Images");
                 let PreviousEpubTextFolder = PreviousEpubzip.folder("OEBPS/Text");
@@ -671,20 +678,21 @@ class Library {
             let fileReadingList = {};
             fileReadingList.ReadingList = JSON.parse(readingList.toJson());
             fileReadingList.ReadingList.epubs = fileReadingList.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
-            //let serialized = JSON.stringify(retobj);
-            let dlzip = new JSZip();
+            
+            let zipFileWriter = new zip.BlobWriter("application/zip");
+            let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
             //in case for future changes to differntiate between different export versions
-            dlzip.file("LibraryVersion.txt", "1");
+            zipWriter.add("LibraryVersion.txt", new zip.TextReader("1"));
+            zipWriter.add("LibraryCountEntries.txt", new zip.TextReader(CurrentLibKeys.length));
 
             for (let i = 0; i < CurrentLibKeys.length; i++) {
-                dlzip.file("Library/"+i+"/LibCover", items["LibCover" + CurrentLibKeys[i]]);
-                dlzip.file("Library/"+i+"/LibEpub", items["LibEpub" + CurrentLibKeys[i]]);
-                dlzip.file("Library/"+i+"/LibFilename", items["LibFilename" + CurrentLibKeys[i]]);
-                dlzip.file("Library/"+i+"/LibStoryURL", items["LibStoryURL" + CurrentLibKeys[i]]);
+                zipWriter.add("Library/"+i+"/LibCover", new zip.TextReader(items["LibCover" + CurrentLibKeys[i]]));
+                zipWriter.add("Library/"+i+"/LibEpub", new zip.TextReader(items["LibEpub" + CurrentLibKeys[i]]));
+                zipWriter.add("Library/"+i+"/LibFilename", new zip.TextReader(items["LibFilename" + CurrentLibKeys[i]]));
+                zipWriter.add("Library/"+i+"/LibStoryURL", new zip.TextReader(items["LibStoryURL" + CurrentLibKeys[i]]));
             }
-            dlzip.file("ReadingList.json", JSON.stringify(fileReadingList));
-            let blob = await dlzip.generateAsync({ type: "blob", mimeType: "application/zip"});
-            return Download.save(blob, "Libraryexport.zip").catch (err => ErrorLog.showErrorMessage(err));
+            zipWriter.add("ReadingList.json", new zip.TextReader(JSON.stringify(fileReadingList)));
+            return Download.save(await zipWriter.close(), "Libraryexport.zip").catch (err => ErrorLog.showErrorMessage(err));
             
         });
     }
@@ -743,9 +751,16 @@ class Library {
                     HighestLibEpub = parseInt(element)+1; 
                 }
             });
-            let ulzip = await JSZip.loadAsync(LibFileReader.result);
+            let blobfile = new Blob([LibFileReader.result]);
+            let zipFileReader = new zip.BlobReader(blobfile);
+            let zipReader = new zip.ZipReader(zipFileReader, {useWebWorkers: false});
+            let entries = await zipReader.getEntries();
             //check export logic version
-            
+            let zipfiledata =  new zip.TextWriter();
+            let haesrg = await entries[0].getData(new zip.TextWriter());
+            let LibraryVersion = await (await entries.filter((a) => a.filename == "LibraryVersion.txt")[0]);
+            let aegew = await LibraryVersion.getData(zipfiledata);
+            let test = 1;
             if ( "1" != await ulzip.file("LibraryVersion.txt").async("string")) {
                 ErrorLog.showErrorMessage("Wrong export version");
                 return;
