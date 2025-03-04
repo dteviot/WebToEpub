@@ -59,137 +59,135 @@ class Library {
     }
 
     static async LibMergeEpub(PreviousEpub, AddEpub, LibidURL){
-        return new Promise(async (resolve, reject) => {
-            Library.LibShowLoadingText();
+        Library.LibShowLoadingText();
 
-            let PreviousEpubReader = await new zip.BlobReader(PreviousEpub);
-            let PreviousEpubZip = new zip.ZipReader(PreviousEpubReader, {useWebWorkers: false});
-            let PreviousEpubContent = await PreviousEpubZip.getEntries();
-            PreviousEpubContent = PreviousEpubContent.filter(a => a.directory == false);
+        let PreviousEpubReader = await new zip.BlobReader(PreviousEpub);
+        let PreviousEpubZip = new zip.ZipReader(PreviousEpubReader, {useWebWorkers: false});
+        let PreviousEpubContent = await PreviousEpubZip.getEntries();
+        PreviousEpubContent = PreviousEpubContent.filter(a => a.directory == false);
 
-            let AddEpubReader = await new zip.BlobReader(AddEpub);
-            let AddEpubZip = new zip.ZipReader(AddEpubReader, {useWebWorkers: false});
-            let AddEpubContent = await AddEpubZip.getEntries();
-            AddEpubContent = AddEpubContent.filter(a => a.directory == false);
+        let AddEpubReader = await new zip.BlobReader(AddEpub);
+        let AddEpubZip = new zip.ZipReader(AddEpubReader, {useWebWorkers: false});
+        let AddEpubContent = await AddEpubZip.getEntries();
+        AddEpubContent = AddEpubContent.filter(a => a.directory == false);
 
-            let MergedEpubWriter = new zip.BlobWriter("application/epub+zip");
-            let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: false,compressionMethod: 8});
-            //Copy PreviousEpub in MergedEpub
-            for (let element of PreviousEpubContent.filter(a => a.filename != "OEBPS/content.opf" && a.filename != "OEBPS/toc.ncx" && a.filename != "OEBPS/toc.xhtml")){
-                MergedEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
-            }
+        let MergedEpubWriter = new zip.BlobWriter("application/epub+zip");
+        let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: false,compressionMethod: 8});
+        //Copy PreviousEpub in MergedEpub
+        for (let element of PreviousEpubContent.filter(a => a.filename != "OEBPS/content.opf" && a.filename != "OEBPS/toc.ncx" && a.filename != "OEBPS/toc.xhtml")){
+            MergedEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
+        }
 
-            let ImagenumberPreviousEpub = Library.LibHighestFileNumber(PreviousEpubContent, new RegExp("OEBPS/Images/[0-9]{4}"), "OEBPS/Images/") + 1;
-            let TextnumberPreviousEpub = Library.LibHighestFileNumber(PreviousEpubContent, new RegExp("OEBPS/Text/[0-9]{4}"), "OEBPS/Text/") + 1;
+        let ImagenumberPreviousEpub = Library.LibHighestFileNumber(PreviousEpubContent, new RegExp("OEBPS/Images/[0-9]{4}"), "OEBPS/Images/") + 1;
+        let TextnumberPreviousEpub = Library.LibHighestFileNumber(PreviousEpubContent, new RegExp("OEBPS/Text/[0-9]{4}"), "OEBPS/Text/") + 1;
 
-            let AddEpubImageFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Images/[0-9]{4}")));
-            let AddEpubTextFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Text/[0-9]{4}")));
-            let ImagenumberAddEpub = 1;
-            let TextnumberAddEpub = 0;
-            if (AddEpubTextFolder.filter( a => a.filename == "OEBPS/Text/0000_Information.xhtml").length != 0) {
-                TextnumberAddEpub++;
-            }
-            let AddEpubTextFile;
-            let AddEpubImageFile;
-            let PreviousEpubContentText = await PreviousEpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
-            let PreviousEpubTocText = await PreviousEpubContent.filter( a => a.filename == "OEBPS/toc.ncx")[0].getData(new zip.TextWriter());
-            let PreviousEpubTocEpub3Text =  await (PreviousEpubContent.filter( a => a.filename == "OEBPS/toc.xhtml"))?.[0]?.getData(new zip.TextWriter());
-            let AddEpubContentText = await AddEpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
-            let AddEpubTocText = await AddEpubContent.filter( a => a.filename == "OEBPS/toc.ncx")[0].getData(new zip.TextWriter());
+        let AddEpubImageFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Images/[0-9]{4}")));
+        let AddEpubTextFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Text/[0-9]{4}")));
+        let ImagenumberAddEpub = 1;
+        let TextnumberAddEpub = 0;
+        if (AddEpubTextFolder.filter( a => a.filename == "OEBPS/Text/0000_Information.xhtml").length != 0) {
+            TextnumberAddEpub++;
+        }
+        let AddEpubTextFile;
+        let AddEpubImageFile;
+        let PreviousEpubContentText = await PreviousEpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+        let PreviousEpubTocText = await PreviousEpubContent.filter( a => a.filename == "OEBPS/toc.ncx")[0].getData(new zip.TextWriter());
+        let PreviousEpubTocEpub3Text =  await (PreviousEpubContent.filter( a => a.filename == "OEBPS/toc.xhtml"))?.[0]?.getData(new zip.TextWriter());
+        let AddEpubContentText = await AddEpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+        let AddEpubTocText = await AddEpubContent.filter( a => a.filename == "OEBPS/toc.ncx")[0].getData(new zip.TextWriter());
 
-            let regex1, regex2, regex3, regex4, string1, string2, string3, string4;
+        let regex1, regex2, regex3, regex4, string1, string2, string3, string4;
+        // eslint-disable-next-line
+        while ((AddEpubTextFile = AddEpubTextFolder.filter(a => a.filename.match(new RegExp(("0000"+TextnumberAddEpub).slice(-4)+".+\.xhtml")))).length != 0) {
+
+            AddEpubTextFile = AddEpubTextFile[0];
+            let AddEpubTextFilestring = await AddEpubTextFile.getData(new zip.TextWriter());
             // eslint-disable-next-line
-            while ((AddEpubTextFile = AddEpubTextFolder.filter(a => a.filename.match(new RegExp(("0000"+TextnumberAddEpub).slice(-4)+".+\.xhtml")))).length != 0) {
-
-                AddEpubTextFile = AddEpubTextFile[0];
-                let AddEpubTextFilestring = await AddEpubTextFile.getData(new zip.TextWriter());
-                // eslint-disable-next-line
-                while ((AddEpubImageFile = AddEpubImageFolder.filter(a => a.filename.match(new RegExp(("0000"+ImagenumberAddEpub).slice(-4)+".+\..+")))).length != 0) {
-                    AddEpubImageFile = AddEpubImageFile[0];
-                    if (AddEpubTextFilestring.search(AddEpubImageFile.filename.replace("OEBPS/", ""))==-1) {
-                        break;
-                    }
-                    // eslint-disable-next-line
-                    MergedEpubZip.add(AddEpubImageFile.filename.replace(("0000"+ImagenumberAddEpub).slice(-4),("0000"+ImagenumberPreviousEpub).slice(-4)),  new zip.BlobReader(await AddEpubImageFile.getData(new zip.BlobWriter())));
-                    AddEpubTextFilestring = AddEpubTextFilestring.replace(AddEpubImageFile.filename.replace("OEBPS", ""), AddEpubImageFile.filename.replace("OEBPS", "").replace(("/Images/0000"+ImagenumberAddEpub).slice(-4), ("/Images/0000"+ImagenumberPreviousEpub).slice(-4)));
-                    // eslint-disable-next-line
-                    regex1 = new RegExp('<dc:source id="id.image'+(("0000"+ImagenumberAddEpub).slice(-4))+'">'+".+?<\/dc:source>");
-                    regex2 = ("0000"+ImagenumberAddEpub).slice(-4);
-                    string1 = "</metadata>";
-                    string2 = ("0000"+ImagenumberPreviousEpub).slice(-4);
-                    PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2);
-                    // eslint-disable-next-line
-                    regex1 = new RegExp('<item href="Images\/'+(("0000"+ImagenumberAddEpub).slice(-4))+".+?\/>");
-                    // eslint-disable-next-line
-                    regex2 = new RegExp("Images\/"+(("0000"+ImagenumberAddEpub).slice(-4))+"");
-                    // eslint-disable-next-line
-                    regex3 = new RegExp('id="image'+(("0000"+ImagenumberAddEpub).slice(-4)));
-                    string1 = "</manifest>";
-                    string2 = "Images/"+(("0000"+ImagenumberPreviousEpub).slice(-4));
-                    // eslint-disable-next-line
-                    string3 = 'id="image'+(("0000"+ImagenumberPreviousEpub).slice(-4));
-                    PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2, regex3, string3);
-                    ImagenumberAddEpub++;
-                    ImagenumberPreviousEpub++;
+            while ((AddEpubImageFile = AddEpubImageFolder.filter(a => a.filename.match(new RegExp(("0000"+ImagenumberAddEpub).slice(-4)+".+\..+")))).length != 0) {
+                AddEpubImageFile = AddEpubImageFile[0];
+                if (AddEpubTextFilestring.search(AddEpubImageFile.filename.replace("OEBPS/", ""))==-1) {
+                    break;
                 }
-                let newChaptername = AddEpubTextFile.filename.replace(("0000"+TextnumberAddEpub).slice(-4),("0000"+TextnumberPreviousEpub).slice(-4));
-                MergedEpubZip.add(newChaptername, new zip.TextReader(AddEpubTextFilestring));
                 // eslint-disable-next-line
-                regex1 = new RegExp('<dc:source id="id.xhtml'+(("0000"+TextnumberAddEpub).slice(-4))+'">'+".+?<\/dc:source>");
-                regex2 = ("0000"+TextnumberAddEpub).slice(-4);
+                MergedEpubZip.add(AddEpubImageFile.filename.replace(("0000"+ImagenumberAddEpub).slice(-4),("0000"+ImagenumberPreviousEpub).slice(-4)),  new zip.BlobReader(await AddEpubImageFile.getData(new zip.BlobWriter())));
+                AddEpubTextFilestring = AddEpubTextFilestring.replace(AddEpubImageFile.filename.replace("OEBPS", ""), AddEpubImageFile.filename.replace("OEBPS", "").replace(("/Images/0000"+ImagenumberAddEpub).slice(-4), ("/Images/0000"+ImagenumberPreviousEpub).slice(-4)));
+                // eslint-disable-next-line
+                regex1 = new RegExp('<dc:source id="id.image'+(("0000"+ImagenumberAddEpub).slice(-4))+'">'+".+?<\/dc:source>");
+                regex2 = ("0000"+ImagenumberAddEpub).slice(-4);
                 string1 = "</metadata>";
-                string2 = ("0000"+TextnumberPreviousEpub).slice(-4);
+                string2 = ("0000"+ImagenumberPreviousEpub).slice(-4);
                 PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2);
                 // eslint-disable-next-line
-                regex1 = new RegExp('<item href="Text\/'+(("0000"+TextnumberAddEpub).slice(-4))+".+?\/>");
+                regex1 = new RegExp('<item href="Images\/'+(("0000"+ImagenumberAddEpub).slice(-4))+".+?\/>");
                 // eslint-disable-next-line
-                regex2 = new RegExp("Text\/"+(("0000"+TextnumberAddEpub).slice(-4))+"");
+                regex2 = new RegExp("Images\/"+(("0000"+ImagenumberAddEpub).slice(-4))+"");
                 // eslint-disable-next-line
-                regex3 = new RegExp('id="xhtml'+(("0000"+TextnumberAddEpub).slice(-4)));
+                regex3 = new RegExp('id="image'+(("0000"+ImagenumberAddEpub).slice(-4)));
                 string1 = "</manifest>";
-                string2 = "Text/"+(("0000"+TextnumberPreviousEpub).slice(-4));
+                string2 = "Images/"+(("0000"+ImagenumberPreviousEpub).slice(-4));
                 // eslint-disable-next-line
-                string3 = 'id="xhtml'+(("0000"+TextnumberPreviousEpub).slice(-4));
+                string3 = 'id="image'+(("0000"+ImagenumberPreviousEpub).slice(-4));
                 PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2, regex3, string3);
-                // eslint-disable-next-line
-                regex1 = new RegExp('<itemref idref="xhtml'+(("0000"+TextnumberAddEpub).slice(-4))+'"\/>');
-                regex2 = new RegExp("xhtml"+(("0000"+TextnumberAddEpub).slice(-4))+"");
-                string1 = "</spine>";
-                string2 = "xhtml"+(("0000"+TextnumberPreviousEpub).slice(-4));
-                PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2);
-                // eslint-disable-next-line
-                regex1 = new RegExp('<navPoint id="body'+(("0000"+(TextnumberAddEpub+1)).slice(-4))+'".+?<\/navPoint>');
-                regex2 = new RegExp("body"+(("0000"+(TextnumberAddEpub+1)).slice(-4))+"");
-                // eslint-disable-next-line
-                regex3 = new RegExp('playOrder="'+(TextnumberAddEpub+1)+'"');
-                // eslint-disable-next-line
-                regex4 = new RegExp('<content src="'+AddEpubTextFile.filename.slice(6)+'"\/>');
-                string1 = "</navMap>";
-                string2 = "body"+(("0000"+(TextnumberPreviousEpub+1)).slice(-4));
-                // eslint-disable-next-line
-                string3 = 'playOrder="'+(TextnumberPreviousEpub+1)+'"';
-                // eslint-disable-next-line
-                string4 = '<content src="' + newChaptername.slice(6) + '"/>';
-                PreviousEpubTocText = Library.LibManipulateContentFromTO(AddEpubTocText, PreviousEpubTocText, regex1, string1, regex2, string2, regex3, string3, regex4, string4);
-                if (PreviousEpubTocEpub3Text != null) {
-                    string1 = "</ol></nav>";
-                    regex2 = new RegExp(".+<text>");
-                    regex3 = new RegExp("</text>.+");
-                    string2 = "<li><a href=\""+ newChaptername.slice(6) + "\">"+AddEpubTocText.match(regex1)[0].replace(regex2, "").replace(regex3, "")+"</a></li>";
-                    PreviousEpubTocEpub3Text = PreviousEpubTocEpub3Text.replace(string1, string2+string1);
-                }
-                TextnumberPreviousEpub++;
-                TextnumberAddEpub++;
+                ImagenumberAddEpub++;
+                ImagenumberPreviousEpub++;
             }
-            MergedEpubZip.add("OEBPS/content.opf", new zip.TextReader(PreviousEpubContentText));
-            MergedEpubZip.add("OEBPS/toc.ncx", new zip.TextReader(PreviousEpubTocText));
+            let newChaptername = AddEpubTextFile.filename.replace(("0000"+TextnumberAddEpub).slice(-4),("0000"+TextnumberPreviousEpub).slice(-4));
+            MergedEpubZip.add(newChaptername, new zip.TextReader(AddEpubTextFilestring));
+            // eslint-disable-next-line
+            regex1 = new RegExp('<dc:source id="id.xhtml'+(("0000"+TextnumberAddEpub).slice(-4))+'">'+".+?<\/dc:source>");
+            regex2 = ("0000"+TextnumberAddEpub).slice(-4);
+            string1 = "</metadata>";
+            string2 = ("0000"+TextnumberPreviousEpub).slice(-4);
+            PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2);
+            // eslint-disable-next-line
+            regex1 = new RegExp('<item href="Text\/'+(("0000"+TextnumberAddEpub).slice(-4))+".+?\/>");
+            // eslint-disable-next-line
+            regex2 = new RegExp("Text\/"+(("0000"+TextnumberAddEpub).slice(-4))+"");
+            // eslint-disable-next-line
+            regex3 = new RegExp('id="xhtml'+(("0000"+TextnumberAddEpub).slice(-4)));
+            string1 = "</manifest>";
+            string2 = "Text/"+(("0000"+TextnumberPreviousEpub).slice(-4));
+            // eslint-disable-next-line
+            string3 = 'id="xhtml'+(("0000"+TextnumberPreviousEpub).slice(-4));
+            PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2, regex3, string3);
+            // eslint-disable-next-line
+            regex1 = new RegExp('<itemref idref="xhtml'+(("0000"+TextnumberAddEpub).slice(-4))+'"\/>');
+            regex2 = new RegExp("xhtml"+(("0000"+TextnumberAddEpub).slice(-4))+"");
+            string1 = "</spine>";
+            string2 = "xhtml"+(("0000"+TextnumberPreviousEpub).slice(-4));
+            PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2);
+            // eslint-disable-next-line
+            regex1 = new RegExp('<navPoint id="body'+(("0000"+(TextnumberAddEpub+1)).slice(-4))+'".+?<\/navPoint>');
+            regex2 = new RegExp("body"+(("0000"+(TextnumberAddEpub+1)).slice(-4))+"");
+            // eslint-disable-next-line
+            regex3 = new RegExp('playOrder="'+(TextnumberAddEpub+1)+'"');
+            // eslint-disable-next-line
+            regex4 = new RegExp('<content src="'+AddEpubTextFile.filename.slice(6)+'"\/>');
+            string1 = "</navMap>";
+            string2 = "body"+(("0000"+(TextnumberPreviousEpub+1)).slice(-4));
+            // eslint-disable-next-line
+            string3 = 'playOrder="'+(TextnumberPreviousEpub+1)+'"';
+            // eslint-disable-next-line
+            string4 = '<content src="' + newChaptername.slice(6) + '"/>';
+            PreviousEpubTocText = Library.LibManipulateContentFromTO(AddEpubTocText, PreviousEpubTocText, regex1, string1, regex2, string2, regex3, string3, regex4, string4);
             if (PreviousEpubTocEpub3Text != null) {
-                MergedEpubZip.add("OEBPS/toc.xhtml", new zip.TextReader(PreviousEpubTocEpub3Text));
+                string1 = "</ol></nav>";
+                regex2 = new RegExp(".+<text>");
+                regex3 = new RegExp("</text>.+");
+                string2 = "<li><a href=\""+ newChaptername.slice(6) + "\">"+AddEpubTocText.match(regex1)[0].replace(regex2, "").replace(regex3, "")+"</a></li>";
+                PreviousEpubTocEpub3Text = PreviousEpubTocEpub3Text.replace(string1, string2+string1);
             }
-            let content = await MergedEpubZip.close();
-            Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL" + LibidURL), await Library.LibGetFromStorage("LibFilename" + LibidURL), LibidURL);
-            resolve(content);
-        });
+            TextnumberPreviousEpub++;
+            TextnumberAddEpub++;
+        }
+        MergedEpubZip.add("OEBPS/content.opf", new zip.TextReader(PreviousEpubContentText));
+        MergedEpubZip.add("OEBPS/toc.ncx", new zip.TextReader(PreviousEpubTocText));
+        if (PreviousEpubTocEpub3Text != null) {
+            MergedEpubZip.add("OEBPS/toc.xhtml", new zip.TextReader(PreviousEpubTocEpub3Text));
+        }
+        let content = await MergedEpubZip.close();
+        Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL" + LibidURL), await Library.LibGetFromStorage("LibFilename" + LibidURL), LibidURL);
+        return content;
     }
 
     static LibManipulateContentFromTO(ContentFrom = "", ContentTo = "", regexFrom1 = "", stringTo1 = "", regexFrom2 = "", stringTo2 = "", regexFrom3 = "", stringTo3 = "", regexFrom4 = "", stringTo4 = ""){
@@ -508,29 +506,25 @@ class Library {
     }
     
     static async LibGetMetadata(libepubid) {
-        let EpubAsBlob = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub"+libepubid));
-        return new Promise(async (resolve) => {
-            let LibMetadata = [];
-            try{
-                let EpubReader = await new zip.BlobReader(EpubAsBlob)
-                let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
-                let EpubContent =  await EpubZip.getEntries();
-                let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
-                
-                let LibMetadataTags = ["dc:title", "dc:creator", "dc:language", "dc:subject", "dc:description"];
-                let opfFileMatch;
-                LibMetadataTags.forEach((element, index) => {
-                    LibMetadata[index] = "";
-                    if (( opfFileMatch = opfFile.match(new RegExp("<"+element+".*?>.*?</"+element+">", "gs"))) != null) {
-                        LibMetadata[index] = opfFileMatch[0].replace(new RegExp("<"+element+".*?>"),"").replace(new RegExp("</"+element+">"),"");
-                    }
-                });
-                resolve(LibMetadata);
-            }catch {
-                ErrorLog.showErrorMessage(e);
-                resolve(LibMetadata);
-            }
-        });
+        let EpubAsBlob = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub"+libepubid));let LibMetadata = [];
+        try{
+            let EpubReader = await new zip.BlobReader(EpubAsBlob)
+            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+            let EpubContent =  await EpubZip.getEntries();
+            let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+            
+            let LibMetadataTags = ["dc:title", "dc:creator", "dc:language", "dc:subject", "dc:description"];
+            let opfFileMatch;
+            LibMetadataTags.forEach((element, index) => {
+                LibMetadata[index] = "";
+                if (( opfFileMatch = opfFile.match(new RegExp("<"+element+".*?>.*?</"+element+">", "gs"))) != null) {
+                    LibMetadata[index] = opfFileMatch[0].replace(new RegExp("<"+element+".*?>"),"").replace(new RegExp("</"+element+">"),"");
+                }
+            });
+            return LibMetadata;
+        }catch {
+            return LibMetadata;
+        }
     }
 
     static LibShowLoadingText(){
@@ -583,17 +577,15 @@ class Library {
     }
     
     static async LibGetSourceURL(EpubAsDataURL) {
-        return new Promise(async (resolve) => {
-            try{
-                let EpubReader = await new zip.Data64URIReader(EpubAsDataURL)
-                let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
-                let EpubContent =  await EpubZip.getEntries();
-                let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
-                resolve(opfFile.match(/<dc:identifier id="BookId" opf:scheme="URI">.+?<\/dc:identifier>/)[0].replace(/<dc:identifier id="BookId" opf:scheme="URI">/,"").replace(/<\/dc:identifier>/,""));
-            }catch {
-                resolve("Paste URL here!");
-            }
-        });
+        try{
+            let EpubReader = await new zip.Data64URIReader(EpubAsDataURL)
+            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+            let EpubContent =  await EpubZip.getEntries();
+            let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+            return (opfFile.match(/<dc:identifier id="BookId" opf:scheme="URI">.+?<\/dc:identifier>/)[0].replace(/<dc:identifier id="BookId" opf:scheme="URI">/,"").replace(/<\/dc:identifier>/,""));
+        }catch {
+            return "Paste URL here!";
+        }
     }
 
     static LibConvertDataUrlToBlob(DataUrl) {
