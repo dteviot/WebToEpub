@@ -2,7 +2,7 @@
 "use strict";
 
 var fs = require("fs");
-var JSZip = require("../plugin/jszip/dist/jszip.min.js");
+var JSZip = require("../node_modules/jszip/dist/jszip.min.js");
 var DOMParser = require("@xmldom/xmldom").DOMParser;
 
 var extractFileListFromHtml = function(htmlAsString) {
