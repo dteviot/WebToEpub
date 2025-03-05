@@ -82,8 +82,9 @@ class Library {
         let TextnumberPreviousEpub = Library.LibHighestFileNumber(PreviousEpubContent, new RegExp("OEBPS/Text/[0-9]{4}"), "OEBPS/Text/") + 1;
 
         let AddEpubImageFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Images/[0-9]{4}")));
+        let AddEpubImageFolderFilenames = AddEpubImageFolder.map(a => a = a.filename).sort();
         let AddEpubTextFolder = AddEpubContent.filter(a => a.filename.match(new RegExp("OEBPS/Text/[0-9]{4}")));
-        let ImagenumberAddEpub = 1;
+        let ImagenumberAddEpubIndex = 1;
         let TextnumberAddEpub = 0;
         if (AddEpubTextFolder.filter( a => a.filename == "OEBPS/Text/0000_Information.xhtml").length != 0) {
             TextnumberAddEpub++;
@@ -103,8 +104,9 @@ class Library {
             AddEpubTextFile = AddEpubTextFile[0];
             let AddEpubTextFilestring = await AddEpubTextFile.getData(new zip.TextWriter());
             // eslint-disable-next-line
-            while ((AddEpubImageFile = AddEpubImageFolder.filter(a => a.filename.match(new RegExp(("0000"+ImagenumberAddEpub).slice(-4)+".+\..+")))).length != 0) {
+            while ((AddEpubImageFile = AddEpubImageFolder.filter(a => a.filename == AddEpubImageFolderFilenames[ImagenumberAddEpubIndex])).length != 0) {
                 AddEpubImageFile = AddEpubImageFile[0];
+                let ImagenumberAddEpub = parseInt(AddEpubImageFile.filename.substring(13, 17));
                 if (AddEpubTextFilestring.search(AddEpubImageFile.filename.replace("OEBPS/", ""))==-1) {
                     break;
                 }
@@ -128,7 +130,7 @@ class Library {
                 // eslint-disable-next-line
                 string3 = 'id="image'+(("0000"+ImagenumberPreviousEpub).slice(-4));
                 PreviousEpubContentText = Library.LibManipulateContentFromTO(AddEpubContentText, PreviousEpubContentText, regex1, string1, regex2, string2, regex3, string3);
-                ImagenumberAddEpub++;
+                ImagenumberAddEpubIndex++;
                 ImagenumberPreviousEpub++;
             }
             let newChaptername = AddEpubTextFile.filename.replace(("0000"+TextnumberAddEpub).slice(-4),("0000"+TextnumberPreviousEpub).slice(-4));
