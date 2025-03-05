@@ -43,8 +43,8 @@ class Library {
                 return;
             }
 
-            let PreviousEpub = Library.LibConvertDataUrlToBlob(items["LibEpub" + LibidURL]);
-            let MergedEpub = await Library.LibMergeEpub(PreviousEpub, AddEpub, LibidURL);
+            let PreviousEpubBase64 = items["LibEpub" + LibidURL];
+            let MergedEpub = await Library.LibMergeEpub(PreviousEpubBase64, AddEpub, LibidURL);
             if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked) {
                 return Download.save(MergedEpub, fileName, overwriteExisting, backgroundDownload);
             }else{
@@ -58,15 +58,15 @@ class Library {
         return Math.max(...array);
     }
 
-    static async LibMergeEpub(PreviousEpub, AddEpub, LibidURL){
+    static async LibMergeEpub(PreviousEpubBase64, AddEpubBlob, LibidURL){
         Library.LibShowLoadingText();
 
-        let PreviousEpubReader = await new zip.BlobReader(PreviousEpub);
+        let PreviousEpubReader = await new zip.Data64URIReader(PreviousEpubBase64);
         let PreviousEpubZip = new zip.ZipReader(PreviousEpubReader, {useWebWorkers: false});
         let PreviousEpubContent = await PreviousEpubZip.getEntries();
         PreviousEpubContent = PreviousEpubContent.filter(a => a.directory == false);
 
-        let AddEpubReader = await new zip.BlobReader(AddEpub);
+        let AddEpubReader = await new zip.BlobReader(AddEpubBlob);
         let AddEpubZip = new zip.ZipReader(AddEpubReader, {useWebWorkers: false});
         let AddEpubContent = await AddEpubZip.getEntries();
         AddEpubContent = AddEpubContent.filter(a => a.directory == false);
@@ -406,9 +406,9 @@ class Library {
     }
     
     static async LibMergeUpload(objbtn){
-        let PreviousEpub = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub" + objbtn.dataset.libepubid));
-        let AddEpub = objbtn.files[0];
-        Library.LibMergeEpub(PreviousEpub, AddEpub, objbtn.dataset.libepubid);
+        let PreviousEpubBase64 = await Library.LibGetFromStorage("LibEpub" + objbtn.dataset.libepubid);
+        let AddEpubBlob = objbtn.files[0];
+        Library.LibMergeEpub(PreviousEpubBase64, AddEpubBlob, objbtn.dataset.libepubid);
     }
     
     static async LibEditMetadata(objbtn){
@@ -506,9 +506,9 @@ class Library {
     }
     
     static async LibGetMetadata(libepubid) {
-        let EpubAsBlob = Library.LibConvertDataUrlToBlob(await Library.LibGetFromStorage("LibEpub"+libepubid));let LibMetadata = [];
+        let LibMetadata = [];
         try{
-            let EpubReader = await new zip.BlobReader(EpubAsBlob)
+            let EpubReader = await new zip.Data64URIReader(await Library.LibGetFromStorage("LibEpub"+libepubid))
             let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
             let EpubContent =  await EpubZip.getEntries();
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
@@ -588,14 +588,33 @@ class Library {
         }
     }
 
-    static LibConvertDataUrlToBlob(DataUrl) {
-        var dataString = DataUrl.slice(("data:application/epub+zip;base64,").length);
-        var byteString = atob(dataString);
-        var array = [];
-        for (var i = 0; i < byteString.length; i++) {
-            array.push(byteString.charCodeAt(i));
+    static async LibConvertDataUrlToBlob(DataUrl) {
+        let retblob;
+        try {
+            var dataString = DataUrl.slice(("data:application/epub+zip;base64,").length);
+            var byteString = atob(dataString);
+            var array = [];
+            for (var i = 0; i < byteString.length; i++) {
+                array.push(byteString.charCodeAt(i));
+            }
+            retblob = new Blob([new Uint8Array(array)], { type: "application/epub+zip" });
+        } catch {
+            //In case the Epub is too big atob() fails and this messy method works with bigger files.
+            let Base64EpubReader = await new zip.Data64URIReader(DataUrl);
+            let Base64EpubZip = new zip.ZipReader(Base64EpubReader, {useWebWorkers: false});
+            
+            let Base64EpubContent = await Base64EpubZip.getEntries();
+            Base64EpubContent = Base64EpubContent.filter(a => a.directory == false);
+
+            let BlobEpubWriter = new zip.BlobWriter("application/epub+zip");
+            let BlobEpubZip = new zip.ZipWriter(BlobEpubWriter,{useWebWorkers: false,compressionMethod: 8});
+            //Copy Base64Epub in BlobEpub
+            for (let element of Base64EpubContent){
+                BlobEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
+            }
+            retblob = await Base64EpubZip.close();
         }
-        return new Blob([new Uint8Array(array)], { type: "application/epub+zip" });
+        return retblob;
     };
 
     static LibFileReaderAddListeners(LibFileReader){
@@ -639,25 +658,7 @@ class Library {
             let userPreferences = UserPreferences.readFromLocalStorage();
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             let backgroundDownload = userPreferences.noDownloadPopup.value;
-            let blobdata;
-            try {
-                blobdata = Library.LibConvertDataUrlToBlob(items["LibEpub" + objbtn.dataset.libepubid]);
-            } catch {
-                //In case the Epub is too big Library.LibConvertDataUrlToBlob() fails and this messy method works with bigger files.
-                let Base64EpubReader = await new zip.Data64URIReader(items["LibEpub" + objbtn.dataset.libepubid]);
-                let Base64EpubZip = new zip.ZipReader(Base64EpubReader, {useWebWorkers: false});
-                
-                let Base64EpubContent = await Base64EpubZip.getEntries();
-                Base64EpubContent = Base64EpubContent.filter(a => a.directory == false);
-
-                let BlobEpubWriter = new zip.BlobWriter("application/epub+zip");
-                let BlobEpubZip = new zip.ZipWriter(BlobEpubWriter,{useWebWorkers: false,compressionMethod: 8});
-                //Copy Base64Epub in BlobEpub
-                for (let element of Base64EpubContent){
-                    BlobEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
-                }
-                blobdata = await Base64EpubZip.close();
-            }
+            let blobdata = await Library.LibConvertDataUrlToBlob(items["LibEpub" + objbtn.dataset.libepubid]);
             return Download.save(blobdata, items["LibFilename" + objbtn.dataset.libepubid] + ".epub", overwriteExisting, backgroundDownload);
         });
     }
