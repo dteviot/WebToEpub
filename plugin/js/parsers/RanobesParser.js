@@ -2,22 +2,30 @@
 
 parserFactory.register("ranobes.net", () => new RanobesParser());
 parserFactory.register("ranobes.top", () => new RanobesParser());
+parserFactory.register("ranobes.com", () => new RanobesParser());
 
 class RanobesParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 1000;
+        this.minimumThrottle = 2000;
+    }
+    
+    clampSimultanousFetchSize() {
+        return 1;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let chapters = [...dom.querySelectorAll("ul.chapters-scroll-list a")]
-            .map(a => ({
-                sourceUrl:  a.href,
-                title: a.querySelector(".title").textContent
-            }));
+        let chapters = [];
         let tocUrl = dom.querySelector("div.r-fullstory-chapters-foot a[title='Go to table of contents']")?.href;
         if (tocUrl == null) {
-            return chapters.reverse();
+            tocUrl = dom.querySelector("div.r-fullstory-chapters-foot a[title='Перейти в оглавление']")?.href;
+        }
+        if (tocUrl == null) {
+            return [...dom.querySelectorAll("ul.chapters-scroll-list a")]
+                .map(a => ({
+                    sourceUrl:  a.href,
+                    title: a.querySelector(".title").textContent
+                })).reverse();
         }
         let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
         let urlsOfTocPages = RanobesParser.extractTocPageUrls(tocDom, tocUrl);
@@ -28,26 +36,42 @@ class RanobesParser extends Parser{
     static extractTocPageUrls(dom, baseUrl) {
         let max = RanobesParser.extractTocJson(dom)?.pages_count ?? 0;
         let tocUrls = [];
-        for(let i = 2; i <= max; ++i) {
+        for(let i = 1; i <= max; ++i) {
             tocUrls.push(`${baseUrl}page/${i}/`);
         }
         return tocUrls;
     }
 
     static extractTocJson(dom) {
-        let startString = "window.__DATA__ = ";
-        let scriptElement = [...dom.querySelectorAll("script")]
-            .filter(s => s.textContent.includes(startString))[0];
-        return (scriptElement != null)
-            ? util.locateAndExtractJson(scriptElement.textContent, startString)
-            : {chapters: [], pages_count: 0};
+        let baseURL = new URL(dom.baseURI).hostname;
+        if (baseURL != "ranobes.com") {
+            let startString = "window.__DATA__ = ";
+            let scriptElement = [...dom.querySelectorAll("script")]
+                .filter(s => s.textContent.includes(startString))[0];
+            return (scriptElement != null)
+                ? util.locateAndExtractJson(scriptElement.textContent, startString)
+                : {chapters: [], pages_count: 0};
+        } else {
+            let linkElement = Math.max(...[...dom.querySelectorAll(".pages a")].map(a => parseInt(a.textContent)));
+            return (Infinity == linkElement || -Infinity == linkElement)?
+                {chapters: [], pages_count: 0} 
+                : {chapters: [], pages_count: linkElement}
+        }   
     }
 
     extractPartialChapterList(dom) {
-        return RanobesParser.extractTocJson(dom).chapters.map(c => ({
-            sourceUrl:  c.link,
-            title: c.title
-        }));
+        let baseURL = new URL(dom.baseURI).hostname;
+        if (baseURL != "ranobes.com") {
+            return RanobesParser.extractTocJson(dom).chapters.map(c => ({
+                sourceUrl:  c.link,
+                title: c.title
+            }));
+        } else {
+            let Chapterlist = dom.querySelector("#dle-content");
+            let RemoveNavigation = Chapterlist.querySelector(".navigation");
+            Chapterlist.removeChild(RemoveNavigation);
+            return util.hyperlinksToChapterList(Chapterlist);
+        }
     }
 
     findContent(dom) {
