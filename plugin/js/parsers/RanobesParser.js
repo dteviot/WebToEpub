@@ -62,10 +62,10 @@ class RanobesParser extends Parser{
     extractPartialChapterList(dom) {
         let baseURL = new URL(dom.baseURI).hostname;
         if (baseURL != "ranobes.com") {
-        return RanobesParser.extractTocJson(dom).chapters.map(c => ({
-            sourceUrl:  c.link,
-            title: c.title
-        }));
+            return RanobesParser.extractTocJson(dom).chapters.map(c => ({
+                sourceUrl:  c.link,
+                title: c.title
+            }));
         } else {
             let Chapterlist = dom.querySelector("#dle-content");
             let RemoveNavigation = Chapterlist.querySelector(".navigation");
