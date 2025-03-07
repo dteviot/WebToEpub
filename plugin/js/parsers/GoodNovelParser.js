@@ -22,6 +22,7 @@ class GoodNovelParser extends Parser{
         let retid = null;
         retid = url.match(new RegExp("_[0-9]+$"))?.[0].match(new RegExp("[0-9]+$"))?.[0];
         if (retid == null) {
+            // eslint-disable-next-line
             retid = url.match(new RegExp("book_catalog\/[0-9]+\/"))?.[0].match(new RegExp("[0-9]+"))?.[0];
         }
         return retid;
@@ -30,7 +31,7 @@ class GoodNovelParser extends Parser{
     static extractTocPageUrls(dom, baseUrl) {
         let max = GoodNovelParser.extractMaxToc(dom);
         let tocUrls = [];
-        for(let i = 1; i <= 1; ++i) {
+        for(let i = 1; i <= max; ++i) {
             tocUrls.push(`${baseUrl}${i}`);
         }
         return tocUrls;
