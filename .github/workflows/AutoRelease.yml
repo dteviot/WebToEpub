@@ -175,7 +175,7 @@ jobs:
           echo * WebToEpub%var_build%.Firefox.zip for Firefox >> output.txt
           echo * WebToEpub%var_build%.Chrome.zip for Chrome >> output.txt
           echo.>> output.txt
-          echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-how-to-install-from-source-for-people-who-are-not-developers>> output.txt
+          echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-installation>> output.txt
           echo.>> output.txt
           echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...developer-build >> output.txt
 
