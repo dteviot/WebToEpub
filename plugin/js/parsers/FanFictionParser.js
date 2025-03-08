@@ -11,7 +11,7 @@ parserFactory.register("www.fictionpress.com", function() { return new FanFictio
 class FanFictionParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 3000;
+        this.minimumThrottle = 3050;
     }
 
     async getChapterUrls(dom) {
@@ -72,15 +72,26 @@ class FanFictionParser extends Parser {
         {
             //Determine if path contains extra parameters. Immediately fail if already shortened.
             //Shortened URI is not always ideal solution; apparently related to caching on server. 
-            let regex = /(https?:\/\/(?:www\.)?\w+\.\w+\/s\/\d+\/\d+)\/[a-z\-0-9]+/i
+            let regex = /(https?:\/\/(?:www\.)?\w+\.\w+\/s\/\d+\/\d+\/)[a-z\-0-9]+/i
             let shortUri = regex.exec(webPage.sourceUrl);
             if (shortUri)
             {
+                //Primary failure condition - catch where fanfiction controller fails to forward view
                 console.log(`Failed to load URI [${webPage.sourceUrl}] - Attempting alternative. [${shortUri[1]}]`);
                 //Await throttle timer again for second page fetch.
                 await this.rateLimitDelay();
                 webPage.sourceUrl = shortUri[1];
-                return await super.fetchWebPageContent(webPage);
+                return await this.fetchWebPageContent(webPage);
+            }
+            else if (webPage.sourceUrl.endsWith("/"))
+            {
+                //Secondary failure condition - catch where fanfiction controller failed to load from cache
+                let newUrl = webPage.sourceUrl.slice(0, -1);
+                console.log(`Failed to load URI [${webPage.sourceUrl}] - Attempting alternative. [${newUrl}]`);
+                //Await throttle timer again for second page fetch.
+                await this.rateLimitDelay();
+                webPage.sourceUrl = newUrl;
+                return await this.fetchWebPageContent(webPage);
             }
             else
             {
