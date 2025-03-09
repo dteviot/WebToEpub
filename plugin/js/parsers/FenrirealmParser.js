@@ -30,7 +30,7 @@ class FenrirealmParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        let titleText = dom.querySelector("h1.font-outit").textContent;
+        let titleText = dom.querySelector("h1").textContent;
         return this.removeDuplicatedChapterPrefix(titleText);
     }
 
