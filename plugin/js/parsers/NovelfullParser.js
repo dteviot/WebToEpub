@@ -213,7 +213,7 @@ class NovelHyphenBinParser extends NovelfullParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let marks = [...element.querySelectorAll(".novel_online")];
+        let marks = [...element.querySelectorAll(".novel_online, .unlock-buttons")];
         for(let mark of marks) {
             mark.nextSibling.nextSibling.remove();
             mark.remove();
