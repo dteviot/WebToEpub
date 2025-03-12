@@ -36,7 +36,7 @@ var main = (function () {
     }
 
     // extract urls from DOM and populate control
-    function processInitialHtml(url, dom) {
+    async function processInitialHtml(url, dom) {
         if (setParser(url, dom)) {
             try {
                 userPreferences.addObserver(parser);
@@ -44,7 +44,7 @@ var main = (function () {
                 populateMetaInfo(metaInfo);
                 setUiToDefaultState();
                 parser.populateUI(dom);
-                parser.onLoadFirstPage(url, dom);
+                await parser.onLoadFirstPage(url, dom);
             } catch (error) {
                 ErrorLog.showErrorMessage(error);
             }
@@ -120,7 +120,7 @@ var main = (function () {
         }
     }
 
-    function fetchContentAndPackEpub() {
+    async function fetchContentAndPackEpub() {
         let libclick = this;
         if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
             setUiFieldToValue("subjectInput", "");
@@ -150,7 +150,7 @@ var main = (function () {
         main.getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
         parser.onStartCollecting();
-        parser.fetchContent().then(function () {
+        await parser.fetchContent().then(function () {
             return packEpub(metaInfo);
         }).then(function (content) {
             // Enable button here.  If user cancels save dialog
@@ -161,18 +161,26 @@ var main = (function () {
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             let backgroundDownload = userPreferences.noDownloadPopup.value;
             if ("yes" == libclick.dataset.libclick) {
-                return library.LibAddToLibrary(content, fileName, overwriteExisting, backgroundDownload);
+                return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             }
             return Download.save(content, fileName, overwriteExisting, backgroundDownload);
         }).then(function () {
             parser.updateReadingList();
-            ErrorLog.showLogToUser();
-            return dumpErrorLogToFile();
+            if (libclick.dataset.libsuppressErrorLog == true) {
+                return;
+            } else {
+                ErrorLog.showLogToUser();
+                dumpErrorLogToFile();
+            }
         }).catch(function (err) {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             document.getElementById("LibAddToLibrary").disabled = false;
-            ErrorLog.showErrorMessage(err);
+            if (libclick.dataset.libsuppressErrorLog == true) {
+                return;
+            } else {
+                ErrorLog.showErrorMessage(err);
+            }
         });
     }
 
@@ -244,13 +252,13 @@ var main = (function () {
         return !util.isNullOrEmpty(search);
     }
 
-    function populateControlsWithDom(url, dom) {
+    async function populateControlsWithDom(url, dom) {
         initalWebPage = dom;
         setUiFieldToValue("startingUrlInput", url);
 
         // set the base tag, in case server did not supply it 
         util.setBaseTag(url, initalWebPage);
-        processInitialHtml(url, initalWebPage);
+        await processInitialHtml(url, initalWebPage);
         if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
             autosearchadditionalmetadata();
         }
@@ -332,16 +340,24 @@ var main = (function () {
         });
     }
 
-    function onLoadAndAnalyseButtonClick() {
+    async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
+        let obj = this;
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            populateControlsWithDom(url, xhr.responseXML);
+        return HttpClient.wrapFetch(url).then(async function (xhr) {
+            await populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
             getLoadAndAnalyseButton().disabled = false;
-            ErrorLog.showErrorMessage(error);
+            if (obj?.dataset?.libsuppressErrorLog == true) {
+                //If the Story URL has a problem 404 etc. the Chapters have to be cleared
+                //or they will be redownloaded and merged in the wrong EPUB
+                let chapterUrlsUI = new ChapterUrlsUI();
+                chapterUrlsUI.populateChapterUrlsTable([]);
+            } else {
+                ErrorLog.showErrorMessage(error);
+            }
         });
     }
 
@@ -593,7 +609,8 @@ var main = (function () {
 
     return {
         getPackEpubButton: getPackEpubButton,
-        onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick
+        onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick,
+        fetchContentAndPackEpub: fetchContentAndPackEpub
     };
 })();
 

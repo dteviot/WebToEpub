@@ -381,7 +381,7 @@ class Parser {
     }
 
     // called when plugin has obtained the first web page
-    onLoadFirstPage(url, firstPageDom) {
+    async onLoadFirstPage(url, firstPageDom) {
         let that = this;
         this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
@@ -389,7 +389,7 @@ class Parser {
         this.userPreferences.setReadingListCheckbox(url);
 
         // returns promise, because may need to fetch additional pages to find list of chapters
-        that.getChapterUrls(firstPageDom, chapterUrlsUI).then(function(chapters) {
+        await that.getChapterUrls(firstPageDom, chapterUrlsUI).then(function(chapters) {
             if (that.userPreferences.chaptersPageInChapterList.value) {
                 chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }

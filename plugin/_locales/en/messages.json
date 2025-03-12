@@ -35,6 +35,10 @@
 		"message": "Upload Epub",
 		"description": "Label on button to Upload Epub in Library"
 	},
+	"__MSG_button_Lib_Template_Update_All__": {
+		"message": "Update all",
+		"description": "Label on button to Update all Epubs"
+	},
 	"__MSG_button_Lib_Template_Delete_EPUB__": {
 		"message": "Delete EPUB",
 		"description": "Label on button to Delete EPUB"
@@ -58,6 +62,10 @@
 	"__MSG_label_Lib_Template_Library_uses__": {
 		"message": "Library uses: ",
 		"description": "Label in front of the Bytes used in local Storage"
+	},
+	"__MSG_label_Lib_Template_New_Chapter__": {
+		"message": " new chapter",
+		"description": "Label of x new chapter"
 	},
 	"__MSG_label_Lib_Template_Story_URL__": {
 		"message": "Story URL",
