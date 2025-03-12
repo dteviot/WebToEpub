@@ -49,6 +49,9 @@ class KemonopartyParser extends Parser{
         let urls = [];
         let paginator = dom.querySelector("div.paginator menu");
         if (paginator === null) {
+            let regex = new RegExp("/?$");
+            let retulr = dom.baseURI.replace("https://kemono.su", "https://kemono.su/api/v1").replace(regex, "/posts-legacy?o=0");
+            urls.push(retulr);
             return urls;
         }
         let pages = [...paginator.querySelectorAll("a:not(.next)")];
