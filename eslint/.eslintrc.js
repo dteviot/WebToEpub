@@ -30,7 +30,6 @@ module.exports = {
         ],
     },
 	"globals": {
-		"JSZip": "readable",
 		"zip": "readable",
 	}
 };
