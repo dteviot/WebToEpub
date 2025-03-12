@@ -37,4 +37,8 @@ class ManganovParser extends Parser{
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("section.mb-3.mt-2  p")];
     }
+
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeChildElementsMatchingCss(content, "small.text-muted, p.text-center.mb-0");
+    }
 }

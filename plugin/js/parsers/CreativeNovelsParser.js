@@ -16,7 +16,7 @@ class CreativeNovelsParser extends Parser{
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeElements(element.querySelectorAll("div.team, div.x-donate-1,"+
-            " div.navigation, div.navi, header.entry-header"));
+            " div.navigation, div.navi, header.entry-header, .support-placement"));
         super.removeUnwantedElementsFromContentElement(element);
     }
 

@@ -72,20 +72,36 @@ class EpubMetaInfo {
         "}\r"+
 
         "body {\r"+
-        "  margin: 2%;\r"+
+        "   margin: 2%;\r"+
         "}\r"+
 
         //Breaks extremely long words, screams, wails etc to fit viewer window.
         "p {\r"+
-        "  overflow-wrap: break-word;\r"+
+        "   overflow-wrap: break-word;\r"+
+        "}\r"+
+
+        //First letter of first start paragraph with <p> tag.
+        "p:first-letter {\r"+
+        "   text-transform: uppercase;\r"+
+        "}\r"+
+
+        "h1 + p:first-letter, h3 + p:first-letter, h2 + p:first-letter {\r"+
+        "   font-size: 2em;\r"+
+        "   font-weight: bold;\r"+
+        "   text-shadow: 0 1px 2px rgba(255, 223, 97, 1), 1px 2px 3px black;\r"+
+        "   text-transform: uppercase;\r"+
+        "}\r"+
+
+        "h1 + p, h3 + p, h2 + p {\r"+
+        "   text-indent: 0.12em;\r"+
         "}\r"+
 
         // Prevent texts inside mutliple definition list tags going outside viewer window.
         // Example https://www.baka-tsuki.org/project/index.php?title=The_Unexplored_Summon_Blood_Sign:Volume2_Opening2
         // It looks okay in a browser but in devices with small screen, it's almost unreadable.
         "dd, dt, dl {\r"+
-        "  padding: 0;\r"+
-        "  margin: 0;\r"+
+        "   padding: 0;\r"+
+        "   margin: 0;\r"+
         "}\r"+
 
         "img {\r"+
@@ -113,10 +129,10 @@ class EpubMetaInfo {
 
         // differentiate caption text from body text 
        ".thumbcaption {\r"+
-       "  display: block;\r"+
-       "  font-size: 0.9em;\r"+
-       "  padding-right: 5%;\r"+
-       "  padding-left: 5%;\r"+
+       "   display: block;\r"+
+       "   font-size: 0.9em;\r"+
+       "   padding-right: 5%;\r"+
+       "   padding-left: 5%;\r"+
        "}\r"+
        
         // To make hr tags more visible. BT doesn't use them very often but other sites might.
@@ -139,6 +155,16 @@ class EpubMetaInfo {
         "}\r"+
         "a:active {\r"+
         "   text-decoration: underline;\r"+
+        "}\r"+
+
+        // red link for BT non-existent page //
+        "a.new {\r"+
+        "   color: #ba0000;\r"+
+        "}\r"+
+
+        // some groups use <pre> tag for character status with no wrapping, thus breaking the view in ebook //
+        "pre {\r"+
+        "   white-space: pre-wrap;\r"+
         "}"+
 
         "table {\r"+
@@ -151,7 +177,7 @@ class EpubMetaInfo {
 
         // Box around author notes
         ".webToEpub-author-note {\r" +
-        "    border: 1px solid black; padding: 0.5em\r" +
+        "   border: 1px solid black; padding: 0.5em\r" +
         "}";
     }
 

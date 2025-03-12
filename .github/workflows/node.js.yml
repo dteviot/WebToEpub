@@ -27,11 +27,3 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm install
     - run: npm run lint
-    
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        # A file, directory or wildcard pattern that describes what to upload
-        path: |
-          eslint/*.xpi
-          eslint/*.zip

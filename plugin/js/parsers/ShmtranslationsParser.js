@@ -22,7 +22,7 @@ class ShmtranslationsParser extends WordpressBaseParser{
     };
 
     findChapterTitle(dom) {
-        return dom.querySelector(".entry-title");
+        return dom.querySelector(".wp-block-post-title");
     }
 
     static cleanLaterContent(content) {

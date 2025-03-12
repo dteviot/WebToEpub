@@ -97,7 +97,7 @@ class PandaNovelParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".novel-ins, sub");
+        util.removeChildElementsMatchingCss(element, ".novel-ins, sub, del");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

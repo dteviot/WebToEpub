@@ -77,7 +77,7 @@ class WuxiaworldParser extends Parser {
 
     cleanContent(content)
     {
-        util.removeChildElementsMatchingCss(content, "button, #spoiler_teaser");
+        util.removeChildElementsMatchingCss(content, "button, #spoiler_teaser, .chapter-nav");
         let toDelete = [...content.querySelectorAll("a")]
             .filter(a => a.textContent === "Teaser");
         util.removeElements(toDelete);
