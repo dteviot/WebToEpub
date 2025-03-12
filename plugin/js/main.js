@@ -166,22 +166,20 @@ var main = (function () {
             return Download.save(content, fileName, overwriteExisting, backgroundDownload);
         }).then(function () {
             parser.updateReadingList();
-            if (libclick.dataset.suppressErrorLog == true) {
+            if (libclick.dataset.libsuppressErrorLog == true) {
                 return;
             } else {
                 ErrorLog.showLogToUser();
                 dumpErrorLogToFile();
-                return;
             }
         }).catch(function (err) {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             document.getElementById("LibAddToLibrary").disabled = false;
-            if (libclick.dataset.suppressErrorLog == true) {
+            if (libclick.dataset.libsuppressErrorLog == true) {
                 return;
             } else {
                 ErrorLog.showErrorMessage(err);
-                return;
             }
         });
     }
@@ -344,6 +342,7 @@ var main = (function () {
 
     async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
+        let obj = this;
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         return HttpClient.wrapFetch(url).then(async function (xhr) {
@@ -351,7 +350,14 @@ var main = (function () {
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
             getLoadAndAnalyseButton().disabled = false;
-            ErrorLog.showErrorMessage(error);
+            if (obj?.dataset?.libsuppressErrorLog == true) {
+                //If the Story URL has a problem 404 etc. the Chapters have to be cleared
+                //or they will be redownloaded and merged in the wrong EPUB
+                let chapterUrlsUI = new ChapterUrlsUI();
+                chapterUrlsUI.populateChapterUrlsTable([]);
+            } else {
+                ErrorLog.showErrorMessage(error);
+            }
         });
     }
 

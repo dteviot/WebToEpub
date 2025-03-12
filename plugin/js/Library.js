@@ -690,16 +690,16 @@ class Library {
         chrome.storage.local.get(null, async function(items) {
             let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL", Object.keys(items));
             for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
-                document.getElementById("startingUrlInput").value = items[CurrentLibStoryURLKeys[i]];
-                await main.onLoadAndAnalyseButtonClick();
-                if (document.getElementById("includeInReadingListCheckbox").checked != true) {
-                    document.getElementById("includeInReadingListCheckbox").click();
-                }
-                let obj = {};
-                obj.dataset = {};
-                obj.dataset.libclick = "yes";
-                obj.dataset.suppressErrorLog = true;
-                await main.fetchContentAndPackEpub.call(obj);
+                    let obj = {};
+                    obj.dataset = {};
+                    obj.dataset.libclick = "yes";
+                    obj.dataset.libsuppressErrorLog = true;
+                    document.getElementById("startingUrlInput").value = items[CurrentLibStoryURLKeys[i]];
+                    await main.onLoadAndAnalyseButtonClick.call(obj);
+                    if (document.getElementById("includeInReadingListCheckbox").checked != true) {
+                        document.getElementById("includeInReadingListCheckbox").click();
+                    }
+                    await main.fetchContentAndPackEpub.call(obj);
             }
         });
     }
