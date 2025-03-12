@@ -39,14 +39,14 @@ class EpubPacker {
     assemble(epubItemSupplier) {
         let that = this;
         let zipFileWriter = new zip.BlobWriter("application/epub+zip");
-        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
         that.addRequiredFiles(zipWriter);
         zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)));
         zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)));
         if (this.version === EpubPacker.EPUB_VERSION_3) {
             zipWriter.add("OEBPS/toc.xhtml", new zip.TextReader(that.buildNavigationDocument(epubItemSupplier)));
         }
-        that.packXhtmlFiles(zipWriter, epubItemSupplier);
+        this.packContentFiles(zipWriter, epubItemSupplier);
         zipWriter.add(util.styleSheetFileName(), new zip.TextReader(that.metaInfo.styleSheet));
         return zipWriter.close();
     }
@@ -349,14 +349,13 @@ class EpubPacker {
         return navPoint;
     }
 
-    packXhtmlFiles(zipFile, epubItemSupplier) {
+    packContentFiles(zipWriter, epubItemSupplier) {
         for(let file of epubItemSupplier.files()) {
-            let content = file.fileContentForEpub(this.emptyDocFactory, this.contentValidator);
-            zipFile.add(file.getZipHref(), new zip.TextReader(content));
+            file.packInEpub(zipWriter, this.emptyDocFactory, this.contentValidator);
         };
         if (epubItemSupplier.hasCoverImageFile()) {
             let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
-            zipFile.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
+            zipWriter.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
         };
     }
 

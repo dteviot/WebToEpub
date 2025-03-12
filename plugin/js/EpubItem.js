@@ -59,6 +59,11 @@ class EpubItem {
         return xml;
     }
 
+    packInEpub(zipWriter, emptyDocFactory, contentValidator) {
+        let content = this.fileContentForEpub(emptyDocFactory, contentValidator);
+        zipWriter.add(this.getZipHref(), new zip.TextReader(content));
+    }
+
     makeChapterDoc(emptyDocFactory) {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
@@ -194,8 +199,9 @@ class ImageInfo extends EpubItem {
         return this.mediaType;
     }
 
-    fileContentForEpub(emptyDocFactory, contentValidator) {   // eslint-disable-line no-unused-vars
-        return this.arraybuffer;
+    packInEpub(zipWriter) {
+        zipWriter.add(this.getZipHref(),
+            new zip.BlobReader(new Blob([this.arraybuffer])));
     }
 
     findImageSuffix(wrappingUrl) {
