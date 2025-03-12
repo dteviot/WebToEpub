@@ -28,6 +28,9 @@ module.exports = {
             "off",
             "never"
         ],
+        "no-async-promise-executor": [
+            0
+        ],
     },
 	"globals": {
 		"JSZip": "readable",

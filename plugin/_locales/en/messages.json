@@ -35,6 +35,10 @@
 		"message": "Upload Epub",
 		"description": "Label on button to Upload Epub in Library"
 	},
+	"__MSG_button_Lib_Template_Update_All__": {
+		"message": "Update all",
+		"description": "Label on button to Update all Epubs"
+	},
 	"__MSG_button_Lib_Template_Delete_EPUB__": {
 		"message": "Delete EPUB",
 		"description": "Label on button to Delete EPUB"
@@ -58,6 +62,10 @@
 	"__MSG_label_Lib_Template_Library_uses__": {
 		"message": "Library uses: ",
 		"description": "Label in front of the Bytes used in local Storage"
+	},
+	"__MSG_label_Lib_Template_New_Chapter__": {
+		"message": " new chapter",
+		"description": "Label of x new chapter"
 	},
 	"__MSG_label_Lib_Template_Story_URL__": {
 		"message": "Story URL",
@@ -138,7 +146,7 @@
 	"__MSG_button_load_Metadata__": {
 		"message": "Load Additional Metadata",
 		"description": "Label on button to toggle Load and Analyse Additional Metadata"
-	},	
+	},
 	"__MSG_button_Pack_EPUB__": {
 		"message": "Pack EPUB",
 		"description": "Label on button to create the EPUB"
@@ -436,10 +444,10 @@
 		"description": "Error message when fetch of an image file fails.",
 		"placeholders": {
 			"selectedCount": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"maxChapters": {
-			    "content": "$2"
+				"content": "$2"
 			}
 		}
 	},
@@ -488,10 +496,10 @@
 		"description": "Warning message when try to fetch an image and instead get HTML",
 		"placeholders": {
 			"url": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"error": {
-			    "content": "$2"
+				"content": "$2"
 			}
 		}
 	},
@@ -500,13 +508,13 @@
 		"description": "Warning message when try to fetch an image and instead get HTML",
 		"placeholders": {
 			"chapter": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"url": {
-			    "content": "$2"
+				"content": "$2"
 			},
 			"error": {
-			    "content": "$3"
+				"content": "$3"
 			}
 		}
 	},
@@ -535,7 +543,7 @@
 		"description": "Warning message when can't find content element for a web page",
 		"placeholders": {
 			"url": {
-			    "content": "$1"
+				"content": "$1"
 			}
 		}
 	},
@@ -544,10 +552,10 @@
 		"description": "Warning message when filename isn't legal",
 		"placeholders": {
 			"filename": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"illegalCharacters": {
-			    "content": "$2"
+				"content": "$2"
 			}
 		}
 	},
@@ -556,7 +564,7 @@
 		"description": "Warning message when try to fetch an image and instead get HTML",
 		"placeholders": {
 			"url": {
-			    "content": "$1"
+				"content": "$1"
 			}
 		}
 	},
@@ -569,10 +577,10 @@
 		"description": "Error message when fetch of a web page fails.",
 		"placeholders": {
 			"url": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"err": {
-			    "content": "$2"
+				"content": "$2"
 			}
 		}
 	},
@@ -581,13 +589,13 @@
 		"description": "Error message when fetch of an image file fails.",
 		"placeholders": {
 			"imageUrl": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"pageUrl": {
-			    "content": "$2"
+				"content": "$2"
 			},
 			"err": {
-			    "content": "$3"
+				"content": "$3"
 			}
 		}
 	},
@@ -596,13 +604,13 @@
 		"description": "Error message when fetch of an image file fails.",
 		"placeholders": {
 			"imageUrl": {
-			    "content": "$1"
+				"content": "$1"
 			},
 			"pageUrl": {
-			    "content": "$2"
+				"content": "$2"
 			},
 			"err": {
-			    "content": "$3"
+				"content": "$3"
 			}
 		}
 	},
@@ -681,7 +689,7 @@
 		"description": "Warning message when content element for a page has nothing viewable",
 		"placeholders": {
 			"url": {
-			    "content": "$1"
+				"content": "$1"
 			}
 		}
 	},
@@ -690,7 +698,7 @@
 		"description": "Warning message when downloaded image is in webp format",
 		"placeholders": {
 			"filename": {
-			    "content": "$1"
+				"content": "$1"
 			}
 		}
 	}
