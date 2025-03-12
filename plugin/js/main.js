@@ -36,23 +36,19 @@ var main = (function () {
     }
 
     // extract urls from DOM and populate control
-    function processInitialHtml(url, dom) {
-        return new Promise(async (resolve, reject) => {
-            if (setParser(url, dom)) {
-                try {
-                    userPreferences.addObserver(parser);
-                    let metaInfo = parser.getEpubMetaInfo(dom, userPreferences.useFullTitle.value);
-                    populateMetaInfo(metaInfo);
-                    setUiToDefaultState();
-                    parser.populateUI(dom);
-                    await parser.onLoadFirstPage(url, dom);
-                    resolve();
-                } catch (error) {
-                    ErrorLog.showErrorMessage(error);
-                    reject();
-                }
+    async function processInitialHtml(url, dom) {
+        if (setParser(url, dom)) {
+            try {
+                userPreferences.addObserver(parser);
+                let metaInfo = parser.getEpubMetaInfo(dom, userPreferences.useFullTitle.value);
+                populateMetaInfo(metaInfo);
+                setUiToDefaultState();
+                parser.populateUI(dom);
+                await parser.onLoadFirstPage(url, dom);
+            } catch (error) {
+                ErrorLog.showErrorMessage(error);
             }
-        });
+        }
     }
 
     function setUiToDefaultState() {
@@ -124,75 +120,69 @@ var main = (function () {
         }
     }
 
-    function fetchContentAndPackEpub() {
-        return new Promise((resolve, reject) => {
-            let libclick = this;
-            if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
-                setUiFieldToValue("subjectInput", "");
-                setUiFieldToValue("descriptionInput", "");
-            }
-            let metaInfo = metaInfoFromControls();
-            let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
+    async function fetchContentAndPackEpub() {
+        let libclick = this;
+        if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
+            setUiFieldToValue("subjectInput", "");
+            setUiFieldToValue("descriptionInput", "");
+        }
+        let metaInfo = metaInfoFromControls();
+        let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
 
-            if (Download.isFileNameIllegalOnWindows(fileName)) {
-                ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
-                    [fileName, Download.illegalWindowsFileNameChars]
-                ));
+        if (Download.isFileNameIllegalOnWindows(fileName)) {
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
+                [fileName, Download.illegalWindowsFileNameChars]
+            ));
+            return;
+        }
+
+        if ("yes" == libclick.dataset.libclick) {
+            if (document.getElementById("chaptersPageInChapterListCheckbox").checked) {
+                ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorAddToLibraryLibraryAddPageWithChapters"));
                 return;
             }
+        }
 
+        ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
+        ChapterUrlsUI.resetDownloadStateImages();
+        ErrorLog.clearHistory();
+        window.workInProgress = true;
+        main.getPackEpubButton().disabled = true;
+        document.getElementById("LibAddToLibrary").disabled = true;
+        parser.onStartCollecting();
+        await parser.fetchContent().then(function () {
+            return packEpub(metaInfo);
+        }).then(function (content) {
+            // Enable button here.  If user cancels save dialog
+            // the promise never returns
+            window.workInProgress = false;
+            main.getPackEpubButton().disabled = false;
+            document.getElementById("LibAddToLibrary").disabled = false;
+            let overwriteExisting = userPreferences.overwriteExistingEpub.value;
+            let backgroundDownload = userPreferences.noDownloadPopup.value;
             if ("yes" == libclick.dataset.libclick) {
-                if (document.getElementById("chaptersPageInChapterListCheckbox").checked) {
-                    ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorAddToLibraryLibraryAddPageWithChapters"));
-                    return;
-                }
+                return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             }
-
-            ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
-            ChapterUrlsUI.resetDownloadStateImages();
-            ErrorLog.clearHistory();
-            window.workInProgress = true;
-            main.getPackEpubButton().disabled = true;
-            document.getElementById("LibAddToLibrary").disabled = true;
-            parser.onStartCollecting();
-            parser.fetchContent().then(function () {
-                return packEpub(metaInfo);
-            }).then(async function (content) {
-                // Enable button here.  If user cancels save dialog
-                // the promise never returns
-                window.workInProgress = false;
-                main.getPackEpubButton().disabled = false;
-                document.getElementById("LibAddToLibrary").disabled = false;
-                let overwriteExisting = userPreferences.overwriteExistingEpub.value;
-                let backgroundDownload = userPreferences.noDownloadPopup.value;
-                if ("yes" == libclick.dataset.libclick) {
-                    return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
-                }
-                return Download.save(content, fileName, overwriteExisting, backgroundDownload);
-            }).then(function () {
-                parser.updateReadingList();
-                if (libclick.dataset.suppressErrorLog == true) {
-                    resolve();
-                    return;
-                } else {
-                    ErrorLog.showLogToUser();
-                    dumpErrorLogToFile();
-                    resolve();
-                    return;
-                }
-            }).catch(function (err) {
-                window.workInProgress = false;
-                main.getPackEpubButton().disabled = false;
-                document.getElementById("LibAddToLibrary").disabled = false;
-                if (libclick.dataset.suppressErrorLog == true) {
-                    resolve();
-                    return;
-                } else {
-                    ErrorLog.showErrorMessage(err);
-                    reject();
-                    return;
-                }
-            });
+            return Download.save(content, fileName, overwriteExisting, backgroundDownload);
+        }).then(function () {
+            parser.updateReadingList();
+            if (libclick.dataset.suppressErrorLog == true) {
+                return;
+            } else {
+                ErrorLog.showLogToUser();
+                dumpErrorLogToFile();
+                return;
+            }
+        }).catch(function (err) {
+            window.workInProgress = false;
+            main.getPackEpubButton().disabled = false;
+            document.getElementById("LibAddToLibrary").disabled = false;
+            if (libclick.dataset.suppressErrorLog == true) {
+                return;
+            } else {
+                ErrorLog.showErrorMessage(err);
+                return;
+            }
         });
     }
 
@@ -264,19 +254,16 @@ var main = (function () {
         return !util.isNullOrEmpty(search);
     }
 
-    function populateControlsWithDom(url, dom) {
-        return new Promise(async resolve => {
-            initalWebPage = dom;
-            setUiFieldToValue("startingUrlInput", url);
+    async function populateControlsWithDom(url, dom) {
+        initalWebPage = dom;
+        setUiFieldToValue("startingUrlInput", url);
 
-            // set the base tag, in case server did not supply it 
-            util.setBaseTag(url, initalWebPage);
-            await processInitialHtml(url, initalWebPage);
-            if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
-                autosearchadditionalmetadata();
-            }
-            resolve();
-        });
+        // set the base tag, in case server did not supply it 
+        util.setBaseTag(url, initalWebPage);
+        await processInitialHtml(url, initalWebPage);
+        if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
+            autosearchadditionalmetadata();
+        }
     }
 
     function setParser(url, dom) {
@@ -355,20 +342,16 @@ var main = (function () {
         });
     }
 
-    function onLoadAndAnalyseButtonClick() {
-        return new Promise((resolve, reject) => {
-            // load page via XmlHTTPRequest
-            let url = getValueFromUiField("startingUrlInput");
-            getLoadAndAnalyseButton().disabled = true;
-            return HttpClient.wrapFetch(url).then(async function (xhr) {
-                await populateControlsWithDom(url, xhr.responseXML);
-                getLoadAndAnalyseButton().disabled = false;
-                resolve();
-            }).catch(function (error) {
-                getLoadAndAnalyseButton().disabled = false;
-                ErrorLog.showErrorMessage(error);
-                reject();
-            });
+    async function onLoadAndAnalyseButtonClick() {
+        // load page via XmlHTTPRequest
+        let url = getValueFromUiField("startingUrlInput");
+        getLoadAndAnalyseButton().disabled = true;
+        return HttpClient.wrapFetch(url).then(async function (xhr) {
+            await populateControlsWithDom(url, xhr.responseXML);
+            getLoadAndAnalyseButton().disabled = false;
+        }).catch(function (error) {
+            getLoadAndAnalyseButton().disabled = false;
+            ErrorLog.showErrorMessage(error);
         });
     }
 

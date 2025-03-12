@@ -381,36 +381,32 @@ class Parser {
     }
 
     // called when plugin has obtained the first web page
-    onLoadFirstPage(url, firstPageDom) {
-        return new Promise( (resolve, reject) => {
-            let that = this;
-            this.state.firstPageDom = firstPageDom;
-            this.state.chapterListUrl = url;
-            let chapterUrlsUI = new ChapterUrlsUI(this);
-            this.userPreferences.setReadingListCheckbox(url);
+    async onLoadFirstPage(url, firstPageDom) {
+        let that = this;
+        this.state.firstPageDom = firstPageDom;
+        this.state.chapterListUrl = url;
+        let chapterUrlsUI = new ChapterUrlsUI(this);
+        this.userPreferences.setReadingListCheckbox(url);
 
-            // returns promise, because may need to fetch additional pages to find list of chapters
-            that.getChapterUrls(firstPageDom, chapterUrlsUI).then(function(chapters) {
-                if (that.userPreferences.chaptersPageInChapterList.value) {
-                    chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
+        // returns promise, because may need to fetch additional pages to find list of chapters
+        await that.getChapterUrls(firstPageDom, chapterUrlsUI).then(function(chapters) {
+            if (that.userPreferences.chaptersPageInChapterList.value) {
+                chapters = that.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
+            }
+            chapters = that.cleanWebPageUrls(chapters);
+            that.userPreferences.readingList.deselectOldChapters(url, chapters);
+            chapterUrlsUI.populateChapterUrlsTable(chapters);
+            if (0 < chapters.length) {
+                if (chapters[0].sourceUrl === url) {
+                    chapters[0].rawDom = firstPageDom;
+                    that.updateLoadState(chapters[0]);
                 }
-                chapters = that.cleanWebPageUrls(chapters);
-                that.userPreferences.readingList.deselectOldChapters(url, chapters);
-                chapterUrlsUI.populateChapterUrlsTable(chapters);
-                if (0 < chapters.length) {
-                    if (chapters[0].sourceUrl === url) {
-                        chapters[0].rawDom = firstPageDom;
-                        that.updateLoadState(chapters[0]);
-                    }
-                    ProgressBar.setValue(0);
-                }
-                that.state.setPagesToFetch(chapters);
-                chapterUrlsUI.connectButtonHandlers();
-                resolve();
-            }).catch(function (err) {
-                ErrorLog.showErrorMessage(err);
-                reject();
-            });
+                ProgressBar.setValue(0);
+            }
+            that.state.setPagesToFetch(chapters);
+            chapterUrlsUI.connectButtonHandlers();
+        }).catch(function (err) {
+            ErrorLog.showErrorMessage(err);
         });
     }
 
