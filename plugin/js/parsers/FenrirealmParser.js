@@ -29,6 +29,18 @@ class FenrirealmParser extends Parser{
         return dom.querySelector(".main-area > .container h1");
     }
 
+    findChapterTitle(dom) {
+        let titleText = dom.querySelector("h1").textContent;
+        return this.removeDuplicatedChapterPrefix(titleText);
+    }
+
+    removeDuplicatedChapterPrefix(titleText) {
+        let parts = titleText.split(":");
+        return (parts.length >= 2) && (parts[0].trim() === parts[1].trim())
+            ? parts.slice(1).join(":")
+            : titleText
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".main-area > .container");
     }

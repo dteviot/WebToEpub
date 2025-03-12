@@ -38,19 +38,17 @@ class EpubPacker {
 
     assemble(epubItemSupplier) {
         let that = this;
-        let zipFile = new JSZip();
-        that.addRequiredFiles(zipFile);
-        zipFile.file("OEBPS/content.opf", that.buildContentOpf(epubItemSupplier), { compression: "DEFLATE" });
-        zipFile.file("OEBPS/toc.ncx", that.buildTableOfContents(epubItemSupplier), { compression: "DEFLATE" });
+        let zipFileWriter = new zip.BlobWriter("application/epub+zip");
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
+        that.addRequiredFiles(zipWriter);
+        zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)));
+        zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)));
         if (this.version === EpubPacker.EPUB_VERSION_3) {
-            zipFile.file("OEBPS/toc.xhtml", that.buildNavigationDocument(epubItemSupplier), { compression: "DEFLATE" });
+            zipWriter.add("OEBPS/toc.xhtml", new zip.TextReader(that.buildNavigationDocument(epubItemSupplier)));
         }
-        that.packXhtmlFiles(zipFile, epubItemSupplier);
-        zipFile.file(util.styleSheetFileName(), that.metaInfo.styleSheet, { compression: "DEFLATE" });
-        return zipFile.generateAsync({ 
-            type: "blob",
-            mimeType: "application/epub+zip",
-        });
+        that.packXhtmlFiles(zipWriter, epubItemSupplier);
+        zipWriter.add(util.styleSheetFileName(), new zip.TextReader(that.metaInfo.styleSheet));
+        return zipWriter.close();
     }
 
     static addExtensionIfMissing(fileName) {
@@ -60,14 +58,14 @@ class EpubPacker {
 
     // every EPUB must have a mimetype and a container.xml file
     addRequiredFiles(zipFile) {
-        zipFile.file("mimetype", "application/epub+zip");
-        zipFile.file("META-INF/container.xml",
-            "<?xml version=\"1.0\"?>" +
+        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"));
+        zipFile.add("META-INF/container.xml",
+            new zip.TextReader("<?xml version=\"1.0\"?>" +
             "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">" +
                 "<rootfiles>" +
                     "<rootfile full-path=\"OEBPS/content.opf\" media-type=\"application/oebps-package+xml\"/>" +
                 "</rootfiles>" +
-            "</container>"
+            "</container>")
         );
     }
 
@@ -352,14 +350,13 @@ class EpubPacker {
     }
 
     packXhtmlFiles(zipFile, epubItemSupplier) {
-        let zipOptions = { compression: "DEFLATE" };
         for(let file of epubItemSupplier.files()) {
             let content = file.fileContentForEpub(this.emptyDocFactory, this.contentValidator);
-            zipFile.file(file.getZipHref(), content, zipOptions);
+            zipFile.add(file.getZipHref(), new zip.TextReader(content));
         };
         if (epubItemSupplier.hasCoverImageFile()) {
             let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
-            zipFile.file(EpubPacker.coverImageXhtmlHref(), fileContent, zipOptions);
+            zipFile.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
         };
     }
 

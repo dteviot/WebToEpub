@@ -60,6 +60,17 @@ class DarkNovelsParser extends Parser{
     }
     
     static async getStringFromZip(arrayBuffer) {
+        // server is down so i am unable to test the code here is my guess
+        let theFile = null;
+        let zipreader = await new zip.Uint8ArrayReader(arrayBuffer);
+        let Zip = new zip.ZipReader(zipreader, {useWebWorkers: false});
+        let ZipContent = await Zip.getEntries();
+        ZipContent = ZipContent.filter(a => a.directory == false);
+        for (let element of ZipContent){
+            theFile = await element.getData(new zip.TextWriter());
+        }
+        return theFile;
+        /* old implementation
         let zip = await new JSZip().loadAsync(arrayBuffer);
         let theFile = null;
         zip.forEach(function (relativePath, file) {
@@ -69,6 +80,7 @@ class DarkNovelsParser extends Parser{
             }
         });
         return theFile.async("text");
+        */
     }
     
     getInformationEpubItemChildNodes(dom) {

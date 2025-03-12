@@ -595,13 +595,14 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
 
 ##### Libraries used (in WebToEpub)
 
-- jszip
+- zip.js
 
 #### Libraries used by WebToEpub build process
 
 - @xmldom/xmldom
 - copyfiles
 - quint
+- jszip
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -792,6 +793,7 @@ Licensed under GPLv3. See [LICENSE][license-url] for more information.
 WebToEpub uses the following libraries:
 
 - JSZip library v3.7.1: https://github.com/Stuk/jszip, which is dual licensed with the MIT license or GPLv3.
+- zip.js library v2.7.57: https://github.com/gildas-lormeau/zip.js, licensed under BSD 3-Clause.
 - quint: http://qunitjs.com/, licensed under MIT license.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
