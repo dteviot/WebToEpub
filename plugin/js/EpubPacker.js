@@ -58,7 +58,7 @@ class EpubPacker {
 
     // every EPUB must have a mimetype and a container.xml file
     addRequiredFiles(zipFile) {
-        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"),{compressionMethod: 0});
+        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"),{compressionMethod: 0, extendedTimestamp: false});
         zipFile.add("META-INF/container.xml",
             new zip.TextReader("<?xml version=\"1.0\"?>" +
             "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">" +
