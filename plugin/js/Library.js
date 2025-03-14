@@ -693,11 +693,14 @@ class Library {
         }
         chrome.storage.local.get(null, async function(items) {
             let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL", Object.keys(items));
+            ErrorLog.SuppressErrorLog =  true;
             for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
                 let obj = {};
                 obj.dataset = {};
                 obj.dataset.libclick = "yes";
                 obj.dataset.libsuppressErrorLog = true;
+                let chapterUrlsUI = new ChapterUrlsUI();
+                chapterUrlsUI.populateChapterUrlsTable([]);
                 document.getElementById("startingUrlInput").value = items[CurrentLibStoryURLKeys[i]];
                 await main.onLoadAndAnalyseButtonClick.call(obj);
                 if (document.getElementById("includeInReadingListCheckbox").checked != true) {
@@ -705,6 +708,7 @@ class Library {
                 }
                 await main.fetchContentAndPackEpub.call(obj);
             }
+            ErrorLog.SuppressErrorLog =  false;
         });
     }
     
