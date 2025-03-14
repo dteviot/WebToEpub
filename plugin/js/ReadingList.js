@@ -51,11 +51,11 @@ class ReadingList {
 
     update(url, chapterList) {
         let oldUrl = this.epubs.get(url);
+        let chapterListisIncludeable = [...chapterList].filter(a => a.isIncludeable);
         if (oldUrl != null) {
-            for(let c of chapterList) {
-                if (c.isIncludeable) {
-                    this.epubs.set(url, c.sourceUrl);
-                }
+            let finished = ProgressBar.getUiElement().value-1;
+            for (let i = 0; i < finished; i++) {
+                this.epubs.set(url, chapterListisIncludeable[i].sourceUrl);
             }
             if (oldUrl !== this.epubs.get(url)) {
                 this.writeToLocalStorage();
