@@ -40,10 +40,19 @@ var main = (function () {
         if (setParser(url, dom)) {
             try {
                 userPreferences.addObserver(parser);
+            } catch (error) {
+                ErrorLog.showErrorMessage(error);
+                return;
+            }
+            try {
                 let metaInfo = parser.getEpubMetaInfo(dom, userPreferences.useFullTitle.value);
                 populateMetaInfo(metaInfo);
                 setUiToDefaultState();
                 parser.populateUI(dom);
+            } catch (error) {
+                ErrorLog.showErrorMessage(error);
+            }
+            try {
                 await parser.onLoadFirstPage(url, dom);
             } catch (error) {
                 ErrorLog.showErrorMessage(error);
@@ -176,11 +185,7 @@ var main = (function () {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             document.getElementById("LibAddToLibrary").disabled = false;
-            if (libclick.dataset.libsuppressErrorLog == true) {
-                return;
-            } else {
-                ErrorLog.showErrorMessage(err);
-            }
+            ErrorLog.showErrorMessage(err);
         });
     }
 
@@ -342,7 +347,6 @@ var main = (function () {
 
     async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
-        let obj = this;
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         return HttpClient.wrapFetch(url).then(async function (xhr) {
@@ -350,14 +354,7 @@ var main = (function () {
             getLoadAndAnalyseButton().disabled = false;
         }).catch(function (error) {
             getLoadAndAnalyseButton().disabled = false;
-            if (obj?.dataset?.libsuppressErrorLog == true) {
-                //If the Story URL has a problem 404 etc. the Chapters have to be cleared
-                //or they will be redownloaded and merged in the wrong EPUB
-                let chapterUrlsUI = new ChapterUrlsUI();
-                chapterUrlsUI.populateChapterUrlsTable([]);
-            } else {
-                ErrorLog.showErrorMessage(error);
-            }
+            ErrorLog.showErrorMessage(error);
         });
     }
 
@@ -594,7 +591,8 @@ var main = (function () {
     // actions to do when window opened
     window.onload = function () {
         userPreferences = UserPreferences.readFromLocalStorage();
-        if (isRunningInTabMode()) {
+        if (isRunningInTabMode()) { 
+            ErrorLog.SuppressErrorLog =  false;
             localizeHtmlPage();
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             addEventHandlers();

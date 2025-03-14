@@ -72,11 +72,11 @@ class Library {
         AddEpubContent = AddEpubContent.filter(a => a.directory == false);
 
         let MergedEpubWriter = new zip.BlobWriter("application/epub+zip");
-        let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: false,compressionMethod: 8});
+        let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
         //Copy PreviousEpub in MergedEpub
         for (let element of PreviousEpubContent.filter(a => a.filename != "OEBPS/content.opf" && a.filename != "OEBPS/toc.ncx" && a.filename != "OEBPS/toc.xhtml")){
             if (element.filename == "mimetype") {
-                MergedEpubZip.add(element.filename, new zip.TextReader(await element.getData(new zip.TextWriter())), {compressionMethod: 0, extendedTimestamp: false});
+                MergedEpubZip.add(element.filename, new zip.TextReader(await element.getData(new zip.TextWriter())), {compressionMethod: 0});
                 continue;
             }
             MergedEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
@@ -693,11 +693,14 @@ class Library {
         }
         chrome.storage.local.get(null, async function(items) {
             let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL", Object.keys(items));
+            ErrorLog.SuppressErrorLog =  true;
             for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
                 let obj = {};
                 obj.dataset = {};
                 obj.dataset.libclick = "yes";
                 obj.dataset.libsuppressErrorLog = true;
+                let chapterUrlsUI = new ChapterUrlsUI();
+                chapterUrlsUI.populateChapterUrlsTable([]);
                 document.getElementById("startingUrlInput").value = items[CurrentLibStoryURLKeys[i]];
                 await main.onLoadAndAnalyseButtonClick.call(obj);
                 if (document.getElementById("includeInReadingListCheckbox").checked != true) {
@@ -705,6 +708,7 @@ class Library {
                 }
                 await main.fetchContentAndPackEpub.call(obj);
             }
+            ErrorLog.SuppressErrorLog =  false;
         });
     }
     

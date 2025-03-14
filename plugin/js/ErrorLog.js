@@ -3,6 +3,7 @@
 class ErrorLog {
     constructor() {
     }
+    static SuppressErrorLog =  false;
 
     static log(error) {
         ErrorLog.history.push(ErrorLog.getMsgText(error));
@@ -11,6 +12,9 @@ class ErrorLog {
     static showErrorMessage(msg) {
         // if already showing an error message, queue the new one to display
         // when currently showing is closed.
+        if (this.SuppressErrorLog) {
+            return;
+        }
         ErrorLog.queue.push(msg);
         if (1 < ErrorLog.queue.length) {
             return;
