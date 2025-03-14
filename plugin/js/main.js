@@ -347,7 +347,6 @@ var main = (function () {
 
     async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
-        let obj = this;
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         return HttpClient.wrapFetch(url).then(async function (xhr) {
