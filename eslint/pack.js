@@ -232,7 +232,7 @@ var makeManifestForChrome = function(data) {
 
 var packExtension = function(manifest, fileExtension) {
     let zipFileWriter = new zipjs.BlobWriter("application/epub+zip");
-    let zipWriter = new zipjs.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
+    let zipWriter = new zipjs.ZipWriter(zipFileWriter, {useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
     zipWriter.add("manifest.json", new zipjs.TextReader(JSON.stringify(manifest)));
     return packNonManifestExtensionFiles(zipWriter, "WebToEpub" + manifest.version + fileExtension);
 }

@@ -39,7 +39,7 @@ class EpubPacker {
     assemble(epubItemSupplier) {
         let that = this;
         let zipFileWriter = new zip.BlobWriter("application/epub+zip");
-        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
         that.addRequiredFiles(zipWriter);
         zipWriter.add("OEBPS/content.opf", new zip.TextReader(that.buildContentOpf(epubItemSupplier)));
         zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(that.buildTableOfContents(epubItemSupplier)));
@@ -58,7 +58,7 @@ class EpubPacker {
 
     // every EPUB must have a mimetype and a container.xml file
     addRequiredFiles(zipFile) {
-        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"),{compressionMethod: 0, extendedTimestamp: false});
+        zipFile.add("mimetype",  new zip.TextReader("application/epub+zip"),{compressionMethod: 0});
         zipFile.add("META-INF/container.xml",
             new zip.TextReader("<?xml version=\"1.0\"?>" +
             "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">" +
