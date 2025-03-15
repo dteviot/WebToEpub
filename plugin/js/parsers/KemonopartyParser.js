@@ -9,7 +9,7 @@ class KemonopartyParser extends Parser{
 
     async getChapterUrls(dom, chapterUrlsUI) {
         let chapters = [];
-        let urlsOfTocPages = this.getUrlsOfTocPages(dom);
+        let urlsOfTocPages = await this.getUrlsOfTocPages(dom);
         for(let url of urlsOfTocPages) {
             await this.rateLimitDelay();
             let json = (await HttpClient.fetchJson(url)).json;
@@ -44,26 +44,27 @@ class KemonopartyParser extends Parser{
         return cover.src ?? null;
     }
 
+    async getUrlsOfTocPages(dom) {
+        let baseurl = new URL(dom.baseURI);
+        let urlbuilder = new URL(dom.baseURI);
 
-    getUrlsOfTocPages(dom) {
-        let urls = [];
-        let paginator = dom.querySelector("div.paginator menu");
-        if (paginator === null) {
-            let regex = new RegExp("/?$");
-            let retulr = dom.baseURI.replace("https://kemono.su", "https://kemono.su/api/v1").replace(regex, "/posts-legacy?o=0");
-            urls.push(retulr);
-            return urls;
+        for (const [key] of baseurl.searchParams.entries()) {
+            urlbuilder.searchParams.delete(key);
         }
-        let pages = [...paginator.querySelectorAll("a:not(.next)")];
-        // add /api/v1/ right after the domain name
-        pages[pages.length - 1].href = pages[pages.length - 1].href.replace("https://kemono.su", "https://kemono.su/api/v1");
-        // add /posts-legacy right before the query string
-        pages[pages.length - 1].href = pages[pages.length - 1].href.replace("?", "/posts-legacy?");
-        let url = new URL(pages[pages.length - 1]);
-        let lastPageOffset = url.searchParams.get("o");
+        let regex = new RegExp("/?$");
+        urlbuilder.href = urlbuilder.href.replace("https://kemono.su", "https://kemono.su/api/v1").replace(regex, "/posts-legacy");
+        
+        for (const [key, value] of baseurl.searchParams.entries()) {
+            urlbuilder.searchParams.set(key, value);
+        }
+        urlbuilder.searchParams.set("o", 0);
+
+        let urlbuilderjson = (await HttpClient.fetchJson(urlbuilder)).json;
+        let lastPageOffset = urlbuilderjson.props.count - (urlbuilderjson.props.count%50);
+        let urls = [];
         for(let i = 0; i <= lastPageOffset; i += 50) {
-            url.searchParams.set("o", i);
-            urls.push(url.href);
+            urlbuilder.searchParams.set("o", i);
+            urls.push(urlbuilder.href);
         }
         return urls;
     }
