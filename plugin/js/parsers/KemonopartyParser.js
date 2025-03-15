@@ -44,12 +44,11 @@ class KemonopartyParser extends Parser{
         return cover.src ?? null;
     }
 
-
     async getUrlsOfTocPages(dom) {
         let baseurl = new URL(dom.baseURI);
         let urlbuilder = new URL(dom.baseURI);
 
-        for (const [key, value] of baseurl.searchParams.entries()) {
+        for (const [key] of baseurl.searchParams.entries()) {
             urlbuilder.searchParams.delete(key);
         }
         let regex = new RegExp("/?$");
