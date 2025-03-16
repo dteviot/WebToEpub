@@ -15,7 +15,6 @@ class ChapterUrlsUI {
         document.getElementById("copyUrlsToClipboardButton").onclick = this.copyUrlsToClipboard.bind(this);
         document.getElementById("showChapterUrlsCheckbox").onclick = this.toggleShowUrlsForChapterRanges.bind(this);
         ChapterUrlsUI.modifyApplyChangesButtons(button => button.onclick = this.setTableMode.bind(this));
-        ChapterUrlsUI.getChapterUrlsTable().onmousedown = ChapterUrlsUI.onMouseDown;
     }
 
     populateChapterUrlsTable(chapters) {
@@ -217,7 +216,23 @@ class ChapterUrlsUI {
             chapter.isIncludeable = true;
         }
         checkbox.checked = chapter.isIncludeable;
-        checkbox.onclick = function() { chapter.isIncludeable = checkbox.checked; };
+        checkbox.onclick = function(event) { 
+            chapter.isIncludeable = checkbox.checked; 
+            if (event == undefined || event == null) {
+                return;
+            }
+            ChapterUrlsUI.tellUserAboutShiftClick(event, row);
+            if (checkbox !== null)
+            {
+                let oldState = checkbox.checked;
+                if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+                    let newState = oldState;
+                    ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
+                } else {
+                    ChapterUrlsUI.lastSelectedRow = row.rowIndex;
+                }
+            }
+        };
         col.appendChild(checkbox);
         ChapterUrlsUI.addImageToCheckBoxColumn(col);
         row.appendChild(col);
@@ -397,26 +412,6 @@ class ChapterUrlsUI {
         link.href = chapter.sourceUrl;
         link.appendChild(doc.createTextNode(chapter.title));
         return link;
-    }
-
-    /** @private */
-    static onMouseDown(event) {
-        let row = ChapterUrlsUI.getTargetRow(event.target);
-        if (row === null) {
-            return;
-        }
-        ChapterUrlsUI.tellUserAboutShiftClick(event, row);
-        let checkbox = row.querySelector("input[type='checkbox']");
-        if (checkbox !== null)
-        {
-            let oldState = checkbox.checked;
-            if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
-                let newState = !oldState;
-                ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
-            } else {
-                ChapterUrlsUI.lastSelectedRow = row.rowIndex;
-            }
-        }
     }
 
     /** @private */
