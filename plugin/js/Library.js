@@ -666,6 +666,7 @@ class Library {
     static LibSearchNewChapter(objbtn){
         let LibGetURL = ["LibStoryURL" + objbtn.dataset.libepubid];
         chrome.storage.local.get(LibGetURL, function(items) {
+            Library.LibClearFields();
             document.getElementById("startingUrlInput").value = items[LibGetURL];
             //document.getElementById("libinvisbutton").click();
             // load page via XmlHTTPRequest
@@ -692,6 +693,16 @@ class Library {
             return Download.save(blobdata, items["LibFilename" + objbtn.dataset.libepubid] + ".epub", overwriteExisting, backgroundDownload);
         });
     }
+
+    static LibClearFields(){
+        let chapterUrlsUI = new ChapterUrlsUI();
+        chapterUrlsUI.populateChapterUrlsTable([]);
+        let ElementsToClear = ["titleInput", "authorInput", "languageInput", "fileNameInput", "coverImageUrlInput", "subjectInput", "descriptionInput"];
+        for (const element of ElementsToClear) {
+            document.getElementById(element).value = "";
+        }
+        document.getElementById("sampleCoverImg").src = "";
+    }
     
     static Libupdateall(){
         if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
@@ -701,12 +712,11 @@ class Library {
             let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL", Object.keys(items));
             ErrorLog.SuppressErrorLog =  true;
             for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
+                Library.LibClearFields();
                 let obj = {};
                 obj.dataset = {};
                 obj.dataset.libclick = "yes";
                 obj.dataset.libsuppressErrorLog = true;
-                let chapterUrlsUI = new ChapterUrlsUI();
-                chapterUrlsUI.populateChapterUrlsTable([]);
                 document.getElementById("startingUrlInput").value = items[CurrentLibStoryURLKeys[i]];
                 await main.onLoadAndAnalyseButtonClick.call(obj);
                 if (document.getElementById("includeInReadingListCheckbox").checked != true) {
