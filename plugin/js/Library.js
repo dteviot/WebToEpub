@@ -584,7 +584,7 @@ class Library {
                 LibFileReader.LibStorageValueURL = await Library.LibGetSourceURL(LibFileReader.result);
             }
         }
-        let StorageNewChapterCount = await (await chrome.storage.local.get("LibNewChapterCount" + LibFileReader.LibStorageValueId))?.["LibNewChapterCount" + LibFileReader.LibStorageValueId];
+        let StorageNewChapterCount = await Library.LibGetFromStorage("LibNewChapterCount" + LibFileReader.LibStorageValueId);
         let NewChapterCount = LibFileReader.NewChapterCount + (StorageNewChapterCount || 0);
         //Catch Firefox upload wrong Content-Type
         let result = LibFileReader.result;
