@@ -136,14 +136,6 @@ var main = (function () {
             setUiFieldToValue("descriptionInput", "");
         }
         let metaInfo = metaInfoFromControls();
-        let fileName = EpubPacker.addExtensionIfMissing(metaInfo.fileName);
-
-        if (Download.isFileNameIllegalOnWindows(fileName)) {
-            ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
-                [fileName, Download.illegalWindowsFileNameChars]
-            ));
-            return;
-        }
 
         if ("yes" == libclick.dataset.libclick) {
             if (document.getElementById("chaptersPageInChapterListCheckbox").checked) {
@@ -169,6 +161,7 @@ var main = (function () {
             document.getElementById("LibAddToLibrary").disabled = false;
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             let backgroundDownload = userPreferences.noDownloadPopup.value;
+            let fileName = Download.CustomFilename();
             if ("yes" == libclick.dataset.libclick) {
                 return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             }
@@ -430,6 +423,10 @@ var main = (function () {
         chrome.tabs.create({ url: "https://github.com/dteviot/WebToEpub/wiki/FAQ#using-baka-tsuki-series-page-parser" });
     }
 
+    function onCustomFilenameHelp() {
+        chrome.tabs.create({ url: "https://github.com/dteviot/WebToEpub/wiki/Advanced-Options#custom-filename" });
+    }
+
     function onDefaultParserHelp() {
         chrome.tabs.create({ url: "https://github.com/dteviot/WebToEpub/wiki/FAQ#how-to-convert-a-new-site-using-the-default-parser" });
     }
@@ -486,6 +483,7 @@ var main = (function () {
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
         document.getElementById("seriesPageHelpButton").onclick = onSeriesPageHelp;
+        document.getElementById("CustomFilenameHelpButton").onclick = onCustomFilenameHelp;
         document.getElementById("defaultParserHelpButton").onclick = onDefaultParserHelp;
         getLoadAndAnalyseButton().onclick = onLoadAndAnalyseButtonClick;
         document.getElementById("loadMetadataButton").onclick = onLoadMetadataButtonClick;

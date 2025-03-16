@@ -85,6 +85,7 @@ class UserPreferences {
         this.addPreference("higestResolutionImages", "higestResolutionImagesCheckboxInput", true);
         this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
+        this.addPreference("CustomFilename", "CustomFilenameInput", "%Filename%");
         this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
         this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", false);
