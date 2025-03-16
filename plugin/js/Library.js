@@ -584,10 +584,16 @@ class Library {
                 LibFileReader.LibStorageValueURL = await Library.LibGetSourceURL(LibFileReader.result);
             }
         }
-        let StorageNewChapterCount = (await chrome.storage.local.get("LibNewChapterCount" + LibFileReader.LibStorageValueId))["LibNewChapterCount" + LibFileReader.LibStorageValueId];
+        let StorageNewChapterCount = await Library.LibGetFromStorage("LibNewChapterCount" + LibFileReader.LibStorageValueId);
         let NewChapterCount = LibFileReader.NewChapterCount + (StorageNewChapterCount || 0);
+        //Catch Firefox upload wrong Content-Type
+        let result = LibFileReader.result;
+        if (result.startsWith("data:application/octet-stream;base64,")) {
+            let regex = new RegExp("^data:application/octet-stream;base64,");
+            result = result.replace(regex, "data:application/epub+zip;base64,");
+        }
         chrome.storage.local.set({
-            ["LibEpub" + LibFileReader.LibStorageValueId]: LibFileReader.result,
+            ["LibEpub" + LibFileReader.LibStorageValueId]: result,
             ["LibStoryURL" + LibFileReader.LibStorageValueId]: LibFileReader.LibStorageValueURL,
             ["LibFilename" + LibFileReader.LibStorageValueId]: LibFileReader.LibStorageValueFilename,
             ["LibNewChapterCount" + LibFileReader.LibStorageValueId]: NewChapterCount
