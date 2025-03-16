@@ -24,6 +24,32 @@ class Download {
         return false;
     }
 
+    static CustomFilename(){
+        let CustomFilename = document.getElementById("CustomFilenameInput").value;
+        let ToReplace = {
+            "%URL_hostname%": (new URL(document.getElementById("startingUrlInput").value))?.hostname,
+            "%Title%": document.getElementById("titleInput").value,
+            "%Author%": document.getElementById("authorInput").value,
+            "%Language%": document.getElementById("languageInput").value,
+            "%Chapters_Count%":  document.getElementById("spanChapterCount").innerHTML,
+            "%Chapters_Downloaded%":  document.getElementById("fetchProgress").value-1,
+            "%Filename%": document.getElementById("fileNameInput").value,
+        };
+        for (const [key, value] of Object.entries(ToReplace)) {
+            CustomFilename = CustomFilename.replaceAll(key, value);
+        }
+        if (CustomFilename == "") {
+            return EpubPacker.addExtensionIfMissing(document.getElementById("fileNameInput").value);
+        }
+        if (Download.isFileNameIllegalOnWindows(CustomFilename)) {
+            ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
+                [CustomFilename, Download.illegalWindowsFileNameChars]
+            ));
+            return EpubPacker.addExtensionIfMissing("IllegalFileName");
+        }
+        return EpubPacker.addExtensionIfMissing(CustomFilename);
+    }
+
     /** write blob to "Downloads" directory */
     static save(blob, fileName, overwriteExisting, backgroundDownload) {
         let options = {
