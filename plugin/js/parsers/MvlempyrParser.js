@@ -41,7 +41,7 @@ class MvlempyrParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("#headline-27-164").textContent;
+        return dom.querySelector("#span-28-1305853").textContent;
     }
 
     findCoverImageUrl(dom) {
@@ -51,7 +51,7 @@ class MvlempyrParser extends Parser {
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.synopsis")];
     }
-
+  
     extractSubject(dom) {
         let tags = ([...dom.querySelectorAll("div.tagswrapper a")]);
         let regex = new RegExp("^#");
