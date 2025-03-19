@@ -307,6 +307,10 @@
 		"message": "less tags",
 		"description": "Only extract genre"
 	},
+	"__MSG_label_Show_More_Metadata_Options__": {
+		"message": "Show more Metadata options",
+		"description": "Show more Metadata options to user"
+	},
 	"__MSG_label_Manual_Delay_Per_Chapter__": {
 		"message": "Manual Throttle|Delay per chapter",
 		"description": "Manual Throttle|Delay per chapter"

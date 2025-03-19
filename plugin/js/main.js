@@ -291,8 +291,15 @@ var main = (function () {
     function onAdvancedOptionsClick() {
         let section =  getAdvancedOptionsSection();
         section.hidden = !section.hidden;
+        section = getAdditionalMetadataSection();
+        section.hidden = !userPreferences.ShowMoreMetadataOptions.value;
         section =  getLibrarySection();
         section.hidden = true;
+    }
+
+    function onShowMoreMetadataOptionsClick(){
+        let section = getAdditionalMetadataSection();
+        section.hidden = !section.hidden;
     }
 
     function onLibraryClick(){
@@ -411,6 +418,10 @@ var main = (function () {
         return document.getElementById("manuallySelectParserTag");
     }
 
+    function getAdditionalMetadataSection() {
+        return document.getElementById("AdditionalMetadatatable");
+    }
+
     function getAdvancedOptionsSection() {
         return document.getElementById("advancedOptionsSection");
     }
@@ -477,6 +488,7 @@ var main = (function () {
         getManuallySelectParserTag().onchange = populateControls;
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("hiddenBibButton").onclick = onLibraryClick;
+        document.getElementById("ShowMoreMetadataOptionsCheckbox").addEventListener("change", function(){onShowMoreMetadataOptionsClick()});
         document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", function(){Library.LibRenderSavedEpubs()});
         document.getElementById("LibAddToLibrary").addEventListener("click", fetchContentAndPackEpub);
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
@@ -593,6 +605,7 @@ var main = (function () {
             ErrorLog.SuppressErrorLog =  false;
             localizeHtmlPage();
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
+            getAdditionalMetadataSection().hidden = !userPreferences.ShowMoreMetadataOptions.value;
             addEventHandlers();
             populateControls();
             if (util.isFirefox()) {

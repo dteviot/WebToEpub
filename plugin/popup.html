@@ -11,12 +11,12 @@
 <body>
 
     <div class="container">
-        <section id="readingListSection" hidden>
+        <section id="readingListSection" hidden="true">
             <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
             <table id="readingListTable">
             </table>
         </section>
-        <section id="errorSection" class="minWidth" hidden>
+        <section id="errorSection" class="minWidth" hidden="true">
             <table id="errorSectionTable">
                 <tr>
                     <td>
@@ -32,7 +32,7 @@
                 </tr>
             </table>
         </section>
-        <section id="defaultParserSection" hidden>
+        <section id="defaultParserSection" hidden="true">
             <p class="i18n">__MSG_label_Using_Default_Parser__</p>
             <table>
                 <tr>
@@ -74,7 +74,7 @@
             <div class="withBorder">
                 <div class="scrollingtable withMargin" id="defaultParserVewResult"></div>
             </div>
-            <div id="defaultParserInstructions" hidden>
+            <div id="defaultParserInstructions" hidden="true">
                 <h3>Instructions</h3>
                 <p>WebToEpub does not know what content on each web page (chapter) to put into the EPUB.</p>
                 <p>Use this screen to tell WebToEpub which element on the web page has the wanted content.</p>
@@ -99,14 +99,6 @@
                     <td>__MSG_label_Title__</td>
                     <td><input id="titleInput" type="text" name="titleInput" /></td>
                 </tr>
-                <tr id="seriesRow" hidden>
-                    <td>__MSG_label_Series__</td>
-                    <td><input id="seriesNameInput" type="text" name="titleInput" /></td>
-                </tr>
-                <tr id="volumeRow" hidden>
-                    <td>__MSG_label_Volume__</td>
-                    <td><input id="seriesIndexInput" type="text" name="titleInput" /></td>
-                </tr>
                 <tr>
                     <td>__MSG_label_Author__</td>
                     <td><input id="authorInput" type="text" name="authorInput" /></td>
@@ -119,15 +111,15 @@
                     <td>__MSG_label_Filename__</td>
                     <td><input id="fileNameInput" type="text" name="fileNameInput" /></td>
                 </tr>
-                <tr id="removeAuthorNotesRow" hidden>
+                <tr id="removeAuthorNotesRow" hidden="true">
                     <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
                     <td>__MSG_label_Remove_Author_Notes__</td>
                 </tr>
-                <tr id="removeOriginalRow" hidden>
+                <tr id="removeOriginalRow" hidden="true">
                     <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
                     <td>__MSG_label_Remove_Original__</td>
                 </tr>
-                <tr  id="passwordRow" hidden>
+                <tr  id="passwordRow" hidden="true">
                     <td>__MSG_label_Password__</td>
                     <td><input id="passwordInput" type="text" name="passwordInput" /></td>
                 </tr>
@@ -151,8 +143,8 @@
                 <button id="hiddenBibButton">__MSG_button_Lib_Library__</button>
                 <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
             </div>
-            <section hidden id="hiddenBibSection">
-                <div id="LibraryTemplate" hidden>
+            <section id="hiddenBibSection" hidden="true">
+                <div id="LibraryTemplate" hidden="true">
                     <br>
                     <table>
                         <tbody>
@@ -236,7 +228,7 @@
                         <td><input id="LibShowAdvancedOptionsCheckbox" type="checkbox" name="LibShowAdvancedOptionsCheckbox" checked="false"></td>
                         <td><p>__MSG_label_Lib_Show_Advanced_Library_Options__</p></td>
                     </tr>
-                    <tr id="LibDownloadEpubAfterUpdateRow" hidden>
+                    <tr id="LibDownloadEpubAfterUpdateRow" hidden="true">
                         <td><input id="LibDownloadEpubAfterUpdateCheckbox" type="checkbox" name="LibDownloadEpubAfterUpdateCheckbox" checked="true"></td>
                         <td><p>__MSG_label_Lib_Download_Epub_After_Update__</p></td>
                     </tr>
@@ -245,7 +237,7 @@
                 </div>
             </section>
 
-            <section hidden id="advancedOptionsSection">
+            <section id="advancedOptionsSection" hidden="true">
                 <table id="AdditionalMetadatatable">
                     <tr>
                         <td>__MSG_label_Metadata_URL__</td>
@@ -272,14 +264,26 @@
                         <td>__MSG_label_Metadata_description__</td>
                         <td><textarea rows="2" cols="60" id="descriptionInput" type="text" name="descriptionInput"></textarea></td>
                     </tr>
+                    <tr id="seriesRow">
+                        <td>__MSG_label_Series__</td>
+                        <td><input id="seriesNameInput" type="text" name="titleInput" /></td>
+                    </tr>
+                    <tr id="volumeRow">
+                        <td>__MSG_label_Volume__</td>
+                        <td><input id="seriesIndexInput" type="text" name="titleInput" /></td>
+                    </tr>
+                </table>
+                <table id="advancedOptionsTable">
+                    <tr>
+                        <td><input id="ShowMoreMetadataOptionsCheckbox" type="checkbox" name="ShowMoreMetadataOptionsCheckbox" value="true"></td>
+                        <td>__MSG_label_Show_More_Metadata_Options__</td>
+                    </tr>
                     <tr>
                         <td>__MSG_label_Custom_Filename__</td>
                         <td><input id="CustomFilenameInput" type="text" name="CustomFilenameInput"></td>
                         <td><button id="CustomFilenameHelpButton">__MSG_button_Help__</button></td>
                     </tr>
-                </table>
-                <table id="advancedOptionsTable">
-                    <tr id="translatorRow" hidden>
+                    <tr id="translatorRow" hidden="true">
                         <td>__MSG_label_Translator__</td>
                         <td><input id="translatorInput" type="text" name="translatorInput" size="80" /></td>
                     </tr>
@@ -293,7 +297,7 @@
                             </select>
                         </td>
                     </tr>
-                    <tr id="fileAuthorAsRow" hidden>
+                    <tr id="fileAuthorAsRow" hidden="true">
                         <td>__MSG_label_File_Author_as__</td>
                         <td><input id="fileAuthorAsInput" type="text" name="fileAuthorAsInput" size="80"></td>
                     </tr>
@@ -313,11 +317,11 @@
                         <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="true"></td>
                         <td>__MSG_label_Include_URL_of_Images__</td>
                     </tr>
-                    <tr id="higestResolutionImagesRow" hidden>
+                    <tr id="higestResolutionImagesRow" hidden="true">
                         <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
                         <td>__MSG_label_Fetch_Highest_Resolution_Images__</td>
                     </tr>
-                    <tr id="unSuperScriptAlternateTranslations" hidden>
+                    <tr id="unSuperScriptAlternateTranslations" hidden="true">
                         <td><input id="unSuperScriptCheckboxInput" type="checkbox" name="unSuperScriptCheckboxInput" value="true"></td>
                         <td>__MSG_label_Remove_Superscript_From_Alternate_Translations__</td>
                     </tr>
@@ -440,7 +444,7 @@
                         <td>__MSG_label_Developer_Stuff__</td>
                         <td>
                             <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
-                            <button id="reloadButton" hidden>__MSG_button_Reload__</button>
+                            <button id="reloadButton" hidden="true">__MSG_button_Reload__</button>
                         </td>
                     </tr>
                     <tr id="writeOptionsRow">
@@ -455,7 +459,7 @@
             </section>
         </section>
         <section id="testSection"></section>
-        <section hidden id="imageSection">
+        <section id="imageSection" hidden="true">
             <table id="imageOptionsTable">
                 <tr id="duplicateImagesRow">
                     <td>__MSG_label_Remove_Duplicate_Images__</td>
@@ -496,20 +500,20 @@
                     <button id="copyUrlsToClipboardButton">__MSG_button_Copy_Urls_To_Clipboard__</button>
                 </div>
             </div>
-            <button id="applyChangesButton" hidden>__MSG_button_Apply_Changes__</button>
-            <p id="editURLsHint" class="i18n" hidden>__MSG_label_Edit_URLs_Hint__</p>
+            <button id="applyChangesButton" hidden="true">__MSG_button_Apply_Changes__</button>
+            <p id="editURLsHint" class="i18n" hidden="true">__MSG_label_Edit_URLs_Hint__</p>
             <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
             <table id="chapterUrlsTable" class="chapterlist">
                 <tr>
                     <th align="left">__MSG_column_Include__</th>
                     <th align="left">__MSG_column_Title__</th>
-                    <th align="left" hidden>__MSG_column_URL__</th>
+                    <th align="left" hidden="true">__MSG_column_URL__</th>
                 </tr>
             </table>
             <div>
-                <textarea id="editChaptersUrlsInput" hidden class="allSpace" cols="200" rows="20"></textarea>
+                <textarea id="editChaptersUrlsInput" class="allSpace" cols="200" rows="20" hidden="true"></textarea>
             </div>
-            <button id="applyChangesButton2" hidden>__MSG_button_Apply_Changes__</button>
+            <button id="applyChangesButton2" hidden="true">__MSG_button_Apply_Changes__</button>
         </section>
 
     </div>
