@@ -41,7 +41,7 @@ class MvlempyrParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("#span-28-164").textContent;
+        return dom.querySelector("#headline-27-164").textContent;
     }
 
     findCoverImageUrl(dom) {
