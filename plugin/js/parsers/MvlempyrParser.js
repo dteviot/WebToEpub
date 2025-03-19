@@ -51,5 +51,10 @@ class MvlempyrParser extends Parser {
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.synopsis")];
     }
-
+  
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll("div.tagswrapper a")]);
+        let regex = new RegExp("^#");
+        return tags.map(e => e.textContent.trim().replace(regex, "")).join(", ");
+    }
 }
