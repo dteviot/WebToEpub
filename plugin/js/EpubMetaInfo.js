@@ -78,6 +78,12 @@ class EpubMetaInfo {
         //Breaks extremely long words, screams, wails etc to fit viewer window.
         "p {\r"+
         "   overflow-wrap: break-word;\r"+
+        "   text-indent: 1.5em;\r"+
+        "}\r"+
+
+        //Add text intent for <p> tag
+        "p + p {\r"+
+        "   text-indent: 1.5em;\r"+
         "}\r"+
 
         //First letter of first start paragraph with <p> tag.
@@ -87,13 +93,15 @@ class EpubMetaInfo {
 
         "h1 + p:first-letter, h3 + p:first-letter, h2 + p:first-letter {\r"+
         "   font-size: 2em;\r"+
+        "   font-family: cursive;\r"+
         "   font-weight: bold;\r"+
+        "   font-style: italic;\r"+
         "   text-shadow: 0 1px 2px rgba(255, 223, 97, 1), 1px 2px 3px black;\r"+
         "   text-transform: uppercase;\r"+
         "}\r"+
 
         "h1 + p, h3 + p, h2 + p {\r"+
-        "   text-indent: 0.12em;\r"+
+        "   text-indent: 1.5em;\r"+
         "}\r"+
 
         // Prevent texts inside mutliple definition list tags going outside viewer window.
