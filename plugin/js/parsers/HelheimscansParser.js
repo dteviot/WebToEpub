@@ -1,7 +1,11 @@
 "use strict";
 
+//dead urls
 parserFactory.register("helheimscans.com", () => new HelheimscansParser());
 parserFactory.register("helheimscans.org", () => new HelheimscansParser());
+//Helheim Scans moved to Helio Scans
+parserFactory.register("helioscans.com", () => new HelheimscansParser());
+
 
 class HelheimscansParser extends Parser{
     constructor() {
