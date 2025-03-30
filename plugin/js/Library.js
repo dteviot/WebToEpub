@@ -264,6 +264,9 @@ class Library {
             }
         } else {
             LibArray = await Library.LibGetFromStorage("LibArray");
+            if (LibArray.filter(a => a == AppendID) != []) {
+                return;
+            }
             LibArray.push(AppendID);
         }
         chrome.storage.local.set({
@@ -637,7 +640,7 @@ class Library {
             ["LibNewChapterCount" + LibFileReader.LibStorageValueId]: NewChapterCount
         }, async function() {
             await Library.LibSaveCoverImgInStorage(LibFileReader.LibStorageValueId);
-            await Library.LibCreateStorageIDs(LibFileReader.LibStorageValueId);
+            await Library.LibCreateStorageIDs(parseInt(LibFileReader.LibStorageValueId));
             Library.LibRenderSavedEpubs();
         });
     }
