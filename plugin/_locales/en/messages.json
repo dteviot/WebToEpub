@@ -47,6 +47,10 @@
 		"message": "Search new Chapters",
 		"description": "Label on button to Search new Chapters"
 	},
+	"__MSG_button_Lib_Template_Update_new_Chapters__": {
+		"message": "Update",
+		"description": "Label on button to Update new Chapters"
+	},
 	"__MSG_button_Lib_Template_Download_EPUB__": {
 		"message": "Download EPUB",
 		"description": "Label on button to Download EPUB"
