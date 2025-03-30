@@ -293,7 +293,6 @@ class Library {
     }
 
     static async LibRenderSavedEpubs(){
-        let start = Date.now();
         let LibArray = await Library.LibGetStorageIDs();
         let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
         let CurrentLibKeys = LibArray;
@@ -416,8 +415,6 @@ class Library {
             document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
             document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
         }
-        let end = Date.now();
-        console.log(`Execution time: ${end - start} ms`);
     }
 
     static LibMouseoverButtonUpload(objbtn){
