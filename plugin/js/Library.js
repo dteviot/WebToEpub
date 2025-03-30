@@ -255,128 +255,166 @@ class Library {
         });
     }
 
-    static LibRenderSavedEpubs(){
-        chrome.storage.local.get(null, async function(items) {
-            let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
-            let LibRenderResult = document.getElementById("LibRenderResult");
-            let LibRenderString = "";
-            let LibTemplateDeleteEpub = document.getElementById("LibTemplateDeleteEpub").innerHTML;
-            let LibTemplateSearchNewChapter = document.getElementById("LibTemplateSearchNewChapter").innerHTML;
-            let LibTemplateDownload = document.getElementById("LibTemplateDownload").innerHTML;
-            let LibTemplateNewChapter = document.getElementById("LibTemplateNewChapter").innerHTML;
-            let LibTemplateURL = document.getElementById("LibTemplateURL").innerHTML;
-            let LibTemplateFilename = document.getElementById("LibTemplateFilename").innerHTML;
-            let LibTemplateMergeUploadButton = "";
-            let LibTemplateEditMetadataButton = "";
-
-            LibRenderString += "<div class='LibDivRenderWraper'>";
-            if (!util.isFirefox()) {
-                let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
-                LibRenderString += LibTemplateLibraryUses;
-                LibRenderString += await Library.LibBytesInUse();
-                LibRenderString += "<br>";
-            }
-            document.getElementById("LibDownloadEpubAfterUpdateRow").hidden = !ShowAdvancedOptions;
-            if (ShowAdvancedOptions) {
-                LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
-                LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
-                LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
-                LibRenderString += "<button id='libexportall'>"+document.getElementById("LibTemplateExportLibrary").innerHTML+"</button>";
-                LibRenderString += "<label data-libbuttonid='LibImportLibraryButton' data-libepubid='' id='LibImportLibraryLabel' for='LibImportLibraryFile' style='cursor: pointer;'>";
-                LibRenderString += "<button id='LibImportLibraryButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateImportEpubButton").innerHTML+"</button></label>";
-                LibRenderString += "<input type='file' data-libepubid='LibImportLibrary' id='LibImportLibraryFile' hidden>";
-                LibRenderString += "<br>";
-                LibRenderString += "<p>"+document.getElementById("LibTemplateUploadEpubFileLabel").innerHTML+"</p>";
-                LibRenderString += "<label data-libbuttonid='LibUploadEpubButton' data-libepubid='' id='LibUploadEpubLabel' for='LibEpubNewUploadFile' style='cursor: pointer;'>";
-                LibRenderString += "<button id='LibUploadEpubButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateUploadEpubButton").innerHTML+"</button></label>";
-                LibRenderString += "<input type='file' data-libepubid='LibEpubNew' id='LibEpubNewUploadFile' hidden>";
-            }
-            LibRenderString += "<div style='display:flex; justify-content: center;'>";
-            LibRenderString += "<button id='libupdateall'>"+document.getElementById("LibTemplateUpdateAll").innerHTML+"</button>";
-            LibRenderString += "</div>";
+    static async LibCreateStorageIDs(AppendID){
+        let LibArray = [];
+        if (AppendID == undefined) {
+            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
             for (let i = 0; i < CurrentLibKeys.length; i++) {
-                CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
-                LibRenderString += "<br>";
-                LibRenderString += "<table>";
-                LibRenderString += "<tbody>";
-                LibRenderString += "<tr>";
-                LibRenderString += "<td style='height: 115.5px; width: 106.5px;' rowspan='4'>   <img class='LibCover' id='LibCover"+CurrentLibKeys[i]+"'></td>";
-                LibRenderString += "<td colspan='2'>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDeleteEpub"+CurrentLibKeys[i]+"'>"+LibTemplateDeleteEpub+"</button>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibSearchNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateSearchNewChapter+"</button>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDownload"+CurrentLibKeys[i]+"'>"+LibTemplateDownload+"</button>";
-                LibRenderString += "<span style='padding: 1em; font-size: 1.2em; color: Chartreuse;'>"+(((items["LibNewChapterCount"+CurrentLibKeys[i]] || 0) == 0)? "" : items["LibNewChapterCount"+CurrentLibKeys[i]] + LibTemplateNewChapter)+"</span>";
-                if (ShowAdvancedOptions) {
-                    LibRenderString += "</td>";
-                    LibRenderString += "</tr>";
-                    LibRenderString += "<tr>";
-                    LibRenderString += "<td colspan='2'>";
-                    LibRenderString += "<label id='LibMergeUploadLabel"+CurrentLibKeys[i]+"' data-libbuttonid='LibMergeUploadButton' data-libepubid="+CurrentLibKeys[i]+" for='LibMergeUpload"+CurrentLibKeys[i]+"' style='cursor: pointer;'>";
-                    LibRenderString += "<button id='LibMergeUploadButton"+CurrentLibKeys[i]+"' style='pointer-events: none;'>"+LibTemplateMergeUploadButton+"</button></label>";
-                    LibRenderString += "<input type='file' data-libepubid="+CurrentLibKeys[i]+" id='LibMergeUpload"+CurrentLibKeys[i]+"' hidden>";
-                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibEditMetadata"+CurrentLibKeys[i]+"'>"+LibTemplateEditMetadataButton+"</button>";
-                
-                }
-                LibRenderString += "</td>";
-                LibRenderString += "</tr>";
-                LibRenderString += "<tr>";
-                LibRenderString += "<td>"+LibTemplateURL+"</td>";
-                LibRenderString += "<td style='padding:0;'>";
-                LibRenderString += "<table style='border-spacing:0;'>";
-                LibRenderString += "<tbody id='LibURLWarning"+CurrentLibKeys[i]+"'>";
-                LibRenderString += "<tr><td></td></tr>";
-                LibRenderString += "</tbody>";
-                LibRenderString += "<tbody>";
-                LibRenderString += "<tr><td style='padding:0;'>";
-                LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value='"+items["LibStoryURL"+CurrentLibKeys[i]]+"'>";
-                LibRenderString += "</td></tr>";
-                LibRenderString += "</tbody>";
-                LibRenderString += "</table>";
-                LibRenderString += "</td>";
-                LibRenderString += "</tr>";
-                LibRenderString += "<tr>";
-                LibRenderString += "<td>"+LibTemplateFilename+"</td>";
-                LibRenderString += "<td><input id='LibFilename"+CurrentLibKeys[i]+"' type='text' value='"+items["LibFilename"+CurrentLibKeys[i]]+"'></td>";
-                LibRenderString += "</tr>";
-                LibRenderString += "</tbody>";
-                LibRenderString += "</table>";
-                if (ShowAdvancedOptions) {
-                    LibRenderString += "<div id='LibRenderMetadata"+CurrentLibKeys[i]+"'></div>";
-                }
+                LibArray.push(CurrentLibKeys[i].replace("LibEpub",""));
             }
-            LibRenderString += "</div>";
-            Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
-            document.getElementById("libupdateall").addEventListener("click", function(){Library.Libupdateall()});
-            if (ShowAdvancedOptions) {
-                document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
-                document.getElementById("libexportall").addEventListener("click", function(){Library.Libexportall()});
-                document.getElementById("LibImportLibraryLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-                document.getElementById("LibImportLibraryLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-                document.getElementById("LibImportLibraryFile").addEventListener("change", function(){Library.LibHandelImport(this)});
-                document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-                document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-                document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
-            }
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
-                document.getElementById("LibSearchNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibSearchNewChapter(this)});
-                document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
-                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
-                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function(){Library.LibShowTextURLWarning(this)});
-                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusout", function(){Library.LibHideTextURLWarning(this)});
-                document.getElementById("LibFilename"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
-                if (ShowAdvancedOptions) {
-                    document.getElementById("LibMergeUpload"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibMergeUpload(this)});
-                    document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-                    document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-                    document.getElementById("LibEditMetadata"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibEditMetadata(this)});
-                }
-            }
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                document.getElementById("LibCover"+CurrentLibKeys[i]).src = await items["LibCover" + CurrentLibKeys[i]];
-            }
+        } else {
+            LibArray = await Library.LibGetFromStorage("LibArray");
+            LibArray.push(AppendID);
+        }
+        chrome.storage.local.set({
+            ["LibArray"]: LibArray
         });
+    }
+
+    static async LibRemoveStorageIDs(RemoveID){
+        let LibArray = await Library.LibGetFromStorage("LibArray");
+        if (LibArray == undefined) {
+            await Library.LibCreateStorageIDs();
+            return Library.LibGetStorageIDs();
+        }
+        LibArray = LibArray.filter(a => a != RemoveID);
+        chrome.storage.local.set({
+            ["LibArray"]: LibArray
+        });
+    }
+
+    static async LibGetStorageIDs(){
+        let LibArray = await Library.LibGetFromStorage("LibArray");
+        if (LibArray == undefined) {
+            await Library.LibCreateStorageIDs();
+            return Library.LibGetStorageIDs();
+        }
+        return LibArray;
+    }
+
+    static async LibRenderSavedEpubs(){
+        let LibArray = await Library.LibGetStorageIDs();
+        let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
+        let CurrentLibKeys = LibArray;
+        let LibRenderResult = document.getElementById("LibRenderResult");
+        let LibRenderString = "";
+        let LibTemplateDeleteEpub = document.getElementById("LibTemplateDeleteEpub").innerHTML;
+        let LibTemplateSearchNewChapter = document.getElementById("LibTemplateSearchNewChapter").innerHTML;
+        let LibTemplateDownload = document.getElementById("LibTemplateDownload").innerHTML;
+        let LibTemplateNewChapter = document.getElementById("LibTemplateNewChapter").innerHTML;
+        let LibTemplateURL = document.getElementById("LibTemplateURL").innerHTML;
+        let LibTemplateFilename = document.getElementById("LibTemplateFilename").innerHTML;
+        let LibTemplateMergeUploadButton = "";
+        let LibTemplateEditMetadataButton = "";
+
+        LibRenderString += "<div class='LibDivRenderWraper'>";
+        if (!util.isFirefox()) {
+            let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
+            LibRenderString += LibTemplateLibraryUses;
+            LibRenderString += await Library.LibBytesInUse();
+            LibRenderString += "<br>";
+        }
+        document.getElementById("LibDownloadEpubAfterUpdateRow").hidden = !ShowAdvancedOptions;
+        if (ShowAdvancedOptions) {
+            LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
+            LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
+            LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
+            LibRenderString += "<button id='libexportall'>"+document.getElementById("LibTemplateExportLibrary").innerHTML+"</button>";
+            LibRenderString += "<label data-libbuttonid='LibImportLibraryButton' data-libepubid='' id='LibImportLibraryLabel' for='LibImportLibraryFile' style='cursor: pointer;'>";
+            LibRenderString += "<button id='LibImportLibraryButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateImportEpubButton").innerHTML+"</button></label>";
+            LibRenderString += "<input type='file' data-libepubid='LibImportLibrary' id='LibImportLibraryFile' hidden>";
+            LibRenderString += "<br>";
+            LibRenderString += "<p>"+document.getElementById("LibTemplateUploadEpubFileLabel").innerHTML+"</p>";
+            LibRenderString += "<label data-libbuttonid='LibUploadEpubButton' data-libepubid='' id='LibUploadEpubLabel' for='LibEpubNewUploadFile' style='cursor: pointer;'>";
+            LibRenderString += "<button id='LibUploadEpubButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateUploadEpubButton").innerHTML+"</button></label>";
+            LibRenderString += "<input type='file' data-libepubid='LibEpubNew' id='LibEpubNewUploadFile' hidden>";
+        }
+        LibRenderString += "<div style='display:flex; justify-content: center;'>";
+        LibRenderString += "<button id='libupdateall'>"+document.getElementById("LibTemplateUpdateAll").innerHTML+"</button>";
+        LibRenderString += "</div>";
+        for (let i = 0; i < CurrentLibKeys.length; i++) {
+            LibRenderString += "<br>";
+            LibRenderString += "<table>";
+            LibRenderString += "<tbody>";
+            LibRenderString += "<tr>";
+            LibRenderString += "<td style='height: 115.5px; width: 106.5px;' rowspan='4'>   <img class='LibCover' id='LibCover"+CurrentLibKeys[i]+"'></td>";
+            LibRenderString += "<td colspan='2'>";
+            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDeleteEpub"+CurrentLibKeys[i]+"'>"+LibTemplateDeleteEpub+"</button>";
+            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibSearchNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateSearchNewChapter+"</button>";
+            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDownload"+CurrentLibKeys[i]+"'>"+LibTemplateDownload+"</button>";
+            LibRenderString += "<span style='padding: 1em; font-size: 1.2em; color: Chartreuse;' id='LibNewChapterCount"+CurrentLibKeys[i]+"'></span>";
+            if (ShowAdvancedOptions) {
+                LibRenderString += "</td>";
+                LibRenderString += "</tr>";
+                LibRenderString += "<tr>";
+                LibRenderString += "<td colspan='2'>";
+                LibRenderString += "<label id='LibMergeUploadLabel"+CurrentLibKeys[i]+"' data-libbuttonid='LibMergeUploadButton' data-libepubid="+CurrentLibKeys[i]+" for='LibMergeUpload"+CurrentLibKeys[i]+"' style='cursor: pointer;'>";
+                LibRenderString += "<button id='LibMergeUploadButton"+CurrentLibKeys[i]+"' style='pointer-events: none;'>"+LibTemplateMergeUploadButton+"</button></label>";
+                LibRenderString += "<input type='file' data-libepubid="+CurrentLibKeys[i]+" id='LibMergeUpload"+CurrentLibKeys[i]+"' hidden>";
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibEditMetadata"+CurrentLibKeys[i]+"'>"+LibTemplateEditMetadataButton+"</button>";
+            
+            }
+            LibRenderString += "</td>";
+            LibRenderString += "</tr>";
+            LibRenderString += "<tr>";
+            LibRenderString += "<td>"+LibTemplateURL+"</td>";
+            LibRenderString += "<td style='padding:0;'>";
+            LibRenderString += "<table style='border-spacing:0;'>";
+            LibRenderString += "<tbody id='LibURLWarning"+CurrentLibKeys[i]+"'>";
+            LibRenderString += "<tr><td></td></tr>";
+            LibRenderString += "</tbody>";
+            LibRenderString += "<tbody>";
+            LibRenderString += "<tr><td style='padding:0;'>";
+            LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+            LibRenderString += "</td></tr>";
+            LibRenderString += "</tbody>";
+            LibRenderString += "</table>";
+            LibRenderString += "</td>";
+            LibRenderString += "</tr>";
+            LibRenderString += "<tr>";
+            LibRenderString += "<td>"+LibTemplateFilename+"</td>";
+            LibRenderString += "<td><input id='LibFilename"+CurrentLibKeys[i]+"' type='text' value=''></td>";
+            LibRenderString += "</tr>";
+            LibRenderString += "</tbody>";
+            LibRenderString += "</table>";
+            if (ShowAdvancedOptions) {
+                LibRenderString += "<div id='LibRenderMetadata"+CurrentLibKeys[i]+"'></div>";
+            }
+        }
+        LibRenderString += "</div>";
+        Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
+        document.getElementById("libupdateall").addEventListener("click", function(){Library.Libupdateall()});
+        if (ShowAdvancedOptions) {
+            document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
+            document.getElementById("libexportall").addEventListener("click", function(){Library.Libexportall()});
+            document.getElementById("LibImportLibraryLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+            document.getElementById("LibImportLibraryLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+            document.getElementById("LibImportLibraryFile").addEventListener("change", function(){Library.LibHandelImport(this)});
+            document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+            document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+            document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
+        }
+        for (let i = 0; i < CurrentLibKeys.length; i++) {
+            document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
+            document.getElementById("LibSearchNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibSearchNewChapter(this)});
+            document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
+            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
+            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function(){Library.LibShowTextURLWarning(this)});
+            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusout", function(){Library.LibHideTextURLWarning(this)});
+            document.getElementById("LibFilename"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
+            if (ShowAdvancedOptions) {
+                document.getElementById("LibMergeUpload"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibMergeUpload(this)});
+                document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+                document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+                document.getElementById("LibEditMetadata"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibEditMetadata(this)});
+            }
+        }
+        for (let i = 0; i < CurrentLibKeys.length; i++) {
+            document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
+            document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
+            document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
+        }
     }
 
     static LibMouseoverButtonUpload(objbtn){
@@ -599,6 +637,7 @@ class Library {
             ["LibNewChapterCount" + LibFileReader.LibStorageValueId]: NewChapterCount
         }, async function() {
             await Library.LibSaveCoverImgInStorage(LibFileReader.LibStorageValueId);
+            await Library.LibCreateStorageIDs(LibFileReader.LibStorageValueId);
             Library.LibRenderSavedEpubs();
         });
     }
@@ -656,7 +695,8 @@ class Library {
     static LibFileReadererror(event){ErrorLog.showErrorMessage(event);}
     static LibFileReaderabort(event){ErrorLog.showErrorMessage(event);}
     
-    static LibDeleteEpub(objbtn){
+    static async LibDeleteEpub(objbtn){
+        await Library.LibRemoveStorageIDs(objbtn.dataset.libepubid);
         let LibRemove = ["LibEpub" + objbtn.dataset.libepubid, "LibStoryURL" + objbtn.dataset.libepubid, "LibFilename" + objbtn.dataset.libepubid, "LibCover" + objbtn.dataset.libepubid, "LibNewChapterCount" + objbtn.dataset.libepubid];
         Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
@@ -803,6 +843,7 @@ class Library {
                     ["LibCover" + HighestLibEpub]: json.Library[i].LibCover,
                     ["LibFilename" + HighestLibEpub]: json.Library[i].LibFilename
                 });
+                await Library.LibCreateStorageIDs(HighestLibEpub);
                 HighestLibEpub++;
             }
             Library.userPreferences.loadReadingListFromJson(json);
@@ -835,6 +876,7 @@ class Library {
                     ["LibFilename" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibFilename")[0]).getData(new zip.TextWriter()),
                     ["LibStoryURL" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibStoryURL")[0]).getData(new zip.TextWriter())
                 });
+                await Library.LibCreateStorageIDs(HighestLibEpub);
                 HighestLibEpub++;
             }
             Library.userPreferences.loadReadingListFromJson(JSON.parse( await (await entries.filter((a) => a.filename == "ReadingList.json")[0]).getData(new zip.TextWriter())));
