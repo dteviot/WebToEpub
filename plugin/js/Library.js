@@ -264,7 +264,7 @@ class Library {
             }
         } else {
             LibArray = await Library.LibGetFromStorage("LibArray");
-            if (LibArray.filter(a => a == AppendID) != []) {
+            if (LibArray.filter(a => a == AppendID).length > 0) {
                 return;
             }
             LibArray.push(AppendID);
