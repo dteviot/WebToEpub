@@ -49,6 +49,10 @@ class SpacebattlesParser extends Parser{
         let newUrl = new URL(url);
         let id = newUrl.hash.substring(1) || newUrl.href.substring(newUrl.href.lastIndexOf("/") + 1);
         let parent = fetchedDom.querySelector(`article.hasThreadmark[data-content='${id}']`);
+        if (parent === null)
+        {
+            parent = fetchedDom.querySelector("#" + id)?.parentElement;
+        }
         this.addTitleToChapter(newDoc, parent);
         let content = parent.querySelector("article.message-body");
         util.resolveLazyLoadedImages(content, "img.lazyload");
@@ -58,9 +62,12 @@ class SpacebattlesParser extends Parser{
 
     addTitleToChapter(newDoc, parent) {
         let titleElement = parent.querySelector("span.threadmarkLabel");
-        let title = newDoc.dom.createElement("h1");
-        title.textContent = titleElement.textContent.trim();
-        newDoc.content.appendChild(title);
+        if (titleElement !== null)
+        {
+            let title = newDoc.dom.createElement("h1");
+            title.textContent = titleElement.textContent.trim();
+            newDoc.content.appendChild(title);
+        }
     }
 
     getInformationEpubItemChildNodes(dom) {
