@@ -18,5 +18,9 @@ class WanderinginnParser extends WordpressBaseParser{
     
     extractAuthor() {
         return "pirateaba";
-    }    
+    }
+    
+    removeNextAndPreviousChapterHyperlinks(webPage, content) {
+        util.removeElements(content.querySelectorAll("a[href*='https://wanderinginn.com/']"));
+    }
 }

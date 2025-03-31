@@ -10,7 +10,7 @@ class WtrlabParser extends Parser{
     async getChapterUrls(dom) {
         let items = [...dom.querySelectorAll("div.accordion a.chapter-item")];
         return items.map(a => ({
-            sourceUrl:  a.href,
+            sourceUrl:  a.href + "?service=google",
             title: this.formatTitle(a)
         }));
     }
