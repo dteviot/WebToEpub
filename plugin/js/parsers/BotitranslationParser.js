@@ -21,7 +21,7 @@ class BotitranslationParser extends Parser{
         let ChapterArrayFree = ChapterArray.map(a => ({
             sourceUrl: "https://www.botitranslation.com/chapter/" + a.id, 
             title: a.title, 
-            isIncludeable: (a.tier == 0)
+            isIncludeable: (a.paywallStatus == "free" && a.tier == 0)
         }));
         return ChapterArrayFree;
     }
