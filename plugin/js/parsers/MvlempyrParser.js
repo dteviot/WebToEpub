@@ -5,7 +5,7 @@ parserFactory.register("mvlempyr.com", () => new MvlempyrParser());
 class MvlempyrParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 1000;
+        this.minimumThrottle = 0;
     }
 
     async getChapterUrls(dom) {
