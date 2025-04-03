@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("botitranslation.com", () => new BotitranslationParser());
+parserFactory.register("mystorywave.com", () => new BotitranslationParser());
 
 class BotitranslationParser extends Parser{
     constructor() {
@@ -8,8 +9,21 @@ class BotitranslationParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("#tocItems");
-        return util.hyperlinksToChapterList(menu);
+        // eslint-disable-next-line
+        let regex = new RegExp("\/book\/[0-9]+");
+        let bookid = dom.baseURI.match(regex)?.[0].slice(6);
+        let data = (await HttpClient.fetchJson("https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/page?sortDirection=ASC&bookId=" + bookid + "&pageNumber=1&pageSize=100")).json;
+        let totalCount = data.data.totalCount;
+        if (totalCount > 100) {
+            data = (await HttpClient.fetchJson("https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/page?sortDirection=ASC&bookId=" + bookid + "&pageNumber=1&pageSize=" + totalCount)).json;
+        }
+        let ChapterArray = data.data.list;
+        let ChapterArrayFree = ChapterArray.map(a => ({
+            sourceUrl: "https://www.botitranslation.com/chapter/" + a.id, 
+            title: a.title, 
+            isIncludeable: (a.paywallStatus == "free" && a.tier == 0)
+        }));
+        return ChapterArrayFree;
     }
 
     findContent(dom) {
