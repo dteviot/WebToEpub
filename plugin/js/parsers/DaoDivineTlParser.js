@@ -39,6 +39,7 @@ class DaoDivineTlParser extends Parser{
     }
     
     async loadEpubMetaInfo(dom){
+        // eslint-disable-next-line
         let regex = new RegExp("\/book\/.+");
         let title = dom.baseURI.match(regex)?.[0].slice(6);
         let bookinfo = (await HttpClient.fetchJson("https://api.dao-divine-tl.com/api/bookdata/filter?b_name=" + title)).json;
@@ -56,24 +57,24 @@ class DaoDivineTlParser extends Parser{
         return Parser.findConstrutedContent(dom);
     }
 
-    extractTitleImpl(dom) {
+    extractTitleImpl() {
         return this.title;
     }
 
-    extractAuthor(dom) {
+    extractAuthor() {
         return this.author;
     }
 
-    extractSubject(dom) {
+    extractSubject() {
         let tags = this.tags;
         return tags.join(", ");
     }
 
-    extractDescription(dom) {
+    extractDescription() {
         return this.description.trim();
     }
 
-    findCoverImageUrl(dom) {
+    findCoverImageUrl() {
         return this.img;
     }
 
@@ -97,7 +98,7 @@ class DaoDivineTlParser extends Parser{
         newDoc.content.appendChild(title);
         let text = json.content.replace("\n\n", "\n");
         text = json.content.split("\n");
-        let br = document.createElement('br');
+        let br = document.createElement("br");
         for (let element of text) {
             let pnode = newDoc.dom.createElement("p");
             pnode.textContent = element;

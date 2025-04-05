@@ -277,7 +277,7 @@ class Parser {
     extractSeriesInfo(dom, metaInfo) {  // eslint-disable-line no-unused-vars
     }
 
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom){  // eslint-disable-line no-unused-vars
         return;
     }
 
