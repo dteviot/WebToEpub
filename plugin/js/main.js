@@ -45,6 +45,7 @@ var main = (function () {
                 return;
             }
             try {
+                await parser.loadEpubMetaInfo();
                 let metaInfo = parser.getEpubMetaInfo(dom, userPreferences.useFullTitle.value);
                 populateMetaInfo(metaInfo);
                 setUiToDefaultState();
