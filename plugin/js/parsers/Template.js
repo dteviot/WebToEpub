@@ -115,6 +115,17 @@ class TemplateParser extends Parser{
     }
     */
 
+    // load EpubMetaInfo async in local variable to retieve with all other Metadata functions
+    // Optional, will default to "return"
+    /*
+    async loadEpubMetaInfo(){
+        let data = (await HttpClient.fetchJson(api)).json;
+        this.subject = data.subject;
+        ...
+        return;
+    }
+    */
+
     // Genre of the story
     // Optional, Genre for metadata, if not provided, will default to ""
     /*
