@@ -26,7 +26,7 @@ class WoopreadParser extends Parser{
 
     async getChapterUrls(dom) {
         const chapterLinks = [...dom.querySelectorAll("main.grow .notranslate .mt-8 .grid-cols-1 a")];
-        const chapterTitles = [...dom.querySelectorAll("div.grow .line-clamp-1")];
+        const chapterTitles = [...dom.querySelectorAll("main.grow .line-clamp-2")];
 
         let chapterList = [];
         for (let i = 0; i < chapterLinks.length; i++) {
