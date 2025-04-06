@@ -152,13 +152,9 @@ jobs:
         if %normal_release% == 1 (
 
           echo Create release notes.
-          echo ## What's Changed> output.txt
-          echo.>> output.txt
-          echo placeholder >> output.txt
-          echo.>> output.txt
-          echo ## New Contributors>> output.txt
-          echo.>> output.txt
-          echo placeholder >> output.txt
+          echo Download WebToEpub from your addons store: > output.txt
+          echo [chrome]^(https://chromewebstore.google.com/detail/akiljllkbielkidmammnifcnibaigelm^) >> output.txt
+          echo [firefox]^(https://addons.mozilla.org/en-US/firefox/addon/webtoepub-for-baka-tsuki/^) >> output.txt
           echo.>> output.txt
           echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...%var_build% >> output.txt
 

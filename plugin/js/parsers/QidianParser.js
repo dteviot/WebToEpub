@@ -13,8 +13,8 @@ class QidianParser extends Parser{
 
     async getChapterUrls(dom) {
         if (!dom.baseURI.match(new RegExp("/catalog$"))) {
-            let regex = new RegExp("/?$");
-            dom = (await HttpClient.wrapFetch(dom.baseURI.replace(regex, "/catalog"))).responseXML;
+            let regex = new RegExp("(/book/.*?\\d+\\b).*");
+            dom = (await HttpClient.wrapFetch(dom.baseURI.replace(regex, "$1/catalog"))).responseXML;
         }
         let links = Array.from(dom.querySelectorAll("ul.content-list a"));
         if (links.length === 0) {

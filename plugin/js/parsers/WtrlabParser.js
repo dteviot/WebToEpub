@@ -35,7 +35,7 @@ class WtrlabParser extends Parser{
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".img-wrap");
+        return util.getFirstImgSrc(dom, ".image-wrap");
     }
 
     preprocessRawDom(webPageDom) {
