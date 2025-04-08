@@ -9,6 +9,7 @@ class QidianParser extends Parser{
     constructor() {
         super();
         this.minimumThrottle = 50; //Minimal delay to reduce frequency of 445 errors.
+        this.ChacheChapterTitle = new Map();
     }
 
     async getChapterUrls(dom) {
@@ -34,9 +35,11 @@ class QidianParser extends Parser{
         let element = link.querySelector("strong");
         if (element !== null) {
             title = element.textContent.trim();
-            element = link.querySelector("i");
-            if (element !== null) {
-                title = element.textContent + ": " + title;
+            if (!document.getElementById("removeChapterNumberCheckbox").checked) {
+                element = link.querySelector("i");
+                if (element !== null) {
+                    title = element.textContent + ": " + title;
+                }
             }
         }
         return {sourceUrl: link.href, title: title, 
@@ -49,6 +52,10 @@ class QidianParser extends Parser{
     };
 
     preprocessRawDom(webPage) {
+        if (this.ChacheChapterTitle.size == 0) {
+            let pagesToFetch = [...this.state.webPages.values()].filter(c => c.isIncludeable);
+            pagesToFetch.map(a => (this.ChacheChapterTitle.set(a.sourceUrl, a.title)));
+        }
         let content = this.findContent(webPage);
         if (content !== null) {
             content = this.cleanRawDom(content);
@@ -83,6 +90,16 @@ class QidianParser extends Parser{
         //Remove repeating & unused metadata from document. Approximately halves body length.
         content.querySelectorAll("i.para-comment_num, i.para-comment").forEach(i => i.remove());
         content.querySelectorAll("div.db").forEach(i => i.removeAttribute("data-ejs"));
+        let tmptitle = this.ChacheChapterTitle.get(content.baseURI);
+        if (tmptitle == undefined || tmptitle == "[placeholder]") {
+            let titleEl = content.querySelector("div.chapter_content h1");
+            let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+):\\s*\\1:?(.*)", "i").exec(titleEl.textContent);
+            if (titleDupChapRegex && titleDupChapRegex.length > 2){
+                titleEl.textContent = titleDupChapRegex[1] + titleDupChapRegex[2];
+            }
+        } else {
+            content.querySelector("div.chapter_content h1").innerHTML = tmptitle;
+        }
         return content;
     }
 
@@ -149,6 +166,7 @@ class QidianParser extends Parser{
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeAuthorNotesRow").hidden = false; 
+        document.getElementById("removeChapterNumberRow").hidden = false; 
     }
 
     // title of the story
