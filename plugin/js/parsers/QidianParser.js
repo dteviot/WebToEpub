@@ -85,7 +85,7 @@ class QidianParser extends Parser{
         content.querySelectorAll("div.db").forEach(i => i.removeAttribute("data-ejs"));
 
         let titleEl = content.querySelector("div.chapter_content h1");
-        let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+:)\\s*\\1(.*)", "i").exec(titleEl.textContent);
+        let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+):\\s*\\1:?(.*)", "i").exec(titleEl.textContent);
         if (titleDupChapRegex && titleDupChapRegex.length > 2){
             titleEl.textContent = titleDupChapRegex[1] + titleDupChapRegex[2];
         }
