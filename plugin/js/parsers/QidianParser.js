@@ -83,6 +83,13 @@ class QidianParser extends Parser{
         //Remove repeating & unused metadata from document. Approximately halves body length.
         content.querySelectorAll("i.para-comment_num, i.para-comment").forEach(i => i.remove());
         content.querySelectorAll("div.db").forEach(i => i.removeAttribute("data-ejs"));
+
+        let titleEl = content.querySelector("div.chapter_content h1");
+        let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+:)\\s*\\1(.*)", "i").exec(titleEl.textContent);
+        if (titleDupChapRegex && titleDupChapRegex.length > 2){
+            titleEl.textContent = titleDupChapRegex[1] + titleDupChapRegex[2];
+        }
+        
         return content;
     }
 
