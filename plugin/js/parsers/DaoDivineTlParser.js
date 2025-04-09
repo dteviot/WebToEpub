@@ -5,6 +5,7 @@ parserFactory.register("dao-divine-tl.com", () => new DaoDivineTlParser());
 class DaoDivineTlParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 500;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
