@@ -540,6 +540,7 @@ var main = (function () {
                 onLoadMetadataButtonClick();
             }
         }catch{
+            //
         }
     }
 	
