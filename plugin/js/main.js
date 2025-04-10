@@ -453,6 +453,22 @@ var main = (function () {
         userPreferences.readingList.onReadingListCheckboxClicked(checked, url);
     }
 
+    function showFilters() {
+        /*
+Filter logic
+Find all words in array - both chapter names and links.
+split words \s
+map via regex (word|word|word|...){numWords--} //numWords declines until match, output matching sentences. Take longest result; if equal, take both.
+populate list, use tri-state checkboxes. https://stackoverflow.com/questions/45295891/sending-values-of-3-state-checkbox
+
+commonality calculated by length, numWords mult by numRecords / (Half life*inverse length)
+ Include numbers as words? calculated value should make chapter numbers irrelevant.
+
+Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist instead of checkboxes. minwidth, but allow margin open?
+        */
+        console.log("showing filters ph");
+    }
+
     function showReadingList() {
         let sections = new Map(
             [...document.querySelectorAll("section")]
@@ -504,6 +520,7 @@ var main = (function () {
         document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
         UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
+        document.getElementById("viewFiltersButton").onclick = () => showFilters();
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
     }
