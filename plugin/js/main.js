@@ -531,7 +531,7 @@ Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist inste
         getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
         let titelname = getValueFromUiField("titleInput");
-        let url ="https://www.novelupdates.com/?s="+titelname;
+        let url ="https://www.novelupdates.com/series-finder/?sf=1&sh="+titelname;
         if (getValueFromUiField("subjectInput")==null){
             autosearchnovelupdates(url, titelname);
         }   
@@ -548,16 +548,6 @@ Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist inste
         });
     }
 
-    function autosearchwlnupdates(url, titelname){
-        url ="https://www.wlnupdates.com/search?title="+titelname;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            findwlnupdatesurl(url, xhr.responseXML, titelname);
-        }).catch(function (error) {
-            getLoadAndAnalyseButton().disabled = false;
-            ErrorLog.showErrorMessage(error);
-        });
-    }
-
     function findnovelupdatesurl(url, dom, titelname){
         try{    
             let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname)[0];
@@ -567,23 +557,8 @@ Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist inste
                 onLoadMetadataButtonClick();
             }
         }catch{
-            autosearchwlnupdates(url, titelname);
+            //
         }
-    }
-
-    function findwlnupdatesurl(url, dom, titelname){
-        try{    
-            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname)[0];
-            setUiFieldToValue("metadataUrlInput", searchurl.href);
-            url = getValueFromUiField("metadataUrlInput");
-            if (url.includes("wlnupdates.com") == true){
-                onLoadMetadataButtonClick();
-            }
-        }catch{
-            let test = "Error: Failed to auto fetch additional Metadata on novelupdates.com or wlnupdates.";
-            ErrorLog.showErrorMessage(test);}
-        getPackEpubButton().disabled = false;
-        document.getElementById("LibAddToLibrary").disabled = false;
     }
 	
     function onLoadMetadataButtonClick(){

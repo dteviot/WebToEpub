@@ -308,8 +308,8 @@
 		"description": "No tags and description in metadata"
 	},
 	"__MSG_label_auto_search_metadata__": {
-		"message": "auto search Metadata on novelupdates or wlnupdates (long loading time)",
-		"description": "auto search Metadata on novelupdates or wlnupdates"
+		"message": "auto search Metadata on novelupdates (long loading time)",
+		"description": "auto search Metadata on novelupdates"
 	},
 	"__MSG_label_less_tags__": {
 		"message": "less tags",
