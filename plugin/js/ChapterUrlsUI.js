@@ -5,6 +5,8 @@ class ChapterUrlsUI {
     constructor(parser) {
         this.parser = parser;
         ChapterUrlsUI.getPleaseWaitMessageRow().hidden = false;
+        document.getElementById("spanParserName").textContent = this.parser.constructor.name;
+        document.getElementById("spanDelayMs").textContent = `${this.parser.getRateLimit()} ms`;
     }
 
     connectButtonHandlers() {
