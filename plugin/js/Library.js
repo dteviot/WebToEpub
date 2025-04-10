@@ -326,6 +326,7 @@ class Library {
     static async LibRenderSavedEpubs(){
         let LibArray = await Library.LibGetStorageIDs();
         let ShowAdvancedOptions = document.getElementById("LibShowAdvancedOptionsCheckbox").checked;
+        let ShowCompactView = document.getElementById("LibShowCompactViewCheckbox").checked;
         let CurrentLibKeys = LibArray;
         let LibRenderResult = document.getElementById("LibRenderResult");
         let LibRenderString = "";
@@ -346,6 +347,7 @@ class Library {
             LibRenderString += await Library.LibBytesInUse();
             LibRenderString += "<br>";
         }
+        document.getElementById("LibShowCompactViewRow").hidden = !ShowAdvancedOptions;
         document.getElementById("LibDownloadEpubAfterUpdateRow").hidden = !ShowAdvancedOptions;
         if (ShowAdvancedOptions) {
             LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
@@ -364,95 +366,131 @@ class Library {
         LibRenderString += "<div style='display:flex; justify-content: center;'>";
         LibRenderString += "<button id='libupdateall'>"+document.getElementById("LibTemplateUpdateAll").innerHTML+"</button>";
         LibRenderString += "</div>";
-        for (let i = 0; i < CurrentLibKeys.length; i++) {
-            LibRenderString += "<br>";
+        if ( ShowCompactView && !ShowAdvancedOptions) {
             LibRenderString += "<table>";
             LibRenderString += "<tbody>";
-            LibRenderString += "<tr>";
-            LibRenderString += "<td style='height: 115.5px; width: 106.5px;' rowspan='4'>   <img class='LibCover' id='LibCover"+CurrentLibKeys[i]+"'></td>";
-            LibRenderString += "<td colspan='2'>";
-            if (ShowAdvancedOptions) {
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibChangeOrderUp"+CurrentLibKeys[i]+"'>↑</button>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibChangeOrderDown"+CurrentLibKeys[i]+"'>↓</button>";
+            let column = 5;
+            for (let i = 0; i < CurrentLibKeys.length; i = i + column) {
+                LibRenderString += "<tr>";
+                for (let j = i; j < CurrentLibKeys.length && j < column + i; j++) {
+                    LibRenderString += "<td style='height: 1.2em;'>";
+                    LibRenderString += "<div style='display:flex; justify-content: center;'>";
+                    LibRenderString += "<span style='padding: 0em; font-size: 1.2em; color: Chartreuse;' id='LibNewChapterCount"+CurrentLibKeys[j]+"'></span>";
+                    LibRenderString += "</div>";
+                    LibRenderString += "</td>";
+                }
+                LibRenderString += "</tr>";
+                LibRenderString += "<tr>";
+                for (let j = i; j < CurrentLibKeys.length && j < column + i; j++) {
+                    LibRenderString += "<td>";
+                    LibRenderString += "<img data-libepubid="+CurrentLibKeys[j]+" style='cursor: pointer; max-height: "+(772/column)+"px; max-width: "+(603/column)+"px;' class='LibCoverCompact' id='LibCover"+CurrentLibKeys[j]+"'>";
+                    LibRenderString += "</td>";
+                }
+                LibRenderString += "</tr>";
             }
-            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDeleteEpub"+CurrentLibKeys[i]+"'>"+LibTemplateDeleteEpub+"</button>";
-            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibUpdateNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateUpdateNewChapter+"</button>";
-            LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDownload"+CurrentLibKeys[i]+"'>"+LibTemplateDownload+"</button>";
-            LibRenderString += "<span style='padding: 1em; font-size: 1.2em; color: Chartreuse;' id='LibNewChapterCount"+CurrentLibKeys[i]+"'></span>";
-            if (ShowAdvancedOptions) {
+            LibRenderString += "</tbody>";
+            LibRenderString += "</table>";
+            LibRenderString += "</div>";
+            Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
+            document.getElementById("libupdateall").addEventListener("click", function(){Library.Libupdateall()});
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                document.getElementById("LibCover"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
+            }
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
+                document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+            }
+        } else {
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                LibRenderString += "<br>";
+                LibRenderString += "<table>";
+                LibRenderString += "<tbody>";
+                LibRenderString += "<tr>";
+                LibRenderString += "<td style='height: 115.5px; width: 106.5px;' rowspan='4'>   <img class='LibCover' id='LibCover"+CurrentLibKeys[i]+"'></td>";
+                LibRenderString += "<td colspan='2'>";
+                if (ShowAdvancedOptions) {
+                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibChangeOrderUp"+CurrentLibKeys[i]+"'>↑</button>";
+                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibChangeOrderDown"+CurrentLibKeys[i]+"'>↓</button>";
+                }
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDeleteEpub"+CurrentLibKeys[i]+"'>"+LibTemplateDeleteEpub+"</button>";
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibUpdateNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateUpdateNewChapter+"</button>";
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDownload"+CurrentLibKeys[i]+"'>"+LibTemplateDownload+"</button>";
+                LibRenderString += "<span style='padding: 1em; font-size: 1.2em; color: Chartreuse;' id='LibNewChapterCount"+CurrentLibKeys[i]+"'></span>";
+                if (ShowAdvancedOptions) {
+                    LibRenderString += "</td>";
+                    LibRenderString += "</tr>";
+                    LibRenderString += "<tr>";
+                    LibRenderString += "<td colspan='2'>";
+                    LibRenderString += "<label id='LibMergeUploadLabel"+CurrentLibKeys[i]+"' data-libbuttonid='LibMergeUploadButton' data-libepubid="+CurrentLibKeys[i]+" for='LibMergeUpload"+CurrentLibKeys[i]+"' style='cursor: pointer;'>";
+                    LibRenderString += "<button id='LibMergeUploadButton"+CurrentLibKeys[i]+"' style='pointer-events: none;'>"+LibTemplateMergeUploadButton+"</button></label>";
+                    LibRenderString += "<input type='file' data-libepubid="+CurrentLibKeys[i]+" id='LibMergeUpload"+CurrentLibKeys[i]+"' hidden>";
+                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibSearchNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateSearchNewChapter+"</button>";
+                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibEditMetadata"+CurrentLibKeys[i]+"'>"+LibTemplateEditMetadataButton+"</button>";
+                }
                 LibRenderString += "</td>";
                 LibRenderString += "</tr>";
                 LibRenderString += "<tr>";
-                LibRenderString += "<td colspan='2'>";
-                LibRenderString += "<label id='LibMergeUploadLabel"+CurrentLibKeys[i]+"' data-libbuttonid='LibMergeUploadButton' data-libepubid="+CurrentLibKeys[i]+" for='LibMergeUpload"+CurrentLibKeys[i]+"' style='cursor: pointer;'>";
-                LibRenderString += "<button id='LibMergeUploadButton"+CurrentLibKeys[i]+"' style='pointer-events: none;'>"+LibTemplateMergeUploadButton+"</button></label>";
-                LibRenderString += "<input type='file' data-libepubid="+CurrentLibKeys[i]+" id='LibMergeUpload"+CurrentLibKeys[i]+"' hidden>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibSearchNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateSearchNewChapter+"</button>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibEditMetadata"+CurrentLibKeys[i]+"'>"+LibTemplateEditMetadataButton+"</button>";
+                LibRenderString += "<td>"+LibTemplateURL+"</td>";
+                LibRenderString += "<td style='padding:0;'>";
+                LibRenderString += "<table style='border-spacing:0;'>";
+                LibRenderString += "<tbody id='LibURLWarning"+CurrentLibKeys[i]+"'>";
+                LibRenderString += "<tr><td></td></tr>";
+                LibRenderString += "</tbody>";
+                LibRenderString += "<tbody>";
+                LibRenderString += "<tr><td style='padding:0;'>";
+                LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+                LibRenderString += "</td></tr>";
+                LibRenderString += "</tbody>";
+                LibRenderString += "</table>";
+                LibRenderString += "</td>";
+                LibRenderString += "</tr>";
+                LibRenderString += "<tr>";
+                LibRenderString += "<td>"+LibTemplateFilename+"</td>";
+                LibRenderString += "<td><input id='LibFilename"+CurrentLibKeys[i]+"' type='text' value=''></td>";
+                LibRenderString += "</tr>";
+                LibRenderString += "</tbody>";
+                LibRenderString += "</table>";
+                if (ShowAdvancedOptions) {
+                    LibRenderString += "<div id='LibRenderMetadata"+CurrentLibKeys[i]+"'></div>";
+                }
             }
-            LibRenderString += "</td>";
-            LibRenderString += "</tr>";
-            LibRenderString += "<tr>";
-            LibRenderString += "<td>"+LibTemplateURL+"</td>";
-            LibRenderString += "<td style='padding:0;'>";
-            LibRenderString += "<table style='border-spacing:0;'>";
-            LibRenderString += "<tbody id='LibURLWarning"+CurrentLibKeys[i]+"'>";
-            LibRenderString += "<tr><td></td></tr>";
-            LibRenderString += "</tbody>";
-            LibRenderString += "<tbody>";
-            LibRenderString += "<tr><td style='padding:0;'>";
-            LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
-            LibRenderString += "</td></tr>";
-            LibRenderString += "</tbody>";
-            LibRenderString += "</table>";
-            LibRenderString += "</td>";
-            LibRenderString += "</tr>";
-            LibRenderString += "<tr>";
-            LibRenderString += "<td>"+LibTemplateFilename+"</td>";
-            LibRenderString += "<td><input id='LibFilename"+CurrentLibKeys[i]+"' type='text' value=''></td>";
-            LibRenderString += "</tr>";
-            LibRenderString += "</tbody>";
-            LibRenderString += "</table>";
+            LibRenderString += "</div>";
+            Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
+            document.getElementById("libupdateall").addEventListener("click", function(){Library.Libupdateall()});
             if (ShowAdvancedOptions) {
-                LibRenderString += "<div id='LibRenderMetadata"+CurrentLibKeys[i]+"'></div>";
+                document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
+                document.getElementById("libexportall").addEventListener("click", function(){Library.Libexportall()});
+                document.getElementById("LibImportLibraryLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+                document.getElementById("LibImportLibraryLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+                document.getElementById("LibImportLibraryFile").addEventListener("change", function(){Library.LibHandelImport(this)});
+                document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+                document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+                document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
             }
-        }
-        LibRenderString += "</div>";
-        Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
-        document.getElementById("libupdateall").addEventListener("click", function(){Library.Libupdateall()});
-        if (ShowAdvancedOptions) {
-            document.getElementById("libdeleteall").addEventListener("click", function(){Library.Libdeleteall()});
-            document.getElementById("libexportall").addEventListener("click", function(){Library.Libexportall()});
-            document.getElementById("LibImportLibraryLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-            document.getElementById("LibImportLibraryLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-            document.getElementById("LibImportLibraryFile").addEventListener("change", function(){Library.LibHandelImport(this)});
-            document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-            document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-            document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
-        }
-        for (let i = 0; i < CurrentLibKeys.length; i++) {
-            document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
-            document.getElementById("LibUpdateNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibUpdateNewChapter(this)});
-            document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
-            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
-            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function(){Library.LibShowTextURLWarning(this)});
-            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusout", function(){Library.LibHideTextURLWarning(this)});
-            document.getElementById("LibFilename"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
-            if (ShowAdvancedOptions) {
-                document.getElementById("LibChangeOrderUp"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibChangeOrderUp(this)});
-                document.getElementById("LibChangeOrderDown"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibChangeOrderDown(this)});
-                document.getElementById("LibMergeUpload"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibMergeUpload(this)});
-                document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
-                document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
-                document.getElementById("LibSearchNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibSearchNewChapter(this)});
-                document.getElementById("LibEditMetadata"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibEditMetadata(this)});
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
+                document.getElementById("LibUpdateNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibUpdateNewChapter(this)});
+                document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
+                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
+                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function(){Library.LibShowTextURLWarning(this)});
+                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusout", function(){Library.LibHideTextURLWarning(this)});
+                document.getElementById("LibFilename"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
+                if (ShowAdvancedOptions) {
+                    document.getElementById("LibChangeOrderUp"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibChangeOrderUp(this)});
+                    document.getElementById("LibChangeOrderDown"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibChangeOrderDown(this)});
+                    document.getElementById("LibMergeUpload"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibMergeUpload(this)});
+                    document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
+                    document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
+                    document.getElementById("LibSearchNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibSearchNewChapter(this)});
+                    document.getElementById("LibEditMetadata"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibEditMetadata(this)});
+                }
             }
-        }
-        for (let i = 0; i < CurrentLibKeys.length; i++) {
-            document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
-            document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
-            document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
-            document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
+            for (let i = 0; i < CurrentLibKeys.length; i++) {
+                document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
+                document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+                document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
+                document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
+            }
         }
     }
 
