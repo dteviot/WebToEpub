@@ -163,15 +163,8 @@ class EpubMetaInfo {
             metaAddInfo.subject = EpubMetaInfo.addSubjectNovelupdate(dom, allTags);
             metaAddInfo.description = EpubMetaInfo.addDescriptionNovelupdate(dom);
             metaAddInfo.author = EpubMetaInfo.addAuthorNovelupdate(dom);
-        }
-
-        //wlnupdates
-        else if(url.includes("wlnupdates.com") == true){
-            metaAddInfo.subject = EpubMetaInfo.addSubjectWinupdates(dom, allTags);
-            metaAddInfo.description = EpubMetaInfo.addDescriptionWinupdates(dom);
-            metaAddInfo.author = EpubMetaInfo.addAuthorWinupdates(dom);
         } else {
-            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com or wlnupdates.com.";
+            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com";
             ErrorLog.showErrorMessage(test);
         }
         return metaAddInfo;
@@ -191,22 +184,6 @@ class EpubMetaInfo {
     
     static addAuthorNovelupdate(dom){
         return dom.querySelector("#authtag").textContent;
-    }
-
-    static addSubjectWinupdates(dom, allTags){
-        let selector = "#genre-container .multiitem a";
-        if (allTags) {
-            selector += ", #tag .multiitem a";
-        }
-        return EpubMetaInfo.buildSubjectFromTags(dom, selector);
-    }
-
-    static addDescriptionWinupdates(dom){
-        return dom.querySelector("#description .description").textContent;
-    }
-        
-    static addAuthorWinupdates(dom){
-        return dom.querySelector("#author .multiitem a").textContent;
     }
 
     static buildSubjectFromTags(dom, selector) {
