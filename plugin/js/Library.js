@@ -819,7 +819,7 @@ class Library {
             let backgroundDownload = userPreferences.noDownloadPopup.value;
             let LibRemove = ["LibNewChapterCount" + objbtn.dataset.libepubid];
             chrome.storage.local.remove(LibRemove);
-            Library.LibRenderSavedEpubs();
+            document.getElementById("LibNewChapterCount"+objbtn.dataset.libepubid).innerHTML = "";
             let blobdata = await Library.LibConvertDataUrlToBlob(items["LibEpub" + objbtn.dataset.libepubid]);
             return Download.save(blobdata, items["LibFilename" + objbtn.dataset.libepubid] + ".epub", overwriteExisting, backgroundDownload);
         });
