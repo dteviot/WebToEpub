@@ -102,6 +102,9 @@ class FetchErrorHandler {
         case 522:
             // intermittant fault
             return {retryDelay: retryDelay, promptUser: true};
+        case 524:
+            // claudflare random error
+            return {retryDelay: [1], promptUser: true};
         default:
             // it's dead Jim
             return {retryDelay: [], promptUser: false};

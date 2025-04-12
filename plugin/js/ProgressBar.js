@@ -32,7 +32,16 @@ class ProgressBar {
         let text = "";
         if (1 < element.max) {
             text = `${element.value}/${element.max}`;
+            ProgressBar.updateTabTitle(element.value, element.max);
         }
         document.getElementById("progressString").textContent = text;
+    }
+
+    static updateTabTitle(value, max){
+        value = (value*100/max).toFixed(1);
+        if (value == "100.0") {
+            value = "100";
+        }
+        document.title = value + "% WebToEpub";
     }
 }

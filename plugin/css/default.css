@@ -206,6 +206,12 @@ button {
     margin-right: auto;
 }
 
+.LibCoverCompact {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .HiddenButtonSection {
     position: relative;
     display: flex;
