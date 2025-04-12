@@ -33,6 +33,8 @@ parserFactory.register("pandamtl.com", () => new NoblemtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
 parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
 
+parserFactory.register("my-novel.online", () => new MyNovelOnlineParser());
+
 parserFactory.registerRule(
     (url, dom) => NoblemtlParser.isNoblemtlTheme(dom) * 0.7,
     () => new NoblemtlParser()
@@ -169,5 +171,46 @@ class LazygirltranslationsParser extends KnoxtspaceParser{
         }
         let menu = dom.querySelector(".page");
         return util.hyperlinksToChapterList(menu);        
+    }
+}
+
+class MyNovelOnlineParser extends NoblemtlParser{
+
+    findChapterTitle() {
+        return;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+    
+    async fetchChapter(url) {
+        let restUrl = this.toRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        return this.buildChapter(json, url);
+    }
+
+    toRestUrl(url) {
+        // eslint-disable-next-line
+        let regex = new RegExp("my-novel.online\/[0-9]+");
+        let id = url.substring(url.search(regex)+"my-novel.online/".length).split("/")[0];
+        return "https://api.grow.me/sites/629a1740-ed50-4353-bf87-856ca30d58e8/page?url=https%3A%2F%2Fmy-novel.online%2F" +id+ "%2F";
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json.page.title.substring(0, json.page.title.length - " - Novels Knights".length);
+        newDoc.content.appendChild(title);
+        let text = json.page.textContent.replace("\n\n", "\n");
+        text = text.split("\n");
+        let br = document.createElement("br");
+        for (let element of text) {
+            let pnode = newDoc.dom.createElement("p");
+            pnode.textContent = element;
+            newDoc.content.appendChild(pnode);
+            newDoc.content.appendChild(br);
+        }
+        return newDoc.dom;
     }
 }
