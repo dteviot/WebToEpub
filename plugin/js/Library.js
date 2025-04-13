@@ -343,8 +343,8 @@ class Library {
         LibRenderString += "<div class='LibDivRenderWraper'>";
         if (!util.isFirefox()) {
             let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
-            LibRenderString += LibTemplateLibraryUses;
-            LibRenderString += await Library.LibBytesInUse();
+            LibRenderString += "<span>" + LibTemplateLibraryUses + "</span>";
+            LibRenderString += "<span id='LibLibraryUses'></span>";
             LibRenderString += "<br>";
         }
         document.getElementById("LibShowCompactViewRow").hidden = !ShowAdvancedOptions;
@@ -491,6 +491,9 @@ class Library {
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
                 document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
             }
+        }
+        if (!util.isFirefox()) {
+            document.getElementById("LibLibraryUses").innerHTML = await Library.LibBytesInUse();
         }
     }
 
