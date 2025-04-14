@@ -508,13 +508,13 @@ class ChapterUrlsUI {
             let formResults = Object.fromEntries(new FormData(document.getElementById("sbFiltersForm")));
             let formKeys = Object.keys(formResults);
             formResults = formKeys.filter(key => key.indexOf("Hidden") == -1)
-                 .map(key => {
+                .map(key => {
                     return {
                         key: key,
                         searchType: formResults[key],
                         value: formResults[`${key}Hidden`]
                     };
-                 });
+                });
 
             let includeChaps = null;
             let excludeChaps = null;
