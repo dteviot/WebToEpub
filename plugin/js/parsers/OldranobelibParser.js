@@ -1,16 +1,29 @@
 "use strict";
 
 parserFactory.register("old.ranobelib.me", () => new OldranobelibParser());
+parserFactory.register("ranobelib.me", () => new OldranobelibParser());
 
 class OldranobelibParser extends Parser{
     constructor() {
         super();
+        this.homedom = "";
     }
 
     async getChapterUrls(dom) {
+        if (dom.baseURI.includes("https://ranobelib.me/ru/book/")) {
+            dom = (await HttpClient.wrapFetch(dom.baseURI.replace("https://ranobelib.me/ru/book/", "https://old.ranobelib.me/old/manga/"))).responseXML;
+        }
         let base = this.makeChapterBaseUrl(dom);
         let json = this.getJsonWithChapters(dom);
         return json.map(j => this.jsonToChapters(j, base));
+    }
+    
+    async loadEpubMetaInfo(dom){
+        if (dom.baseURI.includes("https://ranobelib.me/ru/book/")) {
+            dom = (await HttpClient.wrapFetch(dom.baseURI.replace("https://ranobelib.me/ru/book/", "https://old.ranobelib.me/old/manga/"))).responseXML;
+        }
+        this.homedom = dom;
+        return;
     }
 
     getJsonWithChapters(dom) {
@@ -41,24 +54,24 @@ class OldranobelibParser extends Parser{
         return dom.querySelector(".reader-container");
     }
 
-    extractTitleImpl(dom) {
-        return dom.querySelector(".media-name__main");
+    extractTitleImpl() {
+        return this.homedom.querySelector(".media-name__main");
     }
 
-    extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".media-sidebar .media-info-list__item span");
-        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    extractAuthor() {
+        let authorLabel = this.homedom.querySelector(".media-sidebar .media-info-list__item span");
+        return authorLabel?.textContent ?? super.extractAuthor(this.homedom);
     }
 
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
+    extractLanguage() {
+        return this.homedom.querySelector("html").getAttribute("lang");
     }
 
     findChapterTitle(dom) {
         return dom.querySelector("[data-media-down].reader-header-action__title");
     }
 
-    findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".media-cover");
+    findCoverImageUrl() {
+        return util.getFirstImgSrc(this.homedom, ".media-cover");
     }
 }

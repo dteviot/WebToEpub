@@ -111,6 +111,7 @@ class UserPreferences {
         this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", true);
         this.addPreference("ShowMoreMetadataOptions", "ShowMoreMetadataOptionsCheckbox", false);
         this.addPreference("LibShowAdvancedOptions", "LibShowAdvancedOptionsCheckbox", false);
+        this.addPreference("LibShowCompactView", "LibShowCompactViewCheckbox", false);
         this.addPreference("LibDownloadEpubAfterUpdate", "LibDownloadEpubAfterUpdateCheckbox", false);
         this.observers = [];
         this.readingList = new ReadingList();
