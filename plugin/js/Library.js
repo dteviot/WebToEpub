@@ -341,15 +341,15 @@ class Library {
         let LibTemplateEditMetadataButton = "";
 
         LibRenderString += "<div class='LibDivRenderWraper'>";
-        if (!util.isFirefox()) {
-            let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
-            LibRenderString += "<span>" + LibTemplateLibraryUses + "</span>";
-            LibRenderString += "<span id='LibLibraryUses'></span>";
-            LibRenderString += "<br>";
-        }
         document.getElementById("LibShowCompactViewRow").hidden = !ShowAdvancedOptions;
         document.getElementById("LibDownloadEpubAfterUpdateRow").hidden = !ShowAdvancedOptions;
         if (ShowAdvancedOptions) {
+            if (!util.isFirefox()) {
+                let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
+                LibRenderString += "<span>" + LibTemplateLibraryUses + "</span>";
+                LibRenderString += "<span id='LibLibraryUses'></span>";
+                LibRenderString += "<br>";
+            }
             LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
             LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
             LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
@@ -491,9 +491,11 @@ class Library {
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
                 document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
             }
-        }
-        if (!util.isFirefox()) {
-            document.getElementById("LibLibraryUses").innerHTML = await Library.LibBytesInUse();
+            if (ShowAdvancedOptions) {
+                if (!util.isFirefox()) {
+                    document.getElementById("LibLibraryUses").innerHTML = await Library.LibBytesInUse();
+                }
+            }
         }
     }
 
