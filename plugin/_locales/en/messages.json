@@ -191,6 +191,10 @@
 		"message": "Unselect All",
 		"description": "Label on button to unselect all chapters"
 	},
+	"__MSG_button_View_Filters__": {
+		"message": "Filters",
+		"description": "Label on button and header to show available filters"
+	},
 	"__MSG_button_View_Reading_List__": {
 		"message": "View Reading List",
 		"description": "Label on button to show Reading List"

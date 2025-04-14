@@ -218,3 +218,70 @@ button {
   justify-content: center;
     border-radius: 8px;
 }
+
+.sidebar {
+    background-color:rgba(40, 40, 40, 0.85);
+    float:left;
+    margin-right:5px;
+    height: 100%;
+    width: 0px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0 auto;
+    transition: 0.25s;
+  }
+
+    .sidebar.sidebarOpen {
+        width: 30%;
+        min-width: 300px;
+    }
+    
+    .sidebar .closebtn {
+        width: calc(100% - 10px);
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: 2px;
+        border-color: #dcdcdc75;
+        border-style: solid;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .sidebar .closebtn:hover {
+        background-color: #cccccc75;
+    }
+
+    .sidebar th {
+        text-align: center;
+    }
+    
+    .sidebar input.exclude {
+        accent-color: #bb0000;
+    }
+    .sidebar input[type=text], .sidebar input[type=url], .sidebar textarea, .sidebar select {
+        padding: 4px;
+        border: 1px #CCC solid;
+        border-radius: 3px;
+        max-width: 100%;
+        min-width: 100px;
+    }
+    .sidebar label {
+        display: block;
+        width: 100%;
+        font-size: 16px;
+        padding-bottom: 5px;
+        user-select: none;
+    }
+    .sidebar tr label:hover {
+        background-color:rgba(40, 40, 40);
+    }
+    #sbFilters {
+        max-height: calc(50% - 30px);
+        overflow-y: scroll;
+    }
+    #sbFilters input[type=text], #sbFilters input[type=url], #sbFilters textarea, #sbFilters select {
+        width: calc(100% - 15px);
+    }

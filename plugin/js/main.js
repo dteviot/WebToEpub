@@ -453,6 +453,27 @@ var main = (function () {
         userPreferences.readingList.onReadingListCheckboxClicked(checked, url);
     }
 
+    function sbFiltersShow()
+    {
+        sbShow();
+        ChapterUrlsUI.Filters.init();
+        document.getElementById("sbFilters").hidden = false;
+        
+        let filtersForm = document.getElementById("sbFiltersForm");
+        util.removeElements(filtersForm.children);
+        filtersForm.appendChild(ChapterUrlsUI.Filters.generateFiltersTable());
+        ChapterUrlsUI.Filters.Filter(); //Run reset filters to clear confusion.
+    }
+
+    function sbShow() {
+        document.getElementById("sbOptions").classList.add("sidebarOpen");
+    }
+
+    function sbHide() {
+        document.getElementById("sbOptions").classList.remove("sidebarOpen");
+        document.getElementById("sbFilters").hidden = true;
+    }
+
     function showReadingList() {
         let sections = new Map(
             [...document.querySelectorAll("section")]
@@ -504,6 +525,8 @@ var main = (function () {
         document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
         UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
+        document.getElementById("viewFiltersButton").onclick = () => sbFiltersShow();
+        document.getElementById("sbClose").onclick = () => sbHide();
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
     }
