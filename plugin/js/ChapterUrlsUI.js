@@ -5,8 +5,11 @@ class ChapterUrlsUI {
     constructor(parser) {
         this.parser = parser;
         ChapterUrlsUI.getPleaseWaitMessageRow().hidden = false;
-        document.getElementById("spanParserName").textContent = this.parser.constructor.name;
-        document.getElementById("spanDelayMs").textContent = `${this.parser.getRateLimit()} ms`;
+        if (this.parser)
+        {
+            document.getElementById("spanParserName").textContent = this.parser.constructor.name;
+            document.getElementById("spanDelayMs").textContent = `${this.parser.getRateLimit()} ms`;
+        }
         document.getElementById("sbFiltersForm").onsubmit = function(event) { event.preventDefault(); };
     }
 
