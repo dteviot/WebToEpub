@@ -453,20 +453,25 @@ var main = (function () {
         userPreferences.readingList.onReadingListCheckboxClicked(checked, url);
     }
 
-    function showFilters() {
-        /*
-Filter logic
-Find all words in array - both chapter names and links.
-split words \s
-map via regex (word|word|word|...){numWords--} //numWords declines until match, output matching sentences. Take longest result; if equal, take both.
-populate list, use tri-state checkboxes. https://stackoverflow.com/questions/45295891/sending-values-of-3-state-checkbox
+    function sbFiltersShow()
+    {
+        sbShow();
+        ChapterUrlsUI.Filters.init();
+        document.getElementById("sbFilters").hidden = false;
+        
+        let filtersForm = document.getElementById("sbFiltersForm");
+        util.removeElements(filtersForm.children);
+        filtersForm.appendChild(ChapterUrlsUI.Filters.generateFiltersTable());
+        ChapterUrlsUI.Filters.Filter(); //Run reset filters to clear confusion.
+    }
 
-commonality calculated by length, numWords mult by numRecords / (Half life*inverse length)
- Include numbers as words? calculated value should make chapter numbers irrelevant.
+    function sbShow() {
+        document.getElementById("sbOptions").classList.add("sidebarOpen");
+    }
 
-Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist instead of checkboxes. minwidth, but allow margin open?
-        */
-        console.log("showing filters ph");
+    function sbHide() {
+        document.getElementById("sbOptions").classList.remove("sidebarOpen");
+        document.getElementById("sbFilters").hidden = true;
     }
 
     function showReadingList() {
@@ -520,7 +525,8 @@ Filters on right side of screen? Dunno. Popup? Maybe. Could use selectlist inste
         document.getElementById("writeOptionsButton").onclick = () => userPreferences.writeToFile();
         document.getElementById("readOptionsInput").onchange = onReadOptionsFromFile;
         UserPreferences.getReadingListCheckbox().onclick = onReadingListCheckboxClicked;
-        document.getElementById("viewFiltersButton").onclick = () => showFilters();
+        document.getElementById("viewFiltersButton").onclick = () => sbFiltersShow();
+        document.getElementById("sbClose").onclick = () => sbHide();
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
     }

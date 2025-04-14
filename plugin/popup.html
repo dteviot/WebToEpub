@@ -491,7 +491,7 @@
                     <tr id="rangeEndChapterRow">
                         <td>__MSG_label_Range_End_Chapter__</td>
                         <td><select id="selectRangeEndChapter" /></td>
-                        <td colspan="2"> &nbsp; <button id="viewFiltersButton">__MSG_button_View_Filters__</button></td>
+                        <td colspan="2">&nbsp; <button id="viewFiltersButton">__MSG_button_View_Filters__</button></td>
                     </tr>
                     <tr id="rangeChapterCountRow">
                         <td>__MSG_label_Chapter_Count__</td>
@@ -529,6 +529,19 @@
             </div>
             <button id="applyChangesButton2" hidden="true">__MSG_button_Apply_Changes__</button>
         </section>
+    </div>
+
+    <div id="sbOptions" class="sidebar">
+        <div width="100%" id="sbClose" class="closebtn">&#x274c;</div>
+        <section id="sbFilters" hidden="true">            
+            <table style="width:100%;">
+                <tr>
+                    <th colspan="2">__MSG_button_View_Filters__</th>
+                </tr>
+            </table>
+            <form id="sbFiltersForm" disabled> </form>
+        </section>
+        <!-- Create new sections for new or moved data such as Advanced Options or Reading List -->
     </div>
 
     <span id="scriptContainer">

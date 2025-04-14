@@ -189,7 +189,7 @@
 	},
 	"__MSG_button_View_Filters__": {
 		"message": "Filters",
-		"description": "Label on button to show available filters"
+		"description": "Label on button and header to show available filters"
 	},
 	"__MSG_button_View_Reading_List__": {
 		"message": "View Reading List",
