@@ -261,7 +261,7 @@ button {
     .sidebar input.exclude {
         accent-color: #bb0000;
     }
-    .sidebar input[type=text], input[type=url], textarea, select {
+    .sidebar input[type=text], .sidebar input[type=url], .sidebar textarea, .sidebar select {
         padding: 4px;
         border: 1px #CCC solid;
         border-radius: 3px;
@@ -282,6 +282,6 @@ button {
         max-height: calc(50% - 30px);
         overflow-y: scroll;
     }
-    #sbFilters input[type=text], input[type=url], textarea, select {
+    #sbFilters input[type=text], #sbFilters input[type=url], #sbFilters textarea, #sbFilters select {
         width: calc(100% - 15px);
     }
