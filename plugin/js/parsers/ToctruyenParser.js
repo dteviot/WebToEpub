@@ -7,7 +7,7 @@ class ToctruyenParser extends Parser{
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom) {
         // eslint-disable-next-line
         let regex = new RegExp("\/truyen\/.+");
         let urlpart = dom.baseURI.match(regex)?.[0].slice(8);
