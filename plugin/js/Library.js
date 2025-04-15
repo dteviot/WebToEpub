@@ -879,7 +879,7 @@ class Library {
             let zipFileWriter = new zip.BlobWriter("application/zip");
             let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});;
             //in case for future changes to differntiate between different export versions
-            zipWriter.add("LibraryVersion.txt", new zip.TextReader("1"));
+            zipWriter.add("LibraryVersion.txt", new zip.TextReader("2"));
             zipWriter.add("LibraryCountEntries.txt", new zip.TextReader(CurrentLibKeys.length));
 
             for (let i = 0; i < CurrentLibKeys.length; i++) {
@@ -887,6 +887,7 @@ class Library {
                 zipWriter.add("Library/"+i+"/LibEpub", new zip.TextReader(items["LibEpub" + CurrentLibKeys[i]]));
                 zipWriter.add("Library/"+i+"/LibFilename", new zip.TextReader(items["LibFilename" + CurrentLibKeys[i]]));
                 zipWriter.add("Library/"+i+"/LibStoryURL", new zip.TextReader(items["LibStoryURL" + CurrentLibKeys[i]]));
+                zipWriter.add("Library/"+i+"/LibNewChapterCount", new zip.TextReader(items["LibNewChapterCount"+CurrentLibKeys[i]] ?? "0"));
             }
             zipWriter.add("ReadingList.json", new zip.TextReader(JSON.stringify(fileReadingList)));
             Download.save(await zipWriter.close(), "Libraryexport.zip").catch (err => ErrorLog.showErrorMessage(err));
@@ -956,7 +957,7 @@ class Library {
             //check export logic version
             let LibraryVersion = await (await entries.filter((a) => a.filename == "LibraryVersion.txt")[0]).getData(new zip.TextWriter());
             
-            if ( "1" != LibraryVersion) {
+            if (LibraryVersion == null) {
                 ErrorLog.showErrorMessage("Wrong export version");
                 return;
             }
@@ -966,7 +967,8 @@ class Library {
                     ["LibCover" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibCover")[0]).getData(new zip.TextWriter()),
                     ["LibEpub" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibEpub")[0]).getData(new zip.TextWriter()),
                     ["LibFilename" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibFilename")[0]).getData(new zip.TextWriter()),
-                    ["LibStoryURL" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibStoryURL")[0]).getData(new zip.TextWriter())
+                    ["LibStoryURL" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibStoryURL")[0]).getData(new zip.TextWriter()),
+                    ["LibNewChapterCount" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibNewChapterCount")[0])?.getData(new zip.TextWriter())??"0"
                 });
                 await Library.LibCreateStorageIDs(HighestLibEpub);
                 HighestLibEpub++;
