@@ -864,11 +864,8 @@ class Library {
     static Libexportall(){
         Library.LibShowLoadingText();
         chrome.storage.local.get(null, async function(items) {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
+            let CurrentLibKeys = items["LibArray"];
             let storyurls = [];
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
-            }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
             }
