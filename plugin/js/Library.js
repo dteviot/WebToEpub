@@ -704,7 +704,7 @@ class Library {
             }
         }
         let StorageNewChapterCount = await Library.LibGetFromStorage("LibNewChapterCount" + LibFileReader.LibStorageValueId);
-        let NewChapterCount = LibFileReader.NewChapterCount + (StorageNewChapterCount || 0);
+        let NewChapterCount = LibFileReader.NewChapterCount + parseInt(StorageNewChapterCount || "0");
         //Catch Firefox upload wrong Content-Type
         let result = LibFileReader.result;
         if (result.startsWith("data:application/octet-stream;base64,")) {
