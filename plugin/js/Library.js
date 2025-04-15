@@ -673,7 +673,7 @@ class Library {
 
     static async LibHandelUpdate(objbtn, Blobdata, StoryURL, Filename, Id, NewChapterCount){
         Library.LibShowLoadingText();
-        await Library.LibFileReaderAddListeners(LibFileReader);
+        Library.LibFileReaderAddListeners();
         if (objbtn != -1) {
             Blobdata = objbtn.files[0];
             Filename = Blobdata.name.replace(".epub", "");
@@ -764,11 +764,11 @@ class Library {
         return retblob;
     };
 
-    static LibFileReaderAddListeners(LibFileReader){
-        LibFileReader.removeEventListener("load", function(){Library.LibFileReaderloadImport()});
+    static LibFileReaderAddListeners(){
+        LibFileReader.removeEventListener("load", Library.LibFileReaderloadImport);
         LibFileReader.removeEventListener("error", function(event){Library.LibFileReadererror(event)});
         LibFileReader.removeEventListener("abort", function(event){Library.LibFileReaderabort(event)});
-        LibFileReader.addEventListener("load", function(){Library.LibFileReaderload()});
+        LibFileReader.addEventListener("load", Library.LibFileReaderload);
         LibFileReader.addEventListener("error", function(event){Library.LibFileReadererror(event)});
         LibFileReader.addEventListener("abort", function(event){Library.LibFileReaderabort(event)});
     }
@@ -899,7 +899,7 @@ class Library {
 
     static async LibHandelImport(objbtn){
         Library.LibShowLoadingText();
-        await Library.LibFileReaderAddListenersImport(LibFileReader);
+        Library.LibFileReaderAddListenersImport();
         let Blobdata = objbtn.files[0];
         LibFileReader.name = objbtn.files[0].name;
         let regex = new RegExp("zip$");
@@ -910,11 +910,11 @@ class Library {
         }
     }
 
-    static LibFileReaderAddListenersImport(LibFileReader){
-        LibFileReader.removeEventListener("load", function(){Library.LibFileReaderload()});
+    static LibFileReaderAddListenersImport(){
+        LibFileReader.removeEventListener("load", Library.LibFileReaderload);
         LibFileReader.removeEventListener("error", function(event){Library.LibFileReadererror(event)});
         LibFileReader.removeEventListener("abort", function(event){Library.LibFileReaderabort(event)});
-        LibFileReader.addEventListener("load", function(){Library.LibFileReaderloadImport()});
+        LibFileReader.addEventListener("load", Library.LibFileReaderloadImport);
         LibFileReader.addEventListener("error", function(event){Library.LibFileReadererror(event)});
         LibFileReader.addEventListener("abort", function(event){Library.LibFileReaderabort(event)});
     }
