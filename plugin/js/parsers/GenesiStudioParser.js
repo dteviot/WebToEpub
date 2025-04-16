@@ -8,7 +8,7 @@ parserFactory.register("genesistudio.com", () => new GenesiStudioParser());
 class GenesiStudioParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 3000;
+        this.minimumThrottle = 2000;
     }
     
     clampSimultanousFetchSize() {
@@ -18,65 +18,86 @@ class GenesiStudioParser extends Parser{
     async getChapterUrls(dom) {
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
         let tmpids = data.nodes[2].data[0].chapters;
-        let jsdata = data.nodes[2].data[tmpids];
-        let extractfreechapter = [...jsdata.match(/return{.*}}],/)[0].matchAll(/'id':0.*?,/g)];
-        let freechapterids = extractfreechapter.map(e => Number(e[0].replace("'id':","").replace(",","")));
+        let freeids = data.nodes[2].data[data.nodes[2].data[tmpids].free];
+        let paidids = data.nodes[2].data[data.nodes[2].data[tmpids].premium];
 
-        let returnchapters = freechapterids.map(e => ({
-            sourceUrl:  "https://genesistudio.com/viewer/"+e,
-            title: "[placeholder]"
+        let chapters = freeids.map(a => ({
+            sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
+            title: data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            isIncludeable: true    
         }));
-        return returnchapters;
+
+        let pchapters = paidids.map(a => ({
+            sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
+            title: data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            isIncludeable: false    
+        }));
+
+        return chapters.concat(pchapters);
+    }
+    
+    async loadEpubMetaInfo(dom){
+        // eslint-disable-next-line
+        let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
+        let tmpids = data.nodes[2].data[data.nodes[2].data[0].novel];
+        this.title = data.nodes[2].data[tmpids.novel_title];
+        this.author = data.nodes[2].data[tmpids.author];
+        let genre = data.nodes[2].data[tmpids.genres];
+        genre = genre.map(a => data.nodes[2].data[a]);
+        this.tags = genre;
+        this.description = data.nodes[2].data[tmpids.synopsis];
+        this.img = data.nodes[2].data[tmpids.cover];
+        return;
+    }
+
+    extractTitleImpl() {
+        return this.title;
+    }
+
+    extractAuthor() {
+        return this.author;
+    }
+
+    extractSubject() {
+        let tags = this.tags;
+        return tags.join(", ");
+    }
+
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return this.img;
     }
 
     async fetchChapter(url) {
-        let apiUrl = url + "/__data.json";
-        let json = (await HttpClient.fetchJson(apiUrl)).json;
+        let restUrl = this.toRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        return this.buildChapter(json, url);
+    }
+
+    toRestUrl(url) {
+        return url + "/__data.json";
+    }
+
+    buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
-
-        this.appendElement(newDoc, "h1", this.titleFromJson(json));
         let index = json.nodes[2].data[0].content;
-        let content = json.nodes[2].data[index];
-        this.appendContent(newDoc, content);
-        let notes = json.nodes[2].data[json.nodes[2].data[0].footnotes];
-        if (notes !== null && notes != "") {
-            this.appendContent(newDoc, notes);
+        let content = new DOMParser().parseFromString(json.nodes[2].data[index], "text/html");
+        for(let n of [...content.body.childNodes]) {
+            newDoc.content.appendChild(n);
         }
-        return newDoc.dom; 
+        return newDoc.dom;
     }
 
-    appendContent(newDoc, content) {
-        let div = new DOMParser().parseFromString("<div>" + content + "</div>", "text/html")
-            .querySelector("div");
-        newDoc.content.append(div);
-    }
-
-    appendElement(newDoc, tag, text) {
-        let element = newDoc.dom.createElement(tag);
-        element.textContent = text;
-        newDoc.content.appendChild(element);
-    }
-    
-    titleFromJson(json) {
-        return json.nodes[1].data[json.nodes[1].data[1].chapter_title] ?? "";
+    addTitleToContent(webPage, content) {
+        let h2 = webPage.rawDom.createElement("h2");
+        h2.innerText = webPage.title.trim();
+        content.prepend(h2);
     }
     
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    }
-
-    findChapterTitle(dom) {
-        return dom.querySelector("h1");
-    }
-    
-    extractTitleImpl(dom) {
-        return dom.querySelector("h1");
-    }
-
-    findCoverImageUrl(dom) {
-        let img = [...dom.querySelectorAll("img")]
-            .map(i => i.src)
-            .filter(i => i.startsWith("https://api.genesistudio.com/storage/v1/render/image/public"))[0];
-        return img ?? null;
     }
 }
