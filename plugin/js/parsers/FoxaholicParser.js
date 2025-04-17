@@ -29,7 +29,7 @@ class FoxaholicParser extends WordpressBaseParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.foxaholic-publift-manga-chapter");
+        util.removeChildElementsMatchingCss(element, "div.foxaholic-publift-manga-chapter, div.chapter-warning");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
