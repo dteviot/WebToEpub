@@ -15,7 +15,7 @@ parserFactory.register("noveltrench.com", function() { return new MadaraParser()
 parserFactory.register("mangasushi.net", function() { return new MadaraParser() });
 //dead url
 parserFactory.register("mangabob.com", function() { return new MadaraParser() });
-
+parserFactory.register("greenztl2.com", function() { return new MadaraVariantParser() });
 
 parserFactory.registerRule(
     (url, dom) => MadaraParser.isMadaraTheme(dom) * 0.6,
@@ -34,6 +34,7 @@ class MadaraParser extends WordpressBaseParser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("li.wp-manga-chapter a:not([title])")]
             .map(a => util.hyperLinkToChapter(a)).reverse();
+        //if single chapter result, try MadaraVariantParser logic.
     }
 
     findContent(dom) {
@@ -86,5 +87,46 @@ class MadaraParser extends WordpressBaseParser{
 
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, "script");
+    }
+}
+
+class MadaraVariantParser extends MadaraParser {
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("li.wp-manga-chapter a:not([title], [data-locked='1'])")]
+            .map(a => this.hyperLinkToChapter(a)).reverse();
+    }
+
+    hyperLinkToChapter (link, newArc) {
+        let retVal = util.hyperLinkToChapter(link, newArc);
+        let uri = retVal.sourceUrl;
+        if (!uri || link.attributes.href.value == "#") //search for alternate URLs if typical link fails
+        {
+            uri = null;
+            if (link.dataset.link)
+            {
+                retVal.sourceUrl = link.dataset.link;
+            }
+            else
+            {
+                [...link.attributes].forEach(attr => {
+                    try {
+                        uri = new URL(attr.value);
+                    } catch (_)
+                    {
+                        //Failed to detect URL in Attribute.
+                    }
+                });
+                if (uri && uri.href)
+                {
+                    retVal.sourceUrl = uri.href;
+                }
+            }
+        }
+
+        return retVal;
+    }
+    
+    findChapterTitle(dom) {
+        return dom.querySelector(".main-col h1:not(.menu-title)").textContent;
     }
 }
