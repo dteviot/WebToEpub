@@ -34,7 +34,7 @@ class MadaraParser extends WordpressBaseParser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("li.wp-manga-chapter a:not([title])")]
             .map(a => util.hyperLinkToChapter(a)).reverse();
-            //if single chapter result, try MadaraVariantParser logic.
+        //if single chapter result, try MadaraVariantParser logic.
     }
 
     findContent(dom) {
