@@ -199,4 +199,13 @@ class QidianParser extends Parser{
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, "div._ft, span.g_star");
     }
+
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll("div.m-tags a")]);
+        return tags.map(e => e.textContent.replace(" # ", "").trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector("div.det-abt p.c_000").textContent.trim();
+    }
 }
