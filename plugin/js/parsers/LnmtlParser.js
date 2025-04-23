@@ -14,6 +14,7 @@ class LnmtlParser extends Parser {
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeOriginalRow").hidden = false; 
+        document.getElementById("removeTranslatedRow").hidden = false; 
     }
   
     getChapterUrls(dom) {
@@ -39,6 +40,8 @@ class LnmtlParser extends Parser {
     customRawDomToContentStep(chapter, content) {
         for(let s of content.querySelectorAll("sentence")) {
             if (this.userPreferences.removeOriginal.value && s.className === "original") {
+                s.remove();
+            } else if (this.userPreferences.removeTranslated.value && s.className === "translated") {
                 s.remove();
             } else {
                 let p = s.ownerDocument.createElement("p");
