@@ -395,6 +395,10 @@
 		"message": "Remove Original/Raw Text",
 		"description": "Label for checkbox to remove Original text from chapters"
 	},
+	"__MSG_label_Remove_Translated__": {
+		"message": "Remove Translated Text",
+		"description": "Label for checkbox to remove Translated text from chapters"
+	},
 	"__MSG_label_Remove_Duplicate_Images__": {
 		"message": "Remove Duplicate Images:",
 		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
