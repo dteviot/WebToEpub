@@ -7,11 +7,20 @@ class WtrlabParser extends Parser{
         super();
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     async getChapterUrls(dom) {
-        let items = [...dom.querySelectorAll("div.accordion a.chapter-item")];
-        return items.map(a => ({
-            sourceUrl:  a.href + "?service=google",
-            title: this.formatTitle(a)
+        let leaves = dom.baseURI.split("/");
+        let id = leaves[leaves.length - 2].slice(6);
+        let slug = leaves[leaves.length - 1].split("?")[0];
+
+        let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
+        
+        return chapters.chapters.map(a => ({
+            sourceUrl: "https://wtr-lab.com/en/serie-"+id+"/"+slug+"/old/chapter-"+a.order, 
+            title: a.title
         }));
     }
 
@@ -38,25 +47,39 @@ class WtrlabParser extends Parser{
         return util.getFirstImgSrc(dom, ".image-wrap");
     }
 
-    preprocessRawDom(webPageDom) {
-        let json = this.extractApplicationJson(webPageDom);
-        let chapterdata = json.props.pageProps.serie.chapter_data.data;
-        if (chapterdata.title) {
-            let content = webPageDom.createElement("div");
-            content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
-            webPageDom.body.appendChild(content);
-            let header = webPageDom.createElement("h1");
-            header.textContent = chapterdata.title;
-            content.appendChild(header);
-            for (let text of chapterdata.body) {
-                let p = webPageDom.createElement("p");
-                p.appendChild(webPageDom.createTextNode(text))
-                content.appendChild(p);
-            }
-        }
-    }
-
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div#contents-tabpane-about")];
+    }
+
+    async fetchChapter(url) {
+        let restUrl = this.toRestUrl(url);
+        let json;
+        json = (await HttpClient.fetchJson(restUrl)).json;
+        while (json.pageProps.serie.chapter_data.data.title?false:true) {
+            await util.sleep(10000);
+            json = (await HttpClient.fetchJson(restUrl)).json;
+        }
+        return this.buildChapter(json, url);
+    }
+
+    toRestUrl(url) {
+        //i don't know if the magic key is static
+        let magickey = "CDHpGJ7v7fSpGJjK5TiAi";
+        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+magickey+"/en/")+".json?service=google";
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json.pageProps.serie.chapter_data.data.title;
+        newDoc.content.appendChild(title);
+        let br = document.createElement("br");
+        for (let element of json.pageProps.serie.chapter_data.data.body) {
+            let pnode = newDoc.dom.createElement("p");
+            pnode.textContent = element;
+            newDoc.content.appendChild(pnode);
+            newDoc.content.appendChild(br);
+        }
+        return newDoc.dom;
     }
 }
