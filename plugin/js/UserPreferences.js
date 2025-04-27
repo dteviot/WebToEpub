@@ -96,6 +96,7 @@ class UserPreferences {
         this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
         this.addPreference("removeChapterNumber", "removeChapterNumberCheckbox", false);
         this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
+        this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
         this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
