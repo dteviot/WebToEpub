@@ -59,35 +59,88 @@ class ZenithtlsParser extends Parser{
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let startString = "self.__next_f.push(";
         let scriptElement = [...dom.querySelectorAll("script")].map(a => a.textContent).filter(s => s.includes(startString));
-        let single = scriptElement[scriptElement.length-1];
-        let json = this.parseNextjsHydration(single);
-        return this.buildChapter(json, url);
+        let json = [];
+        let i = 0;
+        let j = 0;
+        let longestindex = 0;
+        let longestcontent = 0;
+        //search longest content to build chapter
+        while ( j < scriptElement.length) {
+            try {
+                json[i] = this.parseNextjsHydration(scriptElement[j]);
+                i++;
+                if (scriptElement[j].length > longestcontent) {
+                    longestcontent = scriptElement[j].length;
+                    longestindex = i-1;
+                }
+            } catch (error) {
+                //catch maleformed json
+            }
+            j++;
+        }
+        if (json[longestindex].webtoepubformat == "backslash") {
+            json[longestindex].title = "";
+            for (let jsonentry of json) {
+                try {
+                    json[longestindex].title = jsonentry.chapter.title.trim();
+                } catch (error) {
+                    //set title
+                }
+            }
+        }
+        return this.buildChapter(json[longestindex], url);
     }
 
     parseNextjsHydration(nextjs){
-        let malformedjson = nextjs.match(/{.*}/s)[0];
-        let ret = malformedjson;
-        ret = ret.replaceAll("\\\\\\\"", "[webtoepubescape\"]");
-        ret = ret.replaceAll("\\", "");
-        ret = ret.replaceAll("[webtoepubescape\"]","\\\"");
-        let json = JSON.parse(ret);
+        let malformedjson = nextjs.match(/{.*}/s);
+        let json;
+        if (malformedjson == null) {
+            malformedjson = nextjs.match(/\[.*\]/s);
+            let ret = malformedjson[0];
+            json = JSON.parse(ret);
+            json.webtoepubformat = "backslash";
+        } else {
+            let ret = malformedjson[0];
+            ret = ret.replaceAll("\\\\\\\"", "[webtoepubescape\"]");
+            ret = ret.replaceAll("\\", "");
+            ret = ret.replaceAll("[webtoepubescape\"]","\\\"");
+            json = JSON.parse(ret);
+            json.webtoepubformat = "array";
+        }
         return json;
     }
 
     buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = json.chapter.title;
-        newDoc.content.appendChild(title);
         let br = document.createElement("br");
-        let textleaves = json.chapter.content.root.children.filter(a => a.direction!=null);
-        for (let element of textleaves) {
-            let newtext = "";
-            element.children.map(a => newtext += a.text);
-            let pnode = newDoc.dom.createElement("p");
-            pnode.textContent = newtext;
-            newDoc.content.appendChild(pnode);
-            newDoc.content.appendChild(br);
+        if (json.webtoepubformat == "backslash") {
+            title.textContent = json.title;
+            newDoc.content.appendChild(title);
+            let text = json[json[0]];
+            text = text.replaceAll("\n\n", "\n");
+            text = text.split("\n");
+            for (let element of text) {
+                let pnode = newDoc.dom.createElement("p");
+                //filter title
+                if (element != json.title) {
+                    pnode.textContent = element;
+                    newDoc.content.appendChild(pnode);
+                }
+                newDoc.content.appendChild(br);
+            }
+        } else {
+            title.textContent = json.chapter.title;
+            newDoc.content.appendChild(title);
+            let textleaves = json.chapter.content.root.children.filter(a => a.direction!=null);
+            for (let element of textleaves) {
+                let newtext = "";
+                element.children.map(a => newtext += a.text);
+                let pnode = newDoc.dom.createElement("p");
+                pnode.textContent = newtext;
+                newDoc.content.appendChild(pnode);
+                newDoc.content.appendChild(br);
+            }
         }
         return newDoc.dom;
     }

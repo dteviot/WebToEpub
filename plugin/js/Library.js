@@ -397,7 +397,9 @@ class Library {
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
-                document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+                let newChapterHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+                newChapterHTML = "<div class=\"newChapterWraper\">"+newChapterHTML+"</div>";
+                Library.AppendHtmlInDiv(newChapterHTML, document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]), "newChapterWraper");
             }
         } else {
             for (let i = 0; i < CurrentLibKeys.length; i++) {
@@ -485,14 +487,18 @@ class Library {
                 }
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
-                document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);
-                document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]).innerHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+                document.getElementById("LibCover"+CurrentLibKeys[i]).src = await Library.LibGetFromStorage("LibCover" + CurrentLibKeys[i]);                
+                let newChapterHTML = (((await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) || 0) == 0)? "" : await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) + LibTemplateNewChapter);
+                newChapterHTML = "<div class=\"newChapterWraper\">"+newChapterHTML+"</div>";
+                Library.AppendHtmlInDiv(newChapterHTML, document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]), "newChapterWraper");
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
                 document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
             }
             if (ShowAdvancedOptions) {
                 if (!util.isFirefox()) {
-                    document.getElementById("LibLibraryUses").innerHTML = await Library.LibBytesInUse();
+                    let LibraryUsesHTML = await Library.LibBytesInUse();
+                    LibraryUsesHTML = "<span class=\"LibraryUsesWraper\">"+LibraryUsesHTML+"</span>";
+                    Library.AppendHtmlInDiv(LibraryUsesHTML, document.getElementById("LibLibraryUses"), "LibraryUsesWraper");
                 }
             }
         }
