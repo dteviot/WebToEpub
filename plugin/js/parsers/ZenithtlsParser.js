@@ -10,6 +10,7 @@ class ZenithtlsParser extends Parser{
     async getChapterUrls(dom) {
         let leaves = dom.baseURI.split("/");
         let id = leaves[leaves.length - 1];
+        id = id.replace(/#google_vignette.*$/,"");
         let chapters = (await HttpClient.fetchJson("https://www.zenithtls.com/api/chapter?novelId="+id+"&limit=0&page=1")).json;
         return chapters.chapters.map(a => ({
             sourceUrl: "https://www.zenithtls.com/chapter/" + a.id, 
