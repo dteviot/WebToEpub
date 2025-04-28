@@ -64,7 +64,7 @@ class WtrlabParser extends Parser{
 
     toRestUrl(url) {
         //i don't know if the magic key is static
-        let magickey = "CDHpGJ7v7fSpGJjK5TiAi";
+        let magickey = "2T34D6i1AkSTNllaRtVDh";
         return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+magickey+"/en/")+".json?service=google";
     }
 
