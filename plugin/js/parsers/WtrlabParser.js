@@ -11,7 +11,15 @@ class WtrlabParser extends Parser{
         return 1;
     }
 
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeChapterNumberRow").hidden = false; 
+    }
+
     async getChapterUrls(dom) {
+        let json = dom.querySelector("script#__NEXT_DATA__")?.textContent;
+        json = JSON.parse(json);
+        this.magickey = json.buildId;
         let leaves = dom.baseURI.split("/");
         let id = leaves[leaves.length - 2].slice(6);
         let slug = leaves[leaves.length - 1].split("?")[0];
@@ -20,7 +28,7 @@ class WtrlabParser extends Parser{
         
         return chapters.chapters.map(a => ({
             sourceUrl: "https://wtr-lab.com/en/serie-"+id+"/"+slug+"/old/chapter-"+a.order, 
-            title: a.title
+            title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.order+": "+a.title
         }));
     }
 
@@ -28,11 +36,6 @@ class WtrlabParser extends Parser{
         let span = link.querySelector("span").textContent.trim();
         let num = link.querySelector("b").textContent.trim().replace("#", "");
         return num + ": " + span;
-    }
-
-    extractApplicationJson(dom) {
-        let json = dom.querySelector("script#__NEXT_DATA__")?.textContent;
-        return JSON.parse(json);
     }
 
     findContent(dom) {
@@ -63,9 +66,7 @@ class WtrlabParser extends Parser{
     }
 
     toRestUrl(url) {
-        //i don't know if the magic key is static
-        let magickey = "2T34D6i1AkSTNllaRtVDh";
-        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+magickey+"/en/")+".json?service=google";
+        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+this.magickey+"/en/")+".json?service=google";
     }
 
     buildChapter(json, url) {
