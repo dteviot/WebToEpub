@@ -14,6 +14,7 @@ class WtrlabParser extends Parser{
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeChapterNumberRow").hidden = false; 
+        document.getElementById("selectTranslationGoogleRow").hidden = false; 
     }
 
     async getChapterUrls(dom) {
@@ -58,7 +59,11 @@ class WtrlabParser extends Parser{
         let restUrl = this.toRestUrl(url);
         let json;
         json = (await HttpClient.fetchJson(restUrl)).json;
-        while (json.pageProps.serie.chapter_data.data.title?false:true) {
+        while (json.pageProps.serie.chapter_data?.data.title?false:true) {
+            if (json.pageProps.needs_login?(json.pageProps.needs_login == true):false) {
+                ErrorLog.log("Failed to fetch page you need to login to get Ai page.");
+                break;
+            }
             await util.sleep(10000);
             json = (await HttpClient.fetchJson(restUrl)).json;
         }
@@ -66,7 +71,7 @@ class WtrlabParser extends Parser{
     }
 
     toRestUrl(url) {
-        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+this.magickey+"/en/")+".json?service=google";
+        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+this.magickey+"/en/")+".json?service="+((document.getElementById("selectTranslationGoogleCheckbox").checked)?"google":"ai");
     }
 
     buildChapter(json, url) {
