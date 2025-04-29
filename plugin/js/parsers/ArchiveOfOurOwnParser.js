@@ -94,6 +94,15 @@ class ArchiveOfOurOwnParser extends Parser{
         return dom.querySelector("meta[name='language']").getAttribute("content");
     };
 
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll(".meta .tags a")]);
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector("div.summary blockquote").textContent.trim();
+    }
+
     findChapterTitle(dom) {
         let contentHasTitle = dom.querySelector("h3.title");
         return contentHasTitle
