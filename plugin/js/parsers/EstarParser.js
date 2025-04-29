@@ -33,6 +33,12 @@ class EstarParser extends Parser{
         };
         let bookinfo = (await HttpClient.fetchJson(fetchUrl, options)).json;
         formData = {"query":"pages/novels/workId/episodes","data":{"workId":id,"first":bookinfo.data.novel.episodeCount,"page":1}};
+        options = {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(formData),
+            headers: header
+        };
         bookinfo = (await HttpClient.fetchJson(fetchUrl, options)).json;
         let chapters = bookinfo.data.novel.episodes.nodes.map(a => ({
             sourceUrl: "https://estar.jp/novels/"+bookinfo.data.novel.workId+"/viewer?page="+a.pageNo, 
