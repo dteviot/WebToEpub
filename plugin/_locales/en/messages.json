@@ -395,6 +395,10 @@
 		"message": "Remove Original/Raw Text",
 		"description": "Label for checkbox to remove Original text from chapters"
 	},
+	"__MSG_label_Select_Translation_Google__": {
+		"message": "Use Google translation (if unchecked it uses ai and you need to login)",
+		"description": "Label for radio checkbox Google"
+	},
 	"__MSG_label_Remove_Translated__": {
 		"message": "Remove Translated Text",
 		"description": "Label for checkbox to remove Translated text from chapters"
