@@ -22,13 +22,14 @@ class WtrlabParser extends Parser{
         json = JSON.parse(json);
         this.magickey = json.buildId;
         let leaves = dom.baseURI.split("/");
+        let language = leaves[leaves.length - 3];
         let id = leaves[leaves.length - 2].slice(6);
         let slug = leaves[leaves.length - 1].split("?")[0];
 
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
         
         return chapters.chapters.map(a => ({
-            sourceUrl: "https://wtr-lab.com/en/serie-"+id+"/"+slug+"/old/chapter-"+a.order, 
+            sourceUrl: "https://wtr-lab.com/"+language+"/serie-"+id+"/"+slug+"/"+a.order, 
             title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.order+": "+a.title
         }));
     }
@@ -56,31 +57,48 @@ class WtrlabParser extends Parser{
     }
 
     async fetchChapter(url) {
-        let restUrl = this.toRestUrl(url);
-        let json;
-        json = (await HttpClient.fetchJson(restUrl)).json;
-        while (json.pageProps.serie.chapter_data?.data.title?false:true) {
-            if (json.pageProps.needs_login?(json.pageProps.needs_login == true):false) {
-                ErrorLog.log("Failed to fetch page you need to login to get Ai page.");
-                break;
-            }
+        let leaves = url.split("/");
+        let language = leaves[leaves.length - 4];
+        let id = leaves[leaves.length - 3].slice(6);
+        let chapter = leaves[leaves.length - 1];
+        
+        let fetchUrl = "https://wtr-lab.com/api/reader/get";
+        let formData = 
+            {
+                "translate":((document.getElementById("selectTranslationGoogleCheckbox").checked)?"google":"ai"),
+                "language":language,
+                "raw_id":id,
+                "chapter_no":chapter,
+                "retry":false,
+                "force_retry":false
+            };
+        let header = {"Content-Type": "application/json;charset=UTF-8"}
+        let options = {
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: header
+        };
+        let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
+
+        while (json.data.data.task?true:false) {
             await util.sleep(10000);
-            json = (await HttpClient.fetchJson(restUrl)).json;
+            json = (await HttpClient.fetchJson(fetchUrl, options)).json;
+        }
+        if (json.success == false) {
+            return;
         }
         return this.buildChapter(json, url);
     }
 
-    toRestUrl(url) {
-        return url.replace("https://wtr-lab.com/en/","https://wtr-lab.com/_next/data/"+this.magickey+"/en/")+".json?service="+((document.getElementById("selectTranslationGoogleCheckbox").checked)?"google":"ai");
-    }
-
     buildChapter(json, url) {
+        let leaves = url.split("/");
+        let chapter = leaves[leaves.length - 1];
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = json.pageProps.serie.chapter_data.data.title;
+        title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.chapter.title;
         newDoc.content.appendChild(title);
         let br = document.createElement("br");
-        for (let element of json.pageProps.serie.chapter_data.data.body) {
+        for (let element of json.data.data.body) {
             let pnode = newDoc.dom.createElement("p");
             pnode.textContent = element;
             newDoc.content.appendChild(pnode);
