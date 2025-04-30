@@ -215,6 +215,37 @@ class HttpClient {
         }
     }
 
+    static async getActiveTab() {
+        return new Promise(function (resolve, reject) {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                if ((tabs != null) && (0 < tabs.length)) {
+                    resolve(tabs[0].id);
+                } else {
+                    reject();
+                };
+            });
+        });
+    }
+
+    static async setDeclarativeNetRequestRules(RulesArray){
+        //The firefox fix isn't that good but better than nothing
+        let WebToEpunTabId = (util.isFirefox())?(await HttpClient.getActiveTab()):(await chrome.tabs.getCurrent()).id;
+        for (let i = 0; i < RulesArray.length; i++) {
+            //limit rule to only webtoepub tab to prevent potiential security problems
+            RulesArray[i].condition.tabIds = [WebToEpunTabId];
+        }
+        let oldRules = await chrome.declarativeNetRequest.getSessionRules();
+        //In firefox i had declarativeNetRequest.getSessionRules() fail with undefined
+        if (oldRules == null) {
+            oldRules = [];
+        }
+        let oldRuleIds = oldRules.map(rule => rule.id);
+        await chrome.declarativeNetRequest.updateSessionRules({
+            removeRuleIds: oldRuleIds,
+            addRules: RulesArray
+        });
+    }
+
     static async setPartitionCookies(url) {
         // get partitionKey in the form of https://<site name>.<tld>
         let parsedUrl = new URL(url);
