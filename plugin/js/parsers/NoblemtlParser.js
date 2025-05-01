@@ -192,7 +192,9 @@ class MyNovelOnlineParser extends NoblemtlParser{
         let content = dom.querySelector(".epwrapper .epcontent");
         //there are random links embeded everywhere i think it is to boost other sites on google as the other site is "relevant"
         for(let e of content.querySelectorAll("p.chapter a.num-link")) {
-            e.innerHTML = e.innerText;
+            let pnode = dom.createElement("span");
+            pnode.textContent = e.innerText;
+            e.replaceWith(pnode);
         }
         return content;
     }
