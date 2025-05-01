@@ -175,18 +175,43 @@ class LazygirltranslationsParser extends KnoxtspaceParser{
 }
 
 class MyNovelOnlineParser extends NoblemtlParser{
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
+    }
 
-    findChapterTitle() {
-        return;
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".epheader .entry-title");
     }
 
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        let content = dom.querySelector(".epwrapper .epcontent");
+        //there are random links embeded everywhere i think it is to boost other sites on google as the other site is "relevant"
+        for(let e of content.querySelectorAll("p.chapter a.num-link")) {
+            e.innerHTML = e.innerText;
+        }
+        return content;
+    }
+
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeElements(content.querySelectorAll("div.post-views, div.chapter-protected-message"));
+        super.removeUnwantedElementsFromContentElement(content);
     }
     
+    // old api sends sometimes {"page":null} instead of content and it isn't fix 24h later for some chapter example:https://my-novel.online/1008659/
+    /*
     async fetchChapter(url) {
         let restUrl = this.toRestUrl(url);
         let json = (await HttpClient.fetchJson(restUrl)).json;
+        
+        while (json.page == null) {
+            await util.sleep(60000);
+            json = (await HttpClient.fetchJson(restUrl)).json;
+        }
         return this.buildChapter(json, url);
     }
 
@@ -213,4 +238,5 @@ class MyNovelOnlineParser extends NoblemtlParser{
         }
         return newDoc.dom;
     }
+    */
 }
