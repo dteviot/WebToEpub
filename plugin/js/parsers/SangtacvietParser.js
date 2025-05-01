@@ -1,0 +1,100 @@
+"use strict";
+
+parserFactory.register("sangtacviet.com", () => new SangtacvietParser());
+
+class SangtacvietParser extends Parser{
+    constructor() {
+        super();
+        this.minimumThrottle = 1000;
+    }
+
+    async getChapterUrls(dom) {
+        let rule = 
+        [{
+            "id": 1,
+            "priority": 1,
+            "action": {
+                "type": "modifyHeaders",
+                "requestHeaders": [{ "header": "referer", "operation": "set", "value": "https://sangtacviet.com"}]
+            },
+            "condition": { "urlFilter" : "sangtacviet.com"}
+        }]
+        await HttpClient.setDeclarativeNetRequestRules(rule);
+
+        let leaves = dom.baseURI.split("/").filter(a => a != "");
+        let id = leaves[leaves.length - 1];
+        let provider = leaves[leaves.length - 3];
+        let fetchUrl = "https://sangtacviet.com/index.php?ngmar=chapterlist&h="+provider+"&bookid="+id+"&sajax=getchapterlist";
+        
+        let chaptersjson = (await HttpClient.fetchJson(fetchUrl)).json;
+
+        let temp = chaptersjson.data.split("-//-");
+        let onechaptdata = temp.map(a => a.split("-/-"));
+        let chapters = onechaptdata.map(a => ({
+            sourceUrl: "https://sangtacviet.com/truyen/"+provider+"/1/"+id+"/"+a[1], 
+            title: a[2].trim(),
+            isIncludeable: (a[3] == null)
+        }));
+        return chapters;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1#book_name2").textContent;
+    }
+
+    extractAuthor(dom) {
+        return dom.querySelector(".cap h2").textContent;
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector("#book-sumary").textContent.trim();
+    }
+
+    findCoverImageUrl(dom) {
+        return dom.querySelector("center img")?.src ?? null;
+    }
+
+    async fetchChapter(url) {
+        let header = {"Content-Type": "application/x-www-form-urlencoded"};
+        let options = {
+            headers: header
+        };
+        let restUrl = this.toRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl, options)).json;
+        
+        while (json?.code == null || json?.code != "0") {
+            if (json?.code == "21") {
+            //need help to fix custom 429/ cloudflare error
+                FetchErrorHandler.show429Error(restUrl);
+            }
+            await util.sleep(5000);
+            json = (await HttpClient.fetchJson(restUrl, options)).json;
+        }
+        return this.buildChapter(json, url);
+    }
+
+    toRestUrl(url) {
+        let leaves = url.split("/").filter(a => a != "");
+        let chapter = leaves[leaves.length - 1];
+        let id = leaves[leaves.length - 2];
+        let provider = leaves[leaves.length - 4];
+        let ret = "https://sangtacviet.com/index.php?bookid="+id+"&h="+provider+"&c="+chapter+"&ngmar=readc&sajax=readchapter&sty=1&exts=";
+        return ret;
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json.chaptername;
+        newDoc.content.appendChild(title);
+        let content = new DOMParser().parseFromString(json.data, "text/html");
+        for(let n of [...content.body.childNodes]) {
+            newDoc.content.appendChild(n);
+        }
+        return newDoc.dom;
+    }
+}
