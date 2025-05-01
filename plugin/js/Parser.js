@@ -671,7 +671,7 @@ class Parser {
 
     getRateLimit()
     {
-        let manualDelayPerChapterValue = parseInt(this.userPreferences.manualDelayPerChapter.value)?parseInt(this.userPreferences.manualDelayPerChapter.value):this.minimumThrottle;
+        let manualDelayPerChapterValue = (!isNaN(parseInt(this.userPreferences.manualDelayPerChapter.value)))?parseInt(this.userPreferences.manualDelayPerChapter.value):this.minimumThrottle;
         if (!this.userPreferences.overrideMinimumDelay.value)
         {
             return Math.max(this.minimumThrottle, manualDelayPerChapterValue);
