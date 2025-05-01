@@ -98,7 +98,6 @@ class UserPreferences {
         this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
         this.addPreference("selectTranslationGoogle", "selectTranslationGoogleCheckbox", true);
         this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
-        this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "1");
         this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");

@@ -10,10 +10,6 @@ class GenesiStudioParser extends Parser{
         super();
         this.minimumThrottle = 2000;
     }
-    
-    clampSimultanousFetchSize() {
-        return 1;
-    }
 
     async getChapterUrls(dom) {
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;

@@ -7,10 +7,6 @@ class WtrlabParser extends Parser{
         super();
     }
 
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeChapterNumberRow").hidden = false; 

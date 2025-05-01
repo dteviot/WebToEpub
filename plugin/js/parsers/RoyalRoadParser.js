@@ -11,10 +11,6 @@ class RoyalRoadParser extends Parser{
         super();
     }
 
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     async getChapterUrls(dom) {
         // Page in browser has links reduced to "Number of links to show"
         // Fetch new page to get all chapter links.

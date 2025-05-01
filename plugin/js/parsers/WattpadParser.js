@@ -27,10 +27,6 @@ class WattpadParser extends Parser{
         super(new WattpadImageCollector());
     }
 
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     async getChapterUrls(dom) {
         let menu = dom.querySelector("ul.table-of-contents");
         if (menu == null) {

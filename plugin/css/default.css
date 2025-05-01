@@ -103,7 +103,7 @@ button:disabled {
 }
 
 
-input[type=text], input[type=url], textarea, select {
+input[type=text], input[type=url], textarea, select, #manualDelayPerChapterTag {
     padding: 4px;
     border: 1px #CCC solid;
     border-radius: 3px;
@@ -111,7 +111,7 @@ input[type=text], input[type=url], textarea, select {
     min-width: 356px;
 }
 
-#advancedOptionsSection textarea, #advancedOptionsSection select {
+#advancedOptionsSection textarea, #advancedOptionsSection select, #manualDelayPerChapterTag {
     min-width: inherit !important;
 }
 

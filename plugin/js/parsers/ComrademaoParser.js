@@ -12,11 +12,6 @@ class ComrademaoParser extends Parser{
         return chrome.i18n.getMessage("warningParserDisabledComradeMao");
     }
 
-    // This site can't handle more than 1 page at a time
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeOriginalRow").hidden = false; 
