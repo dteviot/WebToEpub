@@ -25,7 +25,6 @@ class WattpadImageCollector extends ImageCollector {
 class WattpadParser extends Parser{
     constructor() {
         super(new WattpadImageCollector());
-        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {

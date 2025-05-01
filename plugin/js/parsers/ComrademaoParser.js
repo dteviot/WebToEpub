@@ -6,7 +6,6 @@ parserFactory.register("comrademao.com", function() { return new ComrademaoParse
 class ComrademaoParser extends Parser{
     constructor() {
         super();
-        this.maxSimultanousFetchSize = 1;
     }
 
     disabled() {

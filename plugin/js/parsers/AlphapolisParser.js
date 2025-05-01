@@ -4,7 +4,6 @@ class AlphapolisParser extends Parser{
     constructor() {
         super();
         this.minimumThrottle = 15000;
-        this.maxSimultanousFetchSize = 1;
     }
     async getChapterUrls(dom) {
         let menu = dom.querySelector("div.episodes");

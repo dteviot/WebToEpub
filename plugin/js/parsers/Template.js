@@ -34,7 +34,6 @@ class TemplateParser extends Parser{
         // Minimum delay (in ms) between page requests. Useful for 403 error prevention.
         // If the sites this parser accesses throttles requests or uses cloudflare, it is recommended to set this.
         this.minimumThrottle = 3000;
-        this.maxSimultanousFetchSize = 1;
         */
     }
 

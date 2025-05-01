@@ -9,7 +9,6 @@ class GenesiStudioParser extends Parser{
     constructor() {
         super();
         this.minimumThrottle = 2000;
-        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {

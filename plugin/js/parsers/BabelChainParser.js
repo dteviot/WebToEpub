@@ -8,7 +8,6 @@ parserFactory.register("babelnovel.com", () => new BabelChainParser());
 class BabelChainParser extends Parser{
     constructor() {
         super();
-        this.maxSimultanousFetchSize = 1;
     }
     
     async getChapterUrls(dom) {

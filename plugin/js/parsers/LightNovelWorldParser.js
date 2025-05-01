@@ -16,7 +16,6 @@ parserFactory.register("pandanovel.co", () => new LightNovelWorldParser());
 class LightNovelWorldParser extends Parser{
     constructor() {
         super();
-        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {

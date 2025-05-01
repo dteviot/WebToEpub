@@ -9,7 +9,6 @@ class NobadnovelParser extends Parser{
     constructor() {
         super();
         this.minimumThrottle = 500;
-        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {

@@ -5,7 +5,6 @@ parserFactory.register("lightnovelbastion.com", function() { return new LightNov
 class LightNovelBastionParser extends Parser {
     constructor() {
         super();
-        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {
