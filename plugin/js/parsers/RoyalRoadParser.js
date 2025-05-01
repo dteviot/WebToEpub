@@ -9,10 +9,7 @@ parserFactory.register("royalroad.com", function() { return new RoyalRoadParser(
 class RoyalRoadParser extends Parser{
     constructor() {
         super();
-    }
-
-    clampSimultanousFetchSize() {
-        return 1;
+        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {

@@ -5,6 +5,7 @@ parserFactory.register("lightnovelbastion.com", function() { return new LightNov
 class LightNovelBastionParser extends Parser {
     constructor() {
         super();
+        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {
@@ -37,10 +38,6 @@ class LightNovelBastionParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingCss(element, "div.lnbad-tag");
         super.removeUnwantedElementsFromContentElement(element);
-    }
-
-    clampSimultanousFetchSize() {
-        return 1;
     }
 
     findCoverImageUrl(dom) {

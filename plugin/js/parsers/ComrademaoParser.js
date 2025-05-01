@@ -6,15 +6,11 @@ parserFactory.register("comrademao.com", function() { return new ComrademaoParse
 class ComrademaoParser extends Parser{
     constructor() {
         super();
+        this.maxSimultanousFetchSize = 1;
     }
 
     disabled() {
         return chrome.i18n.getMessage("warningParserDisabledComradeMao");
-    }
-
-    // This site can't handle more than 1 page at a time
-    clampSimultanousFetchSize() {
-        return 1;
     }
 
     populateUI(dom) {

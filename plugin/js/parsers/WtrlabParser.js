@@ -5,10 +5,7 @@ parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 class WtrlabParser extends Parser{
     constructor() {
         super();
-    }
-
-    clampSimultanousFetchSize() {
-        return 1;
+        this.maxSimultanousFetchSize = 1;
     }
 
     populateUI(dom) {

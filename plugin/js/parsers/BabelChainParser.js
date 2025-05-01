@@ -8,6 +8,7 @@ parserFactory.register("babelnovel.com", () => new BabelChainParser());
 class BabelChainParser extends Parser{
     constructor() {
         super();
+        this.maxSimultanousFetchSize = 1;
     }
     
     async getChapterUrls(dom) {
@@ -59,11 +60,6 @@ class BabelChainParser extends Parser{
     getInformationEpubItemChildNodes(dom) {
         let synopsis = this.findDiv(dom, "book-info_synopsis-wrapper");
         return synopsis === null ? [] : [synopsis];
-    }
-
-    // rate limit site
-    clampSimultanousFetchSize() {
-        return 1;
     }
 
     async fetchChapter(url) {

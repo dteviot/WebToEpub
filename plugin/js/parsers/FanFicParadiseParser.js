@@ -7,10 +7,7 @@ class FanFicParadiseParser extends Parser{
         super();
         this.cache = new FetchCache();
         this.minimumThrottle = 50; //182 at 20
-    }
-
-    clampSimultanousFetchSize() {
-        return 1;
+        this.maxSimultanousFetchSize = 1;
     }
 
     async getChapterUrls(dom) {

@@ -9,6 +9,7 @@ class XenforoBatchParser extends Parser{
         super();
         this.cache = new FetchCache();
         this.subParser = null;
+        this.maxSimultanousFetchSize = 1;
     }
 
     getSubParser(dom)
@@ -74,10 +75,6 @@ class XenforoBatchParser extends Parser{
             newDoc.content.appendChild(chapterBody);
         });
         return newDoc.dom;
-    }
-
-    clampSimultanousFetchSize() {
-        return this.subParser.clampSimultanousFetchSize();
     }
 
     isLinkToChapter(link) {
