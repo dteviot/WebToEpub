@@ -1,37 +1,39 @@
 "use strict";
 
 parserFactory.register("sangtacviet.com", () => new SangtacvietParser());
+parserFactory.register("sangtacviet.vip", () => new SangtacvietParser());
 
 class SangtacvietParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 10000;
+        this.minimumThrottle = 9000;
     }
 
     async getChapterUrls(dom) {
+        let hostname = new URL(dom.baseURI).hostname;
         let rule = 
         [{
             "id": 1,
             "priority": 1,
             "action": {
                 "type": "modifyHeaders",
-                "requestHeaders": [{ "header": "referer", "operation": "set", "value": "https://sangtacviet.com"}]
+                "requestHeaders": [{ "header": "referer", "operation": "set", "value": "https://"+hostname}]
             },
-            "condition": { "urlFilter" : "sangtacviet.com"}
+            "condition": { "urlFilter" : hostname}
         }]
         await HttpClient.setDeclarativeNetRequestRules(rule);
-
         let leaves = dom.baseURI.split("/").filter(a => a != "");
         let id = leaves[leaves.length - 1];
         let provider = leaves[leaves.length - 3];
-        let fetchUrl = "https://sangtacviet.com/index.php?ngmar=chapterlist&h="+provider+"&bookid="+id+"&sajax=getchapterlist";
+
+        let fetchUrl = "https://"+hostname+"/index.php?ngmar=chapterlist&h="+provider+"&bookid="+id+"&sajax=getchapterlist";
         
         let chaptersjson = (await HttpClient.fetchJson(fetchUrl)).json;
 
         let temp = chaptersjson.data.split("-//-");
         let onechaptdata = temp.map(a => a.split("-/-"));
         let chapters = onechaptdata.map(a => ({
-            sourceUrl: "https://sangtacviet.com/truyen/"+provider+"/1/"+id+"/"+a[1], 
+            sourceUrl: "https://"+hostname+"/truyen/"+provider+"/1/"+id+"/"+a[1], 
             title: a[2].trim(),
             isIncludeable: (a[3] == null)
         }));
@@ -73,7 +75,8 @@ class SangtacvietParser extends Parser{
         let chapter = leaves[leaves.length - 1];
         let id = leaves[leaves.length - 2];
         let provider = leaves[leaves.length - 4];
-        let ret = "https://sangtacviet.com/index.php?bookid="+id+"&h="+provider+"&c="+chapter+"&ngmar=readc&sajax=readchapter&sty=1&exts=";
+        let hostname = new URL(url).hostname;
+        let ret = "https://"+hostname+"/index.php?bookid="+id+"&h="+provider+"&c="+chapter+"&ngmar=readc&sajax=readchapter&sty=1&exts=";
         return ret;
     }
 
@@ -126,7 +129,8 @@ class SangtacvietParserHttpClient extends HttpClient {
                 let chapter = params.get("c");
                 let id = params.get("bookid");
                 let provider = params.get("h");
-                newresp.url = "https://sangtacviet.com/truyen/"+provider+"/1/"+id+"/"+chapter+"/";
+                let hostname = new URL(response.url).hostname;
+                newresp.url = "https://"+hostname+"/truyen/"+provider+"/1/"+id+"/"+chapter+"/";
                 return wrapOptions.errorHandler.onResponseError(url, wrapOptions, newresp);
             }
             return ret;
