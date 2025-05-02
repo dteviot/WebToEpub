@@ -5,7 +5,7 @@ parserFactory.register("sangtacviet.com", () => new SangtacvietParser());
 class SangtacvietParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 1000;
+        this.minimumThrottle = 10000;
     }
 
     async getChapterUrls(dom) {
@@ -64,16 +64,7 @@ class SangtacvietParser extends Parser{
             headers: header
         };
         let restUrl = this.toRestUrl(url);
-        let json = (await HttpClient.fetchJson(restUrl, options)).json;
-        
-        while (json?.code == null || json?.code != "0") {
-            if (json?.code == "21") {
-            //need help to fix custom 429/ cloudflare error
-                FetchErrorHandler.show429Error(restUrl);
-            }
-            await util.sleep(5000);
-            json = (await HttpClient.fetchJson(restUrl, options)).json;
-        }
+        let json = (await SangtacvietParserHttpClient.fetchJson(restUrl, options)).json;
         return this.buildChapter(json, url);
     }
 
@@ -96,5 +87,116 @@ class SangtacvietParser extends Parser{
             newDoc.content.appendChild(n);
         }
         return newDoc.dom;
+    }
+}
+
+class SangtacvietParserHttpClient extends HttpClient {
+    constructor() {
+        super();
+    }
+
+    static fetchJson(url, fetchOptions) {
+        let wrapOptions = {
+            responseHandler: new FetchJsonResponseHandler(),
+            fetchOptions: fetchOptions
+        };
+        return SangtacvietParserHttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+    
+    static async wrapFetchImpl(url, wrapOptions) {
+        if (BlockedHostNames.has(new URL(url).hostname)) {
+            let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
+            return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
+        }
+        await HttpClient.setPartitionCookies(url);
+        if (wrapOptions.fetchOptions == null) {
+            wrapOptions.fetchOptions = HttpClient.makeOptions();
+        }
+        if (wrapOptions.errorHandler == null) {
+            wrapOptions.errorHandler = new SangtacvietParserFetchErrorHandler();
+        }
+        try
+        {
+            let response = await fetch(url, wrapOptions.fetchOptions);
+            let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
+            if (SangtacvietParserHttpClient.is429error(ret)) {
+                let newresp = {};
+                newresp.status = 403;
+                let params = new URL(response.url).searchParams;
+                let chapter = params.get("c");
+                let id = params.get("bookid");
+                let provider = params.get("h");
+                newresp.url = "https://sangtacviet.com/truyen/"+provider+"/1/"+id+"/"+chapter+"/";
+                return wrapOptions.errorHandler.onResponseError(url, wrapOptions, newresp);
+            }
+            return ret;
+        }
+        catch (error)
+        {
+            return wrapOptions.errorHandler.onFetchError(url, error);
+        }
+    }
+
+    static is429error(json){
+        if (json.json.code == "21") {
+            return true;
+        }
+        return false;
+    }
+}
+
+
+class SangtacvietParserFetchErrorHandler extends FetchErrorHandler {
+    constructor() {
+        super();
+    }
+
+    async retryFetch(url, wrapOptions) {
+        let delayBeforeRetry = wrapOptions.retry.retryDelay.pop() * 1000;
+        await util.sleep(delayBeforeRetry);
+        return SangtacvietParserHttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    onResponseError(url, wrapOptions, response) {
+        let failError = new Error(this.makeFailMessage(url, response.status));
+        let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response);
+        if (retry.retryDelay.length === 0) {
+            return Promise.reject(failError);
+        }
+
+        if (wrapOptions.retry === undefined) {
+            wrapOptions.retry = retry;
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        if (0 < wrapOptions.retry.retryDelay.length) {
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        if (wrapOptions.retry.promptUser) {
+            return this.promptUserForRetry(url, wrapOptions, response, failError);
+        } else {
+            return Promise.reject(failError);
+        }
+    }
+
+    promptUserForRetry(url, wrapOptions, response, failError) {
+        let msg;
+        if (wrapOptions.retry.HTTP === 403) { 
+            msg = new Error(chrome.i18n.getMessage("warning403ErrorResponse", new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+        } else {
+            msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
+        }
+        let cancelLabel = this.getCancelButtonText();
+        return new Promise(function(resolve, reject) {
+            if (wrapOptions.retry.HTTP === 403) {
+                msg.openurl = response.url;
+                msg.blockurl = url;
+            }
+            msg.retryAction = () => resolve(SangtacvietParserHttpClient.wrapFetchImpl(url, wrapOptions));
+            msg.cancelAction = () => reject(failError);
+            msg.cancelLabel = cancelLabel;
+            ErrorLog.showErrorMessage(msg);
+        });
     }
 }
