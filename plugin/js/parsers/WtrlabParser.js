@@ -21,7 +21,7 @@ class WtrlabParser extends Parser{
         let language = leaves[leaves.length - 3];
         let id = leaves[leaves.length - 2].slice(6);
         let slug = leaves[leaves.length - 1].split("?")[0];
-
+        this.slug = slug;
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
         
         return chapters.chapters.map(a => ({
@@ -72,18 +72,38 @@ class WtrlabParser extends Parser{
         let options = {
             method: "POST",
             body: JSON.stringify(formData),
-            headers: header
+            headers: header,
+            parser: this
         };
         let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-
-        while (json.data.data.task?true:false) {
-            await util.sleep(10000);
-            json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        }
-        if (json.success == false) {
-            return;
-        }
         return this.buildChapter(json, url);
+    }
+    
+    isCustomError(response){
+        if (response.json.data?.data?.task?true:false) {
+            return true;
+        }
+        return false;
+    }
+
+    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+        let newresp = {};
+        newresp.url = url;
+        newresp.wrapOptions = wrapOptions;
+        newresp.response = {};
+        newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
+        newresp.response.status = 999;
+        newresp.response.retryDelay = [80,40,20,10,5];
+        return newresp;
+    }
+
+    PostToUrl(url, body){
+        let hostname = new URL(url).hostname;
+        let translate = body.translate;
+        let language = body.language;
+        let raw_id = body.raw_id;
+        let chapter_no = body.chapter_no;
+        return "https://"+hostname+"/"+language+"/serie-"+raw_id+"/"+this.slug+"/"+chapter_no+"?service="+translate;
     }
 
     buildChapter(json, url) {

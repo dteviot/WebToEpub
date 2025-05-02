@@ -73,6 +73,24 @@ class Parser {
     getPagesToFetch() {
         return this.state.webPages;
     }
+    
+    //Use this option if the parser isn't sending the correct HTTP header
+    isCustomError(response){
+        return false;
+    }
+
+    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+        //example
+        let ret = {};
+        ret.url = url;
+        ret.wrapOptions = wrapOptions;
+        ret.response = {};
+        //URL that's get opened on 'Open URL for Captcha' click
+        ret.response.url = checkedresponse.response.url;
+        ret.response.status = 403;
+        //return empty to throw error
+        return {};
+    }
 
     onUserPreferencesUpdate(userPreferences) {
         this.userPreferences = userPreferences;
