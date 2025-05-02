@@ -37,7 +37,32 @@ class ReadnoveldailyParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector(".c-content");
+        return dom.querySelector("#content");
+    }
+
+    isHTMLUnknownElement(element){
+        return (element instanceof HTMLUnknownElement);
+    }
+    //removes the watermark that is wraped in custom xml tag -> no valid HTML tag
+    removeUnknownElement(element){
+        for (let node of element.childNodes) {
+            if (this.isHTMLUnknownElement(node)) {
+                node.remove();
+            } else {
+                this.removeUnknownElement(node);
+            }
+        }
+    }
+
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeElements(content.querySelectorAll("div.box-ads"));
+        this.removeUnknownElement(content);
+        super.removeUnwantedElementsFromContentElement(content);
+    }
+
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll("div.fiction-info span.tags .label")]);
+        return tags.map(e => e.textContent.trim()).join(", ");
     }
 
     extractTitleImpl(dom) {
@@ -49,7 +74,7 @@ class ReadnoveldailyParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h2");
+        return dom.querySelector(".chapter-title");
     }
 
     findCoverImageUrl(dom) {
