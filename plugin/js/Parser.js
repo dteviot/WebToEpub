@@ -75,7 +75,7 @@ class Parser {
     }
     
     //Use this option if the parser isn't sending the correct HTTP header
-    isCustomError(response){
+    isCustomError(response){  // eslint-disable-line no-unused-vars
         return false;
     }
 
