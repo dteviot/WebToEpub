@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WebToEpub",
-  "version": "1.0.5.19",
+  "version": "1.0.5.20",
   "default_locale": "en",
   "icons": {
     "128": "book128.png"
