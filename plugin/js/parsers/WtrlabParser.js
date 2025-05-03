@@ -80,7 +80,7 @@ class WtrlabParser extends Parser{
     }
     
     isCustomError(response){
-        if (response.json.data?.data?.task?true:false) {
+        if (response.json.data?.data?.body?false:true) {
             return true;
         }
         return false;
