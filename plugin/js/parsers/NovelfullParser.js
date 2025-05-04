@@ -19,7 +19,7 @@ parserFactory.register("novel-bin.org", () => new NovelHyphenBinParser());
 parserFactory.register("novel-next.com", () => new NovelfullParser());
 parserFactory.register("novel35.com", () => new Novel35Parser());
 parserFactory.register("novelactive.org", () => new NovelfullParser());
-parserFactory.register("novelbin.com", () => new NovelfullParser());
+parserFactory.register("novelbin.com", () => new NovelbinParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelbin.org", () => new NovelfullParser());
@@ -220,4 +220,19 @@ class NovelHyphenBinParser extends NovelfullParser{
         }
         super.removeUnwantedElementsFromContentElement(element);
     }
+}
+
+class NovelbinParser extends NovelfullParser{
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let url = new URL(dom.baseURI);
+        let slug = url.pathname.split("/").filter(a => a != "");
+        slug = slug[slug.length-1];
+        let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId="+slug)).responseXML;
+        let chapters = this.extractPartialChapterList(tocHtml);
+        return chapters;
+    };
 }
