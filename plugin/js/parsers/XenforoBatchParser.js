@@ -76,10 +76,6 @@ class XenforoBatchParser extends Parser{
         return newDoc.dom;
     }
 
-    clampSimultanousFetchSize() {
-        return this.subParser.clampSimultanousFetchSize();
-    }
-
     isLinkToChapter(link) {
         return this.subParser.isLinkToChapter(link);
     }

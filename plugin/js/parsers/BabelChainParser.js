@@ -61,11 +61,6 @@ class BabelChainParser extends Parser{
         return synopsis === null ? [] : [synopsis];
     }
 
-    // rate limit site
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     async fetchChapter(url) {
         const rateLimitTo20PagePerMinute = 3000;
         await util.sleep(rateLimitTo20PagePerMinute);

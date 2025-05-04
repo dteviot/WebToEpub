@@ -27,10 +27,6 @@ class WattpadParser extends Parser{
         super(new WattpadImageCollector());
     }
 
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     async getChapterUrls(dom) {
         let menu = dom.querySelector("ul.table-of-contents");
         if (menu == null) {
@@ -159,8 +155,17 @@ class WattpadParser extends Parser{
     };
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.o94Sz a");
+        let authorLabel = dom.querySelector("div.af6dp a");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll("div._9c7jH a")]);
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector("div.glL-c").textContent.trim();
     }
 
     // custom cleanup of content

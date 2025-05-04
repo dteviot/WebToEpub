@@ -17,9 +17,14 @@ class TumblrParser extends Parser{
     }
 
     findContent(dom) {
-        return dom.querySelector("main div.post") ||
+        let content = dom.querySelector("main div.post") ||
             dom.querySelector("main div.post-main") ||
             dom.querySelector("article div.post-content");
+        //fix embeded image links
+        for(let e of content.querySelectorAll("a[data-big-photo]")) {
+            e.href = e.dataset?.bigPhoto;
+        }
+        return content;
     }
 
     async fetchChapter(url) {

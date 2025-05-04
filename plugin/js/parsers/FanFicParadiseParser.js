@@ -9,10 +9,6 @@ class FanFicParadiseParser extends Parser{
         this.minimumThrottle = 50; //182 at 20
     }
 
-    clampSimultanousFetchSize() {
-        return 1;
-    }
-
     async getChapterUrls(dom) {
         let chapters = [...dom.querySelectorAll("li.threadmarkListItem a")]
             .filter(this.isLinkToChapter);

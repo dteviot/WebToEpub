@@ -215,6 +215,25 @@ class HttpClient {
         }
     }
 
+    static async setDeclarativeNetRequestRules(RulesArray){
+        let url = chrome.runtime.getURL("").split("/").filter(a => a != "");
+        let id = url[url.length - 1];
+        for (let i = 0; i < RulesArray.length; i++) {
+            //limit rule to only webtoepub domain to prevent potiential security problems
+            RulesArray[i].condition.initiatorDomains = [id];
+        }
+        let oldRules = await chrome.declarativeNetRequest.getSessionRules();
+        //In firefox i had declarativeNetRequest.getSessionRules() fail with undefined
+        if (oldRules == null) {
+            oldRules = [];
+        }
+        let oldRuleIds = oldRules.map(rule => rule.id);
+        await chrome.declarativeNetRequest.updateSessionRules({
+            removeRuleIds: oldRuleIds,
+            addRules: RulesArray
+        });
+    }
+
     static async setPartitionCookies(url) {
         // get partitionKey in the form of https://<site name>.<tld>
         let parsedUrl = new URL(url);

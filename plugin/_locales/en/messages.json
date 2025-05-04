@@ -324,8 +324,8 @@
 		"description": "Show more Metadata options to user"
 	},
 	"__MSG_label_Manual_Delay_Per_Chapter__": {
-		"message": "Manual Throttle|Delay per chapter",
-		"description": "Manual Throttle|Delay per chapter"
+		"message": "Delay per chapter in ms",
+		"description": "Delay per chapter in ms"
 	},
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",
@@ -394,6 +394,10 @@
 	"__MSG_label_Remove_Original__": {
 		"message": "Remove Original/Raw Text",
 		"description": "Label for checkbox to remove Original text from chapters"
+	},
+	"__MSG_label_Select_Translation_Google__": {
+		"message": "Use Google translation (if unchecked it uses ai and you need to login)",
+		"description": "Label for radio checkbox Google"
 	},
 	"__MSG_label_Remove_Translated__": {
 		"message": "Remove Translated Text",

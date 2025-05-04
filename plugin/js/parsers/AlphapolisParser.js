@@ -5,9 +5,6 @@ class AlphapolisParser extends Parser{
         super();
         this.minimumThrottle = 15000;
     }
-    clampSimultanousFetchSize() {
-        return 1;
-    }
     async getChapterUrls(dom) {
         let menu = dom.querySelector("div.episodes");
         return util.hyperlinksToChapterList(menu);

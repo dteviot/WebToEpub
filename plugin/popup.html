@@ -123,6 +123,10 @@
                     <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
                     <td>__MSG_label_Remove_Original__</td>
                 </tr>
+                <tr id="selectTranslationGoogleRow" hidden="true">
+                    <td><input id="selectTranslationGoogleCheckbox" type="checkbox" name="selectTranslationGoogleCheckbox" value="true"></td>
+                    <td>__MSG_label_Select_Translation_Google__</td>
+                </tr>
                 <tr id="removeTranslatedRow" hidden="true">
                     <td><input id="removeTranslatedCheckbox" type="checkbox" name="removeTranslatedCheckbox" value="false"></td>
                     <td>__MSG_label_Remove_Translated__</td>
@@ -389,19 +393,6 @@
                         <td>__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__</td>
                         <td><button id="seriesPageHelpButton">__MSG_button_Help__</button></td>
                     </tr>
-                    <tr id="maxPagesToFetchSimultaneously">
-                        <td>
-                            <select id="maxPagesToFetchSimultaneouslyTag">
-                                <option value="1" selected>1</option>
-                                <option value="2">2</option>
-                                <option value="4">4</option>
-                                <option value="8">8</option>
-                                <option value="16">16</options>
-                                <option value="32">32</options>
-                            </select>
-                        </td>
-                        <td>__MSG_label_Max_pages_to_fetch_simultaneously__</td>
-                    </tr>
                     <tr id="skipChaptersThatFailFetch">
                         <td><input id="skipChaptersThatFailFetchCheckbox" type="checkbox" name="skipChaptersThatFailFetchCheckbox" value="true"></td>
                         <td>__MSG_label_Skip_Chapters_That_Fail_Fetch__</td>
@@ -420,29 +411,12 @@
                         </td>
                         <td>__MSG_label_Max_chapters_per_epub__</td>
                     </tr>
-                </table>
-                <table id="ThrottleTable">
                     <tr id="manualDelayPerChapter">
                         <td>
-                            <select id="manualDelayPerChapterTag">
-                                <option value="0" selected>Default (No Chapter Throttle/Delay)</option>
-                                <option value="3000">3 Secs/Chapter</option>
-                                <option value="5000">5 Secs/Chapter </option>
-                                <option value="10000">10 Secs/Chapter</option>
-                                <option value="20000">20 Secs/Chapter </option>
-                                <option value="30000">30 Secs/Chapter</option>
-                                <option value="60000">1 Min/Chapter</option>
-                                <option value="300000">5 Mins/Chapter</option>
-                                <option value="600000">10 Mins/Chapter</option>
-                                <option value="1800000">30 Mins/Chapter</option>
-                                <option value="3600000">60 Mins/Chapter</option>
-                                <option value="simulate_reading">Simulate Reading (7-15 Mins/Chapter)</option>
-                            </select>
+                            <input id="manualDelayPerChapterTag" type="number" name="manualDelayPerChapterTag" style="width: 61px;">
                         </td>
                         <td>__MSG_label_Manual_Delay_Per_Chapter__</td>
                     </tr>
-                </table>
-                <table id="advancedOptionsTable">
                     <tr id="overrideParserDelayWithManualDelay">
                         <td><input id="overrideMinimumDelayCheckbox" type="checkbox" name="overrideMinimumDelayCheckbox" value="false"></td>
                         <td>__MSG_label_Override_Default_Minimum_Delay__</td>
@@ -610,6 +584,7 @@
         <script src="js/parsers/BoyloveParser.js"></script>
         <script src="js/parsers/Bqg225Parser.js"></script>
         <script src="js/parsers/Brittanypage43Parser.js"></script>
+        <script src="js/parsers/BuntlsParser.js"></script>
         <script src="js/parsers/BnatranslationsParser.js"></script>
         <script src="js/parsers/CangjiParser.js"></script>
         <script src="js/parsers/CClawTranslationsParser.js"></script>
@@ -617,6 +592,7 @@
         <script src="js/parsers/ChichipephParser.js"></script>
         <script src="js/parsers/ChickengegeParser.js"></script>
         <script src="js/parsers/ChineseFantasyNovelsParser.js"></script>
+        <script src="js/parsers/ChosentwofanficParser.js"></script>
         <script src="js/parsers/ChrysanthemumgardenParser.js"></script>
         <script src="js/parsers/ChyoaParser.js"></script>
         <script src="js/parsers/ComrademaoParser.js"></script>
@@ -626,6 +602,7 @@
         <script src="js/parsers/CzbooksParser.js"></script>
         <script src="js/parsers/DaoDivineTlParser.js"></script>
         <script src="js/parsers/DarkNovelsParser.js"></script>
+        <script src="js/parsers/DarkstartranslationsParser.js"></script>
         <script src="js/parsers/DasuitlParser.js"></script>
         <script src="js/parsers/DefaultParser.js"></script>
         <script src="js/parsers/DeviantArtParser.js"></script>
@@ -634,6 +611,7 @@
         <script src="js/parsers/EightMusesParser.js"></script>
         <script src="js/parsers/EngnovelParser.js"></script>
         <script src="js/parsers/ErofusParser.js"></script>
+        <script src="js/parsers/EstarParser.js"></script>
         <script src="js/parsers/ExiledrebelsscanlationsParser.js"></script>
         <script src="js/parsers/FanFicParadiseParser.js"></script>
         <script src="js/parsers/FanFictionParser.js"></script>
@@ -692,6 +670,7 @@
         <script src="js/parsers/LightnovelreadParser.js"></script>
         <script src="js/parsers/LightnovelsmeParser.js"></script>
         <script src="js/parsers/LightNovelWorldParser.js"></script>
+        <script src="js/parsers/LilyonthevalleyParser.js"></script>
         <script src="js/parsers/LiteroticaParser.js"></script>
         <script src="js/parsers/LnmtlParser.js"></script>
         <script src="js/parsers/MachineTranslationParser.js"></script>
@@ -811,12 +790,14 @@
         <script src="js/parsers/RtenzoParser.js"></script>
         <script src="js/parsers/RubymaybetranslationsParser.js"></script>
         <script src="js/parsers/RulateParser.js"></script>
+        <script src="js/parsers/SangtacvietParser.js"></script>
         <script src="js/parsers/ScribblehubParser.js"></script>
         <script src="js/parsers/SecondlifetranslationsParser.js"></script>
         <script src="js/parsers/SemprotParser.js"></script>
         <script src="js/parsers/SexStoriesParser.js"></script>
         <script src="js/parsers/ShanghaifantasyParser.js"></script>
         <script src="js/parsers/ShikkakutranslationsParser.js"></script>
+        <script src="js/parsers/ShinningnoveltranslationsParser.js"></script>
         <script src="js/parsers/ShinsoriParser.js"></script>
         <script src="js/parsers/ShintranslationsParser.js"></script>
         <script src="js/parsers/ShirokunsParser.js"></script>
