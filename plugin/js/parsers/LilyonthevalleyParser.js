@@ -13,7 +13,6 @@ class LilyonthevalleyParser extends Parser{
         let paid_chapters = sections[0];
         let free_chapters = sections[1];
         let chapters = [];
-        let test = [...paid_chapters.querySelectorAll("li a")];
         [...free_chapters.querySelectorAll("li a")].map(a => chapters.push(({
             sourceUrl: a.href, 
             title: a.textContent,
