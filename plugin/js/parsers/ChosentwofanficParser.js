@@ -1,6 +1,3 @@
-/*
-  Parses files on www.royalroadl.com
-*/
 "use strict";
 
 parserFactory.register("chosentwofanfic.com", function() { return new ChosentwofanficParser() });
