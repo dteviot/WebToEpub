@@ -22,10 +22,6 @@ class BuntlsParser extends Parser{
         return dom.querySelector(".story__identity-title h1")?.textContent ?? null;
     }
 
-    findCoverImageUrl(dom) {
-        return dom.querySelector(".wp-block-image > img")?.src ?? null;
-    }
-
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll(".story__identity-title, .story__summary content-section")];
     }
