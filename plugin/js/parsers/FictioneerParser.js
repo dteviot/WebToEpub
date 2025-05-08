@@ -20,7 +20,6 @@ parserFactory.registerRule(
 class FictioneerParser extends Parser {
     constructor() {
         super();
-        this.ChacheChapterTitle = new Map();
     }
 
     static isFictioneerTheme(dom) {
@@ -28,7 +27,7 @@ class FictioneerParser extends Parser {
         return (dom.querySelector("html.fictioneer-theme") !== null)
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let chapters = [];
         // Put free chapters first
         [...dom.querySelectorAll("._publish a")].map(a => chapters.push(({
@@ -48,7 +47,7 @@ class FictioneerParser extends Parser {
                 .map(a => util.hyperLinkToChapter(a));
         }
 
-        return Promise.resolve(chapters);
+        return chapters;
     }
 
     // the element holding chapter content
