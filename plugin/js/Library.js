@@ -763,9 +763,13 @@ class Library {
             let BlobEpubZip = new zip.ZipWriter(BlobEpubWriter,{useWebWorkers: false,compressionMethod: 8});
             //Copy Base64Epub in BlobEpub
             for (let element of Base64EpubContent){
+                if (element.filename == "mimetype") {
+                    BlobEpubZip.add(element.filename, new zip.TextReader(await element.getData(new zip.TextWriter())), {compressionMethod: 0});
+                    continue;
+                }
                 BlobEpubZip.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
             }
-            retblob = await Base64EpubZip.close();
+            retblob = await BlobEpubZip.close();
         }
         return retblob;
     };
