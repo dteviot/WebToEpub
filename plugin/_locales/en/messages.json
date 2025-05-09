@@ -39,6 +39,10 @@
 		"message": "Upload Epub",
 		"description": "Label on button to Upload Epub in Library"
 	},
+	"__MSG_button_Lib_Template_Add_List_To_Library__": {
+		"message": "Add novels to Library",
+		"description": "Label on button to Add novels to Library in Library"
+	},
 	"__MSG_button_Lib_Template_Update_All__": {
 		"message": "Update all",
 		"description": "Label on button to Update all Epubs"
