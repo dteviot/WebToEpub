@@ -13,9 +13,9 @@ QUnit.test("extractTocJson", function (assert) {
 QUnit.test("extractTocPageUrls", function (assert) {
     let dom = new DOMParser().parseFromString(RanobesSample, "text/html");
     let urls = RanobesParser.extractTocPageUrls(dom, "https://ranobes.net/chapters/1165550/");
-    assert.equal(urls.length, 8);
-    assert.equal(urls[0], "https://ranobes.net/chapters/1165550/page/2/");
-    assert.equal(urls[7], "https://ranobes.net/chapters/1165550/page/9/");
+    assert.equal(urls.length, 9);
+    assert.equal(urls[0], "https://ranobes.net/chapters/1165550/page/1/");
+    assert.equal(urls[7], "https://ranobes.net/chapters/1165550/page/8/");
 });
 
 
