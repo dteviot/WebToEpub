@@ -38,8 +38,11 @@ class MadaraParser extends WordpressBaseParser{
     }
 
     findContent(dom) {
-        let content = dom.querySelector("div.reading-content");
-        for(let i of content.querySelectorAll("img")) {
+        let content =
+            dom.querySelector(".reading-content .text-left") ||
+            dom.querySelector("div.reading-content");
+
+        for (let i of content.querySelectorAll("img")) {
             let data_src = i.getAttribute("data-src");
             if (!util.isNullOrEmpty(data_src) && util.isNullOrEmpty(i.src)) {
                 i.src = data_src.trim();
