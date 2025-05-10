@@ -10,7 +10,7 @@ class WtrlabParser extends Parser{
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeChapterNumberRow").hidden = false; 
-        document.getElementById("selectTranslationGoogleRow").hidden = false; 
+        document.getElementById("selectTranslationAiRow").hidden = false; 
     }
 
     async getChapterUrls(dom) {
@@ -61,7 +61,7 @@ class WtrlabParser extends Parser{
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
-                "translate":((document.getElementById("selectTranslationGoogleCheckbox").checked)?"google":"ai"),
+                "translate":(!(document.getElementById("selectTranslationAiCheckbox").checked)?"google":"ai"),
                 "language":language,
                 "raw_id":id,
                 "chapter_no":chapter,
