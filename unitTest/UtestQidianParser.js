@@ -4,21 +4,25 @@
 module("QidianParser");
 
 QUnit.test("linkToChapter_notLocked", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        QidianChatperLinkSample, "text/html");
+    let dom = new DOMParser().parseFromString(QidianChatperLinkSample, "text/html");
     let link = dom.querySelector("a");
+    let checkbox = dom.getElementById("removeChapterNumberCheckbox");
+    document.body.appendChild(checkbox);
     let actual = QidianParser.linkToChapter(link);
     assert.equal(actual.title, "1: Young Zhao Feng");
     assert.equal(actual.isIncludeable, true);
+    checkbox.remove();
 });
 
 QUnit.test("linkToChapter_Locked", function (assert) {
-    let dom = new DOMParser().parseFromString(
-        QidianChatperLinkSample, "text/html");
+    let dom = new DOMParser().parseFromString(QidianChatperLinkSample, "text/html");
     let links = [...dom.querySelectorAll("a")];
+    let checkbox = dom.getElementById("removeChapterNumberCheckbox");
+    document.body.appendChild(checkbox);
     let actual = QidianParser.linkToChapter(links[1]);
     assert.equal(actual.title, "185: Worsen");
     assert.equal(actual.isIncludeable, false);
+    checkbox.remove();
 });
 
 QUnit.test("extractTitle", function (assert) {
@@ -35,8 +39,9 @@ let QidianChatperLinkSample =
     <base href="https://www.webnovel.com/book/9017100806001205/King-of-Gods" />
     <meta property="og:title" content="King of Gods">
 </head>
-<body">
+<body>
 <div class="page"><h1 class="pt4 pb4 oh mb4 auto_height">King of Gods <small>KOG</small></h2><div>
+<input id="removeChapterNumberCheckbox" type="checkbox">
 <ol>
 <li class="g_col_6" data-report-eid="E10" data-bid="King of Gods" data-report-bid="9017100806001205" data-cid="30995441462068685" data-report-cid="30995441462068685">
     <a href="//www.webnovel.com/book/9017100806001205/30995441462068685/King-of-Gods/Young-Zhao-Feng-" class="c_000 db pr clearfix pt8 pb8 pr8 pl8">
