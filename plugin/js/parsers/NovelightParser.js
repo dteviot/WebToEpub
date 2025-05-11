@@ -42,6 +42,7 @@ class NovelightParser extends Parser{
         let ret = {};
         let regex = new RegExp("const OBJECT_BY_COMMENT = [0-9]+");
         ret.book_id = scriptElement.match(regex)?.[0].slice(26);
+        // eslint-disable-next-line
         regex = new RegExp("window\.CSRF_TOKEN = \".*?\"");
         ret.csrf = scriptElement.match(regex)?.[0].slice(21, -1);
         return ret;
