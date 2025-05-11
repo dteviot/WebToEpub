@@ -925,7 +925,43 @@ var util = (function () {
                 }
             );
         });
-    }    
+    }
+
+    const replaceSemanticInlineStylesWithTags = function(element, removeLeftoverStyles = false) {
+        if (element.hasAttribute("style")) {
+            let styleText = element.getAttribute("style");
+
+            // Map of style patterns to their semantic HTML equivalents
+            const styleToTag = [
+                { regex: /font-style\s*:\s*(italic|oblique)\s*;/g, match: /italic|oblique/, tag: "i" },
+                { regex: /font-weight\s*:\s*(bold|[7-9]\d\d)\s*;/g, match: /bold|[7-9]\d\d/, tag: "b" },
+                { regex: /text-decoration\s*:\s*underline\s*;/g, match: /underline/, tag: "u" },
+                { regex: /text-decoration\s*:\s*line-through\s*;/g, match: /line-through/, tag: "s" }
+            ];
+
+            // Apply semantic tags and remove corresponding styles
+            for (const style of styleToTag) {
+                if (style.match.test(styleText)) {
+                    const wrapper = document.createElement(style.tag);
+                    while (element.firstChild) {
+                        wrapper.appendChild(element.firstChild);
+                    }
+                    element.appendChild(wrapper);
+                    styleText = styleText.replace(style.regex, "");
+                }
+            }
+
+            // Remove non-semantic font-weight
+            styleText = styleText.replace(/font-weight\s*:\s*(normal|[1-4]\d\d)\s*;/g, "");
+            styleText = styleText.trim();
+
+            if (styleText && (!removeLeftoverStyles || /italic|bold|font-weight|underline|line-through/.test(styleText))) {
+                element.setAttribute("style", styleText);
+            } else {
+                element.removeAttribute("style");
+            }
+        }
+    }
 
     return {
         XMLNS: "http://www.w3.org/1999/xhtml",
@@ -1035,7 +1071,8 @@ var util = (function () {
         createChapterTab: createChapterTab,
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
-        zeroPad: zeroPad
+        zeroPad: zeroPad,
+        replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags
     };
 })();
 
