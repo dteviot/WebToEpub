@@ -13,11 +13,10 @@ class NovelinguaParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector(".entry-content .pagelayer-text") ||
-            dom.querySelector(".entry-content .pagelayer-text-holder") ||
-            dom.querySelector(".entry-content") ||
+        // More specific selectors are not consistently reliable even though these have more junk than I'd like
+        return dom.querySelector(".entry-content") ||
             dom.querySelector("article");
-    };
+    }
 
     customRawDomToContentStep(chapter, content) {
         content.querySelectorAll("*").forEach(element => {
@@ -50,7 +49,8 @@ class NovelinguaParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeElements(element.querySelectorAll("style, .pagelayer-btn-holder, .pagelayer-share"));
+        util.removeElements(element.querySelectorAll(
+            "style, .pagelayer-btn-holder, .pagelayer-share, .pagelayer-image_slider, .pagelayer-embed"));
         super.removeUnwantedElementsFromContentElement(element);
     };
 
