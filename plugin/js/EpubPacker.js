@@ -112,7 +112,8 @@ class EpubPacker {
             this.addMetaProperty(metadata, translator, "role", "translator", "trl");
         }
 
-        let identifier = that.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", that.metaInfo.uuid);
+        let idText = (this.version === EpubPacker.EPUB_VERSION_3 ? "uri:" : "") + that.metaInfo.uuid;
+        let identifier = that.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", idText);
         identifier.setAttributeNS(null, "id", "BookId");
         if (this.version === EpubPacker.EPUB_VERSION_2) {
             identifier.setAttributeNS(opf_ns, "opf:scheme", "URI");

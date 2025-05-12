@@ -115,7 +115,7 @@ test("buildEpub3ContentOpf", function (assert) {
             "<dc:contributor id=\"translator\">GoogleTranslate</dc:contributor>" +
             "<meta refines=\"#translator\" property=\"file-as\">GoogleTranslate</meta>" +
             "<meta refines=\"#translator\" property=\"role\">trl</meta>" +
-            "<dc:identifier id=\"BookId\">Dummy UUID</dc:identifier>"+
+            "<dc:identifier id=\"BookId\">uri:Dummy UUID</dc:identifier>"+
             "<meta refines=\"#BookId\" property=\"identifier-type\">URI</meta>"+
             "<meta property=\"dcterms:modified\">2015-10-17T21:04:54Z</meta>" +
             "<dc:contributor id=\"packingTool\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
