@@ -702,13 +702,13 @@ class Parser {
         await util.sleep(manualDelayPerChapterValue);
     }
 
-    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
+    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI, wrapOptions)  {
         if (0 < chapters.length) {
             chapterUrlsUI.showTocProgress(chapters);
         }
         for(let url of urlsOfTocPages) {
             await this.rateLimitDelay();
-            let newDom = (await HttpClient.wrapFetch(url)).responseXML;
+            let newDom = (await HttpClient.wrapFetch(url, wrapOptions)).responseXML;
             let partialList = extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
@@ -753,6 +753,7 @@ class Parser {
         let nextUrl = moreChapterTextUrl(dom, url, count);
         let oldContent = this.findContent(dom);
         while(nextUrl != null) {
+            await this.rateLimitDelay();
             let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
             let newContent = this.findContent(nextDom);
             nextUrl = moreChapterTextUrl(nextDom, url, ++count);
