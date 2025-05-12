@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("ranobes.net", () => new RanobesParser());
+parserFactory.register("ranobes.net", () => new RanobesNetParser());
 parserFactory.register("ranobes.top", () => new RanobesParser());
 parserFactory.register("ranobes.com", () => new RanobesParser());
 
@@ -23,10 +23,13 @@ class RanobesParser extends Parser{
                     title: a.querySelector(".title").textContent
                 })).reverse();
         }
-        let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        let options = {
+            parser: this
+        }
+        let tocDom = (await HttpClient.wrapFetch(tocUrl, options)).responseXML;
         let urlsOfTocPages = RanobesParser.extractTocPageUrls(tocDom, tocUrl);
         return (await this.getChaptersFromAllTocPages(chapters, 
-            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)).reverse();
+            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI, options)).reverse();
     }
 
     static extractTocPageUrls(dom, baseUrl) {
@@ -103,4 +106,35 @@ class RanobesParser extends Parser{
         util.removeChildElementsMatchingCss(node, "a");
         return node;
     }    
+}
+
+class RanobesNetParser extends RanobesParser{
+    constructor() {
+        super();
+        this.minimumThrottle = 8000;
+    }
+
+    async fetchChapter(url) {
+        let options = {
+            parser: this
+        }
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+    
+    isCustomError(response){
+        if (response.responseXML.title == "Just a moment...") {
+            return true;
+        }
+        return false;
+    }
+
+    setCustomErrorResponse(url, wrapOptions){
+        let newresp = {};
+        newresp.url = url;
+        newresp.wrapOptions = wrapOptions;
+        newresp.response = {};
+        newresp.response.url = url;
+        newresp.response.status = 403;
+        return newresp;
+    }
 }
