@@ -115,6 +115,8 @@ class Parser {
         util.makeHyperlinksRelative(webPage.rawDom.baseURI, content);
         util.setStyleToDefault(content);
         util.prepForConvertToXhtml(content);
+        util.removeEmptyAttributes(content);
+        util.removeSpansWithNoAttributes(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
@@ -218,7 +220,7 @@ class Parser {
         return items;
     }
 
-    makePlacehoderEpubItem(webPage, epubItemIndex) {
+    makePlaceholderEpubItem(webPage, epubItemIndex) {
         let temp = Parser.makeEmptyDocForContent(webPage.sourceUrl);
         temp.content.textContent = chrome.i18n.getMessage("chapterPlaceholderMessage", 
             [webPage.sourceUrl, webPage.error]
@@ -338,8 +340,7 @@ class Parser {
     epubItemSupplier() {
         let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
         this.fixupHyperlinksInEpubItems(epubItems);
-        let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
-        return supplier;
+        return new EpubItemSupplier(this, epubItems, this.imageCollector);
     }
 
     webPagesToEpubItems(webPages) {
@@ -355,7 +356,7 @@ class Parser {
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
             let newItems = (webPage.error == null)
                 ? webPage.parser.webPageToEpubItems(webPage, index)
-                : this.makePlacehoderEpubItem(webPage, index);
+                : this.makePlaceholderEpubItem(webPage, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
             delete(webPage.rawDom);

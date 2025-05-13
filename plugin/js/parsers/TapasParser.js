@@ -5,7 +5,7 @@ parserFactory.register("tapas.io", () => new TapasParser());
 //dead url
 parserFactory.register("m.tapas.io", () => new TapasParser());
 
-class TapasParser extends Parser{
+class TapasParser extends Parser {
     constructor() {
         super();
     }
@@ -82,11 +82,19 @@ class TapasParser extends Parser{
 
     customRawDomToContentStep(chapter, content) {
         content.querySelectorAll("*").forEach(element => {
-            element.removeAttribute("dir");
-            element.removeAttribute("role");
+            util.removeAttributes(element, ["dir", "role", "lang"]);
             util.replaceSemanticInlineStylesWithTags(element, true);
-            if (element.tagName === "B" && element.hasAttribute("id")) {
+            if (element.id?.startsWith("docs-internal-guid-")) {
                 element.removeAttribute("id");
+            }
+            element.classList.remove("MsoNormal");
+
+            if (element.tagName?.toLowerCase() === "w:sdt") {
+                // tag <w:sdt> is not valid XHTML, convert it to span with class="sdttag"
+                util.removeAttributes(element, ["id", "sdttag"]);
+                const spanElement = element.ownerDocument.createElement("span");
+                spanElement.classList.add("sdttag");
+                util.convertElement(element, spanElement);
             }
         });
     }

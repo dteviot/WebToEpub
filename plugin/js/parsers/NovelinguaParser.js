@@ -22,7 +22,7 @@ class NovelinguaParser extends Parser {
         content.querySelectorAll("*").forEach(element => {
             element.removeAttribute("dir");
             util.replaceSemanticInlineStylesWithTags(element, true);
-            if (element.tagName === "B" && element.hasAttribute("id")) {
+            if (element.id?.startsWith("docs-internal-guid-")) {
                 element.removeAttribute("id");
             }
         });

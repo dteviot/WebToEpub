@@ -336,10 +336,9 @@ var util = (function () {
     }
 
     var moveChildElements = function(from, to) {
-        while (from.hasChildNodes()) {
-            let node = from.childNodes[0];
-            to.appendChild(node);
-        };
+        while (from.firstChild) {
+            to.appendChild(from.firstChild);
+        }
     }
 
     var copyAttributes = function(from, to) {
@@ -927,26 +926,76 @@ var util = (function () {
         });
     }
 
+    const removeAttributes = function(element, attributeNames) {
+        if (!element || attributeNames == null) return;
+
+        // Handle single attribute name as string
+        if (typeof attributeNames === "string") {
+            element.removeAttribute(attributeNames);
+            return;
+        }
+
+        // Handle array of attribute names
+        if (Array.isArray(attributeNames)) {
+            for (const name of attributeNames) {
+                if (typeof name === "string") {
+                    element.removeAttribute(name);
+                }
+            }
+        }
+    }
+
+    const removeEmptyAttributes = function(content) {
+        const elements = content.querySelectorAll("*");
+
+        for (const element of elements) {
+            const attributes = element.attributes;
+            const attributesToRemove = [];
+
+            for (let i = 0; i < attributes.length; i++) {
+                if (attributes[i].value.trim() === "") {
+                    attributesToRemove.push(attributes[i].name);
+                }
+            }
+
+            for (let i = attributesToRemove.length - 1; i >= 0; i--) {
+                element.removeAttribute(attributesToRemove[i]);
+            }
+        }
+    }
+
+    const removeSpansWithNoAttributes = function(content) {
+        // within p or div tags, spans with no attributes have no purpose
+        const spans = content.querySelectorAll("p span, div span");
+
+        for (const span of spans) {
+            if (span.attributes.length === 0) {
+                while (span.firstChild) {
+                    span.parentNode.insertBefore(span.firstChild, span);
+                }
+                span.parentNode.removeChild(span);
+            }
+        }
+    }
+
     const replaceSemanticInlineStylesWithTags = function(element, removeLeftoverStyles = false) {
         if (element.hasAttribute("style")) {
             let styleText = element.getAttribute("style");
 
             // Map of style patterns to their semantic HTML equivalents
             const styleToTag = [
-                { regex: /font-style\s*:\s*(italic|oblique)\s*;/g, match: /italic|oblique/, tag: "i" },
-                { regex: /font-weight\s*:\s*(bold|[7-9]\d\d)\s*;/g, match: /bold|[7-9]\d\d/, tag: "b" },
-                { regex: /text-decoration\s*:\s*underline\s*;/g, match: /underline/, tag: "u" },
-                { regex: /text-decoration\s*:\s*line-through\s*;/g, match: /line-through/, tag: "s" }
+                { regex: /font-style\s*:\s*(italic|oblique)\s*;/g, tag: "i" },
+                { regex: /font-weight\s*:\s*(bold|[7-9]\d\d)\s*;/g, tag: "b" },
+                { regex: /text-decoration\s*:\s*underline\s*;/g, tag: "u" },
+                { regex: /text-decoration\s*:\s*line-through\s*;/g, tag: "s" }
             ];
 
             // Apply semantic tags and remove corresponding styles
             for (const style of styleToTag) {
-                if (style.match.test(styleText)) {
-                    const wrapper = document.createElement(style.tag);
-                    while (element.firstChild) {
-                        wrapper.appendChild(element.firstChild);
-                    }
-                    element.appendChild(wrapper);
+                if (style.regex.test(styleText)) {
+                    // Reset lastIndex since test() advances it
+                    style.regex.lastIndex = 0;
+                    util.wrapInnerContentInTag(element, style.tag);
                     styleText = styleText.replace(style.regex, "");
                 }
             }
@@ -958,9 +1007,18 @@ var util = (function () {
             if (styleText && (!removeLeftoverStyles || /italic|bold|font-weight|underline|line-through/.test(styleText))) {
                 element.setAttribute("style", styleText);
             } else {
-                element.removeAttribute("style");
+                // Remove all remaining styles except text-align:center if present
+                element.style.getPropertyValue("text-align") === "center"
+                    ? element.setAttribute("style", "text-align: center;")
+                    : element.removeAttribute("style");
             }
         }
+    }
+
+    const wrapInnerContentInTag = function(element, tagName) {
+        const wrapper = document.createElement(tagName);
+        util.moveChildElements(element, wrapper);
+        element.appendChild(wrapper);
     }
 
     return {
@@ -1072,7 +1130,11 @@ var util = (function () {
         syncLoadSampleDoc : syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad,
-        replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags
+        removeAttributes: removeAttributes,
+        removeEmptyAttributes: removeEmptyAttributes,
+        removeSpansWithNoAttributes: removeSpansWithNoAttributes,
+        replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags,
+        wrapInnerContentInTag: wrapInnerContentInTag
     };
 })();
 
