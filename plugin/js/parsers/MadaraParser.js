@@ -17,6 +17,8 @@ parserFactory.register("mangasushi.net", function() { return new MadaraParser() 
 parserFactory.register("mangabob.com", function() { return new MadaraParser() });
 parserFactory.register("greenztl2.com", function() { return new MadaraVariantParser() });
 
+parserFactory.register("kdtnovels.com", function() { return new KdtnovelsParser() });
+
 parserFactory.registerRule(
     (url, dom) => MadaraParser.isMadaraTheme(dom) * 0.6,
     () => new MadaraParser()
@@ -131,5 +133,11 @@ class MadaraVariantParser extends MadaraParser {
     
     findChapterTitle(dom) {
         return dom.querySelector(".main-col h1:not(.menu-title)").textContent;
+    }
+}
+
+class KdtnovelsParser extends MadaraParser {
+    findChapterTitle(dom) {
+        return dom.querySelector("h3.chapter-name");
     }
 }
