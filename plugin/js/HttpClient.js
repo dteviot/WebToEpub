@@ -28,8 +28,13 @@ class FetchErrorHandler {
         return Promise.reject(new Error(this.makeFailMessage(url, error.message)));
     }
 
-    onResponseError(url, wrapOptions, response) {
-        let failError = new Error(this.makeFailMessage(response.url, response.status));
+    onResponseError(url, wrapOptions, response, errorMessage) {
+        let failError;
+        if (errorMessage) {
+            failError = new Error(errorMessage);
+        } else {
+            failError = new Error(this.makeFailMessage(response.url, response.status));
+        }
         let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response);
         if (retry.retryDelay.length === 0) {
             return Promise.reject(failError);
@@ -206,7 +211,7 @@ class HttpClient {
             let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
             if (wrapOptions.parser?.isCustomError(ret)) {
                 let CustomErrorResponse = wrapOptions.parser.setCustomErrorResponse(url, wrapOptions, ret);
-                return wrapOptions.errorHandler.onResponseError(CustomErrorResponse.url, CustomErrorResponse.wrapOptions, CustomErrorResponse.response);
+                return wrapOptions.errorHandler.onResponseError(CustomErrorResponse.url, CustomErrorResponse.wrapOptions, CustomErrorResponse.response, CustomErrorResponse.errorMessage);
             }
             return ret;
         }

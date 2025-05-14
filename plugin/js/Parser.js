@@ -88,6 +88,9 @@ class Parser {
         //URL that's get opened on 'Open URL for Captcha' click
         ret.response.url = checkedresponse.response.url;
         ret.response.status = 403;
+        //How often should it be retried and with how much delay in between
+        ret.response.retryDelay = [80,40,20,10,5];
+        ret.errorMessage = "This is a custom error message that will be displayed should all retries fail";
         //return empty to throw error
         return {};
     }
