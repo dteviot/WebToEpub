@@ -15,9 +15,8 @@ test("customRawDomToContentStep", function (assert) {
     
     let parser = new LnmtlParser();
     parser.userPreferences = {
-        removeOriginal: {
-            value: true
-        }
+        removeOriginal: {value: true},
+        removeTranslated: {value: false}
     };
     
     let content = parser.findContent(dom); 

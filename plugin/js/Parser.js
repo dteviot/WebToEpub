@@ -87,6 +87,9 @@ class Parser {
         //URL that's get opened on 'Open URL for Captcha' click
         ret.response.url = checkedresponse.response.url;
         ret.response.status = 403;
+        //How often should it be retried and with how much delay in between
+        ret.response.retryDelay = [80,40,20,10,5];
+        ret.errorMessage = "This is a custom error message that will be displayed should all retries fail";
         //return empty to throw error
         return {};
     }
@@ -114,6 +117,8 @@ class Parser {
         util.makeHyperlinksRelative(webPage.rawDom.baseURI, content);
         util.setStyleToDefault(content);
         util.prepForConvertToXhtml(content);
+        util.removeEmptyAttributes(content);
+        util.removeSpansWithNoAttributes(content);
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
@@ -217,7 +222,7 @@ class Parser {
         return items;
     }
 
-    makePlacehoderEpubItem(webPage, epubItemIndex) {
+    makePlaceholderEpubItem(webPage, epubItemIndex) {
         let temp = Parser.makeEmptyDocForContent(webPage.sourceUrl);
         temp.content.textContent = chrome.i18n.getMessage("chapterPlaceholderMessage", 
             [webPage.sourceUrl, webPage.error]
@@ -337,8 +342,7 @@ class Parser {
     epubItemSupplier() {
         let epubItems = this.webPagesToEpubItems([...this.state.webPages.values()]);
         this.fixupHyperlinksInEpubItems(epubItems);
-        let supplier = new EpubItemSupplier(this, epubItems, this.imageCollector);
-        return supplier;
+        return new EpubItemSupplier(this, epubItems, this.imageCollector);
     }
 
     webPagesToEpubItems(webPages) {
@@ -354,7 +358,7 @@ class Parser {
         for(let webPage of webPages.filter(c => this.isWebPagePackable(c))) {
             let newItems = (webPage.error == null)
                 ? webPage.parser.webPageToEpubItems(webPage, index)
-                : this.makePlacehoderEpubItem(webPage, index);
+                : this.makePlaceholderEpubItem(webPage, index);
             epubItems = epubItems.concat(newItems);
             index += newItems.length;
             delete(webPage.rawDom);
@@ -719,13 +723,13 @@ class Parser {
         await util.sleep(manualDelayPerChapterValue);
     }
 
-    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI)  {
+    async getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI, wrapOptions)  {
         if (0 < chapters.length) {
             chapterUrlsUI.showTocProgress(chapters);
         }
         for(let url of urlsOfTocPages) {
             await this.rateLimitDelay();
-            let newDom = (await HttpClient.wrapFetch(url)).responseXML;
+            let newDom = (await HttpClient.wrapFetch(url, wrapOptions)).responseXML;
             let partialList = extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
@@ -770,6 +774,7 @@ class Parser {
         let nextUrl = moreChapterTextUrl(dom, url, count);
         let oldContent = this.findContent(dom);
         while(nextUrl != null) {
+            await this.rateLimitDelay();
             let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
             let newContent = this.findContent(nextDom);
             nextUrl = moreChapterTextUrl(nextDom, url, ++count);

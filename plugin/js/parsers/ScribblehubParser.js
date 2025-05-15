@@ -19,12 +19,15 @@ class ScribblehubParser extends Parser {
                 ? `${baseUrl}?toc=${++nextTocIndex}`
                 : null;
         };
-
-        return (await this.walkTocPages(dom,
+        let saveThrottle = this.minimumThrottle;
+        this.minimumThrottle = 0;
+        let chapters = (await this.walkTocPages(dom,
             ScribblehubParser.getChapterUrlsFromTocPage,
             nextTocPageUrl,
             chapterUrlsUI
         )).reverse();
+        this.minimumThrottle = saveThrottle;
+        return chapters;
     };
 
     static getChapterUrlsFromTocPage(dom) {

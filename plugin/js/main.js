@@ -390,6 +390,8 @@ var main = (function () {
         ChapterUrlsUI.clearChapterUrlsTable();
         CoverImageUI.clearUI();
         ProgressBar.setValue(0);
+        // Clear the selected value so it doesn't look like a parser is selected
+        document.getElementById("manuallySelectParserTag").selectedIndex = -1;
     }
 
     function localize(element) {

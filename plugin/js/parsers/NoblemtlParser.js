@@ -57,8 +57,9 @@ class NoblemtlParser extends Parser{
     }
 
     linkToChapter(link) {
+        let titleName = link.querySelector(".epl-title")?.textContent?.trim() ?? "";
         let title = NoblemtlParser.extractChapterNum(link).trim() + " "
-            + link.querySelector(".epl-title").textContent.trim();
+            + titleName;
         return ({
             sourceUrl:  link.href,
             title: title

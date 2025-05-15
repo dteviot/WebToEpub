@@ -361,6 +361,11 @@ class Library {
             LibRenderString += "<label data-libbuttonid='LibUploadEpubButton' data-libepubid='' id='LibUploadEpubLabel' for='LibEpubNewUploadFile' style='cursor: pointer;'>";
             LibRenderString += "<button id='LibUploadEpubButton' style='pointer-events: none;'>"+document.getElementById("LibTemplateUploadEpubButton").innerHTML+"</button></label>";
             LibRenderString += "<input type='file' data-libepubid='LibEpubNew' id='LibEpubNewUploadFile' hidden>";
+            LibRenderString += "<br>";
+            LibRenderString += "<textarea id='LibAddListToLibraryInput' type='text'>Add one novel per line</textarea>";
+            LibRenderString += "<br>";
+            LibRenderString += "<button id='LibAddListToLibraryButton'>"+document.getElementById("LibTemplateAddListToLibrary").innerHTML+"</button>";
+            
         }
         LibRenderString += "<div style='display:flex; justify-content: center;'>";
         LibRenderString += "<button id='libupdateall'>"+document.getElementById("LibTemplateUpdateAll").innerHTML+"</button>";
@@ -467,6 +472,7 @@ class Library {
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function(){Library.LibMouseoverButtonUpload(this)});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function(){Library.LibMouseoutButtonUpload(this)});
                 document.getElementById("LibEpubNewUploadFile").addEventListener("change", function(){Library.LibHandelUpdate(this, -1, "", "", -1)});
+                document.getElementById("LibAddListToLibraryButton").addEventListener("click", function(){Library.LibAddListToLibrary()});
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
@@ -862,6 +868,35 @@ class Library {
             obj.dataset.libclick = "yes";
             obj.dataset.libsuppressErrorLog = true;
             document.getElementById("startingUrlInput").value = await Library.LibGetFromStorage("LibStoryURL" + LibArray[i]);
+            await main.onLoadAndAnalyseButtonClick.call(obj);
+            if (document.getElementById("includeInReadingListCheckbox").checked != true) {
+                document.getElementById("includeInReadingListCheckbox").click();
+            }
+            await main.fetchContentAndPackEpub.call(obj);
+        }
+        ErrorLog.SuppressErrorLog =  false;
+    }
+    
+    static getURLsFromList() {
+        let inputvalue = document.getElementById("LibAddListToLibraryInput").value;
+        let lines = inputvalue.split("\n");
+        lines = lines.filter(a => a.trim() != "").map(a => a.trim()).filter(a => URL.canParse(a));
+        return lines;
+    }
+    
+    static async LibAddListToLibrary(){
+        if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
+            document.getElementById("includeInReadingListCheckbox").click();
+        }
+        let links = Library.getURLsFromList();
+        ErrorLog.SuppressErrorLog =  true;
+        for (let i = 0; i < links.length; i++) {
+            Library.LibClearFields();
+            let obj = {};
+            obj.dataset = {};
+            obj.dataset.libclick = "yes";
+            obj.dataset.libsuppressErrorLog = true;
+            document.getElementById("startingUrlInput").value = links[i];
             await main.onLoadAndAnalyseButtonClick.call(obj);
             if (document.getElementById("includeInReadingListCheckbox").checked != true) {
                 document.getElementById("includeInReadingListCheckbox").click();

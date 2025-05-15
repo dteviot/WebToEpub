@@ -39,6 +39,10 @@
 		"message": "Upload Epub",
 		"description": "Label on button to Upload Epub in Library"
 	},
+	"__MSG_button_Lib_Template_Add_List_To_Library__": {
+		"message": "Add novels to Library",
+		"description": "Label on button to Add novels to Library in Library"
+	},
 	"__MSG_button_Lib_Template_Update_All__": {
 		"message": "Update all",
 		"description": "Label on button to Update all Epubs"
@@ -396,7 +400,7 @@
 		"description": "Label for checkbox to remove Original text from chapters"
 	},
 	"__MSG_label_Select_Translation_Google__": {
-		"message": "Use Google translation (if unchecked it uses ai and you need to login)",
+		"message": "Use Ai (you need to login/ not Ai translated novels fail)",
 		"description": "Label for radio checkbox Google"
 	},
 	"__MSG_label_Remove_Translated__": {

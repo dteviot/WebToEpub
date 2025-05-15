@@ -100,7 +100,7 @@ class ArchiveOfOurOwnParser extends Parser{
     }
 
     extractDescription(dom) {
-        return dom.querySelector("div.summary blockquote").textContent.trim();
+        return dom.querySelector("div.summary blockquote")?.textContent.trim();
     }
 
     findChapterTitle(dom) {

@@ -11,16 +11,20 @@ class MtlarchiveParser extends Parser{
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let chapters = [...dom.querySelectorAll("div.chapters .list-wrapper a")]
-            .map(a => this.toChapter(a));
+        let chapters = [];
 
         chapterUrlsUI.showTocProgress(chapters);
         let info = await this.findStoryInfo(dom.baseURI);
         if (0 < info.storyId) {
-            for(let page = 2; page <= info.numTocPages; ++page) {
-                let partialList = await this.fetchTocData(info.storyId, page, dom.baseURI);
-                chapterUrlsUI.showTocProgress(partialList);
-                chapters = chapters.concat(partialList);
+            for(let page = 1; page <= info.numTocPages; ++page) {
+                await this.rateLimitDelay();
+                try {
+                    let partialList = await this.fetchTocData(info.storyId, page, dom.baseURI);
+                    chapterUrlsUI.showTocProgress(partialList);
+                    chapters = chapters.concat(partialList);
+                } catch (error) {
+                    break;
+                }
             }
         }
         return chapters;

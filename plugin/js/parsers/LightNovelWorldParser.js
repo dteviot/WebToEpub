@@ -3,7 +3,7 @@
 parserFactory.register("lightnovelcave.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.co", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
-parserFactory.register("lightnovelpub.com", () => new LightNovelWorldParser());
+parserFactory.register("lightnovelpub.com", () => new LightNovelPubParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldParser());
 parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
@@ -26,6 +26,7 @@ class LightNovelWorldParser extends Parser{
         let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
 
         for(let url of urlsOfTocPages) {
+            await this.rateLimitDelay();
             let newDom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = this.extractPartialChapterList(newDom);
             chapterUrlsUI.showTocProgress(partialList);
@@ -135,5 +136,12 @@ class LightNovelWorldParser extends Parser{
 
     cleanInformationNode(node) {
         util.removeChildElementsMatchingCss(node, "nav.links");
+    }
+}
+
+class LightNovelPubParser extends LightNovelWorldParser{
+    constructor() {
+        super();
+        this.minimumThrottle = 1200;
     }
 }

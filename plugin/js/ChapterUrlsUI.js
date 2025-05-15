@@ -7,10 +7,19 @@ class ChapterUrlsUI {
         ChapterUrlsUI.getPleaseWaitMessageRow().hidden = false;
         if (this.parser)
         {
-            document.getElementById("spanParserName").textContent = this.parser.constructor.name;
-            document.getElementById("spanDelayMs").textContent = `${this.parser.getRateLimit()} ms`;
+            let nameElement = document.getElementById("spanParserName");
+            if (nameElement) nameElement.textContent = this.parser.constructor.name;
+
+            let delayMsElement = document.getElementById("spanDelayMs");
+            if (delayMsElement) delayMsElement.textContent = `${this.parser.getRateLimit()} ms`;
         }
-        document.getElementById("sbFiltersForm").onsubmit = function(event) { event.preventDefault(); };
+
+        let formElement = document.getElementById("sbFiltersForm");
+        if (formElement) {
+            document.getElementById("sbFiltersForm").onsubmit = function (event) {
+                event.preventDefault();
+            };
+        }
     }
 
     connectButtonHandlers() {

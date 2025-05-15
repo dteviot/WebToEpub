@@ -186,9 +186,34 @@ class TemplateParser extends Parser{
     */
 
     // Optional, supply if need to chase hyperlinks in page to get all chapter content
+    // or site can send challenge pages for some chapters
     /*
     async fetchChapter(url) {
         return (await HttpClient.wrapFetch(url)).responseXML;
+
+        // Handling to catch sites that send challenge pages
+        // Note, need to implement isCustomError() and setCustomErrorResponse()
+        let options = { parser: this };
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+    */
+
+    // Optional, supply these if site can send challenge pages for some chapters
+    /*
+    // return true if response is a challenge response
+    isCustomError(response){
+        return (response.responseXML.title == "Just a moment...");
+    }
+
+    // what to do if encounter challenge
+    setCustomErrorResponse(url, wrapOptions){
+        let newresp = {};
+        newresp.url = url;
+        newresp.wrapOptions = wrapOptions;
+        newresp.response = {};
+        newresp.response.url = this.RestToUrl(checkedresponse.response.url);
+        newresp.response.status = 403;
+        return newresp;
     }
     */
 

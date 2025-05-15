@@ -1,11 +1,11 @@
 "use strict";
 
-//dead url/ parser
+//not dead yet
 parserFactory.register("tapas.io", () => new TapasParser());
 //dead url
 parserFactory.register("m.tapas.io", () => new TapasParser());
 
-class TapasParser extends Parser{
+class TapasParser extends Parser {
     constructor() {
         super();
     }
@@ -40,32 +40,63 @@ class TapasParser extends Parser{
     {
         return episodes.filter(item => item.free || item.free_access || item.unlocked)
             .map(item => {
+                let title = item.scene + ": " + item.title;
                 return {
                     sourceUrl:`https://tapas.io/episode/${item.id}`, 
-                    title:item.title 
+                    title: title
                 };
             } );
     }
 
     findContent(dom) {
-        return dom.querySelector("article");
+        return dom.querySelector("#viewport") || dom.querySelector("article");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector(".series-root a.title").textContent;
+        const title =
+            dom.querySelector(".series-root .title") ||
+            dom.querySelector(".center-info .center-info__title--small") ||
+            dom.querySelector("title");
+        return title.textContent;
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".creator");
+        let authorLabel =
+            dom.querySelector(".creator") ||
+            dom.querySelector(".viewer-section--episode .name-wrapper .name");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("div.viewer__header p.title").textContent;
+        const title =
+            dom.querySelector(".center-info .js-ep-title") ||
+            dom.querySelector("div.viewer__header p.title");
+        return title.textContent;
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".thumb");
+        return util.getFirstImgSrc(dom, ".info--bottom") ||
+            util.getFirstImgSrc(dom, ".info-body") ||
+            util.getFirstImgSrc(dom, ".thumb");
+    }
+
+    customRawDomToContentStep(chapter, content) {
+        content.querySelectorAll("*").forEach(element => {
+            util.removeAttributes(element, ["dir", "role", "lang"]);
+            util.replaceSemanticInlineStylesWithTags(element, true);
+            if (element.id?.startsWith("docs-internal-guid-")) {
+                element.removeAttribute("id");
+            }
+            element.classList.remove("MsoNormal");
+
+            if (element.tagName?.toLowerCase() === "w:sdt") {
+                // tag <w:sdt> is not valid XHTML, convert it to span with class="sdttag"
+                util.removeAttributes(element, ["id", "sdttag"]);
+                const spanElement = element.ownerDocument.createElement("span");
+                spanElement.classList.add("sdttag");
+                util.convertElement(element, spanElement);
+            }
+        });
     }
 
     preprocessRawDom(webPageDom) {
