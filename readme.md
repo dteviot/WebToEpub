@@ -640,6 +640,22 @@ Open Chrome (or any Chromium-based browser like Edge, Opera, etc.) and go to [We
 5. Press the "Load unpacked extension.." button and browse to unpacked zip directory from step 2.
    ![wte-chrome-small](https://user-images.githubusercontent.com/20068737/136224439-57af48bd-21fb-463d-99db-74f44769327e.gif)
 
+### Android (Firefox Nightly for Developers)
+
+#### From Firefox Add-ons Store
+
+Open Firefox and visit [WebToEpub on Firefox Add-ons][firefox-add-ons].
+
+#### From Source (Firefox Nightly for Developers)
+
+1. Download prebuilt Firefox version of extension from https://github.com/dteviot/WebToEpub/releases/tag/developer-build.
+2. Open the site "about:config"
+3. Search "xpinstall.signatures.required" and set the value to false.
+4. Open Settings and scoll down to "About Firefox Nightly"
+5. Tap the Firefox Nightly icon (blue fox) 6 times to enable Debug menu
+6. Open Settings -> Advanced -> Install extension from file
+4. Select the zip file you downloaded in step 1.
+
 ### From Source (Developers)
 
 1. Clone this repo.
@@ -662,12 +678,6 @@ Open Chrome (or any Chromium-based browser like Edge, Opera, etc.) and go to [We
 3. Install extension in browser of choice, using instructions above.
 
 See [notes](#notes) for more information.
-
-### Android (untested)
-
-- Caution I have not (and do not test) on Android. I've been told the following work, but I can't guarantee them.
-- Get yourself `Kiwi browser`, `Yandex browser`, or `Firefox`.
-- Install from [Chrome web store][chrome-web-store] for Kiwi and Yandex, or from [Mozilla add-ons][firefox-add-ons] for Firefox.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
