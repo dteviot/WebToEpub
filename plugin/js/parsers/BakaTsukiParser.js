@@ -150,7 +150,7 @@ class BakaTsukiParser extends Parser{
     }
 
     populateUI(dom) {  // eslint-disable-line no-unused-vars
-        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("highestResolutionImageRow").hidden = false;
         document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("imageSection").hidden = false;
         document.getElementById("outputSection").hidden = true;
