@@ -34,11 +34,9 @@
 progress {
     width: 56%;
     height: 31px;
-    margin: 0;
     padding: 0;
     border-radius: 5px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin: 0 4px;
 }
 
     progress::-webkit-progress-bar {
@@ -69,10 +67,6 @@ table.chapterList {
 
 section.minWidth {
     min-width: 600px;
-}
-
-img.downloadState {
-    height: 1em;
 }
 
 .withBorder {
@@ -130,10 +124,44 @@ textarea.allSpace {
     width: 100%;
 }
 
+    #chapterUrlsTable input[type=checkbox],
+    #chapterUrlsTable img,
+    #chapterUrlsTable .tooltip {
+        float: left;
+    }
+
+    img.downloadState {
+        height: 1em;
+        margin-top: 3px;
+    }
+
+    .downloadStateDiv {
+        position: relative;
+        display: inline-block;
+    }
+
+    .downloadStateDiv .tooltipText {
+        visibility: hidden;
+        width: 120px;
+        background-color: #808080;
+        color: white;
+        text-align: center;
+        padding: 5px;
+        border-radius: 5px;
+        position: absolute;
+        z-index: 1;
+        top: -5px;
+        left: 105%;
+    }
+
+    .downloadStateDiv:hover .tooltipText {
+        visibility: visible;
+    }
+
     #chapterUrlsTable input[type=text] {
         width: 101.5%;
         position: relative;
-        left: -17px;
+        left: -16px;
         max-width: 580px;
     }
 
@@ -152,25 +180,22 @@ textarea.allSpace {
 }
 
 button {
-    box-shadow: inset 0px 1px 0px 0px #ffffff;
-    background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
-    background-color: #ffffff;
+    box-shadow: inset 0 1px 0 0 #ffffff;
+    background: #ffffff linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
     border-radius: 6px;
     border: 1px solid #dcdcdc;
     display: inline-block;
     cursor: pointer;
     color: #666666;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     font-size: 12px;
     padding: 4px 8px;
     text-decoration: none;
-    text-shadow: 0px 1px 0px #ffffff;
     max-height: 30px;
 }
 
     button:hover {
-        background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
-        background-color: #f6f6f6;
+        background: #f6f6f6 linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
     }
 
     button:active {
@@ -215,16 +240,15 @@ button {
 .HiddenButtonSection {
     position: relative;
     display: flex;
-  justify-content: center;
+    justify-content: center;
     border-radius: 8px;
 }
 
 .sidebar {
-    background-color:rgba(40, 40, 40, 0.85);
-    float:left;
-    margin-right:5px;
+    background-color: rgba(40, 40, 40, 0.85);
+    float: left;
     height: 100%;
-    width: 0px;
+    width: 0;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -233,20 +257,18 @@ button {
     box-sizing: border-box;
     margin: 0 auto;
     transition: 0.25s;
-  }
+}
 
     .sidebar.sidebarOpen {
         width: 30%;
         min-width: 300px;
     }
-    
+
     .sidebar .closebtn {
         width: calc(100% - 10px);
         padding-top: 5px;
         padding-bottom: 5px;
-        border: 2px;
-        border-color: #dcdcdc75;
-        border-style: solid;
+        border: 2px solid #dcdcdc75;
         border-radius: 10px;
         text-align: center;
     }
@@ -257,7 +279,7 @@ button {
     .sidebar th {
         text-align: center;
     }
-    
+
     .sidebar input.exclude {
         accent-color: #bb0000;
     }

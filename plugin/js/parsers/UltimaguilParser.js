@@ -31,7 +31,7 @@ class UltimaguilParser extends Parser {
 
     populateUI(dom) {
         super.populateUI(dom);
-        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("highestResolutionImageRow").hidden = false;
     }
 
     webPageToEpubItems(webPage, epubItemIndex) {

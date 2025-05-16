@@ -72,16 +72,52 @@ class ChapterUrlsUI {
 
     static showDownloadState(row, state) {
         if (row != null) {
-            let img = row.querySelector("img");
+            let downloadStateDiv = row.querySelector(".downloadStateDiv");
+            ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv, state);
+        }
+    }
+
+    static updateDownloadStateImage(downloadStateDiv, state) {
+        let img = downloadStateDiv.querySelector("img");
+        if (img) {
             img.src = ChapterUrlsUI.ImageForState[state];
+
+            // Update tooltip
+            let tooltipText = ChapterUrlsUI.TooltipForSate[state];
+            let tooltipTextSpan = downloadStateDiv.querySelector(".tooltipText");
+
+            if (tooltipText && !tooltipTextSpan) {
+                tooltipTextSpan = document.createElement("span");
+                tooltipTextSpan.className = "tooltipText";
+                tooltipTextSpan.textContent = tooltipText;
+                downloadStateDiv.appendChild(tooltipTextSpan);
+            } else if (tooltipText) {
+                tooltipTextSpan.textContent = tooltipText;
+            } else if (tooltipTextSpan) {
+                // Remove tooltip text if there is no text to display
+                downloadStateDiv.removeChild(tooltipTextSpan);
+            }
         }
     }
 
     static resetDownloadStateImages() {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        let imgSrc = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
-        for(let img of linksTable.querySelectorAll("img")) {
-            img.src = imgSrc;
+        let prevDownload = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS];
+        let downloaded = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_LOADED];
+
+        for (let downloadStateDiv of linksTable.querySelectorAll(".downloadStateDiv")) {
+            let state = ChapterUrlsUI.DOWNLOAD_STATE_NONE;
+            let imgSrc = downloadStateDiv.querySelector("img")?.src;
+            if (imgSrc) {
+                const imagesIndex = imgSrc.indexOf("images/");
+                if (imagesIndex !== -1) {
+                    imgSrc = imgSrc.substring(imagesIndex);
+                }
+            }
+            if (imgSrc === prevDownload || imgSrc === downloaded) {
+                state = ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS;
+            }
+            ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv, state);
         }
     }
 
@@ -93,7 +129,7 @@ class ChapterUrlsUI {
 
     static limitNumOfChapterS(maxChapters) {
         let max = util.isNullOrEmpty(maxChapters) ? 10000 : parseInt(maxChapters.replace(",", ""));
-        let selectedRows = [...ChapterUrlsUI.getChapterUrlsTable().querySelectorAll("[type='checkbox'")]
+        let selectedRows = [...ChapterUrlsUI.getChapterUrlsTable().querySelectorAll("[type='checkbox']")]
             .filter(c => c.checked)
             .map(c => c.parentElement.parentElement);
         if (max< selectedRows.length ) {
@@ -217,49 +253,46 @@ class ChapterUrlsUI {
             .filter(r => r.querySelector("th") === null);
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     static appendCheckBoxToRow(row, chapter) {
-        let col = document.createElement("td");
-        let checkbox = document.createElement("input");
+        chapter.isIncludeable = chapter.isIncludeable ?? true;
+        chapter.previousDownload = chapter.previousDownload ?? false;
+
+        const col = document.createElement("td");
+        const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        if (chapter.isIncludeable === undefined) {
-            chapter.isIncludeable = true;
-        }
         checkbox.checked = chapter.isIncludeable;
         checkbox.onclick = function(event) { 
-            chapter.isIncludeable = checkbox.checked; 
-            if (event == undefined || event == null) {
-                return;
-            }
+            chapter.isIncludeable = checkbox.checked;
+            if (!event) return;
+
             ChapterUrlsUI.tellUserAboutShiftClick(event, row);
-            if (checkbox !== null)
-            {
-                let oldState = checkbox.checked;
-                if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
-                    let newState = oldState;
-                    ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
-                } else {
-                    ChapterUrlsUI.lastSelectedRow = row.rowIndex;
-                }
+
+            if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+                ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, checkbox.checked);
+            } else {
+                ChapterUrlsUI.lastSelectedRow = row.rowIndex;
             }
         };
         col.appendChild(checkbox);
-        ChapterUrlsUI.addImageToCheckBoxColumn(col);
+        ChapterUrlsUI.addDownloadStateToCheckboxColumn(col, chapter.previousDownload);
         row.appendChild(col);
     }
 
-    static addImageToCheckBoxColumn(col) {
+    static addDownloadStateToCheckboxColumn(col, previousDownload) {
+        let downloadStateDiv = document.createElement("div");
+        downloadStateDiv.className = "downloadStateDiv";
         let img = document.createElement("img");
         img.className = "downloadState";
-        img.src = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
-        col.appendChild(img);
+
+        downloadStateDiv.appendChild(img);
+        ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv,
+            previousDownload ? ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS : ChapterUrlsUI.DOWNLOAD_STATE_NONE
+        );
+        col.appendChild(downloadStateDiv);
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     static appendInputTextToRow(row, chapter) {
         let col = document.createElement("td");
         let input = document.createElement("input");
@@ -285,9 +318,7 @@ class ChapterUrlsUI {
         }
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     static appendColumnDataToRow(row, textData) {
         let col = document.createElement("td");
         col.innerText = textData;
@@ -310,19 +341,17 @@ class ChapterUrlsUI {
         document.getElementById("editURLsHint").hidden = toTable;
     }
 
-    /** 
-    * @private
-    */
+    /** @private */
     setTableMode() {
         try {
-            let inputvalue = ChapterUrlsUI.getEditChaptersUrlsInput().value;
+            let inputValue = ChapterUrlsUI.getEditChaptersUrlsInput().value;
             let chapters;
-            let lines = inputvalue.split("\n");
-            lines = lines.filter(a => a.trim() != "").map(a => a.trim());
+            let lines = inputValue.split("\n");
+            lines = lines.filter(a => a.trim() !== "").map(a => a.trim());
             if (URL.canParse(lines[0])) {
                 chapters = this.URLsToChapters(lines);
             } else {
-                chapters = this.htmlToChapters(inputvalue);
+                chapters = this.htmlToChapters(inputValue);
             }
             this.parser.setPagesToFetch(chapters);
             this.populateChapterUrlsTable(chapters);
@@ -358,11 +387,10 @@ class ChapterUrlsUI {
     * @private
     */
     URLsToChapters(URLs) {
-        let returnchapters = URLs.map(e => ({
+        return URLs.map(e => ({
             sourceUrl: e,
             title: "[placeholder]"
         }));
-        return returnchapters;
     }
 
     /** @private */
@@ -388,14 +416,11 @@ class ChapterUrlsUI {
     }
 
     toggleShowUrlsForChapterRange(select, chapters) {
-        
         select.onchange = null;
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
         for (let o of [...select.querySelectorAll("Option")]) {
             o.text = chapters[o.index][memberForTextOption];
         }
-        let selectedIndex = select.selectedIndex;
-        select.selectedIndex = selectedIndex;
         select.onchange = ChapterUrlsUI.onRangeChanged;
     }
 
@@ -430,7 +455,7 @@ class ChapterUrlsUI {
     static updateRange(startRowIndex, endRowIndex, state) {
         let direction = startRowIndex < endRowIndex ? 1 : -1;
         let linkTable = ChapterUrlsUI.getChapterUrlsTable();
-        for(let rowIndex = startRowIndex; rowIndex != endRowIndex; rowIndex += direction) {
+        for(let rowIndex = startRowIndex; rowIndex !== endRowIndex; rowIndex += direction) {
             let row = linkTable.rows[rowIndex];
             ChapterUrlsUI.setRowCheckboxState(row, state);
         }
@@ -468,31 +493,28 @@ class ChapterUrlsUI {
         chapterList: {},
         init() {
             let rc = new ChapterUrlsUI.RangeCalculator();
-            var filterTermsFrequency = {};
+            let filterTermsFrequency = {};
             let constantTerms = false; // To become a collection of all terms used in every link.
-            var chapterList = ChapterUrlsUI.getTableRowsWithChapters().filter(item => rc.rowInRange(item)).map(item => {
-                let filterObj = 
-                { 
-                    row: item, 
+            const chapterList = ChapterUrlsUI.getTableRowsWithChapters().filter(item => rc.rowInRange(item)).map(item => {
+                let filterObj =
+                {
+                    row: item,
                     values: Array.from(item.querySelectorAll("td")).map(item => item.innerText).join("/").split("/"),
                     valueString: ""
                 };
                 filterObj.values.push(item.querySelector("input[type='text']").value);
                 filterObj.values = filterObj.values.filter(item => item.length > 3 && !item.startsWith("http"));
                 filterObj.valueString = filterObj.values.join(" ");
-                
+
                 let recordFilterTerms = filterObj.valueString.toLowerCase().split(" ");
                 recordFilterTerms.forEach(item => {
                     filterTermsFrequency[item] = (parseInt(filterTermsFrequency[item]) || 0) + 1;
                 });
 
-                if (!constantTerms)
-                {
+                if (!constantTerms) {
                     constantTerms = recordFilterTerms;
-                }
-                else
-                {
-                    constantTerms.filter(item => recordFilterTerms.indexOf(item) == -1).forEach(item =>{
+                } else {
+                    constantTerms.filter(item => recordFilterTerms.indexOf(item) === -1).forEach(item => {
                         constantTerms.splice(constantTerms.indexOf(item), 1);
                     });
                 }
@@ -501,7 +523,7 @@ class ChapterUrlsUI {
             });
             let minFilterTermCount = Math.min( 3, chapterList.length * 0.10 );
             filterTermsFrequency = Object.keys(filterTermsFrequency)
-                .filter(key => constantTerms.indexOf(key) == -1 && filterTermsFrequency[key] > minFilterTermCount)
+                .filter(key => constantTerms.indexOf(key) === -1 && filterTermsFrequency[key] > minFilterTermCount)
                 .map(key => ({ key: key, value: filterTermsFrequency[key] } ));
 
             var calcValue = function (filterTerm) {
@@ -519,7 +541,7 @@ class ChapterUrlsUI {
             let rc = new ChapterUrlsUI.RangeCalculator();
             let formResults = Object.fromEntries(new FormData(document.getElementById("sbFiltersForm")));
             let formKeys = Object.keys(formResults);
-            formResults = formKeys.filter(key => key.indexOf("Hidden") == -1)
+            formResults = formKeys.filter(key => key.indexOf("Hidden") === -1)
                 .map(key => {
                     return {
                         key: key,
@@ -668,12 +690,21 @@ ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
 ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING = 1;
 ChapterUrlsUI.DOWNLOAD_STATE_LOADED = 2;
 ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING = 3;
+ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS = 4;
 ChapterUrlsUI.ImageForState = [
     "images/ChapterStateNone.svg",
     "images/ChapterStateDownloading.svg",
-    "images/ChapterStateLoaded.svg",
-    "images/ChapterStateSleeping.svg"
+    "images/FileEarmarkCheckFill.svg",
+    "images/ChapterStateSleeping.svg",
+    "images/FileEarmarkCheck.svg"
 ];
+ChapterUrlsUI.TooltipForSate = [
+    null,
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloading__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloaded__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_sleeping__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_previously_downloaded__")
+]
 
 ChapterUrlsUI.lastSelectedRow = null;
 ChapterUrlsUI.ConsecutiveRowClicks = 0;
