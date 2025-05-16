@@ -5,6 +5,7 @@ parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 class WtrlabParser extends Parser{
     constructor() {
         super();
+        this.minimumThrottle = 11000;
     }
 
     populateUI(dom) {
@@ -87,15 +88,25 @@ class WtrlabParser extends Parser{
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse){
-        let newresp = {};
-        newresp.url = url;
-        newresp.wrapOptions = wrapOptions;
-        newresp.response = {};
-        newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
-        newresp.response.status = 999;
-        newresp.response.retryDelay = [80,40,20,10,5];
-        newresp.errorMessage = "Fetch of URL '"+newresp.response.url+"' failed.\nThe server sends an empty Chapter try to open the URL and try again if you can see the Chapter on the normal website.\nIt could also be that you try to get an Ai translated novel that isn't Ai tranlated.";
-        return newresp;
+        if (checkedresponse.json.requireTurnstile) {
+            let newresp = {};
+            newresp.url = url;
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = {};
+            newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
+            newresp.response.status = 403;
+            return newresp;
+        } else {
+            let newresp = {};
+            newresp.url = url;
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = {};
+            newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
+            newresp.response.status = 999;
+            newresp.response.retryDelay = [80,40,20,10,5];
+            newresp.errorMessage = "Fetch of URL '"+newresp.response.url+"' failed.\nThe server sends an empty Chapter try to open the URL and try again if you can see the Chapter on the normal website.\nIt could also be that you try to get an Ai translated novel that isn't Ai tranlated.";
+            return newresp;
+        }
     }
 
     PostToUrl(url, body){
