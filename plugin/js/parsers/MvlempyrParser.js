@@ -12,7 +12,8 @@ class MvlempyrParser extends Parser {
         let imgLink = dom.querySelector("div.novel-image-wrapper img").src;
         let slug = imgLink.split("/").pop().split(".")[0];
         let chapterCount = parseInt(dom.querySelector("div#chapter-count").textContent)?parseInt(dom.querySelector("div#chapter-count").textContent):-1;
-        
+        let chapterTitles = [...dom.querySelectorAll("a.chapter-item h3")].map((el) => el.textContent.replace(/^\d+\.\s*/, ""));
+
         if (chapterCount == -1) {
             let regex = new RegExp("numberOfChapters.*?,");
             let regex2 = new RegExp("[0-9]+");
@@ -23,13 +24,22 @@ class MvlempyrParser extends Parser {
 
         for (let i = 1; i <= chapterCount; i++) {
             let link = `https://www.mvlempyr.com/chapter/${slug}-${i}`;
-            chapterList.push({
-                sourceUrl: link,
-                title: "[placeholder]",
-            });
+            if (chapterTitles[i-1] == undefined) {
+                chapterList.push({
+                    sourceUrl: link,
+                    title: "[placeholder]",
+                });
+            }
+            else{
+                chapterList.push({
+                    sourceUrl: link,
+                    title: chapterTitles[i-1],
+                });
+            }
         }
         return chapterList;
     }
+
 
     findContent(dom) {
         return (
