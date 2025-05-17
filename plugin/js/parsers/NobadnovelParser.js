@@ -10,6 +10,10 @@ class NobadnovelParser extends Parser{
         super();
         this.minimumThrottle = 500;
     }
+    //it feels like one user with simutanfetch set to 8 can overhelm the server
+    clampSimultanousFetchSize() {
+        return 1;
+    }
 
     async getChapterUrls(dom) {
         let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;

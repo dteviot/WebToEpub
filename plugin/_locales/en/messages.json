@@ -328,8 +328,8 @@
 		"description": "Show more Metadata options to user"
 	},
 	"__MSG_label_Manual_Delay_Per_Chapter__": {
-		"message": "Delay per chapter in ms",
-		"description": "Delay per chapter in ms"
+		"message": "Manual Throttle|Delay per chapter",
+		"description": "Manual Throttle|Delay per chapter"
 	},
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",

@@ -9,6 +9,10 @@ class RanobesParser extends Parser{
         super();
         this.minimumThrottle = 2000;
     }
+    
+    clampSimultanousFetchSize() {
+        return 1;
+    }
 
     async getChapterUrls(dom, chapterUrlsUI) {
         let chapters = [];

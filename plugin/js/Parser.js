@@ -53,8 +53,7 @@ class ParserState {
 
 class Parser {    
     constructor(imageCollector) {
-        this.minimumThrottle = 500;
-        this.maxSimultanousFetchSize = 1;
+        this.minimumThrottle = null;
         this.state = new ParserState();
         this.imageCollector = imageCollector || new ImageCollector();
         this.userPreferences = null;
@@ -524,7 +523,9 @@ class Parser {
     }
 
     groupPagesToFetch(webPages, index) {
-        return webPages.slice(index, index + this.maxSimultanousFetchSize);
+        let blockSize = parseInt(this.userPreferences.maxPagesToFetchSimultaneously.value);
+        blockSize = this.clampSimultanousFetchSize(blockSize);
+        return webPages.slice(index, index + blockSize);
     }
 
     async fetchWebPageContent(webPage) {
@@ -652,6 +653,16 @@ class Parser {
         return null;
     }
 
+    /**
+     * limit number of pages to fetch at once 
+     * ignoing user preference.
+     * Some sites can't handle high load.  e.g. Comrademao
+     * @param {any} fetchSize
+     */
+    clampSimultanousFetchSize(fetchSize) {
+        return fetchSize;
+    }
+
     tagAuthorNotes(elements) {
         for(let e of elements) {
             e.classList.add("webToEpub-author-note");
@@ -693,7 +704,12 @@ class Parser {
 
     getRateLimit()
     {
-        let manualDelayPerChapterValue = (!isNaN(parseInt(this.userPreferences.manualDelayPerChapter.value)))?parseInt(this.userPreferences.manualDelayPerChapter.value):this.minimumThrottle;
+        if (this.userPreferences.manualDelayPerChapter.value == "simulate_reading")
+        {
+            return this.userPreferences.manualDelayPerChapter.value;
+        }
+        let manualDelayPerChapterValue = parseInt(this.userPreferences.manualDelayPerChapter.value);
+
         if (!this.userPreferences.overrideMinimumDelay.value)
         {
             return Math.max(this.minimumThrottle, manualDelayPerChapterValue);
@@ -703,6 +719,7 @@ class Parser {
 
     async rateLimitDelay() {
         let manualDelayPerChapterValue = this.getRateLimit();
+        manualDelayPerChapterValue = (manualDelayPerChapterValue == "simulate_reading" )? util.randomInteger(420000,900000): manualDelayPerChapterValue;
         await util.sleep(manualDelayPerChapterValue);
     }
 

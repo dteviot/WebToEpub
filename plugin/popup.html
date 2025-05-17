@@ -394,6 +394,17 @@
                         <td>__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__</td>
                         <td><button id="seriesPageHelpButton">__MSG_button_Help__</button></td>
                     </tr>
+                    <tr id="maxPagesToFetchSimultaneously">
+                        <td>
+                            <select id="maxPagesToFetchSimultaneouslyTag">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="8">8</option>
+                            </select>
+                        </td>
+                        <td>__MSG_label_Max_pages_to_fetch_simultaneously__</td>
+                    </tr>
                     <tr id="skipChaptersThatFailFetch">
                         <td><input id="skipChaptersThatFailFetchCheckbox" type="checkbox" name="skipChaptersThatFailFetchCheckbox" value="false"></td>
                         <td>__MSG_label_Skip_Chapters_That_Fail_Fetch__</td>
@@ -412,12 +423,29 @@
                         </td>
                         <td>__MSG_label_Max_chapters_per_epub__</td>
                     </tr>
+                </table>
+                <table id="ThrottleTable">
                     <tr id="manualDelayPerChapter">
                         <td>
-                            <input id="manualDelayPerChapterTag" type="number" name="manualDelayPerChapterTag" style="width: 61px;">
+                            <select id="manualDelayPerChapterTag">
+                                <option value="0" selected>Default (No Chapter Throttle/Delay)</option>
+                                <option value="3000">3 Secs/Chapter</option>
+                                <option value="5000">5 Secs/Chapter </option>
+                                <option value="10000">10 Secs/Chapter</option>
+                                <option value="20000">20 Secs/Chapter </option>
+                                <option value="30000">30 Secs/Chapter</option>
+                                <option value="60000">1 Min/Chapter</option>
+                                <option value="300000">5 Mins/Chapter</option>
+                                <option value="600000">10 Mins/Chapter</option>
+                                <option value="1800000">30 Mins/Chapter</option>
+                                <option value="3600000">60 Mins/Chapter</option>
+                                <option value="simulate_reading">Simulate Reading (7-15 Mins/Chapter)</option>
+                            </select>
                         </td>
                         <td>__MSG_label_Manual_Delay_Per_Chapter__</td>
                     </tr>
+                </table>
+                <table id="advancedOptionsTable">
                     <tr id="overrideParserDelayWithManualDelay">
                         <td><input id="overrideMinimumDelayCheckbox" type="checkbox" name="overrideMinimumDelayCheckbox" value="false"></td>
                         <td>__MSG_label_Override_Default_Minimum_Delay__</td>

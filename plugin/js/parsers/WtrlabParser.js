@@ -8,6 +8,10 @@ class WtrlabParser extends Parser{
         this.minimumThrottle = 11000;
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     populateUI(dom) {
         super.populateUI(dom);
         document.getElementById("removeChapterNumberRow").hidden = false; 

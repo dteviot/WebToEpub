@@ -18,6 +18,10 @@ class LightNovelWorldParser extends Parser{
         super();
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     async getChapterUrls(dom, chapterUrlsUI) {
         if (!dom.baseURI.endsWith("/chapters")) {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;

@@ -39,6 +39,10 @@ class LightNovelBastionParser extends Parser {
         super.removeUnwantedElementsFromContentElement(element);
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.summary_image");
     }

@@ -181,6 +181,10 @@ class MyNovelOnlineParser extends NoblemtlParser{
         this.minimumThrottle = 3000;
     }
 
+    clampSimultanousFetchSize() {
+        return 1;
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector(".epheader .entry-title");
     }
