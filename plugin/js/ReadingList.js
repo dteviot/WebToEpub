@@ -42,6 +42,7 @@ class ReadingList {
                 if (oldUrl === chapterList[i].sourceUrl) {
                     for(let j = 0; j <= i; ++j) {
                         chapterList[j].isIncludeable = false;
+                        chapterList[j].previousDownload = true;
                     }
                     break;
                 }

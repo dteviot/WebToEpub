@@ -72,16 +72,52 @@ class ChapterUrlsUI {
 
     static showDownloadState(row, state) {
         if (row != null) {
-            let img = row.querySelector("img");
+            let downloadStateDiv = row.querySelector(".downloadStateDiv");
+            ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv, state);
+        }
+    }
+
+    static updateDownloadStateImage(downloadStateDiv, state) {
+        let img = downloadStateDiv.querySelector("img");
+        if (img) {
             img.src = ChapterUrlsUI.ImageForState[state];
+
+            // Update tooltip
+            let tooltipText = ChapterUrlsUI.TooltipForSate[state];
+            let tooltipTextSpan = downloadStateDiv.querySelector(".tooltipText");
+
+            if (tooltipText && !tooltipTextSpan) {
+                tooltipTextSpan = document.createElement("span");
+                tooltipTextSpan.className = "tooltipText";
+                tooltipTextSpan.textContent = tooltipText;
+                downloadStateDiv.appendChild(tooltipTextSpan);
+            } else if (tooltipText) {
+                tooltipTextSpan.textContent = tooltipText;
+            } else if (tooltipTextSpan) {
+                // Remove tooltip text if there is no text to display
+                downloadStateDiv.removeChild(tooltipTextSpan);
+            }
         }
     }
 
     static resetDownloadStateImages() {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        let imgSrc = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
-        for(let img of linksTable.querySelectorAll("img")) {
-            img.src = imgSrc;
+        let prevDownload = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS];
+        let downloaded = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_LOADED];
+
+        for (let downloadStateDiv of linksTable.querySelectorAll(".downloadStateDiv")) {
+            let state = ChapterUrlsUI.DOWNLOAD_STATE_NONE;
+            let imgSrc = downloadStateDiv.querySelector("img")?.src;
+            if (imgSrc) {
+                const imagesIndex = imgSrc.indexOf("images/");
+                if (imagesIndex !== -1) {
+                    imgSrc = imgSrc.substring(imagesIndex);
+                }
+            }
+            if (imgSrc === prevDownload || imgSrc === downloaded) {
+                state = ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS;
+            }
+            ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv, state);
         }
     }
 
@@ -221,40 +257,41 @@ class ChapterUrlsUI {
     * @private
     */
     static appendCheckBoxToRow(row, chapter) {
-        let col = document.createElement("td");
-        let checkbox = document.createElement("input");
+        chapter.isIncludeable = chapter.isIncludeable ?? true;
+        chapter.previousDownload = chapter.previousDownload ?? false;
+
+        const col = document.createElement("td");
+        const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        if (chapter.isIncludeable === undefined) {
-            chapter.isIncludeable = true;
-        }
         checkbox.checked = chapter.isIncludeable;
         checkbox.onclick = function(event) { 
-            chapter.isIncludeable = checkbox.checked; 
-            if (event == undefined || event == null) {
-                return;
-            }
+            chapter.isIncludeable = checkbox.checked;
+            if (!event) return;
+
             ChapterUrlsUI.tellUserAboutShiftClick(event, row);
-            if (checkbox !== null)
-            {
-                let oldState = checkbox.checked;
-                if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
-                    let newState = oldState;
-                    ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, newState);
-                } else {
-                    ChapterUrlsUI.lastSelectedRow = row.rowIndex;
-                }
+
+            if (event.shiftKey && (ChapterUrlsUI.lastSelectedRow !== null)) {
+                ChapterUrlsUI.updateRange(ChapterUrlsUI.lastSelectedRow, row.rowIndex, checkbox.checked);
+            } else {
+                ChapterUrlsUI.lastSelectedRow = row.rowIndex;
             }
         };
         col.appendChild(checkbox);
-        ChapterUrlsUI.addImageToCheckBoxColumn(col);
+        ChapterUrlsUI.addDownloadStateToCheckboxColumn(col, chapter.previousDownload);
         row.appendChild(col);
     }
 
-    static addImageToCheckBoxColumn(col) {
+    static addDownloadStateToCheckboxColumn(col, previousDownload) {
+        let downloadStateDiv = document.createElement("div");
+        downloadStateDiv.className = "downloadStateDiv";
         let img = document.createElement("img");
         img.className = "downloadState";
-        img.src = ChapterUrlsUI.ImageForState[ChapterUrlsUI.DOWNLOAD_STATE_NONE];
-        col.appendChild(img);
+
+        downloadStateDiv.appendChild(img);
+        ChapterUrlsUI.updateDownloadStateImage(downloadStateDiv,
+            previousDownload ? ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS : ChapterUrlsUI.DOWNLOAD_STATE_NONE
+        );
+        col.appendChild(downloadStateDiv);
     }
 
     /** 
@@ -668,12 +705,21 @@ ChapterUrlsUI.DOWNLOAD_STATE_NONE = 0;
 ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING = 1;
 ChapterUrlsUI.DOWNLOAD_STATE_LOADED = 2;
 ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING = 3;
+ChapterUrlsUI.DOWNLOAD_STATE_PREVIOUS = 4;
 ChapterUrlsUI.ImageForState = [
     "images/ChapterStateNone.svg",
     "images/ChapterStateDownloading.svg",
-    "images/ChapterStateLoaded.svg",
-    "images/ChapterStateSleeping.svg"
+    "images/FileEarmarkCheckFill.svg",
+    "images/ChapterStateSleeping.svg",
+    "images/FileEarmarkCheck.svg"
 ];
+ChapterUrlsUI.TooltipForSate = [
+    null,
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloading__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloaded__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_sleeping__"),
+    chrome.i18n.getMessage("__MSG_Tooltip_chapter_previously_downloaded__")
+]
 
 ChapterUrlsUI.lastSelectedRow = null;
 ChapterUrlsUI.ConsecutiveRowClicks = 0;
