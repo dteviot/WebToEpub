@@ -364,8 +364,8 @@
 		"description": "Additional Metadata URL"
 	},
 	"__MSG_label_Override_Default_Minimum_Delay__": {
-		"message": "Override Minimum Throttle Value (where applicable)",
-		"description": "Override Minimum Throttle Value (where applicable)"
+		"message": "Override Delay per chapter Value (where applicable)",
+		"description": "Override Delay per chapter Value (where applicable)"
 	},
 	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
 		"message": "Overwrite existing EPUB file with same name",
