@@ -527,6 +527,22 @@
 		"message": "You can select or unselect a range of chapters by clicking on the checkbox for the first chapter, then  hold down the shift key and click the last chapter in the range.",
 		"description": "Tell user how to shift-click to multiselect."
 	},
+	"__MSG_Tooltip_chapter_downloading__": {
+		"message": "Downloading chapter",
+		"description": "Tooltip for chapter download status icon: chapter is currently downloading"
+	},
+	"__MSG_Tooltip_chapter_downloaded__": {
+		"message": "Downloaded",
+		"description": "Tooltip for chapter download status icon: chapter download succeeded"
+	},
+	"__MSG_Tooltip_chapter_sleeping__": {
+		"message": "Waiting for chapter delay time to elapse",
+		"description": "Tooltip for chapter download status icon: waiting for chapter delay time to elapse"
+	},
+	"__MSG_Tooltip_chapter_previously_downloaded__": {
+		"message": "Chapter previously downloaded",
+		"description": "Tooltip for chapter download status icon: chapter has been downloaded before."
+	},
 	"chapterPlaceholderMessage": {
 		"message": "This is a placeholder.  Attempt to fetch chapter from '$url$' failed with error: \r\n $error$",
 		"description": "Warning message when try to fetch an image and instead get HTML",
