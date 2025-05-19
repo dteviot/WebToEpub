@@ -707,7 +707,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\n",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading to fast try to increase 'Advanced Options -> Delay per chapter in ms'\n",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {
