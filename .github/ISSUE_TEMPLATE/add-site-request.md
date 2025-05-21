@@ -7,7 +7,11 @@ assignees: ''
 
 ---
 
-Please note, I'm basically the only developer working on WebToEpub, and I'm not paid for doing this.  (WebToEpub is completely free, and generates no money.) By asking to add a site, you're asking me to give you some of my limited free time. So, I think it's not unreasonable for me to ask you to do as much as you can to help me.
+Please note, there are only a few developers working on WebToEpub, and we're not paid for doing this.  (WebToEpub is completely free, and generates no money.) By asking to add a site, you're asking us to give you some of our limited free time. So, we think it's not unreasonable for me to ask you to do as much as you can to help us.
+
+### Check the site has not already been requested.
+You can search the issues to see if any have the site name by putting the site name in the search box near the top of the screen.  See https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests.
+If there is an existing issue, you can add a comment to the issue to indicate you're also interested in the site.
 
 ### Provide URL for web page that contains Table of Contents (list of chapters) of a typical story on the site
 
