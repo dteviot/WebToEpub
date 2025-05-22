@@ -84,6 +84,9 @@ class WtrlabParser extends Parser{
         if (response.json.data?.data?.body?false:true) {
             return true;
         }
+        if (response.json.requireTurnstile) {
+            return true;
+        }
         return false;
     }
 
