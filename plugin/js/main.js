@@ -620,7 +620,8 @@ var main = (function () {
     return {
         getPackEpubButton: getPackEpubButton,
         onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick,
-        fetchContentAndPackEpub: fetchContentAndPackEpub
+        fetchContentAndPackEpub: fetchContentAndPackEpub,
+        resetUI: resetUI
     };
 })();
 

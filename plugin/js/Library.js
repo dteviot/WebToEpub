@@ -811,7 +811,12 @@ class Library {
         if (document.getElementById("includeInReadingListCheckbox").checked != true) {
             document.getElementById("includeInReadingListCheckbox").click();
         }
-        await main.fetchContentAndPackEpub.call(obj);
+        try {
+            await main.fetchContentAndPackEpub.call(obj);
+        } catch {
+            //
+        }
+        Library.LibClearFields();
     }
 
     static LibSearchNewChapter(objbtn){
@@ -846,18 +851,12 @@ class Library {
     }
 
     static LibClearFields(){
-        let chapterUrlsUI = new ChapterUrlsUI();
-        chapterUrlsUI.populateChapterUrlsTable([]);
-        let ElementsToClear = ["titleInput", "authorInput", "languageInput", "fileNameInput", "coverImageUrlInput", "subjectInput", "descriptionInput"];
-        for (const element of ElementsToClear) {
-            document.getElementById(element).value = "";
-        }
-        document.getElementById("sampleCoverImg").src = "";
+        main.resetUI();
     }
     
     static async Libupdateall(){
         if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
-            document.getElementById("includeInReadingListCheckbox").click();
+            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
         }
         let LibArray = await Library.LibGetFromStorage("LibArray");
         ErrorLog.SuppressErrorLog =  true;
@@ -869,11 +868,13 @@ class Library {
             obj.dataset.libsuppressErrorLog = true;
             document.getElementById("startingUrlInput").value = await Library.LibGetFromStorage("LibStoryURL" + LibArray[i]);
             await main.onLoadAndAnalyseButtonClick.call(obj);
-            if (document.getElementById("includeInReadingListCheckbox").checked != true) {
-                document.getElementById("includeInReadingListCheckbox").click();
+            try {
+                await main.fetchContentAndPackEpub.call(obj);
+            } catch {
+                //
             }
-            await main.fetchContentAndPackEpub.call(obj);
         }
+        Library.LibClearFields();
         ErrorLog.SuppressErrorLog =  false;
     }
     
@@ -886,7 +887,7 @@ class Library {
     
     static async LibAddListToLibrary(){
         if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
-            document.getElementById("includeInReadingListCheckbox").click();
+            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
         }
         let links = Library.getURLsFromList();
         ErrorLog.SuppressErrorLog =  true;
@@ -901,8 +902,13 @@ class Library {
             if (document.getElementById("includeInReadingListCheckbox").checked != true) {
                 document.getElementById("includeInReadingListCheckbox").click();
             }
-            await main.fetchContentAndPackEpub.call(obj);
+            try {
+                await main.fetchContentAndPackEpub.call(obj);
+            } catch {
+                //
+            }
         }
+        Library.LibClearFields();
         ErrorLog.SuppressErrorLog =  false;
     }
     
