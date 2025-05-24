@@ -212,6 +212,10 @@ var makeManifestForFirefox = function(data) {
     // fix permissions/host_permissions
     let permissions = manifest.permissions;
     permissions = permissions.filter(p => p != "scripting");
+    // Add webRequestBlocking for Firefox
+    if (permissions.includes("webRequest") && !permissions.includes("webRequestBlocking")) {
+        permissions.push("webRequestBlocking");
+    }
     manifest.permissions = permissions.concat(manifest.host_permissions);
     delete manifest.host_permissions;
     
