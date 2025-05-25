@@ -667,7 +667,7 @@ class ChapterUrlsUI {
                 el = document.createElement("input");
                 el.type = "hidden";
                 el.name = checkboxId+"Hidden";
-                el.value = value.key;
+                el.value = RegExp.escape(value.key);
                 col.appendChild(el);
                 row.appendChild(col);
 
