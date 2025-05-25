@@ -21,6 +21,9 @@ class Download {
                 return true;
             }
         }
+        if (fileName.trim() == "") {
+            return true;
+        }
         return false;
     }
 
@@ -37,9 +40,6 @@ class Download {
         };
         for (const [key, value] of Object.entries(ToReplace)) {
             CustomFilename = CustomFilename.replaceAll(key, value);
-        }
-        if (CustomFilename == "") {
-            return EpubPacker.addExtensionIfMissing(document.getElementById("fileNameInput").value);
         }
         if (Download.isFileNameIllegalOnWindows(CustomFilename)) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorIllegalFileName",
