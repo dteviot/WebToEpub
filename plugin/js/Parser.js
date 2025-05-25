@@ -369,10 +369,9 @@ class Parser {
 
     makeInformationEpubItem(dom) {
         let titleText = chrome.i18n.getMessage("informationPageTitle");
-        let div = document.createElement("div");
         let title = document.createElement("h1");
         title.appendChild(document.createTextNode(titleText));
-        div.appendChild(title);
+        let div = document.createElement("div");
         let urlElement = document.createElement("p");
         let bold = document.createElement("b");
         bold.textContent = chrome.i18n.getMessage("tableOfContentsUrl");
@@ -381,7 +380,7 @@ class Parser {
         div.appendChild(urlElement);
         let infoDiv = document.createElement("div");
         this.populateInfoDiv(infoDiv, dom);    
-        let childNodes = [div, infoDiv];
+        let childNodes = [title, div, infoDiv];
         let chapter = {
             sourceUrl: this.state.chapterListUrl,
             title: titleText,
