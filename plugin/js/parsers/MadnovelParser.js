@@ -11,14 +11,28 @@ class MadnovelParser extends Parser {
 
     async getChapterUrls(dom) {
         let menu = dom.querySelector(".chapter-list");
-        util.hyperLinkToChapter = function (link, newArc) {
-            return {
+        if (menu == null) { return []; }
+
+        let linkSet = new Set();
+        let includeLink = function(link) {
+            if (util.isNullOrEmpty(link.innerText) || util.isNullOrEmpty(link.href)) {
+                return false;
+            }
+            let href = util.normalizeUrlForCompare(link.href);
+            if (linkSet.has(href)) {
+                return false;
+            }
+            linkSet.add(href);
+            return true;
+        };
+
+        return util.getElements(menu, "a", a => includeLink(a))
+            .map(link => ({
                 sourceUrl: link.href,
                 title: link.querySelector("strong").innerText,
-                newArc: (newArc === undefined) ? null : newArc
-            };
-        }
-        return util.hyperlinksToChapterList(menu).reverse();
+                newArc: null
+            }))
+            .reverse();
     }
 
     findContent(dom) {
