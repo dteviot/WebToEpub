@@ -11,8 +11,8 @@ class ErrorLog {
 
     static showErrorMessage(msg) {
         // if already showing an error message, queue the new one to display
-        // when currently showing is closed.
-        if (this.SuppressErrorLog) {
+        // when currently showing is closed. 
+        if (this.SuppressErrorLog && msg.retryAction == null) {
             return;
         }
         ErrorLog.queue.push(msg);

@@ -179,6 +179,10 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
         }).then(function () {
             return addImageFileToZip(zip, "ChapterStateSleeping.svg");
         }).then(function () {
+            return addImageFileToZip(zip, "FileEarmarkCheck.svg");
+        }).then(function () {
+            return addImageFileToZip(zip, "FileEarmarkCheckFill.svg");
+        }).then(function () {
             return addCssFileToZip(zip, "default.css");
         }).then(function () {
             return addCssFileToZip(zip, "alwaysDark.css");
@@ -212,6 +216,10 @@ var makeManifestForFirefox = function(data) {
     // fix permissions/host_permissions
     let permissions = manifest.permissions;
     permissions = permissions.filter(p => p != "scripting");
+    // Add webRequestBlocking for Firefox
+    if (permissions.includes("webRequest") && !permissions.includes("webRequestBlocking")) {
+        permissions.push("webRequestBlocking");
+    }
     manifest.permissions = permissions.concat(manifest.host_permissions);
     delete manifest.host_permissions;
     

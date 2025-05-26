@@ -364,8 +364,8 @@
 		"description": "Additional Metadata URL"
 	},
 	"__MSG_label_Override_Default_Minimum_Delay__": {
-		"message": "Override Minimum Throttle Value (where applicable)",
-		"description": "Override Minimum Throttle Value (where applicable)"
+		"message": "Override Delay per chapter Value (where applicable)",
+		"description": "Override Delay per chapter Value (where applicable)"
 	},
 	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
 		"message": "Overwrite existing EPUB file with same name",
@@ -707,7 +707,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\n",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading to fast try to increase 'Advanced Options -> Delay per chapter in ms'\n",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {

@@ -978,16 +978,16 @@ var util = (function () {
         }
     }
 
-    const replaceSemanticInlineStylesWithTags = function(element, removeLeftoverStyles = false) {
+    const replaceSemanticInlineStylesWithTags = function (element, removeLeftoverStyles = false) {
         if (element.hasAttribute("style")) {
             let styleText = element.getAttribute("style");
 
             // Map of style patterns to their semantic HTML equivalents
             const styleToTag = [
-                { regex: /font-style\s*:\s*(italic|oblique)\s*;/g, tag: "i" },
-                { regex: /font-weight\s*:\s*(bold|[7-9]\d\d)\s*;/g, tag: "b" },
-                { regex: /text-decoration\s*:\s*underline\s*;/g, tag: "u" },
-                { regex: /text-decoration\s*:\s*line-through\s*;/g, tag: "s" }
+                { regex: /font-style\s*:\s*(italic|oblique)\s*;?/g, tag: "i" },
+                { regex: /font-weight\s*:\s*(bold|[7-9]\d\d)\s*;?/g, tag: "b" },
+                { regex: /text-decoration\s*:\s*underline\s*;?/g, tag: "u" },
+                { regex: /text-decoration\s*:\s*line-through\s*;?/g, tag: "s" }
             ];
 
             // Apply semantic tags and remove corresponding styles
@@ -1001,7 +1001,7 @@ var util = (function () {
             }
 
             // Remove non-semantic font-weight
-            styleText = styleText.replace(/font-weight\s*:\s*(normal|[1-4]\d\d)\s*;/g, "");
+            styleText = styleText.replace(/font-weight\s*:\s*(normal|[1-4]\d\d)\s*;?/g, "");
             styleText = styleText.trim();
 
             if (styleText && (!removeLeftoverStyles || /italic|bold|font-weight|underline|line-through/.test(styleText))) {
@@ -1137,43 +1137,3 @@ var util = (function () {
         wrapInnerContentInTag: wrapInnerContentInTag
     };
 })();
-
-class FootnoteExtractor {
-    scriptElementsToFootnotes(dom) {
-        let indexedFootnotes = new Map();
-        [...dom.querySelectorAll("script")]
-            .map(s => s.textContent)
-            .filter(s => s.includes("toolTips('.classtoolTips"))
-            .forEach(s => indexedFootnotes.set(this.getId(s), this.extractFootnoteText(s)));
-
-        return this.getIdsUsedOnPage(dom)
-            .map(id => this.makeSpan(indexedFootnotes.get(id), dom));
-    }
-
-    getIdsUsedOnPage(dom) {
-        let extractId = (span) => [...span.classList]
-            .filter(s => s.startsWith("class"))[0];
-
-        return [...dom.querySelectorAll("span.tooltipsall")]
-            .map(extractId);
-    }
-
-    getId(script) {
-        return this.extractSubstring(script, "toolTips('.", ",").replace("'", "");
-    }
-
-    makeSpan(content, dom) {
-        let span = dom.createElement("span");
-        span.textContent = content;
-        return span;
-    }
-
-    extractFootnoteText(content) {
-        return this.extractSubstring(content, "tt_store_content = \"", "\"; toolTips('");
-    }
-
-    extractSubstring(content, startTag, endTag) {
-        content = content.substring(content.indexOf(startTag) + startTag.length);
-        return content.substring(0, content.indexOf(endTag));
-    }
-}

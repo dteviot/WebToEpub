@@ -19,6 +19,7 @@ parserFactory.register("skythewoodtl.com", function() { return new WordpressBase
 //dead url
 parserFactory.register("yoraikun.wordpress.com", function() { return new WordpressBaseParser() });
 parserFactory.register("wanderertl130.id", function() { return new Wanderertl130Parser() });
+parserFactory.register("sasakitomyiano.wordpress.com", function() { return new WordpressBaseParser() });
 
 parserFactory.registerRule(
     // return probability (0.0 to 1.0) web page is a Wordpress page
@@ -30,7 +31,7 @@ parserFactory.registerRule(
 );
 
 parserFactory.registerManualSelect(
-    "Wordpress", 
+    "Wordpress",
     function() { return new WordpressBaseParser() }
 );
 
@@ -47,7 +48,9 @@ class WordpressBaseParser extends Parser {
 
     static findContentElement(dom) {
         return dom.querySelector("div.entry-content") ||
-            dom.querySelector("div.post-content");
+            dom.querySelector("div.post-content") ||
+            dom.querySelector("ul.wp-block-post-template") ||
+            dom.querySelector(".wp-block-cover__inner-container");
     }
 
     // find the node(s) holding the story content
@@ -72,7 +75,8 @@ class WordpressBaseParser extends Parser {
             dom.querySelector(".page-title") ||
             dom.querySelector("header.post-title h1") ||
             dom.querySelector(".post-title") ||
-            dom.querySelector("#chapter-heading");
+            dom.querySelector("#chapter-heading") ||
+            dom.querySelector(".wp-block-post-title");
     }
 
     findChapterTitle(dom) {

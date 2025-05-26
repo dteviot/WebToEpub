@@ -27,7 +27,7 @@ class CoverImageUI {
     /** clear all UI elements associated with selecting the Cover Image */
     static clearUI() {
         CoverImageUI.clearImageTable();
-        CoverImageUI.setCoverImageUrl(null);
+        CoverImageUI.setCoverImageUrl("");
     }
 
     /** remove all images from the table of images to pick from */

@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("freewebnovel.com", () => new FreeWebNovelParser());
+parserFactory.register("freewebnovel.com", () => new FreeWebNovelComParser());
 parserFactory.register("bednovel.com", () => new FreeWebNovelParser());
 parserFactory.register("innnovel.com", () => new FreeWebNovelParser());
 parserFactory.register("libread.com", () => new FreeWebNovelParser());
@@ -87,5 +87,15 @@ class NovelliveParser extends FreeWebNovelParser {
     extractPartialChapterList(dom) {
         return [...dom.querySelector(".m-newest2").querySelectorAll("ul li a")]
             .map(a => util.hyperLinkToChapter(a));
+    }
+}
+
+class FreeWebNovelComParser extends FreeWebNovelParser {
+    constructor() {
+        super();
+    }
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeChildElementsMatchingCss(content, "p sub");
+        super.removeUnwantedElementsFromContentElement(content);
     }
 }

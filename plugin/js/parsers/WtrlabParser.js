@@ -5,7 +5,7 @@ parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 class WtrlabParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 11000;
+        this.minimumThrottle = 25000;
     }
 
     populateUI(dom) {
@@ -49,6 +49,19 @@ class WtrlabParser extends Parser{
         return util.getFirstImgSrc(dom, ".image-wrap");
     }
 
+    extractSubject(dom) {
+        let tagsgenre = [...dom.querySelectorAll("span.genre")].map(a => a.textContent);
+        let tagstags = [...dom.querySelectorAll(".tags a.tag")].map(a => a.textContent.replace(",", ""));
+        let tags = tagsgenre;
+        tags = tags.concat(tagstags);
+        return tags.map(e => e.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        let desc = dom.querySelector("span.description");
+        return desc.textContent.trim();
+    }
+
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div#contents-tabpane-about")];
     }
@@ -84,6 +97,9 @@ class WtrlabParser extends Parser{
         if (response.json.data?.data?.body?false:true) {
             return true;
         }
+        if (response.json.requireTurnstile) {
+            return true;
+        }
         return false;
     }
 
@@ -103,7 +119,7 @@ class WtrlabParser extends Parser{
             newresp.response = {};
             newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
             newresp.response.status = 999;
-            newresp.response.retryDelay = [80,40,20,10,5];
+            newresp.response.retryDelay = [80,40,25,25,25];
             newresp.errorMessage = "Fetch of URL '"+newresp.response.url+"' failed.\nThe server sends an empty Chapter try to open the URL and try again if you can see the Chapter on the normal website.\nIt could also be that you try to get an Ai translated novel that isn't Ai tranlated.";
             return newresp;
         }
