@@ -1,70 +1,70 @@
 /*
     General dumping ground for misc functions that I can't find a better place for.
-    Warning: Don't look at this too closely, or you may loose your sanity.
-    Side Note: Putting these all in one place may not have been a good idea. 
+    Warning: Don't look at this too closely, or you may lose your sanity.
+    Side Note: Putting these all in one place may not have been a good idea.
     I think they're breeding. There seem to be more functions in here that I didn't create.
 */
 
 "use strict";
 
-var util = (function () {
+const util = (function() {
 
-    var sleep = function(ms) {
+    function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    var randomInteger = function(min, max) {
+    function randomInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    var isFirefox = function() {
-        return (typeof(browser) !== "undefined");
+    function isFirefox() {
+        return (typeof (browser) !== "undefined");
     }
 
-    var extensionVersion = function() {
-        let runtime = util.isFirefox() ? browser.runtime : chrome.runtime;
+    function extensionVersion() {
+        let runtime = isFirefox() ? browser.runtime : chrome.runtime;
         // when running unit tests, runtime is not available
-        return (typeof(runtime) === "undefined") ? "unknown" : runtime.getManifest().version;
+        return (typeof (runtime) === "undefined") ? "unknown" : runtime.getManifest().version;
     }
 
-    var createEmptyXhtmlDoc = function() {
-        let doc = document.implementation.createDocument(util.XMLNS, "", null);
-        util.addXhtmlDocTypeToStart(doc);
-        let htmlNode = doc.createElementNS(util.XMLNS, "html");
+    function createEmptyXhtmlDoc() {
+        let doc = document.implementation.createDocument(XMLNS, "", null);
+        addXhtmlDocTypeToStart(doc);
+        let htmlNode = doc.createElementNS(XMLNS, "html");
         doc.appendChild(htmlNode);
-        let head = doc.createElementNS(util.XMLNS, "head");
+        let head = doc.createElementNS(XMLNS, "head");
         htmlNode.appendChild(head);
-        head.appendChild(doc.createElementNS(util.XMLNS, "title"));
+        head.appendChild(doc.createElementNS(XMLNS, "title"));
         populateHead(doc, head);
-        let body = doc.createElementNS(util.XMLNS, "body");
+        let body = doc.createElementNS(XMLNS, "body");
         htmlNode.appendChild(body);
         return doc;
     }
 
-    var populateHead = function(doc, head) {
-        let style = doc.createElementNS(util.XMLNS, "link");
+    function populateHead(doc, head) {
+        let style = doc.createElementNS(XMLNS, "link");
         head.appendChild(style);
-        style.setAttribute("href", util.makeRelative(util.styleSheetFileName()));
+        style.setAttribute("href", makeRelative(styleSheetFileName()));
         style.setAttribute("type", "text/css");
         style.setAttribute("rel", "stylesheet");
     }
 
-    var createEmptyHtmlDoc = function() {
+    function createEmptyHtmlDoc() {
         let doc = document.implementation.createHTMLDocument("");
-        util.populateHead(doc, doc.querySelector("head"));
-        return doc
+        populateHead(doc, doc.querySelector("head"));
+        return doc;
     }
 
-    var createSvgImageElement = function (href, width, height, origin, includeImageSourceUrl) {
+    function createSvgImageElement(href, width, height, origin, includeImageSourceUrl) {
         let svg_ns = "http://www.w3.org/2000/svg";
         let xlink_ns = "http://www.w3.org/1999/xlink";
         let that = this;
         let doc = that.createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
-        let div = doc.createElementNS(util.XMLNS, "div");
+        let div = doc.createElementNS(XMLNS, "div");
         div.className = "svg_outer svg_inner";
         body.appendChild(div);
-        var svg = document.createElementNS(svg_ns,"svg");
+        const svg = document.createElementNS(svg_ns, "svg");
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", xlink_ns);
         div.appendChild(svg);
         svg.setAttributeNS(null, "height", "99%");
@@ -72,55 +72,55 @@ var util = (function () {
         svg.setAttributeNS(null, "version", "1.1");
         svg.setAttributeNS(null, "preserveAspectRatio", "xMidYMid meet");
         svg.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height);
-        let newImage = doc.createElementNS(svg_ns,"image");
+        let newImage = doc.createElementNS(svg_ns, "image");
         svg.appendChild(newImage);
-        newImage.setAttributeNS(xlink_ns, "xlink:href", util.makeRelative(href));
+        newImage.setAttributeNS(xlink_ns, "xlink:href", makeRelative(href));
         newImage.setAttributeNS(null, "width", width);
         newImage.setAttributeNS(null, "height", height);
         if (includeImageSourceUrl) {
-            let desc = doc.createElementNS(svg_ns,"desc");
+            let desc = doc.createElementNS(svg_ns, "desc");
             svg.appendChild(desc);
             desc.appendChild(document.createTextNode(origin));
         } else {
-            svg.appendChild(util.createComment(doc, origin));
+            svg.appendChild(createComment(doc, origin));
         }
         return div;
     }
 
     // assumes we're making link from file in OEBPS\Text to OEBPS\Images
-    var makeRelative = function(href) {
-        return ".." + href.substr(5);
+    function makeRelative(href) {
+        return ".." + href.substring(5);
     }
 
-    var resolveRelativeUrl = function(baseUrl, relativeUrl) {
+    function resolveRelativeUrl(baseUrl, relativeUrl) {
         return new URL(relativeUrl, baseUrl).href;
     }
 
-    var extractHostName = function (url) {
+    function extractHostName(url) {
         return new URL(url).hostname;
-    };
+    }
 
-    var extractFilename = function(hyperlink) {
+    function extractFilename(hyperlink) {
         let filename = hyperlink.pathname
             .split("/")
-            .filter(p => p != "")
+            .filter(p => p !== "")
             .pop();
-        return (filename == null) ? "" : filename;
+        return filename ?? "";
     }
 
-    var extractFilenameFromUrl = function(url) {
+    function extractFilenameFromUrl(url) {
         return new URL(url).pathname
             .split("/")
-            .filter(p => p != "")
+            .filter(p => p !== "")
             .pop();
     }
 
-    var getParamFromUrl = function(url, paramName) {
+    function getParamFromUrl(url, paramName) {
         return new URL(url).searchParams.get(paramName);
     }
-    
+
     // set the base tag of a DOM to specified URL.
-    var setBaseTag = function (url, dom) {
+    function setBaseTag(url, dom) {
         if (dom != null) {
             let tags = Array.from(dom.getElementsByTagName("base"));
             if (0 < tags.length) {
@@ -134,22 +134,21 @@ var util = (function () {
     }
 
     // refer https://usamaejaz.com/cloudflare-email-decoding/
-    var decodeCloudflareProtectedEmails = function(content) {
-        for(let link of [...content.querySelectorAll(".__cf_email__")]) {
-            util.replaceCloudflareProtectedLink(link);
+    function decodeCloudflareProtectedEmails(content) {
+        for (let link of [...content.querySelectorAll(".__cf_email__")]) {
+            replaceCloudflareProtectedLink(link);
         }
-        let links = [...content.querySelectorAll("a")].
-            filter(l => (l.href != null) && l.href.includes("/cdn-cgi/l/email-protection"));
-        for(let link of links) {
-            util.replaceCloudflareProtectedLink(link);
+        let links = [...content.querySelectorAll("a")].filter(l => (l.href != null) && l.href.includes("/cdn-cgi/l/email-protection"));
+        for (let link of links) {
+            replaceCloudflareProtectedLink(link);
         }
     }
 
-    var replaceCloudflareProtectedLink = function(link) {
+    function replaceCloudflareProtectedLink(link) {
         let cyptedEmail = link.getAttribute("data-cfemail");
         if (cyptedEmail == null) {
             cyptedEmail = link.hash;
-            if (!util.isNullOrEmpty(cyptedEmail)) {
+            if (!isNullOrEmpty(cyptedEmail)) {
                 cyptedEmail = cyptedEmail.substring(1);
             }
         }
@@ -161,34 +160,34 @@ var util = (function () {
         }
     }
 
-    var decodeEmail = function(encodedString) {
+    function decodeEmail(encodedString) {
         let extractHex = function(index) {
-            return parseInt(encodedString.substr(index, 2), 16);
+            return parseInt(encodedString.slice(index, index + 2), 16);
         };
         let key = extractHex(0);
         let email = "";
-        for(let index = 2; index < encodedString.length; index += 2) {
-            email +=  String.fromCharCode(extractHex(index) ^ key);
+        for (let index = 2; index < encodedString.length; index += 2) {
+            email += String.fromCharCode(extractHex(index) ^ key);
         }
         return email;
     }
 
     // delete all nodes in the supplied array
-    var removeElements = function (elements) {
-        for(let e of elements) {
+    function removeElements(elements) {
+        for (let e of elements) {
             e.remove();
         }
     }
 
-    var removeChildElementsMatchingCss = function (element, css) {
+    function removeChildElementsMatchingSelector(element, selector) {
         if (element !== null) {
-            util.removeElements(element.querySelectorAll(css));
+            removeElements(element.querySelectorAll(selector));
         }
     }
 
-    var removeComments = function (root) {
+    function removeComments(root) {
         let walker = document.createTreeWalker(root, NodeFilter.SHOW_COMMENT);
-        
+
         // if we delete currentNode, call to nextNode() fails.
         let nodeList = [];
         while (walker.nextNode()) {
@@ -198,36 +197,36 @@ var util = (function () {
     }
 
     // discard empty divs created when moving elements
-    var removeEmptyDivElements = function(element) {
-        util.removeElements(util.getElements(element, "div", e => util.isElementWhiteSpace(e)));
+    function removeEmptyDivElements(element) {
+        removeElements(getElements(element, "div", e => isElementWhiteSpace(e)));
     }
 
-    var removeTrailingWhiteSpace = function(element) {
+    function removeTrailingWhiteSpace(element) {
         let children = element.childNodes;
-        while ((0 < children.length) && util.isElementWhiteSpace(children[children.length - 1])) {
+        while ((0 < children.length) && isElementWhiteSpace(children[children.length - 1])) {
             children[children.length - 1].remove();
         }
     }
 
-    var removeLeadingWhiteSpace = function(element) {
+    function removeLeadingWhiteSpace(element) {
         let children = element.childNodes;
-        while ((0 < children.length) && util.isElementWhiteSpace(children[0])) {
+        while ((0 < children.length) && isElementWhiteSpace(children[0])) {
             children[0].remove();
         }
     }
 
-    var removeScriptableElements = function(element) {
-        util.removeChildElementsMatchingCss(element, "script, iframe");
-        util.removeEventHandlers(element);
+    function removeScriptableElements(element) {
+        removeChildElementsMatchingSelector(element, "script, iframe");
+        removeEventHandlers(element);
     }
 
-    var removeMicrosoftWordCrapElements = function(element) {
-        for(let node of util.getElements(element, "O:P")) {
-            util.flattenNode(node);
+    function removeMicrosoftWordCrapElements(element) {
+        for (let node of getElements(element, "O:P")) {
+            flattenNode(node);
         }
     }
 
-    var flattenNode = function(node) {
+    function flattenNode(node) {
         while (node.hasChildNodes()) {
             node.parentNode.insertBefore(node.childNodes[0], node);
         }
@@ -235,26 +234,26 @@ var util = (function () {
     }
 
     /**
-    * @todo expand to remove ALL event handlers
-    */
-    var removeEventHandlers = function(contentElement) {
+     * @todo expand to remove ALL event handlers
+     */
+    function removeEventHandlers(contentElement) {
         let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
         let element = contentElement;
         while (element != null) {
             element.removeAttribute("onclick");
             element = walker.nextNode();
-        };
+        }
     }
 
-    var removeHeightAndWidthStyleFromParents = function(element) {
+    function removeHeightAndWidthStyleFromParents(element) {
         let parent = element.parentElement;
         while ((parent != null) && (parent.tagName.toLowerCase() !== "body")) {
-            util.removeHeightAndWidthStyle(parent);
+            removeHeightAndWidthStyle(parent);
             parent = parent.parentElement;
         }
     }
 
-    var removeHeightAndWidthStyle = function(element) {
+    function removeHeightAndWidthStyle(element) {
         let style = element.style;
         if ((style.width !== "") || (style.height !== "")) {
             style.width = null;
@@ -268,141 +267,142 @@ var util = (function () {
         element.removeAttribute("height");
     }
 
-    var removeUnwantedWordpressElements = function(element) {
+    function removeUnwantedWordpressElements(element) {
         let ccs = "div.sharedaddy, div.wpcnt, ul.post-categories, div.mistape_caption, "
             + "div.wpulike, div.wp-next-post-navi, .ezoic-adpicker-ad, .ezoic-ad, "
             + "ins.adsbygoogle";
-        util.removeChildElementsMatchingCss(element, ccs);
+        removeChildElementsMatchingSelector(element, ccs);
     }
 
-    var removeShareLinkElements = function(contentElement) {
-        util.removeChildElementsMatchingCss(contentElement, "div.sharepost");
+    function removeShareLinkElements(contentElement) {
+        removeChildElementsMatchingSelector(contentElement, "div.sharepost");
     }
 
-    var convertPreTagToPTags = function(dom, element, splitOn) {
+    function convertPreTagToPTags(dom, element, splitOn) {
         let normalizeEol = function(s) {
             return s.replace(/\r\n/g, "\n")
-                .replace(/\r/g, "\n")
+                .replace(/\r/g, "\n");
         };
-    
+
         splitOn = splitOn || "\n";
         let strings = normalizeEol(element.innerText).split(splitOn);
         element.innerHTML = "";
-        for(let s of strings) {
+        for (let s of strings) {
             let p = dom.createElement("p");
             p.appendChild(dom.createTextNode(s));
             element.appendChild(p);
         }
     }
 
-    var prepForConvertToXhtml = function(element) {
-        this.replaceCenterTags(element);
-        this.replaceUnderscoreTags(element);
-        this.replaceSTags(element);
+    function prepForConvertToXhtml(element) {
+        replaceCenterTags(element);
+        replaceUnderscoreTags(element);
+        replaceSTags(element);
     }
 
-    var replaceCenterTags = function(element) {
-        for(let center of element.querySelectorAll("center")) {
+    function replaceCenterTags(element) {
+        for (let center of element.querySelectorAll("center")) {
             let replacement = center.ownerDocument.createElement("p");
             replacement.style.textAlign = "center";
-            util.convertElement(center, replacement);
+            convertElement(center, replacement);
         }
     }
 
-    var replaceUnderscoreTags = function(element) {
-        for(let underscore of element.querySelectorAll("U")) {
+    function replaceUnderscoreTags(element) {
+        for (let underscore of element.querySelectorAll("U")) {
             let replacement = underscore.ownerDocument.createElement("span");
             // ToDo: figure out how to do this by manipulating the style directly
             replacement.setAttribute("style", "text-decoration: underline;");
-            util.convertElement(underscore, replacement);
+            convertElement(underscore, replacement);
         }
     }
 
-    var replaceSTags = function(element) {
-        for(let underscore of element.querySelectorAll("s")) {
+    function replaceSTags(element) {
+        for (let underscore of element.querySelectorAll("s")) {
             let replacement = underscore.ownerDocument.createElement("span");
             // ToDo: figure out how to do this by manipulating the style directly
             replacement.setAttribute("style", "text-decoration: line-through;");
-            util.convertElement(underscore, replacement);
+            convertElement(underscore, replacement);
         }
     }
 
-    var convertElement = function(element, replacement) {
+    function convertElement(element, replacement) {
         let parent = element.parentElement;
         parent.insertBefore(replacement, element);
-        util.moveChildElements(element, replacement);
-        util.copyAttributes(element, replacement);
+        moveChildElements(element, replacement);
+        copyAttributes(element, replacement);
         element.remove();
     }
 
-    var moveChildElements = function(from, to) {
+    function moveChildElements(from, to) {
         while (from.firstChild) {
             to.appendChild(from.firstChild);
         }
     }
 
-    var copyAttributes = function(from, to) {
-        for(let i = 0; i < from.attributes.length; ++i) {
+    function copyAttributes(from, to) {
+        for (let i = 0; i < from.attributes.length; ++i) {
             let attr = from.attributes[i];
             try {
                 to.setAttribute(attr.localName, attr.value);
             } catch (e) {
                 // probably invalid attribute name.  Discard
             }
-        };
+        }
     }
 
-    var fixDelayLoadedImages = function(element, delayAttrib) {
-        for(let i of element.querySelectorAll("img")) {
+    function fixDelayLoadedImages(element, delayAttrib) {
+        for (let i of element.querySelectorAll("img")) {
             let url = i.getAttribute(delayAttrib);
-            if (!util.isNullOrEmpty(url)) {
+            if (!isNullOrEmpty(url)) {
                 i.src = url;
             }
         }
     }
 
-    var fixBlockTagsNestedInInlineTags = function(contentElement) {
+    function fixBlockTagsNestedInInlineTags(contentElement) {
         // if an inline tag contains block tags, move contents out of inline tag
         // refer https://github.com/dteviot/WebToEpub/issues/62
         let garbage = [];
         let walker = contentElement.ownerDocument.createTreeWalker(contentElement, NodeFilter.SHOW_ELEMENT);
         let element = contentElement;
         while (element != null) {
-            if (util.isInlineElement(element) && util.isBlockElementInside(element)) {
-                util.moveElementsOutsideTag(element);
+            if (isInlineElement(element) && isBlockElementInside(element)) {
+                moveElementsOutsideTag(element);
                 garbage.push(element);
-            };
+            }
             element = walker.nextNode();
-        };
+        }
 
-        for(let g of garbage) {
+        for (let g of garbage) {
             g.remove();
-        };
+        }
     }
 
-    var isBlockElementInside = function(inlineElement) {
+    function isBlockElementInside(inlineElement) {
         let walker = inlineElement.ownerDocument.createTreeWalker(inlineElement, NodeFilter.SHOW_ELEMENT);
         let element = null;
         while ((element = walker.nextNode())) {
-            if (util.isBlockElement(element)) {
+            if (isBlockElement(element)) {
                 return true;
-            };
-        };
-        // if get here no block element found
+            }
+        }
+
+        // if here, no block element found
         return false;
     }
 
-    var moveElementsOutsideTag = function(inlineElement) {
+    function moveElementsOutsideTag(inlineElement) {
         while (inlineElement.hasChildNodes()) {
             let node = inlineElement.childNodes[0];
             inlineElement.parentNode.insertBefore(node, inlineElement);
-            
+
             // handle case of <inline><inline><block></block></inline></inline>
-            util.fixBlockTagsNestedInInlineTags(node);
-        };
+            fixBlockTagsNestedInInlineTags(node);
+        }
     }
 
-    var isNodeInTag = function(tags, node) {
+    function isNodeInTag(tags, node) {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return false;
         } else {
@@ -411,26 +411,26 @@ var util = (function () {
         }
     }
 
-    var isInlineElement = function(node) {
-        return this.isNodeInTag(util.INLINE_ELEMENTS, node);
+    function isInlineElement(node) {
+        return isNodeInTag(INLINE_ELEMENTS, node);
     }
 
-    var isBlockElement = function(node) {
-        return this.isNodeInTag(util.BLOCK_ELEMENTS, node);
+    function isBlockElement(node) {
+        return isNodeInTag(BLOCK_ELEMENTS, node);
     }
 
-    var getFirstImgSrc = function(dom, selector) {
-        return  dom.querySelector(selector)?.querySelector("img")?.src ?? null;
+    function getFirstImgSrc(dom, selector) {
+        return dom.querySelector(selector)?.querySelector("img")?.src ?? null;
     }
 
-    var extractHashFromUri = function(uri) {
+    function extractHashFromUri(uri) {
         let index = uri.indexOf("#");
         return (index === -1) ? null : uri.substring(index + 1);
     }
 
-    var resolveLazyLoadedImages = function(content, imgCss, attrName) {
+    function resolveLazyLoadedImages(content, imgCss, attrName) {
         attrName = attrName || "data-src";
-        for(let img of content.querySelectorAll(imgCss)) {
+        for (let img of content.querySelectorAll(imgCss)) {
             let dataSrc = img.getAttribute(attrName);
             if (dataSrc !== null) {
                 img.src = dataSrc.trim();
@@ -438,20 +438,20 @@ var util = (function () {
         }
     }
 
-    var makeHyperlinksRelative = function(baseUri, content) {
-        for(let link of util.getElements(content, "a", e => this.isLocalHyperlink(baseUri, e))) {
-            link.href = "#" + this.extractHashFromUri(link.href);
+    function makeHyperlinksRelative(baseUri, content) {
+        for (let link of getElements(content, "a", e => isLocalHyperlink(baseUri, e))) {
+            link.href = "#" + extractHashFromUri(link.href);
         }
     }
 
-    var isLocalHyperlink = function(baseUri, link) {
-        return link.href.startsWith(baseUri) && (link.href.indexOf("#") != -1);
+    function isLocalHyperlink(baseUri, link) {
+        return link.href.startsWith(baseUri) && (link.href.indexOf("#") !== -1);
     }
 
-    var findPrimaryStyleSettings = function(element, styleProperties) {
+    function findPrimaryStyleSettings(element, styleProperties) {
         let characterCountForElement = function(element) {
             let count = 0;
-            let child = element.firstChild
+            let child = element.firstChild;
             while (child) {
                 if (child.nodeType === Node.TEXT_NODE) {
                     count += child.nodeValue.length;
@@ -459,25 +459,25 @@ var util = (function () {
                 child = child.nextSibling;
             }
             return count;
-        }
+        };
 
         let findMaxCount = function(map) {
-            let maxPair = [ undefined, 0 ];
-            for(let pair of map) {
+            let maxPair = [undefined, 0];
+            for (let pair of map) {
                 if (maxPair[1] <= pair[1]) {
                     maxPair = pair;
                 }
             }
             return maxPair[0];
-        }
- 
+        };
+
         let mergeStyles = function(parentStyle, currentStyle, styleProperty) {
-            if (currentStyle == null) {
+            if (currentStyle === null || currentStyle === undefined) {
                 return parentStyle;
             }
             let c = currentStyle[styleProperty];
-            return c != "" ? c : parentStyle; 
-        } 
+            return c !== "" ? c : parentStyle;
+        };
 
         let updateStat = function(map, key, count) {
             let total = map.get(key);
@@ -485,32 +485,32 @@ var util = (function () {
                 total = 0;
             }
             map.set(key, total + count);
-        } 
+        };
 
         let walk = function(element, stats, parentStyle, styleProperties) {
             let mergedStyle = [];
             let count = characterCountForElement(element);
-            for(let i = 0; i < styleProperties.length; ++i) {
+            for (let i = 0; i < styleProperties.length; ++i) {
                 let merged = mergeStyles(parentStyle[i], element.style, styleProperties[i]);
                 updateStat(stats[i], merged, count);
                 mergedStyle.push(merged);
             }
-            for(let i = 0; i < element.childElementCount; ++i) {
+            for (let i = 0; i < element.childElementCount; ++i) {
                 walk(element.children[i], stats, mergedStyle, styleProperties);
             }
-        }  
+        };
 
         let stats = styleProperties.map(() => new Map());
         let initialStyle = styleProperties.map(() => undefined);
-        
+
         walk(element, stats, initialStyle, styleProperties);
         return stats.map(s => findMaxCount(s));
     }
 
     /**
-    *  Remove specified inline style value from element and its descendants
-    */
-    var removeStyleValue = function(element, styleName, value) {
+     *  Remove specified inline style value from element and its descendants
+     */
+    function removeStyleValue(element, styleName, value) {
         if (value === undefined) {
             return;
         }
@@ -524,35 +524,35 @@ var util = (function () {
                     node.removeAttribute("style");
                 }
             }
-        }while (walker.nextNode());
+        } while (walker.nextNode());
     }
 
     /** If web page is using custom font color or size, set to default */
-    var setStyleToDefault = function(element) {
+    function setStyleToDefault(element) {
         let styleProperties = ["color", "fontSize"];
-        let primary = util.findPrimaryStyleSettings(element, styleProperties);
-        for(let i = 0; i < styleProperties.length; ++i) {
-            util.removeStyleValue(element, styleProperties[i], primary[i]);
+        let primary = findPrimaryStyleSettings(element, styleProperties);
+        for (let i = 0; i < styleProperties.length; ++i) {
+            removeStyleValue(element, styleProperties[i], primary[i]);
         }
     }
 
-    // move up heading if higher levels are missing, i.e h2 to h1, h3 to h2 if there's no h1.
-    var removeUnusedHeadingLevels = function(contentElement) {
-        let usedHeadings = util.HEADER_TAGS.map(tag => [...contentElement.querySelectorAll(tag)])
+    // move up heading if higher levels are missing, i.e. h2 to h1, h3 to h2 if there's no h1.
+    function removeUnusedHeadingLevels(contentElement) {
+        let usedHeadings = HEADER_TAGS.map(tag => [...contentElement.querySelectorAll(tag)])
             .filter(headings => 0 < headings.length);
-        for(let i = 0; i < usedHeadings.length; ++i) {
-            for(let element of usedHeadings[i]) {
-                let replacement = element.ownerDocument.createElement(util.HEADER_TAGS[i]);
-                util.convertElement(element, replacement);
+        for (let i = 0; i < usedHeadings.length; ++i) {
+            for (let element of usedHeadings[i]) {
+                let replacement = element.ownerDocument.createElement(HEADER_TAGS[i]);
+                convertElement(element, replacement);
             }
         }
     }
 
     /**
-    * wrap any raw text in <p></p> tags
-    */
-    var wrapRawTextNode = function (node) {
-        if ((node.nodeType === Node.TEXT_NODE) && !util.isStringWhiteSpace(node.nodeValue)) {
+     * wrap any raw text in <p></p> tags
+     */
+    function wrapRawTextNode(node) {
+        if ((node.nodeType === Node.TEXT_NODE) && !isStringWhiteSpace(node.nodeValue)) {
             let wrapper = node.ownerDocument.createElement("p");
             wrapper.appendChild(node.ownerDocument.createTextNode(node.nodeValue));
             return wrapper;
@@ -561,11 +561,11 @@ var util = (function () {
         }
     }
 
-    var isNullOrEmpty = function(s) {
-        return ((s == null) || util.isStringWhiteSpace(s));
+    function isNullOrEmpty(s) {
+        return ((s == null) || isStringWhiteSpace(s));
     }
 
-    var hyperlinksToChapterList = function(contentElement, isChapterPredicate, getChapterArc) {
+    function hyperlinksToChapterList(contentElement, isChapterPredicate, getChapterArc) {
         if (contentElement == null) {
             return [];
         }
@@ -573,14 +573,16 @@ var util = (function () {
         let linkSet = new Set();
         let includeLink = function(link) {
             // ignore links with no name or link
-            if (util.isNullOrEmpty(link.innerText) || util.isNullOrEmpty(link.href)) {
+            if (isNullOrEmpty(link.innerText) || isNullOrEmpty(link.href)) {
                 return false;
-            };
+            }
+
             // ignore duplicate links
-            let href = util.normalizeUrlForCompare(link.href);
+            let href = normalizeUrlForCompare(link.href);
             if (linkSet.has(href)) {
                 return false;
-            };
+            }
+
             linkSet.add(href);
             return isChapterPredicate ? isChapterPredicate(link) : true;
         };
@@ -596,48 +598,48 @@ var util = (function () {
                     currentArc = arc;
                     return currentArc;
                 }
-            };
-            return currentArc;
-        }
+            }
 
-        let chaptersList = util.getElements(contentElement, "a", a => includeLink(a))
-            .map(link => util.hyperLinkToChapter(link, newArcValueForChapter(link)));
-        return chaptersList;
+            return currentArc;
+        };
+
+        return getElements(contentElement, "a", a => includeLink(a))
+            .map(link => hyperLinkToChapter(link, newArcValueForChapter(link)));
     }
 
-    var removeTrailingSlash = function(url) {
+    function removeTrailingSlash(url) {
         return url.endsWith("/") ? url.substring(0, url.length - 1) : url;
     }
 
-    var removeAnchor = function(url) {
+    function removeAnchor(url) {
         let index = url.indexOf("#");
         return (0 <= index) ? url.substring(0, index) : url;
     }
 
-    var normalizeUrlForCompare = function(url) {
-        let noTrailingSlash = util.removeTrailingSlash(util.removeAnchor(url));
-        
+    function normalizeUrlForCompare(url) {
+        let noTrailingSlash = removeTrailingSlash(removeAnchor(url));
+
         const protocolSeperator = "://";
         let protocolIndex = noTrailingSlash.indexOf(protocolSeperator);
-        return (protocolIndex < 0) ?  noTrailingSlash
+        return (protocolIndex < 0) ? noTrailingSlash
             : noTrailingSlash.substring(protocolIndex + protocolSeperator.length);
     }
 
-    var hyperLinkToChapter = function(link, newArc) {
+    function hyperLinkToChapter(link, newArc) {
         return {
-            sourceUrl:  link.href,
+            sourceUrl: link.href,
             title: link.innerText.trim(),
             newArc: (newArc === undefined) ? null : newArc
         };
     }
 
-    var createComment = function(doc, content) {
+    function createComment(doc, content) {
         // comments are not allowed to contain a double hyphen
         let escaped = content.replace(/--/g, "%2D%2D");
         return doc.createComment("  " + escaped + "  ");
     }
 
-    var addXmlDeclarationToStart = function(dom) {
+    function addXmlDeclarationToStart(dom) {
         // As JavaScript doesn't support this directly, need to do a dirty hack using
         // a processing instruction
         // see https://bugzilla.mozilla.org/show_bug.cgi?id=318086
@@ -645,20 +647,20 @@ var util = (function () {
         dom.insertBefore(declaration, dom.childNodes[0]);
     }
 
-    var addXhtmlDocTypeToStart = function(dom) {
+    function addXhtmlDocTypeToStart(dom) {
         // So that we don't get weird as hell issues with certain tags we use a dirty hack to add a doctype
-        let docType = dom.implementation.createDocumentType("html","-//W3C//DTD XHTML 1.1//EN", "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
+        let docType = dom.implementation.createDocumentType("html", "-//W3C//DTD XHTML 1.1//EN", "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
         dom.insertBefore(docType, dom.children[0]);
     }
 
-    var isStringWhiteSpace = function (s) {
+    function isStringWhiteSpace(s) {
         return !(/\S/.test(s));
     }
 
-    var isElementWhiteSpace = function(element) {
+    function isElementWhiteSpace(element) {
         switch (element.nodeType) {
         case Node.TEXT_NODE:
-            return util.isStringWhiteSpace(element.textContent);
+            return isStringWhiteSpace(element.textContent);
         case Node.COMMENT_NODE:
             return true;
         }
@@ -668,39 +670,39 @@ var util = (function () {
         if (element.querySelector("img, image") !== null) {
             return false;
         }
-        return util.isStringWhiteSpace(element.innerText);
+        return isStringWhiteSpace(element.innerText);
     }
 
-    var isHeaderTag = function(node) {
+    function isHeaderTag(node) {
         if (node.nodeType !== Node.ELEMENT_NODE) {
             return false;
         }
-        let tag = node.tagName.toLowerCase(); 
-        return util.HEADER_TAGS.some(t => tag === t);
+        let tag = node.tagName.toLowerCase();
+        return HEADER_TAGS.some(t => tag === t);
     }
 
-    var isUrl = function(string) {
+    function isUrl(string) {
         try {
             let url = new URL(string);
             return url.protocol.startsWith("http:")
-              || url.protocol.startsWith("https:");
+                || url.protocol.startsWith("https:");
         } catch (e) {
             return false;
         }
     }
 
-    var xmlToString = function(dom) {
-        util.addXmlDeclarationToStart(dom);
+    function xmlToString(dom) {
+        addXmlDeclarationToStart(dom);
         return new XMLSerializer().serializeToString(dom);
     }
 
-    var zeroPad =  function(num) {
+    function zeroPad(num) {
         let padded = "000" + num;
         padded = padded.substring(padded.length - 4, padded.length);
         return padded;
     }
 
-    var iterateElements = function(root, filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
+    function iterateElements(root, filter, whatToShow = NodeFilter.SHOW_ELEMENT) {
         let iterator = document.createNodeIterator(root,
             whatToShow,
             { acceptNode: filter }
@@ -710,82 +712,82 @@ var util = (function () {
         while ((node = iterator.nextNode()) != null) {
             elements.push(node);
         }
-        return elements;        
-    }
-    
-    var getElements = function(dom, tagName, filter) {
-        let array = Array.from(dom.getElementsByTagName(tagName));
-        return (filter == undefined) ? array : array.filter(filter)
+        return elements;
     }
 
-    var getElement = function(dom, tagName, filter) {
+    function getElements(dom, tagName, filter) {
+        let array = Array.from(dom.getElementsByTagName(tagName));
+        return (filter === undefined || typeof filter !== "function")
+            ? array : array.filter(filter);
+    }
+
+    function getElement(dom, tagName, filter) {
         let elements = getElements(dom, tagName, filter);
         return (elements.length === 0) ? null : elements[0];
     }
 
     /**
-    *   Used in removeNextAndPreviousChapterHyperlinks()
-    *   Basically, we want to remove all elements related to the hyperlink
-    *   So we want to remove the parent element.  However need to be be careful
-    *   we don't go so high we wipe out the entire document
-    */
-    var moveIfParent = function(element, parentTag) {
+     *   Used in removeNextAndPreviousChapterHyperlinks()
+     *   Basically, we want to remove all elements related to the hyperlink
+     *   So we want to remove the parent element. However, need to be careful
+     *   we don't go so high we wipe out the entire document
+     */
+    function moveIfParent(element, parentTag) {
         let parent = element.parentNode;
         if ((parent.tagName.toLowerCase() === parentTag) &&
-            (parent.textContent.length  < 200)) {
+            (parent.textContent.length < 200)) {
             return parent;
         }
         return element;
     }
-    
-    var safeForFileName = function (title, maxLength = 20) {
-        if(title) {
+
+    function safeForFileName(title, maxLength = 20) {
+        if (title) {
             // Allow only a-z regardless of case and numbers as well as hyphens and underscores; replace spaces and no-break spaces with underscores
-            title = title.replace(/ |\u00a0/gi, "_").replace(/([^a-z0-9_-]+)/gi, "");
-            // There is technically a 255 character limit in windows for file paths. 
-            // So we will allow files to have 20 characters and when they go over we split them 
+            title = title.replace(/[ \u00a0]/gi, "_").replace(/([^a-z0-9_-]+)/gi, "");
+            // There is technically a 255-character limit in windows for file paths.
+            // So we will allow files to have 20 characters and when they go over we split them
             // we then truncate the middle so that the file name is always different
-            const elipsis = "...";
-            let splitLength = Math.floor((maxLength - elipsis.length) / 2);
+            const ellipsis = "...";
+            let splitLength = Math.floor((maxLength - ellipsis.length) / 2);
             return title.length > maxLength
-                ? title.substr(0, splitLength) + elipsis + title.substr(title.length - splitLength, title.length) 
+                ? title.slice(0, splitLength) + ellipsis + title.slice(title.length - splitLength)
                 : title;
         }
         return "";
     }
 
-    var makeStorageFileName = function (subdirectory, index, title, extension) {
-        let that = this;
-        if(title) {
+    function makeStorageFileName(subdirectory, index, title, extension) {
+        if (title) {
             const safeLengthForNameInZip = 200;
-            title = "_" + that.safeForFileName(title, safeLengthForNameInZip) + ".";
-        }else {
+            title = "_" + safeForFileName(title, safeLengthForNameInZip) + ".";
+        } else {
             // We don't want issues so just set it to . to prepare for the extension
             title = ".";
         }
-        return subdirectory + that.zeroPad(index) + title + extension;
+        return subdirectory + zeroPad(index) + title + extension;
     }
 
-    var isTextAreaField = function (element) {
+    function isTextAreaField(element) {
         return (element.tagName === "TEXTAREA");
     }
 
-    var isTextInputField = function (element) {
+    function isTextInputField(element) {
         return (element.tagName === "INPUT") &&
-           ((element.type === "text") || (element.type === "url"));
+            ((element.type === "text") || (element.type === "url"));
     }
 
-    var isXhtmlInvalid = function (xhtmlAsString, mimeType = "application/xml") {
+    function isXhtmlInvalid(xhtmlAsString, mimeType = "application/xml") {
         let doc = new DOMParser().parseFromString(xhtmlAsString, mimeType);
-        let parsererror = doc.querySelector("parsererror");
-        return (parsererror === null) ? null : parsererror.textContent;
+        let parserError = doc.querySelector("parsererror");
+        return (parserError === null) ? null : parserError.textContent;
     }
 
-    var dctermsToTable = function (dom) {
+    function dctermsToTable(dom) {
         let table = dom.createElement("table");
         let body = dom.createElement("tbody");
         table.appendChild(body);
-        for(let term of dom.querySelectorAll("meta[name*='dcterms.']")) {
+        for (let term of dom.querySelectorAll("meta[name*='dcterms.']")) {
             let row = dom.createElement("tr");
             body.appendChild(row);
             let td = dom.createElement("td");
@@ -798,18 +800,18 @@ var util = (function () {
         return table;
     }
 
-    var parseHtmlAndInsertIntoContent = function(htmlText, content) {
+    function parseHtmlAndInsertIntoContent(htmlText, content) {
         let parsed = new DOMParser().parseFromString(htmlText, "text/html");
         while (content.firstChild) {
             content.removeChild(content.firstChild);
         }
         for (const tag of [...parsed.querySelector("body").children]) {
-            content.appendChild(tag)
-        }        
+            content.appendChild(tag);
+        }
     }
 
-    // allow disabling loging from one place
-    var log = function(arg) { // eslint-disable-line no-unused-vars
+    // allow disabling logging from one place
+    function log(arg) { // eslint-disable-line no-unused-vars
         // ToDo: uncomment this for debug logging
         // console.log(arg);
     }
@@ -820,21 +822,21 @@ var util = (function () {
         xhr.open("GET", fileName, false);
         xhr.send(null);
         let dom = new DOMParser().parseFromString(xhr.responseText, "text/html");
-        util.setBaseTag(url, dom);
+        setBaseTag(url, dom);
         return dom;
     }
 
-    var styleSheetFileName = function () {
+    function styleSheetFileName() {
         return "OEBPS/Styles/stylesheet.css";
     }
 
-    var extractUrlFromBackgroundImage = function(element) {
-        var background = element?.style?.backgroundImage;
+    function extractUrlFromBackgroundImage(element) {
+        const background = element?.style?.backgroundImage;
         return background?.substring(5, background.length - 2) ?? null;
     }
 
-    var extactSubstring = function(s, prefix, suffix) {
-        if (typeof(prefix) !== "string") {
+    function extractSubstring(s, prefix, suffix) {
+        if (typeof (prefix) !== "string") {
             let match = s.match(prefix);
             if (match === null) {
                 throw new Error("prefix not found");
@@ -843,42 +845,41 @@ var util = (function () {
             }
         }
 
-        var i = s.indexOf(prefix);
+        let i = s.indexOf(prefix);
         if (i < 0) {
             throw new Error("prefix not found");
-        }        
+        }
         s = s.substring(i + prefix.length);
         i = s.indexOf(suffix);
         if (i < 0) {
             throw new Error("suffix not found");
-        }        
+        }
         return s.substring(0, i);
     }
 
-    var findIndexOfClosingQuote = function(s, startIndex) {
+    function findIndexOfClosingQuote(s, startIndex) {
         let index = startIndex + 1;
-        while(index < s.length && (s[index] !== "\""))
-        {
+        while (index < s.length && (s[index] !== "\"")) {
             index += (s[index] === "\\") ? 2 : 1;
         }
         return index;
     }
 
-    var findIndexOfClosingBracket = function(s, startIndex) {
+    function findIndexOfClosingBracket(s, startIndex) {
         let index = startIndex + 1;
         let depth = 1;
         let c = s[index];
-        while ((0 < depth) && (index < s.length)) {
-            if ((c === "]") || (c === "}")) {
+        while (0 < depth && index < s.length) {
+            if (c === "]" || c === "}") {
                 --depth;
-                if (depth == 0) {
+                if (depth === 0) {
                     return index;
                 }
-            } else if ((c === "[") || (c === "{")) {
+            } else if (c === "[" || c === "{") {
                 ++depth;
             } else if (c === "\"") {
-                index = util.findIndexOfClosingQuote(s, index);
-            } 
+                index = findIndexOfClosingQuote(s, index);
+            }
             ++index;
             c = s[index];
         }
@@ -888,13 +889,13 @@ var util = (function () {
 
     /** locate and extract JSON that is embedded in a string
      * @param {string} s - show/hide control
-     * @param {string} prefix - text that preceeds the embedded JSON 
-    */
-    var locateAndExtractJson = function(s, prefix) {
-        var findOpeningBracket = function(s, index) {
+     * @param {string} prefix - text that precedes the embedded JSON
+     */
+    function locateAndExtractJson(s, prefix) {
+        const findOpeningBracket = function(s, index) {
             while (index < s.length) {
                 let ch = s[index];
-                if ((ch==="[") || (ch === "{")) {
+                if ((ch === "[") || (ch === "{")) {
                     return index;
                 }
                 ++index;
@@ -906,7 +907,7 @@ var util = (function () {
         if (0 <= index) {
             index = findOpeningBracket(s, index + prefix.length);
             if (0 <= index) {
-                let end = util.findIndexOfClosingBracket(s, index);
+                let end = findIndexOfClosingBracket(s, index);
                 if (index < end) {
                     let jsonString = s.substring(index, end + 1);
                     return JSON.parse(jsonString);
@@ -916,17 +917,17 @@ var util = (function () {
         return null;
     }
 
-    var createChapterTab = function(url) {
+    function createChapterTab(url) {
         return new Promise(function(resolve) {
-            chrome.tabs.create({ url: url, active: false },
-                function (tab) {
+            chrome.tabs.create({url: url, active: false},
+                function(tab) {
                     resolve(tab.id);
                 }
             );
         });
     }
 
-    const removeAttributes = function(element, attributeNames) {
+    function removeAttributes(element, attributeNames) {
         if (!element || attributeNames == null) return;
 
         // Handle single attribute name as string
@@ -945,7 +946,7 @@ var util = (function () {
         }
     }
 
-    const removeEmptyAttributes = function(content) {
+    function removeEmptyAttributes(content) {
         const elements = content.querySelectorAll("*");
 
         for (const element of elements) {
@@ -964,7 +965,7 @@ var util = (function () {
         }
     }
 
-    const removeSpansWithNoAttributes = function(content) {
+    function removeSpansWithNoAttributes(content) {
         // within p or div tags, spans with no attributes have no purpose
         const spans = content.querySelectorAll("p span, div span");
 
@@ -978,7 +979,7 @@ var util = (function () {
         }
     }
 
-    const replaceSemanticInlineStylesWithTags = function (element, removeLeftoverStyles = false) {
+    function replaceSemanticInlineStylesWithTags(element, removeLeftoverStyles = false) {
         if (element.hasAttribute("style")) {
             let styleText = element.getAttribute("style");
 
@@ -995,7 +996,7 @@ var util = (function () {
                 if (style.regex.test(styleText)) {
                     // Reset lastIndex since test() advances it
                     style.regex.lastIndex = 0;
-                    util.wrapInnerContentInTag(element, style.tag);
+                    wrapInnerContentInTag(element, style.tag);
                     styleText = styleText.replace(style.regex, "");
                 }
             }
@@ -1015,29 +1016,34 @@ var util = (function () {
         }
     }
 
-    const wrapInnerContentInTag = function(element, tagName) {
+    function wrapInnerContentInTag(element, tagName) {
         const wrapper = document.createElement(tagName);
-        util.moveChildElements(element, wrapper);
+        moveChildElements(element, wrapper);
         element.appendChild(wrapper);
     }
 
+    // Define constants
+    const XMLNS = "http://www.w3.org/1999/xhtml";
+
+    // ugly, but we're treating <u> and <s> as inline (they are not)
+    const INLINE_ELEMENTS = ["b", "big", "i", "small", "tt", "abbr", "acronym", "cite",
+        "code", "dfn", "em", "kbd", "strong", "samp", "time", "var", "a", "bdo",
+        "br", "img", "map", "object", "q", "script", "span", "sub", "sup",
+        "button", "input", "label", "select", "textarea", "u", "s"];
+
+    const BLOCK_ELEMENTS = ["address", "article", "aside", "blockquote", "canvas",
+        "dd", "div", "dl", "fieldset", "figcaption", "figure", "footer",
+        "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr",
+        "li", "main", "nav", "noscript", "ol", "output", "p", "pre",
+        "section", "table", "tfoot", "ul", "video"];
+
+    const HEADER_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
     return {
-        XMLNS: "http://www.w3.org/1999/xhtml",
-
-        // ugly, but we're treating <u> and <s> as inline (they are not)
-        INLINE_ELEMENTS: ["b","big","i","small","tt","abbr","acronym","cite",
-            "code","dfn","em","kbd","strong","samp","time","var", "a","bdo",
-            "br","img","map","object","q","script","span","sub","sup",
-            "button","input","label","select","textarea","u","s"],
-
-        BLOCK_ELEMENTS: ["address","article","aside","blockquote","canvas",
-            "dd","div","dl","fieldset","figcaption","figure","footer",
-            "form","h1","h2","h3","h4","h5","h6","header","hgroup","hr",
-            "li","main","nav","noscript","ol","output","p","pre",
-            "section","table","tfoot","ul","video"],
-
-        HEADER_TAGS: ["h1", "h2", "h3", "h4", "h5", "h6" ],
-
+        XMLNS: XMLNS,
+        INLINE_ELEMENTS: INLINE_ELEMENTS,
+        BLOCK_ELEMENTS: BLOCK_ELEMENTS,
+        HEADER_TAGS: HEADER_TAGS,
         sleep: sleep,
         randomInteger: randomInteger,
         isFirefox: isFirefox,
@@ -1057,7 +1063,7 @@ var util = (function () {
         replaceCloudflareProtectedLink: replaceCloudflareProtectedLink,
         decodeEmail: decodeEmail,
         removeElements: removeElements,
-        removeChildElementsMatchingCss: removeChildElementsMatchingCss,
+        removeChildElementsMatchingSelector: removeChildElementsMatchingSelector,
         removeComments: removeComments,
         removeEmptyDivElements: removeEmptyDivElements,
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
@@ -1070,7 +1076,7 @@ var util = (function () {
         removeHeightAndWidthStyle: removeHeightAndWidthStyle,
         removeUnwantedWordpressElements: removeUnwantedWordpressElements,
         removeShareLinkElements: removeShareLinkElements,
-        convertPreTagToPTags: convertPreTagToPTags, 
+        convertPreTagToPTags: convertPreTagToPTags,
         prepForConvertToXhtml: prepForConvertToXhtml,
         replaceCenterTags: replaceCenterTags,
         replaceUnderscoreTags: replaceUnderscoreTags,
@@ -1079,7 +1085,7 @@ var util = (function () {
         moveChildElements: moveChildElements,
         copyAttributes: copyAttributes,
         fixDelayLoadedImages: fixDelayLoadedImages,
-        fixBlockTagsNestedInInlineTags: fixBlockTagsNestedInInlineTags, 
+        fixBlockTagsNestedInInlineTags: fixBlockTagsNestedInInlineTags,
         isBlockElementInside: isBlockElementInside,
         moveElementsOutsideTag: moveElementsOutsideTag,
         isNodeInTag: isNodeInTag,
@@ -1089,7 +1095,7 @@ var util = (function () {
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         extractHashFromUri: extractHashFromUri,
-        makeHyperlinksRelative: makeHyperlinksRelative, 
+        makeHyperlinksRelative: makeHyperlinksRelative,
         resolveLazyLoadedImages: resolveLazyLoadedImages,
         isLocalHyperlink: isLocalHyperlink,
         findPrimaryStyleSettings: findPrimaryStyleSettings,
@@ -1122,12 +1128,12 @@ var util = (function () {
         dctermsToTable: dctermsToTable,
         parseHtmlAndInsertIntoContent: parseHtmlAndInsertIntoContent,
         extractUrlFromBackgroundImage: extractUrlFromBackgroundImage,
-        extactSubstring: extactSubstring,
+        extractSubstring: extractSubstring,
         findIndexOfClosingQuote: findIndexOfClosingQuote,
         findIndexOfClosingBracket: findIndexOfClosingBracket,
         locateAndExtractJson: locateAndExtractJson,
         createChapterTab: createChapterTab,
-        syncLoadSampleDoc : syncLoadSampleDoc,
+        syncLoadSampleDoc: syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad,
         removeAttributes: removeAttributes,
