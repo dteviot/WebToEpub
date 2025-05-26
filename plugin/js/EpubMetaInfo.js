@@ -173,7 +173,7 @@ class EpubMetaInfo {
         // some groups use <pre> tag for character status with no wrapping, thus breaking the view in ebook //
         "pre {\r"+
         "   white-space: pre-wrap;\r"+
-        "}"+
+        "}\r"+
 
         "table {\r"+
         "   width: 90%;\r"+
