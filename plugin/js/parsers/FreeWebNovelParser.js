@@ -95,7 +95,7 @@ class FreeWebNovelComParser extends FreeWebNovelParser {
         super();
     }
     removeUnwantedElementsFromContentElement(content) {
-        util.removeChildElementsMatchingCss(content, "p sub");
+        util.removeChildElementsMatchingSelector(content, "p sub");
         super.removeUnwantedElementsFromContentElement(content);
     }
 }

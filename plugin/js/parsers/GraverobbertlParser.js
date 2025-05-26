@@ -19,7 +19,7 @@ class TemplateParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.wp-block-column");
+        util.removeChildElementsMatchingSelector(element, "div.wp-block-column");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

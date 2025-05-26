@@ -22,7 +22,7 @@ class ShirokunsParser extends Parser{
     }
 
     preprocessRawDom(chapterDom) {
-        util.removeChildElementsMatchingCss(chapterDom, "p.author, div.col-md-12 img")
+        util.removeChildElementsMatchingSelector(chapterDom, "p.author, div.col-md-12 img")
     }
 
     findCoverImageUrl(dom) {

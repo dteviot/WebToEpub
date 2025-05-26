@@ -34,7 +34,7 @@ class CangjiParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".post-tags, .wp-block-ugb-container");
+        util.removeChildElementsMatchingSelector(element, ".post-tags, .wp-block-ugb-container");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

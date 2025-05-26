@@ -23,7 +23,7 @@ class ActiveTranslationsParser extends Parser{
             content = dom.querySelector("div.nv-content-wrap");
         }
         if (content !== null) {
-            util.removeChildElementsMatchingCss(content, ".code-block, #comments");
+            util.removeChildElementsMatchingSelector(content, ".code-block, #comments");
         }
         return content;
     }

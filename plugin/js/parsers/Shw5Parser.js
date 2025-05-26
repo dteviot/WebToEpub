@@ -18,7 +18,7 @@ class Shw5Parser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "a.ll, a.rr");
+        util.removeChildElementsMatchingSelector(element, "a.ll, a.rr");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

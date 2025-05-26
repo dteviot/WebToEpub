@@ -119,7 +119,7 @@ class ArchiveOfOurOwnParser extends Parser{
             util.removeElements(notes.slice(1));
         }
 
-        util.removeChildElementsMatchingCss(element, "h3.landmark.heading");
+        util.removeChildElementsMatchingSelector(element, "h3.landmark.heading");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

@@ -49,16 +49,16 @@ class WLPublishingParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.date");
-        util.removeChildElementsMatchingCss(element, "span.conTag");
-        util.removeChildElementsMatchingCss(element, "span.curr");
-        util.removeChildElementsMatchingCss(element, "div.pager");
-        util.removeChildElementsMatchingCss(element, "div.end-note");
-        util.removeChildElementsMatchingCss(element, "div.vform");
-        util.removeChildElementsMatchingCss(element, "div.sale-link");
-        util.removeChildElementsMatchingCss(element, "div.reco");
-        util.removeChildElementsMatchingCss(element, ".end");
-        util.removeChildElementsMatchingCss(element, "h4.c");
+        util.removeChildElementsMatchingSelector(element, "div.date");
+        util.removeChildElementsMatchingSelector(element, "span.conTag");
+        util.removeChildElementsMatchingSelector(element, "span.curr");
+        util.removeChildElementsMatchingSelector(element, "div.pager");
+        util.removeChildElementsMatchingSelector(element, "div.end-note");
+        util.removeChildElementsMatchingSelector(element, "div.vform");
+        util.removeChildElementsMatchingSelector(element, "div.sale-link");
+        util.removeChildElementsMatchingSelector(element, "div.reco");
+        util.removeChildElementsMatchingSelector(element, ".end");
+        util.removeChildElementsMatchingSelector(element, "h4.c");
         util.removeMicrosoftWordCrapElements(element);
         util.removeScriptableElements(element);
         util.removeComments(element);

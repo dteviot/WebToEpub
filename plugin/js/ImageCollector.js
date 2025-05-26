@@ -443,7 +443,7 @@ class ImageCollector {
 
     preprocessImageTags(content, parentPageUrl) {
         if (this.userPreferences.skipImages.value) {
-            util.removeChildElementsMatchingCss(content, "img, image");
+            util.removeChildElementsMatchingSelector(content, "img, image");
             return Promise.resolve(content);
         } else {
             return ImageCollector.replaceHyperlinksToImagesWithImages(content, parentPageUrl);

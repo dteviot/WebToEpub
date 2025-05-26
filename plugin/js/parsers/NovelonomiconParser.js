@@ -58,7 +58,7 @@ class NovelonomiconParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, ".su-spoiler");
+        util.removeChildElementsMatchingSelector(node, ".su-spoiler");
         return node;
     }    
 }

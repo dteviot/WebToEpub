@@ -21,7 +21,7 @@ class RtdMoeParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.wp-post-navigation, div.tags, table#amazon-polly-audio-table");
+        util.removeChildElementsMatchingSelector(element, "div.wp-post-navigation, div.tags, table#amazon-polly-audio-table");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

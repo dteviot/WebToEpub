@@ -79,7 +79,7 @@ class RanobesParser extends Parser{
 
     extractTitleImpl(dom) {
         let title = dom.querySelector("h1.title");
-        util.removeChildElementsMatchingCss(title, "span.subtitle, span[hidden]");
+        util.removeChildElementsMatchingSelector(title, "span.subtitle, span[hidden]");
         return title;
     }
 
@@ -90,7 +90,7 @@ class RanobesParser extends Parser{
 
     findChapterTitle(dom) {
         let title = dom.querySelector("h1.title");
-        util.removeChildElementsMatchingCss(title, "span, div");
+        util.removeChildElementsMatchingSelector(title, "span, div");
         return title.textContent;
     }
 
@@ -103,7 +103,7 @@ class RanobesParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "a");
+        util.removeChildElementsMatchingSelector(node, "a");
         return node;
     }    
 }

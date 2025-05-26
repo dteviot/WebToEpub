@@ -34,7 +34,7 @@ class Wenku8Parser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "ul#contentdp");
+        util.removeChildElementsMatchingSelector(element, "ul#contentdp");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

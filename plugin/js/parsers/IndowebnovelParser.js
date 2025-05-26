@@ -46,6 +46,6 @@ class IndowebnovelParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "script");
+        util.removeChildElementsMatchingSelector(node, "script");
     }
 }

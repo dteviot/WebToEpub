@@ -40,7 +40,7 @@ class MadnovelParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".ads-banner, .content-inner > br");
+        util.removeChildElementsMatchingSelector(element, ".ads-banner, .content-inner > br");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

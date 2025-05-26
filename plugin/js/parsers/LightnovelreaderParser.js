@@ -34,7 +34,7 @@ class LightnovelreaderParser extends Parser{
         let toRemove = [...element.querySelectorAll("center, p")]
             .filter(s => s.textContent.trim().toLowerCase() === "sponsored content");
         util.removeElements(toRemove);
-        util.removeChildElementsMatchingCss(element, ".display-hide, .hidden");
+        util.removeChildElementsMatchingSelector(element, ".display-hide, .hidden");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

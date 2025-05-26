@@ -28,7 +28,7 @@ class AdultfanfictionParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "ul#dropdown1, a.dropdown-trigger, ul.pagination");
+        util.removeChildElementsMatchingSelector(element, "ul#dropdown1, a.dropdown-trigger, ul.pagination");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

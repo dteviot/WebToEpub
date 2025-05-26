@@ -31,7 +31,7 @@ class WuxiaworldeuParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.mantine-Group-root, div.mantine-Container-root");
+        util.removeChildElementsMatchingSelector(element, "div.mantine-Group-root, div.mantine-Container-root");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

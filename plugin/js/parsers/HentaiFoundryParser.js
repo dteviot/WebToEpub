@@ -54,7 +54,7 @@ class HentaiFoundryParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "div");
+        util.removeChildElementsMatchingSelector(node, "div");
         return node;
     }
 }

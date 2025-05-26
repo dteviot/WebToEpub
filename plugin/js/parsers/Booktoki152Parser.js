@@ -18,7 +18,7 @@ class Booktoki152Parser extends Parser{
     }
 
     linkToChapter(link) {
-        util.removeChildElementsMatchingCss(link, "span");
+        util.removeChildElementsMatchingSelector(link, "span");
         return ({
             sourceUrl:  link.href,
             title: link.textContent.trim()

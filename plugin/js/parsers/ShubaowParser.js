@@ -61,6 +61,6 @@ class ShubaowParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "script, .adsbygoogle");
+        util.removeChildElementsMatchingSelector(node, "script, .adsbygoogle");
     }
 }

@@ -17,7 +17,7 @@ class Hui3rParser extends WordpressBaseParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "#jp-post-flair, footer.entry-meta");
+        util.removeChildElementsMatchingSelector(element, "#jp-post-flair, footer.entry-meta");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

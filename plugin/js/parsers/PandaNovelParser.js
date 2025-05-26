@@ -53,7 +53,7 @@ class PandaNovelParser extends Parser {
         let html = this.getRealContent(webPage, content);
         html = html.replaceAll(/<br><br>|<\/p><p>/g, "</p>\n<p>").replaceAll(/(?<!\n)<p>/g, "\n<p>");
         util.parseHtmlAndInsertIntoContent(html, content);
-        util.removeChildElementsMatchingCss(content, "ins");
+        util.removeChildElementsMatchingSelector(content, "ins");
     }
 
     getRealContent(webPage, content) {
@@ -97,7 +97,7 @@ class PandaNovelParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".novel-ins, sub");
+        util.removeChildElementsMatchingSelector(element, ".novel-ins, sub");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

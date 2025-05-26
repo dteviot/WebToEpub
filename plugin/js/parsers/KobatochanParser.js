@@ -46,6 +46,6 @@ class KobatochanParser extends WordpressBaseParser{
     }
 
     static removePaginationElements(dom) {
-        return util.removeChildElementsMatchingCss(dom, "div.page-link, div.pgntn-multipage, div.g-dyn");
+        return util.removeChildElementsMatchingSelector(dom, "div.page-link, div.pgntn-multipage, div.g-dyn");
     }
 }

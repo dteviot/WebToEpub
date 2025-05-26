@@ -21,7 +21,7 @@ class ChyoaParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "footer, div.chyoa-adzone, " 
+        util.removeChildElementsMatchingSelector(element, "footer, div.chyoa-adzone, " 
             + "div.ratings, div.links" );
         super.removeUnwantedElementsFromContentElement(element);
     }

@@ -74,6 +74,6 @@ class ShinsoriParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "a");
+        util.removeChildElementsMatchingSelector(node, "a");
     }
 }

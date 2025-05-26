@@ -22,7 +22,7 @@ class ChichipephParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.entry-meta");
+        util.removeChildElementsMatchingSelector(element, "div.entry-meta");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
