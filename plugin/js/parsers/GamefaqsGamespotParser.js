@@ -15,7 +15,7 @@ class GamefaqsGamespotParser extends Parser{
         }
         toc = dom.querySelector("div.main_content");
         if (toc !== null) {
-            util.removeChildElementsMatchingCss(toc, "nav.content_nav_wrap");
+            util.removeChildElementsMatchingSelector(toc, "nav.content_nav_wrap");
             return this.linksToChapters(dom.baseURI, toc)
         }
         return [];
@@ -46,7 +46,7 @@ class GamefaqsGamespotParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".ftoc");
+        util.removeChildElementsMatchingSelector(element, ".ftoc");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

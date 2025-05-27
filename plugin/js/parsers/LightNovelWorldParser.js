@@ -135,7 +135,7 @@ class LightNovelWorldParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "nav.links");
+        util.removeChildElementsMatchingSelector(node, "nav.links");
     }
 }
 

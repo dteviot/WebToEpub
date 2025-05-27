@@ -82,6 +82,6 @@ class MtnovelParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "img");
+        util.removeChildElementsMatchingSelector(node, "img");
     }
 }

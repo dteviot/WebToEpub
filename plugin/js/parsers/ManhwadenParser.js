@@ -8,6 +8,6 @@ class ManhwadenParser extends MadaraParser{
     }
 
     preprocessRawDom(webPageDom) {
-        util.removeChildElementsMatchingCss(webPageDom, "img:not([src])");
+        util.removeChildElementsMatchingSelector(webPageDom, "img:not([src])");
     }
 }

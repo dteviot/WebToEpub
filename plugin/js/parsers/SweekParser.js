@@ -53,7 +53,7 @@ class SweekParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".actionBar-sVi43NPxX1SfatEP5xyAO");
+        util.removeChildElementsMatchingSelector(element, ".actionBar-sVi43NPxX1SfatEP5xyAO");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

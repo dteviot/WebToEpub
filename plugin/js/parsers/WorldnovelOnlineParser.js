@@ -39,7 +39,7 @@ class WorldnovelOnlineParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".code-block, ins, .chapternav, a[href='javascript:void(0)']");
+        util.removeChildElementsMatchingSelector(element, ".code-block, ins, .chapternav, a[href='javascript:void(0)']");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

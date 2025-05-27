@@ -22,7 +22,7 @@ class AmoryaoiParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "#jumpmenu, #pagelinks, #reviewform, #sort");
+        util.removeChildElementsMatchingSelector(element, "#jumpmenu, #pagelinks, #reviewform, #sort");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

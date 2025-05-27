@@ -24,6 +24,6 @@ class Book18Parser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "span.d-none");
+        util.removeChildElementsMatchingSelector(element, "span.d-none");
     }
 }

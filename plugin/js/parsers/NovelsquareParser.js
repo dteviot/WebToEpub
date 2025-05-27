@@ -72,7 +72,7 @@ class NovelsquareParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".box-notification");
+        util.removeChildElementsMatchingSelector(element, ".box-notification");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

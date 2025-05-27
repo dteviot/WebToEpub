@@ -21,7 +21,7 @@ class StarlightstreamParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "[data-hook='buttonViewer']");
+        util.removeChildElementsMatchingSelector(element, "[data-hook='buttonViewer']");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

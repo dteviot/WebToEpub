@@ -47,7 +47,7 @@ class NovelversetranslationsParser extends WordpressBaseParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".nnl_container");
+        util.removeChildElementsMatchingSelector(element, ".nnl_container");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

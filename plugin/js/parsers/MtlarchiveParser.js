@@ -115,7 +115,7 @@ class MtlarchiveParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".ad-slot");
+        util.removeChildElementsMatchingSelector(element, ".ad-slot");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

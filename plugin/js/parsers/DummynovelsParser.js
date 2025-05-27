@@ -36,6 +36,6 @@ class DummynovelsParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "script, iframe, .code-block");
+        util.removeChildElementsMatchingSelector(node, "script, iframe, .code-block");
     }    
 }

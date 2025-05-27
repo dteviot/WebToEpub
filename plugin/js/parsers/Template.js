@@ -147,7 +147,7 @@ class TemplateParser extends Parser{
     // Optional, supply if need to do custom cleanup of content
     /*
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "button");
+        util.removeChildElementsMatchingSelector(element, "button");
         super.removeUnwantedElementsFromContentElement(element);
     }
     */

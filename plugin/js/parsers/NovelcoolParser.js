@@ -33,7 +33,7 @@ class NovelcoolParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".chapter-end-mark, .chapter-section-report");
+        util.removeChildElementsMatchingSelector(element, ".chapter-end-mark, .chapter-section-report");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

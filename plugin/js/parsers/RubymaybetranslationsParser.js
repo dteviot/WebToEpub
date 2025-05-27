@@ -33,7 +33,7 @@ class RubymaybetranslationsParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        util.removeChildElementsMatchingCss(webPageDom, "#comments");
+        util.removeChildElementsMatchingSelector(webPageDom, "#comments");
     }
 
     getInformationEpubItemChildNodes(dom) {

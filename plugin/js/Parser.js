@@ -399,7 +399,7 @@ class Parser {
             }
         }
         // this "page" doesn't go through image collector, so strip images
-        util.removeChildElementsMatchingCss(infoDiv, "img");
+        util.removeChildElementsMatchingSelector(infoDiv, "img");
     }
 
     cleanInformationNode(node) {     // eslint-disable-line no-unused-vars

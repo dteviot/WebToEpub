@@ -34,7 +34,7 @@ class TeanovelParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "flex");
+        util.removeChildElementsMatchingSelector(element, "flex");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

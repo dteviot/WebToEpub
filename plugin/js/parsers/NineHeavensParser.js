@@ -26,7 +26,7 @@ class NineHeavensParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.chapter__actions, a.chapter__story-link, em.chapter__author, footer.chapter__footer");
+        util.removeChildElementsMatchingSelector(element, "div.chapter__actions, a.chapter__story-link, em.chapter__author, footer.chapter__footer");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

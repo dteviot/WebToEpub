@@ -21,7 +21,7 @@ class IsotlsParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "header, nav, footer");
+        util.removeChildElementsMatchingSelector(element, "header, nav, footer");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

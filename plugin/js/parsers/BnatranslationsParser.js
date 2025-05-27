@@ -30,7 +30,7 @@ class BnatranslationsParser extends Parser{
     }
 
     preprocessRawDom(chapterDom) {
-        util.removeChildElementsMatchingCss(chapterDom, ".elementor-button-wrapper");
+        util.removeChildElementsMatchingSelector(chapterDom, ".elementor-button-wrapper");
         let containers = [...chapterDom.querySelectorAll("article .post__content .elementor-widget-container")];
         let container = containers[0];
         let i = 0;

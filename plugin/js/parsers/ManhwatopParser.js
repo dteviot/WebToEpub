@@ -9,6 +9,6 @@ class ManhwatopParser extends MadaraParser{
 
     preprocessRawDom(webPageDom) {
         util.resolveLazyLoadedImages(webPageDom, ".reading-content img");
-        util.removeChildElementsMatchingCss(webPageDom, "img[alt='ManhwaTop']");
+        util.removeChildElementsMatchingSelector(webPageDom, "img[alt='ManhwaTop']");
     }
 }

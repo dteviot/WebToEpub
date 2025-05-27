@@ -43,7 +43,7 @@ class HostednovelParser extends Parser{
 
     static formatTitle(link) {
         let div = link.querySelector("div");
-        util.removeChildElementsMatchingCss(div, "span, p");
+        util.removeChildElementsMatchingSelector(div, "span, p");
         return div.textContent.trim();
     }
 
@@ -63,13 +63,13 @@ class HostednovelParser extends Parser{
 
     extractTitleImpl(dom) {
         let link = dom.querySelector("h1");
-        util.removeChildElementsMatchingCss(link, "a");
+        util.removeChildElementsMatchingSelector(link, "a");
         return link;
     }
 
     removeUnwantedElementsFromContentElement(element) {
         this.tagAuthorNotesBySelector(element, "div.bg-light-200");
-        util.removeChildElementsMatchingCss(element, "div.adbox");
+        util.removeChildElementsMatchingSelector(element, "div.adbox");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

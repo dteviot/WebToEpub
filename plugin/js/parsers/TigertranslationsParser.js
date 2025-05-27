@@ -22,7 +22,7 @@ class TigertranslationsParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "p.taxonomies, "+
+        util.removeChildElementsMatchingSelector(element, "p.taxonomies, "+
             ".tiger-after-content, .jp-relatedposts");
         super.removeUnwantedElementsFromContentElement(element);
     }
@@ -72,7 +72,7 @@ class TigertranslationsParser extends Parser{
     }
 
     cleanInitialDom(element) {
-        util.removeChildElementsMatchingCss(element, "p.taxonomies, "+
+        util.removeChildElementsMatchingSelector(element, "p.taxonomies, "+
             ".tiger-after-content, .jp-relatedposts, .sharedaddy");
     }
 

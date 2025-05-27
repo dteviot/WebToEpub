@@ -35,7 +35,7 @@ class JadeRabbitParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.wp-block-ugb-container, "
+        util.removeChildElementsMatchingSelector(element, "div.wp-block-ugb-container, "
             + "div.wp-block-uagb-buttons, div.notranslate, div.post-tags");
         super.removeUnwantedElementsFromContentElement(element);
     }

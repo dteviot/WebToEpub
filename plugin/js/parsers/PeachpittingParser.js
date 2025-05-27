@@ -21,7 +21,7 @@ class PeachpittingParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".pp-multiple-authors-wrapper");
+        util.removeChildElementsMatchingSelector(element, ".pp-multiple-authors-wrapper");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

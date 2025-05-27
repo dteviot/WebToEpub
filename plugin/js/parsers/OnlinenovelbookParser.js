@@ -23,7 +23,7 @@ class OnlinenovelbookParser extends WordpressBaseParser{
     static getUrlsOfTocPages(dom) {
         let urls = [];
         let paginationUrl = OnlinenovelbookParser.getLastPaginationUrl(dom);
-        let maxPage = parseInt(util.extactSubstring(paginationUrl, "/page/", "/"));
+        let maxPage = parseInt(util.extractSubstring(paginationUrl, "/page/", "/"));
         let index = paginationUrl.indexOf("/page/") + 6;
         let prefix = paginationUrl.substring(0, index);
         for(let i = 2; i <= maxPage; ++i) {

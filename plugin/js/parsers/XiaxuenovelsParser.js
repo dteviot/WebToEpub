@@ -17,7 +17,7 @@ class XiaxuenovelsParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".cb_p6_patreon_button, "+
+        util.removeChildElementsMatchingSelector(element, ".cb_p6_patreon_button, "+
             ".jp-relatedposts, xiaxu-after-content");
         super.removeUnwantedElementsFromContentElement(element);
     }

@@ -14,7 +14,7 @@ class IndomtlParser extends Parser{
     }
 
     static linkToChapter(link) {
-        util.removeChildElementsMatchingCss(link, "span.time");
+        util.removeChildElementsMatchingSelector(link, "span.time");
         return util.hyperLinkToChapter(link)
     }
 
@@ -27,7 +27,7 @@ class IndomtlParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "amp-ad, p.china, .pub-date, .chapter-nav, .snpconainer, .overlay");
+        util.removeChildElementsMatchingSelector(element, "amp-ad, p.china, .pub-date, .chapter-nav, .snpconainer, .overlay");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
