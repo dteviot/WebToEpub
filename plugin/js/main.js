@@ -150,7 +150,7 @@ var main = (function () {
         ErrorLog.clearHistory();
         window.workInProgress = true;
         main.getPackEpubButton().disabled = true;
-        document.getElementById("LibAddToLibrary").disabled = true;
+        replaceLibAddToLibrary();
         parser.onStartCollecting();
         await parser.fetchContent().then(function () {
             return packEpub(metaInfo);
@@ -159,16 +159,20 @@ var main = (function () {
             // the promise never returns
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
-            document.getElementById("LibAddToLibrary").disabled = false;
+            replaceLibAddToLibrary();
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             let backgroundDownload = userPreferences.noDownloadPopup.value;
             let fileName = Download.CustomFilename();
-            if ("yes" == libclick.dataset.libclick) {
+            if ("yes" == libclick.dataset.libclick || util.sleepControler.signal.aborted) {
                 return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             }
             return Download.save(content, fileName, overwriteExisting, backgroundDownload);
         }).then(function () {
             parser.updateReadingList();
+            if (util.sleepControler.signal.aborted) {
+                util.sleepControler = new AbortController;
+                resetUI();
+            }
             if (libclick.dataset.libsuppressErrorLog == true) {
                 return;
             } else {
@@ -178,9 +182,23 @@ var main = (function () {
         }).catch(function (err) {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
-            document.getElementById("LibAddToLibrary").disabled = false;
+            if (util.sleepControler.signal.aborted) {
+                util.sleepControler = new AbortController;
+            }
+            replaceLibAddToLibrary();
             ErrorLog.showErrorMessage(err);
         });
+    }
+
+    function replaceLibAddToLibrary(){
+        let el = document.getElementById("LibAddToLibrary");
+        el.hidden = !el.hidden;
+        el = document.getElementById("LibPauseToLibrary");
+        el.hidden = !el.hidden;
+    }
+
+    function pauseToLibarary(){
+        util.sleepControler.abort();
     }
 
     function epubVersionFromPreferences() {
@@ -387,6 +405,8 @@ var main = (function () {
         getLoadAndAnalyseButton().hidden = false;
         main.getPackEpubButton().disabled = false;
         document.getElementById("LibAddToLibrary").disabled = false;
+        document.getElementById("LibAddToLibrary").hidden = false;
+        document.getElementById("LibPauseToLibrary").hidden = true;
         ChapterUrlsUI.clearChapterUrlsTable();
         CoverImageUI.clearUI();
         ProgressBar.setValue(0);
@@ -515,6 +535,7 @@ var main = (function () {
         document.getElementById("ShowMoreMetadataOptionsCheckbox").addEventListener("change", function(){onShowMoreMetadataOptionsClick()});
         document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", function(){Library.LibRenderSavedEpubs()});
         document.getElementById("LibAddToLibrary").addEventListener("click", fetchContentAndPackEpub);
+        document.getElementById("LibPauseToLibrary").addEventListener("click", pauseToLibarary);
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
