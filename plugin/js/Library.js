@@ -14,6 +14,7 @@ class Library {
     }
     
     async LibAddToLibrary(AddEpub, fileName, startingUrlInput, overwriteExisting, backgroundDownload){
+        Library.LibShowLoadingText();
         if (document.getElementById("includeInReadingListCheckbox").checked != true) {
             document.getElementById("includeInReadingListCheckbox").click();
         }

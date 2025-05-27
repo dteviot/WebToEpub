@@ -8,9 +8,17 @@
 "use strict";
 
 const util = (function() {
-
+    var sleepControler = new AbortController;
+    
     function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => {
+            function finished() {
+                resolve();
+                sleepControler.signal.removeEventListener("abort", finished);
+            }
+            sleepControler.signal.addEventListener("abort", finished);
+            setTimeout(finished, ms);
+        });
     }
 
     function randomInteger(min, max) {
@@ -1045,6 +1053,7 @@ const util = (function() {
         BLOCK_ELEMENTS: BLOCK_ELEMENTS,
         HEADER_TAGS: HEADER_TAGS,
         sleep: sleep,
+        sleepControler: sleepControler,
         randomInteger: randomInteger,
         isFirefox: isFirefox,
         extensionVersion: extensionVersion,
