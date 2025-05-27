@@ -75,7 +75,7 @@ class WtrlabParser extends Parser{
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
-                "translate":(!(document.getElementById("selectTranslationAiCheckbox").checked)?"google":"ai"),
+                "translate":(!(document.getElementById("selectTranslationAiCheckbox").checked)?"web":"ai"),
                 "language":language,
                 "raw_id":id,
                 "chapter_no":chapter,
