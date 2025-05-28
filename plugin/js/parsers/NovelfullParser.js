@@ -235,4 +235,9 @@ class NovelbinParser extends NovelfullParser{
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
     };
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingCss(element, ".unlock-buttons");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
 }
