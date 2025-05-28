@@ -21,7 +21,7 @@ class PeachpuffParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".category-post-dropdown-container, .code-block");
+        util.removeChildElementsMatchingSelector(element, ".category-post-dropdown-container, .code-block");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

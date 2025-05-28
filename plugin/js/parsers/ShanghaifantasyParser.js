@@ -38,7 +38,7 @@ class ShanghaifantasyParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".patreon1, section, nav, button, template, #comments, footer, .hideme");
+        util.removeChildElementsMatchingSelector(element, ".patreon1, section, nav, button, template, #comments, footer, .hideme");
 
         for(let e of [...element.querySelectorAll("div")]) {
             e.removeAttribute(":style");

@@ -56,7 +56,7 @@ class SemprotParser extends Parser{
                 article.remove();
             } else {
                 let body = article.querySelector("article.message-body");
-                util.removeChildElementsMatchingCss(body, ".bbCodeBlock-expandLink, .semprotnenenmontok_sq");
+                util.removeChildElementsMatchingSelector(body, ".bbCodeBlock-expandLink, .semprotnenenmontok_sq");
                 util.resolveLazyLoadedImages(body, "img");
                 article.replaceWith(body);
             }

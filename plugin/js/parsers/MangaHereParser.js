@@ -91,8 +91,8 @@ class MangaHereParser extends Parser {
             .filter(MangaHereParser.isWantedScriptElement)
             .map(s => s.innerHTML);
 
-        let chapterId = util.extactSubstring(script[0], MangaHereParser.chatperIdPrefix, ";");
-        let imageCount = parseInt(util.extactSubstring(script[0], /var\s*imagecount\s*=\s*/, ";"));
+        let chapterId = util.extractSubstring(script[0], MangaHereParser.chatperIdPrefix, ";");
+        let imageCount = parseInt(util.extractSubstring(script[0], /var\s*imagecount\s*=\s*/, ";"));
 
         let index = url.lastIndexOf("/");
         let root = url.substring(0, index + 1);
@@ -136,19 +136,19 @@ class MangaHereParser extends Parser {
     }
 
     static extractDataFromjs(js) {
-        let text = util.extactSubstring(js, "return p;}('" , ".split(");
+        let text = util.extractSubstring(js, "return p;}('" , ".split(");
         text = text.replace(/"/g, "\\\"").replace(/'/g, "\"");
         return JSON.parse("[\"" + text + "]");
     }
 
     static extractFilenameFromClearText(clearText, prefix) {
         if (prefix === undefined) {
-            prefix = util.extactSubstring(clearText, "\"", "\"");
+            prefix = util.extractSubstring(clearText, "\"", "\"");
         }
         if (!clearText.includes("[") || !clearText.includes("]")) {
             return [];
         }
-        let urls = util.extactSubstring(clearText, "[", "]").split(",");
+        let urls = util.extractSubstring(clearText, "[", "]").split(",");
         return urls.map(u => "http:" + prefix + u.replace(/"/g, ""));
     }
 

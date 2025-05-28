@@ -398,7 +398,7 @@ class Parser {
             }
         }
         // this "page" doesn't go through image collector, so strip images
-        util.removeChildElementsMatchingCss(infoDiv, "img");
+        util.removeChildElementsMatchingSelector(infoDiv, "img");
     }
 
     cleanInformationNode(node) {     // eslint-disable-line no-unused-vars
@@ -509,6 +509,9 @@ class Parser {
                 await Promise.all(group.map(async (webPage) => this.fetchWebPageContent(webPage)));
                 index += group.length;
                 group = this.groupPagesToFetch(pagesToFetch, index);
+                if (util.sleepControler.signal.aborted) {
+                    break;
+                }
             }
         }
         catch (err)

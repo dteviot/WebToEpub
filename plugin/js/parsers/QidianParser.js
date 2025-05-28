@@ -185,7 +185,7 @@ class QidianParser extends Parser{
     }
  
     removeUnwantedElementsFromContentElement(content) {
-        util.removeChildElementsMatchingCss(content, "form.cha-score, div.cha-bts, pirate, div.cha-content div.user-links-wrap, div.tac");
+        util.removeChildElementsMatchingSelector(content, "form.cha-score, div.cha-bts, pirate, div.cha-content div.user-links-wrap, div.tac");
         this.tagAuthorNotesBySelector(content, "div.m-thou");
         super.removeUnwantedElementsFromContentElement(content);
     }
@@ -202,7 +202,7 @@ class QidianParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "div._ft, span.g_star");
+        util.removeChildElementsMatchingSelector(node, "div._ft, span.g_star");
     }
 
     extractSubject(dom) {

@@ -138,7 +138,7 @@ class ReadLightNovelParser extends Parser {
         }
 
         super.removeUnwantedElementsFromContentElement(element);
-        util.removeChildElementsMatchingCss(element, "div.row, " +
+        util.removeChildElementsMatchingSelector(element, "div.row, " +
             ".alert, img[src*='/magnify-clip.png'], div.hidden, p.hid");
         this.removeShareThisLinks(element);
     }

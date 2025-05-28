@@ -516,28 +516,28 @@ test("safeForFileName", function (assert) {
     assert.equal(actual, "0123456789A0123456789");
 });
 
-test("extactSubstring", function (assert) {
+test("extractSubstring", function (assert) {
     let sample1 = "; var comicid = 20409;        var chapterid =349317;        var imagepage=1;        var imagecount=8;        ";
     let sample2 = "var comicid = 28771; var chapterid = 549660; var userid = 0; var imagepage = 4; var imagecount = 5;";
 
     let regex = /var\s*chapterid\s*=\s*/;
-    let actual = util.extactSubstring(sample1, regex, ';')
+    let actual = util.extractSubstring(sample1, regex, ';')
     assert.equal(actual, "349317");
-    actual = util.extactSubstring(sample2, regex, ';')
+    actual = util.extractSubstring(sample2, regex, ';')
     assert.equal(actual, "549660");
 
     let prefix = "var chapterid = ";
-    actual = util.extactSubstring(sample2, prefix, ';')
+    actual = util.extractSubstring(sample2, prefix, ';')
     assert.equal(actual, "549660");
 });
 
-QUnit.test("removeChildElementsMatchingCss", function (assert) {
+QUnit.test("removeChildElementsMatchingSelector", function (assert) {
     let dom = TestUtils.makeDomWithBody(
         "<h1><a>Title</a></h1>" +
         "<div><p><span></span></p></div>" +
         "<img></img>"
     );
-    util.removeChildElementsMatchingCss(dom.body, "span, img");
+    util.removeChildElementsMatchingSelector(dom.body, "span, img");
     let actual = dom.body.innerHTML;
     assert.equal(actual, "<h1><a>Title</a></h1><div><p></p></div>");
 });

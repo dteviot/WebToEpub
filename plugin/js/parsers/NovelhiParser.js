@@ -43,7 +43,7 @@ class NovelhiParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "a");        
+        util.removeChildElementsMatchingSelector(node, "a");        
         return node;
     }    
 }

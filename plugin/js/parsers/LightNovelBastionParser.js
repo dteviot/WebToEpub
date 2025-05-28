@@ -23,7 +23,7 @@ class LightNovelBastionParser extends Parser {
     extractTitleImpl(dom) {
         let element = dom.querySelector("div.post-title");
         if (element !== null) {
-            util.removeChildElementsMatchingCss(element, "span");
+            util.removeChildElementsMatchingSelector(element, "span");
             return element.textContent;
         }
         return null;
@@ -35,7 +35,7 @@ class LightNovelBastionParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.lnbad-tag");
+        util.removeChildElementsMatchingSelector(element, "div.lnbad-tag");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

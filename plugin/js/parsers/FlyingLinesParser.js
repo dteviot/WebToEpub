@@ -25,7 +25,7 @@ class FlyingLinesParser extends Parser{
         if (authorLabel === null) {
             return super.extractAuthor(dom)
         }
-        util.removeChildElementsMatchingCss(authorLabel, "span");
+        util.removeChildElementsMatchingSelector(authorLabel, "span");
         return authorLabel.textContent;
     };
 

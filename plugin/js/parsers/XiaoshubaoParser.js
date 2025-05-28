@@ -30,7 +30,7 @@ class XiaoshubaoParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "p.to_nextpage");
+        util.removeChildElementsMatchingSelector(element, "p.to_nextpage");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

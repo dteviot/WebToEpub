@@ -61,6 +61,6 @@ class NovelOnlineFreeParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "span.rate_star, .fb_iframe_widget, div.google, button, script");
+        util.removeChildElementsMatchingSelector(node, "span.rate_star, .fb_iframe_widget, div.google, button, script");
     }
 }

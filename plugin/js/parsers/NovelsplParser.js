@@ -78,7 +78,7 @@ class NovelsplParser extends Parser{
                 p.remove();
             }
         }
-        util.removeChildElementsMatchingCss(element, "ul.pager");
+        util.removeChildElementsMatchingSelector(element, "ul.pager");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -87,7 +87,7 @@ class NovelsplParser extends Parser{
     }
 
     preprocessRawDom(chapterDom) {
-        util.removeChildElementsMatchingCss(chapterDom, "a[href='https://www.patreon.com/novelspl']");
+        util.removeChildElementsMatchingSelector(chapterDom, "a[href='https://www.patreon.com/novelspl']");
     }
 
     getInformationEpubItemChildNodes(dom) {

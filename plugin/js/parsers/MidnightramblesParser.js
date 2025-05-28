@@ -8,7 +8,7 @@ class MidnightramblesParser extends WordpressBaseParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "span[data-ez-ph-id]");
+        util.removeChildElementsMatchingSelector(element, "span[data-ez-ph-id]");
         [...element.querySelectorAll("span")]
             .filter(s => s.id.startsWith("ezoic-"))
             .forEach(s => s.remove());

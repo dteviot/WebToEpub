@@ -29,7 +29,7 @@ class OctopiiParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, ".btn-show-more");
+        util.removeChildElementsMatchingSelector(node, ".btn-show-more");
         return node;
     }
 }

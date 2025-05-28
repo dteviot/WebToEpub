@@ -30,7 +30,7 @@ class SoverseParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".pub-date, .chapter-nav, .china, #popupreport, .snpconainer, amp-selector");
+        util.removeChildElementsMatchingSelector(element, ".pub-date, .chapter-nav, .china, #popupreport, .snpconainer, amp-selector");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

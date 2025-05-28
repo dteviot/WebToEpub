@@ -28,7 +28,7 @@ class NoveltranslatedbycParser extends BlogspotParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "button");
+        util.removeChildElementsMatchingSelector(element, "button");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

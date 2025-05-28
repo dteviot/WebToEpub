@@ -139,7 +139,7 @@ class FanFictionParser extends Parser {
             }
         }
         // this "page" doesn't go through image collector, so strip images
-        util.removeChildElementsMatchingCss(infoDiv, "img");
+        util.removeChildElementsMatchingSelector(infoDiv, "img");
     }
 
     findCoverImageUrl(dom) {
@@ -158,6 +158,6 @@ class FanFictionParser extends Parser {
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "button, span[title]");
+        util.removeChildElementsMatchingSelector(node, "button, span[title]");
     }
 }

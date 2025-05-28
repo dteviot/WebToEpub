@@ -22,7 +22,7 @@ class MtlnationParser extends MadaraParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".code-block, #text-chapter-toolbar, [style='display:none;']");
+        util.removeChildElementsMatchingSelector(element, ".code-block, #text-chapter-toolbar, [style='display:none;']");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

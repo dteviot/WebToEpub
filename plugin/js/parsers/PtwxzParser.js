@@ -23,7 +23,7 @@ class PtwxzParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "#guild, #shop, .toplink, table, #feit2, #Commenddiv, .bottomlink");
+        util.removeChildElementsMatchingSelector(element, "#guild, #shop, .toplink, table, #feit2, #Commenddiv, .bottomlink");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

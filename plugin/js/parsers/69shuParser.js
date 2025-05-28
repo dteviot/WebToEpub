@@ -32,7 +32,7 @@ class ShuParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".txtinfo, #txtright, .bottom-ad");
+        util.removeChildElementsMatchingSelector(element, ".txtinfo, #txtright, .bottom-ad");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

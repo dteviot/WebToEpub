@@ -81,6 +81,6 @@ class WebNovelOnlineParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "div.action");
+        util.removeChildElementsMatchingSelector(node, "div.action");
     }
 }

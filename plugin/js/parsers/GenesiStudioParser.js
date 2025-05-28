@@ -10,6 +10,10 @@ class GenesiStudioParser extends Parser{
         super();
         this.minimumThrottle = 2000;
     }
+    populateUI(dom) {
+        super.populateUI(dom);
+        document.getElementById("removeChapterNumberRow").hidden = false; 
+    }
 
     async getChapterUrls(dom) {
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
@@ -19,13 +23,13 @@ class GenesiStudioParser extends Parser{
 
         let chapters = freeids.map(a => ({
             sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
-            title: data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            title: document.getElementById("removeChapterNumberCheckbox").checked ? data.nodes[2].data[data.nodes[2].data[a].chapter_title]: "Chapter " + data.nodes[2].data[data.nodes[2].data[a].chapter_number]+ ": " + data.nodes[2].data[data.nodes[2].data[a].chapter_title],
             isIncludeable: true    
         }));
 
         let pchapters = paidids.map(a => ({
             sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
-            title: data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            title: document.getElementById("removeChapterNumberCheckbox").checked ? data.nodes[2].data[data.nodes[2].data[a].chapter_title]: "Chapter " + data.nodes[2].data[data.nodes[2].data[a].chapter_number]+ ": " + data.nodes[2].data[data.nodes[2].data[a].chapter_title],
             isIncludeable: false    
         }));
 

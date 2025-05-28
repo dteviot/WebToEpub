@@ -21,7 +21,7 @@ class ChickengegeParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".m-a-box, .m-a-box-container");
+        util.removeChildElementsMatchingSelector(element, ".m-a-box, .m-a-box-container");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

@@ -61,7 +61,7 @@ class YushuboParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "ul.lastchapter");
+        util.removeChildElementsMatchingSelector(node, "ul.lastchapter");
         return node;
     }
 }

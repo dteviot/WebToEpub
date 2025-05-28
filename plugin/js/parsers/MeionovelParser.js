@@ -21,7 +21,7 @@ class MeionovelParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div#text-chapter-toolbar");
+        util.removeChildElementsMatchingSelector(element, "div#text-chapter-toolbar");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

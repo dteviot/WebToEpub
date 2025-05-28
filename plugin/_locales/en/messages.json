@@ -163,6 +163,14 @@
 		"message": "Pack EPUB",
 		"description": "Label on button to create the EPUB"
 	},
+	"__MSG_button_Add_to_Library__": {
+		"message": "Add to Library",
+		"description": "Label on button to create the EPUB and Add it to the Library"
+	},
+	"__MSG_button_Pause_to_Library__": {
+		"message": "Pause to Library",
+		"description": "Label on button to Pause the download"
+	},
 	"__MSG_button_Reset__": {
 		"message": "Reset",
 		"description": "Label on button that clears the dialog"
@@ -400,7 +408,7 @@
 		"description": "Label for checkbox to remove Original text from chapters"
 	},
 	"__MSG_label_Select_Translation_Google__": {
-		"message": "Use Ai (you need to login/ not Ai translated novels fail)",
+		"message": "Use Ai translation (you need to login/ not Ai translated novels fail)",
 		"description": "Label for radio checkbox Google"
 	},
 	"__MSG_label_Remove_Translated__": {

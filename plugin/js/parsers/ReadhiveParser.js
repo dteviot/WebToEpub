@@ -54,7 +54,7 @@ class ReadhiveParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div[x-data]");
+        util.removeChildElementsMatchingSelector(element, "div[x-data]");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

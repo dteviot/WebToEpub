@@ -70,7 +70,7 @@ class MadaraParser extends WordpressBaseParser{
     
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.addtoany_share_save_container");
+        util.removeChildElementsMatchingSelector(element, "div.addtoany_share_save_container");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -91,7 +91,7 @@ class MadaraParser extends WordpressBaseParser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "script");
+        util.removeChildElementsMatchingSelector(node, "script");
     }
 }
 

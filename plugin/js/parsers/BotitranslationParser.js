@@ -40,7 +40,7 @@ class BotitranslationParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "p > br");
+        util.removeChildElementsMatchingSelector(element, "p > br");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

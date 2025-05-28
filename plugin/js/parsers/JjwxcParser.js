@@ -42,7 +42,7 @@ class JjwxcParser extends Parser{
 
     removeUnwantedElementsFromContentElement(element) {
         element.querySelector("#report_box")?.parentElement?.remove();
-        util.removeChildElementsMatchingCss(element, ".readsmall, div[align='right']");
+        util.removeChildElementsMatchingSelector(element, ".readsmall, div[align='right']");
         this.fixupAuthorNote(element);
         for(let div of element.querySelectorAll("div")) {
             div.style = null;

@@ -37,7 +37,7 @@ class NovelgoParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "ins, div.code-block-label, .code-block");
+        util.removeChildElementsMatchingSelector(element, "ins, div.code-block-label, .code-block");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

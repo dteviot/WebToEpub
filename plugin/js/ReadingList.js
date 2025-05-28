@@ -129,7 +129,7 @@ class ReadingList {
     }
 
     showReadingList(table) {
-        util.removeChildElementsMatchingCss(table, "tr");
+        util.removeChildElementsMatchingSelector(table, "tr");
         for(let e of this.epubs.keys()) {
             let row = document.createElement("tr");
             table.appendChild(row);

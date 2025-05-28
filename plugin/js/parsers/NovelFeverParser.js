@@ -35,6 +35,6 @@ class NovelFeverParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "#book-review");
+        util.removeChildElementsMatchingSelector(node, "#book-review");
     }    
 }

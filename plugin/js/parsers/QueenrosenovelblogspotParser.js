@@ -30,7 +30,7 @@ class QueenrosenovelblogspotParser extends Parser{
 
     findChapterTitle(dom) {
         let title = dom.querySelector("h1");
-        util.removeChildElementsMatchingCss(title, "script");
+        util.removeChildElementsMatchingSelector(title, "script");
         return title;
     }
 

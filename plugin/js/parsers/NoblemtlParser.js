@@ -87,9 +87,9 @@ class NoblemtlParser extends Parser{
             .filter(p => p.style.opacity === "0");
         util.removeElements(toRemove);
         util.removeElements(this.findEmptySpanElements(element));
-        util.removeChildElementsMatchingCss(element, "span.modern-footnotes-footnote__note");
-        util.removeChildElementsMatchingCss(element, "span.footnote_tooltip");
-        util.removeChildElementsMatchingCss(element, "div#hpk");
+        util.removeChildElementsMatchingSelector(element, "span.modern-footnotes-footnote__note");
+        util.removeChildElementsMatchingSelector(element, "span.footnote_tooltip");
+        util.removeChildElementsMatchingSelector(element, "div#hpk");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -120,7 +120,7 @@ class NoblemtlParser extends Parser{
     }
 
     preprocessRawDom(webPageDom) {
-        util.removeChildElementsMatchingCss(webPageDom, "div.saboxplugin-wrap, div.code-block");
+        util.removeChildElementsMatchingSelector(webPageDom, "div.saboxplugin-wrap, div.code-block");
     }
 
     getInformationEpubItemChildNodes(dom) {
@@ -156,7 +156,7 @@ class WhitemoonlightnovelsParser extends NoblemtlParser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, ".code-block");
+        util.removeChildElementsMatchingSelector(node, ".code-block");
     }
 }
 

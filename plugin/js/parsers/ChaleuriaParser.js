@@ -44,6 +44,6 @@ class ChaleuriaParser extends WordpressBaseParser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "img");
+        util.removeChildElementsMatchingSelector(node, "img");
     }
 }

@@ -21,7 +21,7 @@ class TomotranslationsParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.taxonomies");
+        util.removeChildElementsMatchingSelector(element, "div.taxonomies");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

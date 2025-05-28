@@ -20,7 +20,7 @@ class VipNovelParser extends Parser{
 
     extractTitleImpl(dom) {
         let title = dom.querySelector("div.post-title h1, div.post-title h3");
-        util.removeChildElementsMatchingCss(title, "span.hot");
+        util.removeChildElementsMatchingSelector(title, "span.hot");
         return title;
     }
 
@@ -38,6 +38,6 @@ class VipNovelParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "#init-links");
+        util.removeChildElementsMatchingSelector(node, "#init-links");
     }
 }

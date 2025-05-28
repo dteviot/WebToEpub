@@ -189,7 +189,7 @@ class WxscsParser extends Parser {
 
     removeUnwantedElementsFromContentElement(element) {
         // Remove any ads or unwanted elements here
-        util.removeChildElementsMatchingCss(element, "script");
+        util.removeChildElementsMatchingSelector(element, "script");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

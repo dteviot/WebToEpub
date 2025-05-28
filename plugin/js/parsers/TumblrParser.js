@@ -44,7 +44,7 @@ class TumblrParser extends Parser{
     }
 
     removeUnwantedContent(content) {
-        util.removeChildElementsMatchingCss(content, "footer, #disqus_thread, #notes");
+        util.removeChildElementsMatchingSelector(content, "footer, #disqus_thread, #notes");
     }
 
     fixupPhotoset(dom) {

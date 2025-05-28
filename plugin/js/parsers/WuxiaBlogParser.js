@@ -50,7 +50,7 @@ class WuxiaBlogParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "ul.pager, button, div.recently-nav, div.fb-like");
+        util.removeChildElementsMatchingSelector(element, "ul.pager, button, div.recently-nav, div.fb-like");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

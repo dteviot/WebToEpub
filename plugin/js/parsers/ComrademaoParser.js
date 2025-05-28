@@ -60,7 +60,7 @@ class ComrademaoParser extends Parser{
     };
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "button, nav, div#comments");
+        util.removeChildElementsMatchingSelector(element, "button, nav, div#comments");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

@@ -29,7 +29,7 @@ class NovelplexParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".pt_aBody, .pt_aButton");
+        util.removeChildElementsMatchingSelector(element, ".pt_aBody, .pt_aButton");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

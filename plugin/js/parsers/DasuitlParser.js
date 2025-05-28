@@ -12,7 +12,7 @@ class DasuitlParser extends WordpressBaseParser{
     }    
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".wp-block-buttons");
+        util.removeChildElementsMatchingSelector(element, ".wp-block-buttons");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

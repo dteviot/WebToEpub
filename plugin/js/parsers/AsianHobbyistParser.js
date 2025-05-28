@@ -25,7 +25,7 @@ class AsianHobbyistParser extends WordpressBaseParser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.code-block, div.osny-nightmode");
+        util.removeChildElementsMatchingSelector(element, "div.code-block, div.osny-nightmode");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -42,6 +42,6 @@ class AsianHobbyistParser extends WordpressBaseParser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, ".btn");
+        util.removeChildElementsMatchingSelector(node, ".btn");
     }    
 }

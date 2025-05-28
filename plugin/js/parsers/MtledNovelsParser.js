@@ -29,7 +29,7 @@ class MtledNovelsParser extends Parser{
 
     customRawDomToContentStep(chapter, content) {
         if (this.userPreferences.removeOriginal.value) {
-            util.removeChildElementsMatchingCss(content, "div[id='raw']");
+            util.removeChildElementsMatchingSelector(content, "div[id='raw']");
         } 
     }
 

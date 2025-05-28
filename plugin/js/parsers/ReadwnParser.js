@@ -95,7 +95,7 @@ class ReadwnParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".adsbox");
+        util.removeChildElementsMatchingSelector(element, ".adsbox");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

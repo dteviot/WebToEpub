@@ -30,7 +30,7 @@ class _27kParser extends Parser{
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, ".baocuo, .bottom-ad");
+        util.removeChildElementsMatchingSelector(element, ".baocuo, .bottom-ad");
         super.removeUnwantedElementsFromContentElement(element);
     }
 

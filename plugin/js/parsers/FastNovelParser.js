@@ -43,6 +43,6 @@ class FastNovelParser extends Parser{
     }
 
     cleanInformationNode(node) {
-        util.removeChildElementsMatchingCss(node, "div.tags");
+        util.removeChildElementsMatchingSelector(node, "div.tags");
     }    
 }
