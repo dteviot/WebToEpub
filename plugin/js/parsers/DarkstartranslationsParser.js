@@ -78,7 +78,7 @@ class DarkstartranslationsParser extends Parser{
     buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = json.chapter.title;
+        title.textContent = json.chapter.title?json.chapter.title:"Chapter "+json.chapter.number;
         newDoc.content.appendChild(title);
         let content = new DOMParser().parseFromString(json.chapter.content, "text/html");
         for(let n of [...content.body.childNodes]) {
