@@ -309,12 +309,42 @@ class Parser {
         let that = this;
         let metaInfo = new EpubMetaInfo();
         metaInfo.uuid = dom.baseURI;
-        metaInfo.title = that.extractTitle(dom);
-        metaInfo.author = that.extractAuthor(dom).trim();
-        metaInfo.language = that.extractLanguage(dom);
-        metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title, useFullTitle);
-        metaInfo.subject = that.extractSubject(dom);
-        metaInfo.description = that.extractDescription(dom);
+        try {
+            metaInfo.title = that.extractTitle(dom);
+        }
+        catch(err) {
+            metaInfo.title = "";
+        }
+        try {
+            metaInfo.author = that.extractAuthor(dom).trim();
+        }
+        catch(err) {
+            metaInfo.author = "";
+        }
+        try {
+            metaInfo.language = that.extractLanguage(dom);
+        }
+        catch(err) {
+            metaInfo.language = "";
+        }
+        try {
+            metaInfo.fileName = that.makeSaveAsFileNameWithoutExtension(metaInfo.title, useFullTitle);
+        }
+        catch(err) {
+            metaInfo.fileName = "web.epub";
+        }
+        try {
+            metaInfo.subject = that.extractSubject(dom);
+        }
+        catch(err) {
+            metaInfo.subject = "";
+        }
+        try {
+            metaInfo.description = that.extractDescription(dom);
+        }
+        catch(err) {
+            metaInfo.description = "";
+        }
         that.extractSeriesInfo(dom, metaInfo);
         return metaInfo;
     }
