@@ -5,7 +5,7 @@ parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 class WtrlabParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 25000;
+        this.minimumThrottle = 12000;
     }
 
     populateUI(dom) {
