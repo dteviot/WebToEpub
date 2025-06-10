@@ -75,7 +75,7 @@ class WtrlabParser extends Parser{
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
-                "translate":(!(document.getElementById("selectTranslationAiCheckbox").checked)?"web":"ai"),
+                "translate":((document.getElementById("selectTranslationAiCheckbox").checked)?"web":"ai"),
                 "language":language,
                 "raw_id":id,
                 "chapter_no":chapter,
@@ -104,7 +104,7 @@ class WtrlabParser extends Parser{
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse){
-        if (checkedresponse.json.requireTurnstile) {
+        if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
             let newresp = {};
             newresp.url = url;
             newresp.wrapOptions = wrapOptions;
