@@ -172,6 +172,7 @@ class Parser {
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
         util.removeLeadingWhiteSpace(element);
+        util.removeHTMLUnknownElement(element);
     };
 
     customRawDomToContentStep(chapter, content) { // eslint-disable-line no-unused-vars
