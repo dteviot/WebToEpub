@@ -151,19 +151,8 @@ class NovelfireParser extends LightNovelWorldParser{
         super();
     }
     
-    removeHTMLUnknownElement(nodes){
-        let children = nodes.childNodes;
-        for (let i = 0; i < children.length; i++) {
-            if (children[i] instanceof HTMLUnknownElement) {
-                children[i].remove();
-            } else {
-                this.removeHTMLUnknownElement(children[i]);
-            }
-        }
-    }
-    
     removeUnwantedElementsFromContentElement(element){
-        this.removeHTMLUnknownElement(element);
+        util.removeHTMLUnknownElement(element);
         super.removeUnwantedElementsFromContentElement(element);
     }
 }
