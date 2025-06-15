@@ -144,7 +144,12 @@ class WtrlabParser extends Parser{
         let br = document.createElement("br");
         for (let element of json.data.data.body) {
             let pnode = newDoc.dom.createElement("p");
-            pnode.textContent = element;
+            let newtext = element;
+            for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+                let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
+                newtext = newtext.replaceAll("※"+i+"⛬", term);
+            }
+            pnode.textContent = newtext;
             newDoc.content.appendChild(pnode);
             newDoc.content.appendChild(br);
         }
