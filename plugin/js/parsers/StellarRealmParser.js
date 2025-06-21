@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("darkstartranslations.com", () => new DarkstartranslationsParser());
+parserFactory.register("stellarrealm.net", () => new StellarRealmParser());
 
-class DarkstartranslationsParser extends Parser{
+class StellarRealmParser extends Parser{
     constructor() {
         super();
     }
@@ -13,9 +13,9 @@ class DarkstartranslationsParser extends Parser{
         let url = new URL(dom.baseURI);
         let slug = url.pathname.split("/").filter(a => a != "");
         slug = slug[slug.length-1];
-        let bookinfo = (await HttpClient.fetchJson("https://darkstartranslations.com/series/"+slug+"/chapters?sort_order=asc")).json;
+        let bookinfo = (await HttpClient.fetchJson("https://stellarrealm.net/series/"+slug+"/chapters?sort_order=asc")).json;
         let chapters = bookinfo.chapters.map(a => ({
-            sourceUrl: "https://darkstartranslations.com/series/"+slug+"/"+a.slug, 
+            sourceUrl: "https://stellarrealm.net/series/"+slug+"/"+a.slug,
             title: a.name,
             isIncludeable: ((a.price == 0) && a.is_premium != true)
         }));
@@ -26,7 +26,7 @@ class DarkstartranslationsParser extends Parser{
         let jsondiv = dom.querySelector("#app");
         return JSON.parse(jsondiv.dataset.page);
     }
-    
+
     async loadEpubMetaInfo(dom){
         let xml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
         let bookinfo = this.getJson(xml);
@@ -36,7 +36,7 @@ class DarkstartranslationsParser extends Parser{
         let parser = new DOMParser();
         let parsed = parser.parseFromString(bookinfo.props.series.description, "text/html");
         this.description = parsed.body.textContent;
-        this.img = bookinfo.props.series.cover.path?"https://darkstartranslations.com/storage/"+bookinfo.props.series.cover.path: null;
+        this.img = bookinfo.props.series.cover.path?"https://stellarrealm.net/storage/"+bookinfo.props.series.cover.path: null;
         return;
     }
 
@@ -61,10 +61,10 @@ class DarkstartranslationsParser extends Parser{
         return this.img;
     }
 
-    async fetchChapter(url) {   
+    async fetchChapter(url) {
     /*
     alternative the this.InertiaVersion can change with time that's why the other version it is the same json
-        let header = {"X-Inertia": "true", "X-Inertia-Version": this.InertiaVersion};  
+        let header = {"X-Inertia": "true", "X-Inertia-Version": this.InertiaVersion};
         let options = {
             headers: header
         };
