@@ -60,7 +60,7 @@ class RoyalRoadParser extends Parser{
                 allCssRules.push(rule);
             }
         }
-        for(let rule of allCssRules.filter(s => s.style.display == "none")) {
+        for(let rule of allCssRules.filter(s => s.style?.display == "none")) {
             webPageDom.querySelector(rule.selectorText)?.remove();
         }        
     }
