@@ -26,6 +26,7 @@ parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
 parserFactory.register("lazygirltranslations.com", () => new LazygirltranslationsParser());
 //dead url
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
+parserFactory.register("novelsknight.flonenovels.com", () => new NovelsknightlParser());
 //dead url
 parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
 
@@ -200,42 +201,15 @@ class MyNovelOnlineParser extends NoblemtlParser{
         util.removeElements(content.querySelectorAll("div.post-views, div.chapter-protected-message"));
         super.removeUnwantedElementsFromContentElement(content);
     }
-    
-    // old api sends sometimes {"page":null} instead of content and it isn't fix 24h later for some chapter example:https://my-novel.online/1008659/
-    /*
-    async fetchChapter(url) {
-        let restUrl = this.toRestUrl(url);
-        let json = (await HttpClient.fetchJson(restUrl)).json;
-        
-        while (json.page == null) {
-            await util.sleep(60000);
-            json = (await HttpClient.fetchJson(restUrl)).json;
-        }
-        return this.buildChapter(json, url);
+}
+
+class NovelsknightlParser extends NoblemtlParser{
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
     }
 
-    toRestUrl(url) {
-        // eslint-disable-next-line
-        let regex = new RegExp("my-novel.online\/[0-9]+");
-        let id = url.substring(url.search(regex)+"my-novel.online/".length).split("/")[0];
-        return "https://api.grow.me/sites/629a1740-ed50-4353-bf87-856ca30d58e8/page?url=https%3A%2F%2Fmy-novel.online%2F" +id+ "%2F";
+    findContent(dom) {
+        return dom.querySelector("[itemprop='text']");
     }
-
-    buildChapter(json, url) {
-        let newDoc = Parser.makeEmptyDocForContent(url);
-        let title = newDoc.dom.createElement("h1");
-        title.textContent = json.page.title.substring(0, json.page.title.length - " - Novels Knights".length);
-        newDoc.content.appendChild(title);
-        let text = json.page.textContent.replace("\n\n", "\n");
-        text = text.split("\n");
-        let br = document.createElement("br");
-        for (let element of text) {
-            let pnode = newDoc.dom.createElement("p");
-            pnode.textContent = element;
-            newDoc.content.appendChild(pnode);
-            newDoc.content.appendChild(br);
-        }
-        return newDoc.dom;
-    }
-    */
 }
