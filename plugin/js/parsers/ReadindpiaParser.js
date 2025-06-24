@@ -8,25 +8,25 @@ class ReadingpiaParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll(".chapter-list .chapter-item a.small-chapter-title")]
+        return [...dom.querySelectorAll(".content a:has(div)")]
             .map(link => this.linkToChapter(link)).reverse();
     }
 
     linkToChapter(link) {
         return ({
             sourceUrl:  link.href,
-            title: link.textContent,
+            title: link.querySelector("div span").textContent,
         });
     }
 
     findContent(dom) {
-        return (
-            dom.querySelector("div#chapter-body") || dom.querySelector("div.chapter-body")
-        );
+        return dom.querySelector("div#chapter-body") 
+            || dom.querySelector("div.chapter-body")
+            || dom.querySelector("main > div:not(.advertisement):not(.promo-container):not(.comments):not([style])");
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.title");
+        return dom.querySelector("h2.novel-title");
     }
 
     extractAuthor(dom) {
@@ -34,16 +34,12 @@ class ReadingpiaParser extends Parser {
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
-    findChapterTitle(dom) {
-        return dom.querySelector("p strong");
-    }
-
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.seriesLeftSidebarDiv");
+        return util.getFirstImgSrc(dom, "div.novel-cover");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector(".card.mt-2")];
+        return [dom.querySelector(".novel-synopsis")];
     }
 
 }

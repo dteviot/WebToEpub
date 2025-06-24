@@ -3,67 +3,80 @@
 */
 "use strict";
 
-//dead url/ parser
+//dead url
 parserFactory.register("zirusmusings.com", function() { return new ZirusMusingsParser() });
+parserFactory.register("zirusmusings.net", () => new ZirusMusingsParser());
 
 class ZirusMusingsParser extends Parser {
     constructor() {
         super();
     }
 
-    getChapterUrls(dom) {
-        let that = this;
-        let content = that.findContent(dom);
-
-        let getChapterArc = undefined;
-        if (dom.baseURI === "https://zirusmusings.com/ldm-toc/") {
-            getChapterArc = that.getChapterArc;
-        } 
-        let chapters = util.hyperlinksToChapterList(content, that.isChapterHref, getChapterArc);
-        return Promise.resolve(chapters);
+    async getChapterUrls(dom) {
+        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+        let nextjsraw = tocHtml.querySelector("#__NEXT_DATA__").innerHTML;
+        let nextjsjson = JSON.parse(nextjsraw);
+        let chaps = nextjsjson.props.pageProps.data.volumes;
+        chaps = chaps.map(a => a.chapters).map(a => {
+            a[0].newArc = a[0].volumeTitle;
+            return a;
+        });
+        chaps = chaps.flatMap(a => a).filter(a => a.published!=null);
+        return chaps.map(a => ({
+            sourceUrl: "https://www.zirusmusings.net/series/" + a.series + "/" + a.chapter, 
+            title: a.title,
+            newArc: a.newArc
+        }));
+    }
+    
+    async loadEpubMetaInfo(dom){
+        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+        let nextjsraw = tocHtml.querySelector("#__NEXT_DATA__").innerHTML;
+        let nextjsjson = JSON.parse(nextjsraw);
+        let bookinfo = nextjsjson.props.pageProps.data;
+        this.title = bookinfo?.name;
+        this.author = bookinfo?.author;
+        this.description = bookinfo?.summary;
+        this.img = (bookinfo?.cover!=null)?"https://www.zirusmusings.net"+bookinfo?.cover:"";
+        return;
     }
 
-    isChapterHref(link) {
-        let hostname = link.hostname;
-        return (hostname === "pirateyoshi.wordpress.com") ||
-            (hostname === "zirusmusings.com") ||
-            (hostname === "imgur.com");
+    extractTitleImpl() {
+        return (this.title!=null)?this.title:"";
     }
 
-    getChapterArc(link) {
-        let arc = null;
-        if (link.parentNode !== null) {
-            let parent = link.parentNode;
-            if (parent.tagName === "P") {
-                let strong = parent.querySelector("strong");
-                if (strong != null) {
-                    arc = strong.innerText;
-                };
-            };
-        };
-        return arc;
+    extractAuthor() {
+        return (this.author!=null)?this.author:"";
     }
 
-    // find the node(s) holding the story content
+    extractDescription() {
+        return (this.description!=null)?this.description.trim():"";
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+
     findContent(dom) {
-        return dom.querySelector("div#resizeable-text div.elementor-widget-container");
+        return Parser.findConstrutedContent(dom);
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        super.removeUnwantedElementsFromContentElement(element);
-
-        // remove the previous | TOC | Next hyperlinks
-        let toc = this.findTocElement(element);
-        if (toc !== null) {
-            toc.parentNode.remove();
-        };
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let nextjsraw = dom.querySelector("#__NEXT_DATA__").innerHTML;
+        let nextjsjson = JSON.parse(nextjsraw);
+        return this.buildChapter(nextjsjson.props.pageProps, url);
     }
 
-    findTocElement(div) {
-        return div.querySelector("a[href*='toc/']");
-    }
-
-    findChapterTitle(dom) {
-        return dom.querySelector("h1");
+    buildChapter(chapcontent, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = chapcontent.data.title?chapcontent.data.title:"Chapter "+chapcontent.data.chapter;
+        newDoc.content.appendChild(title);
+        let content = new DOMParser().parseFromString(chapcontent.content, "text/html");
+        for(let n of [...content.body.childNodes]) {
+            newDoc.content.appendChild(n);
+        }
+        return newDoc.dom;
     }
 }

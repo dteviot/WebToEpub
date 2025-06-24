@@ -223,6 +223,17 @@ const util = (function() {
         }
     }
 
+    function removeHTMLUnknownElement(nodes){
+        let children = nodes.childNodes;
+        for (let i = 0; i < children.length; i++) {
+            if (children[i] instanceof HTMLUnknownElement) {
+                children[i].remove();
+            } else {
+                removeHTMLUnknownElement(children[i]);
+            }
+        }
+    }
+
     function removeScriptableElements(element) {
         removeChildElementsMatchingSelector(element, "script, iframe");
         removeEventHandlers(element);
@@ -1077,6 +1088,7 @@ const util = (function() {
         removeEmptyDivElements: removeEmptyDivElements,
         removeTrailingWhiteSpace: removeTrailingWhiteSpace,
         removeLeadingWhiteSpace: removeLeadingWhiteSpace,
+        removeHTMLUnknownElement: removeHTMLUnknownElement,
         removeScriptableElements: removeScriptableElements,
         removeMicrosoftWordCrapElements: removeMicrosoftWordCrapElements,
         flattenNode: flattenNode,

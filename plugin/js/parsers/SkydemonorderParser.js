@@ -9,8 +9,20 @@ class SkydemonorderParser extends Parser{
 
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div[x-show='expanded'] a")]
-            .map(a => util.hyperLinkToChapter(a))
+            .map(a => this.hyperLinkToChapter(a))
             .reverse();
+    }
+
+    hyperLinkToChapter(link) {
+        let episode = link.parentElement.parentElement
+            .querySelector("[x-text='chapter.episode']")
+            ?.textContent;
+        let titleText = link.querySelector("span").textContent.trim();
+
+        return {
+            sourceUrl: link.href,
+            title: `Episode ${episode}: ${titleText}`,
+        };
     }
 
     findContent(dom) {
@@ -22,7 +34,8 @@ class SkydemonorderParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1").nextElementSibling;
+        let h1 = dom.querySelector("h1");
+        return h1.textContent.trim() + ": " + h1.nextElementSibling.textContent;
     }
 
     findCoverImageUrl(dom) {

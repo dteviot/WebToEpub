@@ -408,7 +408,7 @@
 		"description": "Label for checkbox to remove Original text from chapters"
 	},
 	"__MSG_label_Select_Translation_Google__": {
-		"message": "Use Ai translation (you need to login/ not Ai translated novels fail)",
+		"message": "Download raw (no login)",
 		"description": "Label for radio checkbox Google"
 	},
 	"__MSG_label_Remove_Translated__": {

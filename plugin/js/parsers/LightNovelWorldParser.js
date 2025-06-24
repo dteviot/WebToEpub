@@ -8,7 +8,7 @@ parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldParser());
 parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
-parserFactory.register("novelfire.net", () => new LightNovelWorldParser());
+parserFactory.register("novelfire.net", () => new NovelfireParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
 parserFactory.register("pandanovel.co", () => new LightNovelWorldParser());
@@ -143,5 +143,16 @@ class LightNovelPubParser extends LightNovelWorldParser{
     constructor() {
         super();
         this.minimumThrottle = 1200;
+    }
+}
+
+class NovelfireParser extends LightNovelWorldParser{
+    constructor() {
+        super();
+    }
+    
+    removeUnwantedElementsFromContentElement(element){
+        util.removeHTMLUnknownElement(element);
+        super.removeUnwantedElementsFromContentElement(element);
     }
 }

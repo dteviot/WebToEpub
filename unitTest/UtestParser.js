@@ -125,8 +125,6 @@ QUnit.test("extractTitle", function (assert) {
     );
     let actual = new NrvnqsrParser().extractTitle(doc);
     assert.equal(actual, "Title 2");
-    actual = new ZirusMusingsParser().extractTitle(doc);
-    assert.equal(actual, "Title 3");
     doc.querySelector("meta").remove();
     actual = new NovelUniverseParser().extractTitle(doc);
     assert.equal(actual, "Title 1");

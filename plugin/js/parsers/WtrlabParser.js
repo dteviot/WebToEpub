@@ -5,7 +5,7 @@ parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 class WtrlabParser extends Parser{
     constructor() {
         super();
-        this.minimumThrottle = 25000;
+        this.minimumThrottle = 12000;
     }
 
     populateUI(dom) {
@@ -75,7 +75,7 @@ class WtrlabParser extends Parser{
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
-                "translate":(!(document.getElementById("selectTranslationAiCheckbox").checked)?"web":"ai"),
+                "translate":((document.getElementById("selectTranslationAiCheckbox").checked)?"web":"ai"),
                 "language":language,
                 "raw_id":id,
                 "chapter_no":chapter,
@@ -104,7 +104,7 @@ class WtrlabParser extends Parser{
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse){
-        if (checkedresponse.json.requireTurnstile) {
+        if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
             let newresp = {};
             newresp.url = url;
             newresp.wrapOptions = wrapOptions;
@@ -144,7 +144,12 @@ class WtrlabParser extends Parser{
         let br = document.createElement("br");
         for (let element of json.data.data.body) {
             let pnode = newDoc.dom.createElement("p");
-            pnode.textContent = element;
+            let newtext = element;
+            for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+                let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
+                newtext = newtext.replaceAll("※"+i+"⛬", term);
+            }
+            pnode.textContent = newtext;
             newDoc.content.appendChild(pnode);
             newDoc.content.appendChild(br);
         }
