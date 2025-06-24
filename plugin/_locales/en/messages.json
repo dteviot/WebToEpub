@@ -71,6 +71,10 @@
 		"message": "Edit Metadata",
 		"description": "Label on button to show edit options for metadata"
 	},
+	"__MSG_button_Lib_Template_Go_To_Story_URL__": {
+		"message": "Go to Story URL",
+		"description": "Label on button to open the story URL in a new tab"
+	},
 	"__MSG_label_Lib_Template_Library_uses__": {
 		"message": "Library uses: ",
 		"description": "Label in front of the Bytes used in local Storage"
