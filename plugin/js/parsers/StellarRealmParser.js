@@ -36,7 +36,9 @@ class StellarRealmParser extends Parser{
         let parser = new DOMParser();
         let parsed = parser.parseFromString(bookinfo.props.series.description, "text/html");
         this.description = parsed.body.textContent;
-        this.img = bookinfo.props.series.cover.path?"https://stellarrealm.net/storage/"+bookinfo.props.series.cover.path: null;
+        this.img = bookinfo.props.series.cover?.path 
+            ? "https://stellarrealm.net/storage/"+bookinfo.props.series.cover.path
+            : null;
         return;
     }
 
