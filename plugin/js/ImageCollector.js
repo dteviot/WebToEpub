@@ -312,18 +312,53 @@ class ImageCollector {
                 imageInfo.height = img.height;
                 imageInfo.width = img.width;
                 URL.revokeObjectURL(dataUrl);
-                resolve();
+                resolve(img);
             }
             img.onerror = function(){
                 // If the image gives an error then set a general height and width
                 imageInfo.height = 1200;
                 imageInfo.width = 1600;
                 URL.revokeObjectURL(dataUrl);
-                resolve();
+                reject(img);
             }
             // start downloading image after event handlers are set
             img.src = dataUrl;
         });
+    }
+
+    async runCompression(imageInfo, img) {
+        if (this.userPreferences.compressImages.value) 
+        {
+            let c = document.createElement("canvas");
+            let ctx = c.getContext("2d");
+            let maxResolution = this.userPreferences.compressImagesMaxResolution.value;            
+            if (imageInfo.height > maxResolution || imageInfo.width > maxResolution)
+            {
+                if (imageInfo.height > imageInfo.width)
+                {
+                    c.height = maxResolution;
+                    c.width = Math.max(1, Math.round((imageInfo.width * 1.0) / ((imageInfo.height * 1.0)/maxResolution)));
+                }
+                else
+                {
+                    c.width = maxResolution;
+                    c.height = Math.max(1, Math.round((imageInfo.height * 1.0) / ((imageInfo.width * 1.0)/maxResolution)));
+                }
+            }
+            else
+            {
+                c.height = imageInfo.height;
+                c.width = imageInfo.width;
+            }
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            c.toBlob(async (cBlob) => {
+                let url = c.toDataURL("image/jpeg", 0.9);
+                imageInfo.height = c.height;
+                imageInfo.width = c.width;
+                imageInfo.mediaType = "image/jpeg";
+                imageInfo.arraybuffer = await cBlob.arrayBuffer();
+            }, "image/jpeg", 0.9);
+        }
     }
 
     async fetchImage(imageInfo, progressIndicator, parentPageUrl) {
@@ -336,7 +371,8 @@ class ImageCollector {
             xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
-            await this.getImageDimensions(imageInfo);
+            let img = await this.getImageDimensions(imageInfo);
+            await this.runCompression(imageInfo, img);
             progressIndicator();
             this.addToPackList(imageInfo)
         }

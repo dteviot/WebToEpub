@@ -103,6 +103,8 @@ class UserPreferences {
         this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
         this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.addPreference("skipImages", "skipImagesCheckbox", false);
+        this.addPreference("compressImages", "compressImagesCheckbox", false);
+        this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
         this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.addPreference("themeColor", "themeColorTag", "");
         this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", false);

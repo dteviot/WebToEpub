@@ -9,7 +9,6 @@
     <base />
 </head>
 <body>
-
     <div class="container">
         <section id="readingListSection" hidden="true">
             <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
@@ -339,6 +338,22 @@
                     <tr id="higestResolutionImagesRow" hidden="true">
                         <td><input id="higestResolutionImagesCheckboxInput" type="checkbox" name="higestResolutionImagesCheckboxInput" value="true"></td>
                         <td>__MSG_label_Fetch_Highest_Resolution_Images__</td>
+                    </tr>
+                    <tr id="compressImagesRow">
+                        <td><input id="compressImagesCheckbox" type="checkbox" name="compressImagesCheckbox" value="false"></td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>__MSG_label_Compress_Images__</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="compressImagesMaxResolutionTag" type="number" name="compressImagesMaxResolutionTag" style="width: 61px;" value="1080" min="100">
+                        </td>
+                        <td>__MSG_label_Compress_Images_Resolution__</td>
                     </tr>
                     <tr id="unSuperScriptAlternateTranslations" hidden="true">
                         <td><input id="unSuperScriptCheckboxInput" type="checkbox" name="unSuperScriptCheckboxInput" value="true"></td>

@@ -251,6 +251,14 @@
 		"message": "Add Page with Chapters to Chapters List",
 		"description": "Label for checkbox to toggle adding the page with chapters to list of pages to fetch"
 	},
+	"__MSG_label_Compress_Images__": {
+		"message": "Compress Images",
+		"description": "Label for checkbox and value to compress images to a certain size"
+	},
+	"__MSG_label_Compress_Images_Resolution__": {
+		"message": "Resolution",
+		"description": "Label for number input for maximum dimension size of pixel height or width in image"
+	},
 	"__MSG_label_Cover_from_URL__": {
 		"message": "Cover from URL:",
 		"description": "Label for checkbox to toggle between picking cover image from list or with a URL"
