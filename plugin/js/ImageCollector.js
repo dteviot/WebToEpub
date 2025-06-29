@@ -354,11 +354,15 @@ class ImageCollector {
                 }
                 ctx.drawImage(img, 0, 0, c.width, c.height);
                 c.toBlob(async (cBlob) => {
-                    imageInfo.height = c.height;
-                    imageInfo.width = c.width;
-                    imageInfo.mediaType = "image/jpeg";
-                    imageInfo.arraybuffer = await cBlob.arrayBuffer();
-                    resolve();
+                    try {
+                        imageInfo.height = c.height;
+                        imageInfo.width = c.width;
+                        imageInfo.mediaType = "image/jpeg";
+                        imageInfo.arraybuffer = await cBlob.arrayBuffer();
+                        resolve();
+                    } catch (e) {
+                        reject();
+                    }
                 }, "image/jpeg", 0.9);
             }
             else
