@@ -337,6 +337,7 @@ class Library {
         let LibTemplateNewChapter = document.getElementById("LibTemplateNewChapter").innerHTML;
         let LibTemplateURL = document.getElementById("LibTemplateURL").innerHTML;
         let LibTemplateFilename = document.getElementById("LibTemplateFilename").innerHTML;
+        let LibTemplateGoToStoryURL = document.getElementById("LibTemplateGoToStoryURL").innerHTML;
         let LibTemplateMergeUploadButton = "";
         let LibTemplateEditMetadataButton = "";
 
@@ -422,6 +423,7 @@ class Library {
                 LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDeleteEpub"+CurrentLibKeys[i]+"'>"+LibTemplateDeleteEpub+"</button>";
                 LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibUpdateNewChapter"+CurrentLibKeys[i]+"'>"+LibTemplateUpdateNewChapter+"</button>";
                 LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibDownload"+CurrentLibKeys[i]+"'>"+LibTemplateDownload+"</button>";
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibGoToStoryURL"+CurrentLibKeys[i]+"'>"+LibTemplateGoToStoryURL+"</button>";
                 LibRenderString += "<span style='padding: 1em; font-size: 1.2em; color: Chartreuse;' id='LibNewChapterCount"+CurrentLibKeys[i]+"'></span>";
                 if (ShowAdvancedOptions) {
                     LibRenderString += "</td>";
@@ -479,6 +481,7 @@ class Library {
                 document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDeleteEpub(this)});
                 document.getElementById("LibUpdateNewChapter"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibUpdateNewChapter(this)});
                 document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibDownload(this)});
+                document.getElementById("LibGoToStoryURL"+CurrentLibKeys[i]).addEventListener("click", function(){Library.LibGoToStoryURL(this)});
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function(){Library.LibSaveTextURLChange(this)});
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function(){Library.LibShowTextURLWarning(this)});
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusout", function(){Library.LibHideTextURLWarning(this)});
@@ -799,6 +802,13 @@ class Library {
         Library.userPreferences.readingList.tryDeleteEpubAndSave(document.getElementById("LibStoryURL" + objbtn.dataset.libepubid).value);
         chrome.storage.local.remove(LibRemove);
         Library.LibRenderSavedEpubs();
+    }
+
+    static async LibGoToStoryURL(objbtn) {
+        let storyUrl = await Library.LibGetFromStorage("LibStoryURL" + objbtn.dataset.libepubid);
+        if (storyUrl) {
+            chrome.tabs.create({ url: storyUrl });
+        }
     }
 
     static async LibUpdateNewChapter(objbtn){
