@@ -352,7 +352,6 @@ class ImageCollector {
             }
             ctx.drawImage(img, 0, 0, c.width, c.height);
             c.toBlob(async (cBlob) => {
-                let url = c.toDataURL("image/jpeg", 0.9);
                 imageInfo.height = c.height;
                 imageInfo.width = c.width;
                 imageInfo.mediaType = "image/jpeg";
