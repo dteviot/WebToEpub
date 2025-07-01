@@ -382,8 +382,10 @@ class ImageCollector {
             xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
             imageInfo.mediaType = xhr.contentType;
             imageInfo.arraybuffer = xhr.arrayBuffer;
-            let img = await this.getImageDimensions(imageInfo);
-            await this.runCompression(imageInfo, img);
+            {
+                let img = await this.getImageDimensions(imageInfo);
+                await this.runCompression(imageInfo, img);
+            }
             progressIndicator();
             this.addToPackList(imageInfo)
         }
