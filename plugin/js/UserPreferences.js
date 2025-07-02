@@ -86,7 +86,7 @@ class UserPreferences {
         this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
         this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
         this.addPreference("CustomFilename", "CustomFilenameInput", "%Filename%");
-        this.addPreference("useSvgForImages", "useSvgForImagesInput", false);
+        this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
         this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", true);
         this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", true);
         this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", true);

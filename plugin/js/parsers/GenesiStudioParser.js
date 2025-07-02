@@ -82,58 +82,12 @@ class GenesiStudioParser extends Parser{
     }
 
     buildChapter(json, url) {
-        // This creates the new document structure for the chapter.
-        const newDoc = Parser.makeEmptyDocForContent(url);
-        // The document we need to create elements in and import nodes to.
-        const targetDocument = newDoc.content.ownerDocument;
-
-        // --- Your working code to append main content ---
-        const contentIndex = json.nodes[2].data[0].content;
-        const contentHtml = json.nodes[2].data[contentIndex];
-        const contentDom = new DOMParser().parseFromString(contentHtml, "text/html");
-
-        for (const node of [...contentDom.body.childNodes]) {
-            const importedNode = targetDocument.importNode(node, true);
-            newDoc.content.appendChild(importedNode);
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let index = json.nodes[2].data[0].content;
+        let content = new DOMParser().parseFromString(json.nodes[2].data[index], "text/html");
+        for(let n of [...content.body.childNodes]) {
+            newDoc.content.appendChild(n);
         }
-
-        // --- New, Corrected Code to Append and Format Footnotes ---
-        const footnoteIndex = json.nodes[2].data[0].footnotes;
-        if (footnoteIndex) {
-            const footnotesHtml = json.nodes[2].data[footnoteIndex];
-            if (footnotesHtml && footnotesHtml.trim()) {
-                // Add a horizontal line and a simple text header.
-                const hr = targetDocument.createElement("hr");
-                newDoc.content.appendChild(hr);
-                const footnotesHeader = targetDocument.createElement("p");
-                footnotesHeader.innerHTML = "<strong>Footnotes</strong>";
-                newDoc.content.appendChild(footnotesHeader);
-
-                // Parse footnotes into a temporary document to modify them.
-                const footnotesDom = new DOMParser().parseFromString(footnotesHtml, "text/html");
-                const footnotesList = footnotesDom.querySelector("ol");
-
-                if (footnotesList) {
-                    // Get all list items from the temporary document.
-                    const listItems = footnotesList.querySelectorAll("li");
-
-                    // Iterate through each list item and convert it into a paragraph
-                    // to remove the automatic list numbering but keep the content.
-                    listItems.forEach(li => {
-                        // Create a new paragraph in the target document.
-                        const p = targetDocument.createElement("p");
-                        
-                        // Set the paragraph's content to be the same as the list item's content.
-                        // This preserves the <a href="...">...</a> tag and all other text/formatting.
-                        p.innerHTML = li.innerHTML;
-                        
-                        // Append the new paragraph (which now acts as a footnote) to the chapter content.
-                        newDoc.content.appendChild(p);
-                    });
-                }
-            }
-        }
-
         return newDoc.dom;
     }
 
