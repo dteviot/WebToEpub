@@ -475,6 +475,10 @@
 		"message": "Use <svg> for images",
 		"description": "Label in front of checkbox to choose between <img> and <svg> elements for images."
 	},
+	"__MSG_label_Remove_Next_and_Previous_Chapter_Hyperlinks__": {
+		"message": "Remove Next and Previous Chapter Hyperlinks",
+		"description": "Remove hyperlinks to the previous and next chapter that may appear in chapter pages."
+	},
 	"__MSG_label_Using_Default_Parser__": {
 		"message": "No parser found for this URL.  Default Parser will be used. Please specify how to obtain content from each web page.",
 		"description": "Warning message when can't figure out how to extract info from web page."
