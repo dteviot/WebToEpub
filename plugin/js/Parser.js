@@ -109,7 +109,9 @@ class Parser {
         let content = this.findContent(webPage.rawDom);
         this.customRawDomToContentStep(webPage, content);
         util.decodeCloudflareProtectedEmails(content);
-        this.removeNextAndPreviousChapterHyperlinks(webPage, content);
+        if (this.userPreferences.removeNextAndPreviousChapterHyperlinks.value) {
+            this.removeNextAndPreviousChapterHyperlinks(webPage, content);
+        }
         this.removeUnwantedElementsFromContentElement(content);
         this.addTitleToContent(webPage, content);
         util.fixBlockTagsNestedInInlineTags(content);
