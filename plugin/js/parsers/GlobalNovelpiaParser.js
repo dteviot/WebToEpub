@@ -19,12 +19,11 @@ class GlobalNovelpiaParser extends Parser{
             return data.map(chapter => {
                 return {
                     sourceUrl: `https://global.novelpia.com/viewer/${chapter.episode_no}`,
-                    title: chapter.epi_title
+                    title: chapter.epi_num + " - " + chapter.epi_title
                 };
             });
         } catch (error) {
-            console.error("Error fetching chapter URLs:", error);
-            return [];
+            ErrorLog.showErrorMessage(error);
         }
     }
 
@@ -55,7 +54,7 @@ class GlobalNovelpiaParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector(".in-chapter-title")
+        return dom.querySelector(".in-ch-txt")
     }
 
     findCoverImageUrl(dom) {
