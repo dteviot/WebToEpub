@@ -14,8 +14,12 @@ class QidianParser extends Parser{
 
     async getChapterUrls(dom) {
         if (!dom.baseURI.match(new RegExp("/catalog$"))) {
+            let newURL = dom.baseURI;
             let regex = new RegExp("(/book/(?:.*?_)?\\d+\\b).*");
-            dom = (await HttpClient.wrapFetch(dom.baseURI.replace(regex, "$1/catalog"))).responseXML;
+            newURL = newURL.replace(regex, "$1/catalog");
+            regex = new RegExp("(/comic/(?:.*?_)?\\d+\\b).*");
+            newURL = newURL.replace(regex, "$1/catalog");
+            dom = (await HttpClient.wrapFetch(newURL)).responseXML;
         }
         let links = Array.from(dom.querySelectorAll("ul.content-list a"));
         if (links.length === 0) {
@@ -69,8 +73,11 @@ class QidianParser extends Parser{
         content.className = "chapter_content";
         webPage.body.appendChild(content);
         this.addHeader(webPage, content, json.chapterInfo.chapterName)
-        for(let c of json.chapterInfo.contents) {
+        for(let c of json.chapterInfo?.contents?json.chapterInfo.contents:[]) {
             this.addParagraph(webPage, content, c.content);
+        }
+        for(let c of json.chapterInfo?.chapterPage?json.chapterInfo.chapterPage:[]) {
+            this.addComicPage(webPage, content, c.url);
         }
         if (!this.userPreferences.removeAuthorNotes.value) {
             let notes = json.chapterInfo.notes?.note ?? null;
@@ -127,6 +134,13 @@ class QidianParser extends Parser{
 
     addParagraph(webPage, content, text) {
         this.addElement(webPage, content, "p", text);
+    }
+
+    addComicPage(webPage, content, text) {
+        let t = webPage.createElement("img");
+        t.src = text;
+        content.appendChild(t);
+        return t;
     }
 
     addNoteContainer(webPage, content) {
