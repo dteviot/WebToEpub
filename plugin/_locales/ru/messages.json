@@ -434,10 +434,6 @@
 		"message": "ERROR: Unhandled field type.",
 		"description": "Internal message for developer."
 	},
-	"warningParserDisabledComradeMao": {
-		"message": "ВНИМАНИЕ: Поддержка comrademao.com была прекращена по запросу владельцев сайта, т.к. расширение создавало проблемы другим пользователям сайта. Информация: https://github.com/dteviot/WebToEpub/issues/279",
-		"description": "Warning message when user tries to process comrademao.com."
-	},
 	"warningNoChapterUrl": {
 		"message": "ОШИБКА: Не указан адрес главы для теста.",
 		"description": "Warning message when user tries to test the Default Parser without supplying a Chapter URL to test against."

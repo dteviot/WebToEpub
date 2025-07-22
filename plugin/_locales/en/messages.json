@@ -748,10 +748,6 @@
 			}
 		}
 	},
-	"warningParserDisabledComradeMao": {
-		"message": "WARNING: Support for comrademao.com has been disabled at the request of site owners, due to WebToEpub causing problems for other users of site.  For more details, see: https://github.com/dteviot/WebToEpub/issues/279",
-		"description": "Warning message when user tries to process comrademao.com."
-	},
 	"warningNoChapterUrl": {
 		"message": "ERROR: No Chapter URL supplied to test against.",
 		"description": "Warning message when user tries to test the Default Parser without supplying a Chapter URL to test against."
