@@ -381,6 +381,7 @@ class ImageCollector {
             let xhr = await HttpClient.wrapFetch(initialUrl, fetchOptions);
             xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
             imageInfo.mediaType = xhr.contentType;
+            this.fixupInvalidMediaType(imageInfo);
             imageInfo.arraybuffer = xhr.arrayBuffer;
             {
                 let img = await this.getImageDimensions(imageInfo);
@@ -394,6 +395,17 @@ class ImageCollector {
             // ToDo, implement error handler.
             this.imagesToPack.push(imageInfo);
             ErrorLog.log(error);
+        }
+    }
+
+    fixupInvalidMediaType(imageInfo) {
+        if (!imageInfo.mediaType?.startsWith("image")) {
+            let path = new URL(imageInfo.sourceUrl).pathname;
+            let index = path.lastIndexOf(".");
+            let format = (index < 0)
+                ? "jpeg"
+                : path.substring(index + 1);
+            imageInfo.mediaType = "image/" + format;
         }
     }
 
