@@ -73,7 +73,7 @@ class ZirusMusingsParser extends Parser {
         let title = newDoc.dom.createElement("h1");
         title.textContent = chapcontent.data.title?chapcontent.data.title:"Chapter "+chapcontent.data.chapter;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(chapcontent.content, "text/html");
+        let content = util.sanitize(chapcontent.content);
         for(let n of [...content.body.childNodes]) {
             newDoc.content.appendChild(n);
         }

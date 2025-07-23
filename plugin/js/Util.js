@@ -1041,6 +1041,11 @@ const util = (function() {
         element.appendChild(wrapper);
     }
 
+    function sanitize(dirty) {
+        const clean = DOMPurify.sanitize(dirty, { USE_PROFILES: { html: true } });
+        return new DOMParser().parseFromString(clean, "text/html");
+    }
+
     // Define constants
     const XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -1157,6 +1162,7 @@ const util = (function() {
         syncLoadSampleDoc: syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad,
+        sanitize: sanitize,
         removeAttributes: removeAttributes,
         removeEmptyAttributes: removeEmptyAttributes,
         removeSpansWithNoAttributes: removeSpansWithNoAttributes,
