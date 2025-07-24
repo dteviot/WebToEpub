@@ -112,10 +112,8 @@ class SangtacvietParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = json.chaptername;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.data, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.data);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

@@ -820,7 +820,7 @@ const util = (function() {
     }
 
     function parseHtmlAndInsertIntoContent(htmlText, content) {
-        let parsed = new DOMParser().parseFromString(htmlText, "text/html");
+        let parsed = util.sanitize(htmlText);
         while (content.firstChild) {
             content.removeChild(content.firstChild);
         }

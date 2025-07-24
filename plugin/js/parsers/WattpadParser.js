@@ -139,10 +139,8 @@ class WattpadParser extends Parser{
     }
 
     toHtml(extraContent) {
-        return new DOMParser().parseFromString(
-            "<div>" + extraContent + "</div>", 
-            "text/html"
-        ).querySelector("div");
+        return util.sanitize("<div>" + extraContent + "</div>")
+            .querySelector("div");
     }
 
     findContent(dom) {

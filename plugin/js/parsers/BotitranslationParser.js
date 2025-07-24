@@ -65,10 +65,8 @@ class BotitranslationParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = json.data.title;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.data.content, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.data.content);
+        util.moveChildElements(content.body, newDoc.content);        
         return newDoc.dom;
     }
 

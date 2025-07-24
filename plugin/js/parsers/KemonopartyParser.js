@@ -30,10 +30,8 @@ class KemonopartyParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         newDoc.content.appendChild(header);
         header.textContent = json.post.title;
-        let content = new DOMParser().parseFromString(json.post.content, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.post.content);
+        util.moveChildElements(content.body, newDoc.content);        
         this.copyImagesIntoContent(newDoc.dom);
         this.addFileImages(json, newDoc);
         return newDoc.dom;

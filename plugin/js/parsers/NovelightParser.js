@@ -52,10 +52,8 @@ class NovelightParser extends Parser{
     chaptersFromJson(json, url){
         //without this the href links have as baseurl the extension
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let content = new DOMParser().parseFromString(json.html, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.html);
+        util.moveChildElements(content.body, newDoc.content);
         let chapters = [...newDoc.dom.querySelectorAll("a")].map(a => ({
             sourceUrl: a.href, 
             title: a.querySelector(".title").textContent.replaceAll("\n", "").trim(), 
@@ -111,7 +109,7 @@ class NovelightParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = this.ChacheChapterTitle.get(url);
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.content, "text/html");
+        let content = util.sanitize(json.content);
         for(let n of [...content.body.querySelectorAll("."+json.class+" div")]) {
             let br = document.createElement("br");
             newDoc.content.appendChild(n);

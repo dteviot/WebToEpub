@@ -84,10 +84,8 @@ class GenesiStudioParser extends Parser{
     buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let index = json.nodes[2].data[0].content;
-        let content = new DOMParser().parseFromString(json.nodes[2].data[index], "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.nodes[2].data[index]);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 

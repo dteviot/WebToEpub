@@ -74,9 +74,7 @@ class ZirusMusingsParser extends Parser {
         title.textContent = chapcontent.data.title?chapcontent.data.title:"Chapter "+chapcontent.data.chapter;
         newDoc.content.appendChild(title);
         let content = util.sanitize(chapcontent.content);
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

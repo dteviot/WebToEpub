@@ -42,7 +42,7 @@ class EngnovelParser extends Parser{
             body: `action=tw_ajax&type=pagination&id=${id}&page=${page}`
         };
         let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        let dom = new DOMParser().parseFromString(json.list_chap, "text/html");
+        let dom = util.sanitize(json.list_chap);
         return EngnovelParser.extractPartialChapterList(dom);
     }
 

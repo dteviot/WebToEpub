@@ -53,7 +53,7 @@ class DarkNovelsParser extends Parser{
         let newDoc = Parser.makeEmptyDocForContent(fetchUrl);
         let rawContent = await DarkNovelsParser.getStringFromZip(xhr.arrayBuffer);
         let text = "<div id=\"raw\">" + rawContent + "</div>";
-        let rawDom = new DOMParser().parseFromString(text, "text/html");
+        let rawDom = util.sanitize(text);
         let content = rawDom.querySelector("div#raw");
         newDoc.content.appendChild(content);
         return newDoc.dom;

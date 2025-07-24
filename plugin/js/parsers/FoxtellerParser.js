@@ -54,7 +54,7 @@ class FoxtellerParser extends Parser{
         let json = (await HttpClient.fetchJson("https://www.foxteller.com/aux_dem", options)).json;
         let decoded = this.decodeFoxteller(json);
         let rawHtml = "<article>" + decoded + "</article>";
-        return new DOMParser().parseFromString(rawHtml, "text/html");
+        return util.sanitize(rawHtml);
     }
 
     decodeFoxteller(json) {
