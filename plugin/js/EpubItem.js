@@ -68,8 +68,7 @@ class EpubItem {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of this.nodes) {
-            let clone = doc.importNode(node, true);
-            body.appendChild(Sanitize.stripInvalidChars(clone));
+            body.appendChild(util.sanitizeNode(node));
         };
         this.populateTitle(doc, body);
         delete(this.nodes);

@@ -148,7 +148,7 @@ class DefaultParserUI {
             return;
         }
         return HttpClient.wrapFetch(config.testUrl).then(function (xhr) {
-            let webPage = { rawDom: xhr.responseXML };
+            let webPage = { rawDom: util.sanitize(xhr.responseXML) };
             let content = parser.findContent(webPage.rawDom);
             if (content === null) {
                 let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [config.testUrl]);
@@ -178,9 +178,8 @@ class DefaultParserUI {
     static showResult(content) {
         DefaultParserUI.cleanResults();
         if (content != null) {
-            let clean = new Sanitize().clean(content);
             let resultElement = DefaultParserUI.getResultViewElement();
-            util.moveChildElements(clean, resultElement);
+            util.moveChildElements(content, resultElement);
         }
     }
 

@@ -1046,6 +1046,10 @@ const util = (function() {
         return new DOMParser().parseFromString(clean, "text/html");
     }
 
+    function sanitizeNode(dirty) {
+        return sanitize(dirty).body.firstChild;
+    }
+
     // Define constants
     const XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -1163,6 +1167,7 @@ const util = (function() {
         xmlToString: xmlToString,
         zeroPad: zeroPad,
         sanitize: sanitize,
+        sanitizeNode: sanitizeNode,
         removeAttributes: removeAttributes,
         removeEmptyAttributes: removeEmptyAttributes,
         removeSpansWithNoAttributes: removeSpansWithNoAttributes,
