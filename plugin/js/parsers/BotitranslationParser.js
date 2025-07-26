@@ -66,7 +66,7 @@ class BotitranslationParser extends Parser{
         title.textContent = json.data.title;
         newDoc.content.appendChild(title);
         let content = util.sanitize(json.data.content);
-        util.moveChildElements(content.body, newDoc.content);        
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 

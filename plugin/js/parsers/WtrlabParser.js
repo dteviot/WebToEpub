@@ -8,8 +8,7 @@ class WtrlabParser extends Parser{
         this.minimumThrottle = 12000;
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeChapterNumberRow").hidden = false; 
         document.getElementById("selectTranslationAiRow").hidden = false; 
     }

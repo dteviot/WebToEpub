@@ -76,8 +76,7 @@ class ArchiveOfOurOwnParser extends Parser{
         return dom.querySelector("div#chapters");
     };
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 

@@ -10,8 +10,7 @@ class GenesiStudioParser extends Parser{
         super();
         this.minimumThrottle = 2000;
     }
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeChapterNumberRow").hidden = false; 
     }
 

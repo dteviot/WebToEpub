@@ -86,10 +86,10 @@ class DefaultParserUI {
     constructor() {
     }
 
-    static setupDefaultParserUI(dom, parser) {
+    static setupDefaultParserUI(hostname, parser) {
         DefaultParserUI.copyInstructions();
         DefaultParserUI.setDefaultParserUiVisibility(true);
-        DefaultParserUI.populateDefaultParserUI(dom, parser)
+        DefaultParserUI.populateDefaultParserUI(hostname, parser)
         document.getElementById("testDefaultParserButton").onclick = DefaultParserUI.testDefaultParser.bind(null, parser);
         document.getElementById("finisheddefaultParserButton").onclick = DefaultParserUI.onFinishedClicked.bind(null, parser);
     }
@@ -109,8 +109,7 @@ class DefaultParserUI {
         parser.siteConfigs.saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl);
     }
 
-    static populateDefaultParserUI(dom, parser) {
-        let hostname = util.extractHostName(dom.baseURI);
+    static populateDefaultParserUI(hostname, parser) {
         DefaultParserUI.getDefaultParserHostnameInput().value = hostname;
 
         DefaultParserUI.getContentCssInput().value = "body";

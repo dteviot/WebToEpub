@@ -29,8 +29,7 @@ class UltimaguilParser extends Parser {
         return div;
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("higestResolutionImagesRow").hidden = false; 
     }
 

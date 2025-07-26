@@ -184,6 +184,11 @@ class Parser {
         CoverImageUI.showCoverImageUrlInput(true);
         let coverUrl = this.findCoverImageUrl(dom);
         CoverImageUI.setCoverImageUrl(coverUrl);
+        this.populateUIImpl();
+    }
+
+    populateUIImpl() {
+        // default implementation is do nothing more
     }
 
     /**
