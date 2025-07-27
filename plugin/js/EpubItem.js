@@ -186,6 +186,18 @@ class ImageInfo extends EpubItem {
         return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
     }
 
+    getBase64(maxLength) {
+        var binary = "";
+        var bytes = new Uint8Array(this.arraybuffer);
+        var len = bytes.byteLength;
+        if (maxLength > 0) len = Math.min(len, maxLength);
+        for (var i = 0; i < len; i++)
+        {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa( binary );
+    }
+
     getId() {
         if (this.isCover) {
             return "cover-image";
