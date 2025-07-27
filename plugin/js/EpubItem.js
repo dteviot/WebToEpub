@@ -183,7 +183,7 @@ class ImageInfo extends EpubItem {
 
     getZipHref() {
         let that = this;
-        let suffix = that.findImageSuffix(that.wrappingUrl);
+        let suffix = util.getDefaultExtensionByMime(that.mediaType) || that.findImageSuffix(that.wrappingUrl);
         return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
     }
 
