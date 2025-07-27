@@ -381,8 +381,8 @@ class ImageCollector {
             let xhr = await HttpClient.wrapFetch(initialUrl, fetchOptions);
             xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
             imageInfo.mediaType = xhr.contentType;
-            this.fixupInvalidMediaType(imageInfo);
             imageInfo.arraybuffer = xhr.arrayBuffer;
+            this.fixupInvalidMediaType(imageInfo);
             {
                 let img = await this.getImageDimensions(imageInfo);
                 await this.runCompression(imageInfo, img);
@@ -400,12 +400,16 @@ class ImageCollector {
 
     fixupInvalidMediaType(imageInfo) {
         if (!imageInfo.mediaType?.startsWith("image")) {
-            let path = new URL(imageInfo.sourceUrl).pathname;
-            let index = path.lastIndexOf(".");
-            let format = (index < 0)
-                ? "jpeg"
-                : path.substring(index + 1);
-            imageInfo.mediaType = "image/" + format;
+            imageInfo.mediaType = util.detectMimeType(imageInfo.getBase64(25));
+            if (imageInfo.mediaType == null)
+            {
+                let path = new URL(imageInfo.sourceUrl).pathname;
+                let index = path.lastIndexOf(".");
+                let format = (index < 0)
+                    ? "jpeg"
+                    : path.substring(index + 1);
+                imageInfo.mediaType = "image/" + format;
+            }
         }
     }
 
