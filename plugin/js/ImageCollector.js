@@ -400,8 +400,7 @@ class ImageCollector {
 
     fixupInvalidMediaType(imageInfo) {
         //Create a change that isn't a change to test build process
-        var x = 0;
-        x+=10;
+        console.log("logging for test");
         if (!imageInfo.mediaType?.startsWith("image")) {
             let path = new URL(imageInfo.sourceUrl).pathname;
             let index = path.lastIndexOf(".");
