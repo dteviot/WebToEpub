@@ -43,9 +43,7 @@ class WattpadParser extends Parser{
     }
 
     static extractIdFromUrl(url) {
-        let hyperlink = document.createElement("a");
-        hyperlink.href = url;
-        let path = hyperlink.pathname;
+        let path = new URL(url).pathname;
         return path.split("/").filter(s => s.includes("-"))[0].split("-")[0];
     }
 

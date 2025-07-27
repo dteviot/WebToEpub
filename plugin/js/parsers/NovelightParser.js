@@ -111,7 +111,7 @@ class NovelightParser extends Parser{
         newDoc.content.appendChild(title);
         let content = util.sanitize(json.content);
         for(let n of [...content.body.querySelectorAll("."+json.class+" div")]) {
-            let br = document.createElement("br");
+            let br = newDoc.dom.createElement("br");
             newDoc.content.appendChild(n);
             newDoc.content.appendChild(br);
         }

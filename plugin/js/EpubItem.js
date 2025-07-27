@@ -299,7 +299,7 @@ class ImageInfo extends EpubItem {
         let body = doc.getElementsByTagName("body")[0];
         let wrapper = doc.createElementNS(util.XMLNS, wrappingTag);
         body.appendChild(wrapper);
-        let img = document.createElementNS(util.XMLNS,"img");
+        let img = doc.createElementNS(util.XMLNS,"img");
         if (wrappingTag === "span") {
             img.className = "inline";
         }

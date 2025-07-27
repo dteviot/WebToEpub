@@ -99,7 +99,7 @@ class DaoDivineTlParser extends Parser{
         newDoc.content.appendChild(title);
         let text = json.content.replace("\n\n", "\n");
         text = text.split("\n");
-        let br = document.createElement("br");
+        let br = newDoc.dom.createElement("br");
         for (let element of text) {
             let pnode = newDoc.dom.createElement("p");
             pnode.textContent = element;

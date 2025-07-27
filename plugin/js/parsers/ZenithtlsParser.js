@@ -114,7 +114,7 @@ class ZenithtlsParser extends Parser{
     buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        let br = document.createElement("br");
+        let br = newDoc.dom.createElement("br");
         if (json.webtoepubformat == "backslash") {
             title.textContent = json.title;
             newDoc.content.appendChild(title);
