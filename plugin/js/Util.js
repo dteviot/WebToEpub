@@ -1088,7 +1088,7 @@ const util = (function() {
         "image/ktx": ["ktx"],
         "image/apng": ["apng"],
         "image/avif": ["avif"]
-      };
+    };
 
     return {
         XMLNS: XMLNS,
