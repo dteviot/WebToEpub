@@ -820,7 +820,7 @@ const util = (function() {
     }
 
     function parseHtmlAndInsertIntoContent(htmlText, content) {
-        let parsed = new DOMParser().parseFromString(htmlText, "text/html");
+        let parsed = util.sanitize(htmlText);
         while (content.firstChild) {
             content.removeChild(content.firstChild);
         }
@@ -1048,6 +1048,14 @@ const util = (function() {
         return retval;
     }
 
+    function sanitizeNode(dirty) {
+        // don't need to sanitize text nodes
+        // and DOMPurify deletes them if they're whitespace
+        return (dirty?.nodeType === 3)
+            ? dirty.cloneNode(true)
+            : sanitize(dirty).body.firstChild;
+    }
+
     // Define constants
     const XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -1189,6 +1197,8 @@ const util = (function() {
         syncLoadSampleDoc: syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad,
+        sanitize: sanitize,
+        sanitizeNode: sanitizeNode,
         removeAttributes: removeAttributes,
         removeEmptyAttributes: removeEmptyAttributes,
         removeSpansWithNoAttributes: removeSpansWithNoAttributes,

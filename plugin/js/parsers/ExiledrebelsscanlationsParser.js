@@ -17,8 +17,7 @@ class ExiledrebelsscanlationsParser extends Parser{
             || dom.querySelector("div.entry-content");
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 

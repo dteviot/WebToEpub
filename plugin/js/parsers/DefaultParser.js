@@ -27,7 +27,8 @@ class DefaultParser extends Parser {
 
     populateUI(dom) {
         super.populateUI(dom);
-        DefaultParserUI.setupDefaultParserUI(dom, this);
+        let hostname = util.extractHostName(dom.baseURI);
+        DefaultParserUI.setupDefaultParserUI(hostname, this);
     }
 
     // override default (keep nearly everything, may be wanted)

@@ -7,8 +7,7 @@ class ChrysanthemumgardenParser extends WordpressBaseParser{
         super();
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("passwordRow").hidden = false;
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }

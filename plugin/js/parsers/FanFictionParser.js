@@ -115,11 +115,8 @@ class FanFictionParser extends Parser {
     }
 
     populateInfoDiv(infoDiv, dom) {
-        let sanitize = new Sanitize();
-        // keep data-xutime for outside processing because locale time is local
-        sanitize.attributesForTag.set("span",["data-xutime"])
         for(let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
-            let clone = n.cloneNode(true);
+            let clone = util.sanitizeNode(n);
             this.cleanInformationNode(clone);
             if (clone != null) {
                 // convert dates to avoid '19hours ago'
@@ -135,7 +132,7 @@ class FanFictionParser extends Parser {
                 for(let s of clone.querySelectorAll("span.icon-chevron-right")) {
                     s.textContent = " > ";
                 }
-                infoDiv.appendChild(sanitize.clean(clone));
+                infoDiv.appendChild(clone);
             }
         }
         // this "page" doesn't go through image collector, so strip images

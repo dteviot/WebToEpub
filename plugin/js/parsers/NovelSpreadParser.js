@@ -58,10 +58,8 @@ class NovelSpreadParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = `${json.chapter_number}. ${json.chapter_title}`;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.chapter_content, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.chapter_content);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
     getInformationEpubItemChildNodes(dom) {

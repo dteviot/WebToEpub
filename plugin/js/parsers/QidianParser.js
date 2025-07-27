@@ -182,8 +182,7 @@ class QidianParser extends Parser{
         return temp;
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
         document.getElementById("removeChapterNumberRow").hidden = false; 
     }

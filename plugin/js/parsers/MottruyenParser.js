@@ -119,10 +119,8 @@ class MottruyenParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = json.chapterTitle?"Chương "+json.chapter + " :"+ json.chapterTitle:"Chương "+json.chapter;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.content, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.content);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

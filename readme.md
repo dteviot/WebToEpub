@@ -597,6 +597,7 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
 ##### Libraries used (in WebToEpub)
 
 - zip.js
+- DOMPurify
 
 #### Libraries used by WebToEpub build process
 

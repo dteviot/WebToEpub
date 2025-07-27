@@ -115,7 +115,7 @@ class ReadComicOnlineParser extends Parser{
                 return null;
             }
             let text = await response.text();
-            let html =  new DOMParser().parseFromString(text, "text/html");
+            let html = util.sanitize(text);
             util.setBaseTag(response.url, html);
             return html;
         }

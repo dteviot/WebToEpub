@@ -11,10 +11,9 @@ class LightnovelboxParser extends Parser{
         let links = [...dom.querySelectorAll("ul.chapter-list a")];
         let chapters = LightnovelboxParser.linksToChapters(links);
         let urls = LightnovelboxParser.getUrlsOfTocPages(dom);
-        let domParser = new DOMParser();
         for(let url of urls) {
             let rawDom = (await HttpClient.fetchJson(url)).json.chapters;
-            links = [...domParser.parseFromString(rawDom, "text/html").querySelectorAll("a")];
+            links = [...util.sanitize(rawDom).querySelectorAll("a")];
             let partialList = LightnovelboxParser.linksToChapters(links);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);

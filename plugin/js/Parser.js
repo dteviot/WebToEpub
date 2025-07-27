@@ -184,6 +184,11 @@ class Parser {
         CoverImageUI.showCoverImageUrlInput(true);
         let coverUrl = this.findCoverImageUrl(dom);
         CoverImageUI.setCoverImageUrl(coverUrl);
+        this.populateUIImpl();
+    }
+
+    populateUIImpl() {
+        // default implementation is do nothing more
     }
 
     /**
@@ -422,12 +427,11 @@ class Parser {
     }
 
     populateInfoDiv(infoDiv, dom) {
-        let sanitize = new Sanitize();
         for(let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
-            let clone = n.cloneNode(true);
+            let clone = util.sanitizeNode(n);
             this.cleanInformationNode(clone);
             if (clone != null) {
-                infoDiv.appendChild(sanitize.clean(clone));
+                infoDiv.appendChild(clone);
             }
         }
         // this "page" doesn't go through image collector, so strip images

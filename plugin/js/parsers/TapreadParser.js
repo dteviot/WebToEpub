@@ -84,7 +84,7 @@ class TapreadParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.result.chapterName;
         newDoc.content.appendChild(header);
-        let content = new DOMParser().parseFromString(json.result.content, "text/html");
+        let content = util.sanitize(json.result.content);
         util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }

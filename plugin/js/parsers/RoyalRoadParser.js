@@ -28,8 +28,7 @@ class RoyalRoadParser extends Parser{
         return content || dom.querySelector(".page-content-wrapper");
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 
