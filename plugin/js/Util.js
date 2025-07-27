@@ -1041,6 +1041,13 @@ const util = (function() {
         element.appendChild(wrapper);
     }
 
+    function getDefaultExtensionByMime(mimeType)
+    {
+        let retval = MIME_TYPE_EXTENSIONS[mimeType];
+        if (retval) retval = retval[0];
+        return retval;
+    }
+
     // Define constants
     const XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -1057,6 +1064,31 @@ const util = (function() {
         "section", "table", "tfoot", "ul", "video"];
 
     const HEADER_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
+    const MIME_TYPE_EXTENSIONS = {
+        "image/jpeg": ["jpg", "jpeg", "jpe"],
+        "image/png": ["png"],
+        "image/gif": ["gif"],
+        "image/webp": ["webp"],
+        "image/bmp": ["bmp", "dib"],
+        "image/tiff": ["tif", "tiff"],
+        "image/svg+xml": ["svg"],
+        "image/x-icon": ["ico"],
+        "image/vnd.microsoft.icon": ["ico"],
+        "image/heif": ["heif"],
+        "image/heic": ["heic"],
+        "image/x-xbitmap": ["xbm"],
+        "image/x-portable-bitmap": ["pbm"],
+        "image/x-portable-graymap": ["pgm"],
+        "image/x-portable-pixmap": ["ppm"],
+        "image/x-portable-anymap": ["pnm"],
+        "image/x-cmu-raster": ["ras"],
+        "image/x-tga": ["tga"],
+        "image/jxr": ["jxr"],
+        "image/ktx": ["ktx"],
+        "image/apng": ["apng"],
+        "image/avif": ["avif"]
+    };
 
     return {
         XMLNS: XMLNS,
@@ -1161,6 +1193,7 @@ const util = (function() {
         removeEmptyAttributes: removeEmptyAttributes,
         removeSpansWithNoAttributes: removeSpansWithNoAttributes,
         replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags,
-        wrapInnerContentInTag: wrapInnerContentInTag
+        wrapInnerContentInTag: wrapInnerContentInTag,
+        getDefaultExtensionByMime: getDefaultExtensionByMime
     };
 })();
