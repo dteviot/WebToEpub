@@ -1048,6 +1048,11 @@ const util = (function() {
         return retval;
     }
 
+    function sanitize(dirty) {
+        const clean = DOMPurify.sanitize(dirty, { USE_PROFILES: { html: true } });
+        return new DOMParser().parseFromString(clean, "text/html");
+    }
+
     function sanitizeNode(dirty) {
         // don't need to sanitize text nodes
         // and DOMPurify deletes them if they're whitespace

@@ -91,13 +91,8 @@ class WetriedTlsParser extends Parser {
 
     buildChapter(rawHtml, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let content = new DOMParser().parseFromString(
-            rawHtml,
-            "text/html"
-        );
-        for (let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(rawHtml)
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 
