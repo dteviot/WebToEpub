@@ -1047,7 +1047,11 @@ const util = (function() {
     }
 
     function sanitizeNode(dirty) {
-        return sanitize(dirty).body.firstChild;
+        // don't need to sanitize text nodes
+        // and DOMPurify deletes them if they're whitespace
+        return (dirty?.nodeType === 3)
+            ? dirty.cloneNode(true)
+            : sanitize(dirty).body.firstChild;
     }
 
     // Define constants
