@@ -187,7 +187,7 @@ class ImageInfo extends EpubItem {
     }
 
     getBase64(maxLength) {
-        var binary = '';
+        var binary = "";
         var bytes = new Uint8Array(this.arraybuffer);
         var len = bytes.byteLength;
         if (maxLength > 0) len = Math.min(len, maxLength);
