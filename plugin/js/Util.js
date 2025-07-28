@@ -1056,7 +1056,7 @@ const util = (function() {
     }
 
     function sanitize(dirty) {
-        const clean = DOMPurify.sanitize(dirty, { USE_PROFILES: { html: true } });
+        const clean = DOMPurify.sanitize(dirty);
         return new DOMParser().parseFromString(clean, "text/html");
     }
 
