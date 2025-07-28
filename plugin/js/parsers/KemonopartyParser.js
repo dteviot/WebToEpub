@@ -1,10 +1,18 @@
 "use strict";
 
-parserFactory.register("kemono.su", () => new KemonopartyParser());
+parserFactory.registerRule(
+    (url, dom) => KemonopartyParser.isKemono(dom),
+    () => new KemonopartyParser()
+);
 
 class KemonopartyParser extends Parser{
     constructor() {
         super();
+    }
+    
+    static isKemono(dom) {
+        return dom.querySelector('meta[name="og:title"]').content == "Kemono"
+            && dom.querySelector("section.site-section div.card-list") != null;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
@@ -13,6 +21,7 @@ class KemonopartyParser extends Parser{
         for(let url of urlsOfTocPages) {
             await this.rateLimitDelay();
             let json = (await HttpClient.fetchJson(url)).json;
+            json.url = url;
             let partialList = this.extractPartialChapterList(json);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
@@ -50,7 +59,7 @@ class KemonopartyParser extends Parser{
             urlbuilder.searchParams.delete(key);
         }
         let regex = new RegExp("/?$");
-        urlbuilder.href = urlbuilder.href.replace("https://kemono.su", "https://kemono.su/api/v1").replace(regex, "/posts-legacy");
+        urlbuilder.href = urlbuilder.href.replace(`https://${baseurl.hostname}`, `https://${baseurl.hostname}/api/v1`).replace(regex, "/posts-legacy");
         
         for (const [key, value] of baseurl.searchParams.entries()) {
             urlbuilder.searchParams.set(key, value);
@@ -70,10 +79,11 @@ class KemonopartyParser extends Parser{
     extractPartialChapterList(data) {
         // get href from the dom, not the url of the page
         try {
+            let url = new URL(data.url);
             let authorid = data.props.id;
             let ids = data.results.map(result => result.id);
             let titles = data.results.map(result => result.title);
-            let urls = ids.map(id => `https://kemono.su/api/v1/patreon/user/${authorid}/post/${id}`);
+            let urls = ids.map(id => `https://${url.hostname}/api/v1/patreon/user/${authorid}/post/${id}`);
             return urls.map((url, i) => ({
                 sourceUrl: url,
                 title: titles[i]
