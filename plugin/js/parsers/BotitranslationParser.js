@@ -39,11 +39,6 @@ class BotitranslationParser extends Parser{
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "p > br");
-        super.removeUnwantedElementsFromContentElement(element);
-    }
-
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".cover-container");
     }
