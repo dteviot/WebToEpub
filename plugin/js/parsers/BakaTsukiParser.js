@@ -236,7 +236,7 @@ class BakaTsukiParser extends Parser{
 
             let gallery = listItem.parentNode;
             garbage.add(gallery);
-            gallery.parentNode.insertBefore(listItem.firstChild, gallery);
+            gallery.parentNode.insertBefore(listItem.firstElementChild, gallery);
         }
 
         // throw away rest of gallery  (note sometimes there are multiple galleries)
