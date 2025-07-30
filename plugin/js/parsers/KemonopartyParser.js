@@ -11,7 +11,7 @@ class KemonopartyParser extends Parser{
     }
     
     static isKemono(dom) {
-        return dom.querySelector("meta[name='og:title']").content == "Kemono"
+        return dom.querySelector("meta[name='og:title']")?.content == "Kemono"
             && dom.querySelector("section.site-section div.card-list") != null;
     }
 
