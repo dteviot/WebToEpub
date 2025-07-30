@@ -8,3 +8,4 @@ package-lock.json
 .idea
 .vscode
 /plugin/dompurify/
+/plugin/@zip.js/
