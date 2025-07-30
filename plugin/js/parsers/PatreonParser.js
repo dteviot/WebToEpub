@@ -66,7 +66,7 @@ class PatreonParser extends Parser{
             newDoc.content.append(img);
         }
         let content =  "<div>" + json.content + "</div>"
-        content = new DOMParser().parseFromString(content, "text/html")
+        content = util.sanitize(content)
             .querySelector("div");
         newDoc.content.append(content);
         return newDoc.dom;

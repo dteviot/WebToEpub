@@ -39,8 +39,7 @@ class ScribblehubParser extends Parser {
         return dom.querySelector("div.fic_row, div#chp_raw");
     };
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false;
     }
 

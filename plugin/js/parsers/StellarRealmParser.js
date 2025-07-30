@@ -33,8 +33,7 @@ class StellarRealmParser extends Parser{
         this.title = bookinfo.props.series?.title;
         this.tags = bookinfo.props.series.tags?.map(a => a.name);
         this.tags = this.tags.concat(bookinfo.props.series.genre?.map(a => a.name));
-        let parser = new DOMParser();
-        let parsed = parser.parseFromString(bookinfo.props.series.description, "text/html");
+        let parsed = util.sanitize(bookinfo.props.series.description);
         this.description = parsed.body.textContent;
         this.img = bookinfo.props.series.cover?.path 
             ? "https://stellarrealm.net/storage/"+bookinfo.props.series.cover.path
@@ -86,10 +85,8 @@ class StellarRealmParser extends Parser{
         }
         title.textContent = titleText;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.chapter.content, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json.chapter.content);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

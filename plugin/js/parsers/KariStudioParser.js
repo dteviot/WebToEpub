@@ -35,10 +35,7 @@ class KariStudioParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        let marks = [...element.querySelectorAll(".confuse, #novel_nav, .post-rating-wrapper, #donation-msg, .clearfix, .navigation")];
-        for(let mark of marks) {
-            mark.remove();
-        }
+        util.removeChildElementsMatchingSelector(element, ".confuse, #novel_nav, .post-rating-wrapper, #donation-msg, .clearfix, .navigation, #font-options-bar");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

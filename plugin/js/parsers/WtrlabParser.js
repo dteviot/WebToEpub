@@ -8,8 +8,7 @@ class WtrlabParser extends Parser{
         this.minimumThrottle = 12000;
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeChapterNumberRow").hidden = false; 
         document.getElementById("selectTranslationAiRow").hidden = false; 
     }
@@ -141,7 +140,7 @@ class WtrlabParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.chapter.title;
         newDoc.content.appendChild(title);
-        let br = document.createElement("br");
+        let br = newDoc.dom.createElement("br");
         for (let element of json.data.data.body) {
             let pnode = newDoc.dom.createElement("p");
             let newtext = element;

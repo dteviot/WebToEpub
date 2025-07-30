@@ -8,8 +8,7 @@ class MtledNovelsParser extends Parser{
         super();
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeOriginalRow").hidden = false;
     }
 

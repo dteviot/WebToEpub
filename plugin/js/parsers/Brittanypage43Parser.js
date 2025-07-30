@@ -7,6 +7,10 @@ class Brittanypage43Parser extends Parser{
         super();
     }
 
+    disabled() {
+        return chrome.i18n.getMessage("parserDisabledNotification");
+    }
+    
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("a.post-card-content-link")]
             .map(this.linkToChapter).reverse();

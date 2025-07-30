@@ -42,7 +42,7 @@ class QueenrosenovelblogspotParser extends Parser{
         let content = this.findContent(webPageDom);
         let script = content.querySelector("script").textContent;
         let html = script.substring(script.indexOf("`") + 1, script.length - 1);
-        let doc = new DOMParser().parseFromString("<div id='start'>" + html + "</div>", "text/html");
+        let doc = util.sanitize("<div id='start'>" + html + "</div>");
         content.appendChild(doc.querySelector("div#start"));
     }
 

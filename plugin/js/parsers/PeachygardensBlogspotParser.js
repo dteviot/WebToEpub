@@ -67,10 +67,8 @@ class PeachygardensBlogspotParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = json[0];
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json[1], "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(json[1]);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

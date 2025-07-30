@@ -27,8 +27,7 @@ class StorySeedlingParser extends Parser {
         );
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 

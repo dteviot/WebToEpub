@@ -55,7 +55,7 @@ class FlyingLinesParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = `${json.chapter_number}. ${json.chapter_title}`;
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(json.chapter_content, "text/html");
+        let content = util.sanitize(json.chapter_content);
         for(let n of [...content.body.childNodes]) {
             if (n.className !== "siteCopyrightInfo") {
                 newDoc.content.appendChild(n);

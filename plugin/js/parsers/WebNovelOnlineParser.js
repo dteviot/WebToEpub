@@ -61,7 +61,7 @@ class WebNovelOnlineParser extends Parser{
 
     static addHtmlToDocument(content, text) {
         text = "<div id=\"raw\">" + text + "</div>";
-        let rawDom = new DOMParser().parseFromString(text, "text/html");
+        let rawDom = util.sanitize(text);
         content.appendChild(rawDom.querySelector("div#raw"));
     }
 

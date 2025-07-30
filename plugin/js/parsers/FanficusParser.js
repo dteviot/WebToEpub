@@ -33,7 +33,7 @@ class FanficusParser extends Parser{
         let header = newDoc.dom.createElement("h1");
         header.textContent = json.value.title;
         newDoc.content.appendChild(header);
-        let doc = new DOMParser().parseFromString("<div id='start'>" + json.value.text + "</div>", "text/html");
+        let doc = util.sanitize("<div id='start'>" + json.value.text + "</div>");
         newDoc.content.appendChild(doc.querySelector("div#start"));
         return newDoc.dom;
     }

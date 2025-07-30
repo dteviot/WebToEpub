@@ -56,8 +56,7 @@ class HostednovelParser extends Parser{
         return dom.querySelector("div.fontchanger");
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 

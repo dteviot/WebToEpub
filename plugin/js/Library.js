@@ -1090,8 +1090,7 @@ class Library {
     }
 
     static AppendHtmlInDiv(HTMLstring, DivObjectInject, DivClassWraper ){
-        let parser = new DOMParser();
-        let parsed = parser.parseFromString(HTMLstring, "text/html");
+        let parsed = util.sanitize(HTMLstring);
         let tags = parsed.getElementsByClassName(DivClassWraper);
         DivObjectInject.innerHTML = "";
         for (let  tag of tags) {

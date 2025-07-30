@@ -37,7 +37,7 @@ class MoonqQillParser extends Parser{
     uncommentStoryText(content) {
         let comments = [...content.childNodes].filter(n => n.nodeType === Node.COMMENT_NODE);
         for(let comment of comments) {
-            let newDom = new DOMParser().parseFromString("<article>" + comment.data + "</article>", "text/html");
+            let newDom = util.sanitize("<article>" + comment.data + "</article>");
             let newHtml = newDom.querySelector("article");
             content.appendChild(newHtml);
             break;

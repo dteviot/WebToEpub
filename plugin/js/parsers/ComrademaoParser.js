@@ -8,12 +8,11 @@ class ComrademaoParser extends Parser{
         super();
     }
 
-    // disabled() {
-    //     return chrome.i18n.getMessage("warningParserDisabledComradeMao");
-    // }
+   //    disabled() {
+   //        return chrome.i18n.getMessage("parserDisabledNotification");
+   //    }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("removeOriginalRow").hidden = false; 
     }
 

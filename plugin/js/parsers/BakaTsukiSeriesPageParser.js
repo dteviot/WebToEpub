@@ -55,12 +55,11 @@ class BakaTsukiSeriesPageParser extends Parser{
         return dom.querySelector("div#mw-content-text");
     };
 
-    populateUI(dom) {
+    populateUIImpl() {
         document.getElementById("higestResolutionImagesRow").hidden = false; 
         document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("translatorRow").hidden = false;
         document.getElementById("fileAuthorAsRow").hidden = false;
-        super.populateUI(dom);
     }
 
     // title of the story  (not to be confused with title of each chapter)

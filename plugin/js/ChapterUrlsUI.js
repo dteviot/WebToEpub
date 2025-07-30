@@ -387,7 +387,7 @@ class ChapterUrlsUI {
     */
     htmlToChapters(innerHtml) {
         let html = "<html><head><title></title><body>" + innerHtml + "</body></html>";
-        let doc = new DOMParser().parseFromString(html, "text/html");
+        let doc = util.sanitize(html);
         return [...doc.body.querySelectorAll("a")].map(a => util.hyperLinkToChapter(a));
     }
 
@@ -448,7 +448,7 @@ class ChapterUrlsUI {
     }
 
     chaptersToHTML(chapters) {
-        let doc = new DOMParser().parseFromString("<html><head><title></title><body></body></html>", "text/html");
+        let doc = util.sanitize("<html><head><title></title><body></body></html>");
         for(let chapter of chapters.filter(c => c.isIncludeable)) {
             doc.body.appendChild(this.makeLink(doc, chapter));
             doc.body.appendChild(doc.createTextNode("\r"));

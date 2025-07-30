@@ -68,10 +68,8 @@ class RuversParser extends Parser{
         let title = newDoc.dom.createElement("h1");
         title.textContent = this.ChacheChapterTitle.get(url);
         newDoc.content.appendChild(title);
-        let content = new DOMParser().parseFromString(chapcontent, "text/html");
-        for(let n of [...content.body.childNodes]) {
-            newDoc.content.appendChild(n);
-        }
+        let content = util.sanitize(chapcontent);
+        util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
 }

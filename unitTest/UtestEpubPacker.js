@@ -173,7 +173,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>" +
             "<manifest>" +
-              "<item href=\"Images/0000_thepic.jpeg\" id=\"cover-image\" media-type=\"image/jpeg\"/>" +
+              "<item href=\"Images/0000_thepic.jpg\" id=\"cover-image\" media-type=\"image/jpeg\"/>" +
               "<item href=\"Text/0000_Title0.xhtml\" id=\"xhtml0000\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Text/0001_Title1.xhtml\" id=\"xhtml0001\" media-type=\"application/xhtml+xml\"/>" +
               "<item href=\"Styles/stylesheet.css\" id=\"stylesheet\" media-type=\"text/css\"/>" +
@@ -385,6 +385,7 @@ test("makeCoverImageXhtmlFile", function (assert) {
     let imageInfo = new ImageInfo("http://dummy/cover.png", 0, "http://dummy/cover.png");
     imageInfo.width = 400;
     imageInfo.height = 600;
+    imageInfo.mediaType = "image/png";
     imageInfo.isCover = true;
     let dummyImageCollector = {
         userPreferences: makeDummyUserPreferences(true, true),
@@ -420,6 +421,7 @@ test("makeCoverImageXhtmlFileAsImg", function (assert) {
     imageInfo.width = 400;
     imageInfo.height = 600;
     imageInfo.isCover = true;
+    imageInfo.mediaType = "image/png";
     let dummyImageCollector = {
         userPreferences: makeDummyUserPreferences(true, false),
         coverImageInfo: imageInfo,
@@ -449,6 +451,7 @@ test("makeCoverImageXhtmlFileNoSourceUrl", function (assert) {
     imageInfo.width = 400;
     imageInfo.height = 600;
     imageInfo.isCover = true;
+    imageInfo.mediaType = "image/png";
     let dummyImageCollector = {
         userPreferences: makeDummyUserPreferences(false, true),
         coverImageInfo: imageInfo,

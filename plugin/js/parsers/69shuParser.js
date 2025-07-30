@@ -31,6 +31,15 @@ class ShuParser extends Parser{
         return util.getFirstImgSrc(dom, "div.bookbox");
     }
 
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelectorAll(".booknav2 a")[1];
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractLanguage() {
+        return "zh";
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".txtinfo, #txtright, .bottom-ad");
         super.removeUnwantedElementsFromContentElement(element);

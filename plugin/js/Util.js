@@ -820,7 +820,7 @@ const util = (function() {
     }
 
     function parseHtmlAndInsertIntoContent(htmlText, content) {
-        let parsed = new DOMParser().parseFromString(htmlText, "text/html");
+        let parsed = util.sanitize(htmlText);
         while (content.firstChild) {
             content.removeChild(content.firstChild);
         }
@@ -1041,6 +1041,33 @@ const util = (function() {
         element.appendChild(wrapper);
     }
 
+    function getDefaultExtensionByMime(mimeType)
+    {
+        let retval = MIME_TYPE_EXTENSIONS[mimeType];
+        if (retval) retval = retval[0];
+        return retval;
+    }
+    function detectMimeType(b64) {
+        for (var s in MIME_TYPE_SIGNATURES) {
+            if (b64.indexOf(s) === 0) {
+                return MIME_TYPE_SIGNATURES[s][0];
+            }
+        }
+    }
+
+    function sanitize(dirty) {
+        const clean = DOMPurify.sanitize(dirty);
+        return new DOMParser().parseFromString(clean, "text/html");
+    }
+
+    function sanitizeNode(dirty) {
+        // don't need to sanitize text nodes
+        // and DOMPurify deletes them if they're whitespace
+        return (dirty?.nodeType === 3)
+            ? dirty.cloneNode(true)
+            : sanitize(dirty).body.firstChild;
+    }
+
     // Define constants
     const XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -1057,6 +1084,56 @@ const util = (function() {
         "section", "table", "tfoot", "ul", "video"];
 
     const HEADER_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
+    const MIME_TYPE_EXTENSIONS = {
+        "image/jpeg": ["jpg", "jpeg", "jpe"],
+        "image/png": ["png"],
+        "image/gif": ["gif"],
+        "image/webp": ["webp"],
+        "image/bmp": ["bmp", "dib"],
+        "image/tiff": ["tif", "tiff"],
+        "image/svg+xml": ["svg"],
+        "image/x-icon": ["ico"],
+        "image/vnd.microsoft.icon": ["ico"],
+        "image/heif": ["heif"],
+        "image/heic": ["heic"],
+        "image/x-xbitmap": ["xbm"],
+        "image/x-portable-bitmap": ["pbm"],
+        "image/x-portable-graymap": ["pgm"],
+        "image/x-portable-pixmap": ["ppm"],
+        "image/x-portable-anymap": ["pnm"],
+        "image/x-cmu-raster": ["ras"],
+        "image/x-tga": ["tga"],
+        "image/jxr": ["jxr"],
+        "image/ktx": ["ktx"],
+        "image/apng": ["apng"],
+        "image/avif": ["avif"]
+    };
+
+    const MIME_TYPE_SIGNATURES = {
+        "/9j/": ["image/jpeg"],
+        "iVBORw0KGgo=": ["image/png", "image/apng"],
+        "R0lGODdh": ["image/gif"],
+        "R0lGODlh": ["image/gif"],
+        "UklGR": ["image/webp"],
+        "Qk0=": ["image/bmp"],
+        "SUkqAA==": ["image/tiff"],
+        "TU0AKg==": ["image/tiff"],
+        "PD94bWw=": ["image/svg+xml"],
+        "AAABAA==": ["image/x-icon", "image/vnd.microsoft.icon"],
+        "ZnR5cGhlaWZj": ["image/heif"],
+        "ZnR5cG1pZjE=": ["image/heif"],
+        "ZnR5cGhlaWNj": ["image/heic"],
+        "SUm8": ["image/jxr"],
+        "q0tUWCAxMb0NCgo=": ["image/ktx"],
+        "AAACAA==": ["image/x-tga"],
+        "ZnR5cGF2aWY=": ["image/avif"],
+        "UDAx": ["image/x-portable-bitmap"],
+        "UDAy": ["image/x-portable-graymap"],
+        "UDAz": ["image/x-portable-pixmap"],
+        "UDA0": ["image/x-portable-anymap"],
+        "WaZqlQ==": ["image/x-cmu-raster"]
+    };
 
     return {
         XMLNS: XMLNS,
@@ -1157,10 +1234,14 @@ const util = (function() {
         syncLoadSampleDoc: syncLoadSampleDoc,
         xmlToString: xmlToString,
         zeroPad: zeroPad,
+        sanitize: sanitize,
+        sanitizeNode: sanitizeNode,
         removeAttributes: removeAttributes,
         removeEmptyAttributes: removeEmptyAttributes,
         removeSpansWithNoAttributes: removeSpansWithNoAttributes,
         replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags,
-        wrapInnerContentInTag: wrapInnerContentInTag
+        wrapInnerContentInTag: wrapInnerContentInTag,
+        getDefaultExtensionByMime: getDefaultExtensionByMime,
+        detectMimeType: detectMimeType
     };
 })();

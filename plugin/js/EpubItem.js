@@ -68,8 +68,7 @@ class EpubItem {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of this.nodes) {
-            let clone = doc.importNode(node, true);
-            body.appendChild(Sanitize.stripInvalidChars(clone));
+            body.appendChild(util.sanitizeNode(node));
         };
         this.populateTitle(doc, body);
         delete(this.nodes);
@@ -183,8 +182,20 @@ class ImageInfo extends EpubItem {
 
     getZipHref() {
         let that = this;
-        let suffix = that.findImageSuffix(that.wrappingUrl);
+        let suffix = util.getDefaultExtensionByMime(that.mediaType) || that.findImageSuffix(that.wrappingUrl);
         return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
+    }
+
+    getBase64(maxLength) {
+        var binary = "";
+        var bytes = new Uint8Array(this.arraybuffer);
+        var len = bytes.byteLength;
+        if (maxLength > 0) len = Math.min(len, maxLength);
+        for (var i = 0; i < len; i++)
+        {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa( binary );
     }
 
     getId() {
@@ -300,7 +311,7 @@ class ImageInfo extends EpubItem {
         let body = doc.getElementsByTagName("body")[0];
         let wrapper = doc.createElementNS(util.XMLNS, wrappingTag);
         body.appendChild(wrapper);
-        let img = document.createElementNS(util.XMLNS,"img");
+        let img = doc.createElementNS(util.XMLNS,"img");
         if (wrappingTag === "span") {
             img.className = "inline";
         }

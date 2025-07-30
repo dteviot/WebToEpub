@@ -26,7 +26,7 @@ parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
 parserFactory.register("lazygirltranslations.com", () => new LazygirltranslationsParser());
 //dead url
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
-parserFactory.register("novelsknight.flonenovels.com", () => new NovelsknightlParser());
+parserFactory.register("novelsknight.punchmanga.online", () => new NovelsknightlParser());
 //dead url
 parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
 

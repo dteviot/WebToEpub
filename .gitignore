@@ -7,3 +7,4 @@ plugin/@zip.js/zip.js/dist/zip-no-worker.min.js
 package-lock.json
 .idea
 .vscode
+/plugin/dompurify/

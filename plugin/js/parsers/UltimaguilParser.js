@@ -29,8 +29,7 @@ class UltimaguilParser extends Parser {
         return div;
     }
 
-    populateUI(dom) {
-        super.populateUI(dom);
+    populateUIImpl() {
         document.getElementById("higestResolutionImagesRow").hidden = false; 
     }
 
@@ -51,12 +50,12 @@ class UltimaguilParser extends Parser {
     }
 
     convertMidpartToHeaders(content) {
-        let document = content.ownerDocument;
+        let doc = content.ownerDocument;
         for(let midpart of content.querySelectorAll("div.part.midpart.gear")) {
             let parent = midpart.parentElement;
-            let h3 = document.createElement("h2");
+            let h3 = doc.createElement("h2");
             let link = midpart.querySelector("a");
-            h3.appendChild(document.createTextNode(link.getAttribute("title")));
+            h3.appendChild(doc.createTextNode(link.getAttribute("title")));
             parent.replaceWith(h3);
         };
     }

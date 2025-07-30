@@ -87,7 +87,7 @@ class WixParser extends Parser{
             "<h1>" + this.mapPageUrlToPageTitle.get(url) + "</h1>" +
             content + 
             "</div></body></html>";
-        let doc = new DOMParser().parseFromString(html, "text/html");
+        let doc = util.sanitize(html);
         doc.baseUrl = url;
         return doc;
     }

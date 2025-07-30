@@ -46,7 +46,7 @@ class NtruyenParser extends Parser{
             body: formData
         };
         let json = (await HttpClient.fetchJson("https://ntruyen.vn//ajax/load_chapter", options)).json;
-        return new DOMParser().parseFromString(json.chapters, "text/html");;
+        return util.sanitize(json.chapters);;
     }
 
     createFormData(storyId, page) {
