@@ -147,7 +147,8 @@ class DefaultParserUI {
             return;
         }
         return HttpClient.wrapFetch(config.testUrl).then(function (xhr) {
-            let webPage = { rawDom: util.sanitize(xhr.responseXML) };
+            let webPage = { rawDom: util.sanitize(xhr.responseXML.querySelector("*")) };
+            util.setBaseTag(config.testUrl, webPage.rawDom);
             let content = parser.findContent(webPage.rawDom);
             if (content === null) {
                 let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [config.testUrl]);
