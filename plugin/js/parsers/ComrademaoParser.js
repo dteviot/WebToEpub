@@ -8,9 +8,9 @@ class ComrademaoParser extends Parser{
         super();
     }
 
-   //    disabled() {
-   //        return chrome.i18n.getMessage("parserDisabledNotification");
-   //    }
+    disabled() {
+        return chrome.i18n.getMessage("parserDisabledNotification");
+    }
 
     populateUIImpl() {
         document.getElementById("removeOriginalRow").hidden = false; 
