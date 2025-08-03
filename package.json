@@ -32,167 +32,63 @@
     "type": "git",
     "url": "git+https://github.com/dteviot/WebToEpub.git"
   },
-  "keywords": [
-    "epub"
-  ],
+  "keywords": ["epub"],
   "author": {
     "name": "David Teviotdale",
     "email": "dteviot@gmail.com"
   },
-  "contributors": [
-    {
-      "name": "Alen Toma"
-    },
-    {
-      "name": "Anartigone"
-    },
-    {
-      "name": "Asif Mahmood"
-    },
-    {
-      "name": "Aurimas Niekis"
-    },
-    {
-      "name": "Markus Vieth"
-    },
-    {
-      "name": "Michael Fox"
-    },
-    {
-      "name": "typhoon71"
-    },
-    {
-      "name": "toshiya44"
-    },
-    {
-      "name": "dreamer2908"
-    },
-    {
-      "name": "GallusMax"
-    },
-    {
-      "name": "Hogesyx"
-    },
-    {
-      "name": "snnsnn"
-    },
-    {
-      "name": "Tom Goetz"
-    },
-    {
-      "name": "Sergii Pravdzivyi"
-    },
-    {
-      "name": "JimmXinu"
-    },
-    {
-      "name": "gamebeaker"
-    },
-    {
-      "name": "Mathnerd314"
-    },
-    {
-      "name": "Kondeeza"
-    },
-    {
-      "name": "Sickan90"
-    },
-    {
-      "name": "Kiradien"
-    },
-    {
-      "name": "Miracutor"
-    },
-    {
-      "name": "Synteresis"
-    },
-    {
-      "name": "Lej77"
-    },
-    {
-      "name": "nandakishore2009"
-    },
-    {
-      "name": "courli79"
-    },
-    {
-      "name": "alethiophile"
-    },
-    {
-      "name": "Dimava"
-    },
-    {
-      "name": "Leone Jacob Sunil (ImLJS)"
-    },
-    {
-      "name": "Yoanhg421"
-    },
-    {
-      "name": "xRahul"
-    },
-    {
-      "name": "Oleksii Taranenko"
-    },
-    {
-      "name": "Naheulf"
-    },
-    {
-      "name": "perishableloc"
-    },
-    {
-      "name": "praschke"
-    },
-    {
-      "name": "ImmortalDreamer"
-    },
-    {
-      "name": "ktrin"
-    },
-    {
-      "name": "Tyderion"
-    },
-    {
-      "name": "nozwock"
-    },
-    {
-      "name": "Darthagnon"
-    },
-    {
-      "name": "LucasFreitaslpf1"
-    },
-    {
-      "name": "Jemeni11"
-    },
-    {
-      "name": "maforn"
-    },
-    {
-      "name": "phazei"
-    },
-    {
-      "name": "rizkiv1"
-    },
-    {
-      "name": "pavan3999"
-    },
-    {
-      "name": "ltsKbrc"
-    },
-    {
-      "name": "crybx"
-    },
-    {
-      "name": "Ori Avtalion"
-    },
-    {
-      "name": "NamTH"
-    },
-    {
-      "name": "minhngoc25a"
-    },
-    {
-      "name": "basitcodeenv"
-    }
+  "contributors" : [
+    { "name": "Alen Toma"},
+    { "name": "Anartigone"},
+    { "name": "Asif Mahmood"},
+    { "name": "Aurimas Niekis"},
+    { "name": "Markus Vieth"},
+    { "name": "Michael Fox"},
+    { "name": "typhoon71"},
+    { "name": "toshiya44"},
+    { "name": "dreamer2908"},
+    { "name": "GallusMax"},
+    { "name": "Hogesyx"},
+    { "name": "snnsnn"},
+    { "name": "Tom Goetz"},
+    { "name": "Sergii Pravdzivyi"},
+    { "name": "JimmXinu"},
+    { "name": "gamebeaker"},
+    { "name": "Mathnerd314"},
+    { "name": "Kondeeza"},
+    { "name": "Sickan90"},
+    { "name": "Kiradien"},
+    { "name": "Miracutor"},
+    { "name": "Synteresis"},
+    { "name": "Lej77"},
+    { "name": "nandakishore2009"},
+    { "name": "courli79"},
+    { "name": "alethiophile"},
+    { "name": "Dimava"},
+    { "name": "Leone Jacob Sunil (ImLJS)"},
+    { "name": "Yoanhg421"},
+    { "name": "xRahul"},
+    { "name": "Oleksii Taranenko"},
+    { "name": "Naheulf"},
+    { "name": "perishableloc"}, 
+    { "name": "praschke"},
+    { "name": "ImmortalDreamer"},
+    { "name": "ktrin"},
+    { "name": "Tyderion"},
+    { "name": "nozwock"},
+    { "name": "Darthagnon"},
+    { "name": "LucasFreitaslpf1"},
+    { "name": "Jemeni11"},
+    { "name": "maforn"},
+    { "name": "phazei"},
+    { "name": "rizkiv1"},
+    { "name": "pavan3999"},
+    { "name": "ltsKbrc"},
+    { "name": "crybx"},
+    { "name": "Ori Avtalion"},
+    { "name": "NamTH"},
+    { "name": "minhngoc25a"},
+    { "name": "basitcodeenv"}
   ],
   "license": "GPL-3.0-only",
   "bugs": {
