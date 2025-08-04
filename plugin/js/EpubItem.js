@@ -68,7 +68,10 @@ class EpubItem {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         for(let node of this.nodes) {
-            body.appendChild(util.sanitizeNode(node));
+            let clean = util.sanitizeNode(node);
+            if (clean) {
+                body.appendChild(clean);
+            }
         };
         this.populateTitle(doc, body);
         delete(this.nodes);

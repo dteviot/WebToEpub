@@ -429,7 +429,9 @@ class Parser {
     populateInfoDiv(infoDiv, dom) {
         for(let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
             let clone = util.sanitizeNode(n);
-            this.cleanInformationNode(clone);
+            if (clone) {
+                this.cleanInformationNode(clone);
+            }
             if (clone != null) {
                 infoDiv.appendChild(clone);
             }
