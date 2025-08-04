@@ -75,7 +75,7 @@ class MadaraParser extends WordpressBaseParser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("ol.breadcrumb li.active").textContent;
+        return dom.querySelector("ol.breadcrumb li.active, .wp-manga-chapter.reading a").textContent;
     }
  
     findCoverImageUrl(dom) {
