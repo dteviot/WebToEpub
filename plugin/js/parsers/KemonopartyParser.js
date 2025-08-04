@@ -54,6 +54,10 @@ class KemonopartyParser extends Parser{
     static requestCoverImageUrl(dom) {
         let uriRegex = new RegExp("(.*?//)(?:\\w+\\.)?(\\w+\\.\\w+)/(\\w+)/user/(\\w+)");
         let reResults = uriRegex.exec(dom.baseURI);
+        if (!reResults || reResults.length < 5)
+        {
+            return null;
+        }
         return `${reResults[1]}img.${reResults[2]}/icons/${reResults[3]}/${reResults[4]}`;
     }
 
