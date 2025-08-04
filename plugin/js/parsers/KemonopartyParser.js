@@ -48,7 +48,13 @@ class KemonopartyParser extends Parser{
 
     findCoverImageUrl(dom) {
         let cover = dom.querySelector(".user-header__avatar img");
-        return cover.src ?? null;
+        return cover?.src ?? KemonopartyParser.requestCoverImageUrl(dom);
+    }
+
+    static requestCoverImageUrl(dom) {
+        let uriRegex = new RegExp("(.*?//)(?:\\w+\\.)?(\\w+\\.\\w+)/(\\w+)/user/(\\w+)");
+        let reResults = uriRegex.exec(dom.baseURI);
+        return `${reResults[1]}img.${reResults[2]}/icons/${reResults[3]}/${reResults[4]}`;
     }
 
     async getUrlsOfTocPages(dom) {
