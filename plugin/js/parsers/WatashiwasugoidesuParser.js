@@ -2,7 +2,7 @@
 
 parserFactory.register("watashiwasugoidesu.com", () => new WatashiwasugoidesuParser());
 
-class WatashiwasugoidesuParser extends Parser{
+class WatashiwasugoidesuParser extends Parser {
     constructor() {
         super();
     }

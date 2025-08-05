@@ -2,7 +2,7 @@
 
 parserFactory.register("novelsect.com", () => new NovelsectParser());
 
-class NovelsectParser extends Parser{
+class NovelsectParser extends Parser {
     constructor() {
         super();
     }
@@ -14,7 +14,7 @@ class NovelsectParser extends Parser{
 
         let novelSlug = this.getNovelSlug(dom.baseURI);
         let urlsOfTocPages  = await this.getUrlsOfTocPages(novelSlug);
-        for(let url of urlsOfTocPages) {
+        for (let url of urlsOfTocPages) {
             await this.rateLimitDelay();
             let json = (await HttpClient.fetchJson(url)).json;
             let partialList = this.extractPartialChapterList(novelSlug, json.chapters);
@@ -28,7 +28,7 @@ class NovelsectParser extends Parser{
         let info = await this.getNovelIdAndChapterCount(novelSlug);
         let tocUrls = [];
         let maxPage = Math.ceil(info.chapter_count / 100);
-        for(let i = 2; i <= maxPage; ++i) {
+        for (let i = 2; i <= maxPage; ++i) {
             tocUrls.push(`https://novelsect.com/api/fetchchapterlistbyindex?novelId=${info.id}&page=${i}`);
         }
         return tocUrls;

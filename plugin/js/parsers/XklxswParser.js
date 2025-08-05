@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("m.xklxsw.net", () => new XklxswParser());
 
-class XklxswParser extends Parser{
+class XklxswParser extends Parser {
     constructor() {
         super();
     }

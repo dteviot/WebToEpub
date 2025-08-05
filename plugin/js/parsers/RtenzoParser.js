@@ -2,7 +2,7 @@
 
 parserFactory.register("rtenzo.net", () => new RtenzoParser());
 
-class RtenzoParser extends Parser{
+class RtenzoParser extends Parser {
     constructor() {
         super();
     }

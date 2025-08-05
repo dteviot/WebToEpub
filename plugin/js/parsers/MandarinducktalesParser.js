@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("mandarinducktales.com", () => new MandarinducktalesParser());
 
-class MandarinducktalesParser extends Parser{
+class MandarinducktalesParser extends Parser {
     constructor() {
         super();
     }

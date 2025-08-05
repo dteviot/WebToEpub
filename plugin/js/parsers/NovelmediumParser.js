@@ -2,7 +2,7 @@
 
 parserFactory.register("novelmedium.com", () => new NovelmediumParser());
 
-class NovelmediumParser extends Parser{
+class NovelmediumParser extends Parser {
     constructor() {
         super();
     }
@@ -18,7 +18,7 @@ class NovelmediumParser extends Parser{
 
     getStoryId(dom, url)  {
         let script = [...dom.querySelectorAll("script")]
-            .filter(s => s.innerText.includes("__NUXT__"))[0]
+            .filter(s => s.innerText.includes("__NUXT__"))[0];
         let blobs = script.innerText.split("{id:");
         let leaf = url.substring(url.lastIndexOf("/") + 1);
         let blob = blobs.filter(b => b.includes(leaf))[0];

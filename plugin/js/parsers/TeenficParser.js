@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("teenfic.net", () => new TeenficParser());
 
-class TeenficParser extends Parser{
+class TeenficParser extends Parser {
     constructor() {
         super();
     }
@@ -51,7 +51,7 @@ class TeenficParser extends Parser{
         let urls = [];
         let links = [...dom.querySelectorAll("ul.page li:not(.active) a")]
             .map(link => link.href);
-        for(let link of links) {
+        for (let link of links) {
             if (!seen.has(link)) {
                 urls.push(link);
                 seen.add(link);

@@ -2,7 +2,7 @@
 
 parserFactory.register("puretl.com", () => new PuretlParser());
 
-class PuretlParser extends Parser{
+class PuretlParser extends Parser {
     constructor() {
         super();
     }

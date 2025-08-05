@@ -2,7 +2,7 @@
 
 parserFactory.register("inkitt.com", () => new InkittParser());
 
-class InkittParser extends Parser{
+class InkittParser extends Parser {
     constructor() {
         super();
     }

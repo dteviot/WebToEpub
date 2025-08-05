@@ -2,7 +2,7 @@
 
 parserFactory.register("inoveltranslation.com", () => new InoveltranslationParser());
 
-class InoveltranslationParser extends Parser{
+class InoveltranslationParser extends Parser {
     constructor() {
         super();
     }

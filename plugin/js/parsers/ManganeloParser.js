@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("manganelo.com", function() { return new ManganeloParser() });
+parserFactory.register("manganelo.com", function() { return new ManganeloParser(); });
 
-class ManganeloParser extends Parser{
+class ManganeloParser extends Parser {
     constructor() {
         super();
     }
@@ -11,15 +11,15 @@ class ManganeloParser extends Parser{
         return [...dom.querySelectorAll("div.panel-story-chapter-list a")]
             .map(a => util.hyperLinkToChapter(a))
             .reverse();
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div.container-chapter-reader");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.story-info-right h1");
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("h1");

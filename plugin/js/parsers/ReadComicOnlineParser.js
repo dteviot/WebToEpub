@@ -8,7 +8,7 @@ parserFactory.register("readcomiconline.li", () => new ReadComicOnlineParser());
  * Usually need to open a first page of chapter before rest will work.
  * Also, sometimes pages return a CAPTCHA
  */
-class ReadComicOnlineParser extends Parser{
+class ReadComicOnlineParser extends Parser {
     constructor() {
         super();
     }
@@ -20,7 +20,7 @@ class ReadComicOnlineParser extends Parser{
             .filter(s => s.includes(prefix))[0];
         let urls = [];
         let index = script.indexOf(prefix);
-        while(0 < index) {
+        while (0 < index) {
             index += prefix.length;
             let suffix = script.indexOf("\"", index);
             urls.push(script.substring(index, suffix));
@@ -62,7 +62,7 @@ class ReadComicOnlineParser extends Parser{
         let chapters = [];
         let toclinks = [...dom.querySelectorAll("table.listing a")]
             .filter(l => new URL(l.href).search === "");
-        for(let link of toclinks) {
+        for (let link of toclinks) {
             let html = await this.fetchChapter(link.href);
             let subList = this.getChapterListFromComicTocPage(html);
             subList[0].newArc = link.textContent.trim();
@@ -78,7 +78,7 @@ class ReadComicOnlineParser extends Parser{
             content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
             dom.body.appendChild(content);
             let imgUrls = ReadComicOnlineParser.extractImageUrls(dom);
-            for(let u of imgUrls) {
+            for (let u of imgUrls) {
                 let img = dom.createElement("img");
                 img.src = u;
                 content.appendChild(img);

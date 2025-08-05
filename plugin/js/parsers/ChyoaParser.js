@@ -2,7 +2,7 @@
 
 parserFactory.register("chyoa.com", () => new ChyoaParser());
 
-class ChyoaParser extends Parser{
+class ChyoaParser extends Parser {
     constructor() {
         super();
     }

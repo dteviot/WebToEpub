@@ -1,9 +1,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("m.chinesefantasynovels.com", function() { return new ChineseFantasyNovelsParser() });
+parserFactory.register("m.chinesefantasynovels.com", function() { return new ChineseFantasyNovelsParser(); });
 
-class ChineseFantasyNovelsParser extends Parser{
+class ChineseFantasyNovelsParser extends Parser {
     constructor() {
         super();
     }
@@ -11,15 +11,15 @@ class ChineseFantasyNovelsParser extends Parser{
     getChapterUrls(dom) {
         let menu = dom.querySelector("dl.chapterlist");
         return Promise.resolve(util.hyperlinksToChapterList(menu).reverse());
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div#BookText");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.btitle h1");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.status");
@@ -31,10 +31,10 @@ class ChineseFantasyNovelsParser extends Parser{
             }
         }
         return super.extractAuthor(dom);
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
-        for(let e of element.querySelectorAll("div.ads, div.link, div.adsb")) {
+        for (let e of element.querySelectorAll("div.ads, div.link, div.adsb")) {
             e.remove();
         }
         super.removeUnwantedElementsFromContentElement(element);

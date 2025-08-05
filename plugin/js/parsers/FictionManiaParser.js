@@ -7,7 +7,7 @@
 */
 "use strict";
 
-parserFactory.register("fictionmania.tv", function() { return new FictionManiaParser() });
+parserFactory.register("fictionmania.tv", function() { return new FictionManiaParser(); });
 
 class FictionManiaParser extends Parser {
     constructor() {
@@ -42,10 +42,10 @@ class FictionManiaParser extends Parser {
     extractTitleImpl(dom) {
         let that = this;
         return util.getElement(dom.body, "a", e => that.isChapterHref(e));
-    };
+    }
 
     extractAuthor(dom) {
         let author = dom.querySelector("a[href*='/searchdisplay/authordisplay.html?word=']");
         return (author === null) ? super.extractAuthor(dom) : author.innerText;
-    };
+    }
 }

@@ -2,7 +2,7 @@
 
 parserFactory.register("lightnovelbox.com", () => new LightnovelboxParser());
 
-class LightnovelboxParser extends Parser{
+class LightnovelboxParser extends Parser {
     constructor() {
         super();
     }
@@ -11,7 +11,7 @@ class LightnovelboxParser extends Parser{
         let links = [...dom.querySelectorAll("ul.chapter-list a")];
         let chapters = LightnovelboxParser.linksToChapters(links);
         let urls = LightnovelboxParser.getUrlsOfTocPages(dom);
-        for(let url of urls) {
+        for (let url of urls) {
             let rawDom = (await HttpClient.fetchJson(url)).json.chapters;
             links = [...util.sanitize(rawDom).querySelectorAll("a")];
             let partialList = LightnovelboxParser.linksToChapters(links);

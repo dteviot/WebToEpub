@@ -2,7 +2,7 @@
 
 parserFactory.register("skydemonorder.com", () => new SkydemonorderParser());
 
-class SkydemonorderParser extends Parser{
+class SkydemonorderParser extends Parser {
     constructor() {
         super();
     }

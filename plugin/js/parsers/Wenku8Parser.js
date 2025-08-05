@@ -2,7 +2,7 @@
 
 parserFactory.register("wenku8.net", () => new Wenku8Parser());
 
-class Wenku8Parser extends Parser{
+class Wenku8Parser extends Parser {
     constructor() {
         super();
     }
@@ -10,7 +10,7 @@ class Wenku8Parser extends Parser{
     getChapterUrls(dom) {
         let id = Wenku8Parser.extractBookId(dom);
         let tocUrl = ` https://www.wenku8.net/modules/article/reader.php?aid=${id}`;
-        return HttpClient.wrapFetch(tocUrl, this.makeOptions()).then(function (xhr) {
+        return HttpClient.wrapFetch(tocUrl, this.makeOptions()).then(function(xhr) {
             let menu = xhr.responseXML.querySelector("table");
             return Promise.resolve(util.hyperlinksToChapterList(menu));
         });
@@ -44,7 +44,7 @@ class Wenku8Parser extends Parser{
 
     fetchChapter(url) {
         // site does not tell us GBK is used to encode text
-        return HttpClient.wrapFetch(url, this.makeOptions()).then(function (xhr) {
+        return HttpClient.wrapFetch(url, this.makeOptions()).then(function(xhr) {
             return Promise.resolve(xhr.responseXML);
         });
     }

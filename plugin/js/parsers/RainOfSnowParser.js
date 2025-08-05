@@ -2,7 +2,7 @@
 
 parserFactory.register("rainofsnow.com", () => new RainOfSnowParser());
 
-class RainOfSnowParser extends Parser{
+class RainOfSnowParser extends Parser {
     constructor() {
         super();
     }

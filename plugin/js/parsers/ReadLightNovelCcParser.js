@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("readlightnovel.cc", () => new ReadLightNovelCcParser());
 
-class ReadLightNovelCcParser extends Parser{
+class ReadLightNovelCcParser extends Parser {
     constructor() {
         super();
     }

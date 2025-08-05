@@ -2,7 +2,7 @@
 
 parserFactory.register("novelonomicon.com", () => new NovelonomiconParser());
 
-class NovelonomiconParser extends Parser{
+class NovelonomiconParser extends Parser {
     constructor() {
         super();
     }
@@ -16,7 +16,7 @@ class NovelonomiconParser extends Parser{
     }
 
     getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let lastLink = dom.querySelector(".page-nav a.last")
             || [...dom.querySelectorAll(".page-nav a.page")].slice(-1)[0];
         if (lastLink !== null)
@@ -25,7 +25,7 @@ class NovelonomiconParser extends Parser{
             let href = lastLink.href;
             let index = href.lastIndexOf("/", href.length - 2);
             href = href.substring(0, index + 1);
-            for(let i = 2; i <= max; ++i) {
+            for (let i = 2; i <= max; ++i) {
                 urls.push(href + i + "/");
             }
         }

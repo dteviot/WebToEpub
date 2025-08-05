@@ -2,7 +2,7 @@
 
 parserFactory.register("chickengege.org", () => new ChickengegeParser());
 
-class ChickengegeParser extends Parser{
+class ChickengegeParser extends Parser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("zeonic-republic.net", () => new ZeonicrepublicParser());
 
-class ZeonicrepublicParser extends Parser{
+class ZeonicrepublicParser extends Parser {
     constructor() {
         super();
     }

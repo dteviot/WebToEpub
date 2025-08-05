@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("idnovel.my.id", () => new IdnovelmyidParser());
 
-class IdnovelmyidParser extends Parser{
+class IdnovelmyidParser extends Parser {
     constructor() {
         super();
     }

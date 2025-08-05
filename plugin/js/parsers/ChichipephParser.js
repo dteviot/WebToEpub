@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("chichipeph.com", () => new ChichipephParser());
 
-class ChichipephParser extends Parser{
+class ChichipephParser extends Parser {
     constructor() {
         super();
     }

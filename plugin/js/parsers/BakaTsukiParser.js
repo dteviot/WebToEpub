@@ -5,7 +5,7 @@
 
 parserFactory.registerManualSelect(
     "Baka-Tsuki Full Text Page", 
-    function() { return new BakaTsukiParser(new BakaTsukiImageCollector()) }
+    function() { return new BakaTsukiParser(new BakaTsukiImageCollector()); }
 );
 
 class BakaTsukiImageCollector extends ImageCollector {
@@ -19,8 +19,8 @@ class BakaTsukiImageCollector extends ImageCollector {
         if (userPreferences.higestResolutionImages.value) {
             this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
         } else {
-            this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage
-        };
+            this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage;
+        }
     }
 
     getReducedResImageUrlFromImagePage(dom) {
@@ -36,7 +36,7 @@ class BakaTsukiImageCollector extends ImageCollector {
 
 //==============================================================
 
-class BakaTsukiParser extends Parser{
+class BakaTsukiParser extends Parser {
     constructor(imageCollector) {
         super(imageCollector);
         this.state.firstPageDom = null;
@@ -44,7 +44,7 @@ class BakaTsukiParser extends Parser{
 
     static register() {
         parserFactory.reregister("baka-tsuki.org", function() { 
-            return new BakaTsukiParser(new BakaTsukiImageCollector()) 
+            return new BakaTsukiParser(new BakaTsukiImageCollector()); 
         });      
     }
 
@@ -66,14 +66,14 @@ class BakaTsukiParser extends Parser{
     static splitContentOnHeadingTags(content) {
         let items = [];
         let nodesInItem = [];
-        for(let i = 0; i < content.childNodes.length; ++i) {
+        for (let i = 0; i < content.childNodes.length; ++i) {
             let node = util.wrapRawTextNode(content.childNodes[i]);
             if (BakaTsukiParser.isChapterStart(node)) {
                 BakaTsukiParser.appendToItems(items, nodesInItem);
                 nodesInItem = [];
-            };
+            }
             nodesInItem.push(node);
-        };
+        }
         BakaTsukiParser.appendToItems(items, nodesInItem);
         return items;
     }
@@ -86,7 +86,7 @@ class BakaTsukiParser extends Parser{
         BakaTsukiParser.removeTrailingWhiteSpace(nodesInItem);
         if (0 < nodesInItem.length) {
             items.push({ nodes: nodesInItem});
-        };
+        }
     }
 
     static removeTrailingWhiteSpace(nodesInItem) {
@@ -94,7 +94,7 @@ class BakaTsukiParser extends Parser{
         while ((0 <= i) && util.isElementWhiteSpace(nodesInItem[i])) {
             nodesInItem.pop();
             --i;
-        };
+        }
     }
 
     static itemsToEpubItems(items, startAt, sourceUrl) {
@@ -121,16 +121,16 @@ class BakaTsukiParser extends Parser{
         if (0 < splitIndex) {
             metaInfo.seriesName = title.substring(0, splitIndex);
             metaInfo.seriesIndex = that.extractVolumeIndex(title.substring(splitIndex));
-        };
+        }
     }
 
     extractVolumeIndex(volumeString) {
         let volumeIndex = "";
-        for(let ch of volumeString) {
+        for (let ch of volumeString) {
             if (("0" <= ch) && (ch <= "9")) {
                 volumeIndex += ch;
-            };
-        };    
+            }
+        }    
         return volumeIndex;
     }
 
@@ -149,7 +149,7 @@ class BakaTsukiParser extends Parser{
         that.populateImageTable();
     }
 
-    populateUIImpl(){
+    populateUIImpl() {
         document.getElementById("higestResolutionImagesRow").hidden = false; 
         document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("imageSection").hidden = false;
@@ -204,11 +204,11 @@ class BakaTsukiParser extends Parser{
                 node = node.parentNode;
                 if (node.tagName === "TABLE") {
                     endTable = node;
-                };
-            };
+                }
+            }
             if (BakaTsukiParser.isTableContainsHyperLinks(endTable)) {
                 endTable.remove();
-            };
+            }
         }
     }
 
@@ -231,7 +231,7 @@ class BakaTsukiParser extends Parser{
 
         // move images out of the <ul> gallery
         let garbage = new Set();
-        for(let listItem of galleryBoxes) {
+        for (let listItem of galleryBoxes) {
             util.removeElements(listItem.querySelectorAll("div.gallerytext"));
 
             let gallery = listItem.parentNode;
@@ -240,7 +240,7 @@ class BakaTsukiParser extends Parser{
         }
 
         // throw away rest of gallery  (note sometimes there are multiple galleries)
-        for(let node of garbage) {
+        for (let node of garbage) {
             node.remove();
         }
     }
@@ -268,7 +268,7 @@ class BakaTsukiParser extends Parser{
     flattenContent(content) {
         // most pages have all header tags as immediate children of the content element
         // where this is not the case, flatten them so that they are.
-        for(let i = 0; i < content.childNodes.length; ++i) {
+        for (let i = 0; i < content.childNodes.length; ++i) {
             let node = content.childNodes[i];
             if (this.nodeNeedsToBeFlattened(node)) {
                 util.flattenNode(node);
@@ -289,7 +289,7 @@ class BakaTsukiParser extends Parser{
         do {
             if (BakaTsukiParser.isChapterStart(walker.currentNode)) {
                 ++count;
-            };
+            }
         } while (walker.nextNode());
         return count;
     }
@@ -350,26 +350,26 @@ class BakaTsukiParser extends Parser{
     }
 
     static walkEpubItemsWithElements(epubItems, targets, processFoundNode) {
-        for(let epubItem of epubItems) {
-            for(let element of epubItem.nodes.filter(e => e.nodeType === Node.ELEMENT_NODE)) {
+        for (let epubItem of epubItems) {
+            for (let element of epubItem.nodes.filter(e => e.nodeType === Node.ELEMENT_NODE)) {
                 let walker = document.createTreeWalker(
                     element, 
                     NodeFilter.SHOW_ELEMENT
                 );
                 
                 // assume first header tag we find is title of the chapter.
-                if(util.isHeaderTag(element) && (epubItem.chapterTitle === null)){
+                if (util.isHeaderTag(element) && (epubItem.chapterTitle === null)) {
                     epubItem.chapterTitle = element.textContent;
                 }
                 do {
                     processFoundNode(walker.currentNode, targets, util.makeRelative(epubItem.getZipHref()));
                 } while (walker.nextNode());
-            };
-        };
+            }
+        }
     }
 
     static unSuperScriptAlternateTranslations(element) {
-        for(let s of util.getElements(element, "span", s => BakaTsukiParser.isPsudoSuperScriptSpan(s))) {
+        for (let s of util.getElements(element, "span", s => BakaTsukiParser.isPsudoSuperScriptSpan(s))) {
             let sibling = s.nextSibling;
             if ((sibling !== null) && (sibling.tagName.toLowerCase() === "span")) {
                 sibling.textContent = sibling.textContent + " (" + s.textContent + ")";
@@ -386,7 +386,7 @@ class BakaTsukiParser extends Parser{
     static recordTarget(node, targets, zipHref) {
         if (node.id != "") {
             targets.set(node.id, zipHref);
-        };
+        }
     }
 
     static fixHyperlink(node, targets, unused) { // eslint-disable-line no-unused-vars
@@ -414,7 +414,7 @@ class BakaTsukiParser extends Parser{
         return this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.state.firstPageDom.baseURI)
             .then(function() {
                 main.getPackEpubButton().disabled = false;
-            }).catch(function (err) {
+            }).catch(function(err) {
                 ErrorLog.log(err);
             });
     }

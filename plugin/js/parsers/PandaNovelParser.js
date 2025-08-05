@@ -10,7 +10,7 @@ class PandaNovelParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let chapters = []
+        let chapters = [];
         let urlsOfTocPages = PandaNovelParser.getUrlsOfTocPages(dom);
         let baseUrl = new URL(dom.baseURI).origin;
         for (let url of urlsOfTocPages) {
@@ -27,10 +27,10 @@ class PandaNovelParser extends Parser {
         let pageIds = [...dom.querySelectorAll("ul.pagination li a")]
             .filter(a => a.text)
             .map(a => parseInt(a.text.trim()));
-        pageIds.concat(1)
+        pageIds.concat(1);
         let maxPage = Math.max(...pageIds);
         let baseUrl = new URL(dom.baseURI).origin;
-        let bookId = parseInt(dom.baseURI.split("-").pop())
+        let bookId = parseInt(dom.baseURI.split("-").pop());
         let urls = [];
         for (let i = 1; i <= maxPage; ++i) {
             urls.push(baseUrl + "/api/book/chapters/" + bookId + "/" + i);
@@ -92,7 +92,7 @@ class PandaNovelParser extends Parser {
 
     extractAuthor(dom) {
         //Note: In "a[href*='/author']" forward slash is required
-        let authorLabel = [...dom.querySelectorAll(".novel-desc a[href*='/author']")].map(x => x.textContent.trim())
+        let authorLabel = [...dom.querySelectorAll(".novel-desc a[href*='/author']")].map(x => x.textContent.trim());
         return (authorLabel.length === 0) ? super.extractAuthor(dom) : authorLabel.join(", ");
     }
 

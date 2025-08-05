@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("gamefaqs.gamespot.com", () => new GamefaqsGamespotParser());
 
-class GamefaqsGamespotParser extends Parser{
+class GamefaqsGamespotParser extends Parser {
     constructor() {
         super();
     }
@@ -11,17 +11,17 @@ class GamefaqsGamespotParser extends Parser{
     async getChapterUrls(dom) {
         let toc = dom.querySelector(".ftoc");
         if (toc !== null) {
-            return this.linksToChapters(dom.baseURI, toc)
+            return this.linksToChapters(dom.baseURI, toc);
         }
         toc = dom.querySelector("div.main_content");
         if (toc !== null) {
             util.removeChildElementsMatchingSelector(toc, "nav.content_nav_wrap");
-            return this.linksToChapters(dom.baseURI, toc)
+            return this.linksToChapters(dom.baseURI, toc);
         }
         return [];
     }
 
-    linksToChapters(base, toc){
+    linksToChapters(base, toc) {
         if (!base.endsWith("/")) {
             base += "/";
         }

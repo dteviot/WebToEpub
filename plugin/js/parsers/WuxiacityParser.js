@@ -2,7 +2,7 @@
 
 parserFactory.register("wuxia.city", () => new WuxiacityParser());
 
-class WuxiacityParser extends Parser{
+class WuxiacityParser extends Parser {
     constructor() {
         super();
     }
@@ -20,7 +20,7 @@ class WuxiacityParser extends Parser{
         return ({
             sourceUrl:  link.href,
             title: link.querySelector(".chapter-name").textContent.replace(/\n/g, " ")
-        })
+        });
     }
 
     findContent(dom) {

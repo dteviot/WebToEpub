@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("travistranslations.com", () => new TravistranslationsParser());
 
-class TravistranslationsParser extends Parser{
+class TravistranslationsParser extends Parser {
     constructor() {
         super();
     }
@@ -42,7 +42,7 @@ class TravistranslationsParser extends Parser{
 
     addAuthorNotes(webPageDom) {
         let content = this.findContent(webPageDom); 
-        for(let n of [...content.parentElement.querySelectorAll("div.py-1")]) {
+        for (let n of [...content.parentElement.querySelectorAll("div.py-1")]) {
             content.append(n);
         }
     }

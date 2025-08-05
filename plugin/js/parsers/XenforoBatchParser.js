@@ -1,10 +1,10 @@
 "use strict";
 parserFactory.registerManualSelect(
     "Xenforo Batch Post Parser",
-    function() { return new XenforoBatchParser() }
+    function() { return new XenforoBatchParser(); }
 );
 
-class XenforoBatchParser extends Parser{
+class XenforoBatchParser extends Parser {
     constructor() {
         super();
         this.cache = new FetchCache();
@@ -82,15 +82,15 @@ class XenforoBatchParser extends Parser{
 
     findContent(dom) {
         return this.getSubParser(dom).findContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return this.getSubParser(dom).extractTitleImpl(dom);
-    };
+    }
 
     extractAuthor(dom) {
         return this.getSubParser(dom).extractAuthor(dom);
-    };
+    }
 
     //addTitleToChapter(newDoc, parent) {}
 

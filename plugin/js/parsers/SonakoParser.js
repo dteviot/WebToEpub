@@ -3,8 +3,8 @@
 */
 "use strict";
 
-parserFactory.register("sonako.wikia.com", function() { return new SonakoParser() });
-parserFactory.register("sonako.fandom.com", function() { return new SonakoParser() });
+parserFactory.register("sonako.wikia.com", function() { return new SonakoParser(); });
+parserFactory.register("sonako.fandom.com", function() { return new SonakoParser(); });
 
 //-----------------------------------------------------------------------------
 // class SonakoImageCollector  (derives from ImageCollector)
@@ -27,7 +27,7 @@ class SonakoImageCollector extends BakaTsukiImageCollector {
         let link = element.querySelector("a");
         if (link !== null) {
             return link.href;
-        };
+        }
         let img = (tagName === "img") ? element : element.querySelector("img");
         let dataImageName = img.getAttribute("data-image-name");
 

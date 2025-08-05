@@ -3,7 +3,7 @@
 parserFactory.register("mottruyen.com.vn", () => new MottruyenParser());
 parserFactory.register("mottruyen.vn", () => new MottruyenParser());
 
-class MottruyenParser extends Parser{
+class MottruyenParser extends Parser {
     constructor() {
         super();
     }
@@ -22,7 +22,7 @@ class MottruyenParser extends Parser{
         }));
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let leaves = dom.baseURI.split("/").filter(a => a != "");
         let id = leaves[leaves.length - 1];
         let bookinfo = (await HttpClient.fetchJson("https://api.mottruyen.vn/api/v1/story/"+id)).json;
@@ -71,7 +71,7 @@ class MottruyenParser extends Parser{
         return "https://api.mottruyen.vn/api/v1/story/"+id+"/chapter/"+chapternumber+"?password="+this.password;
     }
     
-    isCustomError(response){
+    isCustomError(response) {
         if (response?.json?.lock) {
             return true;
         }
@@ -81,7 +81,7 @@ class MottruyenParser extends Parser{
         return false;
     }
 
-    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
         if (checkedresponse?.json?.lock) {
             //Is only viewable in the app
             let newresp = {};
@@ -107,7 +107,7 @@ class MottruyenParser extends Parser{
         }
     }
 
-    PostToUrl(url, checkedresponse){
+    PostToUrl(url, checkedresponse) {
         let leaves = url.split("/").filter(a => a != "");
         let id = leaves[leaves.length - 3];
         let chapternumber = leaves[leaves.length - 1];

@@ -2,7 +2,7 @@
 
 parserFactory.register("wanderinginn.com", () => new WanderinginnParser());
 
-class WanderinginnParser extends WordpressBaseParser{
+class WanderinginnParser extends WordpressBaseParser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("hentai-foundry.com", () => new HentaiFoundryParser());
 
-class HentaiFoundryParser extends Parser{
+class HentaiFoundryParser extends Parser {
     constructor() {
         super();
     }

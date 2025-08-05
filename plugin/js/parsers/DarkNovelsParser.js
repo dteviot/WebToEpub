@@ -2,7 +2,7 @@
 
 parserFactory.register("dark-novels.ru", () => new DarkNovelsParser());
 
-class DarkNovelsParser extends Parser{
+class DarkNovelsParser extends Parser {
     constructor() {
         super();
     }
@@ -11,15 +11,15 @@ class DarkNovelsParser extends Parser{
         let chapters = [...dom.querySelectorAll("tr.chapter a")]
             .map(a => util.hyperLinkToChapter(a));
         return Promise.resolve(chapters);
-    };
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.book-info-container h2");
-    };
+    }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.book-cover-container");
@@ -66,7 +66,7 @@ class DarkNovelsParser extends Parser{
         let Zip = new zip.ZipReader(zipreader, {useWebWorkers: false});
         let ZipContent = await Zip.getEntries();
         ZipContent = ZipContent.filter(a => a.directory == false);
-        for (let element of ZipContent){
+        for (let element of ZipContent) {
             theFile = await element.getData(new zip.TextWriter());
         }
         return theFile;

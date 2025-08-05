@@ -3,7 +3,7 @@
 parserFactory.register("novelsemperor.com", () => new NovelsemperorParser());
 parserFactory.register("novelsemperor.net", () => new NovelsemperorParser());
 
-class NovelsemperorParser extends Parser{
+class NovelsemperorParser extends Parser {
     constructor() {
         super();
     }

@@ -1,16 +1,16 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("kobatochan.com", function () { return new KobatochanParser() });
+parserFactory.register("kobatochan.com", function() { return new KobatochanParser(); });
 
-class KobatochanParser extends WordpressBaseParser{
+class KobatochanParser extends WordpressBaseParser {
     constructor() {
         super();
     }
 
     fetchChapter(url) {
         let that = this;
-        return HttpClient.wrapFetch(url).then(function (xhr) {
+        return HttpClient.wrapFetch(url).then(function(xhr) {
             let newDom = xhr.responseXML;
             let extraPageUrls = KobatochanParser.findAdditionalPageUrls(newDom);
             KobatochanParser.removePaginationElements(newDom);
@@ -33,7 +33,7 @@ class KobatochanParser extends WordpressBaseParser{
         if (extraPageUrls.length === 0) {
             return Promise.resolve(dom);
         }
-        return HttpClient.wrapFetch(extraPageUrls.pop()).then(function (xhr) {
+        return HttpClient.wrapFetch(extraPageUrls.pop()).then(function(xhr) {
             let newDom = xhr.responseXML;
             KobatochanParser.removePaginationElements(newDom);
             let dest = that.findContent(dom);

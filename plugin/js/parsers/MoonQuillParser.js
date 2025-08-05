@@ -2,7 +2,7 @@
 
 parserFactory.register("moonquill.com", () => new MoonqQillParser());
 
-class MoonqQillParser extends Parser{
+class MoonqQillParser extends Parser {
     constructor() {
         super();
     }
@@ -31,12 +31,12 @@ class MoonqQillParser extends Parser{
     }
 
     customRawDomToContentStep(chapter, content) {
-        this.uncommentStoryText(content)
+        this.uncommentStoryText(content);
     }
 
     uncommentStoryText(content) {
         let comments = [...content.childNodes].filter(n => n.nodeType === Node.COMMENT_NODE);
-        for(let comment of comments) {
+        for (let comment of comments) {
             let newDom = util.sanitize("<article>" + comment.data + "</article>");
             let newHtml = newDom.querySelector("article");
             content.appendChild(newHtml);

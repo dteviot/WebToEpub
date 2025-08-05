@@ -2,7 +2,7 @@
 
 parserFactory.register("crimsontranslations.com", () => new CrimsontranslationsParser());
 
-class CrimsontranslationsParser extends Parser{
+class CrimsontranslationsParser extends Parser {
     constructor() {
         super();
     }
@@ -48,14 +48,14 @@ class CrimsontranslationsParser extends Parser{
             let header = dom.createElement("h2");
             header.textContent = title;
             content.appendChild(header);
-            this.insertParagraphs(paragraphs, content, dom)
+            this.insertParagraphs(paragraphs, content, dom);
         }
     }
 
     insertParagraphs(paragraphs, content, dom) {
         for (let text of paragraphs.replace(/\n\n/g, "\r\n").split("\r\n")) {
             let p = dom.createElement("p");
-            p.appendChild(dom.createTextNode(text))
+            p.appendChild(dom.createTextNode(text));
             content.appendChild(p);
         }
     }

@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("chosentwofanfic.com", function() { return new ChosentwofanficParser() });
+parserFactory.register("chosentwofanfic.com", function() { return new ChosentwofanficParser(); });
 
-class ChosentwofanficParser extends Parser{
+class ChosentwofanficParser extends Parser {
     constructor() {
         super();
         this.ChacheChapterTitle = new Map();
@@ -20,7 +20,7 @@ class ChosentwofanficParser extends Parser{
         return ret;
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let urlparams = new URL(dom.baseURI).searchParams;
         let bookid = urlparams.get("sid");
         let bookinfo = (await HttpClient.wrapFetch("https://chosentwofanfic.com/viewstory.php?sid="+bookid+"&index=1")).responseXML;

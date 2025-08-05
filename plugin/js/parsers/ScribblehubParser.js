@@ -12,7 +12,7 @@ class ScribblehubParser extends Parser {
         let baseUrl = dom.baseURI;
         let nextTocIndex = 1;
         let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
-        let nextTocPageUrl = function (_dom, chapters, lastFetch) {
+        let nextTocPageUrl = function(_dom, chapters, lastFetch) {
             // site has bug, sometimes, won't return chapters, so 
             // don't loop forever when this happens
             return ((chapters.length < numChapters) && (0 < lastFetch.length))
@@ -28,16 +28,16 @@ class ScribblehubParser extends Parser {
         )).reverse();
         this.minimumThrottle = saveThrottle;
         return chapters;
-    };
+    }
 
     static getChapterUrlsFromTocPage(dom) {
         return [...dom.querySelectorAll("a.toc_a")]
-            .map(a => util.hyperLinkToChapter(a))
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {
         return dom.querySelector("div.fic_row, div#chp_raw");
-    };
+    }
 
     populateUIImpl() {
         document.getElementById("removeAuthorNotesRow").hidden = false;
@@ -45,12 +45,12 @@ class ScribblehubParser extends Parser {
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.fic_title");
-    };
+    }
 
     extractAuthor(dom) {
         let author = dom.querySelector("span.auth_name_fic");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
-    };
+    }
     
     extractSubject(dom) {
         let selector = "[property='genre']";

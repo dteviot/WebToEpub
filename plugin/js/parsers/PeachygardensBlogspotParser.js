@@ -2,7 +2,7 @@
 
 parserFactory.register("peachygardens.blogspot.com", () => new PeachygardensBlogspotParser());
 
-class PeachygardensBlogspotParser extends Parser{
+class PeachygardensBlogspotParser extends Parser {
     constructor() {
         super();
         this.ChacheChapterContent = new Map();
@@ -36,14 +36,14 @@ class PeachygardensBlogspotParser extends Parser{
         return chapters.reverse();
     }
 
-    chaptersFromJson(json){
+    chaptersFromJson(json) {
         return json.feed.entry.map(a => ({
             sourceUrl: a.link[2].href, 
             title: a.link[2].title
         }));
     }
 
-    chacheChapter(json){
+    chacheChapter(json) {
         json.feed.entry.map(a => (this.ChacheChapterContent.set(a.link[2].href, [a.link[2].title, a.content.$t])));
     }
 

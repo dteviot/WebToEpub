@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("a-t.nu", () => new ActiveTranslationsParser());
 
-class ActiveTranslationsParser extends Parser{
+class ActiveTranslationsParser extends Parser {
     constructor() {
         super();
     }
@@ -43,7 +43,7 @@ class ActiveTranslationsParser extends Parser{
         }
         let rules = this.parseStyle(content);
         let spans = new Map();
-        for(let span of [...content.querySelectorAll("p span")]) {
+        for (let span of [...content.querySelectorAll("p span")]) {
             spans.set(span.className.trim(), span);
         }
         this.addRuleContent(dom, spans, rules);
@@ -55,7 +55,7 @@ class ActiveTranslationsParser extends Parser{
         let lines = style.textContent.split(/;\s*}/)
             .map(l => l.trim())
             .filter(l => !util.isNullOrEmpty(l));
-        for(let line of lines) {
+        for (let line of lines) {
             let index = line.indexOf("::before {");
             if (0 < index) {
                 this.addPsudoElement(line, index, rules, "before");
@@ -91,7 +91,7 @@ class ActiveTranslationsParser extends Parser{
 
     addRuleContent(dom, spans, rules)
     {
-        for(let span of spans.entries()) {
+        for (let span of spans.entries()) {
             let rule = rules.get(span[0]);
             if (rule != null) {
                 let text = span[1].textContent;

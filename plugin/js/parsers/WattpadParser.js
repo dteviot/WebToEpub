@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("wattpad.com", function() { return new WattpadParser() });
+parserFactory.register("wattpad.com", function() { return new WattpadParser(); });
 
 class WattpadImageCollector extends ImageCollector {
     constructor() {
@@ -22,7 +22,7 @@ class WattpadImageCollector extends ImageCollector {
     }
 }
 
-class WattpadParser extends Parser{
+class WattpadParser extends Parser {
     constructor() {
         super(new WattpadImageCollector());
     }
@@ -33,13 +33,13 @@ class WattpadParser extends Parser{
             return this.fetchChapterList(dom);
         }
         return util.hyperlinksToChapterList(menu);
-    };
+    }
 
     async fetchChapterList(dom) {
         let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
         let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
         let json = (await HttpClient.fetchJson(chaptersUrl)).json;
-        return json.parts.map(p => ({sourceUrl: p.url, title: p.title}))
+        return json.parts.map(p => ({sourceUrl: p.url, title: p.title}));
     }
 
     static extractIdFromUrl(url) {
@@ -69,7 +69,7 @@ class WattpadParser extends Parser{
 
     findJsonWithRestOfChapterUriInfo(dom) {
         let searchString = ".metadata\":{\"data\":";
-        for(let s of [...dom.querySelectorAll("script")]) {
+        for (let s of [...dom.querySelectorAll("script")]) {
             let source = s.innerHTML;
             let index = source.indexOf(searchString);
             if (0 <= index) {
@@ -86,7 +86,7 @@ class WattpadParser extends Parser{
 
     async fetchExtraChapterContent(extraUris) {
         let extraContent = [];
-        for(let page = 2; page <= extraUris.pages; ++page) {
+        for (let page = 2; page <= extraUris.pages; ++page) {
             let text = (await this.fetchPage(extraUris, page));
             extraContent.push(text);
         }
@@ -125,7 +125,7 @@ class WattpadParser extends Parser{
 
     static removeDuplicateParagraphs(dom) {
         let s = new Set();
-        for(let p of [...dom.querySelectorAll("p[data-p-id]")]) {
+        for (let p of [...dom.querySelectorAll("p[data-p-id]")]) {
             let id = p.getAttribute("data-p-id");
             if (s.has(id)) {
                 p.remove();
@@ -143,12 +143,12 @@ class WattpadParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div[data-page-number]");
-    };
+    }
 
     // title of the story  (not to be confused with title of each chapter)
     extractTitleImpl(dom) {
         return dom.querySelector("div.story-info span.sr-only");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.af6dp a");
@@ -168,7 +168,7 @@ class WattpadParser extends Parser{
     removeUnwantedElementsFromContentElement(element) {
         let keep = [...element.querySelectorAll("p")];
         util.removeElements([...element.children]);
-        for(let e of keep) {
+        for (let e of keep) {
             element.appendChild(e);
         }
         super.removeUnwantedElementsFromContentElement(element);

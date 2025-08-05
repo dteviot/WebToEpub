@@ -2,7 +2,7 @@
 
 parserFactory.register("timotxt.com", () => new TimotxtParser());
 
-class TimotxtParser extends Parser{
+class TimotxtParser extends Parser {
     constructor() {
         super();
     }

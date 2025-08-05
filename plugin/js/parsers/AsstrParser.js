@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("asstr.org", () => new AsstrParser());
 
-class AsstrParser extends Parser{
+class AsstrParser extends Parser {
     constructor() {
         super();
     }

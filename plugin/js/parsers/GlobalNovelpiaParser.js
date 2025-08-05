@@ -2,7 +2,7 @@
 
 parserFactory.register("global.novelpia.com", () => new GlobalNovelpiaParser());
 
-class GlobalNovelpiaParser extends Parser{
+class GlobalNovelpiaParser extends Parser {
     constructor() {
         super();
     }
@@ -54,7 +54,7 @@ class GlobalNovelpiaParser extends Parser{
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector(".in-ch-txt")
+        return dom.querySelector(".in-ch-txt");
     }
 
     findCoverImageUrl(dom) {

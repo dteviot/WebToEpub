@@ -2,7 +2,7 @@
 
 parserFactory.register("diurnis.com", () => new DiurnisParser());
 
-class DiurnisParser extends Parser{
+class DiurnisParser extends Parser {
     constructor() {
         super();
     }
@@ -21,7 +21,7 @@ class DiurnisParser extends Parser{
         let baseUrl = dom.baseURI;
         let max = this.extractMaxToc(dom);
         let tocUrls = [];
-        for(let i = 2; i <= max; ++i) {
+        for (let i = 2; i <= max; ++i) {
             tocUrls.push(`${baseUrl}?page=${i}`);
         }
         return tocUrls;

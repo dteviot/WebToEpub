@@ -2,7 +2,7 @@
 
 parserFactory.register("brittanypage43.com", () => new Brittanypage43Parser());
 
-class Brittanypage43Parser extends Parser{
+class Brittanypage43Parser extends Parser {
     constructor() {
         super();
     }

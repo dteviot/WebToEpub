@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("nepustation.com", function() { return new NepustationParser() });
+parserFactory.register("nepustation.com", function() { return new NepustationParser(); });
 
 class CryptEngine {
     constructor() {
@@ -11,7 +11,7 @@ class CryptEngine {
     }
 
     buildLookup(cypherText, clearText) {
-        for(let i = 0; i < clearText.length; ++i) {
+        for (let i = 0; i < clearText.length; ++i) {
             let cy = cypherText.charAt(i);
             let cl = clearText.charAt(i);
             if (this.decryptTable.get(cy) === undefined) {
@@ -27,7 +27,7 @@ class CryptEngine {
         let decryptChar = function(c) {
             let t = that.decryptTable.get(c);
             return (t === undefined) ? c : t;
-        }
+        };
         return cypherText.split("").map(c => decryptChar(c)).join("");
     }
 
@@ -50,6 +50,6 @@ class NepustationParser extends WordpressBaseParser {
         let node = null;
         while ((node = walker.nextNode())) {
             node.textContent = engine.decryptString(node.textContent);
-        };
+        }
     }
 }

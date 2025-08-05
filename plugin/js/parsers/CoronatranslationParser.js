@@ -2,7 +2,7 @@
 
 parserFactory.register("coronatranslation.com", () => new CoronatranslationParser());
 
-class CoronatranslationParser extends Parser{
+class CoronatranslationParser extends Parser {
     constructor() {
         super();
     }
@@ -21,7 +21,7 @@ class CoronatranslationParser extends Parser{
     }
 
     static nextTocPageUrl(dom) {
-        let link = dom.querySelector("div.wp-pagenavi a.nextpostslink")
+        let link = dom.querySelector("div.wp-pagenavi a.nextpostslink");
         return link === null ? null : link.href;
     }
 
