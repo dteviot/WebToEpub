@@ -5,7 +5,7 @@
 
 "use strict";
 
-class EpubItemSupplier {
+class EpubItemSupplier { // eslint-disable-line no-unused-vars
     constructor(parser, epubItems, imageCollector) {
         this.parser = parser;
         this.epubItems = [];

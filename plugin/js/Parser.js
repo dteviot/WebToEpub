@@ -6,7 +6,7 @@
 /**
  * For sites that have multiple chapters per web page, this can minimize HTTP calls
  */
-class FetchCache {
+class FetchCache { // eslint-disable-line no-unused-vars
     constructor() {
         this.path = null;
         this.dom = null;

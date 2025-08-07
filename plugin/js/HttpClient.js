@@ -129,7 +129,7 @@ class FetchErrorHandler {
 }
 FetchErrorHandler.rateLimitedHosts = new Set();
 
-class FetchImageErrorHandler extends FetchErrorHandler {
+class FetchImageErrorHandler extends FetchErrorHandler { // eslint-disable-line no-unused-vars
     constructor(parentPageUrl) {
         super();
         this.parentPageUrl = parentPageUrl;

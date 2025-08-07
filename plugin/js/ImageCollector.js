@@ -554,7 +554,7 @@ class ImageCollector {
 
 //==============================================================
 
-class VariableSizeImageCollector extends ImageCollector {
+class VariableSizeImageCollector extends ImageCollector { // eslint-disable-line no-unused-vars
     constructor() {
         super();
     }
