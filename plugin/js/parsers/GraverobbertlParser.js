@@ -1,9 +1,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("graverobbertl.site", () => new TemplateParser());
+parserFactory.register("graverobbertl.site", () => new GraverobbertlParser());
 
-class TemplateParser extends Parser {
+class GraverobbertlParser extends Parser {
     constructor() {
         super();
     }
