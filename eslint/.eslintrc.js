@@ -26,8 +26,8 @@ module.exports = {
             "error",
             "always"
         ],
-        "no-undef": "off",
-        "no-unused-vars": "off",
+        "no-undef": "error",
+        "no-unused-vars": "error",
         "space-before-blocks": ["error", "always"],
         "space-before-function-paren": ["error", {
             "anonymous": "never",    // function() {}
