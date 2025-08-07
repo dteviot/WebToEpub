@@ -8,11 +8,11 @@ class ReLibraryParser extends WordpressBaseParser {
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("li.page_item a")]
+        return [...dom.querySelectorAll("div.su-accordion div.su-spoiler-content li a")]
             .map(a => util.hyperLinkToChapter(a));
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.entry-content >  p")];
+        return [...dom.querySelectorAll("#synopsis+div div.su-box-content")];
     }
 }
