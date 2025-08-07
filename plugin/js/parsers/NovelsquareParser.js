@@ -2,7 +2,7 @@
 
 parserFactory.register("novelsquare.blog", () => new NovelsquareParser());
 
-class NovelsquareParser extends Parser{
+class NovelsquareParser extends Parser {
     constructor() {
         super();
     }
@@ -17,7 +17,7 @@ class NovelsquareParser extends Parser{
         maxToCnumber = maxToCnumber.concat(1);
         let getMax = (a, b) => Math.max(parseInt(a)?parseInt(a):0, parseInt(b)?parseInt(b):0);
         maxToCnumber = maxToCnumber.map(a => a.textContent).reduce(getMax);
-        let nextTocPageUrl = function (_dom, chapters, lastFetch) {
+        let nextTocPageUrl = function(_dom, chapters, lastFetch) {
             return ((nextTocIndex <= maxToCnumber) && (0 < lastFetch.length))
                 ? `${baseUrl}?page=${++nextTocIndex}`
                 : null;
@@ -28,7 +28,7 @@ class NovelsquareParser extends Parser{
             nextTocPageUrl,
             chapterUrlsUI
         ));
-    };
+    }
 
     static getChapterUrlsFromTocPage(dom) {
         let menu = dom.querySelector("div#chpagedlist .chapter-list");
@@ -37,7 +37,7 @@ class NovelsquareParser extends Parser{
             :  util.hyperlinksToChapterList(menu);
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         if (dom.baseURI.match(new RegExp("/chapters$"))) {
             dom = (await HttpClient.wrapFetch(dom.baseURI.slice(0, dom.baseURI.length - 9))).responseXML;
         }

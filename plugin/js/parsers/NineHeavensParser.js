@@ -2,7 +2,7 @@
 
 parserFactory.register("nineheavens.org", () => new NineHeavensParser());
 
-class NineHeavensParser extends Parser{ 
+class NineHeavensParser extends Parser { 
     constructor() {
         super();
     }

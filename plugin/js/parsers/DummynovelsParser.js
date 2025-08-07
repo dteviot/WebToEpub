@@ -2,7 +2,7 @@
 
 parserFactory.register("dummynovels.com", () => new DummynovelsParser());
 
-class DummynovelsParser extends Parser{
+class DummynovelsParser extends Parser {
     constructor() {
         super();
     }

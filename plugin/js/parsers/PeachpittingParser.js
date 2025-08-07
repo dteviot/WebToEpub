@@ -2,7 +2,7 @@
 
 parserFactory.register("peachpitting.com", () => new PeachpittingParser());
 
-class PeachpittingParser extends Parser{
+class PeachpittingParser extends Parser {
     constructor() {
         super();
     }

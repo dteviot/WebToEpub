@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url
-parserFactory.register("zirusmusings.com", function() { return new ZirusMusingsParser() });
+parserFactory.register("zirusmusings.com", function() { return new ZirusMusingsParser(); });
 parserFactory.register("zirusmusings.net", () => new ZirusMusingsParser());
 
 class ZirusMusingsParser extends Parser {
@@ -29,7 +29,7 @@ class ZirusMusingsParser extends Parser {
         }));
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
         let nextjsraw = tocHtml.querySelector("#__NEXT_DATA__").innerHTML;
         let nextjsjson = JSON.parse(nextjsraw);

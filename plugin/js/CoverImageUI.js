@@ -34,7 +34,7 @@ class CoverImageUI {
     static clearImageTable() {
         let imagesTable = CoverImageUI.getImageTableElement();
         while (imagesTable.children.length > 0) {
-            imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1])
+            imagesTable.removeChild(imagesTable.children[imagesTable.children.length - 1]);
         }
     }
 
@@ -49,7 +49,7 @@ class CoverImageUI {
             imagesTable.parentElement.appendChild(document.createTextNode(chrome.i18n.getMessage("noImagesFoundLabel")));
         }
         else {
-            images.forEach(function (imageInfo) {
+            images.forEach(function(imageInfo) {
                 let row = document.createElement("tr");
         
                 // add checkbox
@@ -98,7 +98,7 @@ class CoverImageUI {
 
             // uncheck any other checked boxes
             let imagesTable = CoverImageUI.getImageTableElement();
-            for(let box of imagesTable.querySelectorAll("input")) {
+            for (let box of imagesTable.querySelectorAll("input")) {
                 if (box.id !== checkboxId) {
                     box.checked = false;
                 }

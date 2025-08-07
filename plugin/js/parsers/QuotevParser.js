@@ -2,7 +2,7 @@
 
 parserFactory.register("quotev.com", () => new QuotevParser());
 
-class QuotevParser extends Parser{
+class QuotevParser extends Parser {
     constructor() {
         super();
     }
@@ -25,7 +25,7 @@ class QuotevParser extends Parser{
         return {
             sourceUrl:  baseUrl + option.getAttribute("value"),
             title: option.textContent,
-        }
+        };
     }
 
     makeUrlListForSingleChapterStory(dom) {

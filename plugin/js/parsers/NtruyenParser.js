@@ -2,7 +2,7 @@
 
 parserFactory.register("ntruyen.vn", () => new NtruyenParser());
 
-class NtruyenParser extends Parser{
+class NtruyenParser extends Parser {
     constructor() {
         super();
     }
@@ -13,7 +13,7 @@ class NtruyenParser extends Parser{
 
         let numPages = this.getNumOfTocPages(dom);
         let storyId = this.getStoryId(dom);
-        for(let i = 2; i <= numPages; ++i) {
+        for (let i = 2; i <= numPages; ++i) {
             let formData = this.createFormData(storyId, i);
             let tocPage = await (this.fetchToc(formData));
             let partialList = this.extractPartialChapterList(tocPage);
@@ -46,7 +46,7 @@ class NtruyenParser extends Parser{
             body: formData
         };
         let json = (await HttpClient.fetchJson("https://ntruyen.vn//ajax/load_chapter", options)).json;
-        return util.sanitize(json.chapters);;
+        return util.sanitize(json.chapters);
     }
 
     createFormData(storyId, page) {

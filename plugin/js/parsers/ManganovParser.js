@@ -3,13 +3,13 @@
 //dead url/ parser
 parserFactory.register("manganov.com", () => new ManganovParser());
 
-class ManganovParser extends Parser{
+class ManganovParser extends Parser {
     constructor() {
         super();
     }
 
     async getChapterUrls(dom) {
-        let menu = [...dom.querySelectorAll("ul.chapter-list-wrapper")].pop()
+        let menu = [...dom.querySelectorAll("ul.chapter-list-wrapper")].pop();
         return util.hyperlinksToChapterList(menu);
     }
 

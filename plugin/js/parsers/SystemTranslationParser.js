@@ -2,7 +2,7 @@
 
 parserFactory.register("systemtranslation.com", () => new SystemTranslationParser());
 
-class SystemTranslationParser extends WordpressBaseParser{
+class SystemTranslationParser extends WordpressBaseParser {
     constructor() {
         super();
     }

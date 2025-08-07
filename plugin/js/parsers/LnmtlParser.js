@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("lnmtl.com", function() { return new LnmtlParser() });
+parserFactory.register("lnmtl.com", function() { return new LnmtlParser(); });
 
 class LnmtlParser extends Parser {
     constructor() {
@@ -19,10 +19,10 @@ class LnmtlParser extends Parser {
     getChapterUrls(dom) {
         let volumesList = LnmtlParser.findVolumesList(dom);
         if (volumesList.length !== 0) {
-            return LnmtlParser.fetchChapterLists(volumesList, HttpClient.fetchJson).then(function (lists) {
+            return LnmtlParser.fetchChapterLists(volumesList, HttpClient.fetchJson).then(function(lists) {
                 return LnmtlParser.mergeChapterLists(lists); 
             });
-        };
+        }
 
         let table = dom.querySelector("#volumes-container table");
         return Promise.resolve(util.hyperlinksToChapterList(table));
@@ -37,7 +37,7 @@ class LnmtlParser extends Parser {
     }
 
     customRawDomToContentStep(chapter, content) {
-        for(let s of content.querySelectorAll("sentence")) {
+        for (let s of content.querySelectorAll("sentence")) {
             if (this.userPreferences.removeOriginal.value && s.className === "original") {
                 s.remove();
             } else if (this.userPreferences.removeTranslated.value && s.className === "translated") {
@@ -75,15 +75,15 @@ class LnmtlParser extends Parser {
 
     static fetchChapterListsForVolume(volumeInfo, fetchJson) {
         let restUrl = LnmtlParser.makeChapterListUrl(volumeInfo.id, 1);
-        return fetchJson(restUrl).then(function (handler) {
+        return fetchJson(restUrl).then(function(handler) {
             let firstPage = handler.json;
             let pagesForVolume = [Promise.resolve(handler)];
-            for( let i = 2; i <= firstPage.last_page; ++i) {
+            for ( let i = 2; i <= firstPage.last_page; ++i) {
                 let url = LnmtlParser.makeChapterListUrl(volumeInfo.id, i);
                 pagesForVolume.push(fetchJson(url));
-            };
+            }
             return Promise.all(pagesForVolume);
-        })
+        });
     }
 
     static makeChapterListUrl(volumeId, page) {
@@ -92,17 +92,17 @@ class LnmtlParser extends Parser {
 
     static mergeChapterLists(lists) {
         let chapters = [];
-        for(let list of lists) {
+        for (let list of lists) {
             for (let page of list) {
-                for(let chapter of page.json.data) {
+                for (let chapter of page.json.data) {
                     chapters.push({
                         sourceUrl: chapter.site_url,
                         title: "#" + chapter.number + ": " + chapter.title,
                         newArc: null                    
                     });
-                };
-            };
-        };
+                }
+            }
+        }
         return chapters;
     }
 }

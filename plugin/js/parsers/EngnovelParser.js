@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("engnovel.com", () => new EngnovelParser());
 
-class EngnovelParser extends Parser{
+class EngnovelParser extends Parser {
     constructor() {
         super();
     }
@@ -12,7 +12,7 @@ class EngnovelParser extends Parser{
         let chapters = EngnovelParser.extractPartialChapterList(dom);
         let formData = EngnovelParser.getTocFetchInfo(dom);
         chapterUrlsUI.showTocProgress(chapters);
-        for(let i = 2; i <= formData.maxPage; ++i) {
+        for (let i = 2; i <= formData.maxPage; ++i) {
             let partialList = await EngnovelParser.fetchPartialChapterList(formData.id, i);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);

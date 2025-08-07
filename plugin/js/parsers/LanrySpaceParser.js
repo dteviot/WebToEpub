@@ -2,7 +2,7 @@
 
 parserFactory.register("lanry.space", () => new LanrySpaceParser());
 
-class LanrySpaceParser extends Parser{
+class LanrySpaceParser extends Parser {
     constructor() {
         super();
         this.bookid = "";
@@ -12,7 +12,7 @@ class LanrySpaceParser extends Parser{
         let slug = this.getSlug(dom);
         let bookinfo = await this.fetchBookinfo(dom);
         this.bookid = bookinfo.id;
-        let unlocked = new Set()
+        let unlocked = new Set();
         bookinfo.chapter_unlocks.map(a => unlocked.add(a.chapter_number));
         let currenttime = Date.now();
         let chapterlist = [...bookinfo.chapters];
@@ -29,7 +29,7 @@ class LanrySpaceParser extends Parser{
     async fetchBookinfo(dom) {
         let slug = this.getSlug(dom);
         let apikey = "&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ2toaXBhc3hxeGl0d2xrdHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMzE4MzMsImV4cCI6MjA0NTgwNzgzM30.mHBd2yrRm934yPGy4pui3p7cW4FxfIf6yxh7b2TpUA8";
-        let apibasetoc = "https://vkgkhipasxqxitwlktwz.supabase.co/rest/v1/novels?select=*%2Cchapter_unlocks%21left%28chapter_number%2Cprofile_id%29%2Ccategories%3Acategories_on_novels%28category%3Acategory_id%28id%2Cname%2Ccreated_at%2Cupdated_at%29%29%2Ctags%3Atags_on_novels%21left%28novel_id%2Ctag_id%2Ccreated_at%2Ctag%3Atag_id%28id%2Cname%2Cdescription%29%29%2Cchapters%28id%2Ctitle%2Ccreated_at%2Cchapter_number%2Cpart_number%2Cpublish_at%2Ccoins%2Cvolume_id%2Cage_rating%29"
+        let apibasetoc = "https://vkgkhipasxqxitwlktwz.supabase.co/rest/v1/novels?select=*%2Cchapter_unlocks%21left%28chapter_number%2Cprofile_id%29%2Ccategories%3Acategories_on_novels%28category%3Acategory_id%28id%2Cname%2Ccreated_at%2Cupdated_at%29%29%2Ctags%3Atags_on_novels%21left%28novel_id%2Ctag_id%2Ccreated_at%2Ctag%3Atag_id%28id%2Cname%2Cdescription%29%29%2Cchapters%28id%2Ctitle%2Ccreated_at%2Cchapter_number%2Cpart_number%2Cpublish_at%2Ccoins%2Cvolume_id%2Cage_rating%29";
         return (await HttpClient.fetchJson(apibasetoc+slug+apikey)).json[0];
     }
 
@@ -43,7 +43,7 @@ class LanrySpaceParser extends Parser{
             : slug;
     }
 
-    sourceURL(a, slug){
+    sourceURL(a, slug) {
         if (a.part_number == null) {
             return "https://www.lanry.space/novels/"+slug+"/c" + a.chapter_number;
         } else {
@@ -51,7 +51,7 @@ class LanrySpaceParser extends Parser{
         }
     }
 
-    chtitle(a){
+    chtitle(a) {
         let chapNum = (a.part_number == null)
             ? `Ch. ${a.chapter_number}`
             : `Ch. ${a.chapter_number}-${a.part_number}`;
@@ -60,7 +60,7 @@ class LanrySpaceParser extends Parser{
             : chapNum;
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let bookinfo = await this.fetchBookinfo(dom);
         this.title = bookinfo.title;
         this.author = bookinfo.author;

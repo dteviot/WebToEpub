@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("shirokuns.com", () => new ShirokunsParser());
 
-class ShirokunsParser extends Parser{
+class ShirokunsParser extends Parser {
     constructor() {
         super();
     }
@@ -22,11 +22,11 @@ class ShirokunsParser extends Parser{
     }
 
     preprocessRawDom(chapterDom) {
-        util.removeChildElementsMatchingSelector(chapterDom, "p.author, div.col-md-12 img")
+        util.removeChildElementsMatchingSelector(chapterDom, "p.author, div.col-md-12 img");
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector("article p img")
+        let img = dom.querySelector("article p img");
         return img === null ? null : img.src;
     }
 

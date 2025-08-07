@@ -3,7 +3,7 @@
 parserFactory.register("wuxiaworld.eu", () => new WuxiaworldeuParser());
 parserFactory.register("wuxia.click", () => new WuxiaworldeuParser());
 
-class WuxiaworldeuParser extends Parser{
+class WuxiaworldeuParser extends Parser {
     constructor() {
         super();
     }

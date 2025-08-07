@@ -2,7 +2,7 @@
 
 parserFactory.register("manhwatop.com", () => new ManhwatopParser());
 
-class ManhwatopParser extends MadaraParser{
+class ManhwatopParser extends MadaraParser {
     constructor() {
         super();
     }

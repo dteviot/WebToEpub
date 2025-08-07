@@ -2,7 +2,7 @@
 
 parserFactory.register("foxteller.com", () => new FoxtellerParser());
 
-class FoxtellerParser extends Parser{
+class FoxtellerParser extends Parser {
     constructor() {
         super();
     }
@@ -36,8 +36,8 @@ class FoxtellerParser extends Parser{
     }
 
     async fetchContentForChapter(dom) {
-        let novelRegex = /.*?novel_id'\s?:\s?'([\w\s]+)'/i
-        let chapRegex = /.*?chapter_id'\s?:\s?'([\w\s]+)'/i
+        let novelRegex = /.*?novel_id'\s?:\s?'([\w\s]+)'/i;
+        let chapRegex = /.*?chapter_id'\s?:\s?'([\w\s]+)'/i;
 
         let html = dom.head.innerText;
         let storyID = html.match(novelRegex)[1];
@@ -60,7 +60,7 @@ class FoxtellerParser extends Parser{
     decodeFoxteller(json) {
         var n = json.aux.replace(/%Ra&/g, "A").replace(/%Rc&/g, "B").replace(/%Rb&/g, "C").replace(/%Rd&/g, "D").replace(/%Rf&/g, "E").replace(/%Re&/g, "F");
         return decodeURIComponent(Array.prototype.map.call(atob(n), function(e) {
-            return "%" + ("00" + e.charCodeAt(0).toString(16)).slice(-2)
+            return "%" + ("00" + e.charCodeAt(0).toString(16)).slice(-2);
         }).join(""));   
     }    
 

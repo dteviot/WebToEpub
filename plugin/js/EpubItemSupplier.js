@@ -14,7 +14,7 @@ class EpubItemSupplier {
         imageCollector.imagesToPackInEpub().forEach(image => this.epubItems.push(image));
         epubItems.forEach(item => this.epubItems.push(item));
         this.coverImageId = () => this.coverImageInfo.getId();
-    };
+    }
 
 
     // used to populate manifest
@@ -34,9 +34,9 @@ class EpubItemSupplier {
 
     // used to populate table of contents
     *chapterInfo() {
-        for(let epubItem of this.epubItems) {
+        for (let epubItem of this.epubItems) {
             yield* epubItem.chapterInfo();
-        };
+        }
     }
 
     makeCoverImageXhtmlFile(emptyDocFactory) {

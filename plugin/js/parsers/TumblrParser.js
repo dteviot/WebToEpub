@@ -5,7 +5,7 @@ parserFactory.registerUrlRule(
     () => new TumblrParser()
 );
 
-class TumblrParser extends Parser{
+class TumblrParser extends Parser {
     constructor() {
         super();
     }
@@ -21,7 +21,7 @@ class TumblrParser extends Parser{
             dom.querySelector("main div.post-main") ||
             dom.querySelector("article div.post-content");
         //fix embeded image links
-        for(let e of content.querySelectorAll("a[data-big-photo]")) {
+        for (let e of content.querySelectorAll("a[data-big-photo]")) {
             e.href = e.dataset?.bigPhoto;
         }
         return content;

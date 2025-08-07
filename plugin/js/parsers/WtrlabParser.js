@@ -2,7 +2,7 @@
 
 parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 
-class WtrlabParser extends Parser{
+class WtrlabParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 12000;
@@ -86,7 +86,7 @@ class WtrlabParser extends Parser{
                 "retry":false,
                 "force_retry":false
             };
-        let header = {"Content-Type": "application/json;charset=UTF-8"}
+        let header = {"Content-Type": "application/json;charset=UTF-8"};
         let options = {
             method: "POST",
             body: JSON.stringify(formData),
@@ -97,7 +97,7 @@ class WtrlabParser extends Parser{
         return this.buildChapter(json, url);
     }
     
-    isCustomError(response){
+    isCustomError(response) {
         if (response.json.data?.data?.body?false:true) {
             return true;
         }
@@ -107,7 +107,7 @@ class WtrlabParser extends Parser{
         return false;
     }
 
-    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
         if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
             let newresp = {};
             newresp.url = url;
@@ -129,7 +129,7 @@ class WtrlabParser extends Parser{
         }
     }
 
-    PostToUrl(url, body){
+    PostToUrl(url, body) {
         let hostname = new URL(url).hostname;
         let translate = body.translate;
         let language = body.language;

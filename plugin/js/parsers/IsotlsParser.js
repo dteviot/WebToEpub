@@ -2,7 +2,7 @@
 
 parserFactory.register("isotls.com", () => new IsotlsParser());
 
-class IsotlsParser extends Parser{
+class IsotlsParser extends Parser {
     constructor() {
         super();
     }

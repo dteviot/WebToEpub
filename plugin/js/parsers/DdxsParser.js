@@ -2,7 +2,7 @@
 
 parserFactory.register("ddxs.com", () => new DdxsParser());
 
-class DdxsParser extends Parser{
+class DdxsParser extends Parser {
     constructor() {
         super();
     }

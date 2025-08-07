@@ -11,7 +11,7 @@ parserFactory.registerUrlRule(
     () => new WixParser()
 );
 
-class WixParser extends Parser{
+class WixParser extends Parser {
     constructor() {
         super();
     }
@@ -21,7 +21,7 @@ class WixParser extends Parser{
         let chapters = util.hyperlinksToChapterList(dom.body);
         this.mapPageUrlToPageTitle = this.buildMapOfPageUrlsToPageTitles(chapters);
         return Promise.resolve(chapters);
-    };
+    }
 
     buildMapOfPageUrltoRestUrlWithContent(dom) {
         let json = this.findJsonWithRestUrls(dom);
@@ -29,13 +29,13 @@ class WixParser extends Parser{
     }
 
     findJsonWithRestUrls(dom) {
-        for(let script of dom.querySelectorAll("script")) {
+        for (let script of dom.querySelectorAll("script")) {
             let text = script.textContent;
             let json = util.locateAndExtractJson(text, "var publicModel =");
             if (json != null) {
                 return json;
             }
-        };
+        }
     }    
 
     extractRestUrlsFromJson(json) {
@@ -58,12 +58,12 @@ class WixParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div");
-    };
+    }
 
     fetchChapter(url) {
         let that = this;
         let restUrl = this.mapPageUrltoRestUrl.get(url);
-        return HttpClient.fetchJson(restUrl).then(function (handler) {
+        return HttpClient.fetchJson(restUrl).then(function(handler) {
             let content = that.findContentInJson(handler.json);
             return Promise.resolve(that.constructDoc(content, url));
         });

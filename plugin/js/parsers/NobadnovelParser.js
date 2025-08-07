@@ -3,9 +3,9 @@
 */
 "use strict";
 
-parserFactory.register("nobadnovel.com", function() { return new NobadnovelParser() });
+parserFactory.register("nobadnovel.com", function() { return new NobadnovelParser(); });
 
-class NobadnovelParser extends Parser{
+class NobadnovelParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 500;

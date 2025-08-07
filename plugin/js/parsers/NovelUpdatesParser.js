@@ -3,9 +3,9 @@
 */
 "use strict";
 
-parserFactory.register("novelupdates.com", function() { return new NovelUpdatesParser() });
+parserFactory.register("novelupdates.com", function() { return new NovelUpdatesParser(); });
 
-class NovelUpdatesParser extends Parser{
+class NovelUpdatesParser extends Parser {
     constructor() {
         super();
     }
@@ -13,26 +13,26 @@ class NovelUpdatesParser extends Parser{
     // returns promise with the URLs of the chapters to fetch
     // promise is used because may need to fetch the list of URLs from internet
     getChapterUrls(dom) {
-        return NovelUpdatesParser.fetchChapterUrls(dom).then(function (links) {
+        return NovelUpdatesParser.fetchChapterUrls(dom).then(function(links) {
             let chapters = links.map(l => util.hyperLinkToChapter(l));
             return Promise.resolve(chapters.reverse());
-        })
-    };
+        });
+    }
 
     static fetchChapterUrls(dom) {
         let extraPagesWithToc = NovelUpdatesParser.findPagesWithToC(dom);
         return Promise.all(
             extraPagesWithToc.map(url => NovelUpdatesParser.fetchChapterListFromPage(url))
-        ).then(function (chapterLists) {
-            return chapterLists.reduce(function (prev, current) {
+        ).then(function(chapterLists) {
+            return chapterLists.reduce(function(prev, current) {
                 return prev.concat(current);
-            }, NovelUpdatesParser.chapterLinksFromDom(dom))
+            }, NovelUpdatesParser.chapterLinksFromDom(dom));
         });
     }
 
     static fetchChapterListFromPage(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
-            return Promise.resolve(NovelUpdatesParser.chapterLinksFromDom(xhr.responseXML))
+        return HttpClient.wrapFetch(url).then(function(xhr) {
+            return Promise.resolve(NovelUpdatesParser.chapterLinksFromDom(xhr.responseXML));
         });
     }
 
@@ -52,7 +52,7 @@ class NovelUpdatesParser extends Parser{
         let div = dom.querySelector("div.digg_pagination");
         if (div !== null) {
             let maxPage = NovelUpdatesParser.getPageValueOfLastTocPage(div);
-            for(let i = 2; i <= maxPage; ++i) {
+            for (let i = 2; i <= maxPage; ++i) {
                 urls.push(dom.baseURI + "?pg=" + i);
             }
         }
@@ -76,16 +76,16 @@ class NovelUpdatesParser extends Parser{
     // returns the element holding the story content in a chapter
     findContent(dom) {
         return dom.body;
-    };
+    }
 
     // title of the story
     extractTitleImpl(dom) {
         return dom.querySelector("div.seriestitlenu");
-    };
+    }
 
     // author of the story
     extractAuthor(dom) {
         let author = dom.querySelector("div#showauthors a");
         return (author !== null) ? author.textContent : super.extractAuthor(dom);
-    };
+    }
 }

@@ -5,7 +5,7 @@
 
 parserFactory.registerManualSelect(
     "Default", 
-    function() { return new DefaultParser() }
+    function() { return new DefaultParser(); }
 );
 
 class DefaultParser extends Parser {
@@ -38,7 +38,7 @@ class DefaultParser extends Parser {
         util.removeUnwantedWordpressElements(element);
         util.removeMicrosoftWordCrapElements(element);
         this.logic.removeUnwanted(element);
-    };
+    }
 
     findChapterTitle(dom) {
         return this.logic.findChapterTitle(dom);

@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("requiemtls.com", function() { return new RequiemtlsParser() });
+parserFactory.register("requiemtls.com", function() { return new RequiemtlsParser(); });
 
-class RequiemtlsParser extends Parser{
+class RequiemtlsParser extends Parser {
     constructor() {
         super();
     }
@@ -31,7 +31,7 @@ class RequiemtlsParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector(".entry-title");
-    };
+    }
 
     findCoverImageUrl(dom) {
         return dom.querySelector("div.thumbook img.ts-post-image")?.src ?? null;
@@ -49,7 +49,7 @@ class RequiemtlsParser extends Parser{
         newDoc.content.appendChild(title);
         let divret = newDoc.dom.createElement("div");
         let content = dom.querySelector(".entry-content");
-        for(let n of [...content.childNodes]) {
+        for (let n of [...content.childNodes]) {
             divret.appendChild(n);
         }
         let regex = new RegExp(/requiem_tnr_.*?(,|")/, "s");

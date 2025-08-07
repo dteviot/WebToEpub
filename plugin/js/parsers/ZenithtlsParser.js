@@ -2,7 +2,7 @@
 
 parserFactory.register("zenithtls.com", () => new ZenithtlsParser());
 
-class ZenithtlsParser extends Parser{
+class ZenithtlsParser extends Parser {
     constructor() {
         super();
     }
@@ -19,7 +19,7 @@ class ZenithtlsParser extends Parser{
         }));
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let leaves = dom.baseURI.split("/");
         let id = leaves[leaves.length - 1];
         let bookinfo = (await HttpClient.fetchJson("https://www.zenithtls.com/api/novels/" + id)).json;
@@ -92,7 +92,7 @@ class ZenithtlsParser extends Parser{
         return this.buildChapter(json[longestindex], url);
     }
 
-    parseNextjsHydration(nextjs){
+    parseNextjsHydration(nextjs) {
         let malformedjson = nextjs.match(/{.*}/s);
         let json;
         if (malformedjson == null) {

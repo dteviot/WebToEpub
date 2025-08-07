@@ -2,7 +2,7 @@
 
 parserFactory.register("randomtranslator.com", () => new RandomtranslatorParser());
 
-class RandomtranslatorParser extends Parser{
+class RandomtranslatorParser extends Parser {
     constructor() {
         super();
     }
@@ -21,7 +21,7 @@ class RandomtranslatorParser extends Parser{
         return chapters;
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         // eslint-disable-next-line
         let regex = new RegExp("\/novel\/.+");
         let bookhash = dom.baseURI.match(regex)?.[0].slice(7);

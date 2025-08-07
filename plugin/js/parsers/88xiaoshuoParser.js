@@ -14,7 +14,7 @@ parserFactory.register("m.qbxsw.com", () => new _88xiaoshuoParser());
 parserFactory.register("qbxsw.com", () => new _88xiaoshuoParser());
 parserFactory.register("m.38xs.com", () => new _88xiaoshuoParser());
 
-class _88xiaoshuoParser extends Parser{
+class _88xiaoshuoParser extends Parser {
     constructor() {
         super();
     }

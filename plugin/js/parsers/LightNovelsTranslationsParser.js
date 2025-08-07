@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("lightnovelstranslations.com", function() { return new LightNovelsTranslationsParser() });
+parserFactory.register("lightnovelstranslations.com", function() { return new LightNovelsTranslationsParser(); });
 
-class LightNovelsTranslationsParser extends WordpressBaseParser{
+class LightNovelsTranslationsParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -10,7 +10,7 @@ class LightNovelsTranslationsParser extends WordpressBaseParser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("li.chapter-item a")]
             .map(a => util.hyperLinkToChapter(a));
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div.text_story");

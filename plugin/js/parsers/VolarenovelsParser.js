@@ -2,7 +2,7 @@
 
 parserFactory.register("volarenovels.com", () => new VolarenovelsParser());
 
-class VolarenovelsParser extends Parser{
+class VolarenovelsParser extends Parser {
     constructor() {
         super();
     }

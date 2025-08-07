@@ -674,8 +674,9 @@ Open Firefox and visit [WebToEpub on Firefox Add-ons][firefox-add-ons].
    - This will produce 3 files in the eslint directory.
      - WebToEpub0.0.0.x.xpi (Firefox version of plug-in)
      - WebToEpub0.0.0.x.zip (Chrome version of plug-in)
-     - packed.js
+     - packed.js (concatenated JS for linting - don't edit this file directly)
    - Lint tests are OK if output ends with `Wrote Zip to disk; Done in XXXs.`
+   - To auto-fix lint errors run `npm run lint:fix`
 
 3. Install extension in browser of choice, using instructions above.
 
@@ -884,7 +885,7 @@ Project Link: [https://github.com/dteviot/WebToEpub](https://github.com/dteviot/
 [issues-shield]: https://img.shields.io/github/issues/dteviot/WebToEpub.svg?style=for-the-badge
 [issues-url]: https://github.com/dteviot/WebToEpub/issues
 
-<!-- GitHub can't automtically ID the current license so let's hard code it -->
+<!-- GitHub can't automatically ID the current license so let's hard code it -->
 
 [license-shield]: https://img.shields.io/badge/LICENSE-GPLv3-%23555555?style=for-the-badge&label=LICENSE&color=285959
 [license-url]: /LICENSE.md

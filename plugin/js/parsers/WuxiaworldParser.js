@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("wuxiaworld.com", function() { return new WuxiaworldParser() });
+parserFactory.register("wuxiaworld.com", function() { return new WuxiaworldParser(); });
 
 class WuxiaworldParser extends Parser {
     constructor() {
@@ -34,7 +34,7 @@ class WuxiaworldParser extends Parser {
     static getChapterArc(link) {
         let isPanel = function(element) {
             return (element.tagName.toLowerCase() === "div")
-                && (element.className === "panel panel-default")
+                && (element.className === "panel panel-default");
         };
         
         let parent = link;

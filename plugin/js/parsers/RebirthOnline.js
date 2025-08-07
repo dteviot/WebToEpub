@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("www.rebirth.online", function() { return new RebirthOnlineParser() });
+parserFactory.register("www.rebirth.online", function() { return new RebirthOnlineParser(); });
 
-class RebirthOnlineParser extends Parser{
+class RebirthOnlineParser extends Parser {
     constructor() {
         super();
     }
@@ -10,7 +10,7 @@ class RebirthOnlineParser extends Parser{
     getChapterUrls(dom) {
         let menu = dom.querySelector("div.table_of_content");
         return Promise.resolve(util.hyperlinksToChapterList(menu));
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector(".entry-content");
@@ -18,7 +18,7 @@ class RebirthOnlineParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector(".entry-title a");
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector(".chapter-title");

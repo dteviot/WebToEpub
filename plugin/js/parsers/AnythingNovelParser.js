@@ -1,9 +1,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("anythingnovel.com", function() { return new AnythingNovelParser() });
+parserFactory.register("anythingnovel.com", function() { return new AnythingNovelParser(); });
 
-class AnythingNovelParser extends Parser{
+class AnythingNovelParser extends Parser {
     constructor() {
         super();
     }
@@ -13,15 +13,15 @@ class AnythingNovelParser extends Parser{
             .reverse()
             .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(links);        
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div#content");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div#content h1");
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         super.removeUnwantedElementsFromContentElement(element);

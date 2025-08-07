@@ -3,13 +3,13 @@
 //dead url/ parser
 parserFactory.register("jpmtl.com", () => new JpmtlParser());
 
-class JpmtlParser extends Parser{
+class JpmtlParser extends Parser {
     constructor() {
         super();
     }
 
     async getChapterUrls(dom) {
-        let chapters = [...dom.querySelectorAll("a.book-ccontent__content")]
+        let chapters = [...dom.querySelectorAll("a.book-ccontent__content")];
         return chapters.map(this.linkToChapter);
     }
 

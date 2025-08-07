@@ -2,7 +2,7 @@
 
 parserFactory.register("novelight.net", () => new NovelightParser());
 
-class NovelightParser extends Parser{
+class NovelightParser extends Parser {
     constructor() {
         super();
         this.ChacheChapterTitle = new Map();
@@ -49,7 +49,7 @@ class NovelightParser extends Parser{
     }
     
 
-    chaptersFromJson(json, url){
+    chaptersFromJson(json, url) {
         //without this the href links have as baseurl the extension
         let newDoc = Parser.makeEmptyDocForContent(url);
         let content = util.sanitize(json.html);
@@ -110,7 +110,7 @@ class NovelightParser extends Parser{
         title.textContent = this.ChacheChapterTitle.get(url);
         newDoc.content.appendChild(title);
         let content = util.sanitize(json.content);
-        for(let n of [...content.body.querySelectorAll("."+json.class+" div")]) {
+        for (let n of [...content.body.querySelectorAll("."+json.class+" div")]) {
             let br = newDoc.dom.createElement("br");
             newDoc.content.appendChild(n);
             newDoc.content.appendChild(br);

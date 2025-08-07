@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("czbooks.net", () => new CzbooksParser());
 
-class CzbooksParser extends Parser{
+class CzbooksParser extends Parser {
     constructor() {
         super();
     }

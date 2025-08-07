@@ -2,7 +2,7 @@
 
 parserFactory.register("idleturtle-translations.com", () => new IdleturtletranslationsParser());
 
-class IdleturtletranslationsParser extends Parser{
+class IdleturtletranslationsParser extends Parser {
     constructor() {
         super();
     }

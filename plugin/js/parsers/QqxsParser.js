@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("m.qqxs.vip", () => new QqxsParser());
 
-class QqxsParser extends Parser{
+class QqxsParser extends Parser {
     constructor() {
         super();
     }
@@ -30,7 +30,7 @@ class QqxsParser extends Parser{
 
     getUrlsOfTocPages(dom) {
         return [...dom.querySelectorAll("option")]
-            .map(o => "https://m.qqxs.vip/" + o.value)
+            .map(o => "https://m.qqxs.vip/" + o.value);
     }
 
     findContent(dom) {
@@ -66,7 +66,7 @@ class QqxsParser extends Parser{
 
     fixImages(element) {
         let images = [...element.querySelectorAll("img")];
-        for(let i of images) {
+        for (let i of images) {
             if (i.src.includes("juhao.png")) {
                 i.remove();
             }

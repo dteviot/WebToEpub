@@ -10,10 +10,10 @@ parserFactory.register("storiesonline.net", () => new WLPublishingParser());
 
 parserFactory.registerManualSelect(
     "WLPublishing",
-    function() { return new WLPublishingParser() }
+    function() { return new WLPublishingParser(); }
 );
 
-class WLPublishingParser extends Parser{
+class WLPublishingParser extends Parser {
     constructor() {
         super();
     }
@@ -24,21 +24,21 @@ class WLPublishingParser extends Parser{
             let baseUrl = this.getBaseUrl(dom);
             return this.singleChapterStory(baseUrl, dom);
         }
-        for(let link of index.querySelectorAll("a")) {
+        for (let link of index.querySelectorAll("a")) {
             if (link.hasAttribute("title") && (link.getAttribute("title") === "download")) {
                 link.remove();
             }
         }
         return util.hyperlinksToChapterList(index);
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("article");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
-    };
+    }
 
     extractAuthor(dom) {
         let title = dom.querySelector("title").textContent;
@@ -46,7 +46,7 @@ class WLPublishingParser extends Parser{
             return title.substring(0, title.indexOf(":"));
         }
         return super.extractAuthor(dom);
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, "div.date");
@@ -89,7 +89,7 @@ class WLPublishingParser extends Parser{
         let urls = [];
         let pager = dom.querySelector("div.pager");
         if (pager) {
-            for(let link of pager.querySelectorAll("a")) {
+            for (let link of pager.querySelectorAll("a")) {
                 if (link.textContent != "Next") {
                     urls.push(link.href);
                 }
@@ -105,7 +105,7 @@ class WLPublishingParser extends Parser{
             let child = pageContent.childNodes[0];
             // The chapter title appears on each page in the chapter and we only want it from the first.
             if ((child.tagName == "H1") || (child.tagName == "H2")) {
-                child.remove()
+                child.remove();
             } else {
                 chapterContent.appendChild(child);
             }

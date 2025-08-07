@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("translationchicken.com", function() { return new TranslationChickenParser() });
+parserFactory.register("translationchicken.com", function() { return new TranslationChickenParser(); });
 
-class TranslationChickenParser extends WordpressBaseParser{
+class TranslationChickenParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -16,5 +16,5 @@ class TranslationChickenParser extends WordpressBaseParser{
             content.insertBefore(feature, content.children[0]);
         }
         return content;
-    };
+    }
 }

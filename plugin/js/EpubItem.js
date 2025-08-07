@@ -37,7 +37,7 @@ class EpubItem {
 
     hasSvg() {
         if (this.nodes != null) {
-            for(let n of this.nodes) {
+            for (let n of this.nodes) {
                 if ((n.nodeType === Node.ELEMENT_NODE) &&
                     (n.querySelector("svg") !== null)) {
                     return true;
@@ -67,12 +67,12 @@ class EpubItem {
     makeChapterDoc(emptyDocFactory) {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
-        for(let node of this.nodes) {
+        for (let node of this.nodes) {
             let clean = util.sanitizeNode(node);
             if (clean) {
                 body.appendChild(clean);
             }
-        };
+        }
         this.populateTitle(doc, body);
         delete(this.nodes);
         return doc;
@@ -95,25 +95,25 @@ class EpubItem {
 
     *chapterInfo() {
         let that = this;
-        for(let element of that.nodes) {
+        for (let element of that.nodes) {
             if (util.isHeaderTag(element)) {
                 yield {
                     depth: this.tagNameToTocDepth(element.tagName),
                     title: element.textContent,
                     src: that.getZipHref()
                 };
-            };
-        };
+            }
+        }
     }
 
     getHyperlinks() {
         let links = [];
-        for(let element of this.nodes) {
+        for (let element of this.nodes) {
             if (element.nodeType === Node.ELEMENT_NODE) {
                 if (element.tagName.toLowerCase() === "a") {
                     links.push(element);
                 }
-                for(let link of element.querySelectorAll("a")) {
+                for (let link of element.querySelectorAll("a")) {
                     links.push(link);
                 }
             }
@@ -143,7 +143,7 @@ class ChapterEpubItem extends EpubItem {
                 depth: 0,
                 title: that.newArc,
                 src: that.getZipHref()
-            }
+            };
         }
 
         if (typeof (that.chapterTitle) !== "undefined") {
@@ -151,7 +151,7 @@ class ChapterEpubItem extends EpubItem {
                 depth: 1,
                 title: that.chapterTitle,
                 src: that.getZipHref()
-            }
+            };
         }
     }
 }
@@ -221,7 +221,7 @@ class ImageInfo extends EpubItem {
     findImageSuffix(wrappingUrl) {
         let that = this;
         let suffix = "";
-        let fileName = that.extractImageFileNameFromUrl(wrappingUrl)
+        let fileName = that.extractImageFileNameFromUrl(wrappingUrl);
         if (fileName != null) {
             let index = fileName.lastIndexOf(".");
             suffix = fileName.substring(index + 1);
@@ -236,7 +236,7 @@ class ImageInfo extends EpubItem {
             if (suffix === "svg+xml") {
                 suffix = "svg";
             }
-        };
+        }
         return suffix;
     }
 
@@ -281,9 +281,9 @@ class ImageInfo extends EpubItem {
 
     getImageName(page) {
         let that = this;
-        if(page){
+        if (page) {
             let name = that.extractImageFileNameFromUrl(page);
-            if(name){
+            if (name) {
                 return name.split(/\./gi)[0];
             }
         }

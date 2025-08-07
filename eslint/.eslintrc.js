@@ -11,22 +11,36 @@ module.exports = {
     "rules": {
         "indent": [
             "error",
-            4
+            4,
+            { "SwitchCase": 1 }
         ],
         "linebreak-style": "off",
         "no-extra-semi": [
-            "off"
+            "error"
         ],
         "quotes": [
             "error",
             "double"
         ],
         "semi": [
-            "off",
-            "never"
+            "error",
+            "always"
         ],
+        "no-undef": "off",
+        "no-unused-vars": "off",
+        "space-before-blocks": ["error", "always"],
+        "space-before-function-paren": ["error", {
+            "anonymous": "never",    // function() {}
+            "named": "never",        // function foo() {}
+            "asyncArrow": "always"   // async () => {}
+        }],
+        // Space around keywords (if, for, etc.)
+        "keyword-spacing": ["error", {
+            "before": true,
+            "after": true
+        }],
     },
-	"globals": {
-		"zip": "readable",
-	}
+    "globals": {
+        "zip": "readable",
+    }
 };

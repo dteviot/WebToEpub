@@ -1,7 +1,7 @@
 "use strict";
 
 class Download {
-    constructor () {
+    constructor() {
     }
 
     static init() {
@@ -16,7 +16,7 @@ class Download {
     }
 
     static isFileNameIllegalOnWindows(fileName) {
-        for(let c of Download.illegalWindowsFileNameChars) {
+        for (let c of Download.illegalWindowsFileNameChars) {
             if (fileName.includes(c)) {
                 return true;
             }
@@ -27,7 +27,7 @@ class Download {
         return false;
     }
 
-    static CustomFilename(){
+    static CustomFilename() {
         let CustomFilename = document.getElementById("CustomFilenameInput").value;
         let ToReplace = {
             "%URL_hostname%": (new URL(document.getElementById("startingUrlInput").value))?.hostname,
@@ -92,7 +92,7 @@ class Download {
     static saveOnFirefox(options, cleanup) {
         return browser.runtime.getPlatformInfo().then(platformInfo => {
             if (Download.isAndroid(platformInfo)) {
-                Download.saveOnFirefoxForAndroid(options, cleanup)
+                Download.saveOnFirefoxForAndroid(options, cleanup);
             } else {
                 return browser.downloads.download(options).then(
                     // on Firefox, resolves when "Save As" dialog CLOSES, so no

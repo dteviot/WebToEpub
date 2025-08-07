@@ -25,7 +25,7 @@ parserFactory.registerRule(
 );
 */
 
-class TemplateParser extends Parser{
+class TemplateParser extends Parser {
     constructor() {
         super();
         //Optional Parameters:

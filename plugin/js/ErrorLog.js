@@ -18,7 +18,7 @@ class ErrorLog {
         ErrorLog.queue.push(msg);
         if (1 < ErrorLog.queue.length) {
             return;
-        };
+        }
 
         let sections = ErrorLog.hideAllSectionsSavingVisibility();
         ErrorLog.getErrorSection().hidden = false;
@@ -34,7 +34,7 @@ class ErrorLog {
         } else {
             ErrorLog.setErrorMessageText(ErrorLog.queue[0]);
             ErrorLog.setErrorMessageButtons(ErrorLog.queue[0], sections);
-        };
+        }
     }
 
     static showLogToUser() {
@@ -61,10 +61,10 @@ class ErrorLog {
     /** private */
     static hideAllSectionsSavingVisibility() {
         let sections = new Map();
-        for(let section of document.querySelectorAll("section")) {
+        for (let section of document.querySelectorAll("section")) {
             sections.set(section, section.hidden);
             section.hidden = true;
-        };
+        }
         return sections;
     }
 
@@ -110,7 +110,7 @@ class ErrorLog {
             cancelButton.textContent = chrome.i18n.getMessage("__MSG_button_error_Cancel__");
             if (msg.cancelLabel !== undefined) {
                 cancelButton.textContent =  msg.cancelLabel;
-            };
+            }
             if (msg.openurl !== undefined) {
                 OpenURLButton.hidden = false;
                 OpenURLButton.onclick = function() {
@@ -140,9 +140,9 @@ class ErrorLog {
 
     /** private */
     static restoreSectionVisibility(sections) {
-        for(let [key,value] of sections) {
+        for (let [key,value] of sections) {
             key.hidden = value;
-        };
+        }
     }
 }
 

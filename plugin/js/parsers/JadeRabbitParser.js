@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("jade-rabbit.net", () => new JadeRabbitParser());
 
-class JadeRabbitParser extends Parser{
+class JadeRabbitParser extends Parser {
     constructor() {
         super();
     }
@@ -22,7 +22,7 @@ class JadeRabbitParser extends Parser{
     }
 
     static nextTocPageUrl(dom) {
-        let link = dom.querySelector("div.older a")
+        let link = dom.querySelector("div.older a");
         return link === null ? null : link.href;
     }
 

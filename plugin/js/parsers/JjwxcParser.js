@@ -2,7 +2,7 @@
 
 parserFactory.register("jjwxc.net", () => new JjwxcParser());
 
-class JjwxcParser extends Parser{
+class JjwxcParser extends Parser {
     constructor() {
         super();
     }
@@ -44,7 +44,7 @@ class JjwxcParser extends Parser{
         element.querySelector("#report_box")?.parentElement?.remove();
         util.removeChildElementsMatchingSelector(element, ".readsmall, div[align='right']");
         this.fixupAuthorNote(element);
-        for(let div of element.querySelectorAll("div")) {
+        for (let div of element.querySelectorAll("div")) {
             div.style = null;
         }
         super.removeUnwantedElementsFromContentElement(element);

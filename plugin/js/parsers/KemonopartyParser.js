@@ -5,7 +5,7 @@ parserFactory.registerRule(
     () => new KemonopartyParser()
 );
 
-class KemonopartyParser extends Parser{
+class KemonopartyParser extends Parser {
     constructor() {
         super();
     }
@@ -18,7 +18,7 @@ class KemonopartyParser extends Parser{
     async getChapterUrls(dom, chapterUrlsUI) {
         let chapters = [];
         let urlsOfTocPages = await this.getUrlsOfTocPages(dom);
-        for(let url of urlsOfTocPages) {
+        for (let url of urlsOfTocPages) {
             await this.rateLimitDelay();
             let json = (await HttpClient.fetchJson(url)).json;
             json.url = url;
@@ -27,7 +27,7 @@ class KemonopartyParser extends Parser{
             chapters = chapters.concat(partialList);
         }
         return chapters.reverse();
-    };
+    }
 
     async fetchChapter(url) {
         let json = (await HttpClient.fetchJson(url)).json;
@@ -69,7 +69,7 @@ class KemonopartyParser extends Parser{
         let urlbuilderjson = (await HttpClient.fetchJson(urlbuilder)).json;
         let lastPageOffset = urlbuilderjson.props.count - (urlbuilderjson.props.count%50);
         let urls = [];
-        for(let i = 0; i <= lastPageOffset; i += 50) {
+        for (let i = 0; i <= lastPageOffset; i += 50) {
             urlbuilder.searchParams.set("o", i);
             urls.push(urlbuilder.href);
         }
@@ -100,7 +100,7 @@ class KemonopartyParser extends Parser{
     copyImagesIntoContent(dom) {
         let content = this.findContent(dom);
         let images = [...dom.querySelectorAll("div.post__files div.post__thumbnail figure a img")];
-        for(let img of images) {
+        for (let img of images) {
             content.append(img);
         }
     }
@@ -117,7 +117,7 @@ class KemonopartyParser extends Parser{
         let filesheader = newDoc.dom.createElement("h2");
         newDoc.content.appendChild(filesheader);
         filesheader.textContent = "Files";
-        for(let i of images) {
+        for (let i of images) {
             let img = newDoc.dom.createElement("img");
             img.src = i.server + "/data" + i.path;
             newDoc.content.append(img);

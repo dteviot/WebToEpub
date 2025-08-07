@@ -8,8 +8,8 @@ class TruyenParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        const chapterLinks = [...dom.querySelectorAll("#clwd ul a")]
-        const chapterTitles = [...dom.querySelectorAll("#clwd span.block")]
+        const chapterLinks = [...dom.querySelectorAll("#clwd ul a")];
+        const chapterTitles = [...dom.querySelectorAll("#clwd span.block")];
         const chapterUrls = [];
         for (let i = 0; i < chapterLinks.length; i++) {
             const chapterLink = chapterLinks[i];
@@ -18,7 +18,7 @@ class TruyenParser extends Parser {
                 sourceUrl: chapterLink.href,
                 title: chapterTitle.textContent,
             });
-        };
+        }
         return chapterUrls.reverse();
     }
 

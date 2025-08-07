@@ -3,7 +3,7 @@
 parserFactory.register("ncode.syosetu.com", () => new SyosetuParser());
 parserFactory.register("novel18.syosetu.com", () => new SyosetuParser());
 
-class SyosetuParser extends Parser{
+class SyosetuParser extends Parser {
     constructor() {
         super();
         this.infoPageDom = null;
@@ -37,11 +37,11 @@ class SyosetuParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div.p-novel__body");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector(".p-novel__title");
-    };
+    }
 
     extractAuthor(dom) {
         const authorDiv = dom.querySelector("div.p-novel__author");

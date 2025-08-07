@@ -5,7 +5,7 @@ parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
 //dead url
 parserFactory.register("babelnovel.com", () => new BabelChainParser());
 
-class BabelChainParser extends Parser{
+class BabelChainParser extends Parser {
     constructor() {
         super();
     }
@@ -79,7 +79,7 @@ class BabelChainParser extends Parser{
             .filter(p => !util.isNullOrEmpty(p));
         for (let text of paragraphs) {
             let p = newDoc.dom.createElement("p");
-            p.appendChild(newDoc.dom.createTextNode(text))
+            p.appendChild(newDoc.dom.createTextNode(text));
             newDoc.content.appendChild(p);
         }
         return newDoc.dom;

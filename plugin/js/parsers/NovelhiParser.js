@@ -2,7 +2,7 @@
 
 parserFactory.register("novelhi.com", () => new NovelhiParser());
 
-class NovelhiParser extends Parser{
+class NovelhiParser extends Parser {
     constructor() {
         super();
     }
@@ -19,7 +19,7 @@ class NovelhiParser extends Parser{
         return {
             sourceUrl: baseURI + "/" + onclick[1],
             title: link.querySelector("span").textContent            
-        }
+        };
     }
 
     findContent(dom) {

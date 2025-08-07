@@ -2,7 +2,7 @@
 
 parserFactory.register("dasuitl.com", () => new DasuitlParser());
 
-class DasuitlParser extends WordpressBaseParser{
+class DasuitlParser extends WordpressBaseParser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("powanjuan.cc", () => new PowanjuanParser());
 
-class PowanjuanParser extends Parser{
+class PowanjuanParser extends Parser {
     constructor() {
         super();
     }

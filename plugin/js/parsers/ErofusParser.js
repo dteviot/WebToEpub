@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("erofus.com", function() { return new ErofusParser() });
+parserFactory.register("erofus.com", function() { return new ErofusParser(); });
 
 class ErofusParserImageCollector extends ImageCollector {
     constructor() {
@@ -16,7 +16,7 @@ class ErofusParserImageCollector extends ImageCollector {
     }
 }
 
-class ErofusParser extends Parser{
+class ErofusParser extends Parser {
     constructor() {
         super(new ErofusParserImageCollector());
     }
@@ -25,11 +25,11 @@ class ErofusParser extends Parser{
         return [...dom.querySelectorAll("div a div.thumbnail")]
             .map(div => util.hyperLinkToChapter(div.parentElement))
             .filter(c => !util.isNullOrEmpty(c.title));
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div.content");
-    };
+    }
 
     findCoverImageUrl() {
         return null;

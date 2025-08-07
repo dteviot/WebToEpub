@@ -2,7 +2,7 @@
 
 parserFactory.register("jonaxxstories.com", () => new JonaxxstoriesParser());
 
-class JonaxxstoriesParser extends WordpressBaseParser{
+class JonaxxstoriesParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -13,10 +13,10 @@ class JonaxxstoriesParser extends WordpressBaseParser{
             this.getUrlsOfTocPages,
             chapterUrlsUI
         )).reverse();
-    };
+    }
 
     getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let lastLink = [...dom.querySelectorAll(".nav-links a:not(.next)")]
             .slice(-1);
         if (0 < lastLink.length)
@@ -25,7 +25,7 @@ class JonaxxstoriesParser extends WordpressBaseParser{
             let href = lastLink[0].href;
             let index = href.lastIndexOf("/", href.length - 2);
             href = href.substring(0, index + 1);
-            for(let i = 2; i <= max; ++i) {
+            for (let i = 2; i <= max; ++i) {
                 urls.push(href + i + "/");
             }
         }

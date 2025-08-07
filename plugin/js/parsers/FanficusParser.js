@@ -2,7 +2,7 @@
 
 parserFactory.register("fanficus.com", () => new FanficusParser());
 
-class FanficusParser extends Parser{
+class FanficusParser extends Parser {
     constructor() {
         super();
     }

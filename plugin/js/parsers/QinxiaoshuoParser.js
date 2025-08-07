@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("qinxiaoshuo.com", () => new QinxiaoshuoParser());
 
-class QinxiaoshuoParser extends Parser{
+class QinxiaoshuoParser extends Parser {
     constructor() {
         super();
     }
@@ -36,7 +36,7 @@ class QinxiaoshuoParser extends Parser{
     }
 
     fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function (xhr) {
+        return HttpClient.wrapFetch(url).then(function(xhr) {
             let finalDom = xhr.responseXML;
             let fetchedUrls = new Set();
             fetchedUrls.add(url);
@@ -50,7 +50,7 @@ class QinxiaoshuoParser extends Parser{
         if (url === null) {
             return Promise.resolve(finalDom);
         } else {
-            return HttpClient.wrapFetch(url).then(function (xhr) {
+            return HttpClient.wrapFetch(url).then(function(xhr) {
                 fetchedUrls.add(url);
                 QinxiaoshuoParser.copyContentNodes(finalDom, xhr.responseXML);
                 let nextUrl = QinxiaoshuoParser.urlOfNextPageOfChapter(xhr.responseXML, fetchedUrls);
