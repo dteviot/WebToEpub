@@ -2,7 +2,7 @@
 
 parserFactory.register("sto.cx", () => new StocxParser());
 
-class StocxParser extends Parser{
+class StocxParser extends Parser {
     constructor() {
         super();
     }
@@ -12,15 +12,15 @@ class StocxParser extends Parser{
         let chapters = [];
         if (0 < scripts.length) {
             let chapInfo = StocxParser.extractChapterGenInfo(scripts[0]);
-            for(let i = 1; i <= chapInfo.maxPage; ++i) {
+            for (let i = 1; i <= chapInfo.maxPage; ++i) {
                 chapters.push({
                     sourceUrl: `https://www.sto.cx/book-${chapInfo.bookId}-${i}.html`,
                     title: `${i}`
                 });
             }
-        };
+        }
         return Promise.resolve(chapters);
-    };
+    }
 
     static findScriptElementWithChapterInfo(dom) {
         return [...dom.querySelectorAll("script")]
@@ -39,15 +39,15 @@ class StocxParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div#BookContent");
-    };
+    }
 
     extractLanguage() {
         return "cn";
-    };
+    }
 
     customRawDomToContentStep(chapter, content) {
         let fix = StocxParser.getTextNodesToFixUp(content);
-        for(let node of fix) {
+        for (let node of fix) {
             node.nodeValue = StocxParser.fixMangledText(node.nodeValue);
         }
     }
@@ -56,7 +56,7 @@ class StocxParser extends Parser{
         let n = null; 
         let nodes = [];
         let walk = document.createTreeWalker(content,NodeFilter.SHOW_TEXT,null,false);
-        while((n = walk.nextNode()) !== null) {
+        while ((n = walk.nextNode()) !== null) {
             if (n.nodeValue.includes("%")) {
                 nodes.push(n);
             }
@@ -70,10 +70,10 @@ class StocxParser extends Parser{
         while (i < text.length) {
             if (StocxParser.isEncodeddByte(text, i)) {
                 bytes.push(StocxParser.decodeByte(text, i));
-                i += 3
+                i += 3;
             } else {
                 let utf = StocxParser.getUtf8encoder().encode(text[i]);
-                for(let u of utf) {
+                for (let u of utf) {
                     bytes.push(u);
                 }
                 ++i;

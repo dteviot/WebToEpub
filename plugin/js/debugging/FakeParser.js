@@ -6,16 +6,16 @@
   Note, need to open the by looking at site rtd.moe
 */
 
-parserFactory.register("rtd.moe", function() { return new FakeParser() });
+parserFactory.register("rtd.moe", function() { return new FakeParser(); });
 
-class FakeParser extends Parser{
+class FakeParser extends Parser {
     constructor() {
         super();
     }
 
     async getChapterUrls( /* dom */ ) {
         let chapters = [];
-        for(let i = 1; i < 30; ++i) {
+        for (let i = 1; i < 30; ++i) {
             chapters.push({
                 sourceUrl:  `https://rtd.moe/Chapter/${i}.html`,
                 title: `Chapter ${i}`,
@@ -23,15 +23,15 @@ class FakeParser extends Parser{
             });
         }
         return chapters;
-    };
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
-    };
+    }
 
     async fetchChapter(url) {
         let newDoc = Parser.makeEmptyDocForContent(url);

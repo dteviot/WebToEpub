@@ -2,7 +2,7 @@
 
 parserFactory.register("chaleuria.com", () => new ChaleuriaParser());
 
-class ChaleuriaParser extends WordpressBaseParser{
+class ChaleuriaParser extends WordpressBaseParser {
     constructor() {
         super();
     }

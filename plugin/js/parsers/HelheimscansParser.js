@@ -7,7 +7,7 @@ parserFactory.register("helheimscans.org", () => new HelheimscansParser());
 parserFactory.register("helioscans.com", () => new HelheimscansParser());
 
 
-class HelheimscansParser extends Parser{
+class HelheimscansParser extends Parser {
     constructor() {
         super();
     }
@@ -15,7 +15,7 @@ class HelheimscansParser extends Parser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("#chapters_panel a")]
             .map(this.linkToChapter)
-            .reverse()
+            .reverse();
     }
 
     linkToChapter(link) {

@@ -2,7 +2,7 @@
 
 parserFactory.register("tigertranslations.org", () => new TigertranslationsParser());
 
-class TigertranslationsParser extends Parser{
+class TigertranslationsParser extends Parser {
     constructor() {
         super();
     }
@@ -68,7 +68,7 @@ class TigertranslationsParser extends Parser{
     }    
 
     isTigerTranslationsHost(link) {
-        return new URL(link.href).host === "tigertranslations.org"        
+        return new URL(link.href).host === "tigertranslations.org";        
     }
 
     cleanInitialDom(element) {

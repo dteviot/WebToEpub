@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("shinningnoveltranslations.com", function() { return new ShinningnoveltranslationsParser() });
+parserFactory.register("shinningnoveltranslations.com", function() { return new ShinningnoveltranslationsParser(); });
 
-class ShinningnoveltranslationsParser extends Parser{
+class ShinningnoveltranslationsParser extends Parser {
     constructor() {
         super();
     }

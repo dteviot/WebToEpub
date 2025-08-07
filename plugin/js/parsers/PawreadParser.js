@@ -2,7 +2,7 @@
 
 parserFactory.register("pawread.com", () => new PawreadParser());
 
-class PawreadParser extends Parser{
+class PawreadParser extends Parser {
     constructor() {
         super();
     }

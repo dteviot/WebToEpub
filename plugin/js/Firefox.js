@@ -4,7 +4,7 @@
 
 /** Functions specific to Firefox version of plug-in */
 class Firefox {
-    constructor () {
+    constructor() {
     }
 
     /** fetch() calls on Firefox include an origin header.
@@ -28,10 +28,10 @@ class Firefox {
 
     static injectContentScript(tabId) {
         chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
-            function (result) {   // eslint-disable-line no-unused-vars
+            function(result) {   // eslint-disable-line no-unused-vars
                 if (chrome.runtime.lastError) {
                     util.log(chrome.runtime.lastError.message);
-                };
+                }
             }
         );
     }

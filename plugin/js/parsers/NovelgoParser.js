@@ -2,7 +2,7 @@
 
 parserFactory.register("novelgo.id", () => new NovelgoParser());
 
-class NovelgoParser extends Parser{
+class NovelgoParser extends Parser {
     constructor() {
         super();
     }

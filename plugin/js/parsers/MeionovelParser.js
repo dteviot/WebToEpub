@@ -2,7 +2,7 @@
 
 parserFactory.register("meionovel.id", () => new MeionovelParser());
 
-class MeionovelParser extends Parser{
+class MeionovelParser extends Parser {
     constructor() {
         super();
     }

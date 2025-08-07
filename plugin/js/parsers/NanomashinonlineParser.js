@@ -1,7 +1,7 @@
 "use strict";
 parserFactory.register("nanomashin.online", () => new NanomashinonlineParser());
 
-class NanomashinonlineParser extends Parser{
+class NanomashinonlineParser extends Parser {
     constructor() {
         super();
     }

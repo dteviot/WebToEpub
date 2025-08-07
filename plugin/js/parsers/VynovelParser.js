@@ -2,7 +2,7 @@
 
 parserFactory.register("vynovel.com", () => new VynovelParser());
 
-class VynovelParser extends Parser{
+class VynovelParser extends Parser {
     constructor() {
         super();
     }
@@ -13,7 +13,7 @@ class VynovelParser extends Parser{
         return this.chaptersFromList(links).reverse();
     }
 
-    chaptersFromList(list){
+    chaptersFromList(list) {
         return list.map(a => ({
             sourceUrl: a.href, 
             title: a.querySelector("span").innerText.trim()

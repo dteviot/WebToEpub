@@ -24,6 +24,7 @@
     "postinstall": "npm run -s postinstall-zip && npm run -s postinstall-DOMpurify",
     "test": "http-server -o unitTest/Tests.html",
     "lint": "cd eslint && node pack.js && eslint packed.js",
+    "lint:fix": "eslint --config eslint/.eslintrc.js --fix plugin/js",
     "web-ext": "cd eslint && cp *.xpi temp.xpi && web-ext lint -w -s temp.xpi && rm temp.xpi",
     "build": "cd eslint && node pack.js",
     "release": "node eslint/release.js"

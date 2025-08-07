@@ -2,7 +2,7 @@
 
 parserFactory.register("novelcool.com", () => new NovelcoolParser());
 
-class NovelcoolParser extends Parser{
+class NovelcoolParser extends Parser {
     constructor() {
         super();
     }

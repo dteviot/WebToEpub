@@ -3,12 +3,12 @@
 */
 "use strict";
 
-parserFactory.register("readlightnovel.me", function() { return new ReadLightNovelParser() });
-parserFactory.register("readlightnovel.meme", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.me", function() { return new ReadLightNovelParser(); });
+parserFactory.register("readlightnovel.meme", function() { return new ReadLightNovelParser(); });
 //dead url
-parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser(); });
 //dead url
-parserFactory.register("readlightnovel.today", function() { return new ReadLightNovelParser() });
+parserFactory.register("readlightnovel.today", function() { return new ReadLightNovelParser(); });
 
 class ReadLightNovelParser extends Parser {
     constructor() {
@@ -41,8 +41,8 @@ class ReadLightNovelParser extends Parser {
                 panelDiv = parent;
             } else {
                 parent = parent.parentNode;
-            };
-        };
+            }
+        }
 
         // get the title
         if (panelDiv !== null) {
@@ -66,8 +66,8 @@ class ReadLightNovelParser extends Parser {
             let li = div.querySelector("li");
             if (li != null) {
                 return li.innerText;
-            };
-        };
+            }
+        }
         return super.extractAuthor(dom);
     }
 
@@ -95,14 +95,14 @@ class ReadLightNovelParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         let firstBr = element.querySelector("br:first-of-type");
         let ch = firstBr.nextSibling;
-        if(ch && ch.data.includes("Chapter")) {
+        if (ch && ch.data.includes("Chapter")) {
             let secondBr = ch.nextSibling;
-            if(secondBr && secondBr.tagName == "BR") {
+            if (secondBr && secondBr.tagName == "BR") {
                 util.removeElements([firstBr, ch, secondBr]);
             }
         }
 
-        for(let a of element.querySelectorAll(".adsbyvli")) {
+        for (let a of element.querySelectorAll(".adsbyvli")) {
             let toDelete = [];
             let center = a.parentNode;
             let temp =  this.addPreviousSiblingIfMatches(center, "BR", toDelete);
@@ -111,13 +111,13 @@ class ReadLightNovelParser extends Parser {
             temp = this.addNextSiblingIfMatches(temp, "BR", toDelete);
             this.addNextSiblingIfMatches(temp, "HR", toDelete);
 
-            if(center.tagName == "CENTER") {
+            if (center.tagName == "CENTER") {
                 center.remove();
             }
             util.removeElements(toDelete);
         }
 
-        for(let small of element.querySelectorAll(".ads-title")) {
+        for (let small of element.querySelectorAll(".ads-title")) {
             let toDelete = [];
             this.addPreviousSiblingIfMatches(small, "BR", toDelete);
             let temp = this.addNextSiblingIfMatches(small, "BR", toDelete);
@@ -128,7 +128,7 @@ class ReadLightNovelParser extends Parser {
             util.removeElements(toDelete);
         }
 
-        for(let s of element.querySelectorAll("center > script")) {
+        for (let s of element.querySelectorAll("center > script")) {
             let toDelete = [];
             let center = s.parentNode;
             this.addNextSiblingIfMatches(center, "HR", toDelete);
@@ -157,7 +157,7 @@ class ReadLightNovelParser extends Parser {
         }
         let sibling = op(element);
 
-        if(!sibling && (element.parentNode !== null)) {
+        if (!sibling && (element.parentNode !== null)) {
             sibling = op(element.parentNode);
         }
 
@@ -174,7 +174,7 @@ class ReadLightNovelParser extends Parser {
     removeShareThisLinks(element) {
         let shareLinks = element.querySelectorAll("span.st_facebook, " +
             "span.st_twitter, span.st_googleplus");
-        for(let share of shareLinks) {
+        for (let share of shareLinks) {
             let parent = share.parentNode;
             if (parent.tagName.toLowerCase() === "p") {
                 parent.remove();

@@ -2,7 +2,7 @@
 
 parserFactory.register("exiledrebelsscanlations.com", () => new ExiledrebelsscanlationsParser());
 
-class ExiledrebelsscanlationsParser extends Parser{
+class ExiledrebelsscanlationsParser extends Parser {
     constructor() {
         super();
     }
@@ -38,7 +38,7 @@ class ExiledrebelsscanlationsParser extends Parser{
             let notes = [...webPageDom.querySelectorAll("div.easy-footnote-title, ol.easy-footnotes-wrapper")];
             let content = this.findContent(webPageDom);
             this.tagAuthorNotes(notes);
-            for(let e of notes) {
+            for (let e of notes) {
                 content.appendChild(e);
             }
         }

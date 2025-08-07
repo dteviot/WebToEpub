@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("m.bqg225.com", () => new Bqg225Parser());
 
-class Bqg225Parser extends Parser{
+class Bqg225Parser extends Parser {
     constructor() {
         super();
     }
@@ -17,7 +17,7 @@ class Bqg225Parser extends Parser{
     }
     
     removeToToBottomOfPageLink(menu) {
-        menu.querySelector("a[style]")?.remove()
+        menu.querySelector("a[style]")?.remove();
     }
 
     findContent(dom) {

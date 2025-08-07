@@ -13,12 +13,12 @@ class NovelNaverImageCollector extends ImageCollector {
         let tagName = element.tagName.toLowerCase();
         let img = (tagName === "img")
             ? element
-            : element.querySelector("img")
+            : element.querySelector("img");
         return img.src;
     }
 }
 
-class NovelNaverParser extends Parser{
+class NovelNaverParser extends Parser {
     constructor() {
         super(new NovelNaverImageCollector());
     }
@@ -45,7 +45,7 @@ class NovelNaverParser extends Parser{
         let urls = [...dom.querySelectorAll("div.default_paging a")]
             .map(l => l.href)
             .filter(u => !found.has(u));
-        for(let u of urls) {
+        for (let u of urls) {
             found.add(u);
         }
         return urls;

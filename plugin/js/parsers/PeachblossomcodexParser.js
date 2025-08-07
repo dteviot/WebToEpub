@@ -2,7 +2,7 @@
 
 parserFactory.register("peachblossomcodex.com", () => new PeachblossomcodexParser());
 
-class PeachblossomcodexParser extends Parser{
+class PeachblossomcodexParser extends Parser {
     constructor() {
         super();
     }

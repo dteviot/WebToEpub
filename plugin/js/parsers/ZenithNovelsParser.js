@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("zenithnovels.com", function() { return new ZenithNovelsParser() });
+parserFactory.register("zenithnovels.com", function() { return new ZenithNovelsParser(); });
 
 class ZenithNovelsParser extends WordpressBaseParser {
     constructor() {
@@ -14,7 +14,7 @@ class ZenithNovelsParser extends WordpressBaseParser {
             ZenithNovelsParser.getUrlsOfTocPages,
             chapterUrlsUI
         ).then(l => l.reverse());
-    };
+    }
 
     static getUrlsOfTocPages(dom) {
         return [...dom.querySelectorAll("ul.lcp_paginator a:not(.lcp_nextlink)")]

@@ -2,7 +2,7 @@
 
 parserFactory.register("semprot.com", () => new SemprotParser());
 
-class SemprotParser extends Parser{
+class SemprotParser extends Parser {
     constructor() {
         super();
     }
@@ -14,7 +14,7 @@ class SemprotParser extends Parser{
         let baseUri = dom.baseURI;
         let chapters = [this.makeChapter(baseUri, "1")];
         let max = this.lastThreadPageNum(dom);
-        for(let i = 2; i <= max; ++i) {
+        for (let i = 2; i <= max; ++i) {
             chapters.push(this.makeChapter(baseUri, i));
         }
         return chapters;
@@ -31,7 +31,7 @@ class SemprotParser extends Parser{
         return {
             sourceUrl:  `${baseUrl}page-${pageNum}`,
             title: `${pageNum}`
-        }
+        };
     }
 
     findContent(dom) {
@@ -51,7 +51,7 @@ class SemprotParser extends Parser{
 
     preprocessRawDom(webPageDom) {
         let articles = [...webPageDom.querySelectorAll("article.message")];
-        for(let article of articles) {
+        for (let article of articles) {
             if (article.getAttribute("data-author") !== SemprotParser.author) {
                 article.remove();
             } else {

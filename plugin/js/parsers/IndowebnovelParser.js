@@ -2,7 +2,7 @@
 
 parserFactory.register("indowebnovel.id", () => new IndowebnovelParser());
 
-class IndowebnovelParser extends Parser{
+class IndowebnovelParser extends Parser {
     constructor() {
         super();
     }

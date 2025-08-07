@@ -2,7 +2,7 @@
 
 parserFactory.register("noveltoon.mobi", () => new NoveltoonParser());
 
-class NoveltoonParser extends Parser{
+class NoveltoonParser extends Parser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("trxs.me", () => new TrxsParser());
 
-class TrxsParser extends Parser{
+class TrxsParser extends Parser {
     constructor() {
         super();
     }

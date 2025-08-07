@@ -2,7 +2,7 @@
 
 parserFactory.register("spiritfanfiction.com", () => new SpiritfanfictionParser());
 
-class SpiritfanfictionParser extends Parser{
+class SpiritfanfictionParser extends Parser {
     constructor() {
         super();
     }

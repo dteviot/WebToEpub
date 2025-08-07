@@ -3,7 +3,7 @@
 parserFactory.register("botitranslation.com", () => new BotitranslationParser());
 parserFactory.register("mystorywave.com", () => new BotitranslationParser());
 
-class BotitranslationParser extends Parser{
+class BotitranslationParser extends Parser {
     constructor() {
         super();
     }

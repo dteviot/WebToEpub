@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("wnmtl.org", () => new WnmtlOrgParser());
 
-class WnmtlOrgParser extends Parser{
+class WnmtlOrgParser extends Parser {
     constructor() {
         super();
     }
@@ -13,7 +13,7 @@ class WnmtlOrgParser extends Parser{
         let tocUrl = this.makeTocUrl(bookId, 1);
         let data = (await HttpClient.fetchJson(tocUrl)).json.data;
         let chapters = this.extractPartialChapterListFromJson(data);
-        for(let url of this.makeUrlsOfTocPages(bookId, data.totalPages)) {
+        for (let url of this.makeUrlsOfTocPages(bookId, data.totalPages)) {
             data = (await HttpClient.fetchJson(url)).json.data;
             let partialList = this.extractPartialChapterListFromJson(data);
             chapterUrlsUI.showTocProgress(partialList);
@@ -33,7 +33,7 @@ class WnmtlOrgParser extends Parser{
 
     makeUrlsOfTocPages(bookId, totalPages) {
         let urls = [];
-        for(let page = 2; page <= totalPages; ++page) {
+        for (let page = 2; page <= totalPages; ++page) {
             urls.push(this.makeTocUrl(bookId, page));
         }
         return urls;
@@ -85,7 +85,7 @@ class WnmtlOrgParser extends Parser{
             .filter(p => !util.isNullOrEmpty(p));
         for (let text of paragraphs) {
             let p = newDoc.dom.createElement("p");
-            p.appendChild(newDoc.dom.createTextNode(text))
+            p.appendChild(newDoc.dom.createTextNode(text));
             newDoc.content.appendChild(p);
         }
         return newDoc.dom;

@@ -5,7 +5,7 @@
 
 parserFactory.register("webnovel.com", () => new QidianParser());
 
-class QidianParser extends Parser{
+class QidianParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 50; //Minimal delay to reduce frequency of 445 errors.
@@ -26,7 +26,7 @@ class QidianParser extends Parser{
             links = Array.from(dom.querySelectorAll("div.volume-item ol a"));
         }
         return links.map(QidianParser.linkToChapter);
-    };
+    }
 
     static isLinkLocked(link) {
         let img = link.querySelector("svg > use");
@@ -53,7 +53,7 @@ class QidianParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div.chapter_content");
-    };
+    }
 
     preprocessRawDom(webPage) {
         if (this.ChacheChapterTitle.size == 0) {
@@ -72,11 +72,11 @@ class QidianParser extends Parser{
         content = webPage.createElement("div");
         content.className = "chapter_content";
         webPage.body.appendChild(content);
-        this.addHeader(webPage, content, json.chapterInfo.chapterName)
-        for(let c of json.chapterInfo?.contents?json.chapterInfo.contents:[]) {
+        this.addHeader(webPage, content, json.chapterInfo.chapterName);
+        for (let c of json.chapterInfo?.contents?json.chapterInfo.contents:[]) {
             this.addParagraph(webPage, content, c.content);
         }
-        for(let c of json.chapterInfo?.chapterPage?json.chapterInfo.chapterPage:[]) {
+        for (let c of json.chapterInfo?.chapterPage?json.chapterInfo.chapterPage:[]) {
             this.addComicPage(webPage, content, c.url);
         }
         if (!this.userPreferences.removeAuthorNotes.value) {
@@ -87,8 +87,8 @@ class QidianParser extends Parser{
                 this.addParagraph(webPage, container, notes);
             }
         }
-        for(let e of [...webPage.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
-            e.remove()
+        for (let e of [...webPage.querySelectorAll("div.j_bottom_comment_area, div.user-links-wrap, div.g_ad_ph")]) {
+            e.remove();
         }
     }
 
@@ -102,7 +102,7 @@ class QidianParser extends Parser{
         if (tmptitle == undefined || tmptitle == "[placeholder]") {
             let titleEl = content.querySelector("div.chapter_content h1");
             let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+):\\s*\\1:?(.*)", "i").exec(titleEl.textContent);
-            if (titleDupChapRegex && titleDupChapRegex.length > 2){
+            if (titleDupChapRegex && titleDupChapRegex.length > 2) {
                 let newtitleText = document.createTextNode(titleDupChapRegex[1] + titleDupChapRegex[2]);
                 newtitlenode.appendChild(newtitleText);
                 titleEl.replaceWith(newtitlenode);
@@ -191,7 +191,7 @@ class QidianParser extends Parser{
     extractTitleImpl(dom) {
         let title = dom.querySelector("div.chapter_content h1");
         return title;
-    };
+    }
 
     extractAuthor(dom) {
         return dom.querySelector("a.c_primary")?.textContent ?? super.extractAuthor(dom);

@@ -2,7 +2,7 @@
 
 parserFactory.register("sexstories.com", () => new SexStoriesParser());
 
-class SexStoriesParser extends Parser{
+class SexStoriesParser extends Parser {
     constructor() {
         super();
     }

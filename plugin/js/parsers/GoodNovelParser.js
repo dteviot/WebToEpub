@@ -2,7 +2,7 @@
 
 parserFactory.register("goodnovel.com", () => new GoodNovelParser());
 
-class GoodNovelParser extends Parser{
+class GoodNovelParser extends Parser {
     constructor() {
         super();
     }
@@ -17,7 +17,7 @@ class GoodNovelParser extends Parser{
             this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI));
     }
 
-    static extractBookID(dom){
+    static extractBookID(dom) {
         let url = dom.baseURI;
         let retid = null;
         retid = url.match(new RegExp("_[0-9]+$"))?.[0].match(new RegExp("[0-9]+$"))?.[0];
@@ -31,7 +31,7 @@ class GoodNovelParser extends Parser{
     static extractTocPageUrls(dom, baseUrl) {
         let max = GoodNovelParser.extractMaxToc(dom);
         let tocUrls = [];
-        for(let i = 1; i <= max; ++i) {
+        for (let i = 1; i <= max; ++i) {
             tocUrls.push(`${baseUrl}${i}`);
         }
         return tocUrls;
@@ -46,7 +46,7 @@ class GoodNovelParser extends Parser{
     extractPartialChapterList(dom) {
         let ChapterlistNodes = dom.querySelectorAll(".catalog>div.catalog-box");
         let Chapterlist = [];
-        for(let element of ChapterlistNodes){
+        for (let element of ChapterlistNodes) {
             Chapterlist.push(GoodNovelParser.hyperLinkToChapter(element));
         }
         return Chapterlist;
@@ -61,7 +61,7 @@ class GoodNovelParser extends Parser{
         };
     }
     
-    static isLinkLocked(link){
+    static isLinkLocked(link) {
         return (link.querySelector(".cat-lock") == null) ? true : false;
     }
 

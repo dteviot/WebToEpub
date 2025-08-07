@@ -2,7 +2,7 @@
 
 parserFactory.register("raeitranslations.com", () => new RaeitranslationsParser());
 
-class RaeitranslationsParser extends Parser{
+class RaeitranslationsParser extends Parser {
     constructor() {
         super();
     }
@@ -52,7 +52,7 @@ class RaeitranslationsParser extends Parser{
     buildHtml(json) {
         let paragraphs = json.body.replace(/\n/g, "</p><p>");
         let html = `<div><h1>${json.chapTitle}</h1><p>${paragraphs}</p></div>`;
-        let doc = util.sanitize(html, "text/html")
+        let doc = util.sanitize(html, "text/html");
         return doc.querySelector("div");
     }
 

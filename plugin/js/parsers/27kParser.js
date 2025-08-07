@@ -2,7 +2,7 @@
 
 parserFactory.register("27k.net", () => new _27kParser());
 
-class _27kParser extends Parser{
+class _27kParser extends Parser {
     constructor() {
         super();
     }

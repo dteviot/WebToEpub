@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("novelingua.com", function() { return new NovelinguaParser() });
+parserFactory.register("novelingua.com", function() { return new NovelinguaParser(); });
 
 class NovelinguaParser extends Parser {
     constructor() {
@@ -52,7 +52,7 @@ class NovelinguaParser extends Parser {
         util.removeElements(element.querySelectorAll(
             "style, .pagelayer-btn-holder, .pagelayer-share, .pagelayer-image_slider, .pagelayer-embed"));
         super.removeUnwantedElementsFromContentElement(element);
-    };
+    }
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll(".entry-content .pagelayer-text-holder")];

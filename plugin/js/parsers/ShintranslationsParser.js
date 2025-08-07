@@ -2,7 +2,7 @@
 
 parserFactory.register("shintranslations.com", () => new ShintranslationsParser());
 
-class ShintranslationsParser extends Parser{
+class ShintranslationsParser extends Parser {
     constructor() {
         super();
     }

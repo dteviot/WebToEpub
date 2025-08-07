@@ -4,7 +4,7 @@ parserFactory.register("ranobes.net", () => new RanobesNetParser());
 parserFactory.register("ranobes.top", () => new RanobesParser());
 parserFactory.register("ranobes.com", () => new RanobesParser());
 
-class RanobesParser extends Parser{
+class RanobesParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 2000;
@@ -25,7 +25,7 @@ class RanobesParser extends Parser{
         }
         let options = {
             parser: this
-        }
+        };
         let tocDom = (await HttpClient.wrapFetch(tocUrl, options)).responseXML;
         let urlsOfTocPages = RanobesParser.extractTocPageUrls(tocDom, tocUrl);
         return (await this.getChaptersFromAllTocPages(chapters, 
@@ -35,7 +35,7 @@ class RanobesParser extends Parser{
     static extractTocPageUrls(dom, baseUrl) {
         let max = RanobesParser.extractTocJson(dom)?.pages_count ?? 0;
         let tocUrls = [];
-        for(let i = 1; i <= max; ++i) {
+        for (let i = 1; i <= max; ++i) {
             tocUrls.push(`${baseUrl}page/${i}/`);
         }
         return tocUrls;
@@ -54,7 +54,7 @@ class RanobesParser extends Parser{
             let linkElement = Math.max(...[...dom.querySelectorAll(".pages a")].map(a => parseInt(a.textContent)));
             return (Infinity == linkElement || -Infinity == linkElement)?
                 {chapters: [], pages_count: 0} 
-                : {chapters: [], pages_count: linkElement}
+                : {chapters: [], pages_count: linkElement};
         }   
     }
 
@@ -108,7 +108,7 @@ class RanobesParser extends Parser{
     }    
 }
 
-class RanobesNetParser extends RanobesParser{
+class RanobesNetParser extends RanobesParser {
     constructor() {
         super();
         this.minimumThrottle = 8000;
@@ -117,18 +117,18 @@ class RanobesNetParser extends RanobesParser{
     async fetchChapter(url) {
         let options = {
             parser: this
-        }
+        };
         return (await HttpClient.wrapFetch(url, options)).responseXML;
     }
     
-    isCustomError(response){
+    isCustomError(response) {
         if (response.responseXML.title == "Just a moment...") {
             return true;
         }
         return false;
     }
 
-    setCustomErrorResponse(url, wrapOptions){
+    setCustomErrorResponse(url, wrapOptions) {
         let newresp = {};
         newresp.url = url;
         newresp.wrapOptions = wrapOptions;

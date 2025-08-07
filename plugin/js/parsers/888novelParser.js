@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("888novel.com", () => new _888novelParser());
 
-class _888novelParser extends Parser{
+class _888novelParser extends Parser {
     constructor() {
         super();
     }
@@ -14,7 +14,7 @@ class _888novelParser extends Parser{
             _888novelParser.getUrlsOfTocPages,
             chapterUrlsUI
         );
-    };
+    }
 
     static getUrlsOfTocPages(dom) {
         let pagination = dom.querySelector("ul.pagination");
@@ -28,7 +28,7 @@ class _888novelParser extends Parser{
                 let base = maxPageUrl.substring(0, index + 1);
                 let maxPage = parseInt(maxPageUrl.substring(index + 1).replace("#dsc", ""));
                 if (1 < maxPage) {
-                    for(let i = 2; i <= maxPage; ++i) {
+                    for (let i = 2; i <= maxPage; ++i) {
                         tocUrls.push(`${base}${i}/`);
                     }
                 }
@@ -60,7 +60,7 @@ class _888novelParser extends Parser{
 
     getInformationEpubItemChildNodes(dom) {
         let nodes = [...dom.querySelectorAll("div.tabs1")];
-        for(let n of nodes) {
+        for (let n of nodes) {
             n.setAttribute("style", null);
         }
         return nodes;

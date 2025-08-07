@@ -50,7 +50,7 @@ parserFactory.register("zinnovel.net", () => new NovelfullParser());
 
 parserFactory.registerManualSelect("NovelNext", () => new NovelfullParser());
 
-class NovelfullParser extends Parser{
+class NovelfullParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 1000;
@@ -61,7 +61,7 @@ class NovelfullParser extends Parser{
     // correct parser for the chapters
     // See: https://github.com/dteviot/WebToEpub/issues/1345
     async addParsersToPages(pagesToFetch) {
-        for(let page of pagesToFetch) {
+        for (let page of pagesToFetch) {
             page.parser = this;
         }
     }
@@ -72,7 +72,7 @@ class NovelfullParser extends Parser{
             this.getUrlsOfTocPages,
             chapterUrlsUI
         );
-    };
+    }
 
     getUrlsOfTocPages(dom) {
         let link = dom.querySelector("li.last a");
@@ -114,17 +114,17 @@ class NovelfullParser extends Parser{
     findContent(dom) {
         return dom.querySelector("#chr-content")
             || dom.querySelector("#chapter-content");
-    };
+    }
 
     // title of the story  (not to be confused with title of each chapter)
     extractTitleImpl(dom) {
         return dom.querySelector("h3.title");
-    };
+    }
 
     extractAuthor(dom) {
         let items = [...dom.querySelectorAll("ul.info-meta li")]
             .filter(u => u.querySelector("h3")?.textContent === "Author:")
-            .map(u => u.querySelector("a")?.textContent)
+            .map(u => u.querySelector("a")?.textContent);
         return 0 < items.length 
             ? items[0]
             : super.extractAuthor(dom);
@@ -151,7 +151,7 @@ class NovelfullParser extends Parser{
         if (watermark) {
             let paragraphs = [...dom.querySelectorAll("p")]
                 .filter(p => p.textContent.includes(watermark));
-            for(let p of paragraphs) {
+            for (let p of paragraphs) {
                 p.textContent = p.textContent.replace(watermark, "");
                 p.appendChild(this.makeSpanWithWatermark(dom, watermark));
             }
@@ -179,18 +179,18 @@ class NovelfullParser extends Parser{
     }
 }
 
-class Novel35Parser extends NovelfullParser{
+class Novel35Parser extends NovelfullParser {
     constructor() {
         super();
     }
 
     getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let paginateUrls = [...dom.querySelectorAll("ul.pagination li a:not([rel])")];
         if (0 < paginateUrls.length) {
             let url = new URL(paginateUrls.pop().href);
             let maxPage = url.searchParams.get("page");
-            for(let i = 2; i <= maxPage; ++i) {
+            for (let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("page", i);
                 urls.push(url.href);
             }
@@ -200,21 +200,21 @@ class Novel35Parser extends NovelfullParser{
 
     findContent(dom) {
         return dom.querySelector("div.chapter-content");
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
     }    
 }
 
-class NovelHyphenBinParser extends NovelfullParser{
+class NovelHyphenBinParser extends NovelfullParser {
     constructor() {
         super();
     }
 
     removeUnwantedElementsFromContentElement(element) {
         let marks = [...element.querySelectorAll(".novel_online, .unlock-buttons")];
-        for(let mark of marks) {
+        for (let mark of marks) {
             mark.nextSibling.nextSibling.remove();
             mark.remove();
         }
@@ -222,7 +222,7 @@ class NovelHyphenBinParser extends NovelfullParser{
     }
 }
 
-class NovelbinParser extends NovelfullParser{
+class NovelbinParser extends NovelfullParser {
     constructor() {
         super();
     }
@@ -234,7 +234,7 @@ class NovelbinParser extends NovelfullParser{
         let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId="+slug)).responseXML;
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".unlock-buttons");

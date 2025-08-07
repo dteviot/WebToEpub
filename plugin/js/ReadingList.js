@@ -7,7 +7,7 @@
  * Can't hold all URLs.  So just record last chapter for each story.
 */
 class ReadingList {
-    constructor () {
+    constructor() {
         this.epubs = new Map();
     }
 
@@ -23,7 +23,7 @@ class ReadingList {
     }
 
     tryDeleteEpubAndSave(url) {
-        if (this.getEpub(url)){
+        if (this.getEpub(url)) {
             this.deleteEpub(url);
             this.writeToLocalStorage();
             return true;
@@ -38,9 +38,9 @@ class ReadingList {
     deselectOldChapters(url, chapterList) {
         let oldUrl = this.epubs.get(url);
         if (oldUrl != null) {
-            for(let i = 0; i < chapterList.length; ++i) {
+            for (let i = 0; i < chapterList.length; ++i) {
                 if (oldUrl === chapterList[i].sourceUrl) {
-                    for(let j = 0; j <= i; ++j) {
+                    for (let j = 0; j <= i; ++j) {
                         chapterList[j].isIncludeable = false;
                         chapterList[j].previousDownload = true;
                     }
@@ -72,23 +72,23 @@ class ReadingList {
     }
 
     static replacer(key, value) {
-        switch(key) {
-        case "epubs":
-            return [...value].map(v => ({ toc: v[0], lastUrl: v[1] }));
-        default:
-            return value;
+        switch (key) {
+            case "epubs":
+                return [...value].map(v => ({ toc: v[0], lastUrl: v[1] }));
+            default:
+                return value;
         }
     }
 
     static reviver(key, value) {
-        switch(key) {
-        case "epubs":
-            return new Map([...value].map(ReadingList.reviveEpub));
-        case "history": {
-            return value[value.length - 1];
-        }
-        default:
-            return value;
+        switch (key) {
+            case "epubs":
+                return new Map([...value].map(ReadingList.reviveEpub));
+            case "history": {
+                return value[value.length - 1];
+            }
+            default:
+                return value;
         }
     }
 
@@ -130,7 +130,7 @@ class ReadingList {
 
     showReadingList(table) {
         util.removeChildElementsMatchingSelector(table, "tr");
-        for(let e of this.epubs.keys()) {
+        for (let e of this.epubs.keys()) {
             let row = document.createElement("tr");
             table.appendChild(row);
             let link = document.createElement("a");

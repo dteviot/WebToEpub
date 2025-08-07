@@ -2,7 +2,7 @@
 
 parserFactory.register("fimfiction.net", () => new FimfictionParser());
 
-class FimfictionParser extends Parser{
+class FimfictionParser extends Parser {
     constructor() {
         super();
     }

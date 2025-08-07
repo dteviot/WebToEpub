@@ -4,13 +4,13 @@
 
 "use strict";
 
-class ParserFactory{
+class ParserFactory {
     constructor() {
         this.parsers = new Map();
         this.parserRules = [];
         this.parserUrlRules = [];
         this.manualSelection = [];
-        this.registerManualSelect("", function() { return undefined });
+        this.registerManualSelect("", function() { return undefined; });
     }
 
     static isWebArchive(url) {
@@ -38,7 +38,7 @@ class ParserFactory{
             this.parsers.set(ParserFactory.stripLeadingWww(hostName), constructor);
         } else {
             throw new Error("Duplicate parser registered for hostName " + hostName);
-        };
+        }
     }
 
     reregister(hostName, constructor) {
@@ -47,7 +47,7 @@ class ParserFactory{
 
     registerManualSelect(name, constructor) {
         this.manualSelection.push({name, constructor});
-    };
+    }
 
     /*
     *  @param {function} test predicate that checks if parser can handle URL & DOM
@@ -115,14 +115,14 @@ class ParserFactory{
     populateManualParserSelectionTag(selectTag) {
         let options = selectTag.options;
         if (options.length === 0) {
-            for(let p of this.manualSelection) {
+            for (let p of this.manualSelection) {
                 options.add(new Option(p.name));
             }
         }
     }
 
     manuallySelectParser(parserName) {
-        for(let m of this.manualSelection) {
+        for (let m of this.manualSelection) {
             if (m.name === parserName) {
                 return m.constructor();
             }
@@ -130,10 +130,10 @@ class ParserFactory{
     }
 
     async addParsersToPages(initialParser, webPages) {
-        let pagesByHost = new Map()
+        let pagesByHost = new Map();
         let initialUrl = initialParser.state.chapterListUrl;
         let initialHostName = ParserFactory.hostNameForParserSelection(initialUrl);
-        for(let page of webPages) {
+        for (let page of webPages) {
             let key = ParserFactory.hostNameForParserSelection(page.sourceUrl);
             if (key === initialHostName) {
                 page.parser = initialParser;
@@ -147,7 +147,7 @@ class ParserFactory{
             pages.push(page);
         }
 
-        for(let pair of pagesByHost) {
+        for (let pair of pagesByHost) {
             await this.assignParserToPages(pair[1], initialParser);
         }
     }
@@ -164,7 +164,7 @@ class ParserFactory{
 
     static copyParserToPages(parser, webPages, initialParser) {
         parser.copyState(initialParser);
-        for(let page of webPages) {
+        for (let page of webPages) {
             page.parser = parser;
         }
     }

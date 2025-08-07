@@ -3,10 +3,10 @@
 */
 "use strict";
 
-parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser() });
+parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser(); });
 
 // fictionpress.com has same format as fanfiction.net
-parserFactory.register("www.fictionpress.com", function() { return new FanFictionParser() });
+parserFactory.register("www.fictionpress.com", function() { return new FanFictionParser(); });
 
 class FanFictionParser extends Parser {
     constructor() {
@@ -24,7 +24,7 @@ class FanFictionParser extends Parser {
     }
 
     getOptions(dom) {
-        return [...dom.querySelectorAll("select#chap_select option")]
+        return [...dom.querySelectorAll("select#chap_select option")];
     }
 
     optionToChapterInfo(baseUrl, optionElement) {
@@ -58,7 +58,7 @@ class FanFictionParser extends Parser {
 
     async fetchChapter(url) {
         let dom = await super.fetchChapter(url);
-        this.addTitleToChapter(url, dom)
+        this.addTitleToChapter(url, dom);
         return dom;
     }
 
@@ -68,11 +68,11 @@ class FanFictionParser extends Parser {
         {
             return await super.fetchWebPageContent(webPage);
         }
-        catch(ex)
+        catch (ex)
         {
             //Determine if path contains extra parameters. Immediately fail if already shortened.
             //Shortened URI is not always ideal solution; apparently related to caching on server. 
-            let regex = /(https?:\/\/(?:www\.)?\w+\.\w+\/s\/\d+\/\d+\/)[a-z\-0-9]+/i
+            let regex = /(https?:\/\/(?:www\.)?\w+\.\w+\/s\/\d+\/\d+\/)[a-z\-0-9]+/i;
             let shortUri = regex.exec(webPage.sourceUrl);
             if (shortUri)
             {
@@ -103,10 +103,10 @@ class FanFictionParser extends Parser {
     addTitleToChapter(url, dom) {
         let path = url.split("/");
         let chapterId = path[path.length - 2];
-        for(let option of this.getOptions(dom)) {
+        for (let option of this.getOptions(dom)) {
             if (chapterId === option.getAttribute("value")) {
                 let title = dom.createElement("H1");
-                title.appendChild(dom.createTextNode(option.textContent))
+                title.appendChild(dom.createTextNode(option.textContent));
                 let content = this.findContent(dom);
                 content.insertBefore(title, content.firstChild);
                 break;
@@ -115,21 +115,21 @@ class FanFictionParser extends Parser {
     }
 
     populateInfoDiv(infoDiv, dom) {
-        for(let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
+        for (let n of this.getInformationEpubItemChildNodes(dom).filter(n => n != null)) {
             let clone = util.sanitizeNode(n);
             this.cleanInformationNode(clone);
             if (clone != null) {
                 // convert dates to avoid '19hours ago'
-                for(let s of clone.querySelectorAll("span[data-xutime]")) {
+                for (let s of clone.querySelectorAll("span[data-xutime]")) {
                     let time = new Date(1000*s.getAttribute("data-xutime"));
                     s.textContent = time.toLocaleString();
                 }
                 // fix relative url links.
-                for(let a of clone.querySelectorAll("a[href]")) {
-                    a.href = new URL(a["href"], dom.baseURI).href
+                for (let a of clone.querySelectorAll("a[href]")) {
+                    a.href = new URL(a["href"], dom.baseURI).href;
                 }
                 // Fix for > from CSS
-                for(let s of clone.querySelectorAll("span.icon-chevron-right")) {
+                for (let s of clone.querySelectorAll("span.icon-chevron-right")) {
                     s.textContent = " > ";
                 }
                 infoDiv.appendChild(clone);

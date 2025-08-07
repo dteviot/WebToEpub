@@ -85,37 +85,37 @@ class FetchErrorHandler {
     static getAutomaticRetryBehaviourForStatus(response) {
         // seconds to wait before each retry (note: order is reversed)
         let retryDelay = [120, 60, 30, 15];
-        switch(response.status) {
-        case 403:
-            return {retryDelay: [1], promptUser: true, HTTP: 403};
-        case 429:
-            FetchErrorHandler.show429Error(response);
-            return {retryDelay: retryDelay, promptUser: true};
-        case 445:
+        switch (response.status) {
+            case 403:
+                return {retryDelay: [1], promptUser: true, HTTP: 403};
+            case 429:
+                FetchErrorHandler.show429Error(response);
+                return {retryDelay: retryDelay, promptUser: true};
+            case 445:
             //Random Unique exception thrown on Webnovel/Qidian. Not part of w3 spec.
-            return {retryDelay: retryDelay, promptUser: false};
-        case 509:
+                return {retryDelay: retryDelay, promptUser: false};
+            case 509:
             // server asked for rate limiting
-            return {retryDelay: retryDelay, promptUser: true};
-        case 500:
+                return {retryDelay: retryDelay, promptUser: true};
+            case 500:
             // is fault at server, retry might clear
-            return {retryDelay: retryDelay, promptUser: false};
-        case 502: 
-        case 503: 
-        case 504:
-        case 520:
-        case 522:
+                return {retryDelay: retryDelay, promptUser: false};
+            case 502: 
+            case 503: 
+            case 504:
+            case 520:
+            case 522:
             // intermittant fault
-            return {retryDelay: retryDelay, promptUser: true};
-        case 524:
+                return {retryDelay: retryDelay, promptUser: true};
+            case 524:
             // claudflare random error
-            return {retryDelay: [1], promptUser: true};
-        case 999:
+                return {retryDelay: [1], promptUser: true};
+            case 999:
             // custom WebToEpub error (some api's fail and a few seconds later it is a success)
-            return {retryDelay: response.retryDelay, promptUser: false};
-        default:
+                return {retryDelay: response.retryDelay, promptUser: false};
+            default:
             // it's dead Jim
-            return {retryDelay: [], promptUser: false};
+                return {retryDelay: [], promptUser: false};
         }
     }
 
@@ -129,7 +129,7 @@ class FetchErrorHandler {
 }
 FetchErrorHandler.rateLimitedHosts = new Set();
 
-class FetchImageErrorHandler extends FetchErrorHandler{
+class FetchImageErrorHandler extends FetchErrorHandler {
     constructor(parentPageUrl) {
         super();
         this.parentPageUrl = parentPageUrl;
@@ -156,7 +156,7 @@ class HttpClient {
         if (wrapOptions == null) {
             wrapOptions = {
                 errorHandler: new FetchErrorHandler()
-            }
+            };
         }
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
@@ -222,7 +222,7 @@ class HttpClient {
     }
 
     static checkResponseAndGetData(url, wrapOptions, response) {
-        if(!response.ok) {
+        if (!response.ok) {
             return wrapOptions.errorHandler.onResponseError(url, wrapOptions, response);
         } else {
             let handler = wrapOptions.responseHandler;
@@ -231,7 +231,7 @@ class HttpClient {
         }
     }
 
-    static async setDeclarativeNetRequestRules(RulesArray){
+    static async setDeclarativeNetRequestRules(RulesArray) {
         let url = chrome.runtime.getURL("").split("/").filter(a => a != "");
         let id = url[url.length - 1];
         for (let i = 0; i < RulesArray.length; i++) {
@@ -266,7 +266,7 @@ class HttpClient {
             let cookies = "";
             if (!util.isFirefox()) {
                 cookies = await chrome.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
-            }else{
+            } else {
                 cookies = await browser.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
             }
             cookies = cookies.filter(item => item.partitionKey != undefined);

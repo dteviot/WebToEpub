@@ -5,7 +5,7 @@ parserFactory.registerUrlRule(
     () => new FoxaholicParser()
 );
 
-class FoxaholicParser extends WordpressBaseParser{
+class FoxaholicParser extends WordpressBaseParser {
     constructor() {
         super();
     }

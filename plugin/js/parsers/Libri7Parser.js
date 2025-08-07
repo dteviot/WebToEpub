@@ -2,7 +2,7 @@
 
 parserFactory.register("libri7.com", () => new Libri7Parser());
 
-class Libri7Parser extends Parser{
+class Libri7Parser extends Parser {
     constructor() {
         super();
     }

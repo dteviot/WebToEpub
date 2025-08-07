@@ -2,7 +2,7 @@
 
 parserFactory.register("readnovelmtl.com", () => new ReadnovelmtlParser());
 
-class ReadnovelmtlParser extends Parser{
+class ReadnovelmtlParser extends Parser {
     constructor() {
         super();
     }

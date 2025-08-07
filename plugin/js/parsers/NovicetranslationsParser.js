@@ -1,6 +1,6 @@
 "use strict";
 parserFactory.register("novicetranslations.com", () => new NovicetranslationsParser());
-class NovicetranslationsParser extends WordpressBaseParser{
+class NovicetranslationsParser extends WordpressBaseParser {
     constructor() {
         super();
     }

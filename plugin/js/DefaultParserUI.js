@@ -11,7 +11,7 @@ class DefaultParserSiteSettings {
         let config = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
         this.configs = new Map();
         if (config != null) {
-            for(let e of JSON.parse(config)) {
+            for (let e of JSON.parse(config)) {
                 let selectors = e[1];
                 if (DefaultParserSiteSettings.isConfigValid(selectors)) {
                     this.configs.set(e[0], selectors);
@@ -59,7 +59,7 @@ class DefaultParserSiteSettings {
             findContent: dom => dom.querySelector("body"),
             findChapterTitle: () => null,
             removeUnwanted: () => null
-        }
+        };
         let config = this.getConfigForSite(hostname);
         if (config != null) {
             logic.findContent = dom => dom.querySelector(config.contentCss);
@@ -70,9 +70,9 @@ class DefaultParserSiteSettings {
             if (!util.isNullOrEmpty(config.removeCss))
             {
                 logic.removeUnwanted = function(element) {
-                    for(let e of element.querySelectorAll(config.removeCss)) {
+                    for (let e of element.querySelectorAll(config.removeCss)) {
                         e.remove();
-                    };
+                    }
                 };
             }
         }
@@ -89,13 +89,13 @@ class DefaultParserUI {
     static setupDefaultParserUI(hostname, parser) {
         DefaultParserUI.copyInstructions();
         DefaultParserUI.setDefaultParserUiVisibility(true);
-        DefaultParserUI.populateDefaultParserUI(hostname, parser)
+        DefaultParserUI.populateDefaultParserUI(hostname, parser);
         document.getElementById("testDefaultParserButton").onclick = DefaultParserUI.testDefaultParser.bind(null, parser);
         document.getElementById("finisheddefaultParserButton").onclick = DefaultParserUI.onFinishedClicked.bind(null, parser);
     }
 
     static onFinishedClicked(parser) {
-        DefaultParserUI.AddConfiguration(parser)
+        DefaultParserUI.AddConfiguration(parser);
         DefaultParserUI.setDefaultParserUiVisibility(false);
     }
 
@@ -146,18 +146,18 @@ class DefaultParserUI {
             alert(chrome.i18n.getMessage("warningNoChapterUrl"));
             return;
         }
-        return HttpClient.wrapFetch(config.testUrl).then(function (xhr) {
+        return HttpClient.wrapFetch(config.testUrl).then(function(xhr) {
             let webPage = { rawDom: util.sanitize(xhr.responseXML.querySelector("*")) };
             util.setBaseTag(config.testUrl, webPage.rawDom);
             let content = parser.findContent(webPage.rawDom);
             if (content === null) {
                 let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [config.testUrl]);
                 throw new Error(errorMsg);
-            };
+            }
             parser.removeUnwantedElementsFromContentElement(content);
             parser.addTitleToContent(webPage, content);
             DefaultParserUI.showResult(content);
-        }).catch(function (err) {
+        }).catch(function(err) {
             ErrorLog.showErrorMessage(err);
         });
     }

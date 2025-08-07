@@ -2,7 +2,7 @@
 
 parserFactory.register("sites.google.com", () => new SitesGoogleParser());
 
-class SitesGoogleParser extends Parser{
+class SitesGoogleParser extends Parser {
     constructor() {
         super();
     }

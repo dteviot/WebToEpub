@@ -2,7 +2,7 @@
 
 parserFactory.register("secondlifetranslations.com", () => new SecondlifetranslationsParser());
 
-class SecondlifetranslationsParser extends Parser{
+class SecondlifetranslationsParser extends Parser {
     constructor() {
         super();
     }

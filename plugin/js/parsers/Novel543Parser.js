@@ -2,13 +2,16 @@
 
 parserFactory.register("novel543.com", () => new Novel543Parser());
 
-class Novel543Parser extends Parser{
+class Novel543Parser extends Parser {
     constructor() {
         super();
     }
 
     async getChapterUrls(dom) {
-        let tocUrl = dom.baseURI + "dir";
+        let tocUrl = dom.baseURI;
+        tocUrl += tocUrl.endsWith("/")
+            ? "dir"
+            : "/dir";
         let nextDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
         let menu = nextDom.querySelector("div.chaplist ul:nth-of-type(2)");
         return util.hyperlinksToChapterList(menu);

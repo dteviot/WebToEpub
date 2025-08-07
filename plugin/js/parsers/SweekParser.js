@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("sweek.com", () => new SweekParser());
 
-class SweekParser extends Parser{
+class SweekParser extends Parser {
     constructor() {
         super();
     }
@@ -36,7 +36,7 @@ class SweekParser extends Parser{
         return ({
             sourceUrl:  firstUrl + "/" + json.id + "/" + json.device,
             title: json.title,
-        })
+        });
     }
 
     findReadUrl(dom) {

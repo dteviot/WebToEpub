@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("kakuyomu.jp", () => new KakuyomuParser());
 
-class KakuyomuParser extends Parser{
+class KakuyomuParser extends Parser {
     constructor() {
         super();
     }
@@ -16,8 +16,8 @@ class KakuyomuParser extends Parser{
         let script = dom.querySelector("script#__NEXT_DATA__").innerHTML;
         let json = JSON.parse(script).props.pageProps.__APOLLO_STATE__;
         let work = json["Work:" + this.extractWorkId(dom)];
-        let chapters = []
-        for(let tocc of work.tableOfContents) {
+        let chapters = [];
+        for (let tocc of work.tableOfContents) {
             this.buildSubToc(chapters, json[tocc.__ref], json, dom.baseURI);
         }
         return chapters;
@@ -31,7 +31,7 @@ class KakuyomuParser extends Parser{
 
     buildSubToc(chapters, tocc, json, baseURI) {
         let arcStartIndex = chapters.length;
-        for(let episoderef of tocc.episodeUnions) {
+        for (let episoderef of tocc.episodeUnions) {
             let episode = this.buildEpisode(json[episoderef.__ref], baseURI);
             chapters.push(episode);
         }

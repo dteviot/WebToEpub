@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("boxnovel.org", () => new BoxnovelOrgParser());
 
-class BoxnovelOrgParser extends Parser{
+class BoxnovelOrgParser extends Parser {
     constructor() {
         super();
     }
@@ -24,14 +24,14 @@ class BoxnovelOrgParser extends Parser{
     }
 
     static getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let paginateUrls = [...dom.querySelectorAll("ul.pagination li a:not([rel])")];
         if (0 < paginateUrls.length) {
             let lastUrl = paginateUrls.pop().href;
             let index = lastUrl.lastIndexOf("=");
             let maxPage = parseInt(lastUrl.substring(index + 1));
-            let prefix = lastUrl.substring(0, index + 1)
-            for(let i = 2; i <= maxPage; ++i) {
+            let prefix = lastUrl.substring(0, index + 1);
+            for (let i = 2; i <= maxPage; ++i) {
                 urls.push(`${prefix}${i}`);
             }
         }

@@ -2,7 +2,7 @@
 
 parserFactory.register("bookswithqianya.com", () => new BookswithqianyaParser());
 
-class BookswithqianyaParser extends WordpressBaseParser{
+class BookswithqianyaParser extends WordpressBaseParser {
     constructor() {
         super();
     }
