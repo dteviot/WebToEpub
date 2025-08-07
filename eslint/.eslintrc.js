@@ -42,5 +42,6 @@ module.exports = {
     },
     "globals": {
         "zip": "readable",
+        "DOMPurify": "readonly",
     }
 };
