@@ -82,7 +82,7 @@ class DefaultParserSiteSettings {
 DefaultParserSiteSettings.storageName = "DefaultParserConfigs";
 
 /** Class that handles UI for configuring the Default Parser */
-class DefaultParserUI {
+class DefaultParserUI { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

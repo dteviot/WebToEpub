@@ -77,7 +77,7 @@ class StringUserPreference extends UserPreference {
 }
 
 /** The collection of all preferences for user  */
-class UserPreferences {
+class UserPreferences { // eslint-disable-line no-unused-vars
     constructor() {
         this.preferences = [];
         this.addPreference("removeDuplicateImages", "removeDuplicateImages", false);

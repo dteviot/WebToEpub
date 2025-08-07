@@ -3,7 +3,7 @@
 
 
 /** Functions to help debugging.  Not included in release product */
-class DebugUtil {
+class DebugUtil { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

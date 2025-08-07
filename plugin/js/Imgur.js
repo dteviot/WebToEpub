@@ -3,7 +3,7 @@
 */
 "use strict";
 
-class Imgur {
+class Imgur { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

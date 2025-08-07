@@ -1,7 +1,7 @@
 "use strict";
 
 /** Class that handles UI for selecting cover image */
-class CoverImageUI {
+class CoverImageUI { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

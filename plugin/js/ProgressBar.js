@@ -4,7 +4,7 @@
 /**
    Code to manipulate the Progress Bar on the UI 
 */
-class ProgressBar {
+class ProgressBar { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

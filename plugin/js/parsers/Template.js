@@ -25,7 +25,7 @@ parserFactory.registerRule(
 );
 */
 
-class TemplateParser extends Parser {
+class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
     constructor() {
         super();
         //Optional Parameters:

@@ -5,7 +5,7 @@
 
 var LibFileReader = new FileReader();
 
-class Library {
+class Library { // eslint-disable-line no-unused-vars
     constructor() {
     }
     
