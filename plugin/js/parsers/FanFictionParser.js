@@ -157,7 +157,7 @@ class FanFictionParser extends Parser {
     extractSubject(dom) {
         let tags = [...dom.querySelector("#profile_top  span.xgray").childNodes].filter(a => a.nodeName == "#text")[1].textContent;
         let regex = new RegExp(/( - Chapters: .*)|( - Words: .*)/);
-        tags = tags.replace(regex, "").replaceAll(" - ", ", ").split(",");
+        tags = tags.replace(regex, "").replaceAll(",", ";").replaceAll(" - ", ", ").split(",");
         return tags.map(e => e.trim()).filter(a => a != "").join(", ");
     }
 
