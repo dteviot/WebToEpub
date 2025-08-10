@@ -30,7 +30,7 @@ class MvlempyrParser extends Parser {
                     title: "[placeholder]",
                 });
             }
-            else{
+            else {
                 chapterList.push({
                     sourceUrl: link,
                     title: chapterTitles[i-1],

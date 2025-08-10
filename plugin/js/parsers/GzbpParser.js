@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("m.gzbpi.com", () => new GzbpParser());
 
-class GzbpParser extends Parser{
+class GzbpParser extends Parser {
     constructor() {
         super();
     }
@@ -15,13 +15,13 @@ class GzbpParser extends Parser{
             this.getChapterUrlsFromTocPage,
             this.nextTocPageUrl,
             chapterUrlsUI
-        ))
+        ));
     }
 
     getChapterUrlsFromTocPage(dom) {
         return [...dom.querySelectorAll("ul.fk li a")]
             .filter(a => a.href.includes("wapbook"))
-            .map(a => util.hyperLinkToChapter(a))
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     nextTocPageUrl(dom) {

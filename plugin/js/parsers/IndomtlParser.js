@@ -3,19 +3,19 @@
 //dead url/ parser
 parserFactory.register("indomtl.com", () => new IndomtlParser());
 
-class IndomtlParser extends Parser{
+class IndomtlParser extends Parser {
     constructor() {
         super();
     }
 
     async getChapterUrls(dom) {
-        let links = [...dom.querySelectorAll("div#panelchapterlist div[role='list'] a")]
+        let links = [...dom.querySelectorAll("div#panelchapterlist div[role='list'] a")];
         return links.map(IndomtlParser.linkToChapter).reverse();
     }
 
     static linkToChapter(link) {
         util.removeChildElementsMatchingSelector(link, "span.time");
-        return util.hyperLinkToChapter(link)
+        return util.hyperLinkToChapter(link);
     }
 
     findContent(dom) {

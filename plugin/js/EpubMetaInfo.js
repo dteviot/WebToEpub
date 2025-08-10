@@ -14,7 +14,7 @@
     <param name="seriesIndex" type="string">If book is part of series, has index of book in series.  null if not part of a series</param>
 */
 class EpubMetaInfo {
-    constructor () {
+    constructor() {
         this.uuid = chrome.i18n.getMessage("defaultUUID");
         this.title = chrome.i18n.getMessage("defaultTitle");
         this.author = chrome.i18n.getMessage("defaultAuthor");
@@ -189,11 +189,11 @@ class EpubMetaInfo {
         "}";
     }
 
-    static getEpubMetaAddInfo(dom, url, allTags){
+    static getEpubMetaAddInfo(dom, url, allTags) {
         let metaAddInfo = new EpubAddMetaInfo();
 
         //novelupdates
-        if (url.includes("novelupdates.com") == true){
+        if (url.includes("novelupdates.com") == true) {
             metaAddInfo.subject = EpubMetaInfo.addSubjectNovelupdate(dom, allTags);
             metaAddInfo.description = EpubMetaInfo.addDescriptionNovelupdate(dom);
             metaAddInfo.author = EpubMetaInfo.addAuthorNovelupdate(dom);
@@ -204,7 +204,7 @@ class EpubMetaInfo {
         return metaAddInfo;
     }
     
-    static addSubjectNovelupdate(dom, allTags){
+    static addSubjectNovelupdate(dom, allTags) {
         let selector = "#seriesgenre .genre";
         if (allTags) {
             selector += ", #showtags .genre";
@@ -212,11 +212,11 @@ class EpubMetaInfo {
         return EpubMetaInfo.buildSubjectFromTags(dom, selector);
     }
 
-    static addDescriptionNovelupdate(dom){
+    static addDescriptionNovelupdate(dom) {
         return dom.querySelector("#editdescription").textContent.replace(/\n+/g, "\n").replace(/\n/g, "\n\n");
     }
     
-    static addAuthorNovelupdate(dom){
+    static addAuthorNovelupdate(dom) {
         return dom.querySelector("#authtag").textContent;
     }
 
@@ -228,7 +228,7 @@ class EpubMetaInfo {
 
     static decensor(tag) {
         if (tag.includes("*")) {
-            for(let j = 0; j < EpubMetaInfo.decensorList.length; j += 2) {
+            for (let j = 0; j < EpubMetaInfo.decensorList.length; j += 2) {
                 let cyphertext = EpubMetaInfo.decensorList[j];
                 let cleartext = EpubMetaInfo.decensorList[j + 1];
                 if (tag.includes(cyphertext)) {
@@ -280,7 +280,7 @@ EpubMetaInfo.decensorList = [
     "Virg*n", "Virgin"];
 
 class EpubAddMetaInfo {
-    constructor () {
+    constructor() {
         this.subject = "";
         this.description = "";
         this.author = "";

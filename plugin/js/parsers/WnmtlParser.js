@@ -1,8 +1,8 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("wnmtl.com", function() { return new WnmtlParser() });
-class WnmtlParser extends Parser{
+parserFactory.register("wnmtl.com", function() { return new WnmtlParser(); });
+class WnmtlParser extends Parser {
     constructor() {
         super();
     }
@@ -12,17 +12,17 @@ class WnmtlParser extends Parser{
             .filter(link => link.parentElement.parentElement.className !== "text-mutedxxx")
             .map(link => util.hyperLinkToChapter(link));
         return Promise.resolve(items);
-    };
+    }
 
     findContent(dom) {
         util.removeElements(dom.querySelectorAll("div#ct div.article-social"));
         return dom.querySelector("div#ct");
-    };
+    }
 
     // title of the story  (not to be confused with title of each chapter)
     extractTitleImpl(dom) {
         return dom.querySelector("article header h2, article header h1");
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("h1.article-title");

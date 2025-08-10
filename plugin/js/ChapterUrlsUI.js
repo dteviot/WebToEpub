@@ -16,7 +16,7 @@ class ChapterUrlsUI {
 
         let formElement = document.getElementById("sbFiltersForm");
         if (formElement) {
-            document.getElementById("sbFiltersForm").onsubmit = function (event) {
+            document.getElementById("sbFiltersForm").onsubmit = function(event) {
                 event.preventDefault();
             };
         }
@@ -40,7 +40,7 @@ class ChapterUrlsUI {
         let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
-        chapters.forEach(function (chapter) {
+        chapters.forEach(function(chapter) {
             let row = document.createElement("tr");
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
@@ -58,7 +58,7 @@ class ChapterUrlsUI {
 
     showTocProgress(chapters) {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        chapters.forEach(function (chapter) {
+        chapters.forEach(function(chapter) {
             let row = document.createElement("tr");
             linksTable.appendChild(row);
             row.appendChild(document.createElement("td"));
@@ -136,7 +136,7 @@ class ChapterUrlsUI {
             let message = chrome.i18n.getMessage("__MSG_More_than_max_chapters_selected__", 
                 [selectedRows.length, max]);
             if (confirm(message) === false) {
-                for(let row of selectedRows.slice(max)) {
+                for (let row of selectedRows.slice(max)) {
                     ChapterUrlsUI.setRowCheckboxState(row, false);
                 }
             }
@@ -166,7 +166,7 @@ class ChapterUrlsUI {
         let endIndex = ChapterUrlsUI.selectionToRowIndex(ChapterUrlsUI.getRangeEndChapterSelect());
         let rc = new ChapterUrlsUI.RangeCalculator();
 
-        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
+        for (let row of ChapterUrlsUI.getTableRowsWithChapters()) {
             let inRange = rc.rowInRange(row);
             ChapterUrlsUI.setRowCheckboxState(row, rc.rowInRange(row));
             row.hidden = !inRange;
@@ -231,11 +231,11 @@ class ChapterUrlsUI {
 
     /** @private */
     static setAllUrlsSelectState(select) {
-        for(let row of ChapterUrlsUI.getTableRowsWithChapters()) {
+        for (let row of ChapterUrlsUI.getTableRowsWithChapters()) {
             ChapterUrlsUI.setRowCheckboxState(row, select);
             row.hidden = false;
         }
-        ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters()
+        ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
     }
 
     /** @private */
@@ -419,7 +419,7 @@ class ChapterUrlsUI {
     showHideChapterUrlsColumn() {
         let hidden = !document.getElementById("showChapterUrlsCheckbox").checked;
         let table = ChapterUrlsUI.getChapterUrlsTable();
-        for(let t of table.querySelectorAll("th:nth-of-type(3), td:nth-of-type(3)")) {
+        for (let t of table.querySelectorAll("th:nth-of-type(3), td:nth-of-type(3)")) {
             t.hidden = hidden;
         }
     }
@@ -449,7 +449,7 @@ class ChapterUrlsUI {
 
     chaptersToHTML(chapters) {
         let doc = util.sanitize("<html><head><title></title><body></body></html>");
-        for(let chapter of chapters.filter(c => c.isIncludeable)) {
+        for (let chapter of chapters.filter(c => c.isIncludeable)) {
             doc.body.appendChild(this.makeLink(doc, chapter));
             doc.body.appendChild(doc.createTextNode("\r"));
         }
@@ -467,7 +467,7 @@ class ChapterUrlsUI {
     static updateRange(startRowIndex, endRowIndex, state) {
         let direction = startRowIndex < endRowIndex ? 1 : -1;
         let linkTable = ChapterUrlsUI.getChapterUrlsTable();
-        for(let rowIndex = startRowIndex; rowIndex != endRowIndex; rowIndex += direction) {
+        for (let rowIndex = startRowIndex; rowIndex != endRowIndex; rowIndex += direction) {
             let row = linkTable.rows[rowIndex];
             ChapterUrlsUI.setRowCheckboxState(row, state);
         }
@@ -541,7 +541,7 @@ class ChapterUrlsUI {
                 .filter(key => constantTerms.indexOf(key) == -1 && filterTermsFrequency[key] > minFilterTermCount)
                 .map(key => ({ key: key, value: filterTermsFrequency[key] } ));
 
-            var calcValue = function (filterTerm) {
+            var calcValue = function(filterTerm) {
                 return filterTerm.value * filterTerm.key.length;
             };
 
@@ -625,13 +625,13 @@ class ChapterUrlsUI {
             el.id = checkboxId;
             el.value = 1;
             el.onclick = onClickEvent;
-            el.onchange = function(event){
+            el.onchange = function(event) {
                 if (event == undefined || event == null) {
                     return;
                 }
                 event.target.parentElement.nextElementSibling.firstChild.disabled = !event.target.checked;
                 ChapterUrlsUI.Filters.Filter();
-            }
+            };
             col.appendChild(el);
             row.appendChild(col);
             col = document.createElement("td");
@@ -685,7 +685,7 @@ class ChapterUrlsUI {
             retVal.setAttribute("width", "100%");
             return retVal;
         }
-    }
+    };
 }
 ChapterUrlsUI.RangeCalculator = class {
     constructor()
@@ -697,7 +697,7 @@ ChapterUrlsUI.RangeCalculator = class {
         let index = row.rowIndex;
         return (this.startIndex <= index) && (index <= this.endIndex);
     }
-}
+};
 
 
 
@@ -719,7 +719,7 @@ ChapterUrlsUI.TooltipForSate = [
     chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloaded__"),
     chrome.i18n.getMessage("__MSG_Tooltip_chapter_sleeping__"),
     chrome.i18n.getMessage("__MSG_Tooltip_chapter_previously_downloaded__")
-]
+];
 
 ChapterUrlsUI.lastSelectedRow = null;
 ChapterUrlsUI.ConsecutiveRowClicks = 0;

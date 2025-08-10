@@ -1,9 +1,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("mangallama.com", function() { return new MangalamaParser() });
+parserFactory.register("mangallama.com", function() { return new MangalamaParser(); });
 
-class MangalamaParser extends Parser{
+class MangalamaParser extends Parser {
     constructor() {
         super();
     }
@@ -11,15 +11,15 @@ class MangalamaParser extends Parser{
     getChapterUrls(dom) {
         let chaptersElement = dom.querySelector("table.table-striped");
         return Promise.resolve(util.hyperlinksToChapterList(chaptersElement).reverse());
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div#chapcontainer");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("div#titlecontainer").textContent;

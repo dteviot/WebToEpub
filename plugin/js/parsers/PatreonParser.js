@@ -2,7 +2,7 @@
 
 parserFactory.register("patreon.com", () => new PatreonParser());
 
-class PatreonParser extends Parser{
+class PatreonParser extends Parser {
     constructor() {
         super();
     }
@@ -11,7 +11,7 @@ class PatreonParser extends Parser{
         if (this.isCollectionList()) {
             return this.getCollectionLinks(dom);
         }
-        let cards = [...dom.querySelectorAll("div[data-tag='post-card']")]
+        let cards = [...dom.querySelectorAll("div[data-tag='post-card']")];
         return cards
             .filter(c => this.hasAccessableContent(c))
             .map(s => this.cardToChapter(s)).reverse();
@@ -65,7 +65,7 @@ class PatreonParser extends Parser{
             img.src = json.image.url;
             newDoc.content.append(img);
         }
-        let content =  "<div>" + json.content + "</div>"
+        let content =  "<div>" + json.content + "</div>";
         content = util.sanitize(content)
             .querySelector("div");
         newDoc.content.append(content);
@@ -102,7 +102,7 @@ class PatreonParser extends Parser{
 
 
     extractCollectionCover(dom) {
-        let divsWithPicutres = dom.querySelectorAll("div[src]")
+        let divsWithPicutres = dom.querySelectorAll("div[src]");
         if (divsWithPicutres.length == 0) {
             return null;
         }

@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("machine-translation.org", () => new MachineTranslationParser());
 
-class MachineTranslationParser extends Parser{
+class MachineTranslationParser extends Parser {
     constructor() {
         super();
     }

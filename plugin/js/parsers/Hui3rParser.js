@@ -2,7 +2,7 @@
 
 parserFactory.register("hui3r.wordpress.com", () => new Hui3rParser());
 
-class Hui3rParser extends WordpressBaseParser{
+class Hui3rParser extends WordpressBaseParser {
     constructor() {
         super();
     }

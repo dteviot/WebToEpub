@@ -2,7 +2,7 @@
 
 parserFactory.register("readnovelfull.org", () => new ReadnovelfullorgParser());
 
-class ReadnovelfullorgParser extends Parser{
+class ReadnovelfullorgParser extends Parser {
     constructor() {
         super();
     }

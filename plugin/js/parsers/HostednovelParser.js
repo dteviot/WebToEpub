@@ -2,7 +2,7 @@
 
 parserFactory.register("hostednovel.com", () => new HostednovelParser());
 
-class HostednovelParser extends Parser{
+class HostednovelParser extends Parser {
     constructor() {
         super();
     }
@@ -25,7 +25,7 @@ class HostednovelParser extends Parser{
         if (lastLink !== null) {
             let url = new URL(lastLink.href);
             let maxPage = parseInt(url.searchParams.get("page"));
-            for(let i = 2; i <= maxPage; ++i) {
+            for (let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("page", i);
                 urls.push(url.href);
             }
@@ -49,7 +49,7 @@ class HostednovelParser extends Parser{
 
     chapterUrlsOnPage(dom) {
         return [...dom.querySelectorAll(".chaptergroup a:not([rel])")]
-            .map(a => util.hyperLinkToChapter(a))
+            .map(a => util.hyperLinkToChapter(a));
     }
 
     findContent(dom) {

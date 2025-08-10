@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("fictionhunt.com", () => new FictionhuntParser());
 
-class FictionhuntParser extends Parser{
+class FictionhuntParser extends Parser {
     constructor() {
         super();
     }

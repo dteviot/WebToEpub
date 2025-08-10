@@ -44,12 +44,12 @@ class MadnovelParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLabel = [...dom.querySelectorAll("a[href*='authors'] span")].map(x => x.textContent.trim())
+        let authorLabel = [...dom.querySelectorAll("a[href*='authors'] span")].map(x => x.textContent.trim());
         return (authorLabel.length === 0) ? super.extractAuthor(dom) : authorLabel.join(", ");
     }
 
     extractSubject(dom) {
-        let tags = [...dom.querySelectorAll("a[href*='genres']")]
+        let tags = [...dom.querySelectorAll("a[href*='genres']")];
         return tags.map(e => e.textContent.trim()).join("");
     }
 

@@ -5,7 +5,7 @@ parserFactory.registerUrlRule(
     () => new Booktoki152Parser()
 );
 
-class Booktoki152Parser extends Parser{
+class Booktoki152Parser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 1500;

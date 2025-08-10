@@ -2,7 +2,7 @@
 
 parserFactory.register("taffygirl13.wordpress.com", () => new Taffygirl13Parser());
 
-class Taffygirl13Parser extends WordpressBaseParser{
+class Taffygirl13Parser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -17,9 +17,9 @@ class Taffygirl13Parser extends WordpressBaseParser{
         }
 
         let chapters = [];
-        for(let table of tables) {
+        for (let table of tables) {
             let rhs = [];
-            for(let row of table) {
+            for (let row of table) {
                 chapters.push(row[0]);
                 if (row.length == 2) {
                     rhs.push(row[1]);

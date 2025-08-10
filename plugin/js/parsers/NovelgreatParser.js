@@ -1,9 +1,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("novelgreat.net", function () { return new NovelgreatParser() });
+parserFactory.register("novelgreat.net", function() { return new NovelgreatParser(); });
 
-class NovelgreatParser extends NovelfullParser{
+class NovelgreatParser extends NovelfullParser {
     constructor() {
         super();
     }
@@ -23,5 +23,5 @@ class NovelgreatParser extends NovelfullParser{
 
     findContent(dom) {
         return dom.querySelector("div#chapter-c");
-    };
+    }
 }

@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("lightnovelbastion.com", function() { return new LightNovelBastionParser() });
+parserFactory.register("lightnovelbastion.com", function() { return new LightNovelBastionParser(); });
 
 class LightNovelBastionParser extends Parser {
     constructor() {
@@ -27,7 +27,7 @@ class LightNovelBastionParser extends Parser {
             return element.textContent;
         }
         return null;
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.author-content");

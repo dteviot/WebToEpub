@@ -1,6 +1,6 @@
 "use strict";
-parserFactory.register("creativenovels.com", function() { return new CreativeNovelsParser() });
-class CreativeNovelsParser extends Parser{
+parserFactory.register("creativenovels.com", function() { return new CreativeNovelsParser(); });
+class CreativeNovelsParser extends Parser {
     constructor() {
         super();
     }
@@ -12,7 +12,7 @@ class CreativeNovelsParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div.entry-content.content");
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeElements(element.querySelectorAll("div.team, div.x-donate-1,"+

@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("novelplex.org", () => new NovelplexParser());
 
-class NovelplexParser extends Parser{
+class NovelplexParser extends Parser {
     constructor() {
         super();
     }

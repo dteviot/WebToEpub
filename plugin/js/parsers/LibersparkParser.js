@@ -4,11 +4,11 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("liberspark.com", function() { return new LibersparkParser() });
+parserFactory.register("liberspark.com", function() { return new LibersparkParser(); });
 //dead url
-parserFactory.register("veratales.com", function() { return new LibersparkParser() });
+parserFactory.register("veratales.com", function() { return new LibersparkParser(); });
 
-class LibersparkParser extends Parser{
+class LibersparkParser extends Parser {
     constructor() {
         super();
     }
@@ -16,19 +16,19 @@ class LibersparkParser extends Parser{
     getChapterUrls(dom) {
         // Page in browser has chapter links reduced to 5
         // Fetch page again to get all chapter links.
-        return HttpClient.wrapFetch(dom.baseURI).then(function (xhr) {
+        return HttpClient.wrapFetch(dom.baseURI).then(function(xhr) {
             let table = xhr.responseXML.querySelector("table#novel-chapters-list");
             return util.hyperlinksToChapterList(table).reverse();
         });
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div#chapter_body");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
-    };
+    }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.card-header");

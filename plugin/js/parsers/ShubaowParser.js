@@ -2,7 +2,7 @@
 
 parserFactory.register("shubaow.net", () => new ShubaowParser());
 
-class ShubaowParser extends Parser{
+class ShubaowParser extends Parser {
     constructor() {
         super();
     }
@@ -16,11 +16,11 @@ class ShubaowParser extends Parser{
     removeDuplicates(links) {
         let unique = new Set();
         let dedup = [];
-        while(0 < links.length) {
+        while (0 < links.length) {
             let link = links.pop();
             if (!unique.has(link.href)) {
-                dedup.push(link)
-                unique.add(link.href)
+                dedup.push(link);
+                unique.add(link.href);
             }
         }
         return dedup.reverse();

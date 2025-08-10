@@ -3,7 +3,7 @@
 parserFactory.register("old.ranobelib.me", () => new OldranobelibParser());
 parserFactory.register("ranobelib.me", () => new OldranobelibParser());
 
-class OldranobelibParser extends Parser{
+class OldranobelibParser extends Parser {
     constructor() {
         super();
         this.homedom = "";
@@ -18,7 +18,7 @@ class OldranobelibParser extends Parser{
         return json.map(j => this.jsonToChapters(j, base));
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         if (dom.baseURI.includes("https://ranobelib.me/ru/book/")) {
             dom = (await HttpClient.wrapFetch(dom.baseURI.replace("https://ranobelib.me/ru/book/", "https://old.ranobelib.me/old/manga/"))).responseXML;
         }
@@ -30,13 +30,13 @@ class OldranobelibParser extends Parser{
         let startString = "window.__CONTENT__ = ";
         let scriptElement = [...dom.querySelectorAll("script")]
             .filter(s => s.textContent.includes(startString))[0];
-        return util.locateAndExtractJson(scriptElement.textContent, startString)
+        return util.locateAndExtractJson(scriptElement.textContent, startString);
     }
 
     makeChapterBaseUrl(dom) {
         let base = new URL(dom.baseURI);
         let tip = base.pathname.split("/").pop();
-        return `https://old.ranobelib.me/old/${tip}/read/`
+        return `https://old.ranobelib.me/old/${tip}/read/`;
     }
 
     jsonToChapters(json, base) {

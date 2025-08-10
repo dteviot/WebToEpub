@@ -2,7 +2,7 @@
 
 parserFactory.register("starlightstream.net", () => new StarlightstreamParser());
 
-class StarlightstreamParser extends Parser{
+class StarlightstreamParser extends Parser {
     constructor() {
         super();
     }

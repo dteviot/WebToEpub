@@ -5,7 +5,7 @@
 
 parserFactory.register("genesistudio.com", () => new GenesiStudioParser());
 
-class GenesiStudioParser extends Parser{
+class GenesiStudioParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 2000;
@@ -35,7 +35,7 @@ class GenesiStudioParser extends Parser{
         return chapters.concat(pchapters);
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         // eslint-disable-next-line
         let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
         let tmpids = data.nodes[2].data[data.nodes[2].data[0].novel];

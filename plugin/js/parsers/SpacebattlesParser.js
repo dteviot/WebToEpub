@@ -8,7 +8,7 @@ parserFactory.register("alternatehistory.com", () => new SpacebattlesParser());
 parserFactory.register("forum.questionablequesting.com", () => new SpacebattlesParser());
 parserFactory.register("questionablequesting.com", () => new SpacebattlesParser());
 
-class SpacebattlesParser extends Parser{
+class SpacebattlesParser extends Parser {
     constructor() {
         super();
         this.cache = new FetchCache();
@@ -20,7 +20,7 @@ class SpacebattlesParser extends Parser{
         let chapters = [...dom.querySelectorAll("div.structItem--threadmark a")]
             .filter(this.isLinkToChapter);
         return chapters.map(a => util.hyperLinkToChapter(a));
-    };
+    }
 
     isLinkToChapter(link) {
         return !link.querySelector("date")
@@ -29,16 +29,16 @@ class SpacebattlesParser extends Parser{
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1.p-title-value");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("a.username");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
-    };
+    }
 
     async fetchChapter(url) {
         let article = await this.fetchArticle(url);

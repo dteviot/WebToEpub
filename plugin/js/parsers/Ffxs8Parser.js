@@ -2,7 +2,7 @@
 
 parserFactory.register("ffxs8.com", () => new Ffxs8Parser());
 
-class Ffxs8Parser extends Parser{
+class Ffxs8Parser extends Parser {
     constructor() {
         super();
     }

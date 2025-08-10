@@ -2,7 +2,7 @@
 
 parserFactory.register("novelsfull.com", () => new NovelsfullParser());
 
-class NovelsfullParser extends Parser{
+class NovelsfullParser extends Parser {
     constructor() {
         super();
     }
@@ -34,7 +34,7 @@ class NovelsfullParser extends Parser{
             64 != n[3] && (d += String.fromCharCode((3 & n[2]) << 6 | n[3]));
         }
         return d;
-    };
+    }
 
     _utf8_decode(text) {
         for (var t = "", a = 0, r = 0; a < text.length; ) {

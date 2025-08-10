@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("deviantart.com", function() { return new DeviantArtParser() });
+parserFactory.register("deviantart.com", function() { return new DeviantArtParser(); });
 
-class DeviantArtParser extends Parser{
+class DeviantArtParser extends Parser {
     constructor() {
         super();
     }
@@ -11,23 +11,23 @@ class DeviantArtParser extends Parser{
         let chapters = [...dom.querySelectorAll("div.folderview-art a.torpedo-thumb-link")]
             .map(DeviantArtParser.linkToChapter);
         return Promise.resolve(chapters);
-    };
+    }
 
     static linkToChapter(link) {
         return {
             sourceUrl:  link.href,
             title: link.href.split("/").pop(),
             newArc: null
-        }
+        };
     }
 
     findContent(dom) {
         let content = dom.querySelector("div.dev-view-deviation");
         if (content != null) {
-            DeviantArtParser.removeUnwantedImages(content)
+            DeviantArtParser.removeUnwantedImages(content);
         }
         return content;
-    };
+    }
 
     static removeUnwantedImages(content) {
         let images = [...content.querySelectorAll("img")];
@@ -38,7 +38,7 @@ class DeviantArtParser extends Parser{
         if (wanted === null) {
             wanted = images[0];
         }
-        for(let i of images) {
+        for (let i of images) {
             i.remove();
         }
         content.appendChild(wanted);
@@ -46,10 +46,10 @@ class DeviantArtParser extends Parser{
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.folderview-top h1");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("a.username");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
-    };
+    }
 }

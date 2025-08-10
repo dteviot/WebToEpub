@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("akknovel.com", function () {return new AkknovelParser();});
+parserFactory.register("akknovel.com", function() {return new AkknovelParser();});
 
 class AkknovelParser extends Parser {
     constructor() {

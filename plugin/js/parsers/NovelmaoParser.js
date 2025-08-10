@@ -2,7 +2,7 @@
 
 parserFactory.register("novelmao.com", () => new NovelmaoParser());
 
-class NovelmaoParser extends Parser{
+class NovelmaoParser extends Parser {
     constructor() {
         super();
     }

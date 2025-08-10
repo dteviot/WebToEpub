@@ -2,7 +2,7 @@
 
 parserFactory.register("readhive.org", () => new ReadhiveParser());
 
-class ReadhiveParser extends Parser{
+class ReadhiveParser extends Parser {
     constructor() {
         super();
     }
@@ -40,14 +40,14 @@ class ReadhiveParser extends Parser{
     }
 
     customRawDomToContentStep(chapter, content) {
-        for(let e of content.querySelectorAll("div")) {
+        for (let e of content.querySelectorAll("div")) {
             let toRemove = [];
-            for(let attr of e.attributes) {
+            for (let attr of e.attributes) {
                 if (attr.name.startsWith("@")) {
                     toRemove.push(attr.name);
                 }
             }
-            for(let attr of toRemove) {
+            for (let attr of toRemove) {
                 e.removeAttribute(attr);
             }
         }

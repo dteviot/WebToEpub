@@ -2,7 +2,7 @@
 
 parserFactory.register("ontimestory.eu", () => new OntimestoryParser());
 
-class OntimestoryParser extends Parser{
+class OntimestoryParser extends Parser {
     constructor() {
         super();
     }

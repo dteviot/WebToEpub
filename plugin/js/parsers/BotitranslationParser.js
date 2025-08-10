@@ -3,7 +3,7 @@
 parserFactory.register("botitranslation.com", () => new BotitranslationParser());
 parserFactory.register("mystorywave.com", () => new BotitranslationParser());
 
-class BotitranslationParser extends Parser{
+class BotitranslationParser extends Parser {
     constructor() {
         super();
     }
@@ -37,11 +37,6 @@ class BotitranslationParser extends Parser{
     extractAuthor(dom) {
         let authorLabel = dom.querySelector(".author-name");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
-    }
-
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "p > br");
-        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findCoverImageUrl(dom) {

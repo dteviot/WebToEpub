@@ -2,7 +2,7 @@
 
 parserFactory.register("novelversetranslations.com", () => new NovelversetranslationsParser());
 
-class NovelversetranslationsParser extends WordpressBaseParser{
+class NovelversetranslationsParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -23,13 +23,13 @@ class NovelversetranslationsParser extends WordpressBaseParser{
     }
 
     getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let paginateUrls = [...dom.querySelectorAll("ul.lcp_paginator a:not(.lcp_nextlink)")]
             .map(a => a.href);
         if (0 < paginateUrls.length) {
             let url = new URL(paginateUrls.pop());
             let maxPage = this.maxPageId(url);
-            for(let i = 2; i <= maxPage; ++i) {
+            for (let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("lcp_page0", i);
                 urls.push(url.href);
             }

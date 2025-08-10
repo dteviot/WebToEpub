@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("yushubo.net", () => new YushuboParser());
 
-class YushuboParser extends Parser{
+class YushuboParser extends Parser {
     constructor() {
         super();
     }

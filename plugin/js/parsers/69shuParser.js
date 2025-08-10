@@ -6,7 +6,7 @@ parserFactory.registerUrlRule(
 );
 parserFactory.register("69yuedu.net", () => new _69yueduParser());
 
-class ShuParser extends Parser{
+class ShuParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 1000;
@@ -21,11 +21,11 @@ class ShuParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div.txtnav");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.booknav2 h1").textContent;
-    };
+    }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.bookbox");
@@ -57,7 +57,7 @@ class ShuParser extends Parser{
     }
 }
 
-class _69yueduParser extends ShuParser{
+class _69yueduParser extends ShuParser {
     constructor() {
         super();
     }
@@ -81,5 +81,5 @@ class _69yueduParser extends ShuParser{
 
     findContent(dom) {
         return dom.querySelector("div.content");
-    };
+    }
 }

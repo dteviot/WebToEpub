@@ -2,7 +2,7 @@
 
 parserFactory.register("ruvers.ru", () => new RuversParser());
 
-class RuversParser extends Parser{
+class RuversParser extends Parser {
     constructor() {
         super();
         this.ChacheChapterTitle = new Map();

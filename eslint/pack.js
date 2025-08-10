@@ -21,11 +21,10 @@ var getFileList = function(fileName) {
 }
 
 var adjustedFileListForEslint = function(fileList) {
-    return ["polyfillDOMPurify.js"]
-        .concat(fileList
-            .filter(e => e !== "@zip.js/zip.js/dist/zip-no-worker.min.js")
-            .filter(e => e !== "dompurify/dist/purify.min.js")
-            .map(f => "../plugin/" + f));
+    return fileList
+        .filter(e => e !== "@zip.js/zip.js/dist/zip-no-worker.min.js")
+        .filter(e => e !== "dompurify/dist/purify.min.js")
+        .map(f => "../plugin/" + f);
 }
 
 // wrap readFile in a promise

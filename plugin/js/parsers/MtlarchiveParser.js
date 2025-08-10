@@ -4,7 +4,7 @@ parserFactory.register("fictionzone.net", () => new MtlarchiveParser());
 
 // mtlarchive.com and reader-hub.com were previous names of site
 
-class MtlarchiveParser extends Parser{
+class MtlarchiveParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 3000;
@@ -16,7 +16,7 @@ class MtlarchiveParser extends Parser{
         chapterUrlsUI.showTocProgress(chapters);
         let info = await this.findStoryInfo(dom.baseURI);
         if (0 < info.storyId) {
-            for(let page = 1; page <= info.numTocPages; ++page) {
+            for (let page = 1; page <= info.numTocPages; ++page) {
                 await this.rateLimitDelay();
                 try {
                     let partialList = await this.fetchTocData(info.storyId, page, dom.baseURI);

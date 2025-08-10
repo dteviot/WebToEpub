@@ -2,7 +2,7 @@
 
 parserFactory.register("stellarrealm.net", () => new StellarRealmParser());
 
-class StellarRealmParser extends Parser{
+class StellarRealmParser extends Parser {
     constructor() {
         super();
     }
@@ -22,12 +22,12 @@ class StellarRealmParser extends Parser{
         return chapters;
     }
 
-    getJson(dom){
+    getJson(dom) {
         let jsondiv = dom.querySelector("#app");
         return JSON.parse(jsondiv.dataset.page);
     }
 
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         let xml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
         let bookinfo = this.getJson(xml);
         this.title = bookinfo.props.series?.title;

@@ -29,7 +29,7 @@ parserFactory.registerRule(
     () => new ReadwnParser()
 );
 
-class ReadwnParser extends Parser{
+class ReadwnParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 3000;
@@ -37,7 +37,7 @@ class ReadwnParser extends Parser{
 
     static isReadwn(dom) {
         return (dom.querySelector(ReadwnParser.CoverSelector) !== null)
-            && (dom.querySelector(ReadwnParser.AuthorSelector) !== null)
+            && (dom.querySelector(ReadwnParser.AuthorSelector) !== null);
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {

@@ -2,7 +2,7 @@
 
 parserFactory.register("rubymaybetranslations.com", () => new RubymaybetranslationsParser());
 
-class RubymaybetranslationsParser extends Parser{
+class RubymaybetranslationsParser extends Parser {
     constructor() {
         super();
     }

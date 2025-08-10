@@ -2,7 +2,7 @@
 
 parserFactory.register("wtr-lab.com", () => new WtrlabParser());
 
-class WtrlabParser extends Parser{
+class WtrlabParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 12000;
@@ -16,7 +16,7 @@ class WtrlabParser extends Parser{
     async getChapterUrls(dom) {
         let json = dom.querySelector("script#__NEXT_DATA__")?.textContent;
         json = JSON.parse(json);
-        this.magickey = json.buildId;
+        this.magickey = json?.buildId;
         let leaves = dom.baseURI.split("/");
         let language = leaves[leaves.length - 3];
         let id = leaves[leaves.length - 2].slice(6);
@@ -24,6 +24,11 @@ class WtrlabParser extends Parser{
         this.slug = slug;
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
         
+        let serie_id = chapters.chapters[0].serie_id;
+
+        let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/user/config")).json;
+        this.terms = terms?.config?.terms.filter(a => (a?.filter == null) || (a?.filter.includes(serie_id)));
+
         return chapters.chapters.map(a => ({
             sourceUrl: "https://wtr-lab.com/"+language+"/serie-"+id+"/"+slug+"/"+a.order, 
             title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.order+": "+a.title
@@ -81,7 +86,7 @@ class WtrlabParser extends Parser{
                 "retry":false,
                 "force_retry":false
             };
-        let header = {"Content-Type": "application/json;charset=UTF-8"}
+        let header = {"Content-Type": "application/json;charset=UTF-8"};
         let options = {
             method: "POST",
             body: JSON.stringify(formData),
@@ -92,7 +97,7 @@ class WtrlabParser extends Parser{
         return this.buildChapter(json, url);
     }
     
-    isCustomError(response){
+    isCustomError(response) {
         if (response.json.data?.data?.body?false:true) {
             return true;
         }
@@ -102,7 +107,7 @@ class WtrlabParser extends Parser{
         return false;
     }
 
-    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
         if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
             let newresp = {};
             newresp.url = url;
@@ -124,7 +129,7 @@ class WtrlabParser extends Parser{
         }
     }
 
-    PostToUrl(url, body){
+    PostToUrl(url, body) {
         let hostname = new URL(url).hostname;
         let translate = body.translate;
         let language = body.language;
@@ -147,6 +152,9 @@ class WtrlabParser extends Parser{
             for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
                 let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
                 newtext = newtext.replaceAll("※"+i+"⛬", term);
+                for (let term of this.terms) {
+                    newtext = newtext.replaceAll(term?.from, term?.to);
+                }
             }
             pnode.textContent = newtext;
             newDoc.content.appendChild(pnode);

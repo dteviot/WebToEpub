@@ -2,7 +2,7 @@
 
 parserFactory.register("reddit.com", () => new RedditParser());
 
-class RedditParser extends Parser{
+class RedditParser extends Parser {
     constructor() {
         super();
     }

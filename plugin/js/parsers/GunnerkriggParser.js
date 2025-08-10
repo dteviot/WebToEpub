@@ -2,7 +2,7 @@
 
 parserFactory.register("gunnerkrigg.com", () => new GunnerkriggParser());
 
-class GunnerkriggParser extends Parser{
+class GunnerkriggParser extends Parser {
     constructor() {
         super();
     }

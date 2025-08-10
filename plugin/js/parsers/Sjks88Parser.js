@@ -3,7 +3,7 @@
 parserFactory.register("sjks88.com", () => new Sjks88Parser());
 parserFactory.register("m.sjks88.com", () => new Sjks88Parser());
 
-class Sjks88Parser extends Parser{
+class Sjks88Parser extends Parser {
     constructor() {
         super();
     }

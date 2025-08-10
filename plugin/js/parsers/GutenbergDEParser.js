@@ -11,9 +11,9 @@
 // Use this function if site's host name is sufficient.  
 // i.e. All pages are on same site, and use same format.
 //dead url/ parser
-parserFactory.register("gutenberg.spiegel.de", function() { return new GutenbergDEParser() });
+parserFactory.register("gutenberg.spiegel.de", function() { return new GutenbergDEParser(); });
 
-class GutenbergDEParser extends Parser{
+class GutenbergDEParser extends Parser {
     constructor() {
         super();
     }
@@ -27,7 +27,7 @@ class GutenbergDEParser extends Parser{
         // to convert the links into a list of URLs the parser will collect.
         let menu = dom.querySelector("ul.gbnav");
         return Promise.resolve(util.hyperlinksToChapterList(menu));        
-    };
+    }
     
 
     // returns the element holding the story content in a chapter
@@ -36,7 +36,7 @@ class GutenbergDEParser extends Parser{
         // typical implementation is find node with all wanted content
         // return is the element holding just the wanted content.
         return dom.querySelector("div#gutenb");
-    };
+    }
     
 
     // title of the story  (not to be confused with title of each chapter)
@@ -47,13 +47,13 @@ class GutenbergDEParser extends Parser{
 
         // this works if chapter 1 contains a cover with separate class attributes 
         let titleElem=dom.querySelector("h2.title");
-        if(null != titleElem) return titleElem.textContent.trim();
+        if (null != titleElem) return titleElem.textContent.trim();
 
         // else rely on the div showing a breadcrumb 
         let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
         let titleE=gbbreadcrumb.firstElementChild.nextElementSibling.nextElementSibling;
         return titleE;
-    };
+    }
     
 
     // author of the story
@@ -64,12 +64,12 @@ class GutenbergDEParser extends Parser{
         // Major points to note
 
         let authorElem=dom.querySelector("h3.author");
-        if(null != authorElem) return authorElem.textContent.trim();
+        if (null != authorElem) return authorElem.textContent.trim();
 
         let gbbreadcrumb=dom.querySelector("div.gbbreadcrumb");
         let authorA=gbbreadcrumb.firstElementChild.nextElementSibling;
         if (authorA) return authorA.textContent.trim();
 
         return super.extractAuthor(dom);
-    };
+    }
 }

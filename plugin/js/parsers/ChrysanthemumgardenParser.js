@@ -2,7 +2,7 @@
 
 parserFactory.register("chrysanthemumgarden.com", () => new ChrysanthemumgardenParser());
 
-class ChrysanthemumgardenParser extends WordpressBaseParser{
+class ChrysanthemumgardenParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -44,7 +44,7 @@ class ChrysanthemumgardenParser extends WordpressBaseParser{
         let content = this.findContent(webPageDom);
         if (!this.userPreferences.removeAuthorNotes.value) {
             let notes = [...webPageDom.querySelectorAll("div.tooltip-container")];
-            for(let n of notes) {
+            for (let n of notes) {
                 content.appendChild(n);
             }
         }

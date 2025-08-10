@@ -2,7 +2,7 @@
 
 parserFactory.register("untamedalley.com", () => new UntamedAlleyParser());
 
-class UntamedAlleyParser extends Parser{
+class UntamedAlleyParser extends Parser {
     constructor() {
         super();
     }

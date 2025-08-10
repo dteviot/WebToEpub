@@ -2,7 +2,7 @@
 
 parserFactory.register("app.yoru.world", () => new AppYoruWorldParser());
 
-class AppYoruWorldParser extends Parser{
+class AppYoruWorldParser extends Parser {
     constructor() {
         super();
     }
@@ -22,7 +22,7 @@ class AppYoruWorldParser extends Parser{
         return ChapterArrayFree.reverse();
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         // eslint-disable-next-line
         let regex = new RegExp("\/story\/[0-9]+");
         let bookid = dom.baseURI.match(regex)?.[0].slice(7);

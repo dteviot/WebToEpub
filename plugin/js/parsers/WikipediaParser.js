@@ -10,10 +10,10 @@ parserFactory.registerUrlRule(
 
 parserFactory.registerManualSelect(
     "Wikipedia", 
-    function() { return new WikipediaParser() }
+    function() { return new WikipediaParser(); }
 );
 
-class WikipediaParser extends Parser{
+class WikipediaParser extends Parser {
     constructor() {
         super();
     }
@@ -25,12 +25,12 @@ class WikipediaParser extends Parser{
             title: dom.title
         };
         return Promise.resolve([chapter]);
-    };
+    }
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
         return dom.getElementById("bodyContent");
-    };
+    }
 
     removeUnwantedElementsFromContentElement(element) {
         super.removeUnwantedElementsFromContentElement(element);
@@ -48,14 +48,14 @@ class WikipediaParser extends Parser{
     }
 
     removeExternalHyperlinks(element) {
-        for(let a of util.getElements(element, "a", e => !this.isLinkToKeep(e))) {
+        for (let a of util.getElements(element, "a", e => !this.isLinkToKeep(e))) {
             this.replaceHyperlinkWithTextContent(a);
         }
     }
     
     isLinkToKeep(hyperlink) {
         return !util.isNullOrEmpty(hyperlink.hash) ||
-            (hyperlink.querySelector("img, image") !== null)
+            (hyperlink.querySelector("img, image") !== null);
     }
 
     replaceHyperlinkWithTextContent(hyperlink) {

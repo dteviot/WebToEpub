@@ -2,7 +2,7 @@
 
 parserFactory.register("wfxs.tw", () => new WfxsParser());
 
-class WfxsParser extends Parser{
+class WfxsParser extends Parser {
     constructor() {
         super();
     }

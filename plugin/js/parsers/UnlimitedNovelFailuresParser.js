@@ -5,7 +5,7 @@
 
 //dead url/ parser
 parserFactory.register("unlimitednovelfailures.mangamatters.com", 
-    function() { return new UnlimitedNovelFailuresParser() }
+    function() { return new UnlimitedNovelFailuresParser(); }
 );
 
 class UnlimitedNovelFailuresParser extends Parser {
@@ -49,7 +49,7 @@ class UnlimitedNovelFailuresParser extends Parser {
 
     convertAnchorsToHeaders(content) {
         let document = content.ownerDocument;
-        for(let link of content.querySelectorAll("a[id]")) {
+        for (let link of content.querySelectorAll("a[id]")) {
             let h2 = document.createElement("h2");
             h2.id = link.id;
             h2.appendChild(document.createTextNode(link.textContent));
@@ -60,6 +60,6 @@ class UnlimitedNovelFailuresParser extends Parser {
             } else {
                 link.replaceWith(h2);
             }
-        };
+        }
     }
 }

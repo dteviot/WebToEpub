@@ -2,7 +2,7 @@
 
 parserFactory.register("titannovel.net", () => new TitannovelParser());
 
-class TitannovelParser extends Parser{
+class TitannovelParser extends Parser {
     constructor() {
         super();
     }

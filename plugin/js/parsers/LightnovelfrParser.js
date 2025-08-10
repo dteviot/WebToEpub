@@ -2,7 +2,7 @@
 
 parserFactory.register("lightnovelfr.com", () => new LightnovelfrParser());
 
-class LightnovelfrParser extends Parser{
+class LightnovelfrParser extends Parser {
     constructor() {
         super();
     }

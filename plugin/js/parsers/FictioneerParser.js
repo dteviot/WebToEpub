@@ -3,14 +3,14 @@
 // This is for the Fictioneer WordPress theme: https://github.com/Tetrakern/fictioneer
 
 //dead urls
-parserFactory.register("blossomtranslation.com", function() { return new FictioneerParser() });
-parserFactory.register("igniforge.com", function() { return new FictioneerParser() });
-parserFactory.register("razentl.com", function() { return new FictioneerParser() });
+parserFactory.register("blossomtranslation.com", function() { return new FictioneerParser(); });
+parserFactory.register("igniforge.com", function() { return new FictioneerParser(); });
+parserFactory.register("razentl.com", function() { return new FictioneerParser(); });
 //these still exist
-parserFactory.register("emberlib731.xyz", function() { return new FictioneerParser() });
-parserFactory.register("lilyonthevalley.com", function() { return new FictioneerParser() });
-parserFactory.register("novelib.com", function() { return new FictioneerParser() });
-parserFactory.register("springofromance.com", function() { return new FictioneerParser() });
+parserFactory.register("emberlib731.xyz", function() { return new FictioneerParser(); });
+parserFactory.register("lilyonthevalley.com", function() { return new FictioneerParser(); });
+parserFactory.register("novelib.com", function() { return new FictioneerParser(); });
+parserFactory.register("springofromance.com", function() { return new FictioneerParser(); });
 
 parserFactory.registerRule(
     (url, dom) => FictioneerParser.isFictioneerTheme(dom) * 0.7,
@@ -24,7 +24,7 @@ class FictioneerParser extends Parser {
 
     static isFictioneerTheme(dom) {
         // the html tag has the class "fictioneer-theme"
-        return (dom.querySelector("html.fictioneer-theme") !== null)
+        return (dom.querySelector("html.fictioneer-theme") !== null);
     }
 
     async getChapterUrls(dom) {
@@ -114,7 +114,7 @@ class FictioneerParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeElements(element.querySelectorAll("iframe, .eoc-chapter-groups, .chapter-nav"));
         super.removeUnwantedElementsFromContentElement(element);
-    };
+    }
 
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll(".story__header, .story__summary")];

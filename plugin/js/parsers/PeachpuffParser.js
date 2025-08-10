@@ -2,7 +2,7 @@
 
 parserFactory.register("peachpuff.in", () => new PeachpuffParser());
 
-class PeachpuffParser extends Parser{
+class PeachpuffParser extends Parser {
     constructor() {
         super();
     }

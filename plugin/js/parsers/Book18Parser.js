@@ -5,7 +5,7 @@
 
 parserFactory.register("book18.org", () => new Book18Parser());
 
-class Book18Parser extends Parser{
+class Book18Parser extends Parser {
     constructor() {
         super();
     }

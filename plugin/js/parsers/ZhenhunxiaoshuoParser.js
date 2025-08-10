@@ -2,7 +2,7 @@
 
 parserFactory.register("zhenhunxiaoshuo.com", () => new ZhenhunxiaoshuoParser());
 
-class ZhenhunxiaoshuoParser extends Parser{
+class ZhenhunxiaoshuoParser extends Parser {
     constructor() {
         super();
     }

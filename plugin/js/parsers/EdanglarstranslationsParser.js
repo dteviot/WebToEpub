@@ -2,7 +2,7 @@
 
 parserFactory.register("edanglarstranslations.com", () => new EdanglarstranslationsParser());
 
-class EdanglarstranslationsParser extends Parser{
+class EdanglarstranslationsParser extends Parser {
     constructor() {
         super();
     }

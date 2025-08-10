@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("ossantl.com", () => new OssantlParser());
 
-class OssantlParser extends Parser{
+class OssantlParser extends Parser {
     constructor() {
         super();
     }

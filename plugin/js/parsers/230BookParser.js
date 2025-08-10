@@ -4,7 +4,7 @@
 parserFactory.register("230book.net", () => new _230BookParser() );
 parserFactory.register("38xs.com", () => new _38xsParser() );
 
-class _230BookBaseParser extends Parser{
+class _230BookBaseParser extends Parser {
     constructor() {
         super();
     }
@@ -16,11 +16,11 @@ class _230BookBaseParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("#content");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("#info h1").textContent;
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector(".bookname h1");
@@ -41,7 +41,7 @@ class _230BookBaseParser extends Parser{
     }
 }
 
-class _230BookParser extends _230BookBaseParser{
+class _230BookParser extends _230BookBaseParser {
     constructor() {
         super();
     }
@@ -52,7 +52,7 @@ class _230BookParser extends _230BookBaseParser{
     }
 }
 
-class _38xsParser extends _230BookBaseParser{
+class _38xsParser extends _230BookBaseParser {
     constructor() {
         super();
     }

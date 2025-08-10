@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("isekaiscan.com", () => new IsekaiScanParser());
 
-class IsekaiScanParser extends Parser{
+class IsekaiScanParser extends Parser {
     constructor() {
         super();
     }
@@ -15,7 +15,7 @@ class IsekaiScanParser extends Parser{
 
     findContent(dom) {
         let content = dom.querySelector("div.reading-content");
-        for(let i of content.querySelectorAll("img")) {
+        for (let i of content.querySelectorAll("img")) {
             let data_src = i.getAttribute("data-src");
             if (!util.isNullOrEmpty(data_src)) {
                 i.src = data_src;

@@ -4,9 +4,9 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("shinsori.com", function() { return new ShinsoriParser() });
+parserFactory.register("shinsori.com", function() { return new ShinsoriParser(); });
 
-class ShinsoriParser extends Parser{
+class ShinsoriParser extends Parser {
     constructor() {
         super();
     }
@@ -17,7 +17,7 @@ class ShinsoriParser extends Parser{
             ShinsoriParser.getUrlsOfTocPages,
             chapterUrlsUI
         );
-    };
+    }
 
     static getUrlsOfTocPages(dom) {
         return [...dom.querySelectorAll("ul.lcp_paginator a:not(.lcp_nextlink)")]
@@ -33,16 +33,16 @@ class ShinsoriParser extends Parser{
 
     findContent(dom) {
         return dom.querySelector("div.entry-content");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h2.section-title");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = util.getElement(dom, "strong", e => e.textContent === "Author:");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.nextSibling.textContent;
-    };
+    }
 
     removeUnwantedElementsFromContentElement(content) {
         util.removeElements(content.querySelectorAll("div.stream-item-below-post-content, div.post-bottom-meta"));

@@ -2,7 +2,7 @@
 
 parserFactory.register("4ksw.com", () => new _4kswParser());
 
-class _4kswParser extends Parser{
+class _4kswParser extends Parser {
     constructor() {
         super();
     }

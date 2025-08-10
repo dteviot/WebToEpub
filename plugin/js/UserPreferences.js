@@ -122,7 +122,7 @@ class UserPreferences {
         this.readingList = new ReadingList();
 
         document.getElementById("themeColorTag").addEventListener("change", UserPreferences.SetTheme);
-    };
+    }
 
     /** @private */
     addPreference(storageName, uiElementName, defaultValue) {
@@ -132,9 +132,9 @@ class UserPreferences {
 
         let preference = null;
         if (typeof(defaultValue) === "boolean") {
-            preference = new BoolUserPreference(storageName, uiElementName, defaultValue)
+            preference = new BoolUserPreference(storageName, uiElementName, defaultValue);
         } else if (typeof(defaultValue) === "string") {
-            preference = new StringUserPreference(storageName, uiElementName, defaultValue)
+            preference = new StringUserPreference(storageName, uiElementName, defaultValue);
         } else {
             throw new Error("Unknown preference type");
         }
@@ -144,7 +144,7 @@ class UserPreferences {
 
     static readFromLocalStorage() {
         let newPreferences = new UserPreferences();
-        for(let p of newPreferences.preferences) {
+        for (let p of newPreferences.preferences) {
             p.readFromLocalStorage();
         }
         newPreferences.readingList.readFromLocalStorage();
@@ -152,7 +152,7 @@ class UserPreferences {
     }
 
     writeToLocalStorage() {
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             p.writeToLocalStorage();
         }
         this.readingList.writeToLocalStorage();
@@ -164,7 +164,7 @@ class UserPreferences {
     }
 
     readFromUi() {
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             p.readFromUi();
         }
 
@@ -174,13 +174,13 @@ class UserPreferences {
 
     notifyObserversOfChange() {
         let that = this;
-        for(let observer of that.observers) {
+        for (let observer of that.observers) {
             observer.onUserPreferencesUpdate(that);
-        };
+        }
     }
 
     writeToUi() {
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             p.writeToUi();
         }
         UserPreferences.SetTheme();
@@ -188,7 +188,7 @@ class UserPreferences {
 
     hookupUi() {
         let readFromUi = this.readFromUi.bind(this);
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             p.hookupUi(readFromUi);
         }
 
@@ -202,7 +202,7 @@ class UserPreferences {
             obj[DefaultParserSiteSettings.storageName] = JSON.parse(serialized);
         }
         obj[ReadingList.storageName] = JSON.parse(this.readingList.toJson());
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             obj[p.storageName] = p.value; 
         }
         serialized = JSON.stringify(obj);
@@ -229,15 +229,15 @@ class UserPreferences {
                 this.loadDefaultParserFromJson(json);
                 this.loadReadingListFromJson(json);
                 populateControls();
-            } catch(err) {
+            } catch (err) {
                 ErrorLog.showErrorMessage(err);
             }
-        }
+        };
         reader.readAsText(file);
     }
 
     loadOpionsFromJson(json) {
-        for(let p of this.preferences) {
+        for (let p of this.preferences) {
             let val = json[p.storageName];
             if (val !== undefined && (p.value !== val)) {
                 p.value = val;

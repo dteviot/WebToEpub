@@ -2,7 +2,7 @@
 
 parserFactory.register("novelhall.com", () => new NovelhallParser());
 
-class NovelhallParser extends Parser{
+class NovelhallParser extends Parser {
     constructor() {
         super();
     }

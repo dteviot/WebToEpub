@@ -1,11 +1,11 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("novelspread.com", function() { return new NovelSpreadParser() });
+parserFactory.register("novelspread.com", function() { return new NovelSpreadParser(); });
 //dead url
-parserFactory.register("m.novelspread.com", function() { return new MNovelSpreadParser() });
+parserFactory.register("m.novelspread.com", function() { return new MNovelSpreadParser(); });
 
-class NovelSpreadParser extends Parser{
+class NovelSpreadParser extends Parser {
     constructor() {
         super();
     }
@@ -18,20 +18,20 @@ class NovelSpreadParser extends Parser{
             chapter.title = `${i + 1}. ${chapter.title}`;
         }
         return chapters;
-    };
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.title.split("-")[0];
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.main-left div.person h4");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
-    };
+    }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.novelimg");
@@ -67,7 +67,7 @@ class NovelSpreadParser extends Parser{
     }
 }
 
-class MNovelSpreadParser extends NovelSpreadParser{
+class MNovelSpreadParser extends NovelSpreadParser {
     constructor() {
         super();
     }
@@ -77,7 +77,7 @@ class MNovelSpreadParser extends NovelSpreadParser{
             .filter(a => a.href.includes("/chapter/"))
             .map(a => util.hyperLinkToChapter(a));
         return chapters;
-    };
+    }
 
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, "div.book");

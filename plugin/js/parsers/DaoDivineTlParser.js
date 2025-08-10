@@ -2,7 +2,7 @@
 
 parserFactory.register("dao-divine-tl.com", () => new DaoDivineTlParser());
 
-class DaoDivineTlParser extends Parser{
+class DaoDivineTlParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 500;
@@ -31,7 +31,7 @@ class DaoDivineTlParser extends Parser{
         return chapters;
     }
 
-    chaptersFromJson(json){
+    chaptersFromJson(json) {
         return json.result.map(a => ({
             sourceUrl: "https://www.dao-divine-tl.com/book/" + a.b_name + "/" + a.chapter_no, 
             title: a.title, 
@@ -39,7 +39,7 @@ class DaoDivineTlParser extends Parser{
         }));
     }
     
-    async loadEpubMetaInfo(dom){
+    async loadEpubMetaInfo(dom) {
         // eslint-disable-next-line
         let regex = new RegExp("\/book\/.+");
         let title = dom.baseURI.match(regex)?.[0].slice(6);

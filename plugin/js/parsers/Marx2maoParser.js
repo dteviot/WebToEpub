@@ -2,7 +2,7 @@
 
 parserFactory.register("marx2mao.com", () => new Marx2maoParser());
 
-class Marx2maoParser extends Parser{
+class Marx2maoParser extends Parser {
     constructor() {
         super();
     }

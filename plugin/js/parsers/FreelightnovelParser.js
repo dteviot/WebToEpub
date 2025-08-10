@@ -5,7 +5,7 @@ parserFactory.register("freelightnovel.net", () => new FreelightnovelParser());
 //dead url
 parserFactory.register("m.freelightnovel.net", () => new MFreelightnovelParser());
 
-class FreelightnovelParser extends Parser{
+class FreelightnovelParser extends Parser {
     constructor() {
         super();
     }
@@ -37,7 +37,7 @@ class FreelightnovelParser extends Parser{
     }
 }
 
-class MFreelightnovelParser extends Parser{
+class MFreelightnovelParser extends Parser {
     constructor() {
         super();
     }

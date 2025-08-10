@@ -2,7 +2,7 @@
 
 parserFactory.register("betwixtedbutterfly.com", () => new BetwixtedbutterflyParser());
 
-class BetwixtedbutterflyParser extends Parser{
+class BetwixtedbutterflyParser extends Parser {
     constructor() {
         super();
     }

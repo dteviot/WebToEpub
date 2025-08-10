@@ -7,7 +7,7 @@ parserFactory.register("pandapama.com", () => new LightnovelsmeParser());
 //dead url
 parserFactory.register("lightnovels.live", () => new LightnovelsmeParser());
 
-class LightnovelsmeParser extends Parser{
+class LightnovelsmeParser extends Parser {
     constructor() {
         super();
     }

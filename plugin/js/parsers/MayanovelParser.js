@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("mayanovel.com", () => new MayanovelParser());
 
-class MayanovelParser extends Parser{
+class MayanovelParser extends Parser {
     constructor() {
         super();
     }
@@ -33,7 +33,7 @@ class MayanovelParser extends Parser{
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let nextUrl = this.nextPageOfChapterUrl(dom);
         let oldContent = this.findContent(dom);
-        while(nextUrl != null) {
+        while (nextUrl != null) {
             let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
             let newContent = this.findContent(nextDom);
             util.moveChildElements(newContent, oldContent);

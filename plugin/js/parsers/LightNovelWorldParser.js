@@ -13,7 +13,7 @@ parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
 parserFactory.register("pandanovel.co", () => new LightNovelWorldParser());
 
-class LightNovelWorldParser extends Parser{
+class LightNovelWorldParser extends Parser {
     constructor() {
         super();
     }
@@ -25,7 +25,7 @@ class LightNovelWorldParser extends Parser{
         let chapters = this.extractPartialChapterList(dom);
         let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
 
-        for(let url of urlsOfTocPages) {
+        for (let url of urlsOfTocPages) {
             await this.rateLimitDelay();
             let newDom = (await HttpClient.wrapFetch(url)).responseXML;
             let partialList = this.extractPartialChapterList(newDom);
@@ -59,13 +59,13 @@ class LightNovelWorldParser extends Parser{
     }
 
     getUrlsOfTocPages(dom) {
-        let urls = []
+        let urls = [];
         let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")]
             .map(a => a.href);
         if (0 < paginateUrls.length) {
             let maxPage = this.maxPageId(paginateUrls);
             let url = new URL(paginateUrls[0]);
-            for(let i = 2; i <= maxPage; ++i) {
+            for (let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("page", i);
                 urls.push(url.href);
             }
@@ -78,7 +78,7 @@ class LightNovelWorldParser extends Parser{
         let pageNum = function(url) {
             let pageNo = new URL(url).searchParams.get("page");
             return parseInt(pageNo);
-        }
+        };
         return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
     }
 
@@ -139,19 +139,19 @@ class LightNovelWorldParser extends Parser{
     }
 }
 
-class LightNovelPubParser extends LightNovelWorldParser{
+class LightNovelPubParser extends LightNovelWorldParser {
     constructor() {
         super();
         this.minimumThrottle = 1200;
     }
 }
 
-class NovelfireParser extends LightNovelWorldParser{
+class NovelfireParser extends LightNovelWorldParser {
     constructor() {
         super();
     }
     
-    removeUnwantedElementsFromContentElement(element){
+    removeUnwantedElementsFromContentElement(element) {
         util.removeHTMLUnknownElement(element);
         super.removeUnwantedElementsFromContentElement(element);
     }

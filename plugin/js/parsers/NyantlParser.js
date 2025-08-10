@@ -2,7 +2,7 @@
 
 parserFactory.register("nyantl.wordpress.com", () => new NyantlParser());
 
-class NyantlParser extends WordpressBaseParser{
+class NyantlParser extends WordpressBaseParser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("mtlreader.com", () => new MtlreaderParser());
 
-class MtlreaderParser extends Parser{
+class MtlreaderParser extends Parser {
     constructor() {
         super();
     }

@@ -2,7 +2,7 @@
 
 parserFactory.register("moondaisyscans.biz", () => new MoonDaisyParser());
 
-class MoonDaisyParser extends Parser{
+class MoonDaisyParser extends Parser {
     constructor() {
         super();
     }
@@ -10,11 +10,11 @@ class MoonDaisyParser extends Parser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.eplister a")]
             .map(this.linkToChapter)
-            .reverse()
+            .reverse();
     }
 
     linkToChapter(link) {
-        let title = MoonDaisyParser.extractChapterNum(link).trim()
+        let title = MoonDaisyParser.extractChapterNum(link).trim();
         return ({
             sourceUrl:  link.href,
             title: title

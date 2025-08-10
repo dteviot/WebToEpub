@@ -2,7 +2,7 @@
 
 parserFactory.register("asianhobbyist.com", () => new AsianHobbyistParser());
 
-class AsianHobbyistParser extends WordpressBaseParser{
+class AsianHobbyistParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -10,11 +10,11 @@ class AsianHobbyistParser extends WordpressBaseParser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.releases-wrap a")]
             .map(a => util.hyperLinkToChapter(a));
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector(".post-title.entry-title a");
-    };
+    }
 
     findContent(dom) {
         let content = super.findContent(dom);

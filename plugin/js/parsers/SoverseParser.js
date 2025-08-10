@@ -2,7 +2,7 @@
 
 parserFactory.register("soverse.com", () => new SoverseParser());
 
-class SoverseParser extends Parser{
+class SoverseParser extends Parser {
     constructor() {
         super();
     }
@@ -18,7 +18,7 @@ class SoverseParser extends Parser{
         return {
             sourceUrl:  link.href,
             title: link.textContent.trim()
-        }        
+        };        
     }
 
     findContent(dom) {

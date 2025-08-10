@@ -3,9 +3,9 @@
 */
 "use strict";
 
-parserFactory.register("sspai.com", function() { return new SspaiParser() });
+parserFactory.register("sspai.com", function() { return new SspaiParser(); });
 
-class SspaiParser extends Parser{
+class SspaiParser extends Parser {
     constructor() {
         super();
     }
@@ -13,9 +13,9 @@ class SspaiParser extends Parser{
     getChapterUrls(dom) {
         let menu = dom.querySelector("body");
         return Promise.resolve(util.hyperlinksToChapterList(menu));        
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div.wangEditor-txt");
-    };
+    }
 }

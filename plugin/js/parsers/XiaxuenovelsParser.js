@@ -2,7 +2,7 @@
 
 parserFactory.register("xiaxuenovels.xyz", () => new XiaxuenovelsParser());
 
-class XiaxuenovelsParser extends Parser{
+class XiaxuenovelsParser extends Parser {
     constructor() {
         super();
     }

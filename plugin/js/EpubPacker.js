@@ -131,17 +131,17 @@ class EpubPacker {
 
         if (epubItemSupplier.hasCoverImageFile()) {
             that.appendMetaContent(metadata, opf_ns, "cover", epubItemSupplier.coverImageId());
-        };
+        }
 
         if (that.metaInfo.seriesName !== null) {
             that.appendMetaContent(metadata, opf_ns, "calibre:series", that.metaInfo.seriesName);
             that.appendMetaContent(metadata, opf_ns, "calibre:series_index", that.metaInfo.seriesIndex);
         }
 
-        for(let i of epubItemSupplier.manifestItems()) {
+        for (let i of epubItemSupplier.manifestItems()) {
             let source = this.createAndAppendChildNS(metadata, dc_ns, "dc:source", i.sourceUrl);
             source.setAttributeNS(null, "id", "id." + i.getId());
-        };
+        }
     }
 
     addMetaProperty(metadata, element, propName, id, value) {
@@ -167,17 +167,17 @@ class EpubPacker {
     buildManifest(opf, ns, epubItemSupplier) {
         let that = this;
         let manifest = that.createAndAppendChildNS(opf.documentElement, ns, "manifest");
-        for(let i of epubItemSupplier.manifestItems()) {
+        for (let i of epubItemSupplier.manifestItems()) {
             let item = that.addManifestItem(manifest, ns, i.getZipHref(), i.getId(), i.getMediaType());
             this.setSvgPropertyForManifestItem(item, i.hasSvg());
-        };
+        }
 
         that.addManifestItem(manifest, ns, util.styleSheetFileName(), "stylesheet", "text/css");
         that.addManifestItem(manifest, ns, "OEBPS/toc.ncx", "ncx", "application/x-dtbncx+xml");
         if (epubItemSupplier.hasCoverImageFile()) {
             let item = that.addManifestItem(manifest, ns, EpubPacker.coverImageXhtmlHref(), EpubPacker.coverImageXhtmlId(), "application/xhtml+xml");
             this.setSvgPropertyForManifestItem(item, this.doesCoverHaveSvg(epubItemSupplier));
-        };
+        }
         if (this.version === EpubPacker.EPUB_VERSION_3) {
             let item = this.addManifestItem(manifest, ns, "OEBPS/toc.xhtml", "nav", "application/xhtml+xml");
             item.setAttributeNS(null, "properties", "nav");
@@ -215,10 +215,10 @@ class EpubPacker {
         spine.setAttributeNS(null, "toc", "ncx");
         if (epubItemSupplier.hasCoverImageFile()) {
             that.addSpineItemRef(spine, ns, EpubPacker.coverImageXhtmlId());
-        };
-        for(let item of epubItemSupplier.spineItems()) {
+        }
+        for (let item of epubItemSupplier.spineItems()) {
             that.addSpineItemRef(spine, ns, item.getId());
-        };
+        }
     }
 
     addSpineItemRef(spine, ns, idref) {
@@ -233,7 +233,7 @@ class EpubPacker {
             reference.setAttributeNS(null, "href", that.makeRelative(EpubPacker.coverImageXhtmlHref()));
             reference.setAttributeNS(null, "title", "Cover");
             reference.setAttributeNS(null, "type", "cover");
-        };
+        }
     }
 
     buildTableOfContents(epubItemSupplier) {
@@ -296,12 +296,12 @@ class EpubPacker {
     populateNavElement(nav, ns, epubItemSupplier) {
         let rootParent = this.createAndAppendChildNS(nav, ns, "ol");
         let parents = new NavPointParentElementsStack(rootParent);
-        for(let chapterInfo of epubItemSupplier.chapterInfo()) {
+        for (let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
             let nextLevel = this.buildNavListItem(parent, ns, chapterInfo);
             parents.addElement(chapterInfo.depth, nextLevel);
         }
-        this.removeEmptyNavLists(rootParent)
+        this.removeEmptyNavLists(rootParent);
     }
 
     buildNavListItem(parent, ns, chapterInfo) {
@@ -327,15 +327,15 @@ class EpubPacker {
         let playOrder = 0;
         let id = 0;
         let lastChapterSrc = null;
-        for(let chapterInfo of epubItemSupplier.chapterInfo()) {
+        for (let chapterInfo of epubItemSupplier.chapterInfo()) {
             let parent = parents.findParentElement(chapterInfo.depth);
-            if(lastChapterSrc !== chapterInfo.src){
+            if (lastChapterSrc !== chapterInfo.src) {
                 ++playOrder;
             }
             let navPoint = that.buildNavPoint(parent, ns, playOrder, ++id, chapterInfo);
             lastChapterSrc = chapterInfo.src;
             parents.addElement(chapterInfo.depth, navPoint);
-        };
+        }
         return parents.maxDepth;
     }
 
@@ -351,13 +351,13 @@ class EpubPacker {
     }
 
     packContentFiles(zipWriter, epubItemSupplier) {
-        for(let file of epubItemSupplier.files()) {
+        for (let file of epubItemSupplier.files()) {
             file.packInEpub(zipWriter, this.emptyDocFactory, this.contentValidator);
-        };
+        }
         if (epubItemSupplier.hasCoverImageFile()) {
             let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
             zipWriter.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
-        };
+        }
     }
 
     createAndAppendChildNS(element, ns, name, data) {
@@ -409,7 +409,7 @@ class NavPointParentElementsStack {
         let index = that.parents.length - 1;
         while (depth <= that.parents[index].depth) {
             --index;
-        };
+        }
         return that.parents[index].element;
     }
 

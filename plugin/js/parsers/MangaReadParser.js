@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("mangaread.co", function() { return new MangaReadParser() });
+parserFactory.register("mangaread.co", function() { return new MangaReadParser(); });
 
-class MangaReadParser extends Parser{
+class MangaReadParser extends Parser {
     constructor() {
         super();
     }
@@ -10,20 +10,20 @@ class MangaReadParser extends Parser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("li.wp-manga-chapter a")]
             .map(a => util.hyperLinkToChapter(a)).reverse();
-    };
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector("div.post-title h1");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("div.author-content a");
         return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
-    };
+    }
 
     findChapterTitle(dom) {
         return dom.querySelector("h1");
@@ -45,8 +45,8 @@ class MangaReadParser extends Parser{
         let base = img.getAttribute("data-lazy-src");
         let index = base.lastIndexOf("/");
         base = base.substring(0, index + 1);
-        let imgUrls = []
-        for(let i = 1; i <= options.length; ++i) {
+        let imgUrls = [];
+        for (let i = 1; i <= options.length; ++i) {
             let name = ("00" + i);
             name = name.substring(name.length - 3);
             imgUrls.push(base + name + ".jpg");
@@ -55,7 +55,7 @@ class MangaReadParser extends Parser{
     }
 
     async buildPageWithImageTags(imgUrls, newDoc) {
-        for(let u of imgUrls) {
+        for (let u of imgUrls) {
             let img = newDoc.dom.createElement("img");
             img.src = u;
             newDoc.content.appendChild(img);

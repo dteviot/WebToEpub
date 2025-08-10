@@ -2,7 +2,7 @@
 
 parserFactory.register("midnightrambles.in", () => new MidnightramblesParser());
 
-class MidnightramblesParser extends WordpressBaseParser{
+class MidnightramblesParser extends WordpressBaseParser {
     constructor() {
         super();
     }

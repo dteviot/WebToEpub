@@ -3,7 +3,7 @@
 parserFactory.register("sangtacviet.com", () => new SangtacvietParser());
 parserFactory.register("sangtacviet.vip", () => new SangtacvietParser());
 
-class SangtacvietParser extends Parser{
+class SangtacvietParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 9000;
@@ -20,7 +20,7 @@ class SangtacvietParser extends Parser{
                 "requestHeaders": [{ "header": "referer", "operation": "set", "value": "https://"+hostname}]
             },
             "condition": { "urlFilter" : hostname}
-        }]
+        }];
         await HttpClient.setDeclarativeNetRequestRules(rule);
         let leaves = dom.baseURI.split("/").filter(a => a != "");
         let id = leaves[leaves.length - 1];
@@ -71,14 +71,14 @@ class SangtacvietParser extends Parser{
         return this.buildChapter(json, url);
     }
     
-    isCustomError(response){
+    isCustomError(response) {
         if (response.json.code != "0") {
             return true;
         }
         return false;
     }
 
-    setCustomErrorResponse(url, wrapOptions, checkedresponse){
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
         let newresp = {};
         newresp.url = url;
         newresp.wrapOptions = wrapOptions;
@@ -88,7 +88,7 @@ class SangtacvietParser extends Parser{
         return newresp;
     }
 
-    RestToUrl(url){
+    RestToUrl(url) {
         let params = new URL(url).searchParams;
         let chapter = params.get("c");
         let id = params.get("bookid");

@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("xbiquge.so", () => new XbiqugeParser());
 
-class XbiqugeParser extends Parser{
+class XbiqugeParser extends Parser {
     constructor() {
         super();
     }

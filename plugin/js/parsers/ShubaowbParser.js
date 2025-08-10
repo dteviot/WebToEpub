@@ -2,7 +2,7 @@
 
 parserFactory.register("shubaowb.com", () => new ShubaowbParser());
 
-class ShubaowbParser extends Parser{
+class ShubaowbParser extends Parser {
     constructor() {
         super();
     }
@@ -28,7 +28,7 @@ class ShubaowbParser extends Parser{
                 v = "/novel" + v;
             }
             return "https://shubaowb.com" + v; 
-        }
+        };
 
         let listpage = dom.querySelector(".listpage");
         return [...listpage.querySelectorAll("option")]

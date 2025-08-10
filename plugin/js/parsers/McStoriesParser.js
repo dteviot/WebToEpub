@@ -5,7 +5,7 @@
 */
 "use strict";
 
-parserFactory.register("mcstories.com", function() { return new McStoriesParser() });
+parserFactory.register("mcstories.com", function() { return new McStoriesParser(); });
 
 class McStoriesParser extends Parser {
     constructor() {
@@ -24,7 +24,7 @@ class McStoriesParser extends Parser {
     extractAuthor(dom) {
         let author = dom.querySelector("article a[href*='/Authors/']");
         return (author === null) ? super.extractAuthor(dom) : author.textContent;
-    };
+    }
 
     getInformationEpubItemChildNodes(dom) {
         return [ util.dctermsToTable(dom) ];

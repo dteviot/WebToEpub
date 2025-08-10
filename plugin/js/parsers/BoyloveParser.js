@@ -2,7 +2,7 @@
 
 parserFactory.register("boylove.cc", () => new BoyloveParser());
 
-class BoyloveParser extends Parser{
+class BoyloveParser extends Parser {
     constructor() {
         super();
     }

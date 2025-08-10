@@ -2,7 +2,7 @@
 
 parserFactory.register("mtlnation.com", () => new MtlnationParser());
 
-class MtlnationParser extends MadaraParser{
+class MtlnationParser extends MadaraParser {
     constructor() {
         super();
     }

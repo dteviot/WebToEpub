@@ -41,7 +41,7 @@ parserFactory.registerRule(
     () => new NoblemtlParser()
 );
 
-class NoblemtlParser extends Parser{
+class NoblemtlParser extends Parser {
     constructor() {
         super();
     }
@@ -54,7 +54,7 @@ class NoblemtlParser extends Parser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.eplister a")]
             .map(this.linkToChapter)
-            .reverse()
+            .reverse();
     }
 
     linkToChapter(link) {
@@ -110,7 +110,7 @@ class NoblemtlParser extends Parser{
             if (element != null) {
                 title += " " +  element.textContent;
             }
-        }
+        };
         addText("h1.entry-title");
         addText(".cat-series");
         return title;
@@ -132,7 +132,7 @@ class NoblemtlParser extends Parser{
     }
 }
 
-class KnoxtspaceParser extends NoblemtlParser{
+class KnoxtspaceParser extends NoblemtlParser {
     constructor() {
         super();
     }
@@ -142,14 +142,14 @@ class KnoxtspaceParser extends NoblemtlParser{
     }
 }
 
-class WhitemoonlightnovelsParser extends NoblemtlParser{
+class WhitemoonlightnovelsParser extends NoblemtlParser {
     constructor() {
         super();
     }
 
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.eplister a")]
-            .map(this.linkToChapter)
+            .map(this.linkToChapter);
     }
 
     findChapterTitle(dom) {
@@ -161,7 +161,7 @@ class WhitemoonlightnovelsParser extends NoblemtlParser{
     }
 }
 
-class LazygirltranslationsParser extends KnoxtspaceParser{
+class LazygirltranslationsParser extends KnoxtspaceParser {
     constructor() {
         super();
     }
@@ -176,7 +176,7 @@ class LazygirltranslationsParser extends KnoxtspaceParser{
     }
 }
 
-class MyNovelOnlineParser extends NoblemtlParser{
+class MyNovelOnlineParser extends NoblemtlParser {
     constructor() {
         super();
         this.minimumThrottle = 3000;
@@ -189,7 +189,7 @@ class MyNovelOnlineParser extends NoblemtlParser{
     findContent(dom) {
         let content = dom.querySelector(".epwrapper .epcontent");
         //there are random links embeded everywhere i think it is to boost other sites on google as the other site is "relevant"
-        for(let e of content.querySelectorAll("p.chapter a.num-link")) {
+        for (let e of content.querySelectorAll("p.chapter a.num-link")) {
             let pnode = dom.createElement("span");
             pnode.textContent = e.innerText;
             e.replaceWith(pnode);
@@ -203,7 +203,7 @@ class MyNovelOnlineParser extends NoblemtlParser{
     }
 }
 
-class NovelsknightlParser extends NoblemtlParser{
+class NovelsknightlParser extends NoblemtlParser {
     constructor() {
         super();
         this.minimumThrottle = 3000;

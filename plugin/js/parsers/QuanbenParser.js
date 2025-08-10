@@ -2,7 +2,7 @@
 
 parserFactory.register("quanben.io", () => new QuanbenParser());
 
-class QuanbenParser extends Parser{
+class QuanbenParser extends Parser {
     constructor() {
         super();
     }

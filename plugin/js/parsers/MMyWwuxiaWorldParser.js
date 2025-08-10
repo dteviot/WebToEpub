@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("m.mywuxiaworld.com", () => new MMyWwuxiaWorldParser());
 
-class MMyWwuxiaWorldParser extends Parser{
+class MMyWwuxiaWorldParser extends Parser {
     constructor() {
         super();
     }

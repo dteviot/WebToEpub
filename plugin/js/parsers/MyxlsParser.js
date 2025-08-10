@@ -2,7 +2,7 @@
 
 parserFactory.register("myxls.net", () => new MyxlsParser());
 
-class MyxlsParser extends Parser{
+class MyxlsParser extends Parser {
     constructor() {
         super();
     }
@@ -11,7 +11,7 @@ class MyxlsParser extends Parser{
         let rows = dom.querySelector("div#list dl").children;
         let links = [];
         let count = 0;
-        for(let row of rows) {
+        for (let row of rows) {
             let tag = row.tagName.toLowerCase();
             if (tag === "dt") {
                 ++count;

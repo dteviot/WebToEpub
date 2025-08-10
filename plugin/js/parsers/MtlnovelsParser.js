@@ -10,7 +10,7 @@ parserFactory.registerUrlRule(
     () => new MtlnovelsParser()
 );
 
-class MtlnovelsParser extends Parser{
+class MtlnovelsParser extends Parser {
     constructor() {
         super();
     }
@@ -20,7 +20,7 @@ class MtlnovelsParser extends Parser{
     }
 
     async getChapterUrls(dom) {
-        const tocUrl = dom.querySelector("#panelchapterlist > a").href
+        const tocUrl = dom.querySelector("#panelchapterlist > a").href;
 
         const chapterDom = (await HttpClient.fetchHtml(tocUrl)).responseXML;
 
@@ -30,15 +30,15 @@ class MtlnovelsParser extends Parser{
                 sourceUrl: a.href
             }))
             .reverse();
-    };
+    }
 
     findContent(dom) {
         return dom.querySelector("div.single-page");
-    };
+    }
 
     extractTitleImpl(dom) {
         return dom.querySelector(".entry-title");
-    };
+    }
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector("#author");
@@ -52,7 +52,7 @@ class MtlnovelsParser extends Parser{
         }
         util.removeChildElementsMatchingSelector(element, ".crumbs, .chapter-nav, .lang-btn, .sharer," +
             " amp-embed, .link-title, ol.link-box, a.view-more, button, span[hidden]" + original);
-        for(let e of [...element.querySelectorAll("div")]) {
+        for (let e of [...element.querySelectorAll("div")]) {
             e.removeAttribute("[class]");
         }
         super.removeUnwantedElementsFromContentElement(element);

@@ -2,7 +2,7 @@
 
 parserFactory.register("kaystls.site", () => new KaystlsParser());
 
-class KaystlsParser extends Parser{
+class KaystlsParser extends Parser {
     constructor() {
         super();
     }

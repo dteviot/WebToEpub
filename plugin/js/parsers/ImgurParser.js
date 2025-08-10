@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("imgur.com", function() { return new ImgurParser() });
+parserFactory.register("imgur.com", function() { return new ImgurParser(); });
 
 parserFactory.registerUrlRule(
     url => Imgur.isImgurHostName(util.extractHostName(url).toLowerCase()),

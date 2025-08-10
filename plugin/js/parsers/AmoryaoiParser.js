@@ -2,7 +2,7 @@
 
 parserFactory.register("amor-yaoi.com", () => new AmoryaoiParser());
 
-class AmoryaoiParser extends Parser{
+class AmoryaoiParser extends Parser {
     constructor() {
         super();
     }

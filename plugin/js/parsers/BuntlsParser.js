@@ -1,8 +1,8 @@
 "use strict";
 
-parserFactory.register("buntls.com", function() { return new BuntlsParser() });
+parserFactory.register("buntls.com", function() { return new BuntlsParser(); });
 
-class BuntlsParser extends Parser{
+class BuntlsParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 2600;
@@ -43,7 +43,7 @@ class BuntlsParser extends Parser{
         for (let element of toremove) {
             element.remove();
         }
-        this.makeHiddenElementsVisible(content)
+        this.makeHiddenElementsVisible(content);
         super.removeUnwantedElementsFromContentElement(content);
     }
 

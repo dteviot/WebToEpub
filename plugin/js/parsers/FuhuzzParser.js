@@ -2,7 +2,7 @@
 
 parserFactory.register("fuhuzz.pro", () => new FuhuzzParser());
 
-class FuhuzzParser extends Parser{
+class FuhuzzParser extends Parser {
     constructor() {
         super();
     }
@@ -38,19 +38,19 @@ class FuhuzzParser extends Parser{
         return this.buildChapter(chapjson.images[0], url, id.currentTitle);
     }
 
-    flatObjFn2(obj){
-        var finalObj = {} 
-        for(let key in obj){
-            if(typeof obj[key] === "object"){
+    flatObjFn2(obj) {
+        var finalObj = {}; 
+        for (let key in obj) {
+            if (typeof obj[key] === "object") {
                 Object.assign(finalObj, this.flatObjFn2(obj[key], key));
-            }else{
-                finalObj[key] = obj[key]
+            } else {
+                finalObj[key] = obj[key];
             }
         }
         return finalObj;
     }
 
-    parseNextjsHydration(nextjs){
+    parseNextjsHydration(nextjs) {
         let malformedjson = nextjs.match(/{.*}/s);
         let json;
         if (malformedjson == null) {

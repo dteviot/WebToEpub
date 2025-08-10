@@ -2,7 +2,7 @@
 
 parserFactory.register("piaotia.com", () => new PtwxzParser());
 
-class PtwxzParser extends Parser{
+class PtwxzParser extends Parser {
     constructor() {
         super();
     }

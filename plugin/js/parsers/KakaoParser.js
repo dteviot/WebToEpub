@@ -11,19 +11,19 @@ class KakaoParser extends Parser {
     }
 
     async setAuthorizationToken() {
-        if(typeof this.token === "undefined") {
+        if (typeof this.token === "undefined") {
             const jsonUrl = "https://page.kakao.com/api/login";
 
             const fetchOptions = {
                 method: "POST",
                 credentials: "include"
-            }
+            };
 
             return HttpClient.fetchJson(jsonUrl, fetchOptions);
         }
     }
 
-    async wrapFetch(jsonUrl){
+    async wrapFetch(jsonUrl) {
         // disable doing authentication, seems to have changed.
         return HttpClient.fetchJson(jsonUrl);        
 
@@ -92,7 +92,7 @@ class KakaoParser extends Parser {
 
             let div = doc.dom.createElement("div");
             div.id = "content";
-            for(let i = 1; i < body.length; ++i){
+            for (let i = 1; i < body.length; ++i) {
                 let p = doc.dom.createElement("p");
                 p.textContent = body[i];
                 div.appendChild(p);
@@ -120,7 +120,7 @@ class KakaoParser extends Parser {
             let json = jsonResponse.json;
 
             let chapterList = [];
-            for(let chapter of json.content) {
+            for (let chapter of json.content) {
                 let url = dom.baseURI.replace("pagestage", "api-pagestage")
                     + "/episodes/" + chapter.id;
                 let chapterInfo = {

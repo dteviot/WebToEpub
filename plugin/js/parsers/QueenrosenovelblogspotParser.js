@@ -2,7 +2,7 @@
 
 parserFactory.register("queenrosenovel.blogspot.com", () => new QueenrosenovelblogspotParser());
 
-class QueenrosenovelblogspotParser extends Parser{
+class QueenrosenovelblogspotParser extends Parser {
     constructor() {
         super();
     }
@@ -10,7 +10,7 @@ class QueenrosenovelblogspotParser extends Parser{
     async getChapterUrls(dom) {
         return [...dom.querySelectorAll("div.epcheck li a")]
             .map(this.linkToChapter)
-            .reverse()
+            .reverse();
     }
 
     linkToChapter(link) {

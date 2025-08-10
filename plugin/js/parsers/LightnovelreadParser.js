@@ -4,7 +4,7 @@
 parserFactory.register("lightnovelread.com", () => new LightnovelreadParser());
 parserFactory.register("goblinsguide.com", () => new GoblinsguideParser());
 
-class LightnovelreadParser extends WordpressBaseParser{
+class LightnovelreadParser extends WordpressBaseParser {
     constructor() {
         super();
     }
@@ -13,7 +13,7 @@ class LightnovelreadParser extends WordpressBaseParser{
         let cat_id, countPosts, baseUrl;
         [cat_id, countPosts, baseUrl] = this.extractScript(dom);
         let chapters = [];
-        for(let offset = 0; offset < countPosts; offset += 100) {
+        for (let offset = 0; offset < countPosts; offset += 100) {
             let formData = this.createFormData(cat_id, offset);
             let partialList = await (this.fetchToc(formData, baseUrl));
             chapterUrlsUI.showTocProgress(partialList);
@@ -29,7 +29,7 @@ class LightnovelreadParser extends WordpressBaseParser{
         let script = [...dom.querySelectorAll("script")]
             .filter(s => s.innerText.includes(search))
             .map(s => s.innerText);
-        script = script[0].split("\n")
+        script = script[0].split("\n");
         let cat_id = this.extractNumber(script, search);
         let countPosts = this.extractNumber(script, "const countPosts = ");
         return [cat_id, countPosts, baseUrl];
@@ -80,7 +80,7 @@ class LightnovelreadParser extends WordpressBaseParser{
     }
 }
 
-class GoblinsguideParser extends LightnovelreadParser{
+class GoblinsguideParser extends LightnovelreadParser {
     constructor() {
         super();
     }

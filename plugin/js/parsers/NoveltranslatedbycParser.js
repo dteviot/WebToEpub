@@ -3,7 +3,7 @@
 //dead url/ parser
 parserFactory.register("noveltranslatedbyc.blogspot.com", () => new NoveltranslatedbycParser());
 
-class NoveltranslatedbycParser extends BlogspotParser{
+class NoveltranslatedbycParser extends BlogspotParser {
     constructor() {
         super();
     }

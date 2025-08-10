@@ -22,7 +22,7 @@ class ImageCollector {
         return {
             coverImageInfo: null,
             imagesToPackInEpub: function() { return []; }
-        }
+        };
     }
 
     reset() {
@@ -64,7 +64,7 @@ class ImageCollector {
             } else {
                 this.imagesToFetch.push(imageInfo);
             }
-        };           
+        }           
         this.urlIndex.set(wrappingUrl, index);
         this.urlIndex.set(sourceUrl, index);
         if (dataOrigFileUrl != null) {
@@ -82,10 +82,10 @@ class ImageCollector {
             let info = that.imageInfoByUrl(url);
             if (info === null) {
                 info = that.addImageInfo(url, url, null, true);
-            };
+            }
             info.isCover = true;
             that.coverImageInfo = info;
-        };
+        }
     }
 
     imageInfoByUrl(url) {
@@ -102,7 +102,7 @@ class ImageCollector {
     }
 
     async fetchImages(progressIndicator, parentPageUrl) {
-        for(let imageInfo of this.imagesToFetch) {
+        for (let imageInfo of this.imagesToFetch) {
             if (!imageInfo.queuedForFetch) {
                 imageInfo.queuedForFetch = true;
                 await this.fetchImage(imageInfo, progressIndicator, parentPageUrl);
@@ -125,12 +125,12 @@ class ImageCollector {
         } else {
             // duplicate bitmap, use previous version
             let wrongIndex = imageInfo.index;
-            for(let [key, value] of that.urlIndex) {
+            for (let [key, value] of that.urlIndex) {
                 if (value === wrongIndex) {
                     that.urlIndex.set(key, index);
-                };
-            };
-        };
+                }
+            }
+        }
     }
 
     /**
@@ -140,7 +140,7 @@ class ImageCollector {
         let hash = 0;
         let byteArray = new Uint8Array(arraybuffer);
         if (byteArray.length !== 0) {
-            for(let i = 0; i < byteArray.length; ++i) {
+            for (let i = 0; i < byteArray.length; ++i) {
                 hash = ((hash << 5) - hash) + byteArray[i];
                 hash |= 0;
             }
@@ -219,19 +219,19 @@ class ImageCollector {
     }
 
     findImagesUsedInDocument(content) {
-        for(let imageElement of content.querySelectorAll("img")) {
+        for (let imageElement of content.querySelectorAll("img")) {
             this.fixLazyLoadImageSource(imageElement);
             let src = this.findHighestResImage(imageElement);
             let wrappingElement = this.findImageWrappingElement(imageElement);
             let wrappingUrl = this.extractWrappingUrl(wrappingElement);
             let existing = this.imageInfoByUrl(wrappingUrl);
-            if(existing == null){
+            if (existing == null) {
                 let dataOrigFileUrl = this.findDataOrigFileUrl(imageElement, wrappingUrl);
                 this.addImageInfo(wrappingUrl, src, dataOrigFileUrl, false);
             } else {
                 existing.isOutsideGallery = true;
-            };
-        };
+            }
+        }
     }
 
     findHighestResImage(img) {
@@ -251,7 +251,7 @@ class ImageCollector {
         let pairs = srcset.split(",")
             .map(o => o.trim().split(" "))
             .filter(o => (o.length == 2) && o[0].startsWith("http"));
-        for(let pair of pairs) {
+        for (let pair of pairs) {
             let size = parseInt(pair[1]);
             if (max < size) {
                 max = size;
@@ -262,7 +262,7 @@ class ImageCollector {
     }
 
     fixLazyLoadImageSource(img) {
-        for(let attrib of ["data-lazy-srcset", "data-srcset"]) {
+        for (let attrib of ["data-lazy-srcset", "data-srcset"]) {
             let lazySrcset = img.getAttribute(attrib);
             if (lazySrcset != null) {
                 img.setAttribute("srcset", lazySrcset);
@@ -270,7 +270,7 @@ class ImageCollector {
             }
         }
 
-        for(let attrib of ["data-lazy-src", "data-src"]) {
+        for (let attrib of ["data-lazy-src", "data-src"]) {
             let lazySrc = img.getAttribute(attrib);
             if (lazySrc != null) {
                 img.src = lazySrc;
@@ -283,7 +283,7 @@ class ImageCollector {
     findDataOrigFileUrl(imageElement, wrappingUrl) {
         let dataOrigFile = imageElement.getAttribute("data-orig-file");
         if ((dataOrigFile != null) && (dataOrigFile != imageElement.src)
-            && (dataOrigFile != wrappingUrl)){
+            && (dataOrigFile != wrappingUrl)) {
             let baseUrl = imageElement.ownerDocument.baseURI;
             return util.resolveRelativeUrl(baseUrl, dataOrigFile);
         }
@@ -296,14 +296,14 @@ class ImageCollector {
     replaceImageTags(element) {
         let that = this;
         let converters = [];
-        for(let currentNode of element.querySelectorAll("img")) {
+        for (let currentNode of element.querySelectorAll("img")) {
             converters.push(that.makeImageTagReplacer(currentNode));
-        };
+        }
         converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
     }
 
     getImageDimensions(imageInfo) {
-        return new Promise(function(resolve, reject){ // eslint-disable-line no-unused-vars
+        return new Promise(function(resolve, reject) { // eslint-disable-line no-unused-vars
             let img = new Image();
             let options = {type: imageInfo.mediaType};
             let blob = new Blob([new Uint8Array(imageInfo.arraybuffer)], options);
@@ -313,14 +313,14 @@ class ImageCollector {
                 imageInfo.width = img.width;
                 URL.revokeObjectURL(dataUrl);
                 resolve(img);
-            }
-            img.onerror = function(){
+            };
+            img.onerror = function() {
                 // If the image gives an error then set a general height and width
                 imageInfo.height = 1200;
                 imageInfo.width = 1600;
                 URL.revokeObjectURL(dataUrl);
                 reject(img);
-            }
+            };
             // start downloading image after event handlers are set
             img.src = dataUrl;
         });
@@ -328,7 +328,7 @@ class ImageCollector {
 
     runCompression(imageInfo, img) {
         var that = this;
-        return new Promise(function(resolve, reject){
+        return new Promise(function(resolve, reject) {
             if (that.userPreferences.compressImages.value) 
             {
                 let c = document.createElement("canvas");
@@ -388,7 +388,7 @@ class ImageCollector {
                 await this.runCompression(imageInfo, img);
             }
             progressIndicator();
-            this.addToPackList(imageInfo)
+            this.addToPackList(imageInfo);
         }
         catch (error)
         {
@@ -517,7 +517,7 @@ class ImageCollector {
 
     static replaceHyperlinksToImagesWithImages(content, parentPageUrl) {
         let toReplace = util.getElements(content, "a", ImageCollector.isHyperlinkToImage);
-        for(let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
+        for (let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
             ImageCollector.replaceHyperlinkWithImg(hyperlink);
         }
         return Imgur.expandGalleries(content, parentPageUrl);
@@ -565,7 +565,7 @@ class VariableSizeImageCollector extends ImageCollector {
             this.initialUrlToTry = (imageInfo) => imageInfo.wrappingUrl;
         } else {
             this.initialUrlToTry = (imageInfo) => imageInfo.sourceUrl;
-        };
+        }
     }
 }
 
@@ -597,8 +597,8 @@ class ImageTagReplacer {
                 that.wrappingElement.remove();
             } else {
                 that.insertImageInLegalParent(parent, imageInfo);
-            };
-        };
+            }
+        }
     }
 
     /** @private */
@@ -614,7 +614,7 @@ class ImageTagReplacer {
     isImageInline(imageInfo) {
         const MAX_INLINE_IMAGE_HEIGHT = 200;
         let parent = this.wrappingElement;
-        while((parent != null) && util.isInlineElement(parent)) {
+        while ((parent != null) && util.isInlineElement(parent)) {
             parent = parent.parentNode;
         }
         return this.isParagraph(parent) &&
@@ -624,7 +624,7 @@ class ImageTagReplacer {
 
     /** @private */
     isParagraph(element) {
-        return (element != null) && (element.tagName.toLowerCase() === "p")
+        return (element != null) && (element.tagName.toLowerCase() === "p");
     }
 
     /** @private */
@@ -640,10 +640,10 @@ class ImageTagReplacer {
         while (util.isInlineElement(parent) && (parent.parentNode != null)) {
             nodeAfter = parent;
             parent = parent.parentNode;
-        };
+        }
         if (this.isParagraph(parent)) {
             nodeAfter = parent;
-        };
+        }
         let newImage = imageInfo.createImageElement(this.userPreferences);
         nodeAfter.parentNode.insertBefore(newImage, nodeAfter);
         util.removeHeightAndWidthStyleFromParents(newImage);
@@ -653,8 +653,8 @@ class ImageTagReplacer {
 
     copyCaption(newImage, oldWrapper) {
         let thumbCaption = oldWrapper.querySelector("div.thumbcaption");
-        if (thumbCaption != null){
-            for(let magnify of thumbCaption.querySelectorAll("div.magnify")){
+        if (thumbCaption != null) {
+            for (let magnify of thumbCaption.querySelectorAll("div.magnify")) {
                 magnify.remove();
             }
             if (!util.isNullOrEmpty(thumbCaption.textContent)) {

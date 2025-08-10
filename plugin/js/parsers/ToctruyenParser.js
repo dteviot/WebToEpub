@@ -2,7 +2,7 @@
 
 parserFactory.register("toctruyen.net", () => new ToctruyenParser());
 
-class ToctruyenParser extends Parser{
+class ToctruyenParser extends Parser {
     constructor() {
         super();
     }

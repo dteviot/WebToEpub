@@ -2,7 +2,7 @@
 
 parserFactory.register("aerialrain.com", () => new AerialrainParser());
 
-class AerialrainParser extends WordpressBaseParser{
+class AerialrainParser extends WordpressBaseParser {
     constructor() {
         super();
     }

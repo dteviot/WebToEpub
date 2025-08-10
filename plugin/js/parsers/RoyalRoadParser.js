@@ -3,10 +3,10 @@
 */
 "use strict";
 
-parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser() });
-parserFactory.register("royalroad.com", function() { return new RoyalRoadParser() });
+parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser(); });
+parserFactory.register("royalroad.com", function() { return new RoyalRoadParser(); });
 
-class RoyalRoadParser extends Parser{
+class RoyalRoadParser extends Parser {
     constructor() {
         super();
     }
@@ -54,19 +54,19 @@ class RoyalRoadParser extends Parser{
         let internalStyles = [...webPageDom.querySelectorAll("style")]
             .map(style => style.sheet?.rules);
         let allCssRules = [];
-        for(let ruleList of internalStyles) {
-            for(let rule of ruleList) {
+        for (let ruleList of internalStyles) {
+            for (let rule of ruleList) {
                 allCssRules.push(rule);
             }
         }
-        for(let rule of allCssRules.filter(s => s.style?.display == "none")) {
+        for (let rule of allCssRules.filter(s => s.style?.display == "none")) {
             webPageDom.querySelector(rule.selectorText)?.remove();
         }        
     }
 
     removeUnwantedElementsFromContentElement(content) {
         // only keep the <div class="chapter-inner" elements of content
-        for(let i = content.childElementCount - 1; 0 <= i; --i) {
+        for (let i = content.childElementCount - 1; 0 <= i; --i) {
             let child = content.children[i];
             if (!this.isWantedElement(child)) {
                 child.remove();
@@ -124,11 +124,11 @@ class RoyalRoadParser extends Parser{
 
     static removeOlderChapterNavJunk(content) {
         // some older chapters have next chapter & previous chapter links seperated by string "<-->"
-        for(let node of util.iterateElements(content, 
+        for (let node of util.iterateElements(content, 
             n => (n.textContent.trim() === "<-->"),
             NodeFilter.SHOW_TEXT)) {
             node.remove();
-        };
+        }
     }
 
     findCoverImageUrl(dom) {

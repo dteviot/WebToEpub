@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("ficwad.com", function() { return new FicwadParser() });
+parserFactory.register("ficwad.com", function() { return new FicwadParser(); });
 
 class FicwadParser extends Parser {
     constructor() {
@@ -69,7 +69,7 @@ class FicwadParser extends Parser {
         let title = dom.querySelector("div.storylist h4");
         if (title !== null) {
             let s = title.textContent;
-            for(let link of title.querySelectorAll("a")) {
+            for (let link of title.querySelectorAll("a")) {
                 link.remove();
             }
             title.textContent = s;

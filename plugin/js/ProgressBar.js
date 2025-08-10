@@ -6,7 +6,7 @@
 */
 class ProgressBar {
     constructor() {
-    };
+    }
 
     static getUiElement() {
         return document.getElementById("fetchProgress");
@@ -37,7 +37,7 @@ class ProgressBar {
         document.getElementById("progressString").textContent = text;
     }
 
-    static updateTabTitle(value, max){
+    static updateTabTitle(value, max) {
         value = (value*100/max).toFixed(1);
         if (value == "100.0") {
             value = "100";
