@@ -66,7 +66,7 @@ class WordpressBaseParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingCss(element, "div.cb_p6_patreon_button, div.jp-relatedposts, .cbxwpbkmarkwrap");
+        util.removeChildElementsMatchingSelector(element, "div.cb_p6_patreon_button, div.jp-relatedposts, .cbxwpbkmarkwrap");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
