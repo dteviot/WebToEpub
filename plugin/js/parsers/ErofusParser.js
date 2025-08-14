@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("erofus.com", function() { return new ErofusParser(); });
+parserFactory.register("erofus.com", () => new ErofusParser());
 
 class ErofusParserImageCollector extends ImageCollector {
     constructor() {

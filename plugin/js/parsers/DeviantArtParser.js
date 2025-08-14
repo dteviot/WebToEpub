@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("deviantart.com", function() { return new DeviantArtParser(); });
+parserFactory.register("deviantart.com", () => new DeviantArtParser());
 
 class DeviantArtParser extends Parser {
     constructor() {

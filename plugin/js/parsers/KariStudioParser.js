@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("karistudio.com", function() {return new KariStudioParser();});
+parserFactory.register("karistudio.com", () => new KariStudioParser());
 
 class KariStudioParser extends Parser {
     constructor() {

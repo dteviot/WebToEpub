@@ -3,19 +3,19 @@
 */
 "use strict";
 
-class Imgur {
+class Imgur { // eslint-disable-line no-unused-vars
     constructor() {
     }
 
     static expandGalleries(content, parentPageUrl) {
         let sequence = Promise.resolve();
         for (let link of Imgur.getGalleryLinksToReplace(content)) {
-            sequence = sequence.then(function() {
+            sequence = sequence.then(() => {
                 let href = Imgur.fixupImgurGalleryUrl(link.href);
-                return HttpClient.wrapFetch(href).then(function(xhr) {
+                return HttpClient.wrapFetch(href).then((xhr) => {
                     Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
                     return Promise.resolve();
-                }).catch(function(err) {
+                }).catch((err) => {
                     let errorMsg = chrome.i18n.getMessage("imgurFetchFailed", 
                         [link.href, parentPageUrl, err]);
                     ErrorLog.log(errorMsg);
@@ -23,7 +23,7 @@ class Imgur {
                 });
             });
         }
-        sequence = sequence.then(function() {
+        sequence = sequence.then(() => {
             return Promise.resolve(content);
         });
         return sequence; 

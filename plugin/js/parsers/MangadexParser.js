@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("mangadex.org", function() { return new MangadexParser(); });
+parserFactory.register("mangadex.org", () => new MangadexParser());
 
 class MangadexParser extends Parser {
     constructor() {

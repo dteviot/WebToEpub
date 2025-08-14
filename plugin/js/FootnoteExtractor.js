@@ -1,4 +1,4 @@
-class FootnoteExtractor {
+class FootnoteExtractor { // eslint-disable-line no-unused-vars
     scriptElementsToFootnotes(dom) {
         let indexedFootnotes = new Map();
         [...dom.querySelectorAll("script")]

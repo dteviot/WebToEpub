@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("comrademao.com", function() { return new ComrademaoParser(); });
+parserFactory.register("comrademao.com", () => new ComrademaoParser());
 
 class ComrademaoParser extends Parser {
     constructor() {

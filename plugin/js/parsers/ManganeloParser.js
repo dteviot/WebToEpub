@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("manganelo.com", function() { return new ManganeloParser(); });
+parserFactory.register("manganelo.com", () => new ManganeloParser());
 
 class ManganeloParser extends Parser {
     constructor() {

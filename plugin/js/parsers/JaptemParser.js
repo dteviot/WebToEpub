@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("japtem.com", function() { return new JaptemParser(); });
+parserFactory.register("japtem.com", () => new JaptemParser());
 
 class JaptemParser extends Parser {
     constructor() {

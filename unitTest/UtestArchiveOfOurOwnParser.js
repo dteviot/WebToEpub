@@ -6,7 +6,6 @@ module("ArchiveOfOurOwnParser");
 /// Load the sample file
 /// As file operation is async, load the sample file into dom, and call doneCallback when file loaded
 function asyncLoadArchiveOfOurOwnSampleDoc(doneCallback) {
-    let that = this;
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "../testdata/DredC1.html");
     xhr.responseType = "document";
@@ -19,7 +18,6 @@ function asyncLoadArchiveOfOurOwnSampleDoc(doneCallback) {
 }
 
 function syncLoadArchiveOfOurOwnSampleDoc() {
-    let that = this;
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "../testdata/DredC1.html", false);
     xhr.send(null);

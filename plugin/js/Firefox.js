@@ -3,7 +3,7 @@
 
 
 /** Functions specific to Firefox version of plug-in */
-class Firefox {
+class Firefox { // eslint-disable-line no-unused-vars
     constructor() {
     }
 

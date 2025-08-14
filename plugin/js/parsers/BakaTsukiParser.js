@@ -5,7 +5,7 @@
 
 parserFactory.registerManualSelect(
     "Baka-Tsuki Full Text Page", 
-    function() { return new BakaTsukiParser(new BakaTsukiImageCollector()); }
+    () => new BakaTsukiParser(new BakaTsukiImageCollector())
 );
 
 class BakaTsukiImageCollector extends ImageCollector {
@@ -16,7 +16,7 @@ class BakaTsukiImageCollector extends ImageCollector {
 
     onUserPreferencesUpdate(userPreferences) {
         super.onUserPreferencesUpdate(userPreferences);
-        if (userPreferences.higestResolutionImages.value) {
+        if (userPreferences.highestResolutionImages.value) {
             this.selectImageUrlFromImagePage = this.getHighestResImageUrlFromImagePage;
         } else {
             this.selectImageUrlFromImagePage = this.getReducedResImageUrlFromImagePage;
@@ -43,19 +43,16 @@ class BakaTsukiParser extends Parser {
     }
 
     static register() {
-        parserFactory.reregister("baka-tsuki.org", function() { 
-            return new BakaTsukiParser(new BakaTsukiImageCollector()); 
-        });      
+        parserFactory.reregister("baka-tsuki.org", () => new BakaTsukiParser(new BakaTsukiImageCollector()));      
     }
 
     rebuildImagesToFetch() {
         // needed with Baka-Tsuki, in case user hits "Build EPUB" a second time
-        let that = this;
-        that.imageCollector.reset();
-        let content = that.findContent(this.state.firstPageDom).cloneNode(true);
-        that.removeUnwantedElementsFromContentElement(content);
-        that.imageCollector.findImagesUsedInDocument(content);
-        that.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
+        this.imageCollector.reset();
+        let content = this.findContent(this.state.firstPageDom).cloneNode(true);
+        this.removeUnwantedElementsFromContentElement(content);
+        this.imageCollector.findImagesUsedInDocument(content);
+        this.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
     }
 
     populateImageTable() {
@@ -115,12 +112,11 @@ class BakaTsukiParser extends Parser {
 
     extractSeriesInfo(dom, metaInfo) {
         // assumes <title> element text is "<series name>:Volume <series index> - Baka Tsuki"
-        let that = this;
         let title = dom.title.trim();
         let splitIndex = title.indexOf(":");
         if (0 < splitIndex) {
             metaInfo.seriesName = title.substring(0, splitIndex);
-            metaInfo.seriesIndex = that.extractVolumeIndex(title.substring(splitIndex));
+            metaInfo.seriesIndex = this.extractVolumeIndex(title.substring(splitIndex));
         }
     }
 
@@ -130,7 +126,7 @@ class BakaTsukiParser extends Parser {
             if (("0" <= ch) && (ch <= "9")) {
                 volumeIndex += ch;
             }
-        }    
+        }
         return volumeIndex;
     }
 
@@ -139,18 +135,17 @@ class BakaTsukiParser extends Parser {
     }
 
     onLoadFirstPage(url, firstPageDom) {
-        let that = this;
         this.state.firstPageDom = firstPageDom;
         this.state.chapterListUrl = url;
 
-        let content = that.findContent(firstPageDom).cloneNode(true);
-        that.removeUnwantedElementsFromContentElement(content);
-        that.imageCollector.findImagesUsedInDocument(content);
-        that.populateImageTable();
+        let content = this.findContent(firstPageDom).cloneNode(true);
+        this.removeUnwantedElementsFromContentElement(content);
+        this.imageCollector.findImagesUsedInDocument(content);
+        this.populateImageTable();
     }
 
     populateUIImpl() {
-        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("highestResolutionImagesRow").hidden = false;
         document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("imageSection").hidden = false;
         document.getElementById("outputSection").hidden = true;
@@ -160,20 +155,19 @@ class BakaTsukiParser extends Parser {
     }
 
     epubItemSupplier() {
-        let that = this;
-        let content = that.findContent(this.state.firstPageDom).cloneNode(true);
-        that.removeUnwantedElementsFromContentElement(content);
+        let content = this.findContent(this.state.firstPageDom).cloneNode(true);
+        this.removeUnwantedElementsFromContentElement(content);
         util.fixBlockTagsNestedInInlineTags(content);
-        that.replaceImageTags(content);
+        this.replaceImageTags(content);
         util.removeUnusedHeadingLevels(content);
-        if (that.userPreferences.unSuperScriptAlternateTranslations.value) {
+        if (this.userPreferences.unSuperScriptAlternateTranslations.value) {
             BakaTsukiParser.unSuperScriptAlternateTranslations(content);
         }
         util.prepForConvertToXhtml(content);
         util.removeEmptyDivElements(content);
-        let epubItems = that.splitContentIntoEpubItems(content, this.state.firstPageDom.baseURI);
+        let epubItems = this.splitContentIntoEpubItems(content, this.state.firstPageDom.baseURI);
         BakaTsukiParser.fixupInternalHyperLinks(epubItems);
-        return new EpubItemSupplier(that, epubItems, that.imageCollector);
+        return new EpubItemSupplier(this, epubItems, this.imageCollector);
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -257,11 +251,10 @@ class BakaTsukiParser extends Parser {
     }
 
     splitContentIntoEpubItems(content, sourceUrl) {
-        let that = this;
-        that.flattenContent(content);
+        this.flattenContent(content);
         let items = BakaTsukiParser.splitContentOnHeadingTags(content);
-        items = that.consolidateItems(items);
-        items = that.discardItemsWithNoVisibleContent(items);
+        items = this.consolidateItems(items);
+        items = this.discardItemsWithNoVisibleContent(items);
         return BakaTsukiParser.itemsToEpubItems(items, 0, sourceUrl);
     }
 
@@ -278,8 +271,7 @@ class BakaTsukiParser extends Parser {
     }
 
     nodeNeedsToBeFlattened(node) {
-        let that = this;
-        let numHeaders = that.numberOfHeaderTags(node);
+        let numHeaders = this.numberOfHeaderTags(node);
         return ((1 < numHeaders) || ((numHeaders === 1) && !BakaTsukiParser.isChapterStart(node)));
     }
 
@@ -400,11 +392,10 @@ class BakaTsukiParser extends Parser {
     }
 
     onFetchImagesClicked() {
-        let that = this;
-        if (0 == that.imageCollector.imageInfoList.length) {
+        if (0 == this.imageCollector.imageInfoList.length) {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("noImagesFound"));
         } else {
-            that.fetchContent();
+            this.fetchContent();
         }
     }
 

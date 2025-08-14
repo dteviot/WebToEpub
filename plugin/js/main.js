@@ -18,7 +18,7 @@ var main = (function() {
     }
 
     // details 
-    let initalWebPage = null;
+    let initialWebPage = null;
     let parser = null;
     let userPreferences = null;
     let library = new Library; 
@@ -62,7 +62,7 @@ var main = (function() {
     }
 
     function setUiToDefaultState() {
-        document.getElementById("higestResolutionImagesRow").hidden = true; 
+        document.getElementById("highestResolutionImagesRow").hidden = true;
         document.getElementById("unSuperScriptAlternateTranslations").hidden = true; 
         document.getElementById("imageSection").hidden = true;
         document.getElementById("outputSection").hidden = false;
@@ -152,9 +152,9 @@ var main = (function() {
         main.getPackEpubButton().disabled = true;
         replaceLibAddToLibrary();
         parser.onStartCollecting();
-        await parser.fetchContent().then(function() {
+        await parser.fetchContent().then(() => {
             return packEpub(metaInfo);
-        }).then(function(content) {
+        }).then((content) => {
             // Enable button here.  If user cancels save dialog
             // the promise never returns
             window.workInProgress = false;
@@ -163,14 +163,14 @@ var main = (function() {
             let overwriteExisting = userPreferences.overwriteExistingEpub.value;
             let backgroundDownload = userPreferences.noDownloadPopup.value;
             let fileName = Download.CustomFilename();
-            if ("yes" == libclick.dataset.libclick || util.sleepControler.signal.aborted) {
+            if ("yes" == libclick.dataset.libclick || util.sleepController.signal.aborted) {
                 return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             }
             return Download.save(content, fileName, overwriteExisting, backgroundDownload);
-        }).then(function() {
+        }).then(() => {
             parser.updateReadingList();
-            if (util.sleepControler.signal.aborted) {
-                util.sleepControler = new AbortController;
+            if (util.sleepController.signal.aborted) {
+                util.sleepController = new AbortController;
                 resetUI();
             }
             if (libclick.dataset.libsuppressErrorLog == true) {
@@ -179,11 +179,11 @@ var main = (function() {
                 ErrorLog.showLogToUser();
                 dumpErrorLogToFile();
             }
-        }).catch(function(err) {
+        }).catch((err) => {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
-            if (util.sleepControler.signal.aborted) {
-                util.sleepControler = new AbortController;
+            if (util.sleepController.signal.aborted) {
+                util.sleepController = new AbortController;
             }
             replaceLibAddToLibrary();
             ErrorLog.showErrorMessage(err);
@@ -197,8 +197,8 @@ var main = (function() {
         el.hidden = !el.hidden;
     }
 
-    function pauseToLibarary() {
-        util.sleepControler.abort();
+    function pauseToLibrary() {
+        util.sleepController.abort();
     }
 
     function epubVersionFromPreferences() {
@@ -270,12 +270,12 @@ var main = (function() {
     }
 
     async function populateControlsWithDom(url, dom) {
-        initalWebPage = dom;
+        initialWebPage = dom;
         setUiFieldToValue("startingUrlInput", url);
 
         // set the base tag, in case server did not supply it 
-        util.setBaseTag(url, initalWebPage);
-        await processInitialHtml(url, initalWebPage);
+        util.setBaseTag(url, initialWebPage);
+        await processInitialHtml(url, initialWebPage);
         if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
             autosearchadditionalmetadata();
         }
@@ -338,7 +338,7 @@ var main = (function() {
 
     function openTabWindow() {
         // open new tab window, passing ID of open tab with content to convert to epub as query parameter.
-        getActiveTab().then(function(tabId) {
+        getActiveTab().then((tabId) => {
             let url = chrome.runtime.getURL("popup.html") + "?id=";
             url += tabId;
             try {
@@ -353,8 +353,8 @@ var main = (function() {
     }
 
     function getActiveTab() {
-        return new Promise(function(resolve, reject) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function(tabs) {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
                 if ((tabs != null) && (0 < tabs.length)) {
                     resolve(tabs[0].id);
                 } else {
@@ -368,10 +368,10 @@ var main = (function() {
         // load page via XmlHTTPRequest
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
-        return HttpClient.wrapFetch(url).then(async function(xhr) {
+        return HttpClient.wrapFetch(url).then(async (xhr) => {
             await populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;
-        }).catch(function(error) {
+        }).catch((error) => {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
         });
@@ -397,7 +397,7 @@ var main = (function() {
     }
 
     function resetUI() {
-        initalWebPage = null;
+        initialWebPage = null;
         parser = null;
         let metaInfo = new EpubMetaInfo();
         metaInfo.uuid = "";
@@ -504,7 +504,7 @@ var main = (function() {
         [...sections.keys()].forEach(s => s.hidden = true);
 
         document.getElementById("readingListSection").hidden = false;
-        document.getElementById("closeReadingList").onclick = function() {
+        document.getElementById("closeReadingList").onclick = () => {
             [...sections].forEach(s => s[0].hidden = s[1]);
         };
 
@@ -532,10 +532,10 @@ var main = (function() {
         getManuallySelectParserTag().onchange = populateControls;
         document.getElementById("advancedOptionsButton").onclick = onAdvancedOptionsClick;
         document.getElementById("hiddenBibButton").onclick = onLibraryClick;
-        document.getElementById("ShowMoreMetadataOptionsCheckbox").addEventListener("change", function() {onShowMoreMetadataOptionsClick();});
-        document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", function() {Library.LibRenderSavedEpubs();});
+        document.getElementById("ShowMoreMetadataOptionsCheckbox").addEventListener("change", () => onShowMoreMetadataOptionsClick());
+        document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", () => Library.LibRenderSavedEpubs());
         document.getElementById("LibAddToLibrary").addEventListener("click", fetchContentAndPackEpub);
-        document.getElementById("LibPauseToLibrary").addEventListener("click", pauseToLibarary);
+        document.getElementById("LibPauseToLibrary").addEventListener("click", pauseToLibrary);
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
@@ -559,27 +559,27 @@ var main = (function() {
     function autosearchadditionalmetadata() {
         getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
-        let titelname = getValueFromUiField("titleInput");
-        let url ="https://www.novelupdates.com/series-finder/?sf=1&sh="+titelname;
+        let titlename = getValueFromUiField("titleInput");
+        let url ="https://www.novelupdates.com/series-finder/?sf=1&sh="+titlename;
         if (getValueFromUiField("subjectInput")==null) {
-            autosearchnovelupdates(url, titelname);
+            autosearchnovelupdates(url, titlename);
         }   
         getPackEpubButton().disabled = false; 
         document.getElementById("LibAddToLibrary").disabled = false;    
     }
 	
-    function autosearchnovelupdates(url, titelname) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            findnovelupdatesurl(url, xhr.responseXML, titelname);
-        }).catch(function(error) {
+    function autosearchnovelupdates(url, titlename) {
+        return HttpClient.wrapFetch(url).then((xhr) => {
+            findnovelupdatesurl(url, xhr.responseXML, titlename);
+        }).catch((error) => {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
         });
     }
 
-    function findnovelupdatesurl(url, dom, titelname) {
+    function findnovelupdatesurl(url, dom, titlename) {
         try {    
-            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titelname)[0];
+            let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titlename)[0];
             setUiFieldToValue("metadataUrlInput", searchurl.href);
             url = getValueFromUiField("metadataUrlInput");
             if (url.includes("novelupdates.com") == true) {
@@ -594,9 +594,9 @@ var main = (function() {
         getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
         let url = getValueFromUiField("metadataUrlInput");
-        return HttpClient.wrapFetch(url).then(function(xhr) {
+        return HttpClient.wrapFetch(url).then((xhr) => {
             populateMetadataAddWithDom(url, xhr.responseXML);
-        }).catch(function(error) {
+        }).catch((error) => {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
         });
@@ -621,7 +621,7 @@ var main = (function() {
     }
 
     // actions to do when window opened
-    window.onload = function() {
+    window.onload = () => {
         userPreferences = UserPreferences.readFromLocalStorage();
         if (isRunningInTabMode()) { 
             ErrorLog.SuppressErrorLog =  false;

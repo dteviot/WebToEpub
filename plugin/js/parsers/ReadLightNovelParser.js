@@ -3,12 +3,12 @@
 */
 "use strict";
 
-parserFactory.register("readlightnovel.me", function() { return new ReadLightNovelParser(); });
-parserFactory.register("readlightnovel.meme", function() { return new ReadLightNovelParser(); });
+parserFactory.register("readlightnovel.me", () => new ReadLightNovelParser());
+parserFactory.register("readlightnovel.meme", () => new ReadLightNovelParser());
 //dead url
-parserFactory.register("readlightnovel.org", function() { return new ReadLightNovelParser(); });
+parserFactory.register("readlightnovel.org", () => new ReadLightNovelParser());
 //dead url
-parserFactory.register("readlightnovel.today", function() { return new ReadLightNovelParser(); });
+parserFactory.register("readlightnovel.today", () => new ReadLightNovelParser());
 
 class ReadLightNovelParser extends Parser {
     constructor() {
@@ -16,9 +16,8 @@ class ReadLightNovelParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
         let chaptersDiv = dom.querySelector("div.chapters");
-        let chapters = util.hyperlinksToChapterList(chaptersDiv, that.isChapterHref, that.getChapterArc);
+        let chapters = util.hyperlinksToChapterList(chaptersDiv, this.isChapterHref, this.getChapterArc);
         if (0 < chapters.length) {
             return Promise.resolve(chapters);
         }
@@ -59,9 +58,8 @@ class ReadLightNovelParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let that = this;
         let div = util.getElement(dom, "div", d => (d.className === "novel-detail-item") &&
-            (that.novelDetailHeaderName(d) === "Author(s)"));
+            (this.novelDetailHeaderName(d) === "Author(s)"));
         if (div !== null) {
             let li = div.querySelector("li");
             if (li != null) {

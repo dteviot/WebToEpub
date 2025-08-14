@@ -4,7 +4,6 @@
 module("ZipAndDownload");
 
 function syncLoadTestFile() {
-    let that = this;
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "../testdata/C1.html", false);
     xhr.send(null);

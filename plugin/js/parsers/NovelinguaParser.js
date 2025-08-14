@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("novelingua.com", function() { return new NovelinguaParser(); });
+parserFactory.register("novelingua.com", () => new NovelinguaParser());
 
 class NovelinguaParser extends Parser {
     constructor() {

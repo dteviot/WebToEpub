@@ -1,7 +1,7 @@
 "use strict";
 parserFactory.registerManualSelect(
     "Xenforo Batch Post Parser",
-    function() { return new XenforoBatchParser(); }
+    () => new XenforoBatchParser()
 );
 
 class XenforoBatchParser extends Parser {

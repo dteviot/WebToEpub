@@ -28,6 +28,8 @@ module.exports = {
         ],
         "no-undef": "error",
         "no-unused-vars": "error",
+        // needed to avoid no-redeclare errors for our project globals below
+        "no-redeclare": ["error", { "builtinGlobals": false }],
         "space-before-blocks": ["error", "always"],
         "space-before-function-paren": ["error", {
             "anonymous": "never",    // function() {}
@@ -41,7 +43,49 @@ module.exports = {
         }],
     },
     "globals": {
-        "zip": "readable",
+        // Third-party libraries
         "DOMPurify": "readonly",
+        "zip": "readonly",
+
+        // Project globals
+        "BakaTsukiImageCollector": "readonly",
+        "BakaTsukiParser": "readonly",
+        "BakaTsukiSeriesPageParser": "readonly",
+        "BlockedHostNames": "readonly",
+        "BlogspotParser": "readonly",
+        "ChapterEpubItem": "readonly",
+        "ChapterUrlsUI": "readonly",
+        "CoverImageUI": "readonly",
+        "DefaultParser": "readonly",
+        "DefaultParserSiteSettings": "readonly",
+        "DefaultParserUI": "readonly",
+        "Download": "readonly",
+        "EpubItem": "readonly",
+        "EpubItemSupplier": "readonly",
+        "EpubMetaInfo": "readonly",
+        "EpubPacker": "readonly",
+        "ErrorLog": "readonly",
+        "FetchCache": "readonly",
+        "FetchErrorHandler": "readonly",
+        "FetchImageErrorHandler": "readonly",
+        "Firefox": "readonly",
+        "FootnoteExtractor": "readonly",
+        "HttpClient": "readonly",
+        "ImageCollector": "readonly",
+        "ImageInfo": "readonly",
+        "Imgur": "readonly",
+        "Library": "readonly",
+        "MadaraParser": "readonly",
+        "main": "readonly",
+        "NovelfullParser": "readonly",
+        "Parser": "readonly",
+        "parserFactory": "readonly",
+        "ProgressBar": "readonly",
+        "ReadingList": "readonly",
+        "RoyalRoadParser": "readonly",
+        "UserPreferences": "readonly",
+        "util": "readonly",
+        "VariableSizeImageCollector": "readonly",
+        "WordpressBaseParser": "readonly"
     }
 };

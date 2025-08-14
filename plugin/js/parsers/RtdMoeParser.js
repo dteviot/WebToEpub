@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("rtd.moe", function() { return new RtdMoeParser(); });
+parserFactory.register("rtd.moe", () => new RtdMoeParser());
 
 class RtdMoeParser extends Parser {
     constructor() {

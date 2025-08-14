@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("mangallama.com", function() { return new MangalamaParser(); });
+parserFactory.register("mangallama.com", () => new MangalamaParser());
 
 class MangalamaParser extends Parser {
     constructor() {

@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url
-parserFactory.register("zirusmusings.com", function() { return new ZirusMusingsParser(); });
+parserFactory.register("zirusmusings.com", () => new ZirusMusingsParser());
 parserFactory.register("zirusmusings.net", () => new ZirusMusingsParser());
 
 class ZirusMusingsParser extends Parser {

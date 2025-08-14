@@ -1,5 +1,5 @@
 "use strict";
-parserFactory.register("creativenovels.com", function() { return new CreativeNovelsParser(); });
+parserFactory.register("creativenovels.com", () => new CreativeNovelsParser());
 class CreativeNovelsParser extends Parser {
     constructor() {
         super();

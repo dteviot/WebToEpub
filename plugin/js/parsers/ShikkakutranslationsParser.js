@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register( "shikkakutranslations.org", function() { return new ShikkakutranslationsParser(); });
+parserFactory.register( "shikkakutranslations.org", () => new ShikkakutranslationsParser());
 
 class ShikkakutranslationsImageCollector extends ImageCollector {
     constructor() {

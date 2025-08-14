@@ -7,17 +7,17 @@ parserFactory.register("wuxiaworld.site", () => new MadaraParser());
 //dead url
 parserFactory.register("pery.info", () => new MadaraParser());
 parserFactory.register("morenovel.net", () => new MadaraParser());
-parserFactory.register("nightcomic.com", function() { return new MadaraParser(); });
+parserFactory.register("nightcomic.com", () => new MadaraParser());
 //dead url
-parserFactory.register("webnovel.live", function() { return new MadaraParser(); });
+parserFactory.register("webnovel.live", () => new MadaraParser());
 //dead url
-parserFactory.register("noveltrench.com", function() { return new MadaraParser(); });
-parserFactory.register("mangasushi.net", function() { return new MadaraParser(); });
+parserFactory.register("noveltrench.com", () => new MadaraParser());
+parserFactory.register("mangasushi.net", () => new MadaraParser());
 //dead url
-parserFactory.register("mangabob.com", function() { return new MadaraParser(); });
-parserFactory.register("greenztl2.com", function() { return new MadaraVariantParser(); });
+parserFactory.register("mangabob.com", () => new MadaraParser());
+parserFactory.register("greenztl2.com", () => new MadaraVariantParser());
 
-parserFactory.register("kdtnovels.com", function() { return new KdtnovelsParser(); });
+parserFactory.register("kdtnovels.com", () => new KdtnovelsParser());
 
 parserFactory.registerRule(
     (url, dom) => MadaraParser.isMadaraTheme(dom) * 0.6,

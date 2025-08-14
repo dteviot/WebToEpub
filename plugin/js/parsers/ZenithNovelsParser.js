@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("zenithnovels.com", function() { return new ZenithNovelsParser(); });
+parserFactory.register("zenithnovels.com", () => new ZenithNovelsParser());
 
 class ZenithNovelsParser extends WordpressBaseParser {
     constructor() {

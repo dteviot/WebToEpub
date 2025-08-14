@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("www.rebirth.online", function() { return new RebirthOnlineParser(); });
+parserFactory.register("www.rebirth.online", () => new RebirthOnlineParser());
 
 class RebirthOnlineParser extends Parser {
     constructor() {

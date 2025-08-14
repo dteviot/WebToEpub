@@ -10,7 +10,7 @@ class ParserFactory {
         this.parserRules = [];
         this.parserUrlRules = [];
         this.manualSelection = [];
-        this.registerManualSelect("", function() { return undefined; });
+        this.registerManualSelect("", () => undefined);
     }
 
     static isWebArchive(url) {

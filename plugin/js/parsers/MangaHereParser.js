@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("www.mangahere.cc", function() { return new MangaHereParser(); });
+parserFactory.register("www.mangahere.cc", () => new MangaHereParser());
 
 class MangaHereParser extends Parser {
     constructor() {

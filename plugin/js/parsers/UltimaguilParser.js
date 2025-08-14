@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("ultimaguil.org", function() { return new UltimaguilParser(new VariableSizeImageCollector()); });
+parserFactory.register("ultimaguil.org", () => new UltimaguilParser(new VariableSizeImageCollector()));
 
 class UltimaguilParser extends Parser {
     constructor(imageCollector) {
@@ -30,15 +30,14 @@ class UltimaguilParser extends Parser {
     }
 
     populateUIImpl() {
-        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("highestResolutionImagesRow").hidden = false;
     }
 
     webPageToEpubItems(webPage, epubItemIndex) {
-        let that = this;
-        let content = that.convertRawDomToContent(webPage);
+        let content = this.convertRawDomToContent(webPage);
         let items = [];
         if (content != null) {
-            items = that.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
+            items = this.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
         }
         return items;
     }

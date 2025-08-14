@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("kobatochan.com", function() { return new KobatochanParser(); });
+parserFactory.register("kobatochan.com", () => new KobatochanParser());
 
 class KobatochanParser extends WordpressBaseParser {
     constructor() {
@@ -9,12 +9,11 @@ class KobatochanParser extends WordpressBaseParser {
     }
 
     fetchChapter(url) {
-        let that = this;
-        return HttpClient.wrapFetch(url).then(function(xhr) {
+        return HttpClient.wrapFetch(url).then((xhr) => {
             let newDom = xhr.responseXML;
             let extraPageUrls = KobatochanParser.findAdditionalPageUrls(newDom);
             KobatochanParser.removePaginationElements(newDom);
-            return that.fetchAdditionalPages(newDom, extraPageUrls.reverse());
+            return this.fetchAdditionalPages(newDom, extraPageUrls.reverse());
         });
     }
 
@@ -29,19 +28,18 @@ class KobatochanParser extends WordpressBaseParser {
     }
 
     fetchAdditionalPages(dom, extraPageUrls) {
-        let that = this;
         if (extraPageUrls.length === 0) {
             return Promise.resolve(dom);
         }
-        return HttpClient.wrapFetch(extraPageUrls.pop()).then(function(xhr) {
+        return HttpClient.wrapFetch(extraPageUrls.pop()).then((xhr) => {
             let newDom = xhr.responseXML;
             KobatochanParser.removePaginationElements(newDom);
-            let dest = that.findContent(dom);
-            let src = that.findContent(newDom);
+            let dest = this.findContent(dom);
+            let src = this.findContent(newDom);
             for (let node of [...src.childNodes]) {
                 dest.appendChild(node);
             }
-            return that.fetchAdditionalPages(dom, extraPageUrls);
+            return this.fetchAdditionalPages(dom, extraPageUrls);
         });
     }
 

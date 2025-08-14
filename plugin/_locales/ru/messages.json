@@ -157,7 +157,7 @@
 	},
 	"__MSG_label_Default_Parser_Test_Chapter_Url__": {
 		"message": "Адрес первой главы:",
-		"description": "Label in front of input for URL to test deefault parser settings."
+		"description": "Label in front of input for URL to test default parser settings."
 	},
 	"__MSG_label_Default_Parser_Unwanted_Elements_CSS__": {
 		"message": "CSS-селектор элемента(ов), которые будут удалены:",

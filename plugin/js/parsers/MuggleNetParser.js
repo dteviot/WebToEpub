@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("fanfiction.mugglenet.com", function() { return new MuggleNetParser(); });
+parserFactory.register("fanfiction.mugglenet.com", () => new MuggleNetParser());
 
 class MuggleNetParser extends Parser {
     constructor() {
@@ -12,14 +12,13 @@ class MuggleNetParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let that = this;
-        let baseUrl = that.getBaseUrl(dom);
+        let baseUrl = this.getBaseUrl(dom);
         let options = [...dom.querySelectorAll("select[name='chapter'] option")];
         if (options.length === 0) {
             // no list of chapters found, assume it's a single chapter story
-            return Promise.resolve(that.singleChapterStory(baseUrl, dom));
+            return Promise.resolve(this.singleChapterStory(baseUrl, dom));
         } else {
-            return Promise.resolve(options.map(option => that.optionToChapterInfo(baseUrl, option)));
+            return Promise.resolve(options.map(option => this.optionToChapterInfo(baseUrl, option)));
         }
     }
 

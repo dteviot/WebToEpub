@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("forums.nrvnqsr.com", function() { return new NrvnqsrParser(); });
+parserFactory.register("forums.nrvnqsr.com", () => new NrvnqsrParser());
 
 class NrvnqsrParser extends Parser {
     constructor() {

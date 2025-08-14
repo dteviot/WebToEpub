@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("sspai.com", function() { return new SspaiParser(); });
+parserFactory.register("sspai.com", () => new SspaiParser());
 
 class SspaiParser extends Parser {
     constructor() {

@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("wuxiaworld.co", function() { return new WuxiaworldCoParser(); });
+parserFactory.register("wuxiaworld.co", () => new WuxiaworldCoParser());
 //dead url
 parserFactory.register("m.wuxiaworld.co", () => new WuxiaworldCoParser());
 //dead url

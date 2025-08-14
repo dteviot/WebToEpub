@@ -20,7 +20,7 @@ QUnit.test("unknownUrlReturnsDefaultParser", function (assert) {
 QUnit.test("cantRegisterDuplicateUrls", function (assert) {
     let exceptionThrown = false;
     try {
-        parserFactory.register("archiveofourown.org", function() { return new ArchiveOfOurOwnParser() })
+        parserFactory.register("archiveofourown.org", () => new ArchiveOfOurOwnParser())
     }
     catch (error) {
         exceptionThrown = true;
@@ -49,10 +49,10 @@ QUnit.test("fetch", function (assert) {
 });
 
 QUnit.test("reregister", function (assert) {
-    parserFactory.register("reregister.org", function() { return new ArchiveOfOurOwnParser() })
+    parserFactory.register("reregister.org", () => new ArchiveOfOurOwnParser())
     let parser = parserFactory.fetch("http://reregister.org");
     assert.ok(parser instanceof ArchiveOfOurOwnParser );
-    parserFactory.reregister("reregister.org", function() { return new FanFictionParser() })
+    parserFactory.reregister("reregister.org", () => new FanFictionParser())
     parser = parserFactory.fetch("https://reregister.org/s/1234567/1/WebToEpub")
     assert.ok(parser instanceof FanFictionParser );
 });

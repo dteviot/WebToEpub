@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("translationchicken.com", function() { return new TranslationChickenParser(); });
+parserFactory.register("translationchicken.com", () => new TranslationChickenParser());
 
 class TranslationChickenParser extends WordpressBaseParser {
     constructor() {

@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("wattpad.com", function() { return new WattpadParser(); });
+parserFactory.register("wattpad.com", () => new WattpadParser());
 
 class WattpadImageCollector extends ImageCollector {
     constructor() {

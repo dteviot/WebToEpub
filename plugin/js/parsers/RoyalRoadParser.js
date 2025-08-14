@@ -3,8 +3,8 @@
 */
 "use strict";
 
-parserFactory.register("royalroadl.com", function() { return new RoyalRoadParser(); });
-parserFactory.register("royalroad.com", function() { return new RoyalRoadParser(); });
+parserFactory.register("royalroadl.com", () => new RoyalRoadParser());
+parserFactory.register("royalroad.com", () => new RoyalRoadParser());
 
 class RoyalRoadParser extends Parser {
     constructor() {

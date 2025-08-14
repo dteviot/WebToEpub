@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("chosentwofanfic.com", function() { return new ChosentwofanficParser(); });
+parserFactory.register("chosentwofanfic.com", () => new ChosentwofanficParser());
 
 class ChosentwofanficParser extends Parser {
     constructor() {

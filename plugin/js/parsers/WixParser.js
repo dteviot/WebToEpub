@@ -61,11 +61,10 @@ class WixParser extends Parser {
     }
 
     fetchChapter(url) {
-        let that = this;
         let restUrl = this.mapPageUrltoRestUrl.get(url);
-        return HttpClient.fetchJson(restUrl).then(function(handler) {
-            let content = that.findContentInJson(handler.json);
-            return Promise.resolve(that.constructDoc(content, url));
+        return HttpClient.fetchJson(restUrl).then((handler) => {
+            let content = this.findContentInJson(handler.json);
+            return Promise.resolve(this.constructDoc(content, url));
         });
     }
     

@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("archiveofourown.org", function() { return new ArchiveOfOurOwnParser(); });
+parserFactory.register("archiveofourown.org", () => new ArchiveOfOurOwnParser());
 
 class ArchiveOfOurOwnParser extends Parser {
     constructor() {

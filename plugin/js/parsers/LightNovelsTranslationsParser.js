@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("lightnovelstranslations.com", function() { return new LightNovelsTranslationsParser(); });
+parserFactory.register("lightnovelstranslations.com", () => new LightNovelsTranslationsParser());
 
 class LightNovelsTranslationsParser extends WordpressBaseParser {
     constructor() {

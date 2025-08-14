@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("novelupdates.com", function() { return new NovelUpdatesParser(); });
+parserFactory.register("novelupdates.com", () => new NovelUpdatesParser());
 
 class NovelUpdatesParser extends Parser {
     constructor() {

@@ -6,7 +6,7 @@
 
 /** class that handles image tags 
  * urlIndex - track URLs associated with an ImageInfo
- * bitmapIndex - hashes of the image bitmaps, to allow us to elminate duplicate images
+ * bitmapIndex - hashes of the image bitmaps, to allow us to eliminate duplicate images
  * imagesToFetch - images that need to be fetched from internet
  * imagesToPack - images to pack into epub
 */
@@ -77,14 +77,13 @@ class ImageCollector {
         // Note, this can be called in two cases.
         // 1. Baka-Tsuki, where images have already been loaded, so image may already be present
         // 2. Other Parsers, so image is not present.
-        let that = this;
         if (!util.isNullOrEmpty(url)) {
-            let info = that.imageInfoByUrl(url);
+            let info = this.imageInfoByUrl(url);
             if (info === null) {
-                info = that.addImageInfo(url, url, null, true);
+                info = this.addImageInfo(url, url, null, true);
             }
             info.isCover = true;
-            that.coverImageInfo = info;
+            this.coverImageInfo = info;
         }
     }
 
@@ -115,19 +114,18 @@ class ImageCollector {
     * @private
     */
     addToPackList(imageInfo) {
-        let that = this;
         let hash = ImageCollector.calculateHash(imageInfo.arraybuffer);
-        let index = that.bitmapIndex.get(hash);
+        let index = this.bitmapIndex.get(hash);
         if (index === undefined) {
             // first time we've seen the bitmap, so all OK
-            that.bitmapIndex.set(hash, imageInfo.index);
-            that.imagesToPack.push(imageInfo);
+            this.bitmapIndex.set(hash, imageInfo.index);
+            this.imagesToPack.push(imageInfo);
         } else {
             // duplicate bitmap, use previous version
             let wrongIndex = imageInfo.index;
-            for (let [key, value] of that.urlIndex) {
+            for (let [key, value] of this.urlIndex) {
                 if (value === wrongIndex) {
-                    that.urlIndex.set(key, index);
+                    this.urlIndex.set(key, index);
                 }
             }
         }
@@ -174,15 +172,12 @@ class ImageCollector {
     }
 
     makeImageTagReplacer(element) {
-        let that = this;
-        let wrappingElement = that.findImageWrappingElement(element);
-        let wrappingUrl = that.extractWrappingUrl(wrappingElement);
-        return new ImageTagReplacer(wrappingElement, wrappingUrl, that.userPreferences);
+        let wrappingElement = this.findImageWrappingElement(element);
+        let wrappingUrl = this.extractWrappingUrl(wrappingElement);
+        return new ImageTagReplacer(wrappingElement, wrappingUrl, this.userPreferences);
     }
 
     findImageWrappingElement(element) {
-        let that = this;
-
         // find "highest" element that is wrapping an image element
         let link = this.findWrappingLink(element);
         if (link === null) {
@@ -191,7 +186,7 @@ class ImageCollector {
         }
         let parent = link;
         while (parent != null) {
-            if (that.isImageWrapperElement(parent)) {
+            if (this.isImageWrapperElement(parent)) {
                 return parent;
             }
             parent = parent.parentElement;
@@ -294,16 +289,15 @@ class ImageCollector {
     * @param {element} element containing <img> tags to update
     */
     replaceImageTags(element) {
-        let that = this;
         let converters = [];
         for (let currentNode of element.querySelectorAll("img")) {
-            converters.push(that.makeImageTagReplacer(currentNode));
+            converters.push(this.makeImageTagReplacer(currentNode));
         }
-        converters.forEach(c => c.replaceTag(that.imageInfoByUrl(c.wrappingUrl)));
+        converters.forEach(c => c.replaceTag(this.imageInfoByUrl(c.wrappingUrl)));
     }
 
     getImageDimensions(imageInfo) {
-        return new Promise(function(resolve, reject) { // eslint-disable-line no-unused-vars
+        return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
             let img = new Image();
             let options = {type: imageInfo.mediaType};
             let blob = new Blob([new Uint8Array(imageInfo.arraybuffer)], options);
@@ -327,13 +321,12 @@ class ImageCollector {
     }
 
     runCompression(imageInfo, img) {
-        var that = this;
-        return new Promise(function(resolve, reject) {
-            if (that.userPreferences.compressImages.value) 
+        return new Promise((resolve, reject) => {
+            if (this.userPreferences.compressImages.value) 
             {
                 let c = document.createElement("canvas");
                 let ctx = c.getContext("2d");
-                let maxResolution = that.userPreferences.compressImagesMaxResolution.value;            
+                let maxResolution = this.userPreferences.compressImagesMaxResolution.value;            
                 if (imageInfo.height > maxResolution || imageInfo.width > maxResolution)
                 {
                     if (imageInfo.height > imageInfo.width)
@@ -493,11 +486,11 @@ class ImageCollector {
     }
 
     /**
-    *  Derived classess will override
+    *  Derived classes will override
     *  Base version tells user there's a problem
     */
     selectImageUrlFromImagePage(dom) {
-        // try mediawkiki format
+        // try MediaWiki format
         let div = dom.querySelector("div.fullMedia");
         if (div !== null) {
             let link = div.querySelector("a");
@@ -554,14 +547,14 @@ class ImageCollector {
 
 //==============================================================
 
-class VariableSizeImageCollector extends ImageCollector {
+class VariableSizeImageCollector extends ImageCollector { // eslint-disable-line no-unused-vars
     constructor() {
         super();
     }
 
     onUserPreferencesUpdate(userPreferences) {
         super.onUserPreferencesUpdate(userPreferences);
-        if (userPreferences.higestResolutionImages.value) {
+        if (userPreferences.highestResolutionImages.value) {
             this.initialUrlToTry = (imageInfo) => imageInfo.wrappingUrl;
         } else {
             this.initialUrlToTry = (imageInfo) => imageInfo.sourceUrl;
@@ -589,14 +582,13 @@ class ImageTagReplacer {
      * @param {imageInfo} imageInfo to use to construct replacement tag
      */
     replaceTag(imageInfo) {
-        let that = this;
         // replace tag with nested <img> tag, with new <img> tag
-        let parent = that.wrappingElement.parentElement;
+        let parent = this.wrappingElement.parentElement;
         if ((imageInfo != null) && (parent != null)) {
-            if (that.isDuplicateImageToRemove(imageInfo)) {
-                that.wrappingElement.remove();
+            if (this.isDuplicateImageToRemove(imageInfo)) {
+                this.wrappingElement.remove();
             } else {
-                that.insertImageInLegalParent(parent, imageInfo);
+                this.insertImageInLegalParent(parent, imageInfo);
             }
         }
     }

@@ -23,8 +23,7 @@ class EpubItem {
 
     // name of the item in the zip.
     getZipHref() {
-        let that = this;
-        return util.makeStorageFileName("OEBPS/Text/", that.index, that.chapterTitle, "xhtml");
+        return util.makeStorageFileName("OEBPS/Text/", this.index, this.chapterTitle, "xhtml");
     }
 
     getId() {
@@ -51,7 +50,7 @@ class EpubItem {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
         let errorMessage = contentValidator(xml);
         if (errorMessage) {
-            let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning", 
+            let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning",
                 [this.chapterTitle, this.sourceUrl, errorMessage]
             );
             ErrorLog.log(errorMsg);
@@ -94,13 +93,12 @@ class EpubItem {
     }
 
     *chapterInfo() {
-        let that = this;
-        for (let element of that.nodes) {
+        for (let element of this.nodes) {
             if (util.isHeaderTag(element)) {
                 yield {
                     depth: this.tagNameToTocDepth(element.tagName),
                     title: element.textContent,
-                    src: that.getZipHref()
+                    src: this.getZipHref()
                 };
             }
         }
@@ -125,7 +123,7 @@ class EpubItem {
 //==============================================================
 // Construct an Epub item from source where each chapter 
 // was a separate HTML file.
-class ChapterEpubItem extends EpubItem {
+class ChapterEpubItem extends EpubItem { // eslint-disable-line no-unused-vars
     constructor(chapter, content, index) {
         super(chapter.sourceUrl);
         super.setIndex(index);
@@ -135,22 +133,20 @@ class ChapterEpubItem extends EpubItem {
     }
 
     *chapterInfo() {
-        let that = this;
-
-        let isStartOfNewArc = ((that.newArc !== null) && (that.newArc !== undefined));
+        let isStartOfNewArc = ((this.newArc !== null) && (this.newArc !== undefined));
         if (isStartOfNewArc) {
             yield {
                 depth: 0,
-                title: that.newArc,
-                src: that.getZipHref()
+                title: this.newArc,
+                src: this.getZipHref()
             };
         }
 
-        if (typeof (that.chapterTitle) !== "undefined") {
+        if (typeof (this.chapterTitle) !== "undefined") {
             yield {
                 depth: 1,
-                title: that.chapterTitle,
-                src: that.getZipHref()
+                title: this.chapterTitle,
+                src: this.getZipHref()
             };
         }
     }
@@ -167,7 +163,7 @@ class ChapterEpubItem extends EpubItem {
     height: "full size" image height 
     width: "full size" image width
 */
-class ImageInfo extends EpubItem {
+class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
     constructor(wrappingUrl, index, sourceUrl, dataOrigFileUrl) {
         super(sourceUrl);
         super.index = index;
@@ -184,9 +180,8 @@ class ImageInfo extends EpubItem {
     }
 
     getZipHref() {
-        let that = this;
-        let suffix = util.getDefaultExtensionByMime(that.mediaType) || that.findImageSuffix(that.wrappingUrl);
-        return util.makeStorageFileName("OEBPS/Images/", that.index, that.getImageName(that.wrappingUrl), suffix);
+        let suffix = util.getDefaultExtensionByMime(this.mediaType) || this.findImageSuffix(this.wrappingUrl);
+        return util.makeStorageFileName("OEBPS/Images/", this.index, this.getImageName(this.wrappingUrl), suffix);
     }
 
     getBase64(maxLength) {
@@ -219,9 +214,8 @@ class ImageInfo extends EpubItem {
     }
 
     findImageSuffix(wrappingUrl) {
-        let that = this;
         let suffix = "";
-        let fileName = that.extractImageFileNameFromUrl(wrappingUrl);
+        let fileName = this.extractImageFileNameFromUrl(wrappingUrl);
         if (fileName != null) {
             let index = fileName.lastIndexOf(".");
             suffix = fileName.substring(index + 1);
@@ -229,7 +223,7 @@ class ImageInfo extends EpubItem {
 
         // if can't find suffix from file, use the media type
         if (fileName == null) {
-            let split = that.mediaType.split("/");
+            let split = this.mediaType.split("/");
             suffix = split[split.length - 1];
 
             // special case
@@ -280,9 +274,8 @@ class ImageInfo extends EpubItem {
     }
 
     getImageName(page) {
-        let that = this;
         if (page) {
-            let name = that.extractImageFileNameFromUrl(page);
+            let name = this.extractImageFileNameFromUrl(page);
             if (name) {
                 return name.split(/\./gi)[0];
             }

@@ -77,59 +77,58 @@ class StringUserPreference extends UserPreference {
 }
 
 /** The collection of all preferences for user  */
-class UserPreferences {
+class UserPreferences { // eslint-disable-line no-unused-vars
     constructor() {
         this.preferences = [];
-        this.addPreference("removeDuplicateImages", "removeDuplicateImages", false);
-        this.addPreference("includeImageSourceUrl", "includeImageSourceUrlCheckboxInput", false);
-        this.addPreference("higestResolutionImages", "higestResolutionImagesCheckboxInput", true);
-        this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
-        this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
-        this.addPreference("CustomFilename", "CustomFilenameInput", "%Filename%");
-        this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
-        this.addPreference("removeNextAndPreviousChapterHyperlinks", "removeNextAndPreviousChapterHyperlinksInput", true);
-        this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", true);
-        this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", true);
-        this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", true);
-        this.addPreference("createEpub3", "createEpub3Checkbox", true);
-        this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
-        this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
-        this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
-        this.addPreference("removeChapterNumber", "removeChapterNumberCheckbox", false);
-        this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
-        this.addPreference("selectTranslationAi", "selectTranslationAiCheckbox", false);
-        this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
-        this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "32");
-        this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", true);
-        this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
-        this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
-        this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
-        this.addPreference("skipImages", "skipImagesCheckbox", false);
-        this.addPreference("compressImages", "compressImagesCheckbox", false);
-        this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
-        this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
-        this.addPreference("themeColor", "themeColorTag", "");
-        this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", true);
-        this.addPreference("addInformationPage", "addInformationPageToEpubCheckbox", true);
-        this.addPreference("lesstags", "lesstagsCheckbox", false);
-        this.addPreference("autosearchmetadata", "autosearchmetadataCheckbox", false);
-        this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", false);
-        this.addPreference("ShowMoreMetadataOptions", "ShowMoreMetadataOptionsCheckbox", true);
-        this.addPreference("LibShowAdvancedOptions", "LibShowAdvancedOptionsCheckbox", true);
-        this.addPreference("LibShowCompactView", "LibShowCompactViewCheckbox", false);
-        this.addPreference("LibDownloadEpubAfterUpdate", "LibDownloadEpubAfterUpdateCheckbox", true);
         this.observers = [];
         this.readingList = new ReadingList();
+
+        // Initialize all preferences explicitly for IDE support
+        // (autocomplete, type inference, no unresolved variable warnings)
+        this.removeDuplicateImages = this.addPreference("removeDuplicateImages", "removeDuplicateImages", false);
+        this.includeImageSourceUrl = this.addPreference("includeImageSourceUrl", "includeImageSourceUrlCheckboxInput", false);
+        this.highestResolutionImages = this.addPreference("highestResolutionImages", "highestResolutionImagesCheckboxInput", true);
+        this.unSuperScriptAlternateTranslations = this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
+        this.styleSheet = this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
+        this.CustomFilename = this.addPreference("CustomFilename", "CustomFilenameInput", "%Filename%");
+        this.useSvgForImages = this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
+        this.removeNextAndPreviousChapterHyperlinks = this.addPreference("removeNextAndPreviousChapterHyperlinks", "removeNextAndPreviousChapterHyperlinksInput", true);
+        this.advancedOptionsVisibleByDefault = this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", true);
+        this.noDownloadPopup = this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", true);
+        this.writeErrorHistoryToFile = this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", true);
+        this.createEpub3 = this.addPreference("createEpub3", "createEpub3Checkbox", true);
+        this.chaptersPageInChapterList = this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
+        this.autoSelectBTSeriesPage = this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
+        this.removeAuthorNotes = this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
+        this.removeChapterNumber = this.addPreference("removeChapterNumber", "removeChapterNumberCheckbox", false);
+        this.removeOriginal = this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
+        this.selectTranslationAi = this.addPreference("selectTranslationAi", "selectTranslationAiCheckbox", false);
+        this.removeTranslated = this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
+        this.maxPagesToFetchSimultaneously = this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "32");
+        this.skipChaptersThatFailFetch = this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", true);
+        this.maxChaptersPerEpub = this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
+        this.manualDelayPerChapter = this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
+        this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
+        this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
+        this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
+        this.compressImagesMaxResolution = this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "2160");
+        this.overwriteExistingEpub = this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
+        this.themeColor = this.addPreference("themeColor", "themeColorTag", "");
+        this.useFullTitle = this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", true);
+        this.addInformationPage = this.addPreference("addInformationPage", "addInformationPageToEpubCheckbox", true);
+        this.lesstags = this.addPreference("lesstags", "lesstagsCheckbox", false);
+        this.autosearchmetadata = this.addPreference("autosearchmetadata", "autosearchmetadataCheckbox", false);
+        this.noAdditionalMetadata = this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", false);
+        this.ShowMoreMetadataOptions = this.addPreference("ShowMoreMetadataOptions", "ShowMoreMetadataOptionsCheckbox", true);
+        this.LibShowAdvancedOptions = this.addPreference("LibShowAdvancedOptions", "LibShowAdvancedOptionsCheckbox", true);
+        this.LibShowCompactView = this.addPreference("LibShowCompactView", "LibShowCompactViewCheckbox", false);
+        this.LibDownloadEpubAfterUpdate = this.addPreference("LibDownloadEpubAfterUpdate", "LibDownloadEpubAfterUpdateCheckbox", true);
 
         document.getElementById("themeColorTag").addEventListener("change", UserPreferences.SetTheme);
     }
 
     /** @private */
     addPreference(storageName, uiElementName, defaultValue) {
-        if (this[storageName] !== undefined) {
-            throw new Error("Preference " + storageName + " already created.");
-        }
-
         let preference = null;
         if (typeof(defaultValue) === "boolean") {
             preference = new BoolUserPreference(storageName, uiElementName, defaultValue);
@@ -139,7 +138,7 @@ class UserPreferences {
             throw new Error("Unknown preference type");
         }
         this.preferences.push(preference);
-        this[storageName] = preference;
+        return preference;
     }
 
     static readFromLocalStorage() {
@@ -173,9 +172,8 @@ class UserPreferences {
     }
 
     notifyObserversOfChange() {
-        let that = this;
-        for (let observer of that.observers) {
-            observer.onUserPreferencesUpdate(that);
+        for (let observer of this.observers) {
+            observer.onUserPreferencesUpdate(this);
         }
     }
 
@@ -225,7 +223,7 @@ class UserPreferences {
             event.target.value = null;
             try {
                 let json = JSON.parse(content);
-                this.loadOpionsFromJson(json);
+                this.loadOptionsFromJson(json);
                 this.loadDefaultParserFromJson(json);
                 this.loadReadingListFromJson(json);
                 populateControls();
@@ -236,7 +234,7 @@ class UserPreferences {
         reader.readAsText(file);
     }
 
-    loadOpionsFromJson(json) {
+    loadOptionsFromJson(json) {
         for (let p of this.preferences) {
             let val = json[p.storageName];
             if (val !== undefined && (p.value !== val)) {

@@ -6,7 +6,6 @@ module("BakaTsuki");
 /// Load the sample file
 /// As file operation is async, load the sample file into dom, and call doneCallback when file loaded
 function syncLoadBakaTsukiSampleDoc() {
-    let that = this;
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "../testdata/Baka-Tsuki.html", false);
     xhr.send(null);

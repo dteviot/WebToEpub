@@ -3,17 +3,17 @@
 */
 "use strict";
 
-parserFactory.register("novelonlinefree.com", function() { return new NovelOnlineFreeParser(); });
+parserFactory.register("novelonlinefree.com", () => new NovelOnlineFreeParser());
 //dead url
-parserFactory.register("novelonlinefree.info", function() { return new NovelOnlineFreeParser(); });
-parserFactory.register("novelonlinefull.com", function() { return new NovelOnlineFreeParser(); });
-parserFactory.register("wuxiaworld.online", function() { return new NovelOnlineFreeParser(); });
+parserFactory.register("novelonlinefree.info", () => new NovelOnlineFreeParser());
+parserFactory.register("novelonlinefull.com", () => new NovelOnlineFreeParser());
+parserFactory.register("wuxiaworld.online", () => new NovelOnlineFreeParser());
 //dead url
-parserFactory.register("chinesewuxia.world", function() { return new NovelOnlineFreeParser(); });
-parserFactory.register("bestlightnovel.com", function() { return new NovelOnlineFreeParser(); });
+parserFactory.register("chinesewuxia.world", () => new NovelOnlineFreeParser());
+parserFactory.register("bestlightnovel.com", () => new NovelOnlineFreeParser());
 //dead url
-parserFactory.register("wuxia-world.online", function() { return new NovelOnlineFreeParser(); });
-parserFactory.register("wuxiaworld.live", function() { return new NovelOnlineFreeParser(); });
+parserFactory.register("wuxia-world.online", () => new NovelOnlineFreeParser());
+parserFactory.register("wuxiaworld.live", () => new NovelOnlineFreeParser());
 
 class NovelOnlineFreeParser extends Parser {
     constructor() {

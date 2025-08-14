@@ -1,7 +1,7 @@
 "use strict";
 
 /** Class that handles UI for selecting cover image */
-class CoverImageUI {
+class CoverImageUI { // eslint-disable-line no-unused-vars
     constructor() {
     }
 
@@ -49,7 +49,7 @@ class CoverImageUI {
             imagesTable.parentElement.appendChild(document.createTextNode(chrome.i18n.getMessage("noImagesFoundLabel")));
         }
         else {
-            images.forEach(function(imageInfo) {
+            images.forEach((imageInfo) => {
                 let row = document.createElement("tr");
         
                 // add checkbox
@@ -76,7 +76,7 @@ class CoverImageUI {
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.id = "setCoverCheckBox" + checkBoxIndex;
-        checkbox.onclick = function() { CoverImageUI.onImageClicked(checkbox.id, sourceUrl); };
+        checkbox.onclick = () => { CoverImageUI.onImageClicked(checkbox.id, sourceUrl); };
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(chrome.i18n.getMessage("setCover")));
 

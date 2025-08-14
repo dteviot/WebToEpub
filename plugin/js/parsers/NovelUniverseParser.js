@@ -4,7 +4,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("noveluniverse.com", function() { return new NovelUniverseParser(); });
+parserFactory.register("noveluniverse.com", () => new NovelUniverseParser());
 
 class NovelUniverseParser extends Parser {
     constructor() {

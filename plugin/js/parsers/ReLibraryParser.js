@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("re-library.com", function() { return new ReLibraryParser(); });
+parserFactory.register("re-library.com", () => new ReLibraryParser());
 
 class ReLibraryParser extends WordpressBaseParser {
     constructor() {

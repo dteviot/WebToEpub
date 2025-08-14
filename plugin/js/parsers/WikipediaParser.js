@@ -10,7 +10,7 @@ parserFactory.registerUrlRule(
 
 parserFactory.registerManualSelect(
     "Wikipedia", 
-    function() { return new WikipediaParser(); }
+    () => new WikipediaParser()
 );
 
 class WikipediaParser extends Parser {

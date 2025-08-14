@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("lightnovelbastion.com", function() { return new LightNovelBastionParser(); });
+parserFactory.register("lightnovelbastion.com", () => new LightNovelBastionParser());
 
 class LightNovelBastionParser extends Parser {
     constructor() {

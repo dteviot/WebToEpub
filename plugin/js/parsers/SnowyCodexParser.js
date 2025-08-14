@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("snowycodex.com", function() { return new SnowyCodexParser(); });
+parserFactory.register("snowycodex.com", () => new SnowyCodexParser());
 
 class SnowyCodexParser extends WordpressBaseParser {
     constructor() {

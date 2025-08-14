@@ -1,7 +1,7 @@
 "use strict";
 
 //dead url/ parser
-parserFactory.register("anythingnovel.com", function() { return new AnythingNovelParser(); });
+parserFactory.register("anythingnovel.com", () => new AnythingNovelParser());
 
 class AnythingNovelParser extends Parser {
     constructor() {

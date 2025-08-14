@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("krytykal.org", function() { return new KrytykalParser(); });
+parserFactory.register("krytykal.org", () => new KrytykalParser());
 
 class KrytykalParser extends Parser {
     constructor() {

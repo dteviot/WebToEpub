@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("buntls.com", function() { return new BuntlsParser(); });
+parserFactory.register("buntls.com", () => new BuntlsParser());
 
 class BuntlsParser extends Parser {
     constructor() {

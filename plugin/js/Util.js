@@ -8,15 +8,15 @@
 "use strict";
 
 const util = (function() {
-    var sleepControler = new AbortController;
+    var sleepController = new AbortController;
     
     function sleep(ms) {
         return new Promise(resolve => {
             function finished() {
                 resolve();
-                sleepControler.signal.removeEventListener("abort", finished);
+                sleepController.signal.removeEventListener("abort", finished);
             }
-            sleepControler.signal.addEventListener("abort", finished);
+            sleepController.signal.addEventListener("abort", finished);
             setTimeout(finished, ms);
         });
     }
@@ -66,8 +66,7 @@ const util = (function() {
     function createSvgImageElement(href, width, height, origin, includeImageSourceUrl) {
         let svg_ns = "http://www.w3.org/2000/svg";
         let xlink_ns = "http://www.w3.org/1999/xlink";
-        let that = this;
-        let doc = that.createEmptyXhtmlDoc();
+        let doc = createEmptyXhtmlDoc();
         let body = doc.getElementsByTagName("body")[0];
         let div = doc.createElementNS(XMLNS, "div");
         div.className = "svg_outer svg_inner";
@@ -169,9 +168,7 @@ const util = (function() {
     }
 
     function decodeEmail(encodedString) {
-        let extractHex = function(index) {
-            return parseInt(encodedString.slice(index, index + 2), 16);
-        };
+        let extractHex = (index) => parseInt(encodedString.slice(index, index + 2), 16);
         let key = extractHex(0);
         let email = "";
         for (let index = 2; index < encodedString.length; index += 2) {
@@ -298,10 +295,7 @@ const util = (function() {
     }
 
     function convertPreTagToPTags(dom, element, splitOn) {
-        let normalizeEol = function(s) {
-            return s.replace(/\r\n/g, "\n")
-                .replace(/\r/g, "\n");
-        };
+        let normalizeEol = (s) => s.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
         splitOn = splitOn || "\n";
         let strings = normalizeEol(element.innerText).split(splitOn);
@@ -638,10 +632,10 @@ const util = (function() {
     function normalizeUrlForCompare(url) {
         let noTrailingSlash = removeTrailingSlash(removeAnchor(url));
 
-        const protocolSeperator = "://";
-        let protocolIndex = noTrailingSlash.indexOf(protocolSeperator);
+        const protocolSeparator = "://";
+        let protocolIndex = noTrailingSlash.indexOf(protocolSeparator);
         return (protocolIndex < 0) ? noTrailingSlash
-            : noTrailingSlash.substring(protocolIndex + protocolSeperator.length);
+            : noTrailingSlash.substring(protocolIndex + protocolSeparator.length);
     }
 
     function hyperLinkToChapter(link, newArc) {
@@ -937,12 +931,10 @@ const util = (function() {
     }
 
     function createChapterTab(url) {
-        return new Promise(function(resolve) {
-            chrome.tabs.create({url: url, active: false},
-                function(tab) {
-                    resolve(tab.id);
-                }
-            );
+        return new Promise((resolve) => {
+            chrome.tabs.create({url: url, active: false}, (tab) => {
+                resolve(tab.id);
+            });
         });
     }
 
@@ -1141,7 +1133,7 @@ const util = (function() {
         BLOCK_ELEMENTS: BLOCK_ELEMENTS,
         HEADER_TAGS: HEADER_TAGS,
         sleep: sleep,
-        sleepControler: sleepControler,
+        sleepController: sleepController,
         randomInteger: randomInteger,
         isFirefox: isFirefox,
         extensionVersion: extensionVersion,

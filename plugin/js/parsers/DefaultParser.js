@@ -5,7 +5,7 @@
 
 parserFactory.registerManualSelect(
     "Default", 
-    function() { return new DefaultParser(); }
+    () => new DefaultParser()
 );
 
 class DefaultParser extends Parser {

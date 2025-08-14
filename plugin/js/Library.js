@@ -1,11 +1,11 @@
 /*
-  Libraryclass to save Epubs from Storys which are ongoing
+  Library class to save Epubs from stories which are ongoing
 */
 "use strict";
 
 var LibFileReader = new FileReader();
 
-class Library {
+class Library { // eslint-disable-line no-unused-vars
     constructor() {
     }
     
@@ -26,7 +26,7 @@ class Library {
             }
         }
         if (LibidURL == -1) {
-            Library.LibHandelUpdate(-1, AddEpub, document.getElementById("startingUrlInput").value, fileName.replace(".epub", ""), LibidURL);
+            Library.LibHandleUpdate(-1, AddEpub, document.getElementById("startingUrlInput").value, fileName.replace(".epub", ""), LibidURL);
             if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked) {
                 return Download.save(AddEpub, fileName, overwriteExisting, backgroundDownload);
             } else {
@@ -191,7 +191,7 @@ class Library {
             MergedEpubZip.add("OEBPS/toc.xhtml", new zip.TextReader(PreviousEpubTocEpub3Text));
         }
         let content = await MergedEpubZip.close();
-        Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL" + LibidURL), await Library.LibGetFromStorage("LibFilename" + LibidURL), LibidURL, NewChapter);
+        Library.LibHandleUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL" + LibidURL), await Library.LibGetFromStorage("LibFilename" + LibidURL), LibidURL, NewChapter);
         return content;
     }
 
@@ -470,7 +470,7 @@ class Library {
                 document.getElementById("LibImportLibraryFile").addEventListener("change", function() {Library.LibHandelImport(this);});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseover", function() {Library.LibMouseoverButtonUpload(this);});
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function() {Library.LibMouseoutButtonUpload(this);});
-                document.getElementById("LibEpubNewUploadFile").addEventListener("change", function() {Library.LibHandelUpdate(this, -1, "", "", -1);});
+                document.getElementById("LibEpubNewUploadFile").addEventListener("change", function() {Library.LibHandleUpdate(this, -1, "", "", -1);});
                 document.getElementById("LibAddListToLibraryButton").addEventListener("click", function() {Library.LibAddListToLibrary();});
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
@@ -582,7 +582,7 @@ class Library {
         LibRenderString += "</tr>";
         LibRenderString += "<tr id='LibTemplateMetadataAuthor"+objbtn.dataset.libepubid+"'>";
         LibRenderString += "<td>"+LibTemplateMetadataAuthor+"</td>";
-        LibRenderString += "<td colspan='2'><input id='LibAutorInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[1]+"'></input></td>";
+        LibRenderString += "<td colspan='2'><input id='LibAuthorInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[1]+"'></input></td>";
         LibRenderString += "</tr>";
         LibRenderString += "<tr id='LibTemplateMetadataLanguage"+objbtn.dataset.libepubid+"'>";
         LibRenderString += "<td>"+LibTemplateMetadataLanguage+"</td>";
@@ -605,7 +605,7 @@ class Library {
 
     static async LibSaveMetadataChange(obj) {
         let LibTitleInput = document.getElementById("LibTitleInput"+obj.dataset.libepubid).value;
-        let LibAutorInput = document.getElementById("LibAutorInput"+obj.dataset.libepubid).value;
+        let LibAuthorInput = document.getElementById("LibAuthorInput"+obj.dataset.libepubid).value;
         let LibLanguageInput = document.getElementById("LibLanguageInput"+obj.dataset.libepubid).value;
         let LibSubjectInput = document.getElementById("LibSubjectInput"+obj.dataset.libepubid).value;
         let LibDescriptionInput = document.getElementById("LibDescriptionInput"+obj.dataset.libepubid).value;
@@ -636,13 +636,13 @@ class Library {
             LibSaveMetadataString += "<dc:date>"+LibDateCreated+"</dc:date>";
             LibSaveMetadataString += "<dc:subject>"+LibSubjectInput+"</dc:subject>";
             LibSaveMetadataString += "<dc:description>"+LibDescriptionInput+"</dc:description>";
-            LibSaveMetadataString += "<dc:creator opf:file-as=\""+LibAutorInput+"\" opf:role=\"aut\">"+LibAutorInput+"</dc:creator>";
+            LibSaveMetadataString += "<dc:creator opf:file-as=\""+LibAuthorInput+"\" opf:role=\"aut\">"+LibAuthorInput+"</dc:creator>";
 
             opfFile = opfFile.replace(new RegExp("<dc:title>.+?</dc:creator>", "gs"), LibSaveMetadataString);
 
             EpubZipWrite.add("OEBPS/content.opf", new zip.TextReader(opfFile));
             let content = await EpubZipWrite.close();
-            Library.LibHandelUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL"+obj.dataset.libepubid), await Library.LibGetFromStorage("LibFilename"+obj.dataset.libepubid), obj.dataset.libepubid);
+            Library.LibHandleUpdate(-1, content, await Library.LibGetFromStorage("LibStoryURL"+obj.dataset.libepubid), await Library.LibGetFromStorage("LibFilename"+obj.dataset.libepubid), obj.dataset.libepubid);
         } catch {
             ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorEditMetadata"));
             return;
@@ -682,7 +682,7 @@ class Library {
         Library.AppendHtmlInDiv(LibRenderString, LibRenderResult, "LibDivRenderWraper");
     }
 
-    static async LibHandelUpdate(objbtn, Blobdata, StoryURL, Filename, Id, NewChapterCount) {
+    static async LibHandleUpdate(objbtn, Blobdata, StoryURL, Filename, Id, NewChapterCount) {
         Library.LibShowLoadingText();
         Library.LibFileReaderAddListeners();
         if (objbtn != -1) {
@@ -1093,7 +1093,7 @@ class Library {
             LibArray[i] = [LibArray[i], await Library.LibGetFromStorage("LibStoryURL"+LibArray[i])];
         }       
         LibArray = await LibArray.filter(a => a[1] == url);
-        if (LibArray == null) {
+        if (0 == LibArray.length) {
             return null;
         }
         

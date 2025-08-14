@@ -52,7 +52,7 @@ class MvlempyrParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector("div.novelinfo .text-block-9");
+        let authorLabel = dom.querySelector("div.mobileauthorname");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
@@ -65,11 +65,12 @@ class MvlempyrParser extends Parser {
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.synopsis")];
+        let epubDescription = ([...dom.querySelectorAll("div.synopsis")]);
+        return epubDescription.map(e => e.innerHTML.replace(/<br><br>/g, "\n\n").replace(/<br>/g, "\n"));
     }
   
     extractSubject(dom) {
-        let tags = ([...dom.querySelectorAll("div.tagswrapper a")]);
+        let tags = ([...dom.querySelectorAll("div.genere-tagslist a")]);
         let regex = new RegExp("^#");
         return tags.map(e => e.textContent.trim().replace(regex, "")).join(", ");
     }

@@ -10,7 +10,7 @@ parserFactory.register("storiesonline.net", () => new WLPublishingParser());
 
 parserFactory.registerManualSelect(
     "WLPublishing",
-    function() { return new WLPublishingParser(); }
+    () => new WLPublishingParser()
 );
 
 class WLPublishingParser extends Parser {

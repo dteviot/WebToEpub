@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("velvet-reverie.org", function() { return new VelvetReverieParser(); });
+parserFactory.register("velvet-reverie.org", () => new VelvetReverieParser());
 
 class VelvetReverieParser extends Parser {
     constructor() {

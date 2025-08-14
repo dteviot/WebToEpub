@@ -225,7 +225,7 @@
 	},
 	"__MSG_column_URL__": {
 		"message": "URL",
-		"description": "The 'URL to get chapter frorm' column in the table of chapters."
+		"description": "The 'URL to get chapter from' column in the table of chapters."
 	},
 	"__MSG_label_Add_Information_Page_To_Epub__": {
 		"message": "Add Information page to Epub",
@@ -244,7 +244,7 @@
 		"description": "Label for checkbox to toggle logic that picks parser to use for a web page to include the Baka-Tsuki Series Page Parser"
 	},
 	"__MSG_label_Chapter_Count__": {
-		"message": "Chapters Count:",
+		"message": "Chapter Count:",
 		"description": "Label for number of chapters in range"
 	},
 	"__MSG_label_Chapters_Page_In_Chapters_List__": {
@@ -289,7 +289,7 @@
 	},
 	"__MSG_label_Default_Parser_Test_Chapter_Url__": {
 		"message": "URL of first chapter:",
-		"description": "Label in front of input for URL to test deefault parser settings."
+		"description": "Label in front of input for URL to test default parser settings."
 	},
 	"__MSG_label_Default_Parser_Unwanted_Elements_CSS__": {
 		"message": "CSS selector for element(s) to remove:",
@@ -385,7 +385,7 @@
 	},
 	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
 		"message": "Overwrite existing EPUB file with same name",
-		"description": "Label for checkbox to toggle between 'overwrite exisitng Epub files' and 'make names unique'"
+		"description": "Label for checkbox to toggle between 'overwrite existing Epub files' and 'make names unique'"
 	},
 	"__MSG_label_Password__": {
 		"message": "Password",
@@ -603,7 +603,7 @@
 		"description": "Default UUID value to use when one is not supplied"
 	},
 	"errorEditMetadata": {
-		"message": "An error occurd during the editing of the Metadata. Couldn't find the string to replace in  OEBPS/content.opf",
+		"message": "An error occurred during the editing of the Metadata. Couldn't find the string to replace in  OEBPS/content.opf",
 		"description": "Error message when regex can't find the string to replace in OEBPS/content.opf"
 	},
 	"errorAddToLibraryLibraryAddPageWithChapters": {

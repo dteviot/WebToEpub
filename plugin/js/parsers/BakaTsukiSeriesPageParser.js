@@ -6,7 +6,7 @@
 
 parserFactory.registerManualSelect(
     "Baka-Tsuki Series Page", 
-    function() { return new BakaTsukiSeriesPageParser(); }
+    () => new BakaTsukiSeriesPageParser()
 );
 
 class BakaTsukiSeriesPageParser extends Parser {
@@ -56,7 +56,7 @@ class BakaTsukiSeriesPageParser extends Parser {
     }
 
     populateUIImpl() {
-        document.getElementById("higestResolutionImagesRow").hidden = false; 
+        document.getElementById("highestResolutionImagesRow").hidden = false;
         document.getElementById("unSuperScriptAlternateTranslations").hidden = false; 
         document.getElementById("translatorRow").hidden = false;
         document.getElementById("fileAuthorAsRow").hidden = false;

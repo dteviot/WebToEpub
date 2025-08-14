@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("literotica.com", function() { return new LiteroticaParser(); });
+parserFactory.register("literotica.com", () => new LiteroticaParser());
 
 class LiteroticaParser extends Parser {
     constructor() {

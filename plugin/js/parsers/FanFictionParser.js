@@ -3,10 +3,10 @@
 */
 "use strict";
 
-parserFactory.register("www.fanfiction.net", function() { return new FanFictionParser(); });
+parserFactory.register("www.fanfiction.net", () => new FanFictionParser());
 
 // fictionpress.com has same format as fanfiction.net
-parserFactory.register("www.fictionpress.com", function() { return new FanFictionParser(); });
+parserFactory.register("www.fictionpress.com", () => new FanFictionParser());
 
 class FanFictionParser extends Parser {
     constructor() {

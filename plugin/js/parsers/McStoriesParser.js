@@ -5,7 +5,7 @@
 */
 "use strict";
 
-parserFactory.register("mcstories.com", function() { return new McStoriesParser(); });
+parserFactory.register("mcstories.com", () => new McStoriesParser());
 
 class McStoriesParser extends Parser {
     constructor() {

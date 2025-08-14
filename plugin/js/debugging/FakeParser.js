@@ -6,7 +6,7 @@
   Note, need to open the by looking at site rtd.moe
 */
 
-parserFactory.register("rtd.moe", function() { return new FakeParser(); });
+parserFactory.register("rtd.moe", () => new FakeParser());
 
 class FakeParser extends Parser {
     constructor() {

@@ -16,7 +16,7 @@ class ChapterUrlsUI {
 
         let formElement = document.getElementById("sbFiltersForm");
         if (formElement) {
-            document.getElementById("sbFiltersForm").onsubmit = function(event) {
+            document.getElementById("sbFiltersForm").onsubmit = (event) => {
                 event.preventDefault();
             };
         }
@@ -40,7 +40,7 @@ class ChapterUrlsUI {
         let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
-        chapters.forEach(function(chapter) {
+        chapters.forEach((chapter) => {
             let row = document.createElement("tr");
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
@@ -58,7 +58,7 @@ class ChapterUrlsUI {
 
     showTocProgress(chapters) {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        chapters.forEach(function(chapter) {
+        chapters.forEach((chapter) => {
             let row = document.createElement("tr");
             linksTable.appendChild(row);
             row.appendChild(document.createElement("td"));
@@ -264,7 +264,7 @@ class ChapterUrlsUI {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = chapter.isIncludeable;
-        checkbox.onclick = function(event) { 
+        checkbox.onclick = (event) => { 
             chapter.isIncludeable = checkbox.checked;
             if (!event) return;
 
@@ -303,7 +303,7 @@ class ChapterUrlsUI {
         input.type = "text";
         input.value = chapter.title;
         input.className = "fullWidth";
-        input.addEventListener("blur", function() { chapter.title = input.value; },  true);
+        input.addEventListener("blur", () => { chapter.title = input.value; },  true);
         col.appendChild(input);
         row.appendChild(col);
     }
@@ -336,7 +336,7 @@ class ChapterUrlsUI {
     /** 
     * @public
     */
-    static setVisibileUI(toTable) {
+    static setVisibleUI(toTable) {
         // toggle mode
         ChapterUrlsUI.getEditChaptersUrlsInput().hidden = toTable;
         ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
@@ -364,7 +364,7 @@ class ChapterUrlsUI {
             this.parser.setPagesToFetch(chapters);
             this.populateChapterUrlsTable(chapters);
             this.usingTable = true;
-            ChapterUrlsUI.setVisibileUI(this.usingTable);
+            ChapterUrlsUI.setVisibleUI(this.usingTable);
         } catch (err) {
             ErrorLog.showErrorMessage(err);
         }
@@ -441,7 +441,7 @@ class ChapterUrlsUI {
     */
     setEditInputMode() {
         this.usingTable = false;
-        ChapterUrlsUI.setVisibileUI(this.usingTable);
+        ChapterUrlsUI.setVisibleUI(this.usingTable);
         let input = ChapterUrlsUI.getEditChaptersUrlsInput();
         input.rows = Math.max(this.parser.getPagesToFetch().size, 20);
         input.value = this.chaptersToHTML([...this.parser.getPagesToFetch().values()]);
@@ -541,9 +541,7 @@ class ChapterUrlsUI {
                 .filter(key => constantTerms.indexOf(key) == -1 && filterTermsFrequency[key] > minFilterTermCount)
                 .map(key => ({ key: key, value: filterTermsFrequency[key] } ));
 
-            var calcValue = function(filterTerm) {
-                return filterTerm.value * filterTerm.key.length;
-            };
+            var calcValue = (filterTerm) => { return filterTerm.value * filterTerm.key.length; };
 
             this.filterTermsFrequency = filterTermsFrequency.sort((a, b) => {
                 var hasHigherValue = calcValue(a) < calcValue(b);
@@ -594,7 +592,7 @@ class ChapterUrlsUI {
         generateFiltersTable() {
             let retVal = document.createElement("table");
 
-            let onClickEvent = function(event) {
+            let onClickEvent = (event) => {
                 if (event == undefined || event == null) {
                     return;
                 }
@@ -625,7 +623,7 @@ class ChapterUrlsUI {
             el.id = checkboxId;
             el.value = 1;
             el.onclick = onClickEvent;
-            el.onchange = function(event) {
+            el.onchange = (event) => {
                 if (event == undefined || event == null) {
                     return;
                 }
@@ -639,7 +637,7 @@ class ChapterUrlsUI {
             el.type = "text";
             el.disabled = true;
             el.id = checkboxId + "Text";
-            el.onchange = function(event) { event.target.nextElementSibling.value = event.target.value; ChapterUrlsUI.Filters.Filter(); };
+            el.onchange = (event) => { event.target.nextElementSibling.value = event.target.value; ChapterUrlsUI.Filters.Filter(); };
             col.appendChild(el);
             el = document.createElement("input");
             el.type = "hidden";

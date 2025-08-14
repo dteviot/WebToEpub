@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("ficwad.com", function() { return new FicwadParser(); });
+parserFactory.register("ficwad.com", () => new FicwadParser());
 
 class FicwadParser extends Parser {
     constructor() {

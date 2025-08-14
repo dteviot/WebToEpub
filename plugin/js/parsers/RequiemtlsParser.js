@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("requiemtls.com", function() { return new RequiemtlsParser(); });
+parserFactory.register("requiemtls.com", () => new RequiemtlsParser());
 
 class RequiemtlsParser extends Parser {
     constructor() {

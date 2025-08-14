@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("gravitytales.com", function() { return new GravityTalesParser(); });
+parserFactory.register("gravitytales.com", () => new GravityTalesParser());
 
 class GravityTalesParser extends Parser {
     constructor() {

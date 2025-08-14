@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("mangaread.co", function() { return new MangaReadParser(); });
+parserFactory.register("mangaread.co", () => new MangaReadParser());
 
 class MangaReadParser extends Parser {
     constructor() {

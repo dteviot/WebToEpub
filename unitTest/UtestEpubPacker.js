@@ -70,8 +70,8 @@ test("buildContentOpf", function (assert) {
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>"+
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
-            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
-            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<meta name=\"calibre:series\" content=\"BakaSeries\"/>" +
+            "<meta name=\"calibre:series_index\" content=\"666\"/>" +
             "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>"+
@@ -120,8 +120,8 @@ test("buildEpub3ContentOpf", function (assert) {
             "<meta property=\"dcterms:modified\">2015-10-17T21:04:54Z</meta>" +
             "<dc:contributor id=\"packingTool\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
             "<meta refines=\"#packingTool\" property=\"role\">bkp</meta>" +
-            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
-            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<meta name=\"calibre:series\" content=\"BakaSeries\"/>" +
+            "<meta name=\"calibre:series_index\" content=\"666\"/>" +
             "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>"+
@@ -167,7 +167,7 @@ test("buildContentOpfWithCover", function (assert) {
             "<dc:creator opf:file-as=\"Dummy &amp; Author\" opf:role=\"aut\">Dummy &amp; Author</dc:creator>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
-            "<meta content=\"cover-image\" name=\"cover\"/>" +
+            "<meta name=\"cover\" content=\"cover-image\"/>" +
             "<dc:source id=\"id.cover-image\">http://bp.org/thepic.jpeg</dc:source>" +
             "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
@@ -213,8 +213,8 @@ test("buildContentOpfWithTranslatorAndAuthorFileAs", function (assert) {
             "<dc:contributor opf:file-as=\"Baka-Tsuki staff\" opf:role=\"trl\">Baka-Tsuki staff</dc:contributor>" +
             "<dc:identifier id=\"BookId\" opf:scheme=\"URI\">Dummy UUID</dc:identifier>" +
             "<dc:contributor opf:role=\"bkp\">[https://github.com/dteviot/WebToEpub] (ver. unknown)</dc:contributor>"+
-            "<meta content=\"BakaSeries\" name=\"calibre:series\"/>" +
-            "<meta content=\"666\" name=\"calibre:series_index\"/>" +
+            "<meta name=\"calibre:series\" content=\"BakaSeries\"/>" +
+            "<meta name=\"calibre:series_index\" content=\"666\"/>" +
             "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>" +
@@ -239,10 +239,10 @@ test("buildTableOfContents", function (assert) {
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
           "<head>" +
-            "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
-            "<meta content=\"2\" name=\"dtb:depth\"/>" +
-            "<meta content=\"0\" name=\"dtb:totalPageCount\"/>" +
-            "<meta content=\"0\" name=\"dtb:maxPageNumber\"/>" +
+            "<meta name=\"dtb:uid\" content=\"Dummy UUID\"/>" +
+            "<meta name=\"dtb:depth\" content=\"2\"/>" +
+            "<meta name=\"dtb:totalPageCount\" content=\"0\"/>" +
+            "<meta name=\"dtb:maxPageNumber\" content=\"0\"/>" +
           "</head>" +
           "<docTitle>" +
             "<text>Dummy &lt;Title&gt;</text>" +
@@ -282,10 +282,10 @@ test("buildNestedTableOfContents", function (assert) {
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
         "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"en\">" +
           "<head>" +
-            "<meta content=\"Dummy UUID\" name=\"dtb:uid\"/>" +
-            "<meta content=\"2\" name=\"dtb:depth\"/>" +
-            "<meta content=\"0\" name=\"dtb:totalPageCount\"/>" +
-            "<meta content=\"0\" name=\"dtb:maxPageNumber\"/>" +
+            "<meta name=\"dtb:uid\" content=\"Dummy UUID\"/>" +
+            "<meta name=\"dtb:depth\" content=\"2\"/>" +
+            "<meta name=\"dtb:totalPageCount\" content=\"0\"/>" +
+            "<meta name=\"dtb:maxPageNumber\" content=\"0\"/>" +
           "</head>" +
           "<docTitle>" +
             "<text>Dummy &lt;Title&gt;</text>" +

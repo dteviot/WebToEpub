@@ -3,7 +3,7 @@
 */
 "use strict";
 
-parserFactory.register("sousetsuka.com", function() { return new BlogspotParser(); });
+parserFactory.register("sousetsuka.com", () => new BlogspotParser());
 
 parserFactory.registerUrlRule(
     url => (util.extractHostName(url).indexOf(".blogspot.") != -1),
@@ -21,7 +21,7 @@ parserFactory.registerRule(
 
 parserFactory.registerManualSelect(
     "Blogspot", 
-    function() { return new BlogspotParser(); }
+    () => new BlogspotParser()
 );
 
 class BlogspotParserImageCollector extends ImageCollector {
