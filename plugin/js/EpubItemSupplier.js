@@ -43,6 +43,13 @@ class EpubItemSupplier { // eslint-disable-line no-unused-vars
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         let userPreferences = this.imageCollector.userPreferences;
+    
+        // Set cover page title
+        let title = doc.querySelector("title");
+        if (title && util.isNullOrEmpty(title.textContent)) {
+            title.textContent = "Cover";
+        }
+    
         body.appendChild(this.coverImageInfo.createImageElement(userPreferences));
         return util.xmlToString(doc);
     }
