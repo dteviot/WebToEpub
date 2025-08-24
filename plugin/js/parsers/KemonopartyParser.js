@@ -82,7 +82,7 @@ class KemonopartyParser extends Parser {
 
     async getLastPageOffset(dom, urlbuilder) {
         try {
-            let link = [...dom.querySelectorAll("#paginator-top a")].pop();
+            let link = [...dom.querySelectorAll("#paginator-top a")].map(item => parseInt(new URL(item?.href)?.searchParams?.get("o"))).filter(item => item >= 0).sort((a, b) => a - b);
             let offset = new URL(link?.href)?.searchParams?.get("o");
             return offset
                 ? parseInt(offset)
