@@ -150,7 +150,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
-        this.compressImagesType = this.addPreference("compressImagesType", "compressImagesTypeGroup", "jpg")
+        this.compressImagesType = this.addPreference("compressImagesType", "compressImagesTypeGroup", "jpg");
         this.compressImagesMaxResolution = this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
         this.overwriteExistingEpub = this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.themeColor = this.addPreference("themeColor", "themeColorTag", "");
