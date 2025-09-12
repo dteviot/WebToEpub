@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebToEpub - Convert Web Novels to EPUB</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Modern CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CSS Custom Properties */
+        :root {
+            --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-solid: #667eea;
+            --primary-dark: #5a67d8;
+            --success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-solid: #4facfe;
+            --danger: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-solid: #fa709a;
+            --warning: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --warning-solid: #fcb69f;
+            
+            --bg-primary: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --bg-tertiary: #2d3561;
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --bg-glass-light: rgba(255, 255, 255, 0.1);
+            
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-tertiary: rgba(255, 255, 255, 0.5);
+            
+            --border: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-large: 0 35px 60px -12px rgba(0, 0, 0, 0.4);
+            
+            --radius: 16px;
+            --radius-large: 24px;
+            --spacing: 1.5rem;
+            
+            --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: var(--font-primary);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glass morphism effect */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .glass-light {
+            background: var(--bg-glass-light);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border-hover);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .logo h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* URL Section */
+        .url-section {
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group input[type="url"] {
+            flex: 1;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-group input[type="url"]:focus {
+            outline: none;
+            border-color: var(--primary-solid);
+            background: var(--bg-glass-light);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group input[type="url"]::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-glass-light);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .btn-large {
+            padding: 1.5rem 3rem;
+            font-size: 1.2rem;
+            border-radius: var(--radius-large);
+        }
+
+        /* Supported Sites */
+        .supported-sites {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .site-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: var(--bg-glass-light);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Loading States */
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary-solid);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* Story Info */
+        .story-info {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-large);
+            padding: 2.5rem;
+            animation: slideUp 0.6s ease-out;
+            box-shadow: var(--shadow);
+        }
+
+        .story-header {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+        }
+
+        .cover-image {
+            width: 150px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border);
+        }
+
+        .story-details h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-solid));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .author {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .meta-item i {
+            color: var(--primary-solid);
+        }
+
+        /* Form Elements */
+        .metadata-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            padding: 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-solid);
+            background: var(--bg-glass-light);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .form-text i {
+            margin-right: 0.25rem;
+            color: var(--primary-solid);
+        }
+
+        /* Chapter Section */
+        .chapter-section {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-large);
+            padding: 2.5rem;
+            animation: slideUp 0.6s ease-out 0.1s both;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-solid));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chapter-controls {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .chapter-controls .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Chapter Range */
+        .chapter-range {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Chapter List */
+        .chapter-list {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Modern Chapter Table */
+        .chapterlist {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: transparent;
+        }
+
+        .chapterlist th {
+            background: var(--bg-glass-light);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+
+        .chapterlist th:first-child {
+            border-top-left-radius: var(--radius);
+            width: 120px;
+        }
+
+        .chapterlist th:last-child {
+            border-top-right-radius: var(--radius);
+        }
+
+        .chapterlist tr {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chapterlist tr:hover {
+            background: var(--bg-glass-light);
+            transform: translateX(4px);
+        }
+
+        .chapterlist tr:last-child {
+            border-bottom: none;
+        }
+
+        .chapterlist td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border: none;
+        }
+
+        .chapterlist td:first-child {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+        }
+
+        /* Modern Checkbox */
+        .chapterlist input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .chapterlist input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary-solid);
+            transform: scale(1.1);
+        }
+
+        .chapterlist input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .chapterlist input[type="checkbox"]:hover {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Download State Indicator */
+        .download-state {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .download-state[title="Waiting..."] {
+            background: var(--warning-solid);
+            border-color: var(--warning-solid);
+            animation: pulse 2s infinite;
+        }
+
+        .download-state[title="Downloading..."] {
+            background: var(--primary-solid);
+            border-color: var(--primary-solid);
+            animation: spin 1s linear infinite;
+        }
+
+        .download-state[title="Complete"] {
+            background: var(--success-solid);
+            border-color: var(--success-solid);
+        }
+
+        .download-state[title="Error"] {
+            background: var(--danger-solid);
+            border-color: var(--danger-solid);
+        }
+
+        /* Chapter Title Input */
+        .chapter-title-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-title-input:hover {
+            background: var(--bg-glass);
+            border-color: var(--border);
+        }
+
+        .chapter-title-input:focus {
+            outline: none;
+            background: var(--bg-glass-light);
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* URL Column */
+        .url-column {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .url-column:hover {
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Custom Scrollbar */
+        .chapter-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chapter-list::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .chapter-list::-webkit-scrollbar-thumb {
+            background: var(--primary-solid);
+            border-radius: 4px;
+        }
+
+        .chapter-list::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Chapter Statistics */
+        .chapter-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Advanced Options */
+        .options-section {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-large);
+            padding: 2.5rem;
+            animation: slideUp 0.6s ease-out 0.2s both;
+            box-shadow: var(--shadow);
+        }
+
+        .option-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .option-group h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .option-group h4::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Custom Checkboxes */
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .option-item:hover {
+            background: var(--bg-glass-light);
+            border-color: var(--border);
+        }
+
+        .option-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            height: 20px;
+            width: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .option-item input[type="checkbox"]:checked ~ .checkmark {
+            background: var(--primary);
+            border-color: var(--primary-solid);
+        }
+
+        .checkmark::after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .option-item input[type="checkbox"]:checked ~ .checkmark::after {
+            display: block;
+        }
+
+        /* Generate Section */
+        .generate-section {
+            text-align: center;
+            animation: slideUp 0.6s ease-out 0.3s both;
+            margin: 3rem 0;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-large);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-large);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-large);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            color: var(--text-tertiary);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 1rem; }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+
+            .story-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cover-image {
+                width: 120px;
+                height: 160px;
+                margin: 0 auto;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .chapter-controls,
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            /* Mobile Chapter List */
+            .chapter-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .chapterlist th:last-child,
+            .chapterlist td:last-child {
+                display: none;
+            }
+
+            .chapterlist th:first-child {
+                width: 80px;
+            }
+
+            .chapter-title-input {
+                font-size: 0.9rem;
+            }
+
+
+        }
+
+        @media (max-width: 480px) {
+            .story-info,
+            .chapter-section,
+            .options-section,
+            .progress-section {
+                padding: 1.5rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .chapter-stats {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .stat-item {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 0.75rem;
+                background: var(--bg-glass);
+                border-radius: var(--radius);
+            }
+
+            .chapterlist td:first-child {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <h1>WebToEpub</h1>
+            </div>
+            <p class="subtitle">Transform web novels into beautiful EPUB books</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- URL Input Section -->
+            <section class="url-section">
+                <div class="input-group">
+                    <input type="url" id="urlInput" placeholder="Enter story URL (e.g., https://royalroad.com/fiction/...)" required>
+                    <button id="analyzeBtn" class="btn btn-primary">
+                        <i class="fas fa-magic"></i>
+                        Analyze
+                    </button>
+                </div>
+                <div class="supported-sites">
+                    <span>Supports 400+ sites including:</span>
+                    <div class="site-tags">
+                        <span class="tag">RoyalRoad</span>
+                        <span class="tag">Archive of Our Own</span>
+                        <span class="tag">Wuxiaworld</span>
+                        <span class="tag">FanFiction.Net</span>
+                        <span class="tag">Webnovel</span>
+                        <span class="tag">And many more...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p id="loadingMessage">Analyzing story structure...</p>
+            </div>
+
+            <!-- Finding Chapters Message -->
+            <div id="findingChaptersMessage" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Discovering chapters, please wait...</p>
+            </div>
+
+            <!-- Story Info Section -->
+            <section id="storyInfo" class="story-info hidden">
+                <div class="story-header">
+                    <img id="coverImage" class="cover-image" alt="Story Cover">
+                    <div class="story-details">
+                        <h2 id="storyTitle">Story Title</h2>
+                        <p class="author">by <span id="storyAuthor">Author Name</span></p>
+                        <div class="meta-info">
+                            <span class="meta-item">
+                                <i class="fas fa-list-ul"></i>
+                                <span id="chapterCount">0</span> chapters
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-globe"></i>
+                                <span id="storyLanguage">English</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadata Form -->
+                <div class="metadata-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="titleInput">Title</label>
+                            <input type="text" id="titleInput" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="authorInput">Author</label>
+                            <input type="text" id="authorInput" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="languageInput">Language</label>
+                            <input type="text" id="languageInput" class="form-control" value="en">
+                        </div>
+                        <div class="form-group">
+                            <label for="filenameInput">Filename</label>
+                            <input type="text" id="filenameInput" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chapter Selection -->
+            <section id="chapterSection" class="chapter-section hidden">
+                <div class="section-header">
+                    <h3><i class="fas fa-list-ul"></i> Chapter Selection</h3>
+                    <div class="chapter-controls">
+                        <button id="selectAllBtn" class="btn btn-secondary">
+                            <i class="fas fa-check-double"></i>
+                            Select All
+                        </button>
+                        <button id="selectNoneBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Select None
+                        </button>
+                        <button id="reverseOrderBtn" class="btn btn-secondary">
+                            <i class="fas fa-sort-amount-down"></i>
+                            Reverse Order
+                        </button>
+                        <button id="editChaptersBtn" class="btn btn-secondary">
+                            <i class="fas fa-edit"></i>
+                            Edit URLs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chapter Statistics -->
+                <div class="chapter-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalChapters">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="selectedChapters">0</div>
+                        <div class="stat-label">Selected</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="downloadedChapters">0</div>
+                        <div class="stat-label">Downloaded</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="estimatedSize">0 MB</div>
+                        <div class="stat-label">Est. Size</div>
+                    </div>
+                </div>
+                
+                <!-- Chapter Range Selection -->
+                <div class="chapter-range glass">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rangeStartChapter">Start Chapter</label>
+                            <select id="rangeStartChapter" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rangeEndChapter">End Chapter</label>
+                            <select id="rangeEndChapter" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="option-item">
+                                <input type="checkbox" id="showChapterUrls">
+                                <span class="checkmark"></span>
+                                Show URLs
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div id="chapterList" class="chapter-list"></div>
+                
+                <!-- Edit URLs Textarea -->
+                <div id="editChaptersSection" class="hidden">
+                    <div class="form-group">
+                        <label for="editChaptersInput">Chapter URLs</label>
+                        <textarea id="editChaptersInput" class="form-control" rows="15" placeholder="Edit chapter URLs (one per line)..."></textarea>
+                        <small class="form-text">Enter one URL per line. You can also paste HTML with links.</small>
+                    </div>
+                    <div class="mt-3">
+                        <button id="applyChapterEdits" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Apply Changes
+                        </button>
+                        <button id="cancelChapterEdits" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Options -->
+            <section id="advancedOptionsSection" class="options-section hidden">
+                <div class="section-header">
+                    <h3>Advanced Options</h3>
+                    <button id="advancedOptionsToggle" class="btn btn-secondary">
+                        <i class="fas fa-cog"></i>
+                        Show Options
+                    </button>
+                </div>
+                
+                <div id="advancedOptionsContent" class="hidden">
+                    <!-- Metadata Options -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-tags"></i>
+                            Additional Metadata
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="subjectInput">Subject/Tags</label>
+                                <textarea id="subjectInput" class="form-control" rows="2" placeholder="Fantasy, Adventure, Romance..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="descriptionInput">Description</label>
+                                <textarea id="descriptionInput" class="form-control" rows="2" placeholder="Book description or summary..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seriesNameInput">Series Name</label>
+                                <input type="text" id="seriesNameInput" class="form-control" placeholder="Series or collection name">
+                            </div>
+                            <div class="form-group">
+                                <label for="seriesIndexInput">Volume/Index</label>
+                                <input type="text" id="seriesIndexInput" class="form-control" placeholder="1, 2, 3...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Options -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-image"></i>
+                            Image Processing
+                        </h4>
+                        <div class="options-grid">
+                            <label class="option-item">
+                                <input type="checkbox" id="skipImagesCheckbox">
+                                <span class="checkmark"></span>
+                                Skip Images
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="compressImagesCheckbox">
+                                <span class="checkmark"></span>
+                                Compress Images
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="removeDuplicateImages" checked>
+                                <span class="checkmark"></span>
+                                Remove Duplicates
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="includeImageSourceUrl">
+                                <span class="checkmark"></span>
+                                Include Image URLs
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="compressImagesMaxResolution">Max Image Resolution</label>
+                                <input type="number" id="compressImagesMaxResolution" class="form-control" value="1080" min="100" placeholder="1080">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Options -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-file-alt"></i>
+                            Content Processing
+                        </h4>
+                        <div class="options-grid">
+                            <label class="option-item">
+                                <input type="checkbox" id="removeNextPrevLinks" checked>
+                                <span class="checkmark"></span>
+                                Remove Navigation Links
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="addInformationPage" checked>
+                                <span class="checkmark"></span>
+                                Add Information Page
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="skipFailedChapters">
+                                <span class="checkmark"></span>
+                                Skip Failed Chapters
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="createEpub3" checked>
+                                <span class="checkmark"></span>
+                                Create EPUB 3.0
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Rate Limiting -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-clock"></i>
+                            Rate Limiting
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="manualDelayPerChapter">Delay Per Chapter (ms)</label>
+                                <input type="number" id="manualDelayPerChapter" class="form-control" value="2000" min="500" placeholder="2000">
+                            </div>
+                            <div class="form-group">
+                                <label for="maxChaptersPerEpub">Max Chapters Per EPUB</label>
+                                <select id="maxChaptersPerEpub" class="form-control">
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="1000" selected>1,000</option>
+                                    <option value="2000">2,000</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parser Selection -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-cogs"></i>
+                            Parser Selection
+                        </h4>
+                        <div class="form-group">
+                            <label for="manuallySelectParser">Manually Select Parser</label>
+                            <select id="manuallySelectParser" class="form-control">
+                                <option value="">Auto-detect</option>
+                                <option value="Default">Default Parser</option>
+                                <option value="RoyalRoad">Royal Road</option>
+                                <option value="ArchiveOfOurOwn">Archive of Our Own</option>
+                                <option value="FanFiction">FanFiction.Net</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Custom Stylesheet -->
+                    <div class="option-group">
+                        <h4>
+                            <i class="fas fa-palette"></i>
+                            Custom Styling
+                        </h4>
+                        <div class="form-group">
+                            <label for="stylesheetInput">Custom CSS</label>
+                            <textarea id="stylesheetInput" class="form-control" rows="6" placeholder="Enter custom CSS for EPUB styling..."></textarea>
+                            <button type="button" id="resetStylesheetBtn" class="btn btn-secondary btn-sm mt-2">
+                                <i class="fas fa-undo"></i>
+                                Reset to Default
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Button -->
+            <div id="generateSection" class="generate-section hidden">
+                <button id="generateBtn" class="btn btn-success btn-large">
+                    <i class="fas fa-rocket"></i>
+                    Generate EPUB
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <section id="progressSection" class="progress-section hidden">
+                <div class="progress-header">
+                    <h3>Generating EPUB</h3>
+                    <span id="progressText">Preparing...</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <div id="progressDetails" class="progress-details"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 WebToEpub. Built with ❤️ for book lovers everywhere.</p>
+            <p>Based on the open-source WebToEpub browser extension.</p>
+        </footer>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="errorButtonOk" class="btn btn-primary">OK</button>
+                <button id="errorButtonRetry" class="btn btn-secondary hidden">Retry</button>
+                <button id="errorButtonCancel" class="btn btn-secondary hidden">Cancel</button>
+                <button id="errorButtonOpenURL" class="btn btn-secondary hidden">Open URL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Default Parser Configuration -->
+    <div id="defaultParserModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-cog"></i>
+                    Parser Configuration
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>WebToEpub doesn't have a specific parser for this site. Configure the default parser to extract content.</p>
+                
+                <div class="form-group">
+                    <label for="defaultParserContentCss">Content CSS Selector</label>
+                    <input type="text" id="defaultParserContentCss" class="form-control" placeholder="e.g., .content, article, #main">
+                </div>
+                
+                <div class="form-group">
+                    <label for="defaultParserTitleCss">Chapter Title CSS Selector</label>
+                    <input type="text" id="defaultParserTitleCss" class="form-control" placeholder="e.g., h1, .title, .chapter-title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="defaultParserUnwantedCss">Unwanted Elements CSS Selector</label>
+                    <input type="text" id="defaultParserUnwantedCss" class="form-control" placeholder="e.g., .ads, .navigation, .comments">
+                </div>
+                
+                <div class="form-group">
+                    <label for="defaultParserTestUrl">Test Chapter URL</label>
+                    <input type="url" id="defaultParserTestUrl" class="form-control" placeholder="URL to test the parser configuration">
+                </div>
+                
+                <button id="testDefaultParser" class="btn btn-primary">
+                    <i class="fas fa-vial"></i>
+                    Test Configuration
+                </button>
+                
+                <div id="defaultParserResult" class="mt-3 hidden">
+                    <h4>Preview:</h4>
+                    <div id="defaultParserPreview" class="preview-content glass" style="padding: 1rem; border-radius: var(--radius); max-height: 200px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveDefaultParser" class="btn btn-success">
+                    <i class="fas fa-save"></i>
+                    Use This Configuration
+                </button>
+                <button id="cancelDefaultParser" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js"></script>
+    
+    <!-- Original JavaScript files - These need to be included for full functionality -->
+    <script src="js/utils.js"></script>
+    <script src="js/core-utils.js"></script>
+    <script src="js/simple-parser-integration.js"></script>
+    <script src="js/extension-core.js"></script>
+    <script src="js/extension-chapter-ui.js"></script>
+    <script src="js/epub-packer.js"></script>
+    <script src="js/enhanced-epub-packer.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Enhanced UI functionality that works with the original scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for original scripts to load
+            setTimeout(initializeEnhancedUI, 100);
+        });
+
+        function initializeEnhancedUI() {
+            // Toggle advanced options
+            const advancedToggle = document.getElementById('advancedOptionsToggle');
+            const advancedContent = document.getElementById('advancedOptionsContent');
+            
+            if (advancedToggle && advancedContent) {
+                advancedToggle.addEventListener('click', function() {
+                    const isHidden = advancedContent.classList.contains('hidden');
+                    advancedContent.classList.toggle('hidden');
+                    
+                    const icon = advancedToggle.querySelector('i');
+                    
+                    if (isHidden) {
+                        if (icon) icon.className = 'fas fa-eye-slash';
+                        advancedToggle.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Options';
+                    } else {
+                        if (icon) icon.className = 'fas fa-cog';
+                        advancedToggle.innerHTML = '<i class="fas fa-cog"></i> Show Options';
+                    }
+                });
+            }
+
+            // Enhanced modal functionality
+            document.querySelectorAll('.modal-close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    this.closest('.modal').classList.add('hidden');
+                });
+            });
+
+            // Close modal on background click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Enhanced loading states
+            const originalShowElement = window.showElement || function() {};
+            const originalHideElement = window.hideElement || function() {};
+
+            window.showElement = function(element) {
+                if (typeof element === 'string') {
+                    element = document.getElementById(element);
+                }
+                if (element) {
+                    element.classList.remove('hidden');
+                    if (!['chapterSection', 'chapterList'].includes(element.id)) {
+                        element.style.opacity = '0';
+                        element.style.transform = 'translateY(20px)';
+                        requestAnimationFrame(() => {
+                            element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                            element.style.opacity = '1';
+                            element.style.transform = 'translateY(0)';
+                        });
+                    }
+                }
+                originalShowElement.apply(this, arguments);
+            };
+
+            window.hideElement = function(element) {
+                if (typeof element === 'string') {
+                    element = document.getElementById(element);
+                }
+                if (element && !['chapterSection', 'chapterList'].includes(element.id)) {
+                    element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        element.classList.add('hidden');
+                    }, 300);
+                } else if (element && ['chapterSection', 'chapterList'].includes(element.id)) {
+                    return;
+                }
+                originalHideElement.apply(this, arguments);
+            };
+
+            // Enhanced progress bar
+            const originalUpdateProgressBar = window.updateProgressBar || function() {};
+            window.updateProgressBar = function(percent, message) {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                
+                if (progressFill) {
+                    progressFill.style.width = percent + '%';
+                }
+                if (progressText && message) {
+                    progressText.textContent = message;
+                }
+                
+                originalUpdateProgressBar.apply(this, arguments);
+            };
+
+            // Enhanced chapter statistics
+            window.updateChapterStats = function() {
+                const checkboxes = document.querySelectorAll('#chapterUrlsTable input[type="checkbox"]');
+                const total = checkboxes.length;
+                const selected = Array.from(checkboxes).filter(cb => cb.checked).length;
+                const downloaded = document.querySelectorAll('.download-state[title="Complete"]').length;
+                
+                // Update statistics
+                const totalEl = document.getElementById('totalChapters');
+                const selectedEl = document.getElementById('selectedChapters');
+                const downloadedEl = document.getElementById('downloadedChapters');
+                const sizeEl = document.getElementById('estimatedSize');
+                
+                if (totalEl) totalEl.textContent = total;
+                if (selectedEl) selectedEl.textContent = selected;
+                if (downloadedEl) downloadedEl.textContent = downloaded;
+                if (sizeEl) {
+                    const estimatedMB = Math.round(selected * 0.5);
+                    sizeEl.textContent = estimatedMB + ' MB';
+                }
+                
+
+            };
+
+            // Enhanced chapter list interactions
+            document.addEventListener('change', function(e) {
+                if (e.target.matches('#chapterUrlsTable input[type="checkbox"]')) {
+                    setTimeout(updateChapterStats, 0);
+                }
+            });
+
+            // Enhanced progress tracking
+            window.updateChapterProgress = function(selectedIndex, state, message) {
+                const table = document.getElementById('chapterUrlsTable');
+                if (table && window.app && window.app.selectedChapters) {
+                    const selectedChapter = window.app.selectedChapters[selectedIndex];
+                    if (selectedChapter && selectedChapter.row) {
+                        const stateDiv = selectedChapter.row.querySelector('.download-state');
+                        if (stateDiv) {
+                            switch (state) {
+                                case 'sleeping':
+                                    stateDiv.innerHTML = '⏳';
+                                    stateDiv.title = 'Waiting...';
+                                    break;
+                                case 'downloading':
+                                    stateDiv.innerHTML = '⬇️';
+                                    stateDiv.title = 'Downloading...';
+                                    break;
+                                case 'loaded':
+                                    stateDiv.innerHTML = '✅';
+                                    stateDiv.title = 'Complete';
+                                    break;
+                                case 'error':
+                                    stateDiv.innerHTML = '❌';
+                                    stateDiv.title = 'Error';
+                                    break;
+                            }
+                        }
+                    }
+                }
+                if (window.updateChapterStats) {
+                    window.updateChapterStats();
+                }
+            };
+
+            // Override original progress functions
+            const originalShowDownloadState = window.ExtensionChapterUI?.showDownloadState;
+            if (window.ExtensionChapterUI) {
+                window.ExtensionChapterUI.showDownloadState = function(row, state) {
+                    if (originalShowDownloadState) {
+                        originalShowDownloadState.call(this, row, state);
+                    }
+                    if (row) {
+                        const stateDiv = row.querySelector('.download-state');
+                        if (stateDiv) {
+                            const states = ['none', 'downloading', 'loaded', 'sleeping', 'error'];
+                            const stateNames = ['○', '⬇️', '✅', '⏳', '❌'];
+                            const titles = ['', 'Downloading...', 'Complete', 'Waiting...', 'Error'];
+                            
+                            if (state < stateNames.length) {
+                                stateDiv.innerHTML = stateNames[state];
+                                stateDiv.title = titles[state];
+                            }
+                        }
+                    }
+                };
+            }
+
+            // Add loading animation to buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!this.classList.contains('loading')) {
+                        this.classList.add('loading');
+                        const originalText = this.innerHTML;
+                        
+                        // Add loading state
+                        const hasIcon = this.querySelector('i');
+                        if (hasIcon) {
+                            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + this.textContent.trim();
+                        }
+                        
+                        // Remove loading state after delay (will be overridden by actual completion)
+                        setTimeout(() => {
+                            this.classList.remove('loading');
+                            this.innerHTML = originalText;
+                        }, 5000);
+                    }
+                });
+            });
+
+            // Animate elements on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for animation (only if they're not already visible)
+            document.querySelectorAll('.story-info, .chapter-section, .options-section').forEach(el => {
+                if (el.classList.contains('hidden')) {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(20px)';
+                    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    observer.observe(el);
+                }
+            });
+
+            // Enhanced error handling with better UI
+            const originalShowErrorModal = window.showErrorModal || function() {};
+            window.showErrorModal = function(message, title = 'Error') {
+                const errorModal = document.getElementById('errorModal');
+                const errorMessage = document.getElementById('errorMessage');
+                const errorTitle = errorModal.querySelector('.modal-header h3');
+                
+                if (errorMessage) errorMessage.textContent = message;
+                if (errorTitle) errorTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + title;
+                
+                if (errorModal) {
+                    errorModal.classList.remove('hidden');
+                    // Add animation
+                    errorModal.style.opacity = '0';
+                    requestAnimationFrame(() => {
+                        errorModal.style.transition = 'opacity 0.3s ease';
+                        errorModal.style.opacity = '1';
+                    });
+                }
+                
+                originalShowErrorModal.apply(this, arguments);
+            };
+
+            // Add subtle animations to form elements
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+
+            console.log('Enhanced WebToEpub UI initialized successfully!');
+        }
+
+        // Ensure chapter section stays visible during generation
+        const originalGenerateEpub = window.generateEpub;
+        if (originalGenerateEpub) {
+            window.generateEpub = function() {
+                const chapterSection = document.getElementById('chapterSection');
+                const chapterList = document.getElementById('chapterList');
+                
+                if (chapterSection) chapterSection.classList.remove('hidden');
+                if (chapterList) chapterList.classList.remove('hidden');
+                
+                return originalGenerateEpub.apply(this, arguments);
+            };
+        }
+
+        // Add loading button style
+        const loadingButtonStyle = document.createElement('style');
+        loadingButtonStyle.textContent = `
+            .btn.loading {
+                pointer-events: none;
+                opacity: 0.7;
+            }
+            .form-group.focused label {
+                color: var(--primary-solid);
+                transform: scale(0.9);
+            }
+        `;
+        document.head.appendChild(loadingButtonStyle);
+    </script>
+</body>
+</html>
