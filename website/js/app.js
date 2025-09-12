@@ -96,7 +96,7 @@ class WebToEpubApp {
     showSection(sectionId) {
         const sections = [
             'loadingState', 'storyInfo', 'chapterSection', 
-            'optionsSection', 'generateSection', 'progressSection'
+            'advancedOptionsSection', 'generateSection', 'progressSection'
         ];
         
         sections.forEach(id => {
@@ -188,14 +188,17 @@ class WebToEpubApp {
             
             this.showSection('storyInfo');
             
-            // Show all relevant sections
-            const sectionsToShow = ['chapterSection', 'advancedOptionsSection', 'generateSection'];
-            sectionsToShow.forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    section.classList.remove('hidden');
-                }
-            });
+            // Only show sections if chapters are present
+            if (story.chapters && story.chapters.length > 0) {
+                const sectionsToShow = ['chapterSection', 'advancedOptionsSection', 'generateSection'];
+                sectionsToShow.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.classList.remove('hidden');
+                        section.classList.add('show');
+                    }
+                });
+            }
             
             // Ensure advanced options toggle is properly initialized
             if (window.extensionCore && window.extensionCore.setupEventHandlers) {

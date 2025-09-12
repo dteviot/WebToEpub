@@ -921,6 +921,16 @@
         .hidden {
             display: none !important;
         }
+        
+        /* Force advanced options to be hidden initially */
+        #advancedOptionsSection.hidden,
+        #advancedOptionsSection {
+            display: none !important;
+        }
+        
+        #advancedOptionsSection.show {
+            display: block !important;
+        }
 
         .mt-2 { margin-top: 0.5rem; }
         .mt-3 { margin-top: 1rem; }
@@ -1575,16 +1585,8 @@
                 });
             });
 
-            // Ensure advanced options section is visible when story is analyzed
-            const originalShowStoryInfo = window.showStoryInfo || function() {};
-            window.showStoryInfo = function() {
-                // Show the advanced options section when story info is displayed
-                const advancedSection = document.getElementById('advancedOptionsSection');
-                if (advancedSection) {
-                    advancedSection.classList.remove('hidden');
-                }
-                originalShowStoryInfo.apply(this, arguments);
-            };
+            // Advanced options only shown when chapters are present
+            // (removed auto-show logic)
 
             // Enhanced loading states
             const originalShowElement = window.showElement || function() {};
