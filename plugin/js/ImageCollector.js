@@ -324,6 +324,19 @@ class ImageCollector {
         return new Promise((resolve, reject) => {
             if (this.userPreferences.compressImages.value) 
             {
+                let outputType = "image/jpeg";
+                switch (this.userPreferences.compressImagesType.value) {
+                    case "webp":
+                        outputType = "image/webp";
+                        break;
+                    case "png":
+                        outputType = "image/png";
+                        break;
+                    case "jpg":
+                    default:
+                        outputType = "image/jpeg";
+                        break;
+                }
                 let c = document.createElement("canvas");
                 let ctx = c.getContext("2d");
                 let maxResolution = this.userPreferences.compressImagesMaxResolution.value;            
@@ -350,13 +363,13 @@ class ImageCollector {
                     try {
                         imageInfo.height = c.height;
                         imageInfo.width = c.width;
-                        imageInfo.mediaType = "image/jpeg";
+                        imageInfo.mediaType = outputType;
                         imageInfo.arraybuffer = await cBlob.arrayBuffer();
                         resolve();
                     } catch (e) {
                         reject();
                     }
-                }, "image/jpeg", 0.9);
+                }, outputType, 0.9);
             }
             else
             {

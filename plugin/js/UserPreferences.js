@@ -76,6 +76,46 @@ class StringUserPreference extends UserPreference {
     }
 }
 
+class RadioUserPreference extends UserPreference {
+    commonSelector = null;
+    constructor(storageName, uiElementName, defaultValue) {
+        super(storageName, uiElementName, defaultValue);
+        this.commonSelector = `[name="${this.uiElementName}"]`;
+    }
+
+    getUiElements() {
+        return document.querySelectorAll(this.commonSelector);
+    }
+    getUiElement() {
+        return document.querySelector(`${this.commonSelector}[value="${this.value}"]`) || document.querySelector(`${this.commonSelector}[value="${this.defaultValue}"]`);
+    }
+    getSelected() {
+        return document.querySelector(`${this.commonSelector}:checked`);
+    }
+
+    readFromLocalStorage() {
+        let test = window.localStorage.getItem(this.storageName);
+        if (test !== null) {
+            this.value = test;
+        }
+    }
+
+    readFromUi() {
+        console.log(this.getSelected().value);
+        this.value = this.getSelected().value;
+    }
+
+    writeToUi() {
+        this.getUiElement().checked = true;
+    }
+
+    hookupUi(readFromUi) {
+        this.getUiElements().forEach(item => {
+            item.onclick = readFromUi;
+        });
+    }
+}
+
 /** The collection of all preferences for user  */
 class UserPreferences { // eslint-disable-line no-unused-vars
     constructor() {
@@ -110,6 +150,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
+        this.compressImagesType = this.addPreference("compressImagesType", "compressImagesTypeGroup", "jpg")
         this.compressImagesMaxResolution = this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
         this.overwriteExistingEpub = this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.themeColor = this.addPreference("themeColor", "themeColorTag", "");
@@ -132,7 +173,10 @@ class UserPreferences { // eslint-disable-line no-unused-vars
     /** @private */
     addPreference(storageName, uiElementName, defaultValue) {
         let preference = null;
-        if (typeof(defaultValue) === "boolean") {
+        if (uiElementName.indexOf("Group") >= 0)
+        {
+            preference = new RadioUserPreference(storageName, uiElementName, defaultValue);
+        } else if (typeof(defaultValue) === "boolean") {
             preference = new BoolUserPreference(storageName, uiElementName, defaultValue);
         } else if (typeof(defaultValue) === "string") {
             preference = new StringUserPreference(storageName, uiElementName, defaultValue);
