@@ -1526,6 +1526,7 @@
     <script src="js/extension-chapter-ui.js"></script>
     <script src="js/epub-packer.js"></script>
     <script src="js/enhanced-epub-packer.js"></script>
+    <script src="js/debug-advanced-options.js"></script>
     <script src="js/app.js"></script>
     
     <script>
@@ -1536,22 +1537,23 @@
         });
 
         function initializeEnhancedUI() {
-            // Toggle advanced options
+            // Toggle advanced options - ensure it works with both implementations
             const advancedToggle = document.getElementById('advancedOptionsToggle');
             const advancedContent = document.getElementById('advancedOptionsContent');
             
             if (advancedToggle && advancedContent) {
-                advancedToggle.addEventListener('click', function() {
+                // Remove any existing event listeners to prevent conflicts
+                advancedToggle.onclick = null;
+                
+                advancedToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
                     const isHidden = advancedContent.classList.contains('hidden');
-                    advancedContent.classList.toggle('hidden');
-                    
-                    const icon = advancedToggle.querySelector('i');
                     
                     if (isHidden) {
-                        if (icon) icon.className = 'fas fa-eye-slash';
+                        advancedContent.classList.remove('hidden');
                         advancedToggle.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Options';
                     } else {
-                        if (icon) icon.className = 'fas fa-cog';
+                        advancedContent.classList.add('hidden');
                         advancedToggle.innerHTML = '<i class="fas fa-cog"></i> Show Options';
                     }
                 });
@@ -1572,6 +1574,17 @@
                     }
                 });
             });
+
+            // Ensure advanced options section is visible when story is analyzed
+            const originalShowStoryInfo = window.showStoryInfo || function() {};
+            window.showStoryInfo = function() {
+                // Show the advanced options section when story info is displayed
+                const advancedSection = document.getElementById('advancedOptionsSection');
+                if (advancedSection) {
+                    advancedSection.classList.remove('hidden');
+                }
+                originalShowStoryInfo.apply(this, arguments);
+            };
 
             // Enhanced loading states
             const originalShowElement = window.showElement || function() {};

@@ -187,9 +187,20 @@ class WebToEpubApp {
             this.populateChapterList(story.chapters);
             
             this.showSection('storyInfo');
-            document.getElementById('chapterSection').classList.remove('hidden');
-            document.getElementById('advancedOptionsSection').classList.remove('hidden');
-            document.getElementById('generateSection').classList.remove('hidden');
+            
+            // Show all relevant sections
+            const sectionsToShow = ['chapterSection', 'advancedOptionsSection', 'generateSection'];
+            sectionsToShow.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.remove('hidden');
+                }
+            });
+            
+            // Ensure advanced options toggle is properly initialized
+            if (window.extensionCore && window.extensionCore.setupEventHandlers) {
+                window.extensionCore.setupEventHandlers();
+            }
 
         } catch (error) {
             console.error('Story analysis failed:', error);

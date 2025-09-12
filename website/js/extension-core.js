@@ -22,58 +22,98 @@ class ExtensionCore {
     }
 
     setupEventHandlers() {
-        // Advanced options toggle
-        document.getElementById('advancedOptionsToggle').onclick = () => {
-            this.toggleAdvancedOptions();
-        };
+        // Advanced options toggle - with null check
+        const advancedToggle = document.getElementById('advancedOptionsToggle');
+        if (advancedToggle) {
+            advancedToggle.onclick = () => {
+                this.toggleAdvancedOptions();
+            };
+        }
 
-        // Chapter controls
-        document.getElementById('selectAllBtn').onclick = () => {
-            this.chapterUrlsUI.selectAll();
-        };
+        // Chapter controls - with null checks
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        if (selectAllBtn) {
+            selectAllBtn.onclick = () => {
+                this.chapterUrlsUI.selectAll();
+            };
+        }
 
-        document.getElementById('selectNoneBtn').onclick = () => {
-            this.chapterUrlsUI.selectNone();
-        };
+        const selectNoneBtn = document.getElementById('selectNoneBtn');
+        if (selectNoneBtn) {
+            selectNoneBtn.onclick = () => {
+                this.chapterUrlsUI.selectNone();
+            };
+        }
 
-        document.getElementById('reverseOrderBtn').onclick = () => {
-            this.chapterUrlsUI.reverseOrder();
-        };
+        const reverseOrderBtn = document.getElementById('reverseOrderBtn');
+        if (reverseOrderBtn) {
+            reverseOrderBtn.onclick = () => {
+                this.chapterUrlsUI.reverseOrder();
+            };
+        }
 
-        document.getElementById('editChaptersBtn').onclick = () => {
-            this.chapterUrlsUI.showEditMode();
-        };
+        const editChaptersBtn = document.getElementById('editChaptersBtn');
+        if (editChaptersBtn) {
+            editChaptersBtn.onclick = () => {
+                this.chapterUrlsUI.showEditMode();
+            };
+        }
 
-        // Default parser
-        document.getElementById('testDefaultParser').onclick = () => {
-            this.defaultParserUI.testConfiguration();
-        };
+        // Default parser - with null check
+        const testDefaultParser = document.getElementById('testDefaultParser');
+        if (testDefaultParser) {
+            testDefaultParser.onclick = () => {
+                this.defaultParserUI.testConfiguration();
+            };
+        }
 
-        // Error handling
-        document.getElementById('errorButtonRetry').onclick = () => {
-            this.errorLog.retry();
-        };
+        // Error handling - with null checks
+        const errorButtonRetry = document.getElementById('errorButtonRetry');
+        if (errorButtonRetry) {
+            errorButtonRetry.onclick = () => {
+                this.errorLog.retry();
+            };
+        }
 
-        document.getElementById('errorButtonCancel').onclick = () => {
-            this.errorLog.cancel();
-        };
+        const errorButtonCancel = document.getElementById('errorButtonCancel');
+        if (errorButtonCancel) {
+            errorButtonCancel.onclick = () => {
+                this.errorLog.cancel();
+            };
+        }
 
-        // Stylesheet reset
-        document.getElementById('resetStylesheetBtn').onclick = () => {
-            this.resetStylesheet();
-        };
+        // Stylesheet reset - with null check
+        const resetStylesheetBtn = document.getElementById('resetStylesheetBtn');
+        if (resetStylesheetBtn) {
+            resetStylesheetBtn.onclick = () => {
+                this.resetStylesheet();
+            };
+        }
     }
 
     toggleAdvancedOptions() {
         const content = document.getElementById('advancedOptionsContent');
         const button = document.getElementById('advancedOptionsToggle');
         
+        if (!content || !button) {
+            console.warn('Advanced options elements not found');
+            return;
+        }
+        
         if (content.classList.contains('hidden')) {
             content.classList.remove('hidden');
-            button.textContent = 'Hide Options';
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-eye-slash';
+            }
+            button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Options';
         } else {
             content.classList.add('hidden');
-            button.textContent = 'Show Options';
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-cog';
+            }
+            button.innerHTML = '<i class="fas fa-cog"></i> Show Options';
         }
     }
 
@@ -111,7 +151,10 @@ img {
 }
         `.trim();
         
-        document.getElementById('stylesheetInput').value = defaultCSS;
+        const stylesheetInput = document.getElementById('stylesheetInput');
+        if (stylesheetInput) {
+            stylesheetInput.value = defaultCSS;
+        }
     }
 
     localizeUI() {

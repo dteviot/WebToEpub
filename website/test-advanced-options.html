@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Advanced Options</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .hidden { display: none !important; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .btn { padding: 10px 20px; background: #007cba; color: white; border: none; cursor: pointer; }
+        .btn:hover { background: #005a87; }
+        .options-content { margin-top: 20px; padding: 20px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>Advanced Options Test</h1>
+    
+    <div class="section">
+        <h2>Test Controls</h2>
+        <button onclick="debugAdvancedOptions()" class="btn">Debug Advanced Options</button>
+        <button onclick="fixAdvancedOptions()" class="btn">Fix Advanced Options</button>
+        <button onclick="testToggle()" class="btn">Test Toggle Manually</button>
+    </div>
+    
+    <!-- Advanced Options Section (copied from main HTML) -->
+    <section id="advancedOptionsSection" class="section">
+        <div class="section-header">
+            <h3>Advanced Options</h3>
+            <button id="advancedOptionsToggle" class="btn">
+                <i class="fas fa-cog"></i>
+                Show Options
+            </button>
+        </div>
+        
+        <div id="advancedOptionsContent" class="hidden">
+            <div class="options-content">
+                <h4>Test Options</h4>
+                <label>
+                    <input type="checkbox" id="testOption1"> Test Option 1
+                </label><br><br>
+                <label>
+                    <input type="checkbox" id="testOption2"> Test Option 2
+                </label><br><br>
+                <textarea id="stylesheetInput" rows="5" cols="50" placeholder="Custom CSS..."></textarea><br><br>
+                <button id="resetStylesheetBtn" class="btn">Reset Stylesheet</button>
+            </div>
+        </div>
+    </section>
+    
+    <div class="section">
+        <h3>Status</h3>
+        <div id="status">Ready for testing...</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="js/debug-advanced-options.js"></script>
+    
+    <script>
+        function testToggle() {
+            const toggle = document.getElementById('advancedOptionsToggle');
+            const content = document.getElementById('advancedOptionsContent');
+            
+            if (toggle && content) {
+                const isHidden = content.classList.contains('hidden');
+                
+                if (isHidden) {
+                    content.classList.remove('hidden');
+                    toggle.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Options';
+                    updateStatus('Advanced options shown');
+                } else {
+                    content.classList.add('hidden');
+                    toggle.innerHTML = '<i class="fas fa-cog"></i> Show Options';
+                    updateStatus('Advanced options hidden');
+                }
+            } else {
+                updateStatus('ERROR: Elements not found');
+            }
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = new Date().toLocaleTimeString() + ': ' + message;
+        }
+        
+        // Test initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Page loaded, testing advanced options...');
+            
+            setTimeout(function() {
+                if (typeof debugAdvancedOptions === 'function') {
+                    debugAdvancedOptions();
+                    updateStatus('Debug function available');
+                } else {
+                    updateStatus('ERROR: Debug function not available');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
