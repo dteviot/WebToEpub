@@ -1047,8 +1047,9 @@ const util = (function() {
         return retval;
     }
     function detectMimeType(b64) {
+        let b64b = atob(b64);
         for (var s in MIME_TYPE_SIGNATURES) {
-            if (b64.indexOf(s) === 0) {
+            if (b64b.indexOf(atob(s)) === 0) {
                 return MIME_TYPE_SIGNATURES[s][0];
             }
         }

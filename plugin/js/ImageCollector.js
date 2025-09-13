@@ -326,6 +326,9 @@ class ImageCollector {
             {
                 let outputType = "image/jpeg";
                 switch (this.userPreferences.compressImagesType.value) {
+                    case "auto":
+                        outputType = util.detectMimeType(imageInfo.getBase64(25));
+                        break;
                     case "webp":
                         outputType = "image/webp";
                         break;
