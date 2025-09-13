@@ -101,7 +101,6 @@ class RadioUserPreference extends UserPreference {
     }
 
     readFromUi() {
-        console.log(this.getSelected().value);
         this.value = this.getSelected().value;
     }
 
@@ -150,7 +149,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
-        this.compressImagesType = this.addPreference("compressImagesType", "compressImagesTypeGroup", "jpg");
+        this.compressImagesType = this.addPreferenceRadio("compressImagesType", "compressImagesTypeGroup", "jpg");
         this.compressImagesMaxResolution = this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
         this.overwriteExistingEpub = this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
         this.themeColor = this.addPreference("themeColor", "themeColorTag", "");
@@ -173,16 +172,20 @@ class UserPreferences { // eslint-disable-line no-unused-vars
     /** @private */
     addPreference(storageName, uiElementName, defaultValue) {
         let preference = null;
-        if (uiElementName.indexOf("Group") >= 0)
-        {
-            preference = new RadioUserPreference(storageName, uiElementName, defaultValue);
-        } else if (typeof(defaultValue) === "boolean") {
+        if (typeof(defaultValue) === "boolean") {
             preference = new BoolUserPreference(storageName, uiElementName, defaultValue);
         } else if (typeof(defaultValue) === "string") {
             preference = new StringUserPreference(storageName, uiElementName, defaultValue);
         } else {
             throw new Error("Unknown preference type");
         }
+        this.preferences.push(preference);
+        return preference;
+    }
+
+    /** @private */
+    addPreferenceRadio(storageName, uiElementName, defaultValue) {
+        let preference = new RadioUserPreference(storageName, uiElementName, defaultValue);
         this.preferences.push(preference);
         return preference;
     }
