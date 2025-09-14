@@ -76,45 +76,6 @@ class StringUserPreference extends UserPreference {
     }
 }
 
-class RadioUserPreference extends UserPreference {
-    commonSelector = null;
-    constructor(storageName, uiElementName, defaultValue) {
-        super(storageName, uiElementName, defaultValue);
-        this.commonSelector = `[name="${this.uiElementName}"]`;
-    }
-
-    getUiElements() {
-        return document.querySelectorAll(this.commonSelector);
-    }
-    getUiElement() {
-        return document.querySelector(`${this.commonSelector}[value="${this.value}"]`) || document.querySelector(`${this.commonSelector}[value="${this.defaultValue}"]`);
-    }
-    getSelected() {
-        return document.querySelector(`${this.commonSelector}:checked`);
-    }
-
-    readFromLocalStorage() {
-        let test = window.localStorage.getItem(this.storageName);
-        if (test !== null) {
-            this.value = test;
-        }
-    }
-
-    readFromUi() {
-        this.value = this.getSelected().value;
-    }
-
-    writeToUi() {
-        this.getUiElement().checked = true;
-    }
-
-    hookupUi(readFromUi) {
-        this.getUiElements().forEach(item => {
-            item.onclick = readFromUi;
-        });
-    }
-}
-
 /** The collection of all preferences for user  */
 class UserPreferences { // eslint-disable-line no-unused-vars
     constructor() {
