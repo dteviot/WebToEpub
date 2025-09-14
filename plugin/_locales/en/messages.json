@@ -255,8 +255,12 @@
 		"message": "Compress Images",
 		"description": "Label for checkbox and value to compress images to a certain size"
 	},
+	"__MSG_label_Compress_Images_Format__": {
+		"message": "Compressed Image Format",
+		"description": "Label for mime type of compressed image"
+	},
 	"__MSG_label_Compress_Images_Resolution__": {
-		"message": "Resolution",
+		"message": "Compressed Resolution",
 		"description": "Label for number input for maximum dimension size of pixel height or width in image"
 	},
 	"__MSG_label_Cover_from_URL__": {
@@ -554,6 +558,10 @@
 	"__MSG_Searching_For_URLs_Please_Wait__": {
 		"message": "Searching for URLs.  Please wait.",
 		"description": "Message shown while looking for list of Chapter URLs."
+	},
+	"__MSG_option_value_auto__": {
+		"message": "auto",
+		"description": "Generic option text for 'automatic'"
 	},
 	"__MSG_Shift_Click__": {
 		"message": "You can select or unselect a range of chapters by clicking on the checkbox for the first chapter, then  hold down the shift key and click the last chapter in the range.",
