@@ -255,6 +255,10 @@
 		"message": "Compress Images",
 		"description": "Label for checkbox and value to compress images to a certain size"
 	},
+	"__MSG_label_Compress_Images_JPG_Cover__": {
+		"message": "Restrict Cover Image to JPEG",
+		"description": "Label for JPEG cover restriction checkbox"
+	},
 	"__MSG_label_Compress_Images_Format__": {
 		"message": "Compressed Image Format",
 		"description": "Label for mime type of compressed image"

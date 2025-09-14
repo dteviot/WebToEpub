@@ -340,6 +340,11 @@ class ImageCollector {
                         outputType = "image/jpeg";
                         break;
                 }
+
+                if (imageInfo.isCover && this.userPreferences.compressImagesJpgCover.value)
+                {
+                    outputType = "image/jpeg";
+                }
                 let c = document.createElement("canvas");
                 let ctx = c.getContext("2d");
                 let maxResolution = this.userPreferences.compressImagesMaxResolution.value;            
