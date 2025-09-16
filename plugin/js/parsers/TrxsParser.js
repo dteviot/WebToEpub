@@ -1,7 +1,6 @@
 "use strict";
 
 parserFactory.register("trxs.cc", () => new TrxsParser());
-parserFactory.register("tongrenshe.cc", () => new TrxsParser());
 
 class TrxsParser extends Parser {
     constructor() {
