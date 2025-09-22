@@ -8,7 +8,7 @@ class Brittanypage43Parser extends Parser {
     }
 
     disabled() {
-        return chrome.i18n.getMessage("parserDisabledNotification");
+        return UIText.Warning.parserDisabledNotification;
     }
     
     async getChapterUrls(dom) {

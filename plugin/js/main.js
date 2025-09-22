@@ -95,7 +95,7 @@ var main = (function() {
         if (util.isTextInputField(element) || util.isTextAreaField(element)) {
             element.value = (value == null) ? "" : value;
         } else {
-            throw new Error(chrome.i18n.getMessage("unhandledFieldTypeError"));
+            throw new Error(UIText.Error.unhandledFieldTypeError);
         }
     }
 
@@ -126,7 +126,7 @@ var main = (function() {
         if (util.isTextInputField(element) || util.isTextAreaField(element)) {
             return (element.value === "") ? null : element.value;
         } else {
-            throw new Error(chrome.i18n.getMessage("unhandledFieldTypeError"));
+            throw new Error(UIText.Error.unhandledFieldTypeError);
         }
     }
 
@@ -140,7 +140,7 @@ var main = (function() {
 
         if ("yes" == libclick.dataset.libclick) {
             if (document.getElementById("chaptersPageInChapterListCheckbox").checked) {
-                ErrorLog.showErrorMessage(chrome.i18n.getMessage("errorAddToLibraryLibraryAddPageWithChapters"));
+                ErrorLog.showErrorMessage(UIText.Error.errorAddToLibraryLibraryAddPageWithChapters);
                 return;
             }
         }
@@ -289,7 +289,7 @@ var main = (function() {
             parser = parserFactory.manuallySelectParser(manualSelect);
         }
         if (parser === undefined) {
-            ErrorLog.showErrorMessage(chrome.i18n.getMessage("noParserFound"));
+            ErrorLog.showErrorMessage(UIText.Error.noParserFound);
             return false;
         }
         getLoadAndAnalyseButton().hidden = true;
@@ -414,20 +414,12 @@ var main = (function() {
         document.getElementById("manuallySelectParserTag").selectedIndex = -1;
     }
 
-    function localize(element) {
-        let localized = chrome.i18n.getMessage(element.textContent.trim());
-        if (!util.isNullOrEmpty(localized)) {
-            element.innerText = localized;
-        }
-    }
-
-    function localizeHtmlPage()
-    {
+    function localizeHtmlPage() {
         // can't use a single select, because there are buttons in td elements
         for (let selector of ["button, option", "td, th", ".i18n"]) {
             for (let element of [...document.querySelectorAll(selector)]) {
                 if (element.textContent.startsWith("__MSG_")) {
-                    localize(element);
+                    UIText.localizeElement(element);
                 }
             }
         }
@@ -642,7 +634,8 @@ var main = (function() {
         getPackEpubButton: getPackEpubButton,
         onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick,
         fetchContentAndPackEpub: fetchContentAndPackEpub,
-        resetUI: resetUI
+        resetUI: resetUI,
+        getUserPreferences: () => userPreferences,
     };
 })();
 

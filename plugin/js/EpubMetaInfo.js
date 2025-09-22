@@ -15,9 +15,9 @@
 */
 class EpubMetaInfo {
     constructor() {
-        this.uuid = chrome.i18n.getMessage("defaultUUID");
-        this.title = chrome.i18n.getMessage("defaultTitle");
-        this.author = chrome.i18n.getMessage("defaultAuthor");
+        this.uuid = UIText.Default.uuid;
+        this.title = UIText.Default.title;
+        this.author = UIText.Default.author;
 
         this.language = "en";
         this.fileName = "web.epub";

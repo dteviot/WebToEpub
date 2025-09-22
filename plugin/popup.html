@@ -341,19 +341,37 @@
                     </tr>
                     <tr id="compressImagesRow">
                         <td><input id="compressImagesCheckbox" type="checkbox" name="compressImagesCheckbox" value="false"></td>
-                        <td>
-                            <table>
-                                <tr>
-                                    <td>__MSG_label_Compress_Images__</td>
-                                </tr>
-                            </table>
-                        </td>
+                        <td>__MSG_label_Compress_Images__</td>
                     </tr>
                     <tr>
-                        <td>
-                            <input id="compressImagesMaxResolutionTag" type="number" name="compressImagesMaxResolutionTag" style="width: 61px;" value="1080" min="100">
-                        </td>
-                        <td>__MSG_label_Compress_Images_Resolution__</td>
+                    <td></td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="compressImagesMaxResolutionTag" type="number" name="compressImagesMaxResolutionTag" style="width: 61px;" value="1080" min="100">
+                                </td>
+                                <td>__MSG_label_Compress_Images_Resolution__</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select id="compressImagesType" name="compressImagesType">
+                                        <option value="auto">__MSG_option_value_auto__</option>
+                                        <option value="jpg">jpg</option>
+                                        <option value="webp">webp</option>
+                                        <option value="png">png</option>
+                                    </select>
+                                </td>
+                                <td>__MSG_label_Compress_Images_Format__</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input id="compressImagesJpgCoverCheckbox" type="checkbox" name="compressImagesJpgCover" value="false">
+                                </td>
+                                <td>__MSG_label_Compress_Images_JPG_Cover__</td>
+                            </tr>
+                        </table>
+                    </td>
                     </tr>
                     <tr id="unSuperScriptAlternateTranslations" hidden="true">
                         <td><input id="unSuperScriptCheckboxInput" type="checkbox" name="unSuperScriptCheckboxInput" value="true"></td>
@@ -384,6 +402,18 @@
                     <tr id="noDownloadPopupFileRow">
                         <td><input id="noDownloadPopupCheckbox" type="checkbox" name="noDownloadPopupCheckbox" value="true"></td>
                         <td>__MSG_label_No_Download_Popup__</td>
+                    </tr>
+                    <tr id="disableShiftClickAlertRow">
+                      <td><input id="disableShiftClickAlertCheckbox" type="checkbox" name="disableShiftClickAlertCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Shift_Click_Alert__</td>
+                    </tr>
+                    <tr id="disableImageResErrorRow">
+                      <td><input id="disableImageResErrorCheckbox" type="checkbox" name="disableImageResErrorCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Image_Res_Error__</td>
+                    </tr>
+                    <tr id="disableWebpImageFormatErrorRow">
+                      <td><input id="disableWebpImageFormatErrorCheckbox" type="checkbox" name="disableWebpImageFormatErrorCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Webp_Image_Format_Error__</td>
                     </tr>
                     <tr id="writeErrorHistoryToFileRow">
                         <td><input id="writeErrorHistoryToFileCheckbox" type="checkbox" name="writeErrorHistoryToFileCheckbox" value="true"></td>
@@ -581,6 +611,7 @@
 
     <span id="scriptContainer">
         <!-- scripts go here -->
+        <script src="js/UIText.js"></script>
         <script src="js/ReadingList.js"></script>
         <script src="js/UserPreferences.js"></script>
         <script src="js/EpubMetaInfo.js"></script>
@@ -659,9 +690,11 @@
         <script src="js/parsers/DefaultParser.js"></script>
         <script src="js/parsers/DeviantArtParser.js"></script>
         <script src="js/parsers/DiurnisParser.js"></script>
+        <script src="js/parsers/DudushugeParser.js"></script>
         <script src="js/parsers/DummynovelsParser.js"></script>
         <script src="js/parsers/EdanglarstranslationsParser.js"></script>
         <script src="js/parsers/EightMusesParser.js"></script>
+        <script src="js/parsers/EmpirenovelParser.js"></script>
         <script src="js/parsers/EngnovelParser.js"></script>
         <script src="js/parsers/ErofusParser.js"></script>
         <script src="js/parsers/EstarParser.js"></script>
@@ -706,6 +739,7 @@
         <script src="js/parsers/InoveltranslationParser.js"></script>
         <script src="js/parsers/IsekaiScanParser.js"></script>
         <script src="js/parsers/IsotlsParser.js"></script>
+        <script src="js/parsers/IxdzsParser.js"></script>
         <script src="js/parsers/JadeRabbitParser.js"></script>
         <script src="js/parsers/JaptemParser.js"></script>
         <script src="js/parsers/JjwxcParser.js"></script>
@@ -761,7 +795,9 @@
         <script src="js/parsers/MottruyenParser.js"></script>
         <script src="js/parsers/MuggleNetParser.js"></script>
         <script src="js/parsers/MvlempyrParser.js"></script>
+        <script src="js/parsers/MydramanovelParser.js"></script>
         <script src="js/parsers/MyxlsParser.js"></script>
+        <script src="js/parsers/MznovelsParser.js"></script>
         <script src="js/parsers/NanodesuParser.js"></script>
         <script src="js/parsers/NanomashinonlineParser.js"></script>
         <script src="js/parsers/NineHeavensParser.js"></script>
@@ -863,6 +899,7 @@
         <script src="js/parsers/ShinsoriParser.js"></script>
         <script src="js/parsers/ShintranslationsParser.js"></script>
         <script src="js/parsers/ShirokunsParser.js"></script>
+        <script src="js/parsers/ShitouxsParser.js"></script>
         <script src="js/parsers/ShubaowbParser.js"></script>
         <script src="js/parsers/ShubaowParser.js"></script>
         <script src="js/parsers/Shw5Parser.js"></script>

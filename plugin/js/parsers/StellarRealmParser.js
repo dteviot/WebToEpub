@@ -1,6 +1,7 @@
 "use strict";
 
-parserFactory.register("stellarrealm.net", () => new StellarRealmParser());
+parserFactory.registerDeadSite("stellarrealm.net", () => new StellarRealmParser());
+parserFactory.register("brightnovels.com", () => new StellarRealmParser());
 
 class StellarRealmParser extends Parser {
     constructor() {
@@ -13,9 +14,9 @@ class StellarRealmParser extends Parser {
         let url = new URL(dom.baseURI);
         let slug = url.pathname.split("/").filter(a => a != "");
         slug = slug[slug.length-1];
-        let bookinfo = (await HttpClient.fetchJson("https://stellarrealm.net/series/"+slug+"/chapters?sort_order=asc")).json;
+        let bookinfo = (await HttpClient.fetchJson("https://brightnovels.com/series/"+slug+"/chapters?sort_order=asc")).json;
         let chapters = bookinfo.chapters.map(a => ({
-            sourceUrl: "https://stellarrealm.net/series/"+slug+"/"+a.slug,
+            sourceUrl: "https://brightnovels.com/series/"+slug+"/"+a.slug,
             title: a.name,
             isIncludeable: ((a.price == 0) && a.is_premium != true)
         }));
@@ -36,7 +37,7 @@ class StellarRealmParser extends Parser {
         let parsed = util.sanitize(bookinfo.props.series.description);
         this.description = parsed.body.textContent;
         this.img = bookinfo.props.series.cover?.path 
-            ? "https://stellarrealm.net/storage/"+bookinfo.props.series.cover.path
+            ? "https://brightnovels.com/storage/"+bookinfo.props.series.cover.path
             : null;
         return;
     }

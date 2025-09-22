@@ -22,7 +22,7 @@ class KemonopartyParser extends Parser {
         baseUrl.searchParams.delete("tag");
         for (let url of urlsOfTocPages) {
             await this.rateLimitDelay();
-            let json = (await HttpClient.fetchJson(url)).json;
+            let json = await this.fetchJson(url);
             let partialList = this.extractPartialChapterList(json, baseUrl);
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
@@ -36,7 +36,7 @@ class KemonopartyParser extends Parser {
     async fetchChapter(url) {
         let jsonUrl = new URL(url);
         jsonUrl.pathname = "/api/v1" + jsonUrl.pathname;
-        let json = (await HttpClient.fetchJson(jsonUrl.href)).json;
+        let json = await this.fetchJson(jsonUrl.href);
         return this.buildChapter(json, url);
     }
 
@@ -71,15 +71,7 @@ class KemonopartyParser extends Parser {
             urlbuilder.searchParams.set(key, value);
         }
         urlbuilder.searchParams.set("o", 0);
-        let lastPageOffset = 0;
-        
-        try {
-            lastPageOffset = this.getLastPageOffset(dom);
-        } catch (error) {
-            let regex1 = new RegExp("/posts?.+");
-            let profile = (await HttpClient.fetchJson(urlbuilder.href.replace(regex1, "/profile"))).json;
-            lastPageOffset = profile?.post_count;
-        }
+        let lastPageOffset = await this.getLastPageOffset(dom, urlbuilder);
         let urls = [];
         for (let i = 0; i <= lastPageOffset; i += 50) {
             urlbuilder.searchParams.set("o", i);
@@ -88,12 +80,29 @@ class KemonopartyParser extends Parser {
         return urls;
     }
 
-    getLastPageOffset(dom) {
-        let link = [...dom.querySelectorAll("#paginator-top a")].pop();
-        let offset = new URL(link?.href)?.searchParams?.get("o");
-        return offset
-            ? parseInt(offset)
-            : 0;
+    async getLastPageOffset(dom, urlbuilder) {
+        let offsets = [...dom.querySelectorAll("#paginator-top a")];
+        offsets = offsets.map(item => new URL(item?.href)?.searchParams?.get("o"));
+        offsets = offsets.filter(item => item !== null);
+        offsets = offsets.map(item => parseInt(item));
+        return 0 < offsets.length
+            ? Math.max(...offsets)
+            : await this.getLastPageOffsetAlternative(urlbuilder);
+    }
+
+    async getLastPageOffsetAlternative(urlbuilder) {
+        let regex1 = new RegExp("/posts?.+");
+        let profile = await this.fetchJson(urlbuilder.href.replace(regex1, "/profile"));
+        return profile?.post_count;
+    }
+
+    async fetchJson(url) {
+        let options = {
+            headers: {
+                "Accept": "text/css"
+            }
+        };
+        return (await HttpClient.fetchJson(url, options)).json;
     }
 
     extractPartialChapterList(data, baseUrl) {

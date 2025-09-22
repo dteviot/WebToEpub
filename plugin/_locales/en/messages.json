@@ -255,8 +255,16 @@
 		"message": "Compress Images",
 		"description": "Label for checkbox and value to compress images to a certain size"
 	},
+	"__MSG_label_Compress_Images_JPG_Cover__": {
+		"message": "Restrict Cover Image to JPEG",
+		"description": "Label for JPEG cover restriction checkbox"
+	},
+	"__MSG_label_Compress_Images_Format__": {
+		"message": "Compressed Image Format",
+		"description": "Label for mime type of compressed image"
+	},
 	"__MSG_label_Compress_Images_Resolution__": {
-		"message": "Resolution",
+		"message": "Compressed Resolution",
 		"description": "Label for number input for maximum dimension size of pixel height or width in image"
 	},
 	"__MSG_label_Cover_from_URL__": {
@@ -491,6 +499,18 @@
 		"message": "Don't popup 'SaveAs' dialog when save Epub",
 		"description": "Label for checkbox to download the final epub without a popup"
 	},
+    "__MSG_label_Disable_Shift_Click_Alert__": {
+      "message": "Disable Shift+Click Selection Alert",
+      "description": "Label for checkbox to disable the alert shown when user shift-clicks to select multiple chapters"
+    },
+    "__MSG_label_Disable_Image_Res_Error__": {
+      "message": "Disable High Resolution Image Fetch Failure Warning",
+      "description": "Label for checkbox to disable warnings when high resolution image fetch fails and lower resolution is used instead"
+    },
+    "__MSG_label_Disable_Webp_Image_Format_Error__": {
+      "message": "Disable WebP Image Format Compatibility Warning",
+      "description": "Label for checkbox to disable warnings that WebP format images may not render in epub viewers"
+    },
 	"__MSG_label_Write_Error_History_To_File__": {
 		"message": "Write error messages to file",
 		"description": "Label for checkbox to write recent error messages to file"
@@ -542,6 +562,10 @@
 	"__MSG_Searching_For_URLs_Please_Wait__": {
 		"message": "Searching for URLs.  Please wait.",
 		"description": "Message shown while looking for list of Chapter URLs."
+	},
+	"__MSG_option_value_auto__": {
+		"message": "auto",
+		"description": "Generic option text for 'automatic'"
 	},
 	"__MSG_Shift_Click__": {
 		"message": "You can select or unselect a range of chapters by clicking on the checkbox for the first chapter, then  hold down the shift key and click the last chapter in the range.",

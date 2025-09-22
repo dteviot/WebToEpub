@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Extension for Chrome and Firefox that converts a story on Baka-Tsuki (or a number of other sites) into an EPUB.",
   "dependencies": {
-    "@zip.js/zip.js": "^2.7.72",
+    "@zip.js/zip.js": "~2.7.72",
     "dompurify": "^3.2.6"
   },
   "devDependencies": {
@@ -89,7 +89,9 @@
     { "name": "Ori Avtalion"},
     { "name": "NamTH"},
     { "name": "minhngoc25a"},
-    { "name": "basitcodeenv"}
+    { "name": "basitcodeenv"},
+    { "name": "X-Xadro"},
+    { "name": "Yomafil"}
   ],
   "license": "GPL-3.0-only",
   "bugs": {

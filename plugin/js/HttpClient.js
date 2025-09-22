@@ -8,20 +8,20 @@ class FetchErrorHandler {
     }
 
     makeFailMessage(url, error) {
-        return chrome.i18n.getMessage("htmlFetchFailed", [url, error]);
+        return UIText.Error.htmlFetchFailed(url, error);
     }
 
     makeFailCanRetryMessage(url, error) {
         return this.makeFailMessage(url, error) + " " +
-            chrome.i18n.getMessage("httpFetchCanRetry");
+            UIText.Warning.httpFetchCanRetry;
     }
 
     getCancelButtonText() {
-        return chrome.i18n.getMessage("__MSG_button_error_Cancel__");
+        return UIText.Common.cancel;
     }
 
     static cancelButtonText() {
-        return chrome.i18n.getMessage("__MSG_button_error_Cancel__");
+        return UIText.Common.cancel;
     }
 
     onFetchError(url, error) {
@@ -59,7 +59,7 @@ class FetchErrorHandler {
     promptUserForRetry(url, wrapOptions, response, failError) {
         let msg;
         if (wrapOptions.retry.HTTP === 403) { 
-            msg = new Error(chrome.i18n.getMessage("warning403ErrorResponse", new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+            msg = new Error(UIText.Warning.warning403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
         } else {
             msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
         }
@@ -123,7 +123,7 @@ class FetchErrorHandler {
         let host = new URL(response.url).hostname;
         if (!FetchErrorHandler.rateLimitedHosts.has(host)) {
             FetchErrorHandler.rateLimitedHosts.add(host);
-            alert(chrome.i18n.getMessage("warning429ErrorResponse", host));
+            alert(UIText.Warning.warning429ErrorResponse(host));
         }
     }
 }
@@ -136,11 +136,11 @@ class FetchImageErrorHandler extends FetchErrorHandler { // eslint-disable-line 
     }
 
     makeFailMessage(url, error) {
-        return chrome.i18n.getMessage("imageFetchFailed", [url, this.parentPageUrl, error]);
+        return UIText.Error.imageFetchFailed(url, this.parentPageUrl, error);
     }
 
     getCancelButtonText() {
-        return chrome.i18n.getMessage("__MSG_button_error_Skip__");
+        return UIText.Common.skip;
     }
 }
 

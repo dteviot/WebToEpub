@@ -16,8 +16,7 @@ class Imgur { // eslint-disable-line no-unused-vars
                     Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
                     return Promise.resolve();
                 }).catch((err) => {
-                    let errorMsg = chrome.i18n.getMessage("imgurFetchFailed", 
-                        [link.href, parentPageUrl, err]);
+                    let errorMsg = UIText.Error.imgurFetchFailed(link.href, parentPageUrl, err);
                     ErrorLog.log(errorMsg);
                     return Promise.resolve();
                 });

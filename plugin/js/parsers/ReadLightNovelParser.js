@@ -22,7 +22,7 @@ class ReadLightNovelParser extends Parser {
             return Promise.resolve(chapters);
         }
         else {
-            return Promise.reject(new Error(chrome.i18n.getMessage("noChaptersFound")));
+            return Promise.reject(new Error(UIText.Error.noChaptersFound));
         }
     }
 

@@ -46,7 +46,7 @@ class CoverImageUI { // eslint-disable-line no-unused-vars
         let imagesTable = CoverImageUI.getImageTableElement();
         let checkBoxIndex = 0;
         if (0 === images.length) {
-            imagesTable.parentElement.appendChild(document.createTextNode(chrome.i18n.getMessage("noImagesFoundLabel")));
+            imagesTable.parentElement.appendChild(document.createTextNode(UIText.CoverImage.noImagesFoundLabel));
         }
         else {
             images.forEach((imageInfo) => {
@@ -78,7 +78,7 @@ class CoverImageUI { // eslint-disable-line no-unused-vars
         checkbox.id = "setCoverCheckBox" + checkBoxIndex;
         checkbox.onclick = () => { CoverImageUI.onImageClicked(checkbox.id, sourceUrl); };
         label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(chrome.i18n.getMessage("setCover")));
+        label.appendChild(document.createTextNode(UIText.CoverImage.setCover));
 
         // default to first image as cover image
         if (checkBoxIndex === 0) {

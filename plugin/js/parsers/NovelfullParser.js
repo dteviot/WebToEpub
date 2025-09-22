@@ -23,6 +23,7 @@ parserFactory.register("novelbin.com", () => new NovelbinParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
 parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelbin.org", () => new NovelfullParser());
+parserFactory.register("noveldrama.org", () => new NovelfullParser());
 //dead url
 parserFactory.register("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfull.com", () => new NovelfullParser());

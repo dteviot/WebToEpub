@@ -9,7 +9,7 @@ class ComrademaoParser extends Parser {
     }
 
     disabled() {
-        return chrome.i18n.getMessage("parserDisabledNotification");
+        return UIText.Warning.parserDisabledNotification;
     }
 
     populateUIImpl() {

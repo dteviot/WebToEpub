@@ -50,9 +50,7 @@ class EpubItem {
         let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
         let errorMessage = contentValidator(xml);
         if (errorMessage) {
-            let errorMsg = chrome.i18n.getMessage("convertToXhtmlWarning",
-                [this.chapterTitle, this.sourceUrl, errorMessage]
-            );
+            let errorMsg = UIText.Error.convertToXhtmlWarning(this.chapterTitle, this.sourceUrl, errorMessage);
             ErrorLog.log(errorMsg);
         }
         return xml;
@@ -320,5 +318,17 @@ class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
 
     *chapterInfo() {
         // images do not appear in table of contents
+    }
+}
+
+class FontInfo extends ImageInfo {
+    constructor(fontName) {
+        super();
+        this.fontName = fontName;
+    }
+
+    packInEpub(zipWriter) {
+        zipWriter.add("OEBPS/Fonts/"+this.fontName,
+            new zip.BlobReader(new Blob([this.arraybuffer])));
     }
 }

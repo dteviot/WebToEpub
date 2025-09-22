@@ -19,6 +19,14 @@ class NovelinguaParser extends Parser {
     }
 
     customRawDomToContentStep(chapter, content) {
+        this.cleanup(content);
+    }
+
+    cleanInformationNode(node) {
+        this.cleanup(node);
+    }
+
+    cleanup(content) {
         content.querySelectorAll("*").forEach(element => {
             element.removeAttribute("dir");
             util.replaceSemanticInlineStylesWithTags(element, true);

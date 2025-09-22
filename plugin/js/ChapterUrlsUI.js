@@ -133,8 +133,7 @@ class ChapterUrlsUI {
             .filter(c => c.checked)
             .map(c => c.parentElement.parentElement);
         if (max< selectedRows.length ) {
-            let message = chrome.i18n.getMessage("__MSG_More_than_max_chapters_selected__", 
-                [selectedRows.length, max]);
+            let message = UIText.Chapter.maxChaptersSelected(selectedRows.length, max);
             if (confirm(message) === false) {
                 for (let row of selectedRows.slice(max)) {
                     ChapterUrlsUI.setRowCheckboxState(row, false);
@@ -483,6 +482,10 @@ class ChapterUrlsUI {
 
     /** @private */
     static tellUserAboutShiftClick(event, row) {
+        let userPreferences = main.getUserPreferences();
+        if (userPreferences?.disableShiftClickAlert?.value) {
+            return;
+        }
         if (event.shiftKey || (ChapterUrlsUI.lastSelectedRow === null)) {
             return;
         }
@@ -496,7 +499,7 @@ class ChapterUrlsUI {
         }
         ++ChapterUrlsUI.ConsecutiveRowClicks;
         if (ChapterUrlsUI.ConsecutiveRowClicks == 5) {
-            alert(chrome.i18n.getMessage("__MSG_Shift_Click__"));
+            alert(UIText.Chapter.shiftClickMessage);
         }
     }
 
@@ -713,10 +716,10 @@ ChapterUrlsUI.ImageForState = [
 ];
 ChapterUrlsUI.TooltipForSate = [
     null,
-    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloading__"),
-    chrome.i18n.getMessage("__MSG_Tooltip_chapter_downloaded__"),
-    chrome.i18n.getMessage("__MSG_Tooltip_chapter_sleeping__"),
-    chrome.i18n.getMessage("__MSG_Tooltip_chapter_previously_downloaded__")
+    UIText.Chapter.tooltipChapterDownloading,
+    UIText.Chapter.tooltipChapterDownloaded,
+    UIText.Chapter.tooltipChapterSleeping,
+    UIText.Chapter.tooltipChapterPreviouslyDownloaded
 ];
 
 ChapterUrlsUI.lastSelectedRow = null;

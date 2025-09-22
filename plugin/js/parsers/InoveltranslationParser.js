@@ -25,6 +25,19 @@ class InoveltranslationParser extends Parser {
         return dom.querySelector("section[data-sentry-component='RichText']");
     }
 
+    preprocessRawDom(webPageDom) {
+        // notes can preceed content.  Move them into content
+        let notes = [...webPageDom.body.querySelectorAll("div.rounded-xl")];
+        if (0 < notes.length) {
+            notes.forEach(n => n.remove());
+            let content = this.findContent(webPageDom);
+            let footnoteTitle = webPageDom.createElement("h2");
+            footnoteTitle.appendChild(webPageDom.createTextNode("Author Notes"));
+            content.appendChild(footnoteTitle);
+            notes.forEach(n => content.appendChild(n));
+        }
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h1");
     }

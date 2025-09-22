@@ -124,7 +124,7 @@ class Parser {
         util.removeEmptyDivElements(content);
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
-            let errorMsg = chrome.i18n.getMessage("warningNoVisibleContent", [webPage.sourceUrl]);
+            let errorMsg = UIText.Warning.warningNoVisibleContent(webPage.sourceUrl);
             ErrorLog.showErrorMessage(errorMsg);
         }
         return content;
@@ -231,9 +231,7 @@ class Parser {
 
     makePlaceholderEpubItem(webPage, epubItemIndex) {
         let temp = Parser.makeEmptyDocForContent(webPage.sourceUrl);
-        temp.content.textContent = chrome.i18n.getMessage("chapterPlaceholderMessage",
-            [webPage.sourceUrl, webPage.error]
-        );
+        temp.content.textContent = UIText.Default.chapterPlaceholderMessage(webPage.sourceUrl, webPage.error);
         util.convertPreTagToPTags(temp.dom, temp.content);
         return [new ChapterEpubItem(webPage, temp.content, epubItemIndex)];
     }
@@ -403,13 +401,13 @@ class Parser {
     }
 
     makeInformationEpubItem(dom) {
-        let titleText = chrome.i18n.getMessage("informationPageTitle");
+        let titleText = UIText.Default.informationPageTitle;
         let title = document.createElement("h1");
         title.appendChild(document.createTextNode(titleText));
         let div = document.createElement("div");
         let urlElement = document.createElement("p");
         let bold = document.createElement("b");
-        bold.textContent = chrome.i18n.getMessage("tableOfContentsUrl");
+        bold.textContent = UIText.Default.tableOfContentsUrl;
         urlElement.appendChild(bold);
         urlElement.appendChild(document.createTextNode(this.state.chapterListUrl));
         div.appendChild(urlElement);
@@ -449,8 +447,8 @@ class Parser {
         let chapterUrlsUI = new ChapterUrlsUI(this);
         this.userPreferences.setReadingListCheckbox(url);
 
-        // returns promise, because may need to fetch additional pages to find list of chapters
-        await this.getChapterUrls(firstPageDom, chapterUrlsUI).then(async (chapters) => {
+        try {
+            let chapters = await this.getChapterUrls(firstPageDom, chapterUrlsUI);
             if (this.userPreferences.chaptersPageInChapterList.value) {
                 chapters = this.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
             }
@@ -467,9 +465,9 @@ class Parser {
             }
             this.state.setPagesToFetch(chapters);
             chapterUrlsUI.connectButtonHandlers();
-        }).catch((err) => {
+        } catch (err) {
             ErrorLog.showErrorMessage(err);
-        });
+        }
     }
 
     cleanWebPageUrls(webPages) {
@@ -508,7 +506,7 @@ class Parser {
 
     onFetchChaptersClicked() {
         if (0 == this.state.webPages.size) {
-            ErrorLog.showErrorMessage(chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"));
+            ErrorLog.showErrorMessage(UIText.Error.noChaptersFoundAndFetchClicked);
         } else {
             this.fetchWebPages();
         }
@@ -570,18 +568,19 @@ class Parser {
         await this.rateLimitDelay();
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
-        return pageParser.fetchChapter(webPage.sourceUrl).then((webPageDom) => {
+        try {
+            let webPageDom = await pageParser.fetchChapter(webPage.sourceUrl);
             delete webPage.error;
             webPage.rawDom = webPageDom;
             pageParser.preprocessRawDom(webPageDom);
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
-                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [webPage.sourceUrl]);
+                let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
                 throw new Error(errorMsg);
             }
             return pageParser.fetchImagesUsedInDocument(content, webPage);
-        }).catch((error) => {
+        } catch (error) {
             if (this.userPreferences.skipChaptersThatFailFetch.value) {
                 ErrorLog.log(error);
                 webPage.error = error;
@@ -589,17 +588,14 @@ class Parser {
                 webPage.isIncludeable = false;
                 throw error;
             }
-        }); 
+        }
     }
 
-    fetchImagesUsedInDocument(content, webPage) {
-        return this.imageCollector.preprocessImageTags(content, webPage.sourceUrl)
-            .then((revisedContent) => {
-                this.imageCollector.findImagesUsedInDocument(revisedContent);
-                return this.imageCollector.fetchImages(() => { }, webPage.sourceUrl);
-            }).then(() => {
-                this.updateLoadState(webPage);
-            });
+    async fetchImagesUsedInDocument(content, webPage) {
+        let revisedContent = await this.imageCollector.preprocessImageTags(content, webPage.sourceUrl);
+        this.imageCollector.findImagesUsedInDocument(revisedContent);
+        await this.imageCollector.fetchImages(() => { }, webPage.sourceUrl);
+        this.updateLoadState(webPage);
     }
 
     /**

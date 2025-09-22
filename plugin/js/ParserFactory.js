@@ -41,6 +41,11 @@ class ParserFactory {
         }
     }
 
+    registerDeadSite(hostName, constructor) {
+        // basically, a note that site is dead
+        this.register(hostName, constructor);
+    }
+
     reregister(hostName, constructor) {
         this.parsers.set(ParserFactory.stripLeadingWww(hostName), constructor);
     }

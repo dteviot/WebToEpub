@@ -46,11 +46,14 @@ class LightNovelWorldParser extends Parser {
     }
 
     linkToChapterIfo(link) {
-        let chaperNo = link.querySelector(".chapter-no")?.textContent?.trim() ?? "";
-        if (chaperNo !== "") {
-            chaperNo += ": ";
-        }
         let title = link.querySelector(".chapter-title").textContent.trim();
+        const isChapter = title.toLowerCase().includes("chapter");
+        let chaperNo = link.querySelector(".chapter-no")?.textContent?.trim() ?? "";
+        if (!isChapter && chaperNo !== "") {
+            chaperNo += ": ";
+        } else {
+            chaperNo = "";
+        }
         return {
             sourceUrl:  link.href,
             title: chaperNo + title,

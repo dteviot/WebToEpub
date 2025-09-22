@@ -107,7 +107,7 @@ class ErrorLog {
                 close();
                 msg.cancelAction();
             };
-            cancelButton.textContent = chrome.i18n.getMessage("__MSG_button_error_Cancel__");
+            cancelButton.textContent = UIText.Common.cancel;
             if (msg.cancelLabel !== undefined) {
                 cancelButton.textContent =  msg.cancelLabel;
             }

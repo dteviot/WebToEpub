@@ -146,18 +146,29 @@ class WtrlabParser extends Parser {
         title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.chapter.title;
         newDoc.content.appendChild(title);
         let br = newDoc.dom.createElement("br");
+        let imagecounter = 0;
         for (let element of json.data.data.body) {
-            let pnode = newDoc.dom.createElement("p");
-            let newtext = element;
-            for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
-                let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
-                newtext = newtext.replaceAll("※"+i+"⛬", term);
-                for (let term of this.terms) {
-                    newtext = newtext.replaceAll(term?.from, term?.to);
+            if (element == "[image]") {
+                let imgnode = newDoc.dom.createElement("img");
+                let imghref = json.data.data?.images?.[imagecounter++]??"";
+                if (imghref == "") {
+                    continue;
                 }
+                imgnode.src = imghref;
+                newDoc.content.appendChild(imgnode);
+            } else {
+                let pnode = newDoc.dom.createElement("p");
+                let newtext = element;
+                for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+                    let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
+                    newtext = newtext.replaceAll("※"+i+"⛬", term);
+                    for (let term of this.terms) {
+                        newtext = newtext.replaceAll(term?.from, term?.to);
+                    }
+                }
+                pnode.textContent = newtext;
+                newDoc.content.appendChild(pnode);
             }
-            pnode.textContent = newtext;
-            newDoc.content.appendChild(pnode);
             newDoc.content.appendChild(br);
         }
         return newDoc.dom;

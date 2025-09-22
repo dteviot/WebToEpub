@@ -28,7 +28,7 @@ class ReadhiveParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("main div.justify-center:not([x-data]");
+        return dom.querySelector("main div.justify-center:not([x-data])");
     }
 
     extractTitleImpl(dom) {

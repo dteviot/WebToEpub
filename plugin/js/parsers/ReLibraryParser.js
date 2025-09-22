@@ -8,7 +8,7 @@ class ReLibraryParser extends WordpressBaseParser {
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("div.su-accordion div.su-spoiler-content li a")]
+        return [...dom.querySelectorAll("div.su-accordion div.su-spoiler-content li a:not(:has(>span.rl-unlock-text))")]
             .map(a => util.hyperLinkToChapter(a));
     }
 

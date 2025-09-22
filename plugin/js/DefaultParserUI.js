@@ -137,29 +137,29 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         document.getElementById("defaultParserSection").hidden = !isVisible;
     }
 
-    static testDefaultParser(parser) {
+    static async testDefaultParser(parser) {
         DefaultParserUI.AddConfiguration(parser);
         let hostname = DefaultParserUI.getDefaultParserHostnameInput().value;
         let config = parser.siteConfigs.getConfigForSite(hostname);
         if (util.isNullOrEmpty(config.testUrl))
         {
-            alert(chrome.i18n.getMessage("warningNoChapterUrl"));
+            alert(UIText.Warning.warningNoChapterUrl);
             return;
         }
-        return HttpClient.wrapFetch(config.testUrl).then((xhr) => {
+        try {
+            let xhr = await HttpClient.wrapFetch(config.testUrl);
             let webPage = { rawDom: util.sanitize(xhr.responseXML.querySelector("*")) };
-            util.setBaseTag(config.testUrl, webPage.rawDom);
             let content = parser.findContent(webPage.rawDom);
             if (content === null) {
-                let errorMsg = chrome.i18n.getMessage("errorContentNotFound", [config.testUrl]);
+                let errorMsg = UIText.Error.errorContentNotFound(config.testUrl);
                 throw new Error(errorMsg);
             }
             parser.removeUnwantedElementsFromContentElement(content);
             parser.addTitleToContent(webPage, content);
             DefaultParserUI.showResult(content);
-        }).catch((err) => {
+        } catch (err) {
             ErrorLog.showErrorMessage(err);
-        });
+        }
     }
 
     static cleanResults() {

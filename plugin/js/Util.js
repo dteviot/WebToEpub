@@ -9,7 +9,7 @@
 
 const util = (function() {
     var sleepController = new AbortController;
-    
+
     function sleep(ms) {
         return new Promise(resolve => {
             function finished() {
@@ -84,6 +84,7 @@ const util = (function() {
         newImage.setAttributeNS(xlink_ns, "xlink:href", makeRelative(href));
         newImage.setAttributeNS(null, "width", width);
         newImage.setAttributeNS(null, "height", height);
+        origin = clearIfDataUri(origin);
         if (includeImageSourceUrl) {
             let desc = doc.createElementNS(svg_ns, "desc");
             svg.appendChild(desc);
@@ -92,6 +93,11 @@ const util = (function() {
             svg.appendChild(createComment(doc, origin));
         }
         return div;
+    }
+
+    function clearIfDataUri(content) {
+        // Filter out data: URIs to prevent massive base64 content
+        return (content && content.startsWith("data:")) ? "" : content;
     }
 
     // assumes we're making link from file in OEBPS\Text to OEBPS\Images
@@ -647,6 +653,7 @@ const util = (function() {
     }
 
     function createComment(doc, content) {
+        content = clearIfDataUri(content);
         // comments are not allowed to contain a double hyphen
         let escaped = content.replace(/--/g, "%2D%2D");
         return doc.createComment("  " + escaped + "  ");
@@ -1040,16 +1047,31 @@ const util = (function() {
         return retval;
     }
     function detectMimeType(b64) {
+        let b64b = atob(b64);
         for (var s in MIME_TYPE_SIGNATURES) {
-            if (b64.indexOf(s) === 0) {
-                return MIME_TYPE_SIGNATURES[s][0];
+            try {
+                let mime_sig = atob(s);
+                if (b64b.indexOf(mime_sig) === 0) {
+                    return MIME_TYPE_SIGNATURES[s][0];
+                }
+            }
+            catch (ex)
+            {
+                if (b64.indexOf(s) === 0) {
+                    return MIME_TYPE_SIGNATURES[s][0];
+                }
             }
         }
     }
 
     function sanitize(dirty) {
+        let savedBaseURI = dirty.baseURI;
         const clean = DOMPurify.sanitize(dirty);
-        return new DOMParser().parseFromString(clean, "text/html");
+        let html = new DOMParser().parseFromString(clean, "text/html");
+        if (savedBaseURI) {
+            util.setBaseTag(savedBaseURI, html);
+        }
+        return html;
     }
 
     function sanitizeNode(dirty) {
@@ -1141,6 +1163,7 @@ const util = (function() {
         createEmptyHtmlDoc: createEmptyHtmlDoc,
         populateHead: populateHead,
         createSvgImageElement: createSvgImageElement,
+        clearIfDataUri: clearIfDataUri,
         resolveRelativeUrl: resolveRelativeUrl,
         log: log,
         extractHostName: extractHostName,
