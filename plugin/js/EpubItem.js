@@ -320,3 +320,15 @@ class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
         // images do not appear in table of contents
     }
 }
+
+class FontInfo extends ImageInfo {
+    constructor(fontName) {
+        super();
+        this.fontName = fontName;
+    }
+
+    packInEpub(zipWriter) {
+        zipWriter.add("OEBPS/Fonts/"+this.fontName,
+            new zip.BlobReader(new Blob([this.arraybuffer])));
+    }
+}

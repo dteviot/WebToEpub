@@ -5,6 +5,11 @@ parserFactory.register("chrysanthemumgarden.com", () => new ChrysanthemumgardenP
 class ChrysanthemumgardenParser extends WordpressBaseParser {
     constructor() {
         super();
+        this.usedfonts = new Set();
+    }
+
+    onStartCollecting() {
+        this.usedfonts = new Set();
     }
 
     populateUIImpl() {
@@ -25,6 +30,54 @@ class ChrysanthemumgardenParser extends WordpressBaseParser {
             newDom = (await HttpClient.wrapFetch(url, {fetchOptions: options})).responseXML;
         }
         return newDom;
+    }
+
+    async fetchWebPageContent(webPage) {
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING);
+        await this.rateLimitDelay();
+        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
+        let pageParser = webPage.parser;
+        try {
+            let webPageDom = await pageParser.fetchChapter(webPage.sourceUrl);
+            delete webPage.error;
+            webPage.rawDom = webPageDom;
+            pageParser.preprocessRawDom(webPageDom);
+            pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
+            let content = pageParser.findContent(webPage.rawDom);
+            if (content == null) {
+                let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
+                throw new Error(errorMsg);
+            }
+            //get fonts from content
+            let allnodes = [...content.querySelectorAll("span")];
+            let regex = new RegExp(".+style=\"font-family: ([a-zA-Z]+);\".+");
+            allnodes = allnodes.map(a => a.outerHTML);
+            allnodes = allnodes.filter(a => a.search(regex) != -1);
+            allnodes = allnodes.map(a => a.replace(regex, "$1"));
+            for (let i = 0; i < allnodes.length; i++) {
+                if (!this.usedfonts.has(allnodes[i])) {
+                    this.usedfonts.add(allnodes[i]);
+                    try {
+                        let xhr = await HttpClient.wrapFetch("https://chrysanthemumgarden.com/wp-content/plugins/chrys-garden-plugin/resources/fonts/used/"+allnodes[i]+".woff2");
+                        let newfont = new FontInfo(allnodes[i]+".woff2");
+                        newfont.arraybuffer = xhr.arrayBuffer;
+                        this.imageCollector.imagesToPack.push(newfont);
+                    } catch (error) {
+                        //
+                    }
+                }
+            }
+
+            return pageParser.fetchImagesUsedInDocument(content, webPage);
+        } catch (error) {
+            if (this.userPreferences.skipChaptersThatFailFetch.value) {
+                ErrorLog.log(error);
+                webPage.error = error;
+            } else {
+                webPage.isIncludeable = false;
+                throw error;
+            }
+        }
     }
 
     static getPasswordForm(dom) {
