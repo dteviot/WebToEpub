@@ -21,9 +21,13 @@ var getFileList = function(fileName) {
 }
 
 var adjustedFileListForEslint = function(fileList) {
+    const libs = [
+        "@zip.js/zip.js/dist/zip-no-worker.min.js",
+        "dompurify/dist/purify.min.js",
+        "cryptojs/dist/crypto-js.min.js"
+    ];
     return fileList
-        .filter(e => e !== "@zip.js/zip.js/dist/zip-no-worker.min.js")
-        .filter(e => e !== "dompurify/dist/purify.min.js")
+        .filter(e => !libs.includes(e))
         .map(f => "../plugin/" + f);
 }
 
