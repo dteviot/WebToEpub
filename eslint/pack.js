@@ -23,8 +23,7 @@ var getFileList = function(fileName) {
 var adjustedFileListForEslint = function(fileList) {
     const libs = [
         "@zip.js/zip.js/dist/zip-no-worker.min.js",
-        "dompurify/dist/purify.min.js",
-        "cryptojs/dist/crypto-js.min.js"
+        "dompurify/dist/purify.min.js"
     ];
     return fileList
         .filter(e => !libs.includes(e))

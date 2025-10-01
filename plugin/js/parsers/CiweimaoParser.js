@@ -149,7 +149,17 @@ class CiweimaoParser extends Parser {
         }
     }
 
-    _decryptChapterContentCryptoJS({ content, keys, accessKey }) {
+    _base64ToArrayBuffer(base64) {
+        const binary_string = atob(base64);
+        const len = binary_string.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    async _decryptChapterContentNative({ content, keys, accessKey }) {
         const keysLength = keys.length;
         const decryptionKeysB64 = [];
         decryptionKeysB64.push(
@@ -158,38 +168,38 @@ class CiweimaoParser extends Parser {
         decryptionKeysB64.push(keys[accessKey.charCodeAt(0) % keysLength]);
 
         let currentContentB64 = content;
-        let finalDecryptedWordArray;
+        let finalDecryptedBuffer;
 
         for (const keyB64 of decryptionKeysB64) {
-            // decode the inc Base64 content to a raw binary str
-            const rawBinaryContent = atob(currentContentB64);
-
-            // parse the key and extract the IV and ciphertext WordArrays
-            const keyParsed = CryptoJS.enc.Base64.parse(keyB64);
-            const ivParsed = CryptoJS.enc.Latin1.parse(
-                rawBinaryContent.substring(0, 16)
-            );
-            const ciphertextParsed = CryptoJS.enc.Latin1.parse(
-                rawBinaryContent.substring(16)
+            const keyData = this._base64ToArrayBuffer(keyB64);
+            const cryptoKey = await crypto.subtle.importKey(
+                "raw",
+                keyData,
+                { name: "AES-CBC" },
+                false, // not extractable
+                ["decrypt"]
             );
 
-            const decryptedWordArray = CryptoJS.AES.decrypt(
-                { ciphertext: ciphertextParsed },
-                keyParsed,
-                { iv: ivParsed }
+            const rawContentBuffer =
+                this._base64ToArrayBuffer(currentContentB64);
+            const iv = rawContentBuffer.slice(0, 16);
+            const ciphertext = rawContentBuffer.slice(16);
+            const decryptedBuffer = await crypto.subtle.decrypt(
+                { name: "AES-CBC", iv: iv },
+                cryptoKey,
+                ciphertext
             );
 
-            // it's a WordArray containing a Base64 string
-            currentContentB64 = decryptedWordArray.toString(
-                CryptoJS.enc.Latin1
+            currentContentB64 = new TextDecoder("latin1").decode(
+                decryptedBuffer
             );
-            finalDecryptedWordArray = decryptedWordArray;
+            finalDecryptedBuffer = decryptedBuffer;
         }
 
-        return finalDecryptedWordArray.toString(CryptoJS.enc.Utf8);
+        return new TextDecoder("utf-8").decode(finalDecryptedBuffer);
     }
 
-    buildChapter(json, url) {
+    async buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
 
         let title = newDoc.dom.createElement("h1");
@@ -202,7 +212,7 @@ class CiweimaoParser extends Parser {
             json.encryt_keys &&
             json.chapter_access_key
         ) {
-            chapterText = this._decryptChapterContentCryptoJS({
+            chapterText = await this._decryptChapterContentNative({
                 content: json.chapter_content,
                 keys: json.encryt_keys,
                 accessKey: json.chapter_access_key,

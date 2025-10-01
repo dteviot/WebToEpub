@@ -46,7 +46,6 @@ module.exports = {
         // Third-party libraries
         "DOMPurify": "readonly",
         "zip": "readonly",
-        "CryptoJS": "readonly",
 
         // Project globals
         "BakaTsukiImageCollector": "readonly",
