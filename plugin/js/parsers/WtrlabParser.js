@@ -19,18 +19,17 @@ class WtrlabParser extends Parser {
         this.magickey = json?.buildId;
         let leaves = dom.baseURI.split("/");
         let language = leaves[leaves.length - 3];
-        let id = leaves[leaves.length - 2].slice(6);
+        let id = leaves[leaves.length - 2];
         let slug = leaves[leaves.length - 1].split("?")[0];
         this.slug = slug;
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
-        
         let serie_id = chapters.chapters[0].serie_id;
 
         let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/user/config")).json;
         this.terms = terms?.config?.terms.filter(a => (a?.filter == null) || (a?.filter.includes(serie_id)));
 
         return chapters.chapters.map(a => ({
-            sourceUrl: "https://wtr-lab.com/"+language+"/serie-"+id+"/"+slug+"/"+a.order, 
+            sourceUrl: "https://wtr-lab.com/"+language+"/novel/"+id+"/"+slug+"/chapter-"+a.order, 
             title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.order+": "+a.title
         }));
     }
@@ -52,7 +51,6 @@ class WtrlabParser extends Parser {
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".image-wrap");
     }
-
     extractSubject(dom) {
         let tagsgenre = [...dom.querySelectorAll("span.genre")].map(a => a.textContent);
         let tagstags = [...dom.querySelectorAll(".tags a.tag")].map(a => a.textContent.replace(",", ""));
@@ -73,9 +71,11 @@ class WtrlabParser extends Parser {
     async fetchChapter(url) {
         let leaves = url.split("/");
         let language = leaves[leaves.length - 4];
-        let id = leaves[leaves.length - 3].slice(6);
-        let chapter = leaves[leaves.length - 1];
-        
+        let id = leaves[leaves.length - 3];
+        let chapterPart = leaves[leaves.length - 1];
+        let chapter = chapterPart.startsWith("chapter-")
+            ? chapterPart.slice(8)
+            : chapterPart;
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
@@ -96,7 +96,6 @@ class WtrlabParser extends Parser {
         let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
         return this.buildChapter(json, url);
     }
-    
     isCustomError(response) {
         if (response.json.data?.data?.body?false:true) {
             return true;
@@ -135,7 +134,7 @@ class WtrlabParser extends Parser {
         let language = body.language;
         let raw_id = body.raw_id;
         let chapter_no = body.chapter_no;
-        return "https://"+hostname+"/"+language+"/serie-"+raw_id+"/"+this.slug+"/"+chapter_no+"?service="+translate;
+        return "https://"+hostname+"/"+language+"/novel/"+raw_id+"/"+this.slug+"/chapter-"+chapter_no+"?service="+translate;
     }
 
     buildChapter(json, url) {
