@@ -91,7 +91,8 @@
     { "name": "minhngoc25a"},
     { "name": "basitcodeenv"},
     { "name": "X-Xadro"},
-    { "name": "Yomafil"}
+    { "name": "Yomafil"},
+    { "name": "Varun Patkar", "email": "varunpatkar501@gmail.com" },
   ],
   "license": "GPL-3.0-only",
   "bugs": {
