@@ -18,8 +18,9 @@ class WtrlabParser extends Parser {
         json = JSON.parse(json);
         this.magickey = json?.buildId;
         let leaves = dom.baseURI.split("/");
-        let language = leaves[leaves.length - 3];
-        let id = leaves[leaves.length - 2];
+        let novelIndex = leaves.indexOf("novel");
+        let language = leaves[novelIndex - 1];
+        let id = leaves[novelIndex + 1];
         let slug = leaves[leaves.length - 1].split("?")[0];
         this.slug = slug;
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
@@ -70,8 +71,9 @@ class WtrlabParser extends Parser {
 
     async fetchChapter(url) {
         let leaves = url.split("/");
-        let language = leaves[leaves.length - 4];
-        let id = leaves[leaves.length - 3];
+        let novelIndex = leaves.indexOf("novel");
+        let language = leaves[novelIndex - 1];
+        let id = leaves[novelIndex + 1];
         let chapterPart = leaves[leaves.length - 1];
         let chapter = chapterPart.startsWith("chapter-")
             ? chapterPart.slice(8)
