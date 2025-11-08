@@ -92,7 +92,8 @@
     { "name": "basitcodeenv"},
     { "name": "X-Xadro"},
     { "name": "Yomafil"},
-    { "name": "Varun Patkar", "email": "varunpatkar501@gmail.com" }
+    { "name": "Varun Patkar", "email": "varunpatkar501@gmail.com" },
+    { "name": "Peter Kaufman", "email": "PeterJamesKaufman@gmail.com" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {

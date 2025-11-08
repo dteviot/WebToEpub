@@ -802,6 +802,7 @@ Don't forget to give the project a star! Thanks again!
     <li>X-Xadro</li>
     <li>Yomafil</li>
     <li>Varun Patkar</li>
+    <li>Peter Kaufman</li>
   </ul>
 </details>
 
