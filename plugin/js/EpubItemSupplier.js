@@ -39,11 +39,16 @@ class EpubItemSupplier { // eslint-disable-line no-unused-vars
         }
     }
 
-    makeCoverImageXhtmlFile(emptyDocFactory) {
+    makeCoverImageXhtmlFile(emptyDocFactory, title) {
         let doc = emptyDocFactory();
         let body = doc.getElementsByTagName("body")[0];
         let userPreferences = this.imageCollector.userPreferences;
         body.appendChild(this.coverImageInfo.createImageElement(userPreferences));
+
+        if (title) {
+            doc.querySelector("title").text = title;
+        }
+
         return util.xmlToString(doc);
     }
 

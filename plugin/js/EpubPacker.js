@@ -345,7 +345,8 @@ class EpubPacker {
             file.packInEpub(zipWriter, this.emptyDocFactory, this.contentValidator);
         }
         if (epubItemSupplier.hasCoverImageFile()) {
-            let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
+            let coverFileDefaultTitle = this.version === EpubPacker.EPUB_VERSION_3 ? this.metaInfo.title : "";
+            let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory, coverFileDefaultTitle);
             zipWriter.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
         }
     }
