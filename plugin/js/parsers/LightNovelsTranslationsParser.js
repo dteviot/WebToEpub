@@ -27,4 +27,13 @@ class LightNovelsTranslationsParser extends WordpressBaseParser {
     getInformationEpubItemChildNodes(dom) {
         return [...dom.querySelectorAll("div.novel_text")];
     }
+
+    extractAuthor(dom) {
+        const authorEl = dom.querySelector("div.novel_detail_info > ul > li:nth-child(1)");
+        if (authorEl) {
+            return authorEl.textContent.replace("Author: ", "");
+        }
+
+        return "<unknown>";
+    }
 }
