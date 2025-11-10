@@ -9,6 +9,7 @@ parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldPars
 parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.net", () => new NovelfireParser());
+parserFactory.register("findnovel.net", () => new FindNovelParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
 parserFactory.register("pandanovel.co", () => new LightNovelWorldParser());
@@ -150,6 +151,17 @@ class LightNovelPubParser extends LightNovelWorldParser {
 }
 
 class NovelfireParser extends LightNovelWorldParser {
+    constructor() {
+        super();
+    }
+    
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeHTMLUnknownElement(element);
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+class FindNovelParser extends LightNovelWorldParser {
     constructor() {
         super();
     }
