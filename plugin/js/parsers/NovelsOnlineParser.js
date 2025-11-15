@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("novelsonline.net", () => new NovelsOnlineParser());
+parserFactory.register("novelsonline.org", () => new NovelsOnlineParser());
 
 class NovelsOnlineParser extends Parser {
     constructor() {
@@ -39,5 +40,21 @@ class NovelsOnlineParser extends Parser {
 
     getInformationEpubItemChildNodes(dom) {
         return [dom.querySelector(".novel-right .novel-detail-body")];
+    }
+
+    extractAuthor(dom) {
+        const detailOptionEls = dom.querySelectorAll("div.novel-left > div.novel-details > div.novel-detail-item");
+        if (detailOptionEls) {
+            for (const el of detailOptionEls) {
+                if (el.textContent.includes("Author(s)")) {
+                    const author = el.textContent.replace("Author(s)", "").trim();
+                    if (author != "" && author != "N/A") {
+                        return author;
+                    }
+                }
+            }
+        }
+
+        return "<unknown>";
     }
 }

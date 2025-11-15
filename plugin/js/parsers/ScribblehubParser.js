@@ -60,9 +60,17 @@ class ScribblehubParser extends Parser {
         let tags = [...dom.querySelectorAll(selector)];
         return tags.map(e => e.textContent.trim()).join(", ");
     }
-    
+
     extractDescription(dom) {
-        return dom.querySelector("div [property='description']").textContent.trim();
+        return this.extractDescriptionInternal(dom).innerText.trim();
+    }
+    // unwrap the description from the readmore that you may get on mobile
+    extractDescriptionInternal(dom) {
+        let desc = dom.querySelector(".wi_fic_desc");
+        desc.querySelectorAll(".dots, .morelink").forEach(e => e.remove());
+        desc.querySelectorAll(".testhide").forEach(e => e.replaceWith(...e.childNodes));
+
+        return desc;
     }
 
     findChapterTitle(dom) {
@@ -74,10 +82,67 @@ class ScribblehubParser extends Parser {
     }
 
     preprocessRawDom(webPageDom) {
-        this.tagAuthorNotesBySelector(webPageDom, ".wi_authornotes", ".wi_news");
+        let content = this.findContent(webPageDom);
+
+        this.tagAuthorNotesBySelector(content, ".wi_authornotes, .wi_news");
+
+        // spoilers
+        for (let element of content.querySelectorAll(".sp-wrap")) {
+            element.querySelector(".sp-body>.spdiv").remove();
+
+            let details = webPageDom.createElement("details");
+            let summary = webPageDom.createElement("summary");
+            summary.append(...element.querySelector(".sp-head").childNodes);
+            details.append(summary);
+            details.append(...element.querySelector(".sp-body").childNodes);
+
+            element.replaceWith(details);
+        }
+
+        // anouncements
+        for (let element of content.querySelectorAll(".wi_news_title")) {
+            element.setAttribute("style", "font-weight: bold");
+            element.querySelector(".fa-exclamation-triangle").replaceWith("⚠");
+        }
+
+        // author notes
+        for (let element of content.querySelectorAll(".p-avatar-wrap")) {
+            element.remove();
+        }
+
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.fic_row.details")];
+        function cleanTag(tag, index, array) {
+            let out = tag.ownerDocument.createElement("a");
+            out.setAttribute("href", tag.getAttribute("href"));
+            out.innerText = tag.innerText;
+            return index < array.length -1 ? [out, ", "] : [out];
+        }
+
+        let info = [];
+
+        info.push(dom.createElement("div").innerHTML = "<p><b>Synopsis</b></p>");
+        info.push(...this.extractDescriptionInternal(dom).childNodes);
+
+        let genre = dom.querySelectorAll(".wi_fic_genre a.fic_genre");
+        if (genre.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Genre</b></p>");
+            info.push(...[...genre].flatMap(cleanTag));
+        }
+
+        let fandom = dom.querySelectorAll(".wi_fic_genre a.stag");
+        if (fandom.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Fandom</b></p>");
+            info.push(...[...fandom].flatMap(cleanTag));
+        }
+
+        let tags = dom.querySelectorAll(".wi_fic_showtags a.stag");
+        if (tags.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Tags</b></p>");
+            info.push(...[...tags].flatMap(cleanTag));
+        }
+  
+        return info;
     }
 }
