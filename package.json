@@ -97,7 +97,8 @@
     { "name": "patiorjunrick"},
     { "name": "MD Shabrez" },
     { "name": "jurassicplayer" },
-    { "name": "X2E4VXpZKv" }
+    { "name": "X2E4VXpZKv" },
+    { "name": "johnpyp", "email": "johnpyp.dev@gmail.com" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
