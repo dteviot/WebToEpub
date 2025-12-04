@@ -27,8 +27,7 @@ parserFactory.register("lazygirltranslations.com", () => new Lazygirltranslation
 //dead url
 parserFactory.register("novelsknight.com", () => new NoblemtlParser());
 parserFactory.register("novelsknight.punchmanga.online", () => new NovelsknightlParser());
-//dead url
-parserFactory.register("cyborg-tl.com", () => new NoblemtlParser());
+parserFactory.register("cyborg-tl.com", () => new CyborgTlParser());
 
 parserFactory.register("pandamtl.com", () => new NoblemtlParser());
 parserFactory.register("universalnovel.com", () => new NoblemtlParser());
@@ -211,5 +210,18 @@ class NovelsknightlParser extends NoblemtlParser {
 
     findContent(dom) {
         return dom.querySelector("[itemprop='text']");
+    }
+}
+
+class CyborgTlParser extends NoblemtlParser {
+    constructor() {
+        super();
+    }
+
+    customRawDomToContentStep(chapter) {
+        let crypt = chapter.rawDom.querySelector("#js-post-content");
+        if (crypt) {
+            crypt.textContent = crypt.getAttribute("data-obf");
+        }
     }
 }

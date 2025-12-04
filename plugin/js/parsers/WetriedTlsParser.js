@@ -6,6 +6,7 @@ class WetriedTlsParser extends Parser {
     constructor() {
         super();
         this.minimumThrottle = 2000;
+        this.chaptersSourceTitleMap = new Map();
     }
 
     async getChapterUrls() {
@@ -21,10 +22,12 @@ class WetriedTlsParser extends Parser {
             const seriesUrl =
                 "https://wetriedtls.com/series/" + chapter.series.series_slug;
 
-            return {
+            const mapObj = {
                 sourceUrl: `${seriesUrl}/${chapter.chapter_slug}`,
                 title: chapter.chapter_title,
             };
+            this.chaptersSourceTitleMap.set(mapObj.sourceUrl, mapObj.title);
+            return mapObj;
         });
 
         return chapters;
@@ -50,7 +53,6 @@ class WetriedTlsParser extends Parser {
 
         this.id = novelData.id;
         this.title = novelData.title;
-        this.author = novelData.author;
         this.thumbnail = novelData.thumbnail;
         this.description = novelData.description;
         return;
@@ -80,7 +82,9 @@ class WetriedTlsParser extends Parser {
             ([type, data]) =>
                 type === 1 &&
                 typeof data === "string" &&
-                /<p>|<div>|<br>|<\/?strong>/.test(data) && // looks like HTML
+                /<p\b[^>]*>|<div\b[^>]*>|<br\b[^>]*>|<\/?strong\b[^>]*>/i.test(
+                    data
+                ) && // looks like HTML
                 data.length > 1000 // avoid short status chunks
         );
 
@@ -104,8 +108,17 @@ class WetriedTlsParser extends Parser {
         return this.title.trim();
     }
 
-    extractAuthor() {
-        return this.author;
+    extractAuthor(dom) {
+        if (!dom) return super.extractAuthor(dom);
+
+        const authorLabel = Array.from(
+            dom.querySelectorAll("span.text-muted-foreground")
+        ).find((el) => el.innerText.trim() === "Author");
+        const authorValue = authorLabel?.parentElement?.querySelector(
+            ":scope span:last-child"
+        );
+
+        return authorValue?.innerText || super.extractAuthor(dom);
     }
 
     extractDescription() {
@@ -114,5 +127,9 @@ class WetriedTlsParser extends Parser {
 
     findCoverImageUrl() {
         return this.thumbnail;
+    }
+
+    findChapterTitle(dom) {
+        return this.chaptersSourceTitleMap.get(dom.baseURI);
     }
 }

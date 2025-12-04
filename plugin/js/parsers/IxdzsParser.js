@@ -81,10 +81,32 @@ class Ixdzs8Parser extends IxdzsParser {
     }
 
     async fetchChapterUrls(url, options, baseUri) {
+        if (!baseUri.endsWith("/")) {
+            baseUri += "/";
+        }
         let json = (await HttpClient.fetchJson(url, options)).json;
         return json.data.map(d => ({
             sourceUrl: `${baseUri}p${d.ordernum}.html`,
             title: d.title,
         }));
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let count = 0;
+        while (!this.findContent(dom)) {
+            let responseUrl = this.buildChallengeResponseUrl(dom, url);
+            dom = (await HttpClient.wrapFetch(responseUrl)).responseXML;
+            if (++count > 10) {
+                break;
+            }
+        }
+        return dom;
+    }
+
+    buildChallengeResponseUrl(dom, url) {
+        let script = dom.querySelector("script")?.textContent;
+        let token = script.split("\"")[1];
+        return url +"?challenge=" + encodeURIComponent(token);
     }
 }

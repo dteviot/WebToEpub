@@ -8,6 +8,10 @@ class ChrysanthemumgardenParser extends WordpressBaseParser {
         this.usedfonts = new Set();
     }
 
+    onStartCollecting() {
+        this.usedfonts = new Set();
+    }
+
     populateUIImpl() {
         document.getElementById("passwordRow").hidden = false;
         document.getElementById("removeAuthorNotesRow").hidden = false; 
@@ -45,18 +49,22 @@ class ChrysanthemumgardenParser extends WordpressBaseParser {
                 throw new Error(errorMsg);
             }
             //get fonts from content
-            let allnodes = [...content.querySelectorAll("p, span")];
+            let allnodes = [...content.querySelectorAll("span")];
             let regex = new RegExp(".+style=\"font-family: ([a-zA-Z]+);\".+");
-            allnodes = allnodes.map(a => a.innerHTML);
+            allnodes = allnodes.map(a => a.outerHTML);
             allnodes = allnodes.filter(a => a.search(regex) != -1);
             allnodes = allnodes.map(a => a.replace(regex, "$1"));
             for (let i = 0; i < allnodes.length; i++) {
                 if (!this.usedfonts.has(allnodes[i])) {
                     this.usedfonts.add(allnodes[i]);
-                    let xhr = await HttpClient.wrapFetch("https://chrysanthemumgarden.com/wp-content/plugins/chrys-garden-plugin/resources/fonts/used/"+allnodes[i]+".woff2");
-                    let newfont = new FontInfo(allnodes[i]+".woff2");
-                    newfont.arraybuffer = xhr.arrayBuffer;
-                    this.imageCollector.imagesToPack.push(newfont);
+                    try {
+                        let xhr = await HttpClient.wrapFetch("https://chrysanthemumgarden.com/wp-content/plugins/chrys-garden-plugin/resources/fonts/used/"+allnodes[i]+".woff2");
+                        let newfont = new FontInfo(allnodes[i]+".woff2");
+                        newfont.arraybuffer = xhr.arrayBuffer;
+                        this.imageCollector.imagesToPack.push(newfont);
+                    } catch (error) {
+                        //
+                    }
                 }
             }
 

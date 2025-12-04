@@ -1,5 +1,6 @@
 "use strict";
 
+parserFactory.register("findnovel.net", () => new NovelfireParser());
 parserFactory.register("lightnovelcave.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.co", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());

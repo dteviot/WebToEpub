@@ -47,12 +47,14 @@ class GravityTalesParser extends Parser {
     // find the node(s) holding the story content
     findContent(dom) {
         return dom.querySelector("div.entry-content")
-            || dom.querySelector("div.content");
+            || dom.querySelector("div.content")
+            || dom.querySelector("section#chapter-content");
     }
 
     findChapterTitle(dom) {
         return dom.querySelector("h1.entry-title") ||
-            dom.querySelector("#single h1");
+            dom.querySelector("#single h1") ||
+            dom.querySelector("h1.chapter__title");
     }
 
     findParentNodeOfChapterLinkToRemoveAt(link) {
@@ -178,10 +180,11 @@ class GravityTalesParser extends Parser {
                 }
             }
         }
-        return null;
+
+        return util.getFirstImgSrc(dom, "figure.story__thumbnail");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [dom.querySelector("div.desc, p.description")];
+        return [dom.querySelector("div.desc, p.description, .story__summary")];
     }
 }

@@ -1049,17 +1049,8 @@ const util = (function() {
     function detectMimeType(b64) {
         let b64b = atob(b64);
         for (var s in MIME_TYPE_SIGNATURES) {
-            try {
-                let mime_sig = atob(s);
-                if (b64b.indexOf(mime_sig) === 0) {
-                    return MIME_TYPE_SIGNATURES[s][0];
-                }
-            }
-            catch (ex)
-            {
-                if (b64.indexOf(s) === 0) {
-                    return MIME_TYPE_SIGNATURES[s][0];
-                }
+            if (b64b.indexOf(atob(s)) === 0 || b64.indexOf(s) === 0) {
+                return MIME_TYPE_SIGNATURES[s][0];
             }
         }
     }
@@ -1129,7 +1120,7 @@ const util = (function() {
         "iVBORw0KGgo=": ["image/png", "image/apng"],
         "R0lGODdh": ["image/gif"],
         "R0lGODlh": ["image/gif"],
-        "UklGR": ["image/webp"],
+        "UklGRg": ["image/webp"],
         "Qk0=": ["image/bmp"],
         "SUkqAA==": ["image/tiff"],
         "TU0AKg==": ["image/tiff"],

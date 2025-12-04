@@ -274,7 +274,7 @@ class EpubPacker {
     }
 
     populateHead(head, ns, depth) {
-        this.appendMetaContent(head, ns, "dtb:uid", this.metaInfo.uuid);
+        this.appendMetaContent(head, ns, "dtb:uid", (this.version === EpubPacker.EPUB_VERSION_3 ? "uri:" : "") + this.metaInfo.uuid);
         this.appendMetaContent(head, ns, "dtb:depth", (depth < 2) ? "2" : depth);
         this.appendMetaContent(head, ns, "dtb:totalPageCount", "0");
         this.appendMetaContent(head, ns, "dtb:maxPageNumber", "0");
@@ -345,7 +345,7 @@ class EpubPacker {
             file.packInEpub(zipWriter, this.emptyDocFactory, this.contentValidator);
         }
         if (epubItemSupplier.hasCoverImageFile()) {
-            let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory);
+            let fileContent = epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory, "Cover");
             zipWriter.add(EpubPacker.coverImageXhtmlHref(), new zip.TextReader(fileContent));
         }
     }

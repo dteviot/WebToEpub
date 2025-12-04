@@ -22,7 +22,7 @@ class FenrirealmParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("#reader-area");
+        return dom.querySelector("[id^='reader-area']");
     }
 
     extractTitleImpl(dom) {

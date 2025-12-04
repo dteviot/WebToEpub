@@ -75,7 +75,20 @@ class _88xiaoshuoParser extends Parser {
         let element = dom.querySelector(".headline");
         return (element === null) ? null : element.textContent;
     }
-    
+
+    async fetchChapter(url) {
+        return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
+    }
+
+    moreChapterTextUrl(dom) {
+        let isNextPageOfChapter = (link) => link.href.includes("_") && link.textContent == "下一页";
+        let nextUrl = [...dom.querySelectorAll(".pager a")]
+            .filter(isNextPageOfChapter)
+            .map(a => a.href)
+            .pop();
+        return nextUrl ?? null;
+    }
+
     findCoverImageUrl(dom) {
         return dom.querySelector(".box_con img, .detail > img")?.src ?? null;
     }

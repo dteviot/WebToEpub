@@ -45,6 +45,19 @@ class KemonopartyParser extends Parser {
         let header = newDoc.dom.createElement("h1");
         newDoc.content.appendChild(header);
         header.textContent = json.post.title;
+        let attachments = json.attachments;
+        if (attachments && attachments.length > 0) {
+            let attachHeader = newDoc.dom.createElement("h2");
+            newDoc.content.appendChild(attachHeader);
+            attachHeader.textContent = "Attachments";
+            for (let att of attachments) {
+                let link = newDoc.dom.createElement("a");
+                link.href = att.server + "/data" + att.path;
+                link.textContent = att.name;
+                newDoc.content.appendChild(link);
+                newDoc.content.appendChild(newDoc.dom.createElement("br"));
+            }
+        }
         let content = util.sanitize(json.post.content);
         util.moveChildElements(content.body, newDoc.content);        
         this.copyImagesIntoContent(newDoc.dom);
