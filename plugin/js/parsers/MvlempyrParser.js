@@ -1,6 +1,7 @@
 "use strict";
 
-parserFactory.register("mvlempyr.com", () => new MvlempyrParser());
+parserFactory.registerDeadSite("mvlempyr.com", () => new MvlempyrParser());
+parserFactory.register("mvlempyr.io", () => new MvlempyrParser());
 
 class MvlempyrParser extends Parser {
     constructor() {
@@ -23,7 +24,7 @@ class MvlempyrParser extends Parser {
         let chapterList = [];
 
         for (let i = 1; i <= chapterCount; i++) {
-            let link = `https://www.mvlempyr.com/chapter/${slug}-${i}`;
+            let link = `https://www.mvlempyr.io/chapter/${slug}-${i}`;
             if (chapterTitles[i-1] == undefined) {
                 chapterList.push({
                     sourceUrl: link,
