@@ -238,7 +238,7 @@ class NovelbinParser extends NovelfullParser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, ".unlock-buttons");
+        util.removeChildElementsMatchingSelector(element, "div.unlock-buttons text-center");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }
