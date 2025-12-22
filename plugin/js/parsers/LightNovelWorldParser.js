@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("findnovel.net", () => new NovelfireParser());
+parserFactory.register("findnovel.net", () => new FindNovelParser());
 parserFactory.register("lightnovelcave.com", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.co", () => new LightNovelWorldParser());
 parserFactory.register("lightnovelworld.com", () => new LightNovelWorldParser());
@@ -150,7 +150,7 @@ class LightNovelPubParser extends LightNovelWorldParser {
     }
 }
 
-class NovelfireParser extends LightNovelWorldParser {
+class FindNovelParser extends LightNovelWorldParser {
     constructor() {
         super();
     }
@@ -158,5 +158,53 @@ class NovelfireParser extends LightNovelWorldParser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeHTMLUnknownElement(element);
         super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+class NovelfireParser extends FindNovelParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        if (!dom.baseURI.endsWith("/chapters")) {
+            dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
+        }
+
+        let chapterListUrl = this.buildChapterListRequestUrl(dom);
+        let json = (await HttpClient.fetchJson(chapterListUrl)).json;
+
+        let root = this.getChapterUrlRoot(dom);
+        return json.data.map(d => NovelfireParser.dataToChapter(d, root));
+    }
+
+    buildChapterListRequestUrl(dom) {
+        let prefix = "/listChapterDataAjax";
+        let script = [...dom.querySelectorAll("script")]
+            .filter(s => s.textContent.includes(prefix))
+            .map(s => s.textContent)[0];
+        if (script) {
+            let startIndex = script.indexOf(prefix);
+            let endIndex = script.indexOf("\",", startIndex);
+            let fragment = script.substring(startIndex, endIndex);
+
+            let host = new URL(dom.baseURI).hostname;
+            return "https://" + host + fragment +
+                "&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=created_at&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=n_sort&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=false&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=2&order%5B0%5D%5Bdir%5D=asc&start=0&length=-1&search%5Bvalue%5D=&search%5Bregex%5D=false";
+        }
+    }
+
+    getChapterUrlRoot(dom) {
+        let root = dom.baseURI;
+        return root.endsWith("/chapters")
+            ? root.replace("/chapters", "" )
+            : root;
+    }
+
+    static dataToChapter(data, root) {
+        return ({
+            sourceUrl: root + "/chapter-" + data.n_sort,
+            title: data.title,
+        });
     }
 }

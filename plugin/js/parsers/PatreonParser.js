@@ -8,7 +8,7 @@ class PatreonParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        if (this.isCollectionList()) {
+        if (this.isCollectionList(dom)) {
             return this.getCollectionLinks(dom);
         }
         let cards = [...dom.querySelectorAll("div[data-tag='post-card']")];
@@ -18,10 +18,17 @@ class PatreonParser extends Parser {
     }
 
     getCollectionLinks(dom) {
-        return [...dom.querySelectorAll("a[href*='posts/']")]
-            .filter((a) => a.querySelector("h3") != null)
-            .map(util.hyperLinkToChapter)
-            .reverse();
+        let getTitle = (e) => {
+            return [...e.querySelectorAll("span.cm-ugDCiy")]
+                .map(s => s.textContent.trim())
+                .join(" ");
+        };
+
+        let links = [...dom.querySelectorAll("a.cm-XHOpxu")];
+        return links.map(link => ({
+            sourceUrl: link.href,
+            title: getTitle(link),
+        }));
     }
 
     cardToChapter(card) {
@@ -77,7 +84,7 @@ class PatreonParser extends Parser {
     }
 
     extractAuthor(dom) {
-        if (this.isCollectionList()) {
+        if (this.isCollectionList(dom)) {
             return this.extractCollectionAuthor(dom);
         }
         let authorLabel = dom.querySelector("h1");
@@ -94,7 +101,7 @@ class PatreonParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        if (this.isCollectionList()) {
+        if (this.isCollectionList(dom)) {
             return this.extractCollectionCover(dom);
         }
         return util.getFirstImgSrc(dom, "picture");
@@ -109,7 +116,7 @@ class PatreonParser extends Parser {
         return divsWithPicutres[divsWithPicutres.length - 1].getAttribute("src");
     }
 
-    isCollectionList() {
-        return this.state.chapterListUrl?.indexOf("collection") != -1;
+    isCollectionList(dom) {
+        return new URL(dom.baseURI).pathname.startsWith("/collection/");
     }
 }
