@@ -14,21 +14,27 @@ class TruyenFullVisionParser extends Parser {
         );
     }
 
-    static getUrlsOfTocPages(dom) {
-        let urls = [];
-        let input = dom.querySelector("input#total-page");
-        console.log("Total page input found:", input);
-        if (input != null) {
-            let totalp = parseInt(input.getAttribute("value"));
-            console.log("Total pages:", totalp);
-            console.log("Base URI:", dom.baseURI);
-            for (let i = 2; i <= totalp; ++i ) {
-                urls.push(`${dom.baseURI}trang-${i}/`);
-            }
-        }
-        console.log("Generated ToC URLs:", urls);
-        return urls;
+static getUrlsOfTocPages(dom) {
+    let urls = [];
+    let input = dom.querySelector("input#total-page");
+    if (!input) return urls;
+
+    let totalp = parseInt(input.getAttribute("value"), 10);
+    let current = new URL(dom.baseURI);
+
+    // Remove any existing /trang-<n>/ suffix from pathname
+    let basePath = current.pathname.replace(/\/trang-\d+\/?$/, '');
+    if (!basePath.endsWith('/')) basePath += '/';
+
+    for (let i = 2; i <= totalp; ++i) {
+        let u = new URL(current); // clone
+        u.hash = '';             // drop fragment
+        u.search = '';           // drop query if you don't want it
+        u.pathname = basePath + `trang-${i}/`;
+        urls.push(u.toString());
     }
+    return urls;
+}
 
     static extractPartialChapterList(dom) {
         return [...dom.querySelectorAll("ul.list-chapter a")]
