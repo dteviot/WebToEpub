@@ -149,6 +149,8 @@ class KnoxtspaceParser extends NoblemtlParser {
             }
             parent.removeChild(block);
         }
+        util.removeElements([...webPageDom.querySelectorAll("p")]
+            .filter(p => !p.textContent.trim()));
     }
 
     cleanInformationNode(node) {
