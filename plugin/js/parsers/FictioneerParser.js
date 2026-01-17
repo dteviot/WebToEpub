@@ -105,6 +105,21 @@ class FictioneerParser extends Parser {
         return pos !== -1 ? url.substring(0, pos) : url;
     }
 
+    preprocessRawDom(chapterDom) {
+        let antiScrape = chapterDom.querySelector(".tiv-anti-scrape")?.parentNode;
+        if (!antiScrape) return;
+
+        let payloadEl = antiScrape.querySelector("script");
+        if (!payloadEl) return;
+
+        let data = JSON.parse(payloadEl.textContent || payloadEl.innerText || "{}");
+        antiScrape.replaceChildren();
+        let cryptNode = chapterDom.createElement("p");
+        cryptNode.className = "encryptedPayload";
+        cryptNode.textContent = data.data;
+        antiScrape.appendChild(cryptNode);
+    }
+
     customRawDomToContentStep(chapter, content) {
         content.querySelectorAll("*").forEach(element => {
             if (element.tagName === "P") {

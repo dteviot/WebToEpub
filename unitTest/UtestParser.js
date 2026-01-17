@@ -169,3 +169,21 @@ QUnit.test("addTitleToContent-text", function (assert) {
     dom.querySelector("html").removeAttribute("lang");
     assert.equal(parser.extractLanguage(dom), "en");
  });
+
+  QUnit.test("replaceWpBlockSpacersWithHR", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        "<html lang=\"cn\">"+
+        "<head><title> Title 1 </title>"+
+        "<body>" +
+        "<p>a</p>"+
+        "<div style=\"height:20px\" aria-hidden=\"true\" class=\"wp-block-spacer\" data-original-height=\"20px\"></div>"+
+        "<p>b</p>" +
+        "<div style=\"height:20px\" aria-hidden=\"true\" class=\"wp-block-spacer\" data-original-height=\"20px\"></div>"+
+        "</body></html>",
+        "text/html"
+    );
+    let parser = new Parser();
+    parser.replaceWpBlockSpacersWithHR(dom.body);
+    let actual = dom.body.innerHTML;
+    assert.equal(actual, "<p>a</p><hr><p>b</p><hr>");
+ });

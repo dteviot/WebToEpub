@@ -22,7 +22,7 @@ class FenrirealmParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("[id^='reader-area']");
+        return dom.querySelector("[id^='reader-area-']");
     }
 
     extractTitleImpl(dom) {
@@ -42,7 +42,8 @@ class FenrirealmParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".main-area > .container");
+        let img = dom.querySelector(".main-area .container:nth-of-type(2) img:nth-of-type(2)");
+        return img?.src || null;
     }
 
     getInformationEpubItemChildNodes(dom) {

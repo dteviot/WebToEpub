@@ -43,6 +43,7 @@ parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
 parserFactory.register("novelxo.net", () => new NovelfullParser());
+parserFactory.register("novlove.com", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 //dead url
 parserFactory.register("thenovelbin.org", () => new NovelfullParser());

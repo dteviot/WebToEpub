@@ -166,12 +166,15 @@ class NovelfireParser extends FindNovelParser {
         super();
     }
 
-    async getChapterUrls(dom) {
+    async getChapterUrls(dom, chapterUrlsUI) {
         if (!dom.baseURI.endsWith("/chapters")) {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
         }
 
         let chapterListUrl = this.buildChapterListRequestUrl(dom);
+        if (chapterListUrl == null) {
+            return super.getChapterUrls(dom, chapterUrlsUI);
+        }
         let json = (await HttpClient.fetchJson(chapterListUrl)).json;
 
         let root = this.getChapterUrlRoot(dom);
@@ -192,6 +195,7 @@ class NovelfireParser extends FindNovelParser {
             return "https://" + host + fragment +
                 "&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=created_at&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=n_sort&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=false&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=2&order%5B0%5D%5Bdir%5D=asc&start=0&length=-1&search%5Bvalue%5D=&search%5Bregex%5D=false";
         }
+        return null;
     }
 
     getChapterUrlRoot(dom) {

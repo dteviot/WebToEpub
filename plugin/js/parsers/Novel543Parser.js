@@ -42,12 +42,27 @@ class Novel543Parser extends Parser {
         return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
     }
 
-    moreChapterTextUrl(dom) {
-        let has2underscores = (s) => ((s.match(/_/g) || []).length === 2);
-        let nextUrl = [...dom.querySelectorAll(".foot-nav a")].pop();
-        return ((nextUrl != null) && has2underscores(nextUrl.href))
-            ? nextUrl.href
-            : null;
+    moreChapterTextUrl(dom, baseUrl) {
+        // Extract chapter base from original URL (e.g., "8096_1" from "8096_1.html" or "8096_1_2.html")
+        let getChapterBase = (url) => {
+            let match = url.match(/\/(\d+_\d+)(?:_\d+)?\.html/);
+            return match ? match[1] : null;
+        };
+        
+        let baseChapter = getChapterBase(baseUrl);
+        if (!baseChapter) return null;
+        
+        // Find the last link in foot-nav (next chapter link)
+        let nextLink = [...dom.querySelectorAll(".foot-nav a")].pop();
+        if (!nextLink) return null;
+        
+        let nextUrl = nextLink.href;
+        // Check if the next URL is a continuation of the same chapter
+        // (e.g., 8096_1_2.html is a continuation of 8096_1.html)
+        if (nextUrl.includes(`/${baseChapter}_`)) {
+            return nextUrl;
+        }
+        return null;
     }
 
     getInformationEpubItemChildNodes(dom) {

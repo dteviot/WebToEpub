@@ -90,7 +90,7 @@ class ScribblehubParser extends Parser {
 
         // spoilers
         for (let element of content.querySelectorAll(".sp-wrap")) {
-            element.querySelector(".sp-body>.spdiv").remove();
+            element.querySelector(".sp-body>.spdiv")?.remove();
 
             let details = webPageDom.createElement("details");
             let summary = webPageDom.createElement("summary");
