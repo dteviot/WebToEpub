@@ -30,12 +30,11 @@
       "id": "WebToEpub@Baka-tsuki.org",
       "data_collection_permissions": {
         "required": [
-          "browsingActivity",
-          "websiteContent"
+          "none"
         ],
         "optional": []
       },
-      "strict_min_version": "115.0"
+      "strict_min_version": "142.0"
     }
   },
   "minimum_chrome_version": "120"

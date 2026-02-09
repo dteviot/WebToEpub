@@ -427,7 +427,7 @@ class ImageCollector {
         }
     }
 
-    findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, fetchOptions) {
+    async findImageFileUrl(xhr, imageInfo, dataOrigFileUrl, fetchOptions) {
         // with Baka-Tsuki, the link wrapping the image will return an HTML
         // page with a set of images.  We need to pick the desired image
         if (xhr.isHtml()) {
@@ -436,7 +436,7 @@ class ImageCollector {
             let temp = this.selectImageUrlFromImagePage(xhr.responseXML);
             if (temp == null) {
                 if (dataOrigFileUrl != null) {
-                    return this.findImageFileUrlUsingDataOrigFileUrl(imageInfo);
+                    return await this.findImageFileUrlUsingDataOrigFileUrl(imageInfo);
                 }
                 if (!this.userPreferences?.disableImageResError?.value) {
                     let baseUri = xhr.responseXML.baseURI;
@@ -452,14 +452,13 @@ class ImageCollector {
             // page wasn't HTML, so assume is actual image
             imageInfo.sourceUrl = xhr.response.url;
             this.urlIndex.set(xhr.response.url, imageInfo.index);
-            return Promise.resolve(xhr);
+            return xhr;
         }
     }
 
-    findImageFileUrlUsingDataOrigFileUrl(imageInfo) {
-        return HttpClient.wrapFetch(imageInfo.dataOrigFileUrl).then(
-            xhr => this.findImageFileUrl(xhr, imageInfo, null)
-        );
+    async findImageFileUrlUsingDataOrigFileUrl(imageInfo) {
+        let xhr = await HttpClient.wrapFetch(imageInfo.dataOrigFileUrl);
+        await this.findImageFileUrl(xhr, imageInfo, null);
     }
     
     imagesToPackInEpub() {
@@ -522,21 +521,21 @@ class ImageCollector {
         return null;
     }
 
-    preprocessImageTags(content, parentPageUrl) {
+    async preprocessImageTags(content, parentPageUrl) {
         if (this.userPreferences.skipImages.value) {
             util.removeChildElementsMatchingSelector(content, "img, image");
-            return Promise.resolve(content);
+            return content;
         } else {
-            return ImageCollector.replaceHyperlinksToImagesWithImages(content, parentPageUrl);
+            return await ImageCollector.replaceHyperlinksToImagesWithImages(content, parentPageUrl);
         }
     }
 
-    static replaceHyperlinksToImagesWithImages(content, parentPageUrl) {
+    static async replaceHyperlinksToImagesWithImages(content, parentPageUrl) {
         let toReplace = util.getElements(content, "a", ImageCollector.isHyperlinkToImage);
         for (let hyperlink of toReplace.filter(h => !ImageCollector.linkContainsImageTag(h))) {
             ImageCollector.replaceHyperlinkWithImg(hyperlink);
         }
-        return Imgur.expandGalleries(content, parentPageUrl);
+        return await Imgur.expandGalleries(content, parentPageUrl);
     }
 
     /** @private */

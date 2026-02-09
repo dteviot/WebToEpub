@@ -103,6 +103,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.removeChapterNumber = this.addPreference("removeChapterNumber", "removeChapterNumberCheckbox", false);
         this.removeOriginal = this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
         this.selectTranslationAi = this.addPreference("selectTranslationAi", "selectTranslationAiCheckbox", false);
+        this.selectRetryLonger = this.addPreference("selectRetryLonger", "selectRetryLongerCheckbox", false);
         this.removeTranslated = this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
         this.maxPagesToFetchSimultaneously = this.addPreference("maxPagesToFetchSimultaneously", "maxPagesToFetchSimultaneouslyTag", "32");
         this.skipChaptersThatFailFetch = this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", true);

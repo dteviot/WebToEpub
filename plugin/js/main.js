@@ -152,22 +152,22 @@ var main = (function() {
         main.getPackEpubButton().disabled = true;
         replaceLibAddToLibrary();
         parser.onStartCollecting();
-        await parser.fetchContent().then(() => {
-            return packEpub(metaInfo);
-        }).then((content) => {
-            // Enable button here.  If user cancels save dialog
-            // the promise never returns
-            window.workInProgress = false;
-            main.getPackEpubButton().disabled = false;
-            replaceLibAddToLibrary();
-            let overwriteExisting = userPreferences.overwriteExistingEpub.value;
-            let backgroundDownload = userPreferences.noDownloadPopup.value;
-            let fileName = Download.CustomFilename();
-            if ("yes" == libclick.dataset.libclick || util.sleepController.signal.aborted) {
-                return library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
-            }
-            return Download.save(content, fileName, overwriteExisting, backgroundDownload);
-        }).then(() => {
+        await parser.fetchContent();
+        let content = await packEpub(metaInfo);
+        // Enable button here.  If user cancels save dialog
+        // the promise never returns
+        window.workInProgress = false;
+        main.getPackEpubButton().disabled = false;
+        replaceLibAddToLibrary();
+        let overwriteExisting = userPreferences.overwriteExistingEpub.value;
+        let backgroundDownload = userPreferences.noDownloadPopup.value;
+        let fileName = Download.CustomFilename();
+        if ("yes" == libclick.dataset.libclick || util.sleepController.signal.aborted) {
+            await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
+        } else {
+            await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+        }
+        try {
             parser.updateReadingList();
             if (util.sleepController.signal.aborted) {
                 util.sleepController = new AbortController;
@@ -179,7 +179,7 @@ var main = (function() {
                 ErrorLog.showLogToUser();
                 dumpErrorLogToFile();
             }
-        }).catch((err) => {
+        } catch (err) {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             if (util.sleepController.signal.aborted) {
@@ -187,7 +187,7 @@ var main = (function() {
             }
             replaceLibAddToLibrary();
             ErrorLog.showErrorMessage(err);
-        });
+        }
     }
 
     function replaceLibAddToLibrary() {
@@ -277,7 +277,7 @@ var main = (function() {
         util.setBaseTag(url, initialWebPage);
         await processInitialHtml(url, initialWebPage);
         if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
-            autosearchadditionalmetadata();
+            await autosearchadditionalmetadata();
         }
     }
 
@@ -336,20 +336,19 @@ var main = (function() {
         userPreferences.readFromUi();
     }
 
-    function openTabWindow() {
+    async function openTabWindow() {
         // open new tab window, passing ID of open tab with content to convert to epub as query parameter.
-        getActiveTab().then((tabId) => {
-            let url = chrome.runtime.getURL("popup.html") + "?id=";
-            url += tabId;
-            try {
-                chrome.tabs.create({ url: url, openerTabId: tabId });
-            }
-            catch (err) {
-                //firefox android catch
-                chrome.tabs.create({ url: url});
-            }
-            window.close();
-        });
+        let tabId = await getActiveTab();
+        let url = chrome.runtime.getURL("popup.html") + "?id=";
+        url += tabId;
+        try {
+            chrome.tabs.create({ url: url, openerTabId: tabId });
+        }
+        catch (err) {
+            //firefox android catch
+            chrome.tabs.create({ url: url});
+        }
+        window.close();
     }
 
     function getActiveTab() {
@@ -368,13 +367,14 @@ var main = (function() {
         // load page via XmlHTTPRequest
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
-        return HttpClient.wrapFetch(url).then(async (xhr) => {
+        try {
+            let xhr = await HttpClient.wrapFetch(url);
             await populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;
-        }).catch((error) => {
+        } catch (error) {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
-        });
+        }
     }
 
     function configureForTabMode() {
@@ -548,50 +548,52 @@ var main = (function() {
 	
 	
     // Additional metadata
-    function autosearchadditionalmetadata() {
+    async function autosearchadditionalmetadata() {
         getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
         let titlename = getValueFromUiField("titleInput");
         let url ="https://www.novelupdates.com/series-finder/?sf=1&sh="+titlename;
         if (getValueFromUiField("subjectInput")==null) {
-            autosearchnovelupdates(url, titlename);
+            await autosearchnovelupdates(url, titlename);
         }   
         getPackEpubButton().disabled = false; 
         document.getElementById("LibAddToLibrary").disabled = false;    
     }
 	
-    function autosearchnovelupdates(url, titlename) {
-        return HttpClient.wrapFetch(url).then((xhr) => {
-            findnovelupdatesurl(url, xhr.responseXML, titlename);
-        }).catch((error) => {
+    async function autosearchnovelupdates(url, titlename) {
+        try {
+            let xhr = await HttpClient.wrapFetch(url);
+            await findnovelupdatesurl(url, xhr.responseXML, titlename);
+        } catch (error) {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
-        });
+        }
     }
 
-    function findnovelupdatesurl(url, dom, titlename) {
+    async function findnovelupdatesurl(url, dom, titlename) {
         try {    
             let searchurl = [...dom.querySelectorAll("a")].filter(a => a.textContent==titlename)[0];
             setUiFieldToValue("metadataUrlInput", searchurl.href);
             url = getValueFromUiField("metadataUrlInput");
             if (url.includes("novelupdates.com") == true) {
-                onLoadMetadataButtonClick();
+                await onLoadMetadataButtonClick();
             }
         } catch {
             //
         }
     }
 	
-    function onLoadMetadataButtonClick() {
+    async function onLoadMetadataButtonClick() {
         getPackEpubButton().disabled = true;
         document.getElementById("LibAddToLibrary").disabled = true;
         let url = getValueFromUiField("metadataUrlInput");
-        return HttpClient.wrapFetch(url).then((xhr) => {
+        try {
+            let xhr = await HttpClient.wrapFetch(url);
             populateMetadataAddWithDom(url, xhr.responseXML);
-        }).catch((error) => {
+        } catch (error) {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
-        });
+        }
     }
 
     function populateMetadataAddWithDom(url, dom) {
@@ -613,7 +615,7 @@ var main = (function() {
     }
 
     // actions to do when window opened
-    window.onload = () => {
+    window.onload = async () => {
         userPreferences = UserPreferences.readFromLocalStorage();
         if (isRunningInTabMode()) { 
             ErrorLog.SuppressErrorLog =  false;
@@ -626,7 +628,7 @@ var main = (function() {
                 Firefox.startWebRequestListeners();
             }
         } else {
-            openTabWindow();
+            await openTabWindow();
         }
     };
 

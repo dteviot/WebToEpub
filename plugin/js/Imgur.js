@@ -7,25 +7,18 @@ class Imgur { // eslint-disable-line no-unused-vars
     constructor() {
     }
 
-    static expandGalleries(content, parentPageUrl) {
-        let sequence = Promise.resolve();
+    static async expandGalleries(content, parentPageUrl) {
         for (let link of Imgur.getGalleryLinksToReplace(content)) {
-            sequence = sequence.then(() => {
-                let href = Imgur.fixupImgurGalleryUrl(link.href);
-                return HttpClient.wrapFetch(href).then((xhr) => {
-                    Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
-                    return Promise.resolve();
-                }).catch((err) => {
-                    let errorMsg = UIText.Error.imgurFetchFailed(link.href, parentPageUrl, err);
-                    ErrorLog.log(errorMsg);
-                    return Promise.resolve();
-                });
-            });
+            let href = Imgur.fixupImgurGalleryUrl(link.href);
+            try { 
+                let xhr = await HttpClient.wrapFetch(href);
+                Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
+            } catch (err) {
+                let errorMsg = UIText.Error.imgurFetchFailed(link.href, parentPageUrl, err);
+                ErrorLog.log(errorMsg);
+            }
         }
-        sequence = sequence.then(() => {
-            return Promise.resolve(content);
-        });
-        return sequence; 
+        return content; 
     }
 
     static isImgurGallery(dom) {

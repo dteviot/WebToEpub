@@ -23,7 +23,7 @@
     "postinstall-DOMpurify": "copyfiles -V -u 1 node_modules/dompurify/dist/purify.min.js plugin",
     "postinstall": "npm run -s postinstall-zip && npm run -s postinstall-DOMpurify",
     "test": "http-server -o unitTest/Tests.html",
-    "lint": "cd eslint && node pack.js && eslint packed.js",
+    "lint": "cd eslint && node pack.js && eslint *.js",
     "lint:fix": "eslint --config eslint/.eslintrc.js --fix plugin/js",
     "web-ext": "cd eslint && cp *.xpi temp.xpi && web-ext lint -w -s temp.xpi && rm temp.xpi",
     "build": "cd eslint && node pack.js",
@@ -101,7 +101,9 @@
     { "name": "johnpyp", "email": "johnpyp.dev@gmail.com" },
     { "name": "meson1271" },
     { "name": "AgatZan" },
-    { "name": "nothing0074", "email": "phong322010@proton.me" }
+    { "name": "Joel Sunil" },
+    { "name": "nothing0074", "email": "phong322010@proton.me" },
+    { "name": "Justin Mott", "email": "justinmmott@gmail.com" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {

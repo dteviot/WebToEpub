@@ -1,7 +1,7 @@
 "use strict";
 
 parserFactory.register("ranobes.net", () => new RanobesNetParser());
-parserFactory.register("ranobes.top", () => new RanobesParser());
+parserFactory.register("ranobes.top", () => new RanobesNetParser());
 parserFactory.register("ranobes.com", () => new RanobesParser());
 
 class RanobesParser extends Parser {

@@ -6,25 +6,11 @@ class NovelshubParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let chapterList = dom.querySelector("article section div[role='tabpanel']");
-        if (!chapterList) {
-            return [];
-        }
-
-        // Get the max chapter count from the CSS selector
-        let maxChapter = chapterList.querySelectorAll("button.w-full")?.length;
-        let baseUrl = dom.baseURI;
-        let chapters = [];
-
-        // Generate URLs incrementing the final number from 1 to maxChapters
-        for (let i = 1; i <= maxChapter; i++) {
-            chapters.push({
-                sourceUrl: baseUrl + "/Chapter-" + i,
-                title: `Chapter ${i}`
-            });
-        }
-
-        return chapters;
+        let menu = dom.querySelector("div.mt-4");
+        let chapters = util.hyperlinksToChapterList(menu) || [];
+        // Keep existing reversal behavior, then override titles with "Chapter X"
+        let reversed = chapters.reverse();
+        return reversed.map((ch, idx) => Object.assign({}, ch, { title: `Chapter ${idx + 1}` }));
     }
     findContent(dom) {
         return dom.querySelector("div.p-6");

@@ -25,6 +25,16 @@ class RoyalRoadParser extends Parser {
             e => (e.className === "portlet-body") &&
             (e.querySelector("div.chapter-inner") !== null)
         );
+
+        // fix embeded image links 
+        content.querySelector(".author-note")?.querySelectorAll("a")?.forEach((e) => 
+        {
+            let img = e.querySelector("img");
+            if (img !== null) 
+            {
+                e.href = img.src;
+            }
+        });
         return content || dom.querySelector(".page-content-wrapper");
     }
 

@@ -139,6 +139,26 @@ class KnoxtspaceParser extends NoblemtlParser {
     findChapterTitle(dom) {
         return NoblemtlParser.buildChapterTitle(dom);
     }
+
+    stripAdverts(node) {
+        // On Knoxt chapters, first code-block contains chapter text and advert
+        for (let block of node.querySelectorAll("div.code-block")) {
+            util.removeChildElementsMatchingSelector(
+                block,
+                "center, div.ad-container"
+            );
+            util.flattenNode(block);
+        }
+    }
+
+    preprocessRawDom(webPageDom) {
+        this.stripAdverts(webPageDom);
+        super.preprocessRawDom(webPageDom);
+    }
+
+    cleanInformationNode(node) {
+        this.stripAdverts(node);
+    }
 }
 
 class WhitemoonlightnovelsParser extends NoblemtlParser {

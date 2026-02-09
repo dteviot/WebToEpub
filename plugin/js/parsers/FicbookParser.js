@@ -38,8 +38,10 @@ class FicbookParser extends Parser {
     }
     customRawDomToContentStep(chapter, content) {
         let paragraphed_text = content.innerText.split("\n\n").map(x=>"<p>" + x + "</p>").join("");
-        let sanitized_text = util.sanitize(paragraphed_text).body.innerHTML;
-        content.innerHTML = sanitized_text;
+        let sanitized_text = util.sanitize("<div id='content'>" + paragraphed_text + "</div>")
+            .querySelector("#content");
+        content.replaceChildren();
+        util.moveChildElements(sanitized_text, content);
     }
 
     extractTitleImpl(dom) {
