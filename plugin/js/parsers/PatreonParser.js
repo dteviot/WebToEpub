@@ -24,6 +24,20 @@ class PatreonParser extends Parser {
                 .join(" ");
         };
 
+        if (this.isCondensedView(dom))
+        {
+            let getLink = (e) => {
+                return e.querySelector("a");
+            };
+            let linksContainer = [...dom.querySelectorAll("div.cm-hhCVrV.cm-WzHHbB div:not([class])")];
+            return linksContainer.map(linkContainer => {
+                return {
+                    sourceUrl: getLink(linkContainer).href,
+                    title: getTitle(linkContainer),
+                };
+            });
+        }
+        
         let links = [...dom.querySelectorAll("a.cm-XHOpxu")];
         return links.map(link => ({
             sourceUrl: link.href,
@@ -118,5 +132,10 @@ class PatreonParser extends Parser {
 
     isCollectionList(dom) {
         return new URL(dom.baseURI).pathname.startsWith("/collection/");
+    }
+
+    isCondensedView(dom) {
+        let url = new URL(dom.baseURI);
+        return url.searchParams.get("view") === "condensed";
     }
 }
