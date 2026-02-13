@@ -11,20 +11,19 @@ class NovelUniverseParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
-        return NovelUniverseParser.fetchRestOfToc(dom, []);
+    async getChapterUrls(dom) {
+        return await NovelUniverseParser.fetchRestOfToc(dom, []);
     }
 
-    static fetchRestOfToc(dom, chapterList) {
+    static async fetchRestOfToc(dom, chapterList) {
         let nextPage = NovelUniverseParser.urlOfNextToC(dom);
         let newChapters = NovelUniverseParser.extractPartialChapterList(dom);
         chapterList = chapterList.concat(newChapters);
         if (nextPage.length == 0) {
             return Promise.resolve(chapterList);
         }
-        return HttpClient.wrapFetch(nextPage[0].href).then(function(xhr) {
-            return NovelUniverseParser.fetchRestOfToc(xhr.responseXML, chapterList);
-        });
+        let xhr = await HttpClient.wrapFetch(nextPage[0].href);
+        return await NovelUniverseParser.fetchRestOfToc(xhr.responseXML, chapterList);
     }
     
     static urlOfNextToC(dom) {

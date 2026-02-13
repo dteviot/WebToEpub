@@ -23,7 +23,7 @@ class GravityTalesParser extends Parser {
         // older logic
         let novelId = GravityTalesParser.getNovelId(dom);
         if (novelId !== null) {
-            return GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
+            return await GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
         }
         let content = this.findContent(dom) ||
             dom.querySelector("chapters") ||
@@ -87,26 +87,22 @@ class GravityTalesParser extends Parser {
         return param.split("=").map(s => s.trim());
     }
 
-    static fetchUrlsOfChapters(novelId, baseUri, fetchJson) {
+    static async fetchUrlsOfChapters(novelId, baseUri, fetchJson) {
         let chapterGroupsUrl = `https://gravitytales.com/api/novels/chaptergroups/${novelId}`;
-        return fetchJson(chapterGroupsUrl).then(function(handler) {
-            return Promise.all(
-                handler.json.map(group => GravityTalesParser.fetchChapterListForGroup(novelId, group, fetchJson))
-            );
-        }).then(function(chapterLists) {
-            return GravityTalesParser.mergeChapterLists(chapterLists, baseUri);
-        });
+        let handler = await fetchJson(chapterGroupsUrl);
+        let chapterLists = await Promise.all(handler.json.map(group => 
+            GravityTalesParser.fetchChapterListForGroup(novelId, group, fetchJson)));
+        return GravityTalesParser.mergeChapterLists(chapterLists, baseUri);
     } 
 
-    static fetchChapterListForGroup(novelId, chapterGroup, fetchJson) {
+    static async fetchChapterListForGroup(novelId, chapterGroup, fetchJson) {
         let groupId = chapterGroup.ChapterGroupId;
         let chaptersUrl = `https://gravitytales.com/api/novels/chaptergroup/${groupId}`;
-        return fetchJson(chaptersUrl).then(function(handler) {
-            return {
-                groupTitle: chapterGroup.Title,
-                chapters: handler.json
-            };
-        });
+        let handler = await fetchJson(chaptersUrl)
+        return {
+            groupTitle: chapterGroup.Title,
+            chapters: handler.json
+        };
     }
 
     static mergeChapterLists(chapterLists, baseUri) {

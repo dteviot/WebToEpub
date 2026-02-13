@@ -12,28 +12,25 @@ class NovelUpdatesParser extends Parser {
 
     // returns promise with the URLs of the chapters to fetch
     // promise is used because may need to fetch the list of URLs from internet
-    getChapterUrls(dom) {
-        return NovelUpdatesParser.fetchChapterUrls(dom).then(function(links) {
-            let chapters = links.map(l => util.hyperLinkToChapter(l));
-            return Promise.resolve(chapters.reverse());
-        });
+    async getChapterUrls(dom) {
+        let links = await NovelUpdatesParser.fetchChapterUrls(dom);
+        let chapters = links.map(l => util.hyperLinkToChapter(l));
+        return chapters.reverse();
     }
 
-    static fetchChapterUrls(dom) {
+    static async fetchChapterUrls(dom) {
         let extraPagesWithToc = NovelUpdatesParser.findPagesWithToC(dom);
-        return Promise.all(
+        let chapterLists = await Promise.all(
             extraPagesWithToc.map(url => NovelUpdatesParser.fetchChapterListFromPage(url))
-        ).then(function(chapterLists) {
-            return chapterLists.reduce(function(prev, current) {
-                return prev.concat(current);
-            }, NovelUpdatesParser.chapterLinksFromDom(dom));
-        });
+        );
+        return chapterLists.reduce(function(prev, current) {
+            return prev.concat(current);
+        }, NovelUpdatesParser.chapterLinksFromDom(dom));
     }
 
-    static fetchChapterListFromPage(url) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            return Promise.resolve(NovelUpdatesParser.chapterLinksFromDom(xhr.responseXML));
-        });
+    static async fetchChapterListFromPage(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        return NovelUpdatesParser.chapterLinksFromDom(xhr.responseXML);
     }
 
     static chapterLinksFromDom(dom) {

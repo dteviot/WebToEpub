@@ -16,12 +16,12 @@ class ComrademaoParser extends Parser {
         document.getElementById("removeOriginalRow").hidden = false; 
     }
 
-    getChapterUrls(dom, chapterUrlsUI) {
-        return this.getChapterUrlsFromMultipleTocPages(dom,
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return await this.getChapterUrlsFromMultipleTocPages(dom,
             ComrademaoParser.extractPartialChapterList,
             ComrademaoParser.getUrlsOfTocPages,
             chapterUrlsUI
-        ).then(urls => urls.reverse());
+        ).reverse();
     }
 
     static getUrlsOfTocPages(dom) {

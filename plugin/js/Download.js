@@ -87,18 +87,19 @@ class Download {
         }
     }
 
-    static saveOnFirefox(options, cleanup) {
-        return browser.runtime.getPlatformInfo().then(platformInfo => {
+    static async saveOnFirefox(options, cleanup) {
+        try {
+            let platformInfo = await browser.runtime.getPlatformInfo();
             if (Download.isAndroid(platformInfo)) {
                 Download.saveOnFirefoxForAndroid(options, cleanup);
             } else {
-                return browser.downloads.download(options).then(
-                    // on Firefox, resolves when "Save As" dialog CLOSES, so no
-                    // need to delay past this point.
-                    downloadId => Download.onDownloadStarted(downloadId, cleanup)
-                );
+                // on Firefox, resolves when "Save As" dialog CLOSES, so no
+                // need to delay past this point.v
+                Download.onDownloadStarted(await browser.downloads.download(options), cleanup);
             }
-        }).catch(cleanup);
+        } catch {
+            cleanup();
+        }
     }
 
     static saveOnFirefoxForAndroid(options, cleanup) {

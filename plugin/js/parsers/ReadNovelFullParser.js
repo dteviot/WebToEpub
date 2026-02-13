@@ -7,20 +7,19 @@ class ReadNovelFullParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let chapters = ReadNovelFullParser.extractChapterList(dom);
         if (0 < chapters.length) {
             return Promise.resolve(chapters);
         }
-        return ReadNovelFullParser.fetchChapterList(dom);
+        return await ReadNovelFullParser.fetchChapterList(dom);
     }
 
-    static fetchChapterList(dom) {
+    static async fetchChapterList(dom) {
         let novelId = dom.querySelector("div#rating").getAttribute("data-novel-id");
         let url = `https://readnovelfull.com/ajax/chapter-archive?novelId=${novelId}`;
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            return ReadNovelFullParser.extractChapterList(xhr.responseXML);
-        });
+        let xhr = await HttpClient.wrapFetch(url);
+        return ReadNovelFullParser.extractChapterList(xhr.responseXML);
     }
 
     static extractChapterList(dom) {

@@ -34,13 +34,11 @@ class FlyingLinesParser extends Parser {
     }
 
     // this is basically identical to NovelSpread
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            let restUrl = FlyingLinesParser.extractRestUrl(xhr.responseXML);
-            return HttpClient.fetchJson(restUrl);
-        }).then(function(handler) {
-            return FlyingLinesParser.buildChapter(handler.json.data);
-        });
+    async fetchChapter(url) {
+        let xhr = await HttpClient.wrapFetch(url)
+        let restUrl = FlyingLinesParser.extractRestUrl(xhr.responseXML);
+        let handler = await HttpClient.fetchJson(restUrl);
+        return FlyingLinesParser.buildChapter(handler.json.data);
     }
 
     static extractRestUrl(dom) {

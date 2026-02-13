@@ -819,17 +819,18 @@ class Library { // eslint-disable-line no-unused-vars
         Library.LibClearFields();
     }
 
-    static LibSearchNewChapter(objbtn) {
+    static async LibSearchNewChapter(objbtn) {
         let LibGetURL = ["LibStoryURL" + objbtn.dataset.libepubid];
-        chrome.storage.local.get(LibGetURL, function(items) {
+        await chrome.storage.local.get(LibGetURL, async function(items) {
             Library.LibClearFields();
             document.getElementById("startingUrlInput").value = items[LibGetURL];
             //document.getElementById("libinvisbutton").click();
             // load page via XmlHTTPRequest
-            main.onLoadAndAnalyseButtonClick().then(function() {
-            },function(e) {
+            try {
+                await main.onLoadAndAnalyseButtonClick();
+            } catch (e) {
                 ErrorLog.showErrorMessage(e);
-            });
+            }
         });
     }
 

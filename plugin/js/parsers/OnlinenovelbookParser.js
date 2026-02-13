@@ -8,16 +8,17 @@ class OnlinenovelbookParser extends WordpressBaseParser {
         super();
     }
 
-    getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom, chapterUrlsUI) {
         let paginationUrl = OnlinenovelbookParser.getLastPaginationUrl(dom);
         if (paginationUrl === null) {
             return super.getChapterUrls(dom);
         }
-        return this.getChapterUrlsFromMultipleTocPages(dom,
+        let urls = await this.getChapterUrlsFromMultipleTocPages(dom,
             OnlinenovelbookParser.extractPartialChapterList,
             OnlinenovelbookParser.getUrlsOfTocPages,
             chapterUrlsUI
-        ).then(c => c.reverse());
+        );
+        return urls.reverse();
     }
 
     static getUrlsOfTocPages(dom) {
