@@ -82,24 +82,14 @@ function fetchJsonStubInmtl(url) {
     return Promise.resolve({json: lookup.get(url)});
 }
 
-test("fetchChapterListsForVolume", function (assert) {
-    let done = assert.async(); 
-    LnmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl).then(
-        function(actual) {
-            assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput[0]); 
-            done();
-        }
-    );
+test("fetchChapterListsForVolume", async function (assert) {
+    let actual = await LnmtlParser.fetchChapterListsForVolume(volumesListInmtl[0], fetchJsonStubInmtl);
+    assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput[0]); 
 });
 
-test("fetchChapterLists", function (assert) {
-    let done = assert.async(); 
-    LnmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl).then(
-        function(actual) {
-            assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput); 
-            done();
-        }
-    );
+test("fetchChapterLists", async function (assert) {
+    let actual = await LnmtlParser.fetchChapterLists(volumesListInmtl, fetchJsonStubInmtl);
+    assert.deepEqual(actual, expectedLnmplFetchChapterListsOutput); 
 });
 
 test("mergeChapterLists", function (assert) {

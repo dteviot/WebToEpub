@@ -2,18 +2,15 @@
 
 module("Ficwad");
 
-test("findChapters_storyIndex", function (assert) {
+test("findChapters_storyIndex", async function (assert) {
     let dom = new DOMParser().parseFromString(FicWadStoryIndexSample, "text/html");
-    let done = assert.async();
     let parser = new FicwadParser();
-    parser.getChapterUrls(dom).then(function(chapterUrls) {
-        assert.equal(chapterUrls.length, 4);
-        assert.deepEqual(chapterUrls[3], {
-            newArc: null,
-            sourceUrl: "https://ficwad.com/story/51728",
-            title: "I Love You"
-        });
-        done();
+    let chapterUrls = await parser.getChapterUrls(dom);
+    assert.equal(chapterUrls.length, 4);
+    assert.deepEqual(chapterUrls[3], {
+        newArc: null,
+        sourceUrl: "https://ficwad.com/story/51728",
+        title: "I Love You"
     });
 });
 
@@ -24,17 +21,14 @@ test("extractTitleImpl_storyIndex", function (assert) {
     assert.equal(actual.textContent, "Beyond the Mask");
 });
 
-test("findChapters_chapter", function (assert) {
+test("findChapters_chapter", async function (assert) {
     let dom = new DOMParser().parseFromString(FicWadChapterSample, "text/html");
-    let done = assert.async();
     let parser = new FicwadParser();
-    parser.getChapterUrls(dom).then(function(chapterUrls) {
-        assert.equal(chapterUrls.length, 7);
-        assert.deepEqual(chapterUrls[6], {
-            sourceUrl: "https://ficwad.com/story/24278",
-            title: "6. Part Six--The Last Chapter"
-        });
-        done();
+    let chapterUrls = await parser.getChapterUrls(dom);
+    assert.equal(chapterUrls.length, 7);
+    assert.deepEqual(chapterUrls[6], {
+        sourceUrl: "https://ficwad.com/story/24278",
+        title: "6. Part Six--The Last Chapter"
     });
 });
 
