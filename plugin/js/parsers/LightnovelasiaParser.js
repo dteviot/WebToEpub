@@ -7,7 +7,7 @@ class LightnovelasiaParser extends Parser {
         super();
     }
 
-    async getChapterUrls(dom, chapterUrlsUI) {
+    async getChapterUrls(dom) {
         let orgURL = new URL(dom.baseURI);
         let header = {
             "Content-Type": "application/json;charset=UTF-8",
