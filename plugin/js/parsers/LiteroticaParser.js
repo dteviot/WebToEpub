@@ -105,12 +105,17 @@ class LiteroticaParser extends Parser {
     }
 
     static contentForPage(dom) {
-        return dom.querySelector("div.aa_ht")
+        let ret = dom.querySelector("div[itemprop=\"articleBody\"]")
             || dom.querySelector("body div");
+        ret.firstChild.style.removeProperty("max-height");
+        if(ret.lastChild.innerText == "Report"){
+            ret.lastChild.remove();
+        }
+        return ret;
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.headline");
+        return dom.querySelector("h1");
     }
 
     fetchChapter(url) {
@@ -118,6 +123,7 @@ class LiteroticaParser extends Parser {
         return HttpClient.wrapFetch(url).then(function(xhr) {
             dom = xhr.responseXML;
             let pageUrls = LiteroticaParser.findUrlsOfAdditionalPagesMakingChapter(url, dom);
+            //todo slow down requests
             return Promise.all(pageUrls.map(LiteroticaParser.fetchAdditionalPageContent));
         }).then(function(fragments) {
             return LiteroticaParser.assembleChapter(dom, fragments);
@@ -125,9 +131,11 @@ class LiteroticaParser extends Parser {
     }
 
     static findUrlsOfAdditionalPagesMakingChapter(url, dom) {
-        let pageIds = [...dom.querySelectorAll("div.l_bH a.l_bJ")]
+        let prevnode = dom.querySelector("span[title=\"Previous Page\"]");
+        let prevparentnode = prevnode?.parentNode;
+        let pageIds = prevparentnode?[...prevparentnode.querySelectorAll("a")]
             .map(o => parseInt(o.href.split("=")[1]))
-            .filter(t => t !== 1);
+            .filter(t => t !== 1):[];
         let urls = [];
         const totalPages = (0 < pageIds.length) ? pageIds.pop() : 0;
         for (let i = 2; i <= totalPages; ++i) {
