@@ -86,7 +86,55 @@ class PatreonParser extends Parser {
             img.src = json.image.url;
             newDoc.content.append(img);
         }
-        let content =  "<div>" + json.content + "</div>";
+        let content;
+        if (json.content)
+        {
+            content =  "<div>" + json.content + "</div>";
+        }
+        else if (json.content_json_string)
+        {
+            const tiptapToHtml = (node) => {
+                if (!node) return "";
+
+                // 1. Handle Text Nodes with Marks (Bold, Italic)
+                if (node.type === "text") {
+                    let text = node.text;
+                    if (node.marks) {
+                        node.marks.forEach(mark => {
+                            if (mark.type === "bold") text = `<strong>${text}</strong>`;
+                            if (mark.type === "italic") text = `<em>${text}</em>`;
+                        });
+                    }
+                    return text;
+                }
+
+                // 2. Map Content of Parent Nodes
+                const htmlContent = node.content 
+                    ? node.content.map(child => tiptapToHtml(child)).join("") 
+                    : "";
+
+                // 3. Handle Block Types
+                switch (node.type) {
+                    case "doc":
+                        return `<div class="content-body">${htmlContent}</div>`;
+                    
+                    case "paragraph": {
+                        // Handle the custom "nodeTextAlignment" found in your source
+                        let style = node.attrs?.nodeTextAlignment 
+                            ? ` style='text-align: ${node.attrs.nodeTextAlignment}'` 
+                            : "";
+                        return `<p${style}>${htmlContent || "&nbsp;"}</p>`;
+                    }
+
+                    case "hardBreak":
+                        return "<br />";
+
+                    default:
+                        return htmlContent;
+                }
+            };
+            content = tiptapToHtml(JSON.parse(json.content_json_string));
+        }
         content = util.sanitize(content)
             .querySelector("div");
         newDoc.content.append(content);
