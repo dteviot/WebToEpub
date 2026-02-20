@@ -114,23 +114,33 @@ class PatreonParser extends Parser {
                     : "";
 
                 // 3. Handle Block Types
+                let element;
                 switch (node.type) {
                     case "doc":
-                        return `<div class="content-body">${htmlContent}</div>`;
-                    
-                    case "paragraph": {
-                        // Handle the custom "nodeTextAlignment" found in your source
-                        let style = node.attrs?.nodeTextAlignment 
-                            ? ` style='text-align: ${node.attrs.nodeTextAlignment}'` 
-                            : "";
-                        return `<p${style}>${htmlContent || "&nbsp;"}</p>`;
-                    }
+                        element = document.createElement("div");
+                        element.className = "content-body";
+                        element.innerHTML = htmlContent; 
+                        return element;
+
+                    case "paragraph":
+                        element = document.createElement("p");
+                        
+                        // Handle alignment
+                        if (node.attrs?.nodeTextAlignment) {
+                            element.style.textAlign = node.attrs.nodeTextAlignment;
+                        }
+
+                        // Use textContent for to handle escaping the json
+                        element.textContent = htmlContent || "\u00A0"; // &nbsp;
+                        return element;
 
                     case "hardBreak":
-                        return "<br />";
+                        return document.createElement("br");
 
                     default:
-                        return htmlContent;
+                        element = document.createElement("span");
+                        element.textContent = htmlContent;
+                        return element;
                 }
             };
             content = tiptapToHtml(JSON.parse(json.content_json_string));
