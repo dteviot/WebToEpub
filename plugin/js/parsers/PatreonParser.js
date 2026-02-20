@@ -145,6 +145,10 @@ class PatreonParser extends Parser {
                     case "bulletList":
                         element = document.createElement("ul");
                         break;
+                    
+                    case "orderedList":
+                        element = document.createElement("ol");
+                        break;
 
                     case "listItem":
                         element = document.createElement("li");
@@ -156,6 +160,23 @@ class PatreonParser extends Parser {
                         element.alt = node.attrs.alt || "";
                         return element; // Images don't have children
 
+                    case "blockquote":
+                        element = document.createElement("blockquote");
+                        break;
+                    
+                    case "codeBlock": {
+                        let pre = document.createElement("pre");
+                        element = document.createElement("code");
+                        pre.appendChild(element);
+
+                        if (node.content) {
+                            node.content.forEach(childNode => {
+                                const child = tiptapToHtml(childNode);
+                                if (child) element.appendChild(child);
+                            });
+                        }
+                        return pre;
+                    }
                     case "hardBreak":
                         return document.createElement("br");
 
