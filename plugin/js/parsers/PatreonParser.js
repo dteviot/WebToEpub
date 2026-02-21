@@ -29,7 +29,7 @@ class PatreonParser extends Parser {
             let getLink = (e) => {
                 return e.querySelector("a");
             };
-            let linksContainer = [...dom.querySelectorAll("div.cm-hhCVrV.cm-WzHHbB div:not([class])")];
+            let linksContainer = [...dom.querySelectorAll("div.cm-hhCVrV.cm-WzHHbB div.cm-bkNQIo:not(:has(svg[data-tag='IconLock'])) div:not([class])")];
             return linksContainer.map(linkContainer => {
                 return {
                     sourceUrl: getLink(linkContainer).href,
