@@ -35,27 +35,25 @@ class QinxiaoshuoParser extends Parser {
         return util.getFirstImgSrc(dom, "div.book_info");
     }
 
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            let finalDom = xhr.responseXML;
-            let fetchedUrls = new Set();
-            fetchedUrls.add(url);
-            fetchedUrls.add(url + "?xiaoshuo=1");
-            let nextUrl = QinxiaoshuoParser.urlOfNextPageOfChapter(finalDom, fetchedUrls);
-            return QinxiaoshuoParser.fetchPagesOfChapter(finalDom, fetchedUrls, nextUrl);
-        });
+    async fetchChapter(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        let finalDom = xhr.responseXML;
+        let fetchedUrls = new Set();
+        fetchedUrls.add(url);
+        fetchedUrls.add(url + "?xiaoshuo=1");
+        let nextUrl = QinxiaoshuoParser.urlOfNextPageOfChapter(finalDom, fetchedUrls);
+        return await QinxiaoshuoParser.fetchPagesOfChapter(finalDom, fetchedUrls, nextUrl);
     }
 
-    static fetchPagesOfChapter(finalDom, fetchedUrls, url) {
+    static async fetchPagesOfChapter(finalDom, fetchedUrls, url) {
         if (url === null) {
             return Promise.resolve(finalDom);
         } else {
-            return HttpClient.wrapFetch(url).then(function(xhr) {
-                fetchedUrls.add(url);
-                QinxiaoshuoParser.copyContentNodes(finalDom, xhr.responseXML);
-                let nextUrl = QinxiaoshuoParser.urlOfNextPageOfChapter(xhr.responseXML, fetchedUrls);
-                return QinxiaoshuoParser.fetchPagesOfChapter(finalDom, fetchedUrls, nextUrl);
-            });
+            let xhr = await HttpClient.wrapFetch(url);
+            fetchedUrls.add(url);
+            QinxiaoshuoParser.copyContentNodes(finalDom, xhr.responseXML);
+            let nextUrl = QinxiaoshuoParser.urlOfNextPageOfChapter(xhr.responseXML, fetchedUrls);
+            return await QinxiaoshuoParser.fetchPagesOfChapter(finalDom, fetchedUrls, nextUrl);
         }
     }
 

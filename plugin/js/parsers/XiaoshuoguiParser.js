@@ -34,11 +34,10 @@ class XiaoshuoguiParser extends Parser {
         return util.getFirstImgSrc(dom, "div#bookinfo");
     }
 
-    fetchChapter(url) {
+    async fetchChapter(url) {
         // site does not tell us gb18030 is used to encode text
-        return HttpClient.wrapFetch(url, this.makeOptions()).then(function(xhr) {
-            return Promise.resolve(xhr.responseXML);
-        });
+        let xhr = await HttpClient.wrapFetch(url, this.makeOptions());
+        return xhr.responseXML;
     }
 
     makeOptions() {

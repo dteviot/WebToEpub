@@ -54,25 +54,15 @@ function fetchJsonStub(url) {
     return Promise.resolve({ json: lookup.get(url) });
 }
 
-test("fetchChapterListForGroup", function (assert) {
-    let done = assert.async(); 
+test("fetchChapterListForGroup", async function (assert) {
     let chapterGroup = {ChapterGroupId:1, Title:"Group 1"};
-    GravityTalesParser.fetchChapterListForGroup(1, chapterGroup, fetchJsonStub).then(
-        function(actual) {
-            assert.deepEqual(actual, expectedChapterLists[0]); 
-            done();
-        }
-    );
+    let actual = await GravityTalesParser.fetchChapterListForGroup(1, chapterGroup, fetchJsonStub);
+    assert.deepEqual(actual, expectedChapterLists[0]); 
 });
 
-test("fetchUrlsOfChapters", function (assert) {
-    let done = assert.async(); 
-    GravityTalesParser.fetchUrlsOfChapters(1, baseUri, fetchJsonStub).then(
-        function(actual) {
-            assert.deepEqual(actual, expectedFinalChapters); 
-            done();
-        }
-    );
+test("fetchUrlsOfChapters", async function (assert) {
+    let actual = await GravityTalesParser.fetchUrlsOfChapters(1, baseUri, fetchJsonStub);
+    assert.deepEqual(actual, expectedFinalChapters); 
 });
 
 test("searchForNovelIdinString_idNotPresent", function (assert) {

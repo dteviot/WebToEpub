@@ -391,23 +391,23 @@ class BakaTsukiParser extends Parser {
         }
     }
 
-    onFetchImagesClicked() {
+    async onFetchImagesClicked() {
         if (0 == this.imageCollector.imageInfoList.length) {
             ErrorLog.showErrorMessage(UIText.Error.noImagesFound);
         } else {
-            this.fetchContent();
+            await this.fetchContent();
         }
     }
 
-    fetchContent() {
+    async fetchContent() {
         this.rebuildImagesToFetch();
         this.setUiToShowLoadingProgress(this.imageCollector.numberOfImagesToFetch());
-        return this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.state.firstPageDom.baseURI)
-            .then(function() {
-                main.getPackEpubButton().disabled = false;
-            }).catch(function(err) {
-                ErrorLog.log(err);
-            });
+        try {
+            await this.imageCollector.fetchImages(() => this.updateProgressBarOneStep(), this.state.firstPageDom.baseURI);
+            main.getPackEpubButton().disabled = false;
+        } catch (err) {
+            ErrorLog.log(err);
+        }
     }
 
     updateProgressBarOneStep() {

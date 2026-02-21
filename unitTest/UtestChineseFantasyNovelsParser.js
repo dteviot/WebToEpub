@@ -2,18 +2,15 @@
 
 module("ChineseFantasyNovelsParser");
 
-test("getChapterUrls", function (assert) {
+test("getChapterUrls", async function (assert) {
     let dom = new DOMParser().parseFromString(ChineseFantasyNovelsToCSample, "text/html");
-    let done = assert.async();
     let parser = new ChineseFantasyNovelsParser();
-    parser.getChapterUrls(dom).then(function(chapterUrls) {
-        assert.equal(chapterUrls.length, 2);
-        assert.deepEqual(chapterUrls[1], {
-            newArc: null,
-            sourceUrl: "https://m.chinesefantasynovels.com/421/91906.html",
-            title: "Chapter 2: Living with great joy, dying with no regrets"
-        });
-        done();
+    let chapterUrls = await parser.getChapterUrls(dom);
+    assert.equal(chapterUrls.length, 2);
+    assert.deepEqual(chapterUrls[1], {
+        newArc: null,
+        sourceUrl: "https://m.chinesefantasynovels.com/421/91906.html",
+        title: "Chapter 2: Living with great joy, dying with no regrets"
     });
 });
 

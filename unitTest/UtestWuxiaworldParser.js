@@ -41,19 +41,16 @@ QUnit.test("getChapterArc", function (assert) {
     assert.equal(actual, "Alien Massacre");
 });
 
-QUnit.test("getChapterUrls-withArcTitles", function (assert) {
-    let done = assert.async(); 
+QUnit.test("getChapterUrls-withArcTitles", async function (assert) {
     let dom = new DOMParser().parseFromString(WuxiaworldiSamplePage2, "text/html");
-    new WuxiaworldParser().getChapterUrls(dom).then(function(actual) {
-        assert.deepEqual(actual, 
-            [
-                {title: "Vol 1 Chapter 1-1", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-1-chapter-1-1", newArc: "The name is Resident Evil"},
-                {title: "Vol 1 Chapter 1-2", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-1-chapter-1-2", newArc: null},
-                {title: "Vol 2 Chapter 1-1", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-2-chapter-1-1", newArc: "Alien Massacre"}
-            ]
-        );
-        done();
-    });
+    let actual = await new WuxiaworldParser().getChapterUrls(dom);
+    assert.deepEqual(actual, 
+        [
+            {title: "Vol 1 Chapter 1-1", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-1-chapter-1-1", newArc: "The name is Resident Evil"},
+            {title: "Vol 1 Chapter 1-2", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-1-chapter-1-2", newArc: null},
+            {title: "Vol 2 Chapter 1-1", sourceUrl: "https://www.wuxiaworld.com/novel/terror-infinity/ti-vol-2-chapter-1-1", newArc: "Alien Massacre"}
+        ]
+    );
 });
 
 QUnit.test("removeArcsWhenOnlyOne-singleArc", function (assert) {

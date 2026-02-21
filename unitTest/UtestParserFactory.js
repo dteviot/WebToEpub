@@ -64,8 +64,7 @@ QUnit.test("hostNameForParserSelection", function (assert) {
     assert.equal("fanfiction.net", fn("https://www.fanfiction.net/s/1234567/1/WebToEpub"));
 });
 
-test("assignParsersToPages", function (assert) {
-    let done = assert.async();
+test("assignParsersToPages", async function (assert) {
     let webPages = [
         {sourceUrl: "https://zirusmusings.com/ldm-ch84/"},
         {sourceUrl: "https://zirusmusings.com/ldm-ch85/"},
@@ -76,15 +75,11 @@ test("assignParsersToPages", function (assert) {
     ];
     let parser = new ZirusMusingsParser();
     parser.state.chapterListUrl = "https://zirusmusings.com/ldm/";
-    parserFactory.addParsersToPages(parser, webPages).then(
-        function() {
-            assert.equal(parser, webPages[0].parser);
-            assert.equal(parser, webPages[1].parser);
-            assert.ok(webPages[2].parser instanceof RoyalRoadParser);
-            assert.equal(webPages[2].parser, webPages[3].parser);
-            assert.ok(webPages[4].parser instanceof LightNovelBastionParser);
-            assert.ok(webPages[5].parser instanceof LightNovelsTranslationsParser);
-            done();
-        }
-    );
+    await parserFactory.addParsersToPages(parser, webPages);
+    assert.equal(parser, webPages[0].parser);
+    assert.equal(parser, webPages[1].parser);
+    assert.ok(webPages[2].parser instanceof RoyalRoadParser);
+    assert.equal(webPages[2].parser, webPages[3].parser);
+    assert.ok(webPages[4].parser instanceof LightNovelBastionParser);
+    assert.ok(webPages[5].parser instanceof LightNovelsTranslationsParser);
 });

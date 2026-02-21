@@ -13,13 +13,12 @@ class LibersparkParser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         // Page in browser has chapter links reduced to 5
         // Fetch page again to get all chapter links.
-        return HttpClient.wrapFetch(dom.baseURI).then(function(xhr) {
-            let table = xhr.responseXML.querySelector("table#novel-chapters-list");
-            return util.hyperlinksToChapterList(table).reverse();
-        });
+        let xhr = await  HttpClient.wrapFetch(dom.baseURI);
+        let table = xhr.responseXML.querySelector("table#novel-chapters-list");
+        return util.hyperlinksToChapterList(table).reverse();
     }
 
     findContent(dom) {

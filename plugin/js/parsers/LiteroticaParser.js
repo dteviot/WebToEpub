@@ -113,15 +113,13 @@ class LiteroticaParser extends Parser {
         return dom.querySelector("h1.headline");
     }
 
-    fetchChapter(url) {
+    async fetchChapter(url) {
         let dom = null;
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            dom = xhr.responseXML;
-            let pageUrls = LiteroticaParser.findUrlsOfAdditionalPagesMakingChapter(url, dom);
-            return Promise.all(pageUrls.map(LiteroticaParser.fetchAdditionalPageContent));
-        }).then(function(fragments) {
-            return LiteroticaParser.assembleChapter(dom, fragments);
-        });
+        let xhr = await HttpClient.wrapFetch(url);
+        dom = xhr.responseXML;
+        let pageUrls = LiteroticaParser.findUrlsOfAdditionalPagesMakingChapter(url, dom);
+        let fragments = await Promise.all(pageUrls.map(LiteroticaParser.fetchAdditionalPageContent));
+        return LiteroticaParser.assembleChapter(dom, fragments);
     }
 
     static findUrlsOfAdditionalPagesMakingChapter(url, dom) {
@@ -136,10 +134,9 @@ class LiteroticaParser extends Parser {
         return urls;
     }
 
-    static fetchAdditionalPageContent(url) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            return LiteroticaParser.contentForPage(xhr.responseXML);
-        });
+    static async fetchAdditionalPageContent(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        return LiteroticaParser.contentForPage(xhr.responseXML);
     }
 
     static assembleChapter(dom, fragments) {

@@ -8,13 +8,12 @@ class KobatochanParser extends WordpressBaseParser {
         super();
     }
 
-    fetchChapter(url) {
-        return HttpClient.wrapFetch(url).then((xhr) => {
-            let newDom = xhr.responseXML;
-            let extraPageUrls = KobatochanParser.findAdditionalPageUrls(newDom);
-            KobatochanParser.removePaginationElements(newDom);
-            return this.fetchAdditionalPages(newDom, extraPageUrls.reverse());
-        });
+    async fetchChapter(url) {
+        let xhr = await HttpClient.wrapFetch(url);
+        let newDom = xhr.responseXML;
+        let extraPageUrls = KobatochanParser.findAdditionalPageUrls(newDom);
+        KobatochanParser.removePaginationElements(newDom);
+        return await this.fetchAdditionalPages(newDom, extraPageUrls.reverse());
     }
 
     static findAdditionalPageUrls(dom) {
@@ -27,20 +26,19 @@ class KobatochanParser extends WordpressBaseParser {
         return pages;
     }
 
-    fetchAdditionalPages(dom, extraPageUrls) {
+    async fetchAdditionalPages(dom, extraPageUrls) {
         if (extraPageUrls.length === 0) {
             return Promise.resolve(dom);
         }
-        return HttpClient.wrapFetch(extraPageUrls.pop()).then((xhr) => {
-            let newDom = xhr.responseXML;
-            KobatochanParser.removePaginationElements(newDom);
-            let dest = this.findContent(dom);
-            let src = this.findContent(newDom);
-            for (let node of [...src.childNodes]) {
-                dest.appendChild(node);
-            }
-            return this.fetchAdditionalPages(dom, extraPageUrls);
-        });
+        let xhr = await HttpClient.wrapFetch(extraPageUrls.pop());
+        let newDom = xhr.responseXML;
+        KobatochanParser.removePaginationElements(newDom);
+        let dest = this.findContent(dom);
+        let src = this.findContent(newDom);
+        for (let node of [...src.childNodes]) {
+            dest.appendChild(node);
+        }
+        return await this.fetchAdditionalPages(dom, extraPageUrls);
     }
 
     static removePaginationElements(dom) {

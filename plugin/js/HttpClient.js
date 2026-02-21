@@ -297,42 +297,35 @@ class FetchResponseHandler {
         this.contentType = response.headers.get("content-type");
     }
 
-    extractContentFromResponse(response) {
+    async extractContentFromResponse(response) {
         if (this.isHtml()) {
-            return this.responseToHtml(response);
+            return await this.responseToHtml(response);
         } else {
-            return this.responseToBinary(response);
+            return await this.responseToBinary(response);
         }
     }
 
-    responseToHtml(response) {
-        return response.arrayBuffer().then(function(rawBytes) {
-            let data = this.makeTextDecoder(response).decode(rawBytes);
-            let html = new DOMParser().parseFromString(data, "text/html");
-            util.setBaseTag(this.response.url, html);
-            this.responseXML = html;
-            return this;
-        }.bind(this));
+    async responseToHtml(response) {
+        let rawBytes = await response.arrayBuffer();
+        let data = this.makeTextDecoder(response).decode(rawBytes);
+        let html = new DOMParser().parseFromString(data, "text/html");
+        util.setBaseTag(this.response.url, html);
+        this.responseXML = html;
     }
 
-    responseToBinary(response) {
-        return response.arrayBuffer().then(function(data) {
-            this.arrayBuffer = data;
-            return this;
-        }.bind(this));
+    async responseToBinary(response) {
+        let data = await response.arrayBuffer();
+        this.arrayBuffer = data;
     }
 
-    responseToText(response) {
-        return response.arrayBuffer().then(function(rawBytes) {
-            return this.makeTextDecoder(response).decode(rawBytes);
-        }.bind(this));
+    async responseToText(response) {
+        let rawBytes = await response.arrayBuffer();
+        this.makeTextDecoder(response).decode(rawBytes);
     }
 
-    responseToJson(response) {
-        return response.text().then(function(data) {
-            this.json =  JSON.parse(data);
-            return this;
-        }.bind(this));
+    async responseToJson(response) {
+        let data = await response.text();
+        this.json =  JSON.parse(data);
     }
 
     makeTextDecoder(response) {
@@ -358,8 +351,8 @@ class FetchJsonResponseHandler extends FetchResponseHandler {
         super();
     }
 
-    extractContentFromResponse(response) {
-        return super.responseToJson(response);
+    async extractContentFromResponse(response) {
+        return await super.responseToJson(response);
     }
 }
 
@@ -368,8 +361,8 @@ class FetchTextResponseHandler extends FetchResponseHandler {
         super();
     }
 
-    extractContentFromResponse(response) {
-        return super.responseToText(response);
+    async extractContentFromResponse(response) {
+        return await super.responseToText(response);
     }
 }
 
@@ -378,7 +371,7 @@ class FetchHtmlResponseHandler extends FetchResponseHandler {
         super();
     }
 
-    extractContentFromResponse(response) {
-        return super.responseToHtml(response);
+    async extractContentFromResponse(response) {
+        return await super.responseToHtml(response);
     }
 }
