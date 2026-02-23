@@ -31,11 +31,6 @@ class MimihuiParser extends Parser {
         return dom.querySelector(".content");
     }
 
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "lock");
-        super.removeUnwantedElementsFromContentElement(element);
-    }
-
     findChapterTitle(dom) {
         return dom.querySelector(".title");
     }
