@@ -24,6 +24,11 @@ class MimihuiParser extends Parser {
         */
     }
 
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll(".info > dl:nth-child(5) > dd a")]; 
+        return tags.map(e => e.textContent).join(", ");
+    }
+
     findContent(dom) {
         return dom.querySelector(".content");
     }
@@ -50,12 +55,12 @@ class MimihuiParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".info > dl:nth-child(2) > dd:nth-child(2)");
+        let authorLabel = dom.querySelector(".info > dl:nth-child(2) > dd");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
     extractDescription(dom) {
-        return dom.querySelector(".desc").textContent.trim();
+        return dom.querySelector(".desc > p").textContent;
     }
 
     getInformationEpubItemChildNodes(dom) {
