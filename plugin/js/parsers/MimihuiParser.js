@@ -14,7 +14,9 @@ class MimihuiParser extends Parser {
 
         let menu = tocPage.querySelector(".chapter-list");
 
-        return util.hyperlinksToChapterList(menu);
+        let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
+        
+        return chapters;
 
         /* 
         Will need to handle VIP chapters and clean chapter titles. (Remove 免费 and VIP from the end of it. Only ToC is affected by this.)
