@@ -25,8 +25,9 @@ class MimihuiParser extends Parser {
     }
 
     extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > dl:nth-child(4) > dd a")];
         let tags = [...dom.querySelectorAll(".info > dl:nth-child(5) > dd a")]; 
-        return tags.map(e => e.textContent).join(", ");
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
     findContent(dom) {
