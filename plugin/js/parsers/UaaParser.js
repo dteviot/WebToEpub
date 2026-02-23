@@ -28,7 +28,7 @@ class UaaParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".cover"); // Cover Image is hidden being an API call. 
+        return dom.querySelector(".cover").src;
     }
 
     extractSubject(dom) {
