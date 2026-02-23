@@ -15,15 +15,10 @@ class MimihuiParser extends Parser {
         let menu = tocPage.querySelector(".chapter-list");
 
         let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
-        
+
+        chapters = chapters.map(ch => { if (ch.title.endsWith("免费")) { return { ...ch, title: ch.title.slice(0, -2) }; } return ch; });
+
         return chapters;
-
-        /* 
-        Will need to handle VIP chapters and clean chapter titles. (Remove 免费 and VIP from the end of it. Only ToC is affected by this.)
-
-        We can still get a sneakpeek of the content of VIP chapters even when locked, ~10 lines, so I didn't make them automatically non-includeable. 
-        With them being visible clearly in the ToC with a 'VIP' at the end, if user want to remove them. 
-        */
     }
 
     extractSubject(dom) {
