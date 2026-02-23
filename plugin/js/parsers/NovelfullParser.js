@@ -217,8 +217,14 @@ class NovelHyphenBinParser extends NovelfullParser {
 
     extractSubject(dom) {
         let genres = [...dom.querySelectorAll(".info > li:nth-child(2) a")];
-        let tags = [...dom.querySelectorAll(".info > li:nth-child(3) a")];
-        return [...genres, ...tags].map(e => e.textContent).join(", ");
+
+        let tagHeader = dom.querySelector(".info > li:nth-child(3) h3");
+        if (tagHeader.textContent == "Tag:") { 
+            let tags = [...dom.querySelectorAll(".info > li:nth-child(3) a")];
+            return [...genres, ...tags].map(e => e.textContent).join(", ");
+        }
+
+        return genres.map(e => e.textContent).join(", ");
     }
 
     removeUnwantedElementsFromContentElement(element) {
