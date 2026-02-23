@@ -61,7 +61,7 @@ class MimihuiParser extends Parser {
     }
 
     extractDescription(dom) {
-        return dom.querySelector(".desc > p").textContent;
+        return dom.querySelector(".desc > p").textContent.trim();
     }
 
     getInformationEpubItemChildNodes(dom) {
