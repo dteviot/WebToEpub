@@ -7,14 +7,13 @@ class FalooParser extends Parser {
         super();
 
         //Haven't tried anything between 1000 -> 3000.
-        //1000 isn't safe for books >60 chapters.
-        //500 isn't safe for books >30 chapters.
-        //3000 is safe for books of any size.
-        this.minimumThrottle = 3000;
+        // <1500 isn't safe for books >30 chapters.
+        // >2000 is safe for books of any size.
+        this.minimumThrottle = 2000;
     }
 
     async getChapterUrls(dom) {
-        // Only free chapters
+        // Get only free chapters
         let menu = dom.querySelector("div.DivTable:nth-child(3)");
         return util.hyperlinksToChapterList(menu);
 
