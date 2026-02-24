@@ -7,8 +7,9 @@ class FalooParser extends Parser {
         super();
 
         //Haven't tried anything between 1000 -> 3000.
-        //1000 and under aren't safe.
-        //3000 is safe.
+        //1000 isn't safe for books >60 chapters.
+        //500 isn't safe for books >30 chapters.
+        //3000 is safe for books of any size.
         this.minimumThrottle = 3000;
     }
 
