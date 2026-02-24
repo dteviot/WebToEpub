@@ -6,7 +6,6 @@ class FalooParser extends Parser {
     constructor() {
         super();
 
-        //Haven't tried anything between 1000 -> 3000.
         // <1500 isn't safe for books >30 chapters.
         // >2000 is safe for books of any size.
         this.minimumThrottle = 2000;
