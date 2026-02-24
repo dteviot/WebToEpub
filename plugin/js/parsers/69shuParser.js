@@ -4,7 +4,7 @@ parserFactory.registerUrlRule(
     url => (util.extractHostName(url).includes("69shu")),
     () => new ShuParser()
 );
-parserFactory.register("69yuedu.net", () => new _69yueduParser());
+parserFactory.registerDeadSite("69yuedu.net", () => new _69yueduParser());
 
 class ShuParser extends Parser {
     constructor() {
@@ -43,6 +43,22 @@ class ShuParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".txtinfo, #txtright, .bottom-ad");
         super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".booknav2 > p:nth-child(3) a")];
+
+        let tagHeader = dom.querySelector(".tagtitle");
+        if (tagHeader?.textContent == "标签") { 
+            let tags = [...dom.querySelectorAll("#tagul a")];
+            return [...genres, ...tags].map(e => e.textContent).join(", ");
+        }
+
+        return genres.map(e => e.textContent).join(", ");
+    }
+
+    extractDescription(dom) { // We only take the first p element that holds the description, the second one holds the story keywords.
+        return dom.querySelector(".navtxt > p:nth-child(1)").textContent.trim(); 
     }
 
     async fetchChapter(url) {

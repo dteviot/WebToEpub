@@ -14,23 +14,21 @@ class MimihuiParser extends Parser {
 
         let menu = tocPage.querySelector(".chapter-list");
 
-        return util.hyperlinksToChapterList(menu);
+        let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
 
-        /* 
-        Will need to handle VIP chapters and clean chapter titles. (Remove 免费 and VIP from the end of it. Only ToC is affected by this.)
+        chapters = chapters.map(ch => { if (ch.title.endsWith("免费")) { return { ...ch, title: ch.title.slice(0, -2) }; } return ch; });
 
-        We can still get a sneakpeek of the content of VIP chapters even when locked, ~10 lines, so I didn't make them automatically non-includeable. 
-        With them being visible clearly in the ToC with a 'VIP' at the end, if user want to remove them. 
-        */
+        return chapters;
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > dl:nth-child(4) > dd a")];
+        let tags = [...dom.querySelectorAll(".info > dl:nth-child(5) > dd a")]; 
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
     findContent(dom) {
         return dom.querySelector(".content");
-    }
-
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "lock");
-        super.removeUnwantedElementsFromContentElement(element);
     }
 
     findChapterTitle(dom) {
@@ -50,12 +48,12 @@ class MimihuiParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".info > dl:nth-child(2) > dd:nth-child(2)");
+        let authorLabel = dom.querySelector(".info > dl:nth-child(2) > dd");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
     extractDescription(dom) {
-        return dom.querySelector(".desc").textContent.trim();
+        return dom.querySelector(".desc > p").textContent.trim();
     }
 
     getInformationEpubItemChildNodes(dom) {
