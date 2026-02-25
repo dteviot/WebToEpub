@@ -1,0 +1,45 @@
+"use strict";
+
+parserFactory.register("soafp.com", () => new SoafpParser());
+
+class SoafpParser extends Parser {
+    constructor() {
+        super();
+    }
+    
+    async getChapterUrls(dom) {
+
+        return [...dom.querySelectorAll(".volume-container ul li a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.entry-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    extractLanguage(dom) {
+        return dom.querySelector("html").getAttribute("lang");
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll("#novel-genres-list a")];
+        let tags = [...dom.querySelectorAll("#novel-tags-list a")]; 
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector(".entry-synopsis").textContent.trim();
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.entry-title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".post-thumbnail");
+    }
+}
