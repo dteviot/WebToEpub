@@ -20,6 +20,11 @@ class SoafpParser extends Parser {
         return dom.querySelector(".entry-title");
     }
 
+    extractAuthor() {
+        //The site doesn't provide any author for books, so we're just using the TL
+        return "Soafp";
+    }
+
     extractLanguage(dom) {
         return dom.querySelector("html").getAttribute("lang");
     }
