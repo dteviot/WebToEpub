@@ -34,6 +34,11 @@ class SoafpParser extends Parser {
         return dom.querySelector(".entry-synopsis").textContent.trim();
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "button");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findChapterTitle(dom) {
         return dom.querySelector("h1.entry-title");
     }
