@@ -11,7 +11,7 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
  <div align="center">
-   
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,7 +54,7 @@
           <a href="#built-with">Built With</a>
           <ul>
             <li><a href="#libraries-used-in-webtoepub">Libraries used (in WebToEpub)</a></li>
-            <li><a href="#libraries-used-by-webtoepub-build-process">Libraries used by WebToEpub build process</a></li>  
+            <li><a href="#libraries-used-by-webtoepub-build-process">Libraries used by WebToEpub build process</a></li>
         </li>
       </ul>
     </li>
@@ -812,6 +812,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Joel Sunil</li>
     <li>nothing0074</li>
     <li>Justin Mott</li>
+    <li>mobedoor</li>
   </ul>
 </details>
 
