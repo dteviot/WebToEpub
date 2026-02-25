@@ -12,21 +12,18 @@ class FalooParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        // Get only free chapters
-        let menu = dom.querySelector("div.DivTable:nth-child(3)");
-        return util.hyperlinksToChapterList(menu);
+        // If there are no VIP chapters, get all chapters
+        if (!dom.querySelector(".DivVip")) {
+            return [...dom.querySelectorAll("div.DivTable div div a")]
+                .map(a => util.hyperLinkToChapter(a));
+        }
 
-        // Get all chapters, including VIP chapters
-        // return [...dom.querySelectorAll("div.DivTable div div a")]
-        //     .map(a => util.hyperLinkToChapter(a));
+        // If there are VIP chapters, get only first volume
+        let menu = dom.querySelector("div.DivTable:nth-child(3)");
+        return util.hyperlinksToChapterList(menu);        
     }
 
     findContent(dom) {
-        // Need to handle VIP chapters
-        // if (dom.querySelector(".c_c1").textContent == "您还没有登录，请登录后在继续阅读本部小说!") {
-        //     // No content, VIP chapter, need to login
-        // }
-
         return dom.querySelector(".noveContent");
     }
 
