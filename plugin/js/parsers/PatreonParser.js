@@ -19,7 +19,7 @@ class PatreonParser extends Parser {
 
     getCollectionLinks(dom) {
         let getTitle = (e) => {
-            return [...e.querySelectorAll("span.cm-ugDCiy")]
+            return [...e.querySelectorAll("span.LineClamp-module__N_eOMG__lineClamp1")]
                 .map(s => s.textContent.trim())
                 .join(" ");
         };
@@ -29,7 +29,7 @@ class PatreonParser extends Parser {
             let getLink = (e) => {
                 return e.querySelector("a");
             };
-            let linksContainer = [...dom.querySelectorAll("div.cm-hhCVrV.cm-WzHHbB div.cm-bkNQIo:not(:has(svg[data-tag='IconLock'])) div:not([class])")];
+            let linksContainer = [...dom.querySelectorAll("div.ListPost-module__d2AM5a__listPost div:not([class])")];
             return linksContainer.map(linkContainer => {
                 return {
                     sourceUrl: getLink(linkContainer).href,
@@ -38,7 +38,7 @@ class PatreonParser extends Parser {
             });
         }
         
-        let links = [...dom.querySelectorAll("a.cm-XHOpxu")];
+        let links = [...dom.querySelectorAll("a.CollectionPostList-module__IhO0fW__gridCard")];
         return links.map(link => ({
             sourceUrl: link.href,
             title: getTitle(link),
