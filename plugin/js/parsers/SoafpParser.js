@@ -6,11 +6,10 @@ class SoafpParser extends Parser {
     constructor() {
         super();
     }
-    
-    async getChapterUrls(dom) {
 
-        return [...dom.querySelectorAll(".volume-container ul li a")]
-            .map(a => util.hyperLinkToChapter(a));
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector(".novel-chapter-list");
+        return util.hyperlinksToChapterList(menu);
     }
 
     findContent(dom) {
