@@ -92,11 +92,37 @@ class EpubPacker {
         this.createAndAppendChildNS(metadata, dc_ns, "dc:title", this.metaInfo.title);
         this.createAndAppendChildNS(metadata, dc_ns, "dc:language", this.metaInfo.language);
         this.createAndAppendChildNS(metadata, dc_ns, "dc:date", this.getDateForMetaData());
+        // ----- SUBJECTS (support multiple) -----
         if (!util.isNullOrEmpty(this.metaInfo.subject)) {
-            this.createAndAppendChildNS(metadata, dc_ns, "dc:subject", this.metaInfo.subject);
+            let subjects = this.metaInfo.subject;
+
+            // if string, split by comma
+            if (!Array.isArray(subjects)) {
+                subjects = subjects.split(",").map(s => s.trim()).filter(Boolean);
+            }
+
+            subjects.forEach(sub => {
+                this.createAndAppendChildNS(metadata, dc_ns, "dc:subject", sub);
+            });
         }
+
+        // ----- DESCRIPTION (HTML paragraph formatting) -----
         if (!util.isNullOrEmpty(this.metaInfo.description)) {
-            this.createAndAppendChildNS(metadata, dc_ns, "dc:description", this.metaInfo.description);
+            let desc = this.metaInfo.description;
+
+            // escape XML
+            desc = desc
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // paragraph formatting
+            let parts = desc.split(/\n\s*\n/);
+            let formatted = parts
+                .map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`)
+                .join("\n");
+
+            this.createAndAppendChildNS(metadata, dc_ns, "dc:description", formatted);
         }
 
         let author = this.createAndAppendChildNS(metadata, dc_ns, "dc:creator", this.metaInfo.author);
@@ -109,7 +135,7 @@ class EpubPacker {
             this.addMetaProperty(metadata, translator, "role", "translator", "trl");
         }
 
-        let idText = (this.version === EpubPacker.EPUB_VERSION_3 ? "" : "") + this.metaInfo.uuid;
+        let idText = (this.version === EpubPacker.EPUB_VERSION_3 ? "uri:" : "") + this.metaInfo.uuid;
         let identifier = this.createAndAppendChildNS(metadata, dc_ns, "dc:identifier", idText);
         identifier.setAttributeNS(null, "id", "BookId");
         if (this.version === EpubPacker.EPUB_VERSION_2) {
