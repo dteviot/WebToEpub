@@ -69,23 +69,23 @@ class MvlempyrParser extends Parser {
         let epubDescription = ([...dom.querySelectorAll("div.synopsis")]);
         return epubDescription.map(e => e.innerHTML.replace(/<br><br>/g, "\n\n").replace(/<br>/g, "\n"));
     }
-  
+
     extractSubject(dom) {
-    const regex = /^#/;
+        const regex = /^#/;
 
-    let seen = new Set();
-    let result = [];
+        let seen = new Set();
+        let result = [];
 
-    [...dom.querySelectorAll("div.genere-tagslist a")]
-        .map(e => e.textContent.trim().replace(regex, ""))
-        .forEach(tag => {
-            let key = tag.toLowerCase();
-            if (!seen.has(key)) {
-                seen.add(key);
-                result.push(tag);
-            }
-        });
+        [...dom.querySelectorAll("div.genere-tagslist a")]
+            .map(e => e.textContent.trim().replace(regex, ""))
+            .forEach(tag => {
+                let key = tag.toLowerCase();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    result.push(tag);
+                }
+            });
 
-    return result.join(", ");
-}
+        return result.join(", ");
+    }
 }
