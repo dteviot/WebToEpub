@@ -23,9 +23,9 @@ class PindangscansParser extends Parser { // eslint-disable-line no-unused-vars
             if (tocUrl) {
                 let splitUrl = tocUrl.split("/");
                 if (splitUrl.length >= 6) {
-                    let maxPage = parseInt(splitUrl[5]);
+                    let maxPage = parseInt(splitUrl[4]);
                     for (let i = 2; i <= maxPage; ++i) {
-                        splitUrl[5] = i;
+                        splitUrl[4] = i;
                         tocUrls.push(splitUrl.join("/"));
                     }
                 }
@@ -44,10 +44,10 @@ class PindangscansParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.brxe-heading");
+        return dom.querySelector(".brxe-heading");
     }
     findChapterTitle(dom) {
-        return dom.querySelector("h2.brxe-post-title");
+        return dom.querySelector(".brxe-post-title");
     }
 
     findCoverImageUrl(dom) {

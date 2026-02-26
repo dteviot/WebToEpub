@@ -1,14 +1,5 @@
 /*
   Parses web novels from jadescrolls.com
-
-  JadeScrolls is a Next.js/React SPA where content is rendered client-side.
-  This parser uses the JadeScrolls API endpoints instead of HTML parsing.
-
-  API Endpoints:
-  - Novel data: https://api.jadescrolls.com/api/public/get-novel-by-slug
-  - Chapter data: https://api.jadescrolls.com/api/user/get-chapter-by-slug
-
-  URL structure: /novel/{novel-slug}/{chapter-slug}
 */
 "use strict";
 
@@ -17,57 +8,52 @@ parserFactory.register("jadescrolls.com", () => new JadeScrollsParser());
 class JadeScrollsParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 1500;
+        this.ChacheChapterContent = new Map();
     }
 
-    async loadEpubMetaInfo(dom) {
-        await this.fetchNovelMetadata(dom);
-        super.loadEpubMetaInfo(dom);
+    populateUIImpl() {
+        document.getElementById("removeChapterNumberRow").hidden = false;
     }
 
-    async fetchNovelMetadata(dom) {
-        let novelSlug = this.extractNovelSlug(dom.baseURI);
-        if (!novelSlug || this.novelData) {
-            return;
-        }
-
-        try {
-            let apiUrl = "https://api.jadescrolls.com/api/public/get-novel-by-slug?slug=" + novelSlug + "&chapterSort=ASC";
-            let novelData = (await HttpClient.fetchJson(apiUrl)).json;
-            this.novelData = novelData.data;
-        } catch (error) {
-            ErrorLog.log(error);
-        }
-    }
-
-    async getChapterUrls(dom) {
-        await this.fetchNovelMetadata(dom);
-        let novelSlug = this.extractNovelSlug(dom.baseURI);
+    async getChapterUrls() {
         let chapters = [];
-
-        if (this.novelData?.chapter) {
-            chapters = this.novelData.chapter.map(chapter => ({
-                sourceUrl: "https://jadescrolls.com/novel/" + novelSlug + "/" + chapter.slug,
-                title: JadeScrollsParser.makeTitle(chapter)
-            }));
-        }
+        let Chapterjsons = (await HttpClient.fetchJson("https://api.jadescrolls.com/api/novels-chapter/"+this.id+"/chapters/list?limit="+this.chapters_count+"&page=1&novelId="+this.id+"&status=PUBLISHED&isDeleted=false&sortOrder=desc")).json;
+        chapters = this.chaptersFromJson(Chapterjsons);
+        this.chacheChapter(Chapterjsons);
         return chapters;
     }
 
-    static makeTitle(chapter) {
-        return chapter.title
-            ? chapter.chapterNo + ": " + chapter.title
-            : ("Episode " + chapter.chapterNo);
+    chaptersFromJson(json) {
+        return json.data.map(a => ({
+            sourceUrl: "https://jadescrolls.com/novel/"+this.slug+"/"+a.slug, 
+            title: document.getElementById("removeChapterNumberCheckbox").checked?a.title:"Chapter "+a.chapter_number+": "+a.title, 
+            isIncludeable: (a.type == "FREE")
+        })).reverse();
     }
 
-    extractNovelSlug(url) {
-        let match = url.match(/\/novel\/([^/]+)/);
-        return match ? match[1] : null;
+    chacheChapter(json) {
+        json.data.map(a => (this.ChacheChapterContent.set("https://jadescrolls.com/novel/"+this.slug+"/"+a.slug, [a.title, a.content])));
     }
 
-    extractEpisodeNumber(url) {
-        let match = url.match(/episode-(\d+)/) || url.match(/chapter-(\d+)/) || url.match(/(\d+)/);
-        return match ? parseInt(match[1], 10) : 0;
+    async loadEpubMetaInfo(dom) {
+        // eslint-disable-next-line
+        let novelSlug = new URL(dom.baseURI).pathname.match(/\/novel\/([^/]+)/)[1];
+        let bookinfo = (await HttpClient.fetchJson("https://api.jadescrolls.com/api/novels?slug=" + novelSlug)).json;
+        this.title = bookinfo.title;
+        this.author = bookinfo.author_name;
+        this.description = bookinfo.synopsis;
+        this.img = bookinfo.cover_image;
+        this.tags = "";
+        for (let tmp in bookinfo?.genres) {
+            this.tags = this.tags.concat(tmp?.name);
+        }
+        for (let tmp in bookinfo?.sub_genres) {
+            this.tags = this.tags.concat(tmp?.name);
+        }
+        this.novelSlug = novelSlug;
+        this.id = bookinfo.id;
+        this.chapters_count = bookinfo.chapters_count;
+        return;
     }
 
     findContent(dom) {
@@ -75,62 +61,62 @@ class JadeScrollsParser extends Parser {
     }
 
     extractTitleImpl() {
-        return this.novelData?.title;
+        return this.title;
     }
 
     extractAuthor() {
-        return this.novelData?.OriginalNovelAuthor || this.novelData?.TranslateNovelAuthor;
-    }
-
-    async fetchChapter(url) {
-        let match = url.match(/\/novel\/([^/]+)\/([^/?#]+)/);
-        if (!match) {
-            throw new Error("Invalid JadeScrolls chapter URL format: " + url);
-        }
-
-        let novelSlug = match[1];
-        let chapterSlug = match[2];
-        let apiUrl = "https://api.jadescrolls.com/api/user/get-chapter-by-slug?novelSlug=" + novelSlug + "&chapterSlug=" + chapterSlug;
-
-        let chapterData = (await HttpClient.fetchJson(apiUrl)).json;
-        return this.buildDomFromChapterData(chapterData, url);
-    }
-
-    buildDomFromChapterData(chapterData, sourceUrl) {
-        let newDoc = Parser.makeEmptyDocForContent(sourceUrl);
-        let data = chapterData.data || chapterData;
-
-        if (data.title) {
-            let titleElement = newDoc.dom.createElement("h1");
-            titleElement.textContent = JadeScrollsParser.makeTitle(data);
-            newDoc.content.appendChild(titleElement);
-        }
-
-        let rawHtml = data.content || data.body || "";
-        if (rawHtml) {
-            let sanitized = util.sanitize(rawHtml);
-            util.moveChildElements(sanitized.body, newDoc.content);
-        }
-        return newDoc.dom;
-    }
-
-    findCoverImageUrl(dom) {
-        return this.novelData?.coverImg || util.getFirstImgSrc(dom, ".novel-detils-wrapper");
-    }
-
-    extractDescription() {
-        return this.novelData?.description || this.novelData?.synopsis || "";
+        return this.author;
     }
 
     extractSubject() {
-        let genre = this.novelData?.genre;
-        if (Array.isArray(genre)) {
-            return genre.join(", ");
-        }
-        return genre || "";
+        let tags = this.tags;
+        return tags.join(", ");
     }
 
-    getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".novel-detils-wrapper")];
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+
+    async fetchChapter(url) {
+        if (this.ChacheChapterContent.has(url)) {
+            this.minimumThrottle = 0;
+            return this.buildChapterfromChache(this.ChacheChapterContent.get(url), url);
+        } else {
+            this.minimumThrottle = this.getRateLimit();
+            let restUrl = this.toRestUrl(url);
+            let json = (await HttpClient.fetchJson(restUrl)).json;
+            return this.buildChapter(json, url);
+        }
+    }
+
+    buildChapterfromChache(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json[0];
+        newDoc.content.appendChild(title);
+        let content = util.sanitize(json[1]);
+        util.moveChildElements(content.body, newDoc.content);
+        return newDoc.dom;
+    }
+
+    toRestUrl(url) {
+        let leaves = url.split("/");
+        let story_slug = leaves[leaves.length - 2];
+        let chapter_slug = leaves[leaves.length - 1];
+        return "https://api.jadescrolls.com/api/novels-chapter/"+story_slug+"/chapters/"+chapter_slug;
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json?.title;
+        newDoc.content.appendChild(title);
+        let content = util.sanitize(json?.content);
+        util.moveChildElements(content.body, newDoc.content);
+        return newDoc.dom;
     }
 }

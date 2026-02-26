@@ -28,7 +28,13 @@ class UaaParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".cover"); // Cover Image is hidden being an API call. 
+        return dom.querySelector(".cover").src;
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll("div.item:nth-child(5) a")];
+        let tags = [...dom.querySelectorAll(".tag_box li a")];
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
     extractLanguage(dom) {
@@ -40,7 +46,7 @@ class UaaParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".info_box > div:nth-child(4) > a:nth-child(1)");
+        let authorLabel = dom.querySelector(".info_box > div:nth-child(4) a");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 

@@ -33,16 +33,35 @@ class WtrlabParser extends Parser {
             terms = terms?.config?.terms.filter(a => (a[4] == null) || (a[4].includes(serie_id)));
             terms = terms.map(a => ({from:a[2].split("|"), to:a[1]}));
             let index = 0;
-            this.terms = [];
+            this.termsuser = [];
             for (let i = 0; i < terms.length; i++) {
                 for (let j = 0; j < terms[i].from.length; j++) {
-                    this.terms[index] = ({from: terms[i].from[j], to: terms[i].to});
+                    this.termsuser[index] = ({from: terms[i].from[j], to: terms[i].to});
                     index++;
                 }
             }
 
         } catch (error) {
-            this.terms = [];
+            this.termsuser = [];
+        }
+        //entire stories have their own terms that superseed the chapter ones
+        try {
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/reader/terms/"+id+".json")).json;
+            let termstmp = {};
+            for (let i = 0; i < terms?.glossaries?.length; i++) {
+                for (let j = 0; j < terms.glossaries[i]?.data?.terms?.length; j++) {
+                    if (terms.glossaries[i]?.data.terms[j]?.length>1 && terms.glossaries[i]?.data.terms[j][0].length>0) {
+                        termstmp[terms.glossaries[i].data.terms[j][1]] = terms.glossaries[i].data.terms[j][0][0];
+                    }
+                }
+            }
+            this.termsstory = [];
+            let index = 0;
+            for (let key in termstmp) {
+                this.termsstory[index++] = ({from: key, to: termstmp[key]});
+            }
+        } catch (error) {
+            this.termsstory = [];
         }
         return chapters.chapters.map(a => ({
             sourceUrl: "https://wtr-lab.com/"+language+"/novel/"+id+"/"+slug+"/chapter-"+a.order, 
@@ -188,9 +207,17 @@ class WtrlabParser extends Parser {
             } else {
                 let pnode = newDoc.dom.createElement("p");
                 let newtext = element;
-                // replace provided translation with custom one
+                // replace chapter provided translation with story one
                 for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
-                    for (let term of this.terms) {
+                    for (let term of this.termsstory) {
+                        if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
+                            json.data.data.glossary_data.terms[i][0] = term?.to;
+                        }
+                    }
+                }
+                // replace chapter provided translation with user one
+                for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+                    for (let term of this.termsuser) {
                         if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
                             json.data.data.glossary_data.terms[i][0] = term?.to;
                         }
@@ -203,8 +230,13 @@ class WtrlabParser extends Parser {
                     newtext = newtext.replaceAll("※" + i + "〓", term);
                 }
                 // replace custom terms
-                for (let term of this.terms) {
+                for (let term of this.termsuser) {
                     newtext = newtext.replaceAll(term?.from, term?.to);
+                }
+                // patch
+                // replace with provided chapter patch wtf?!? why are there so many different terms patches etc.?
+                for (let i = 0; i < json?.data?.data?.patch?.length??0; i++) {
+                    newtext = newtext.replaceAll(json?.data?.data?.patch[i].zh, json?.data?.data?.patch[i].en);
                 }
                 pnode.textContent = newtext;
                 newDoc.content.appendChild(pnode);

@@ -19,12 +19,26 @@ class PatreonParser extends Parser {
 
     getCollectionLinks(dom) {
         let getTitle = (e) => {
-            return [...e.querySelectorAll("span.cm-ugDCiy")]
+            return [...e.querySelectorAll("span.LineClamp-module__N_eOMG__lineClamp1")]
                 .map(s => s.textContent.trim())
                 .join(" ");
         };
 
-        let links = [...dom.querySelectorAll("a.cm-XHOpxu")];
+        if (this.isCondensedView(dom))
+        {
+            let getLink = (e) => {
+                return e.querySelector("a");
+            };
+            let linksContainer = [...dom.querySelectorAll("div.ListPost-module__d2AM5a__listPost div:not([class])")];
+            return linksContainer.map(linkContainer => {
+                return {
+                    sourceUrl: getLink(linkContainer).href,
+                    title: getTitle(linkContainer),
+                };
+            });
+        }
+        
+        let links = [...dom.querySelectorAll("a.CollectionPostList-module__IhO0fW__gridCard")];
         return links.map(link => ({
             sourceUrl: link.href,
             title: getTitle(link),
@@ -72,7 +86,134 @@ class PatreonParser extends Parser {
             img.src = json.image.url;
             newDoc.content.append(img);
         }
-        let content =  "<div>" + json.content + "</div>";
+        let content;
+        if (json.content)
+        {
+            content =  "<div>" + json.content + "</div>";
+        }
+        else if (json.content_json_string)
+        {
+            const tiptapToHtml = (node) => {
+                if (!node) return null;
+
+                // 1. Handle Text Nodes (Returns a Text Node or Span)
+                if (node.type === "text") {
+                    let root;
+                    if (node.marks) {
+                        // If there are marks, we build them nested
+                        root = document.createElement("span");
+                        let current = root;
+                        node.marks.forEach(mark => {
+                            let wrapper;
+                            switch (mark.type) {
+                                case "bold":
+                                    wrapper = document.createElement("strong");
+                                    break;
+                                case "italic":
+                                    wrapper = document.createElement("em");
+                                    break;
+                                case "underline":
+                                    wrapper = document.createElement("u");
+                                    break;
+                                case "link":
+                                    wrapper = document.createElement("a");
+                                    wrapper.href = mark.attrs.href;
+                                    wrapper.target = mark.attrs.target;
+                                    break;
+                                default:
+                                    wrapper = document.createElement("span");
+                                    console.error(`Unsupported mark type: "${mark.type}"`);
+                            }
+                            current.appendChild(wrapper);
+                            current = wrapper;
+                        });
+                        current.textContent = node.text; // Safety here
+                        return root;
+                    } else {
+                        // No marks? Just return a plain text node
+                        return document.createTextNode(node.text);
+                    }
+                }
+
+                // 2. Handle Block Types
+                let element;
+                switch (node.type) {
+                    case "doc":
+                        element = document.createElement("div");
+                        element.className = "content-body";
+                        break;
+
+                    case "paragraph":
+                        element = document.createElement("p");
+                        if (node.attrs?.nodeTextAlignment) {
+                            element.style.textAlign = node.attrs.nodeTextAlignment;
+                        }
+                        break;
+
+                    case "heading": 
+                        element = document.createElement(`h${node.attrs.level || 3}`);
+                        break;
+
+                    case "bulletList":
+                        element = document.createElement("ul");
+                        break;
+                    
+                    case "orderedList":
+                        element = document.createElement("ol");
+                        break;
+
+                    case "listItem":
+                        element = document.createElement("li");
+                        break;
+
+                    case "image": 
+                        element = document.createElement("img");
+                        element.src = node.attrs.src;
+                        element.alt = node.attrs.alt || "";
+                        return element; // Images don't have children
+
+                    case "blockquote":
+                        element = document.createElement("blockquote");
+                        break;
+                    
+                    case "codeBlock": {
+                        let pre = document.createElement("pre");
+                        element = document.createElement("code");
+                        pre.appendChild(element);
+
+                        if (node.content) {
+                            node.content.forEach(childNode => {
+                                const child = tiptapToHtml(childNode);
+                                if (child) element.appendChild(child);
+                            });
+                        }
+                        return pre;
+                    }
+                    case "hardBreak":
+                        return document.createElement("br");
+
+                    default:
+                        element = document.createElement("span");
+                        break;
+                }
+
+                // 3. Recursive Step: Append children as actual DOM Nodes
+                if (node.content) {
+                    node.content.forEach(childNode => {
+                        const childElement = tiptapToHtml(childNode);
+                        if (childElement) {
+                            element.appendChild(childElement);
+                        }
+                    });
+                } else if (node.type !== "image" && node.type !== "hardBreak") {
+                    // Handle empty blocks with a non-breaking space
+                    element.textContent = "\u00A0";
+                }
+
+                return element;
+            };
+            content = tiptapToHtml(JSON.parse(json.content_json_string));
+        }
         content = util.sanitize(content)
             .querySelector("div");
         newDoc.content.append(content);
@@ -118,5 +259,10 @@ class PatreonParser extends Parser {
 
     isCollectionList(dom) {
         return new URL(dom.baseURI).pathname.startsWith("/collection/");
+    }
+
+    isCondensedView(dom) {
+        let url = new URL(dom.baseURI);
+        return url.searchParams.get("view") === "condensed";
     }
 }

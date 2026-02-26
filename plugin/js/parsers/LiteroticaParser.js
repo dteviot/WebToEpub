@@ -11,16 +11,71 @@ class LiteroticaParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        const section = dom.baseURI.split("//")[1].split("/")[1];
+        let section = dom.baseURI.split("//")[1].split("/")[1];
+        let isChapterpage = (section=="s");
+        let isOneChapter = false;
+        if (isChapterpage) {
+            let serieslink = [...dom.querySelectorAll("a")].filter(a => a.href.includes("https://www.literotica.com/series/se/"));
+            if (serieslink.length > 0) {
+                dom = (await HttpClient.wrapFetch(serieslink[0].href)).responseXML;
+                section = dom.baseURI.split("//")[1].split("/")[1];
+            } else {
+                isOneChapter = true;
+            }
+        }
+        if (isOneChapter) {
+            let chapterURL = new URL(dom.baseURI);
+            return [{ 
+                sourceUrl: chapterURL.origin + chapterURL.pathname,
+                title: this.findChapterTitle(dom)?.textContent
+            }];
+        } else {
+            return this.getChapterUrlsFromMultipleTocPages(
+                dom,
+                this.chaptersFromMemberPage,
+                section === "top"
+                    ? this.getUrlOfTopTocPages
+                    : this.getUrlOfCategoryTocPages,
+                chapterUrlsUI
+            );
+        }
+    }
 
-        return this.getChapterUrlsFromMultipleTocPages(
-            dom,
-            this.chaptersFromMemberPage,
-            section === "top"
-                ? this.getUrlOfTopTocPages
-                : this.getUrlOfCategoryTocPages,
-            chapterUrlsUI
-        );
+    async loadEpubMetaInfo(dom) {
+        let section = dom.baseURI.split("//")[1].split("/")[1];
+        let isChapterpage = (section=="s");
+        if (!isChapterpage) {
+            let randomChapter = [...dom.querySelectorAll("a")].filter(a => a.href.includes("https://www.literotica.com/s/"));
+            if (randomChapter.length > 0) {
+                dom = (await HttpClient.wrapFetch(randomChapter[0].href)).responseXML;
+            }
+        }
+        this.title = dom.querySelector("div[data-tab=\"tabpanel-series\"] a")?.textContent??dom.querySelector("h1");
+        this.author = [...dom.querySelectorAll("a")].filter(a => a.href.includes("https://www.literotica.com/authors/"))?.[0].title??"";
+        this.description = [...dom.querySelectorAll("div[data-tab=\"tabpanel-info\"] div")]?.[1]?.textContent??"";
+        this.tags = [...dom.querySelectorAll("div[data-tab=\"tabpanel-tags\"] a")]?.map(a => a.textContent)??[];
+        return;
+    }
+    
+    extractTitleImpl() {
+        return this.title;
+    }
+
+    extractAuthor() {
+        return this.author;
+    }
+
+    extractSubject() {
+        let tags = this.tags;
+        return tags.join(", ");
+    }
+
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return "";
     }
 
     getUrlOfTopTocPages(dom) {
@@ -86,69 +141,34 @@ class LiteroticaParser extends Parser {
         }
     }
 
-    extractTitleImpl(dom) {
-        return dom.querySelector("h1.headline");
-    }
-
-    extractAuthor(dom) {
-
-        let authorLabel = dom.querySelector("div.y_eS a")?.text;
-        return authorLabel || "Various Authors";
-    }
-
-    findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "#tabpanel-info");
-    }
-
     findContent(dom) {
-        return LiteroticaParser.contentForPage(dom);
-    }
-
-    static contentForPage(dom) {
-        return dom.querySelector("div.aa_ht")
+        let ret = dom.querySelector("div[itemprop=\"articleBody\"]")
             || dom.querySelector("body div");
+        ret.firstChild.style.removeProperty("max-height");
+        if (ret.lastChild.innerText == "Report") {
+            ret.lastChild.remove();
+        }
+        return ret;
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1.headline");
+        return dom.querySelector("h1");
     }
 
     fetchChapter(url) {
-        let dom = null;
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            dom = xhr.responseXML;
-            let pageUrls = LiteroticaParser.findUrlsOfAdditionalPagesMakingChapter(url, dom);
-            return Promise.all(pageUrls.map(LiteroticaParser.fetchAdditionalPageContent));
-        }).then(function(fragments) {
-            return LiteroticaParser.assembleChapter(dom, fragments);
-        });
+        return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
     }
 
-    static findUrlsOfAdditionalPagesMakingChapter(url, dom) {
-        let pageIds = [...dom.querySelectorAll("div.l_bH a.l_bJ")]
+    moreChapterTextUrl(dom, url, count) {
+        let prevnode = dom.querySelector("span[title=\"Previous Page\"]")??dom.querySelector("a[title=\"Previous Page\"]");
+        let prevparentnode = prevnode?.parentNode;
+        let pageIds = prevparentnode?[...prevparentnode.querySelectorAll("a")]
             .map(o => parseInt(o.href.split("=")[1]))
-            .filter(t => t !== 1);
-        let urls = [];
+            .filter(t => t !== 1):[];
         const totalPages = (0 < pageIds.length) ? pageIds.pop() : 0;
-        for (let i = 2; i <= totalPages; ++i) {
-            urls.push(`${url}?page=${i}`);
+        if (count <= totalPages) {
+            return url + "?page=" + count;
         }
-        return urls;
-    }
-
-    static fetchAdditionalPageContent(url) {
-        return HttpClient.wrapFetch(url).then(function(xhr) {
-            return LiteroticaParser.contentForPage(xhr.responseXML);
-        });
-    }
-
-    static assembleChapter(dom, fragments) {
-        let content = LiteroticaParser.contentForPage(dom);
-        for (let f of fragments.filter(f => f !== null)) {
-            while (0 < f.children.length) {
-                content.appendChild(f.children[0]);
-            }
-        }
-        return dom;
+        return null;
     }
 }

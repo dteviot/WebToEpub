@@ -5,19 +5,20 @@ parserFactory.register("allnovelbin.net", () => new NovelfullParser());
 parserFactory.register("allnovelfull.app", () => new NovelfullParser());
 parserFactory.register("allnovelfull.com", () => new NovelfullParser());
 //dead url
-parserFactory.register("allnovelfull.org", () => new NovelfullParser());
+parserFactory.registerDeadSite("allnovelfull.org", () => new NovelfullParser());
 parserFactory.register("allnovelfull.net", () => new NovelfullParser());
 parserFactory.register("allnovelnext.com", () => new NovelfullParser());
 parserFactory.register("all-novelfull.net", () => new NovelfullParser());
 parserFactory.register("boxnovelfull.com", () => new NovelfullParser());
 //dead url
-parserFactory.register("freenovelsread.com", () => new NovelfullParser());
+parserFactory.registerDeadSite("freenovelsread.com", () => new NovelfullParser());
 parserFactory.register("freewn.com", () => new NovelfullParser());
 parserFactory.register("novel-bin.com", () => new NovelHyphenBinParser());
 parserFactory.register("novel-bin.net", () => new NovelHyphenBinParser());
 parserFactory.register("novel-bin.org", () => new NovelHyphenBinParser());
 parserFactory.register("novel-next.com", () => new NovelfullParser());
-parserFactory.register("novel35.com", () => new Novel35Parser());
+//dead url
+parserFactory.registerDeadSite("novel35.com", () => new Novel35Parser());
 parserFactory.register("novelactive.org", () => new NovelfullParser());
 parserFactory.register("novelbin.com", () => new NovelbinParser());
 parserFactory.register("novelbin.me", () => new NovelfullParser());
@@ -25,20 +26,20 @@ parserFactory.register("novelbin.net", () => new NovelfullParser());
 parserFactory.register("novelbin.org", () => new NovelfullParser());
 parserFactory.register("noveldrama.org", () => new NovelfullParser());
 //dead url
-parserFactory.register("novelebook.net", () => new NovelfullParser());
+parserFactory.registerDeadSite("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfull.com", () => new NovelfullParser());
 parserFactory.register("novelfull.net", () => new NovelfullParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelfulll.com", () => new NovelfullParser());
 //dead url
-parserFactory.register("novelhulk.net", () => new NovelfullParser());
+parserFactory.registerDeadSite("novelhulk.net", () => new NovelfullParser());
 parserFactory.register("novelmax.net", () => new NovelfullParser());
 parserFactory.register("novelnext.com", () => new NovelfullParser());
 parserFactory.register("novelnext.dramanovels.io", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
 parserFactory.register("novelnextz.com", () => new NovelfullParser());
 //dead url
-parserFactory.register("noveltop1.org", () => new NovelfullParser());
+parserFactory.registerDeadSite("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
 parserFactory.register("novelusb.com", () => new NovelfullParser());
 parserFactory.register("novelusb.net", () => new NovelfullParser());
@@ -46,7 +47,7 @@ parserFactory.register("novelxo.net", () => new NovelfullParser());
 parserFactory.register("novlove.com", () => new NovelfullParser());
 parserFactory.register("readnovelfull.me", () => new NovelfullParser());
 //dead url
-parserFactory.register("thenovelbin.org", () => new NovelfullParser());
+parserFactory.registerDeadSite("thenovelbin.org", () => new NovelfullParser());
 parserFactory.register("topnovelfull.com", () => new NovelfullParser());
 parserFactory.register("zinnovel.net", () => new NovelfullParser());
 
@@ -214,6 +215,18 @@ class NovelHyphenBinParser extends NovelfullParser {
         super();
     }
 
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > li:nth-child(2) a")];
+
+        let tagHeader = dom.querySelector(".info > li:nth-child(3) h3");
+        if (tagHeader.textContent == "Tag:") { 
+            let tags = [...dom.querySelectorAll(".info > li:nth-child(3) a")];
+            return [...genres, ...tags].map(e => e.textContent).join(", ");
+        }
+
+        return genres.map(e => e.textContent).join(", ");
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         let marks = [...element.querySelectorAll(".novel_online, .unlock-buttons")];
         for (let mark of marks) {
@@ -236,6 +249,12 @@ class NovelbinParser extends NovelfullParser {
         let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId="+slug)).responseXML;
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > li:nth-child(2) a")];
+        let tags = [...dom.querySelectorAll(".tag-container a")];
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
     removeUnwantedElementsFromContentElement(element) {
