@@ -71,8 +71,21 @@ class MvlempyrParser extends Parser {
     }
   
     extractSubject(dom) {
-        let tags = ([...dom.querySelectorAll("div.genere-tagslist a")]);
-        let regex = new RegExp("^#");
-        return tags.map(e => e.textContent.trim().replace(regex, "")).join(", ");
-    }
+    const regex = /^#/;
+
+    let seen = new Set();
+    let result = [];
+
+    [...dom.querySelectorAll("div.genere-tagslist a")]
+        .map(e => e.textContent.trim().replace(regex, ""))
+        .forEach(tag => {
+            let key = tag.toLowerCase();
+            if (!seen.has(key)) {
+                seen.add(key);
+                result.push(tag);
+            }
+        });
+
+    return result.join(", ");
+}
 }
