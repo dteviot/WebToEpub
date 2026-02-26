@@ -29,7 +29,8 @@ class PatreonParser extends Parser {
             let getLink = (e) => {
                 return e.querySelector("a");
             };
-            let linksContainer = [...dom.querySelectorAll("div.ListPost-module__d2AM5a__listPost div:not([class])")];
+            // The SVG check skips all locked chapters.
+            let linksContainer = [...dom.querySelectorAll("div.ListPost-module__d2AM5a__listPost:not(:has(svg[data-tag='IconLock']))")];
             return linksContainer.map(linkContainer => {
                 return {
                     sourceUrl: getLink(linkContainer).href,
@@ -38,7 +39,8 @@ class PatreonParser extends Parser {
             });
         }
         
-        let links = [...dom.querySelectorAll("a.CollectionPostList-module__IhO0fW__gridCard")];
+        // The SVG check skips all locked chapters.
+        let links = [...dom.querySelectorAll("a.CollectionPostList-module__IhO0fW__gridCard:not(:has(svg[data-tag='IconLock']))")];
         return links.map(link => ({
             sourceUrl: link.href,
             title: getTitle(link),

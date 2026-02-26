@@ -18,7 +18,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "up": "npm add @zip.js/zip.js@latest && npm install",
+    "up": "npm install",
     "postinstall-zip": "copyfiles -V -u 1 node_modules/@zip.js/zip.js/dist/zip-no-worker.min.js plugin",
     "postinstall-DOMpurify": "copyfiles -V -u 1 node_modules/dompurify/dist/purify.min.js plugin",
     "postinstall": "npm run -s postinstall-zip && npm run -s postinstall-DOMpurify",
