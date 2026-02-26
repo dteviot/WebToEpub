@@ -435,10 +435,43 @@ class Parser {
             if (clone) {
                 this.cleanInformationNode(clone);
             }
-            if (clone != null) {
+
+            if (!clone) {
+                continue;
+            }
+
+            // FIX: split large paragraphs into EPUB-safe paragraphs
+            if (clone.nodeName === "P") {
+                const text = clone.textContent || "";
+
+                // normalize line endings
+                const normalized = text.replace(/\r\n/g, "\n");
+
+                // split on blank lines
+                const parts = normalized.split(/\n\s*\n/);
+
+                // if only one part, keep original
+                if (parts.length === 1) {
+                    infoDiv.appendChild(clone);
+                    continue;
+                }
+
+                // otherwise create multiple <p>
+                for (const part of parts) {
+                    const p = clone.ownerDocument.createElement("p");
+                    const trimmed = part.trim();
+
+                    if (trimmed.length > 0) {
+                        p.innerHTML = trimmed.replace(/\n/g, "<br/>");
+                    }
+
+                    infoDiv.appendChild(p);
+                }
+            } else {
                 infoDiv.appendChild(clone);
             }
         }
+
         // this "page" doesn't go through image collector, so strip images
         util.removeChildElementsMatchingSelector(infoDiv, "img");
     }
