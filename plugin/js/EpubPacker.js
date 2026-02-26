@@ -119,7 +119,7 @@ class EpubPacker {
             // paragraph formatting
             let parts = desc.split(/\n\s*\n/);
             let formatted = parts
-                .map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`)
+                .map(p => "<p>" + p.trim().replace(/\n/g, "<br/>") + "</p>")
                 .join("\n");
 
             this.createAndAppendChildNS(metadata, dc_ns, "dc:description", formatted);
@@ -148,7 +148,7 @@ class EpubPacker {
             meta.textContent = dateWithoutMillisecond;
         }
 
-        let webToEpubVersion = `[https://github.com/dteviot/WebToEpub] (ver. ${util.extensionVersion()})`;
+        let webToEpubVersion = "[https://github.com/dteviot/WebToEpub] (ver. " + util.extensionVersion() + ")";
         let contributor = this.createAndAppendChildNS(metadata, dc_ns, "dc:contributor", webToEpubVersion);
         this.addMetaProperty(metadata, contributor, "role", "packingTool", "bkp");
 
@@ -378,41 +378,41 @@ class EpubPacker {
             // inject title under cover (SAFE XHTML VERSION)
             try {
                 const parser = new DOMParser();
-    const doc = parser.parseFromString(fileContent, "application/xml");
+                const doc = parser.parseFromString(fileContent, "application/xml");
 
-    const body = doc.getElementsByTagName("body")[0];
-    if (body) {
-        const xhtmlNS = "http://www.w3.org/1999/xhtml";
+                const body = doc.getElementsByTagName("body")[0];
+                if (body) {
+                    const xhtmlNS = "http://www.w3.org/1999/xhtml";
 
-        // outer wrapper (vertical centering engine)
-        const wrapper = doc.createElementNS(xhtmlNS, "div");
-        wrapper.setAttribute("class", "cover-page");
+                    // outer wrapper (vertical centering engine)
+                    const wrapper = doc.createElementNS(xhtmlNS, "div");
+                    wrapper.setAttribute("class", "cover-page");
 
-        // inner wrapper (content box)
-        const inner = doc.createElementNS(xhtmlNS, "div");
-        inner.setAttribute("class", "cover-page-inner");
+                    // inner wrapper (content box)
+                    const inner = doc.createElementNS(xhtmlNS, "div");
+                    inner.setAttribute("class", "cover-page-inner");
 
-        // move original nodes safely
-        while (body.firstChild) {
-            inner.appendChild(body.firstChild);
-        }
+                    // move original nodes safely
+                    while (body.firstChild) {
+                        inner.appendChild(body.firstChild);
+                    }
 
-        // only add title if it exists
-        if (this.metaInfo.title) {
-            const title = doc.createElementNS(xhtmlNS, "h2");
-            title.setAttribute("class", "cover-title");
-            title.textContent = this.metaInfo.title;
-            inner.appendChild(title);
-        }
+                    // only add title if it exists
+                    if (this.metaInfo.title) {
+                        const title = doc.createElementNS(xhtmlNS, "h2");
+                        title.setAttribute("class", "cover-title");
+                        title.textContent = this.metaInfo.title;
+                        inner.appendChild(title);
+                    }
 
-        wrapper.appendChild(inner);
-        body.appendChild(wrapper);
+                    wrapper.appendChild(inner);
+                    body.appendChild(wrapper);
 
-        fileContent = new XMLSerializer().serializeToString(doc);
-    }
-} catch (e) {
-    console.warn("Cover title injection failed:", e);
-}
+                    fileContent = new XMLSerializer().serializeToString(doc);
+                }
+            } catch (e) {
+                console.warn("Cover title injection failed:", e);
+            }
 
             zipWriter.add(
                 EpubPacker.coverImageXhtmlHref(),
