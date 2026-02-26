@@ -184,8 +184,9 @@ class EpubMetaInfo {
         "}\r"+
 
         // Box around author notes
-        ".webToEpub-author-note {\r" +
-        "   border: 1px solid black; padding: 0.5em\r" +
+        ".webToEpub-author-note {\r"+
+        "   border: 1px solid black;\r"+
+        "   padding: 0.5em;\r"+
         "}";
     }
 
