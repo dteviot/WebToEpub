@@ -54,6 +54,14 @@ class EpubMetaInfo {
         "   text-align: center;\r" +
         "}\r" +
 
+        // SVG scaling stability
+        ".svg_outer svg {\r" +
+        "   display: block;\r" +
+        "   max-width: 100%;\r" +
+        "   height: auto;\r" +
+        "   margin: 0 auto;\r" +
+        "}\r" +
+
         // Centered headings and some margin to make sure it's not too close to the content.
         "h1, h2 {\r" +
         "   text-align: center;\r" +
@@ -91,7 +99,12 @@ class EpubMetaInfo {
         "   text-transform: uppercase;\r" +
         "}\r" +
 
-        "h1 + p:first-letter, h3 + p:first-letter, h2 + p:first-letter {\r" +
+        "h1 + p::first-letter,\r" +
+        "h2 + p::first-letter,\r" +
+        "h3 + p::first-letter,\r" +
+        "h1 + p *::first-letter,\r" +
+        "h2 + p *::first-letter,\r" +
+        "h3 + p *::first-letter {\r" +
         "   font-size: 2em;\r" +
         "   font-family: cursive;\r" +
         "   font-weight: bold;\r" +
@@ -100,7 +113,9 @@ class EpubMetaInfo {
         "   text-transform: uppercase;\r" +
         "}\r" +
 
-        "h1 + p, h3 + p, h2 + p {\r" +
+        "h1 + p,\r" +
+        "h3 + p,\r" +
+        "h2 + p {\r" +
         "   text-indent: 1.5em;\r" +
         "}\r" +
 
@@ -125,6 +140,35 @@ class EpubMetaInfo {
         "   margin-right: auto;\r" +
         "   margin-bottom: 2%;\r" +
         "   margin-top: 2%;\r" +
+        "}\r" +
+
+        // COVER PAGE ENGINE
+        ".cover-page {\r" +
+        "   display: table;\r" +
+        "   width: 100%;\r" +
+        "   height: 100%;\r" +
+        "   text-align: center;\r" +
+        "}\r" +
+
+        ".cover-page-inner {\r" +
+        "   display: table-cell;\r" +
+        "   vertical-align: middle;\r" +
+        "   text-align: center;\r" +
+        "   padding: 0 0.8em;\r" +
+        "}\r" +
+
+        // TITLE UNDER COVER
+
+        ".cover-title {\r" +
+        "   margin-top: 0.75em;\r" +
+        "   margin-bottom: 0;\r" +
+        "   font-size: 1.45em;\r" +
+        "   font-weight: 600;\r" +
+        "   line-height: 1.25;\r" +
+        "   letter-spacing: 0.02em;\r" +
+        "   text-align: center;\r" +
+        "   font-family: \"Times New Roman\", Georgia, serif;\r" +
+        "   word-break: break-word;\r" +
         "}\r" +
 
         // images embedded in sentances (e.g. Emoji)
