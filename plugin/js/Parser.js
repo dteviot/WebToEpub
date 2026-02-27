@@ -285,8 +285,8 @@ class Parser {
         }
 
         // try <html>'s lang attribute
-        locale = dom.querySelector("html").getAttribute("lang");
-        return (locale === null) ? "en" : locale;
+        locale = dom.querySelector("html").getAttribute("lang") ?? "en";
+        return locale.split("-")[0];
     }
 
     /**

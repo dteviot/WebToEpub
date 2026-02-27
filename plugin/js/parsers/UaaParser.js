@@ -18,6 +18,17 @@ class UaaParser extends Parser {
         return dom.querySelector(".article");
     }
 
+    customRawDomToContentStep(chapter, content) {
+        [...content.querySelectorAll("div.line")]
+            .forEach(this.divToP);
+    }
+
+    divToP(div) {
+        let p = document.createElement("p");
+        p.textContent = div.textContent;
+        div.replaceWith(p);
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".dizhi");
         super.removeUnwantedElementsFromContentElement(element);
@@ -28,17 +39,13 @@ class UaaParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".cover").src;
+        return util.getFirstImgSrc(dom, ".novel_box");
     }
 
     extractSubject(dom) {
         let genres = [...dom.querySelectorAll("div.item:nth-child(5) a")];
         let tags = [...dom.querySelectorAll(".tag_box li a")];
         return [...genres, ...tags].map(e => e.textContent).join(", ");
-    }
-
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
     }
 
     extractTitleImpl(dom) {

@@ -154,7 +154,7 @@ QUnit.test("addTitleToContent-text", function (assert) {
 
  QUnit.test("extractLanguage", function (assert) {
     let dom = new DOMParser().parseFromString(
-        "<html lang=\"cn\">"+
+        "<html lang=\"cn-Hans-CN\">"+
         "<head><title> Title 1 </title>"+
         "<meta property=\"og:locale\" content=\"fr\" /></head> " +
         "<body>" +
