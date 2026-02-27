@@ -8,13 +8,28 @@ class YedugeParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector(".chapter-list");
+        let menu = [...dom.querySelectorAll(".chapter-list a")];
 
-        let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
+        return menu.map(YedugeParser.linkToChapter);
+    }
 
-        chapters = chapters.map(ch => { if (ch.title.endsWith("免费")) { return { ...ch, title: ch.title.slice(0, -2) }; } return ch; });
-        
-        return chapters;
+    static linkToChapter(link) {
+        let title = link.textContent.trim();
+
+        let isIncludeable = !title.endsWith("VIP");
+
+        if (title.endsWith("VIP")) {
+            title = title.slice(0, -3).trim();
+        }
+        else if (title.endsWith("免费")) {
+            title = title.slice(0, -2).trim();
+        }
+
+        return {
+            sourceUrl: link.href, 
+            title: title, 
+            isIncludeable: isIncludeable
+        };
     }
 
     findContent(dom) {
