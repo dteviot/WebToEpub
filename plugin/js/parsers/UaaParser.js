@@ -15,7 +15,19 @@ class UaaParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector(".article");
+        let contentLines = dom.querySelectorAll(".article div");
+
+        let content = document.createElement("div");
+
+        contentLines.forEach(line => {
+            let p = document.createElement("p");
+
+            p.textContent = line.textContent;
+
+            content.appendChild(p);
+        });
+
+        return content;
     }
 
     removeUnwantedElementsFromContentElement(element) {
