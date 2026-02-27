@@ -9,7 +9,12 @@ class YedugeParser extends Parser {
 
     async getChapterUrls(dom) {
         let menu = dom.querySelector(".chapter-list");
-        return util.hyperlinksToChapterList(menu);
+
+        let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
+
+        chapters = chapters.map(ch => { if (ch.title.endsWith("免费")) { return { ...ch, title: ch.title.slice(0, -2) }; } return ch; });
+        
+        return chapters;
     }
 
     findContent(dom) {
@@ -40,6 +45,12 @@ class YedugeParser extends Parser {
     extractAuthor(dom) {
         let authorLabel = dom.querySelector(".info > p:nth-child(2)");
         return authorLabel?.textContent.replace("作者：", "").trim() ?? super.extractAuthor(dom);
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > p:nth-child(4) a")];
+        let tags = [...dom.querySelectorAll(".info > p:nth-child(5) a")];
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
     extractDescription(dom) {

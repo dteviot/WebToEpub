@@ -45,9 +45,9 @@ class LanrySpaceParser extends Parser {
 
     sourceURL(a, slug) {
         if (a.part_number == null) {
-            return "https://www.lanry.space/novels/"+slug+"/c" + a.chapter_number;
+            return "https://www.lanry.space/novels/"+slug.replace("&slug=eq.","")+"/c" + a.chapter_number;
         } else {
-            return "https://www.lanry.space/novels/"+slug+"/c" + a.chapter_number + "-p" + a.part_number;
+            return "https://www.lanry.space/novels/"+slug.replace("&slug=eq.","")+"/c" + a.chapter_number + "-p" + a.part_number;
         }
     }
 
@@ -95,42 +95,93 @@ class LanrySpaceParser extends Parser {
     findCoverImageUrl() {
         return this.img;
     }
-
+    
     async fetchChapter(url) {
-        let restUrl = this.toRestUrl(url);
-        let json = (await HttpClient.fetchJson(restUrl)).json[0];
-        return this.buildChapter(json, url);
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let startString = "self.__next_f.push(";
+        let scriptElement = [...dom.querySelectorAll("script")].map(a => a.textContent).filter(s => s.includes(startString));
+        let json = [];
+        let i = 0;
+        let j = 0;
+        let longestindex = 0;
+        let longestcontent = 0;
+        //search longest content to build chapter
+        while ( j < scriptElement.length) {
+            try {
+                json[i] = this.parseNextjsHydration(scriptElement[j]);
+                i++;
+                if (scriptElement[j].length > longestcontent && json[i-1].length == 2) {
+                    longestcontent = scriptElement[j].length;
+                    longestindex = i-1;
+                }
+            } catch (error) {
+                //catch maleformed json
+            }
+            j++;
+        }
+        if (json[longestindex].webtoepubformat == "backslash") {
+            json[longestindex].title = "";
+            for (let jsonentry of json) {
+                try {
+                    json[longestindex].title = jsonentry.chapter.title.trim();
+                } catch (error) {
+                    //set title
+                }
+            }
+        }
+        return this.buildChapter(json[longestindex], url);
     }
 
-    toRestUrl(url) {
-        let partregex = new RegExp("-p[0-9]+");
-        let partnumber = url.match(partregex)?.[0].slice(2);
-        // eslint-disable-next-line
-        let chapterregex = new RegExp("\/c[0-9]+");
-        let chapterid = url.match(chapterregex)[0].slice(2);
-        let apikey = "&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ2toaXBhc3hxeGl0d2xrdHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMzE4MzMsImV4cCI6MjA0NTgwNzgzM30.mHBd2yrRm934yPGy4pui3p7cW4FxfIf6yxh7b2TpUA8";
-        let ret = "https://vkgkhipasxqxitwlktwz.supabase.co/rest/v1/chapters?select=*%2Cnovel%3Anovels%28id%2Ctitle%2Cauthor%2Cauthor_profile_id%29&novel_id=eq."+this.bookid+"&chapter_number=eq."+chapterid+"&part_number=";
-        if (partnumber == undefined) {
-            ret+= "is.null" + apikey;
+    parseNextjsHydration(nextjs) {
+        let malformedjson = nextjs.match(/{.*}/s);
+        let json;
+        if (malformedjson == null) {
+            malformedjson = nextjs.match(/\[.*\]/s);
+            let ret = malformedjson[0];
+            json = JSON.parse(ret);
+            json.webtoepubformat = "backslash";
         } else {
-            ret+= "eq." + partnumber + apikey;
+            let ret = malformedjson[0];
+            ret = ret.replaceAll("\\\\\\\"", "[webtoepubescape\"]");
+            ret = ret.replaceAll("\\", "");
+            ret = ret.replaceAll("[webtoepubescape\"]","\\\"");
+            json = JSON.parse(ret);
+            json.webtoepubformat = "array";
         }
-        return ret;
+        return json;
     }
 
     buildChapter(json, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = this.chtitle(json);
-        newDoc.content.appendChild(title);
-        let text = json.content.replace("\n\n", "\n");
-        text = text.split("\n");
         let br = newDoc.dom.createElement("br");
-        for (let element of text) {
-            let pnode = newDoc.dom.createElement("p");
-            pnode.textContent = element;
-            newDoc.content.appendChild(pnode);
-            newDoc.content.appendChild(br);
+        if (json.webtoepubformat == "backslash") {
+            title.textContent = json.title;
+            newDoc.content.appendChild(title);
+            let text = json[json[0]];
+            text = text.replaceAll("\n\n", "\n");
+            text = text.split("\n");
+            for (let element of text) {
+                let pnode = newDoc.dom.createElement("p");
+                //filter title
+                if (element != json.title) {
+                    pnode.textContent = element;
+                    newDoc.content.appendChild(pnode);
+                }
+                newDoc.content.appendChild(br);
+            }
+        } else {
+            title.textContent = json.chapter.title;
+            newDoc.content.appendChild(title);
+            let textleaves = json.chapter.content.root.children.filter(a => a.direction!=null);
+            for (let element of textleaves) {
+                let newtext = "";
+                element.children.map(a => newtext += a.text);
+                let pnode = newDoc.dom.createElement("p");
+                pnode.textContent = newtext;
+                newDoc.content.appendChild(pnode);
+                newDoc.content.appendChild(br);
+            }
         }
         return newDoc.dom;
     }
