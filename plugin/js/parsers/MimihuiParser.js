@@ -12,13 +12,28 @@ class MimihuiParser extends Parser {
 
         let tocPage = (await HttpClient.wrapFetch(tocUrl)).responseXML;
 
-        let menu = tocPage.querySelector(".chapter-list");
+        let menu = [...tocPage.querySelectorAll(".chapter-list a")];
 
-        let chapters = util.hyperlinksToChapterList(menu, link => !link.textContent.trim().endsWith("VIP"));
+        return menu.map(MimihuiParser.linkToChapter);
+    }
 
-        chapters = chapters.map(ch => { if (ch.title.endsWith("免费")) { return { ...ch, title: ch.title.slice(0, -2) }; } return ch; });
+    static linkToChapter(link) {
+        let title = link.textContent.trim();
 
-        return chapters;
+        let isIncludeable = !title.endsWith("VIP");
+
+        if (title.endsWith("VIP")) {
+            title = title.slice(0, -3).trim();
+        }
+        else if (title.endsWith("免费")) {
+            title = title.slice(0, -2).trim();
+        }
+
+        return {
+            sourceUrl: link.href, 
+            title: title, 
+            isIncludeable: isIncludeable
+        };
     }
 
     extractSubject(dom) {
