@@ -69,9 +69,8 @@ class MadaraParser extends WordpressBaseParser {
         return descriptionElement === null ? "" : descriptionElement.textContent.trim();
     }
     
-
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "div.addtoany_share_save_container");
+        util.removeChildElementsMatchingSelector(element, "div.addtoany_share_save_container, div.code-block");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
