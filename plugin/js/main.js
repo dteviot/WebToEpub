@@ -130,6 +130,56 @@ var main = (function() {
         }
     }
 
+    function makeNovelBaseName() {
+        let baseName = getValueFromUiField("fileNameInput") ?? "web";
+        let base = baseName
+            .replace(/[<>:"/\\|?*~]/g, "")
+            .split("")
+            .filter(character => character.charCodeAt(0) >= 32)
+            .join("")
+            .replace(/\s+/g, " ")
+            .trim();
+        return util.isNullOrEmpty(base) ? "web" : base;
+    }
+
+    function getSplitChapterCount() {
+        let splitSize = parseInt(userPreferences.splitChaptersPerEpub.value, 10);
+        return isNaN(splitSize) ? 0 : Math.max(0, splitSize);
+    }
+
+    async function saveSplitEpubs(metaInfo, splitSize, overwriteExisting, backgroundDownload, novelBaseName) {
+        let pages = [...parser.getPagesToFetch().values()];
+        let selectedPages = pages.filter(page => page.isIncludeable);
+        if (selectedPages.length === 0) {
+            throw new Error("No chapters selected for split output.");
+        }
+
+        let originalIsIncludeable = new Map(pages.map(page => [page.sourceUrl, page.isIncludeable]));
+        try {
+            let totalSelected = selectedPages.length;
+            for (let index = 0; index < totalSelected; index += splitSize) {
+                let chunk = selectedPages.slice(index, index + splitSize);
+                let chunkUrls = new Set(chunk.map(page => page.sourceUrl));
+                pages.forEach(page => page.isIncludeable = chunkUrls.has(page.sourceUrl));
+
+                let content = await packEpub(metaInfo);
+                let startChapter = index + 1;
+                let endChapter = Math.min(index + splitSize, totalSelected);
+                let fileName = makeSplitFileName(novelBaseName, startChapter, endChapter, totalSelected);
+                await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            }
+        } finally {
+            pages.forEach(page => page.isIncludeable = originalIsIncludeable.get(page.sourceUrl));
+        }
+    }
+
+    function makeSplitFileName(novelBaseName, startChapter, endChapter, totalSelected) {
+        let padSize = Math.max(2, String(totalSelected).length);
+        let paddedStart = String(startChapter).padStart(padSize, "0");
+        let paddedEnd = String(endChapter).padStart(padSize, "0");
+        return EpubPacker.addExtensionIfMissing(`${novelBaseName} ${paddedStart} - ${paddedEnd}`);
+    }
+
     async function fetchContentAndPackEpub() {
         let libclick = this;
         if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
@@ -153,7 +203,6 @@ var main = (function() {
         replaceLibAddToLibrary();
         parser.onStartCollecting();
         await parser.fetchContent();
-        let content = await packEpub(metaInfo);
         // Enable button here.  If user cancels save dialog
         // the promise never returns
         window.workInProgress = false;
@@ -161,11 +210,20 @@ var main = (function() {
         replaceLibAddToLibrary();
         let overwriteExisting = userPreferences.overwriteExistingEpub.value;
         let backgroundDownload = userPreferences.noDownloadPopup.value;
-        let fileName = Download.CustomFilename();
+        let novelBaseName = makeNovelBaseName();
         if ("yes" == libclick.dataset.libclick || util.sleepController.signal.aborted) {
+            let content = await packEpub(metaInfo);
+            let fileName = Download.CustomFilename();
             await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
         } else {
-            await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            let splitSize = getSplitChapterCount();
+            if (splitSize > 0) {
+                await saveSplitEpubs(metaInfo, splitSize, overwriteExisting, backgroundDownload, novelBaseName);
+            } else {
+                let content = await packEpub(metaInfo);
+                let fileName = Download.CustomFilename();
+                await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            }
         }
         try {
             parser.updateReadingList();

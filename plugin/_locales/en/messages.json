@@ -363,6 +363,10 @@
 		"message": "Max chapters per EPUB",
 		"description": "Label for control to set max chapters to put in single EPUB"
 	},
+	"__MSG_label_Split_chapters_per_epub__": {
+		"message": "Split EPUB every N chapters (0 = disabled)",
+		"description": "Label for control to split output into multiple EPUB files after N chapters"
+	},
 	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
 		"message": "Max web pages to fetch simultaneously",
 		"description": "Label for drop down for maximum number of web pages to request at same time"
