@@ -399,7 +399,7 @@ class EpubPacker {
 
                     // only add title if it exists
                     if (this.metaInfo.title) {
-                        const title = doc.createElementNS(xhtmlNS, "h2");
+                        const title = doc.createElementNS(xhtmlNS, "h1");
                         title.setAttribute("class", "cover-title");
                         title.textContent = this.metaInfo.title;
                         inner.appendChild(title);
@@ -488,3 +488,4 @@ class NavPointParentElementsStack {
         }
     }
 }
+
