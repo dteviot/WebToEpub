@@ -236,7 +236,7 @@ class WtrlabParser extends Parser {
                 // patch
                 // replace with provided chapter patch wtf?!? why are there so many different terms patches etc.?
                 for (let i = 0; i < json?.data?.data?.patch?.length??0; i++) {
-                    newtext = newtext.replaceAll(json?.data?.data?.patch[i].zh, json?.data?.data?.patch[i].en);
+                    newtext = newtext.replaceAll(json?.data?.data?.patch[i].zh, " "+json?.data?.data?.patch[i].en);
                 }
                 pnode.textContent = newtext;
                 newDoc.content.appendChild(pnode);
