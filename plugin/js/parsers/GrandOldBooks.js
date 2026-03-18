@@ -29,7 +29,7 @@ class GrandOldBooksParser extends Parser {
                     title: ch.title,
                 }));
             }
-        } catch(e) {}
+        } catch (e) { return null; }
 
         // Fallback: meta.json + catalog.json
         try {
@@ -46,11 +46,11 @@ class GrandOldBooksParser extends Parser {
                         const a = (cat.authors ?? []).find(x => x.id === m.authorId);
                         if (a?.name) this._catalogAuthor = a.name;
                     }
-                } catch(e) {}
+                } catch (e) { return null; }
                 this._updateUIAsync(); // ← update UI AFTER fetches complete
                 return await this._stubUrls(slug, m.totalChapters ?? 1, BASE);
             }
-        } catch(e) {}
+        } catch (e) { return null; }
 
         const ndc = this._ndcChapters(dom);
         if (ndc?.length)
@@ -99,9 +99,9 @@ class GrandOldBooksParser extends Parser {
     populateUI(dom) {
         super.populateUI(dom);
 
-        const author = dom?.querySelector?.('meta[name="author"]')?.getAttribute?.("content");
-        const ogDesc = dom?.querySelector?.('meta[property="og:description"]')?.getAttribute?.("content");
-        const ogImg  = dom?.querySelector?.('meta[property="og:image"]')?.getAttribute?.("content");
+        const author = dom?.querySelector?.("meta[name=\"author\"]")?.getAttribute?.("content");
+        const ogDesc = dom?.querySelector?.("meta[property=\"og:description\"]")?.getAttribute?.("content");
+        const ogImg  = dom?.querySelector?.("meta[property=\"og:image\"]")?.getAttribute?.("content");
         if (!this._coverImageUrl && ogImg) this._coverImageUrl = ogImg;
 
         document.querySelectorAll("label").forEach(label => {
@@ -137,14 +137,14 @@ class GrandOldBooksParser extends Parser {
     }
 
     extractAuthor(dom) {
-        return dom?.querySelector?.('meta[name="author"]')?.getAttribute?.("content")
+        return dom?.querySelector?.("meta[name=\"author\"]")?.getAttribute?.("content")
             ?? this._meta?.authorName ?? this._catalogAuthor
             ?? super.extractAuthor(dom);
     }
 
     getInformationEpubItemChildNodes(dom) {
         const text = this._meta?.summary ??
-            dom?.querySelector?.('meta[property="og:description"]')?.getAttribute?.("content");
+            dom?.querySelector?.("meta[property=\"og:description\"]")?.getAttribute?.("content");
         if (!text) return [];
         const p = document.createElement("p");
         p.textContent = text;
@@ -159,7 +159,7 @@ class GrandOldBooksParser extends Parser {
 
     findCoverImageUrl(dom) {
         if (this._coverImageUrl) return this._coverImageUrl;
-        const og = dom?.querySelector?.('meta[property="og:image"]')?.getAttribute?.("content");
+        const og = dom?.querySelector?.("meta[property=\"og:image\"]")?.getAttribute?.("content");
         if (og) return og;
         const slug = this._slugFromUrl(dom?.baseURI);
         return slug ? `https://grandoldbooks.com/data/images/covers/${slug}.webp` : null;
@@ -182,7 +182,7 @@ class GrandOldBooksParser extends Parser {
             const s = dom.querySelector("#__NEXT_DATA__");
             const pp = JSON.parse(s?.textContent ?? "null")?.props?.pageProps;
             return pp?.readerPayload?.chapters ?? pp?.chapters ?? null;
-        } catch(e) { return null; }
+        } catch (e) { return null; }
     }
 
     _chapterUrl(bookSlug, ch) {
