@@ -63,6 +63,15 @@ class EpubMetaInfo {
         "}\r" +
 
         // Centered headings and some margin to make sure it's not too close to the content.
+        "   h1 {\r" +
+        "   font-size: 1.6em;\r" +
+        “   border-bottom: 2px solid #333;\r" +
+        "   padding-bottom: 0.3em;\r" +
+        “}\r" +
+        "   h2 {\r" +
+        "   font-size: 1.2em;\r" +
+        "   color: #444;\r" +
+        "}\r" +
         "h1, h2 {\r" +
         "   text-align: center;\r" +
         "   margin-bottom: 10%;\r" +
@@ -146,7 +155,7 @@ class EpubMetaInfo {
         ".cover-page {\r" +
         "   display: table;\r" +
         "   width: 100%;\r" +
-        "   height: 100%;\r" +
+        "   min-height: 100vh;\r" +
         "   text-align: center;\r" +
         "}\r" +
 
@@ -189,8 +198,8 @@ class EpubMetaInfo {
 
         // To make hr tags more visible. BT doesn't use them very often but other sites might.
         "hr {\r" +
-        "   color: black;\r" +
-        "   background-color: black;\r" +
+        "   border: none;\r" +
+        "   background: black;\r" +
         "   height: 2px;\r" +
         "}\r" +
 
@@ -218,14 +227,39 @@ class EpubMetaInfo {
         "pre {\r" +
         "   white-space: pre-wrap;\r" +
         "}\r" +
+        "   th {\r" +
+        "   background: #333;\r" +
+        "   color: #fff;\r" +
+        "   padding: 6px 8px;\r" +
+        "   text-align: left;\r" +
+        "   font-size: 0.85em;\r" +
+        "}\r" +
+        "td {\r" +
+        "   padding: 5px 8px;\r" +
+        "   border-bottom: 1px solid #ddd;\r" +
+        "   vertical-align: top;\r" +
+        "   font-size: 0.88em;\r" +
+        "}\r" +
 
         "table {\r" +
         "   width: 90%;\r" +
         "   border-collapse: collapse;\r" +
+        "   margin-bottom: 1em;\r" +
         "}\r" +
         "table, th, td {\r" +
         "   border: 1px solid black;\r" +
         "}\r" +
+        "   tr:nth-child(even) td {\r" +
+        "   background: #f9f9f9;\r" +
+        "}\r" +
+        "   tr:nth-child(even) td {\r" +
+        "   background: #eef5ff;\
+        "}\r" +
+        "   nav a {\r" +
+        "   display: block;\r" +
+        "   margin: 0.2em 0;\r" +
+        "   color: #1a1a6e;\r" +
+        "}\
 
         // Box around author notes
         ".webToEpub-author-note {\r" +
