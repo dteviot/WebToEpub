@@ -167,7 +167,7 @@ class GrandOldBooksParser extends Parser {
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element,
-            ".z-30, .z-50, .backdrop-blur-xl, .text-xs, .flex.items-center, h3, [class*='audio'], [class*='gate']"
+            ".z-30, .z-50, .backdrop-blur-xl, .whitespace-nowrap, .flex.items-center, h3, [class*='audio'], [class*='gate']"
         );
         super.removeUnwantedElementsFromContentElement(element);
     }
