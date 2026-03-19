@@ -63,12 +63,12 @@ class EpubMetaInfo {
         "}\r" +
 
         // Centered headings and some margin to make sure it's not too close to the content.
-        "   h1 {\r" +
+        "h1 {\r" +
         "   font-size: 1.6em;\r" +
         "   border-bottom: 2px solid #333;\r" +
         "   padding-bottom: 0.3em;\r" +
         "}\r" +
-        "   h2 {\r" +
+        "h2 {\r" +
         "   font-size: 1.2em;\r" +
         "   color: #444;\r" +
         "}\r" +
@@ -227,7 +227,7 @@ class EpubMetaInfo {
         "pre {\r" +
         "   white-space: pre-wrap;\r" +
         "}\r" +
-        "   th {\r" +
+        "th {\r" +
         "   background: #333;\r" +
         "   color: #fff;\r" +
         "   padding: 6px 8px;\r" +
@@ -249,13 +249,13 @@ class EpubMetaInfo {
         "table, th, td {\r" +
         "   border: 1px solid black;\r" +
         "}\r" +
-        "   tr:nth-child(odd) td {\r" +
+        "tr:nth-child(odd) td {\r" +
         "   background: #f9f9f9;\r" +
         "}\r" +
-        "   tr:nth-child(even) td {\r" +
+        "tr:nth-child(even) td {\r" +
         "   background: #eef5ff;\r" +
         "}\r" +
-        "   nav a {\r" +
+        "nav a {\r" +
         "   display: block;\r" +
         "   margin: 0.2em 0;\r" +
         "   color: #1a1a6e;\r" +
