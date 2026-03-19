@@ -65,9 +65,9 @@ class EpubMetaInfo {
         // Centered headings and some margin to make sure it's not too close to the content.
         "   h1 {\r" +
         "   font-size: 1.6em;\r" +
-        “   border-bottom: 2px solid #333;\r" +
+        "   border-bottom: 2px solid #333;\r" +
         "   padding-bottom: 0.3em;\r" +
-        “}\r" +
+        "}\r" +
         "   h2 {\r" +
         "   font-size: 1.2em;\r" +
         "   color: #444;\r" +
@@ -249,17 +249,17 @@ class EpubMetaInfo {
         "table, th, td {\r" +
         "   border: 1px solid black;\r" +
         "}\r" +
-        "   tr:nth-child(even) td {\r" +
+        "   tr:nth-child(odd) td {\r" +
         "   background: #f9f9f9;\r" +
         "}\r" +
         "   tr:nth-child(even) td {\r" +
-        "   background: #eef5ff;\
+        "   background: #eef5ff;\r" +
         "}\r" +
         "   nav a {\r" +
         "   display: block;\r" +
         "   margin: 0.2em 0;\r" +
         "   color: #1a1a6e;\r" +
-        "}\
+        "}\r" +
 
         // Box around author notes
         ".webToEpub-author-note {\r" +
