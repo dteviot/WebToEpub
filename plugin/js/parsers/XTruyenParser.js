@@ -7,10 +7,6 @@ class XTruyenParser extends Parser {
         super();
     }
 
-    get filename() {
-        return this.title + ".epub";
-    }
-
     getTocUrl(dom) {
         let tocLink = dom.querySelector("#chapter-heading a");
         if (tocLink) {
@@ -18,23 +14,25 @@ class XTruyenParser extends Parser {
         }
         return dom.querySelector("link[rel='canonical']")?.href || dom.baseURI;
     }
-    // Handles lazy-loaded chapters //
+
     async getChapterUrls(dom) {
         let chapters = [];
         let tocUrl = this.getTocUrl(dom);
         let tocDom = dom;
-        
+
         if (tocUrl && tocUrl !== dom.baseURI) {
             try {
                 let response = await HttpClient.wrapFetch(tocUrl);
                 tocDom = response.responseXML;
-            } catch (e) {}
+            } catch (e) {
+                // Ignore fetch errors for ToC
+            }
         }
 
         let baseUrl = tocDom.querySelector("link[rel='canonical']")?.href || tocDom.baseURI;
-        baseUrl = baseUrl.split('/chuong-')[0];
-        if (!baseUrl.endsWith('/')) {
-            baseUrl += '/';
+        baseUrl = baseUrl.split("/chuong-")[0];
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
         }
 
         let firstNum = 1;
@@ -43,15 +41,15 @@ class XTruyenParser extends Parser {
         let volumnsUl = tocDom.querySelector(".volumns");
         if (volumnsUl) {
             let lists = Array.from(tocDom.querySelectorAll("li.has-child"));
-            if(lists.length > 0) {
-               let lastList = lists[lists.length - 1];
-               let dataValue = lastList.getAttribute("data-value");
-               if(dataValue) {
-                   let matches = dataValue.match(/\d+/g);
-                   if(matches && matches.length >= 2) {
-                       lastNum = parseInt(matches[matches.length - 1]);
-                   }
-               }
+            if (lists.length > 0) {
+                let lastList = lists[lists.length - 1];
+                let dataValue = lastList.getAttribute("data-value");
+                if (dataValue) {
+                    let matches = dataValue.match(/\d+/g);
+                    if (matches && matches.length >= 2) {
+                        lastNum = parseInt(matches[matches.length - 1]);
+                    }
+                }
             }
             if (lastNum === 0) {
                 let dataLast = volumnsUl.getAttribute("data-last");
@@ -123,30 +121,32 @@ class XTruyenParser extends Parser {
                     if (contentDiv) {
                         contentDiv.innerHTML = decryptedText;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    // Ignore decryption errors
+                }
             }
         }
         return dom;
     }
 
-    //// Decrypts obfuscated 'data_x' (Anagram) ////
+    // Decrypts obfuscated 'data_x' using custom alphabet and Deflate decompression.
     async decryptContent(data_x) {
         const c = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_";
         const s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        let translated = '';
-        
+        let translated = "";
+
         for (let char of data_x) {
             let idx = c.indexOf(char);
             translated += idx > -1 ? s[idx] : char;
         }
-        
+
         const binaryStr = atob(translated);
         const binary = new Uint8Array(binaryStr.length);
         for (let i = 0; i < binaryStr.length; i++) {
             binary[i] = binaryStr.charCodeAt(i);
         }
 
-        const ds = new DecompressionStream('deflate');
+        const ds = new DecompressionStream("deflate");
         const decompressedStream = new Response(binary).body.pipeThrough(ds);
         return await new Response(decompressedStream).text();
     }
