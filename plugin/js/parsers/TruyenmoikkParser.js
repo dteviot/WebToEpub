@@ -23,7 +23,7 @@ class TruyenMoiKKParser extends Parser {
 
         return chapters.filter((v, i, a) => a.findIndex(t => (t.sourceUrl === v.sourceUrl)) === i);
     }
-
+    // Get max page from pagination to reconstruct URLs in correct order.
     static getUrlsOfTocPages(dom) {
         let urls = [];
         let pageNodes = Array.from(dom.querySelectorAll("ul.pagination li a"));
