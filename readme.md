@@ -815,7 +815,6 @@ Don't forget to give the project a star! Thanks again!
     <li>mobedoor</li>
     <li>nitramkh</li>
     <li>s4daharu</li>
-    <li>meowmereo</li>
   </ul>
 </details>
 
