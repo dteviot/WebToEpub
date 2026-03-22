@@ -129,7 +129,7 @@ class XTruyenParser extends Parser {
         return dom;
     }
 
-    // Decrypts obfuscated 'data_x' using custom alphabet and Deflate decompression.
+    // Decrypts obfuscated 'data_x'
     async decryptContent(data_x) {
         const c = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_";
         const s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
