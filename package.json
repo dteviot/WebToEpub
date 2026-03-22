@@ -107,8 +107,8 @@
     { "name": "mobedoor" },
     { "name": "nitramkh", "email": "nitramkh@gmail.com" },
     { "name": "s4daharu", "email": "s4daharu@gmail.com" },
-	  { "name": "meowmereo" },
-    { "name": "crn0" }
+    { "name": "crn0" },
+    { "name": "meowmereo" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
