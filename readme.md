@@ -816,6 +816,7 @@ Don't forget to give the project a star! Thanks again!
     <li>nitramkh</li>
     <li>s4daharu</li>
     <li>meowmereo</li>
+    <li>crn0</li>
   </ul>
 </details>
 
