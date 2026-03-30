@@ -1,5 +1,7 @@
 "use strict";
+parserFactory.register("karistudio.com", () => new LeafStudioParser());
 parserFactory.register("leafstudio.site", () => new LeafStudioParser());
+parserFactory.register("literaturecity.com", () => new LeafStudioParser());
 
 class LeafStudioParser extends Parser {
     constructor() {
@@ -21,7 +23,7 @@ class LeafStudioParser extends Parser {
 
     // Remove unwanted elements from fetched content
     removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "#font-options-bar, .confuse, .post-rating-wrapper, #donation-msg, .novel_nav_item, .text-center, .navigation");
+        util.removeChildElementsMatchingSelector(element, "#font-options-bar, .confuse, .post-rating-wrapper, #donation-msg, #novel_nav, .text-center, .navigation, .clearfix");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
@@ -31,5 +33,9 @@ class LeafStudioParser extends Parser {
 
     findChapterTitle(dom) {
         return dom.querySelector(".title");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.desc_div p")];
     }
 }

@@ -1,6 +1,3 @@
-/*
-  Template to use to create a new parser
-*/
 "use strict";
 
 parserFactory.register("novelupdates.com", () => new NovelUpdatesParser());
@@ -8,6 +5,10 @@ parserFactory.register("novelupdates.com", () => new NovelUpdatesParser());
 class NovelUpdatesParser extends Parser {
     constructor() {
         super();
+    }
+
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
     }
 
     // returns promise with the URLs of the chapters to fetch

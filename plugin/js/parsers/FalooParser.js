@@ -12,15 +12,32 @@ class FalooParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        // If there are no VIP chapters, get all chapters
-        if (!dom.querySelector(".DivVip")) {
-            return [...dom.querySelectorAll("div.DivTable div div a")]
-                .map(a => util.hyperLinkToChapter(a));
+        let tocUrl = [...dom.querySelectorAll(".T-L-T-C-Box2 a")].find(a => a.textContent.trim().endsWith("目录"));
+
+        let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+
+        let nodes = [...tocDom.querySelectorAll("div.c_con_list")];
+
+        let chapters = [];
+
+        for (let node of nodes) {
+            //`div.c_con_li_detail_p a` = Free | `a.c_con_li_detail` = VIP
+            let links = node.querySelectorAll("div.c_con_li_detail_p a, a.c_con_li_detail");
+
+            for (let link of links) {
+                //Get non-truncated chapter from span.
+                let span = link.querySelector("span");
+                let title = span.textContent.trim();
+
+                chapters.push({
+                    sourceUrl: link.href, 
+                    title: title,
+                    isIncludeable: !link.classList.contains("c_con_li_detail")
+                });
+            }
         }
 
-        // If there are VIP chapters, get only first volume
-        let menu = dom.querySelector("div.DivTable:nth-child(3)");
-        return util.hyperlinksToChapterList(menu);        
+        return chapters;
     }
 
     findContent(dom) {
@@ -37,7 +54,7 @@ class FalooParser extends Parser {
     }
 
     extractLanguage() {
-        return "Zh-CN";
+        return "zh-CN";
     }
 
     extractSubject(dom) {

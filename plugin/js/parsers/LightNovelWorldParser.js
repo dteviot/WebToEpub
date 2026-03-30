@@ -10,6 +10,7 @@ parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldPars
 parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.net", () => new NovelfireParser());
+parserFactory.register("boxnovel.art", () => new NovelfireParser());
 parserFactory.register("webnovelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("webnovelpub.pro", () => new LightNovelWorldParser());
 parserFactory.register("pandanovel.co", () => new LightNovelWorldParser());
