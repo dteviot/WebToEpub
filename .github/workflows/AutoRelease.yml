@@ -120,7 +120,7 @@ jobs:
         VERSION=$(cat new_clean_version.txt)
 
         cd eslint
-        unzip -o "WebToEpub${VERSION}.Chrome.zip" -d chrome_unpacked
+        unzip -o "WebToEpub${VERSION}.zip" -d chrome_unpacked
 
         crx3 --key=../key.pem chrome_unpacked
 
