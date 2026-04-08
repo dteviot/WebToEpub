@@ -4,7 +4,7 @@ name: Auto release developer-build
 
 on:
   push:
-    branches: [ ExperimentalTabMode ] 
+    branches: [ ExperimentalTabMode ]
   workflow_dispatch:
     inputs:
       version:
@@ -21,7 +21,7 @@ jobs:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-        
+
     steps:
     - uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
@@ -53,7 +53,7 @@ jobs:
         jq.exe (.version^|split(\".\")^|map(tonumber)^|.[1]) < plugin/manifest.json > major_version.txt
         jq.exe (.version^|split(\".\")^|map(tonumber)^|.[2]) < plugin/manifest.json > minor_version.txt
         jq.exe (.version^|split(\".\")^|map(tonumber)^|.[3]) < plugin/manifest.json > dev_version.txt
-        
+
         set /p var_mil=<milestone_version.txt
         set /p var_maj=<major_version.txt
         set /p var_min=<minor_version.txt
@@ -62,7 +62,7 @@ jobs:
 
         set /p var_old_change_log_version=<old_change_log_version.txt
         echo save old_change_log_version with %var_old_change_log_version%
-        
+
         if "milestone"=="%version%" (
           echo if milestone
           set /A var_mil+=1
@@ -81,7 +81,7 @@ jobs:
               set /A var_min+=1
               set var_dev=0
             ) else (
-          	  echo else dev
+              echo else dev
               set /A var_dev+=1
             )
           )
@@ -98,7 +98,7 @@ jobs:
 
         echo cleanup new_version.txt
         jq.exe -r . new_version.txt > new_clean_version.txt
-        
+
         echo npm install/ run
     - run: npm install
     - run: npm run lint
@@ -115,9 +115,18 @@ jobs:
     - name: Build CRX
       shell: bash
       run: |
-        crx3 --key=key.pem ./plugin
-        mv plugin.crx WebToEpub$(cat new_clean_version.txt).crx
-    
+        set -e
+
+        VERSION=$(cat new_clean_version.txt)
+
+        cd eslint
+        unzip -o "WebToEpub${VERSION}.Chrome.zip" -d chrome_unpacked
+
+        crx3 --key=../key.pem chrome_unpacked
+
+        mv chrome_unpacked.crx "../WebToEpub${VERSION}.crx"
+        rm -rf chrome_unpacked
+
     - name: commit/ push git changes
       shell: cmd
       run: |
@@ -129,11 +138,11 @@ jobs:
         git push
         git rev-parse --verify HEAD > commit_sha.txt
 
-        
+
     - name: Release latest developer build
       shell: cmd
       run: |
-        
+
         set version=${{ github.event.inputs.version }}
 
         set /p var_build=<new_clean_version.txt
@@ -143,7 +152,7 @@ jobs:
         if "0.0.0.0" == "%var_old_change_log_version%" (
           set var_old_change_log_version=0.0.0.167
         )
-     
+
         if "milestone"=="%version%" (
           set normal_release=1
         ) else (
@@ -175,7 +184,7 @@ jobs:
 
           echo create %var_build% release:
           gh release create %var_build% --latest -t "Release %var_build%" --target "ExperimentalTabMode" -F output.txt
-          
+
           echo add files to release.
           gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.xpi
           gh release upload %var_build% eslint/WebToEpub%var_build%.Chrome.zip
@@ -196,7 +205,7 @@ jobs:
 
           echo create developer-build release:
           gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
-          
+
           echo add files to release.
           gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.xpi
           gh release upload developer-build eslint/WebToEpub%var_build%.Chrome.zip
