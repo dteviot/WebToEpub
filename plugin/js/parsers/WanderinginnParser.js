@@ -20,7 +20,9 @@ class WanderinginnParser extends WordpressBaseParser {
         const titles = dom.querySelectorAll("h2.elementor-heading-title");
         for (const title of titles) {
             // default fetch of the page has a copy of title "loading..." preceding the real one, for some reason
-            if (title.textContent.trim() !== "loading...") {
+            const candidate = title.textContent.trim();
+            if ((candidate !== "loading...") &&
+                !candidate.startsWith("Comments are temporarily paused while we perform maintenance.")) {
                 return title;
             }
         }
