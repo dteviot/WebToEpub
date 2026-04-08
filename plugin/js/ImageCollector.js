@@ -458,7 +458,7 @@ class ImageCollector {
 
     async findImageFileUrlUsingDataOrigFileUrl(imageInfo) {
         let xhr = await HttpClient.wrapFetch(imageInfo.dataOrigFileUrl);
-        await this.findImageFileUrl(xhr, imageInfo, null);
+        return await this.findImageFileUrl(xhr, imageInfo, null);
     }
     
     imagesToPackInEpub() {

@@ -31,7 +31,7 @@ class WtrlabParser extends Parser {
         try {
             let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
             terms = terms?.config?.terms.filter(a => (a[4] == null) || (a[4].includes(serie_id)));
-            terms = terms.map(a => ({from:a[2].split("|"), to:a[1]}));
+            terms = terms.map(a => ({from:a[2].split("|").filter(a => a != ""), to:a[1]}));
             let index = 0;
             this.termsuser = [];
             for (let i = 0; i < terms.length; i++) {
@@ -142,6 +142,9 @@ class WtrlabParser extends Parser {
         return this.buildChapter(json, url);
     }
     isCustomError(response) {
+        if (response.json?.code == "CHAPTER_LOCKED") {
+            return true;
+        }
         if (response.json.data?.data?.body?false:true) {
             return true;
         }
@@ -152,6 +155,16 @@ class WtrlabParser extends Parser {
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse) {
+        if (checkedresponse.json?.code == "CHAPTER_LOCKED") {
+            let newresp = {};
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = {};
+            newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
+            newresp.response.status = 999;
+            newresp.response.retryDelay = [];
+            newresp.errorMessage = "Fetch of URL '"+newresp.response.url+"' failed.\nThe Chapter isn't Ai translated.";
+            return newresp;
+        }
         if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
             let newresp = {};
             newresp.url = url;

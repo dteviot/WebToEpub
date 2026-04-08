@@ -43,6 +43,11 @@ class WoopreadParser extends Parser {
         return dom.querySelector("h2.text-2xl");
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "button[aria-label^='Play from paragraph']");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findContent(dom) {
         return dom.querySelector("div[id^='chapter']");
     }
