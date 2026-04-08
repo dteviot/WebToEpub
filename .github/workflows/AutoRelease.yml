@@ -160,7 +160,7 @@ jobs:
 
         echo rename release files
         cd eslint
-        move /y WebToEpub%var_build%.xpi WebToEpub%var_build%.Firefox.zip
+        move /y WebToEpub%var_build%.xpi WebToEpub%var_build%.Firefox.xpi
         move /y WebToEpub%var_build%.zip WebToEpub%var_build%.Chrome.zip
         cd ..
 
@@ -177,14 +177,14 @@ jobs:
           gh release create %var_build% --latest -t "Release %var_build%" --target "ExperimentalTabMode" -F output.txt
           
           echo add files to release.
-          gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.zip
+          gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.xpi
           gh release upload %var_build% eslint/WebToEpub%var_build%.Chrome.zip
           gh release upload %var_build% WebToEpub%var_build%.crx
         ) else (
           echo Create developer-build release notes.
           echo Latest developer build of WebToEpub with the latest fixes. > output.txt
           echo To install the Addon pick the file suitable for you, >> output.txt
-          echo * WebToEpub%var_build%.Firefox.zip for Firefox >> output.txt
+          echo * WebToEpub%var_build%.Firefox.xpi for Firefox >> output.txt
           echo * WebToEpub%var_build%.Chrome.zip for Chrome >> output.txt
           echo.>> output.txt
           echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-installation>> output.txt
@@ -198,7 +198,7 @@ jobs:
           gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
           
           echo add files to release.
-          gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.zip
+          gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.xpi
           gh release upload developer-build eslint/WebToEpub%var_build%.Chrome.zip
           gh release upload developer-build WebToEpub%var_build%.crx
         )
