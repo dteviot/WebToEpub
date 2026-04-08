@@ -102,6 +102,21 @@ jobs:
         echo npm install/ run
     - run: npm install
     - run: npm run lint
+
+    - name: Install crx3
+      shell: bash
+      run: npm install -g crx3
+
+    - name: Restore PEM key
+      shell: bash
+      run: |
+        echo "${{ secrets.CRX_PRIVATE_KEY }}" | base64 -d > key.pem
+
+    - name: Build CRX
+      shell: bash
+      run: |
+        crx3 --key=key.pem ./plugin
+        mv plugin.crx WebToEpub$(cat new_clean_version.txt).crx
     
     - name: commit/ push git changes
       shell: cmd
@@ -164,6 +179,7 @@ jobs:
           echo add files to release.
           gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.zip
           gh release upload %var_build% eslint/WebToEpub%var_build%.Chrome.zip
+          gh release upload %var_build% WebToEpub%var_build%.crx
         ) else (
           echo Create developer-build release notes.
           echo Latest developer build of WebToEpub with the latest fixes. > output.txt
@@ -184,6 +200,7 @@ jobs:
           echo add files to release.
           gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.zip
           gh release upload developer-build eslint/WebToEpub%var_build%.Chrome.zip
+          gh release upload developer-build WebToEpub%var_build%.crx
         )
       env:
           GH_TOKEN: ${{ github.token }}
