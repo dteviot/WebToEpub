@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("mtnovel.net", () => new MtnovelParser());
+parserFactory.registerDeadSite("mtnovel.net", () => new MtnovelParser());
 
 class MtnovelParser extends Parser {
     constructor() {

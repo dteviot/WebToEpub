@@ -866,6 +866,11 @@ class Library { // eslint-disable-line no-unused-vars
             document.getElementById("startingUrlInput").value = await Library.LibGetFromStorage("LibStoryURL" + LibArray[i]);
             await main.onLoadAndAnalyseButtonClick.call(obj);
             try {
+                await main.getCurrentParser().rateLimitDelay();
+            } catch {
+                //
+            }
+            try {
                 await main.fetchContentAndPackEpub.call(obj);
             } catch {
                 //

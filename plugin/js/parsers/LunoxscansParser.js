@@ -7,6 +7,7 @@ parserFactory.register("lunoxscans.com", () => new LunoxscansParser());
  */
 class LunoxscansParser extends MadaraParser {
     /**
+     * @override
      * @param { Document } dom 
      */
     async getChapterUrls(dom) {
@@ -22,6 +23,21 @@ class LunoxscansParser extends MadaraParser {
     }
 
     /**
+     * @override
+     * @param { HTMLElement } dom 
+     */
+    removeUnwantedElementsFromContentElement(dom) {
+        /** @type { NodeListOf<HTMLSpanElement> } */
+        const suspects = dom.querySelectorAll("p:first-of-type, p:last-of-type");
+        
+        [...suspects]
+            .filter(suspect => suspect.textContent.includes("Lunox"))
+            .forEach(suspect => suspect.remove());
+        super.removeUnwantedElementsFromContentElement(dom);
+    }
+
+    /**
+     * @override
      * @param { Document } dom 
      */
     extractTitleImpl(dom) {

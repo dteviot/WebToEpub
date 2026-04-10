@@ -1,6 +1,8 @@
 "use strict";
 
 parserFactory.register("crushnovelpo.blog", () => new CrushnovelParser());
+parserFactory.register("crushnovel6.blog", () => new CrushnovelParser());
+parserFactory.register("crushnovels.net", () => new CrushnovelParser());
 
 class CrushnovelParser extends Parser { // eslint-disable-line no-unused-vars
     constructor() {

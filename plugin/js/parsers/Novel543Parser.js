@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("novel543.com", () => new Novel543Parser());
+parserFactory.register("twbook.cc", () => new Novel543Parser());
 
 class Novel543Parser extends Parser {
     constructor() {
@@ -30,6 +31,10 @@ class Novel543Parser extends Parser {
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
+    extractSubject(dom) {
+        return dom.querySelector("p.meta a[href*='bookstack']")?.textContent?.trim();
+    }
+
     extractLanguage() {
         return "zh";
     }
@@ -42,8 +47,17 @@ class Novel543Parser extends Parser {
         return this.walkPagesOfChapter(url, this.moreChapterTextUrl);
     }
 
+    /**
+     * @param { Document } dom 
+     * @param { string } baseUrl 
+     * @private
+     */
     moreChapterTextUrl(dom, baseUrl) {
-        // Extract chapter base from original URL (e.g., "8096_1" from "8096_1.html" or "8096_1_2.html")
+        /**
+         * Extract chapter base from original URL (e.g., "8096_1" from "8096_1.html" or "8096_1_2.html")
+         * 
+         * @param { string  } url 
+         */
         let getChapterBase = (url) => {
             let match = url.match(/\/(\d+_\d+)(?:_\d+)?\.html/);
             return match ? match[1] : null;
@@ -53,7 +67,7 @@ class Novel543Parser extends Parser {
         if (!baseChapter) return null;
         
         // Find the last link in foot-nav (next chapter link)
-        let nextLink = [...dom.querySelectorAll(".foot-nav a")].pop();
+        let nextLink = /** @type { HTMLAnchorElement | undefined } */ ([...dom.querySelectorAll(".foot-nav a")].pop());
         if (!nextLink) return null;
         
         let nextUrl = nextLink.href;

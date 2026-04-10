@@ -637,6 +637,7 @@ var main = (function() {
         onLoadAndAnalyseButtonClick : onLoadAndAnalyseButtonClick,
         fetchContentAndPackEpub: fetchContentAndPackEpub,
         resetUI: resetUI,
+        getCurrentParser: () => parser,
         getUserPreferences: () => userPreferences,
     };
 })();
