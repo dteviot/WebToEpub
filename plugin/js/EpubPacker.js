@@ -119,7 +119,7 @@ class EpubPacker {
             // paragraph formatting
             let parts = desc.split(/\n\s*\n/);
             let formatted = parts
-                .map(p => "<p>" + p.trim().replace(/\n/g, "<br/>") + "</p>")
+                .map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`)
                 .join("\n");
 
             this.createAndAppendChildNS(metadata, dc_ns, "dc:description", formatted);
@@ -148,7 +148,7 @@ class EpubPacker {
             meta.textContent = dateWithoutMillisecond;
         }
 
-        let webToEpubVersion = "[https://github.com/dteviot/WebToEpub] (ver. " + util.extensionVersion() + ")";
+        let webToEpubVersion = `[https://github.com/dteviot/WebToEpub] (ver. ${util.extensionVersion()})`;
         let contributor = this.createAndAppendChildNS(metadata, dc_ns, "dc:contributor", webToEpubVersion);
         this.addMetaProperty(metadata, contributor, "role", "packingTool", "bkp");
 
@@ -488,4 +488,3 @@ class NavPointParentElementsStack {
         }
     }
 }
-
