@@ -2,6 +2,7 @@
 
 parserFactory.register("vozer.io", () => new VozerParser());
 parserFactory.register("congphap.com", () => new VozerParser());
+parserFactory.register("quykhu.com", () => new VozerParser());
 
 class VozerParser extends Parser {
     constructor() {
