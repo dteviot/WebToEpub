@@ -17,7 +17,7 @@ class KakuyomuParser extends Parser {
         let json = JSON.parse(script).props.pageProps.__APOLLO_STATE__;
         let work = json["Work:" + this.extractWorkId(dom)];
         let chapters = [];
-        for (let tocc of work.tableOfContents) {
+        for (let tocc of work.tableOfContentsV2) {
             this.buildSubToc(chapters, json[tocc.__ref], json, dom.baseURI);
         }
         return chapters;
