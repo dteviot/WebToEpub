@@ -1,0 +1,801 @@
+{
+	"__MSG_button_Advanced_Options__": {
+		"message": "高级选项",
+		"description": "Label on button to toggle showing 'Advanced Options'"
+	},
+	"__MSG_button_Lib_Library__": {
+		"message": "书库",
+		"description": "Label on button to toggle show 'Library'"
+	},
+	"__MSG_label_Lib_Show_Advanced_Library_Options__": {
+		"message": "显示高级书库选项",
+		"description": "Label for checkbox to Show Advanced Library Options"
+	},
+	"__MSG_label_Lib_Compact_View__": {
+		"message": "以紧凑布局显示书库",
+		"description": "Label for checkbox to Show Advanced Library Options"
+	},
+	"__MSG_label_Lib_Download_Epub_After_Update__": {
+		"message": "新章节自动添加后下载 EPUB。",
+		"description": "Label for checkbox to Download Epubs after update"
+	},
+	"__MSG_label_Lib_Warning_In_Progress___": {
+		"message": "处理中…",
+		"description": "Label for Library loading in local storage in progress"
+	},
+	"__MSG_button_Lib_Template_Clear_Library__": {
+		"message": "清空书库",
+		"description": "Label on button to clear Local Storage"
+	},
+	"__MSG_button_Lib_Template_Export_Library__": {
+		"message": "导出书库",
+		"description": "Label on button to export Library in json format"
+	},
+	"__MSG_button_Lib_Template_Import_Library__": {
+		"message": "导入书库",
+		"description": "Label on button to import Library in json format"
+	},
+	"__MSG_button_Lib_Template_Upload_Epub__": {
+		"message": "上传 EPUB",
+		"description": "Label on button to Upload Epub in Library"
+	},
+	"__MSG_button_Lib_Template_Add_List_To_Library__": {
+		"message": "添加小说到书库",
+		"description": "Label on button to Add novels to Library in Library"
+	},
+	"__MSG_button_Lib_Template_Update_All__": {
+		"message": "全部更新",
+		"description": "Label on button to Update all Epubs"
+	},
+	"__MSG_button_Lib_Template_Delete_EPUB__": {
+		"message": "删除 EPUB",
+		"description": "Label on button to Delete EPUB"
+	},
+	"__MSG_button_Lib_Template_Search_new_Chapters__": {
+		"message": "搜索新章节",
+		"description": "Label on button to Search new Chapters"
+	},
+	"__MSG_button_Lib_Template_Update_new_Chapters__": {
+		"message": "更新",
+		"description": "Label on button to Update new Chapters"
+	},
+	"__MSG_button_Lib_Template_Download_EPUB__": {
+		"message": "下载 EPUB",
+		"description": "Label on button to Download EPUB"
+	},
+	"__MSG_button_Lib_Template_Add_Chapter_from_different_EPUB__": {
+		"message": "从其他 EPUB 添加章节",
+		"description": "Label on button to Add Chapter from different EPUB"
+	},
+	"__MSG_button_Lib_Template_Edit_Metadata__": {
+		"message": "编辑元数据",
+		"description": "Label on button to show edit options for metadata"
+	},
+	"__MSG_label_Lib_Template_Library_uses__": {
+		"message": "书库占用：",
+		"description": "Label in front of the Bytes used in local Storage"
+	},
+	"__MSG_label_Lib_Template_New_Chapter__": {
+		"message": " 个新章节",
+		"description": "Label of x new chapter"
+	},
+	"__MSG_label_Lib_Template_Story_URL__": {
+		"message": "小说网址",
+		"description": "Label in front of 'Story URL' input"
+	},
+	"__MSG_label_Lib_Template_Filename__": {
+		"message": "文件名",
+		"description": "Label in front of 'Filename' input"
+	},
+	"__MSG_label_Lib_Template_Warning_URL_Change__": {
+		"message": "警告：仅在确认了解后果时修改网址。",
+		"description": "Label for Warning if user changes URL in Library"
+	},
+	"__MSG_label_Lib_Template_Upload_Epub_File_Label__": {
+		"message": "上传 EPUB 文件到书库。",
+		"description": "Label for Upload Epub file in Library"
+	},
+	"__MSG_button_Lib_Template_": {
+		"message": "隐藏按钮",
+		"description": "Label on button to "
+	},
+	"__MSG_button_Apply_Changes__": {
+		"message": "应用更改",
+		"description": "Label on button to end manually editing list of URLs to fetch"
+	},
+	"__MSG_button_Clear_Url__": {
+		"message": "清除网址",
+		"description": "Label on button to erase the Cover Image URL text"
+	},
+	"__MSG_button_Close_ReadingList__": {
+		"message": "关闭",
+		"description": "Label on button to stop showing the Reading List"
+	},
+	"__MSG_button_Copy_Urls_To_Clipboard__": {
+		"message": "复制网址到剪贴板",
+		"description": "Label on button that copies selected chapter URLs to clipboard"
+	},
+	"__MSG_button_Edit_Chapter_Urls__": {
+		"message": "编辑章节网址",
+		"description": "Label on button to allow manually editing list of URLs to fetch"
+	},
+	"__MSG_button_error_Cancel__": {
+		"message": "取消",
+		"description": "Label on 'Cancel' button when show error"
+	},
+	"__MSG_button_error_Skip__": {
+		"message": "跳过",
+		"description": "Label on 'Skip' button when show error"
+	},
+	"__MSG_button_error_OK__": {
+		"message": "确定",
+		"description": "Label on 'OK' button when show error"
+	},
+	"__MSG_button_error_Retry__": {
+		"message": "重试",
+		"description": "Label on 'Retry' button when show error"
+	},
+	"__MSG_button_error_Open_URL__": {
+		"message": "打开网址（处理验证码）",
+		"description": "Label on 'Open URL for Captcha' button when show error HTTP 403"
+	},
+	"__MSG_button_error_Block_URL__": {
+		"message": "屏蔽该网站的后续请求",
+		"description": "Label on 'Block Website for future requests' button when show error HTTP 403"
+	},
+	"__MSG_button_finished_default_parser__": {
+		"message": "应用",
+		"description": "Label on button to finish configuring default parser"
+	},
+	"__MSG_button_Help__": {
+		"message": "帮助…",
+		"description": "Label on button launch help page"
+	},
+	"__MSG_button_load_and_analyse__": {
+		"message": "加载并分析",
+		"description": "Label on button to try loading url given by 'Starting URL'"
+	},
+	"__MSG_button_load_Metadata__": {
+		"message": "加载附加元数据",
+		"description": "Label on button to toggle Load and Analyse Additional Metadata"
+	},
+	"__MSG_button_Pack_EPUB__": {
+		"message": "打包 EPUB",
+		"description": "Label on button to create the EPUB"
+	},
+	"__MSG_button_Add_to_Library__": {
+		"message": "添加到书库",
+		"description": "Label on button to create the EPUB and Add it to the Library"
+	},
+	"__MSG_button_Pause_to_Library__": {
+		"message": "暂停并保存到书库",
+		"description": "Label on button to Pause the download"
+	},
+	"__MSG_button_Reset__": {
+		"message": "重置",
+		"description": "Label on button that clears the dialog"
+	},
+	"__MSG_button_Reload__": {
+		"message": "重新加载",
+		"description": "Label on 'Reload' button under 'Developer Stuff'"
+	},
+	"__MSG_button_Remove__": {
+		"message": "移除",
+		"description": "Label on button to remove an entry from Reading List"
+	},
+	"__MSG_button_Reset_stylesheet__": {
+		"message": "恢复默认样式表",
+		"description": "Label on button to remove all changes to stylesheet and set to default value"
+	},
+	"__MSG_button_Reverse_Chapter_Urls_Order__": {
+		"message": "反转章节顺序",
+		"description": "Label on button to change order of chapters from last to first"
+	},
+	"__MSG_button_Select_All__": {
+		"message": "全选",
+		"description": "Label on button to set all chapters to selected"
+	},
+	"__MSG_button_test_default_parser__": {
+		"message": "测试",
+		"description": "Label on button to test default parser settings"
+	},
+	"__MSG_button_Unselect_All__": {
+		"message": "取消全选",
+		"description": "Label on button to unselect all chapters"
+	},
+	"__MSG_button_View_Filters__": {
+		"message": "筛选器",
+		"description": "Label on button and header to show available filters"
+	},
+	"__MSG_button_View_Reading_List__": {
+		"message": "查看阅读列表",
+		"description": "Label on button to show Reading List"
+	},
+	"__MSG_button_Write_Options_to_file__": {
+		"message": "将选项写入文件",
+		"description": "Label on button to write options to a file"
+	},
+	"__MSG_column_Include__": {
+		"message": "包含？",
+		"description": "The 'include this chapter' checkbox column in the table of chapters."
+	},
+	"__MSG_column_Title__": {
+		"message": "标题",
+		"description": "The 'name of chapter' column in the table of chapters."
+	},
+	"__MSG_column_URL__": {
+		"message": "网址",
+		"description": "The 'URL to get chapter from' column in the table of chapters."
+	},
+	"__MSG_label_Add_Information_Page_To_Epub__": {
+		"message": "在 EPUB 开头添加信息页",
+		"description": "Label for checkbox to add 'Information' page at beginning of Epub"
+	},
+	"__MSG_label_Advanced_Options_Visible_By_Default__": {
+		"message": "默认显示高级选项",
+		"description": "Label for checkbox to make Advanced Options visible when UI opens"
+	},
+	"__MSG_label_Author__": {
+		"message": "作者",
+		"description": "Label in front input for novel's Author"
+	},
+	"__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
+		"message": "自动解析器选择包含 Baka-Tsuki 系列页面解析器",
+		"description": "Label for checkbox to toggle logic that picks parser to use for a web page to include the Baka-Tsuki Series Page Parser"
+	},
+	"__MSG_label_Chapter_Count__": {
+		"message": "章节数：",
+		"description": "Label for number of chapters in range"
+	},
+	"__MSG_label_Chapters_Page_In_Chapters_List__": {
+		"message": "将章节列表页面添加到获取列表",
+		"description": "Label for checkbox to toggle adding the page with chapters to list of pages to fetch"
+	},
+	"__MSG_label_Compress_Images__": {
+		"message": "压缩图片",
+		"description": "Label for checkbox and value to compress images to a certain size"
+	},
+	"__MSG_label_Compress_Images_JPG_Cover__": {
+		"message": "将封面图限制为 JPEG 格式",
+		"description": "Label for JPEG cover restriction checkbox"
+	},
+	"__MSG_label_Compress_Images_Format__": {
+		"message": "压缩图片格式",
+		"description": "Label for mime type of compressed image"
+	},
+	"__MSG_label_Compress_Images_Resolution__": {
+		"message": "压缩分辨率",
+		"description": "Label for number input for maximum dimension size of pixel height or width in image"
+	},
+	"__MSG_label_Cover_from_URL__": {
+		"message": "从网址获取封面：",
+		"description": "Label for checkbox to toggle between picking cover image from list or with a URL"
+	},
+	"__MSG_label_Cover_Image_URL__": {
+		"message": "封面图网址：",
+		"description": "Label for input to give cover image as URL"
+	},
+	"__MSG_label_Create_Epub_3__": {
+		"message": "生成 EPUB 3",
+		"description": "Label for checkbox to choose between EPUB 2 and 3"
+	},
+	"__MSG_label_File_Author_as__": {
+		"message": "作者归档名",
+		"description": "Label in front of input for author's name should be filed (in Advanced settings)."
+	},
+	"__MSG_label_Default_Parser_Chapter_Title_CSS__": {
+		"message": "章节标题所在元素的 CSS 选择器：",
+		"description": "Label in front of input for CSS selector to find element holding title of a chapter"
+	},
+	"__MSG_label_Default_Parser_Content_CSS__": {
+		"message": "（必填）EPUB 内容所在元素的 CSS 选择器：",
+		"description": "Label in front of input for CSS selector to find element holding content to put into EPUB"
+	},
+	"__MSG_label_Default_Parser_HostName__": {
+		"message": "主机名：",
+		"description": "Label in front of input for hostname in URL to use these settings for."
+	},
+	"__MSG_label_Default_Parser_Test_Chapter_Url__": {
+		"message": "第一章网址：",
+		"description": "Label in front of input for URL to test default parser settings."
+	},
+	"__MSG_label_Default_Parser_Unwanted_Elements_CSS__": {
+		"message": "需要移除的元素的 CSS 选择器：",
+		"description": "Label in front input for CCS selector for elements to remove"
+	},
+	"__MSG_label_Edit_URLs_Hint__": {
+		"message": "可以以 HTML 格式或纯网址列表（每行一个网址）编辑网址。",
+		"description": "Label in Edit Chapter URLs to help the user."
+	},
+	"__MSG_label_Element_With_Chapter_Content__": {
+		"message": "包含章节内容的元素：",
+		"description": "Label in front input for type of element holding each chapter's content"
+	},
+	"__MSG_label_Filename__": {
+		"message": "文件名",
+		"description": "Label in front input for file to save EPUB as"
+	},
+	"__MSG_label_Developer_Stuff__": {
+		"message": "开发者工具：",
+		"description": "Label for checkbox to show/hide buttons for developer testing (in Advanced settings)."
+	},
+	"__MSG_label_Fetch_Highest_Resolution_Images__": {
+		"message": "获取最高分辨率图片",
+		"description": "Label for checkbox to get EPUB to include highest resolution images available (in Advanced settings)."
+	},
+	"__MSG_label_Include_in_Reading_List__": {
+		"message": "加入阅读列表",
+		"description": "Label for checkbox to add/remove title from Reading List of tracked titles."
+	},
+	"__MSG_label_Include_URL_of_Images__": {
+		"message": "记录图片来源网址",
+		"description": "Label for checkbox to record source URL of images into EPUB (in Advanced settings)."
+	},
+	"__MSG_label_Language__": {
+		"message": "语言",
+		"description": "Label in front input for language EPUB will be in"
+	},
+	"__MSG_label_no_additional_metadata__": {
+		"message": "不添加附加元数据",
+		"description": "No tags and description in metadata"
+	},
+	"__MSG_label_auto_search_metadata__": {
+		"message": "自动在 novelupdates 搜索元数据（加载时间较长）",
+		"description": "auto search Metadata on novelupdates"
+	},
+	"__MSG_label_less_tags__": {
+		"message": "仅提取流派标签",
+		"description": "Only extract genre"
+	},
+	"__MSG_label_Show_More_Metadata_Options__": {
+		"message": "显示更多元数据选项",
+		"description": "Show more Metadata options to user"
+	},
+	"__MSG_label_Manual_Delay_Per_Chapter__": {
+		"message": "每章延迟（毫秒）",
+		"description": "Delay per chapter in ms"
+	},
+	"__MSG_label_Manually_Select_Parser__": {
+		"message": "手动选择解析器：",
+		"description": "Label for menu to change parser (in advanced options section)"
+	},
+	"__MSG_label_Max_chapters_per_epub__": {
+		"message": "每个 EPUB 最大章节数",
+		"description": "Label for control to set max chapters to put in single EPUB"
+	},
+	"__MSG_label_Max_pages_to_fetch_simultaneously__": {
+		"message": "最大同时抓取页面数",
+		"description": "Label for drop down for maximum number of web pages to request at same time"
+	},
+	"__MSG_label_Metadata_description__": {
+		"message": "EPUB 简介",
+		"description": "Preview description from the epub in Calibre"
+	},
+	"__MSG_label_Custom_Filename__": {
+		"message": "自定义文件名",
+		"description": "Custom Filename input"
+	},
+	"__MSG_label_Metadata_subject__": {
+		"message": "标签",
+		"description": "Tags for epub"
+	},
+	"__MSG_label_Metadata_Save__": {
+		"message": "保存元数据",
+		"description": "Label on button to Save Metadata"
+	},
+	"__MSG_label_Metadata_URL__": {
+		"message": "附加元数据网址",
+		"description": "Additional Metadata URL"
+	},
+	"__MSG_label_Override_Default_Minimum_Delay__": {
+		"message": "覆盖每章延迟默认值（适用时）",
+		"description": "Override Delay per chapter Value (where applicable)"
+	},
+	"__MSG_label_Overwrite_Epub_When_Filename_Duplicte__": {
+		"message": "同名 EPUB 文件存在时直接覆盖",
+		"description": "Label for checkbox to toggle between 'overwrite existing Epub files' and 'make names unique'"
+	},
+	"__MSG_label_Password__": {
+		"message": "密码",
+		"description": "Label for textbox to collect password needed for site"
+	},
+	"__MSG_label_Range_End_Chapter__": {
+		"message": "最后一章",
+		"description": "Label in front of drop down for selecting last chapter to include in epub"
+	},
+	"__MSG_label_Range_Start_Chapter__": {
+		"message": "第一章",
+		"description": "Label in front of drop down for selecting first chapter to include in epub"
+	},
+	"__MSG_label_Read_Options_from_file__": {
+		"message": "从文件读取选项：",
+		"description": "Label in front of button to read Options from a file"
+	},
+	"__MSG_label_Remove_Author_Notes__": {
+		"message": "移除作者注释",
+		"description": "Label for checkbox to remove Author Notes from chapters"
+	},
+	"__MSG_label_Remove_Chapter_Number__": {
+		"message": "移除章节编号",
+		"description": "Label for checkbox to remove Chapter Numbers from chapter titles"
+	},
+	"__MSG_label_Remove_Original__": {
+		"message": "移除原文／生肉文本",
+		"description": "Label for checkbox to remove Original text from chapters"
+	},
+	"__MSG_label_Select_Translation_Google__": {
+		"message": "下载原始版本（无需登录）",
+		"description": "Label for radio checkbox Google"
+	},
+	"__MSG_label_Select_Retry_Longer__": {
+		"message": "重试章节最长 1 小时（如果 WebToEpub 看起来卡住了）",
+		"description": "Label for Retry longer"
+	},
+	"__MSG_label_Remove_Translated__": {
+		"message": "移除译文文本",
+		"description": "Label for checkbox to remove Translated text from chapters"
+	},
+	"__MSG_label_Remove_Duplicate_Images__": {
+		"message": "移除重复图片：",
+		"description": "Label for checkbox to remove duplicate images from gallery (in cover images section)"
+	},
+	"__MSG_label_Remove_Superscript_From_Alternate_Translations__": {
+		"message": "移除备选翻译的上标",
+		"description": "Label for checkbox to convert superscripted alternate translations into inline text"
+	},
+	"__MSG_label_Series__": {
+		"message": "系列",
+		"description": "Label in front input for series Novel is part of"
+	},
+	"__MSG_label_Show_Chapter_Urls__": {
+		"message": "显示章节网址",
+		"description": "Label for checkbox to toggle First and Last Chapter selectors between URLs and Titles"
+	},
+	"__MSG_label_Skip_Images__": {
+		"message": "跳过图片",
+		"description": "Label for checkbox to not include images in EPUB"
+	},
+	"__MSG_label_Starting_URL__": {
+		"message": "起始网址",
+		"description": "Label in front of 'URL' input"
+	},
+	"__MSG_label_Skip_Chapters_That_Fail_Fetch__": {
+		"message": "跳过返回 HTTP 404 错误的章节",
+		"description": "Label in front of checkbox for skipping chapters that can't be fetched"
+	},
+	"__MSG_label_Stylesheet__": {
+		"message": "样式表：",
+		"description": "Label in front of edit field for setting the stylesheet (in Advanced settings)."
+	},
+	"__MSG_label_Theme__": {
+		"message": "主题",
+		"description": "Label for drop down list to select theme colour."
+	},
+	"__MSG_label_Title__": {
+		"message": "标题",
+		"description": "Label in front of input for Novel's title."
+	},
+	"__MSG_label_Translator__": {
+		"message": "译者",
+		"description": "Label in front of input for Translator (in Advanced settings)."
+	},
+	"__MSG_label_Use_Full_Title_As_File_Name__": {
+		"message": "使用完整标题作为文件名",
+		"description": "Label in front of checkbox to choose if Epub's filename will be truncated or not."
+	},
+	"__MSG_label_Use_SVG_for_Images__": {
+		"message": "使用 <svg> 标签显示图片",
+		"description": "Label in front of checkbox to choose between <img> and <svg> elements for images."
+	},
+	"__MSG_label_Remove_Next_and_Previous_Chapter_Hyperlinks__": {
+		"message": "移除前后章节超链接",
+		"description": "Remove hyperlinks to the previous and next chapter that may appear in chapter pages."
+	},
+	"__MSG_label_Using_Default_Parser__": {
+		"message": "未找到该网址的专用解析器，将使用默认解析器。请指定如何从每个网页提取内容。",
+		"description": "Warning message when can't figure out how to extract info from web page."
+	},
+	"__MSG_label_Volume__": {
+		"message": "卷号",
+		"description": "Label in front of input for novel's position in series."
+	},
+	"__MSG_label_No_Download_Popup__": {
+		"message": "保存 EPUB 时不弹出\u201c另存为\u201d对话框",
+		"description": "Label for checkbox to download the final epub without a popup"
+	},
+	"__MSG_label_Disable_Shift_Click_Alert__": {
+		"message": "禁用 Shift+单击选择提示",
+		"description": "Label for checkbox to disable the alert shown when user shift-clicks to select multiple chapters"
+	},
+	"__MSG_label_Disable_Image_Res_Error__": {
+		"message": "禁用高分辨率图片获取失败警告",
+		"description": "Label for checkbox to disable warnings when high resolution image fetch fails and lower resolution is used instead"
+	},
+	"__MSG_label_Disable_Webp_Image_Format_Error__": {
+		"message": "禁用 WebP 图片格式兼容性警告",
+		"description": "Label for checkbox to disable warnings that WebP format images may not render in epub viewers"
+	},
+	"__MSG_label_Write_Error_History_To_File__": {
+		"message": "将错误信息写入文件",
+		"description": "Label for checkbox to write recent error messages to file"
+	},
+	"__MSG_More_than_max_chapters_selected__": {
+		"message": "注意：已选择 $selectedCount$ 个章节包含在 EPUB 中。点击“确定”包含全部章节，点击“取消”仅包含前 $maxChapters$ 个章节。",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"selectedCount": {
+			    "content": "$1"
+			},
+			"maxChapters": {
+			    "content": "$2"
+			}
+		}
+	},
+	"__MSG_option_Class_Is__": {
+		"message": "Class 等于",
+		"description": "Content is element of specified class."
+	},
+	"__MSG_option_Class_Starts_With__": {
+		"message": "Class 以…开头",
+		"description": "Content is element having a class name starting with."
+	},
+	"__MSG_option_First_Found__": {
+		"message": "第一个匹配",
+		"description": "Content is first element of specified type found."
+	},
+	"__MSG_option_ID_Is__": {
+		"message": "ID 等于",
+		"description": "Content is element with specified ID."
+	},
+	"__MSG_option_ID_Starts_With__": {
+		"message": "ID 以…开头",
+		"description": "Content is element having an ID starting with."
+	},
+	"__MSG_option_ID_Theme_Always_Dark__": {
+		"message": "始终深色模式",
+		"description": "GUI will always use dark mode theme."
+	},
+	"__MSG_option_ID_Theme_Always_Light__": {
+		"message": "始终浅色模式",
+		"description": "GUI will always use light mode theme."
+	},
+	"__MSG_option_ID_Theme_OS_Selection__": {
+		"message": "跟随系统设置",
+		"description": "GUI will use OS's selection of light or dark mode."
+	},
+	"__MSG_Searching_For_URLs_Please_Wait__": {
+		"message": "正在搜索网址，请稍候。",
+		"description": "Message shown while looking for list of Chapter URLs."
+	},
+	"__MSG_option_value_auto__": {
+		"message": "自动",
+		"description": "Generic option text for 'automatic'"
+	},
+	"__MSG_Shift_Click__": {
+		"message": "可先单击第一章的复选框，再按住 Shift 键单击最后一章，从而批量选择或取消选择一段章节。",
+		"description": "Tell user how to shift-click to multiselect."
+	},
+	"__MSG_Tooltip_chapter_downloading__": {
+		"message": "正在下载章节",
+		"description": "Tooltip for chapter download status icon: chapter is currently downloading"
+	},
+	"__MSG_Tooltip_chapter_downloaded__": {
+		"message": "已下载",
+		"description": "Tooltip for chapter download status icon: chapter download succeeded"
+	},
+	"__MSG_Tooltip_chapter_sleeping__": {
+		"message": "等待章节延迟时间结束",
+		"description": "Tooltip for chapter download status icon: waiting for chapter delay time to elapse"
+	},
+	"__MSG_Tooltip_chapter_previously_downloaded__": {
+		"message": "章节之前已下载",
+		"description": "Tooltip for chapter download status icon: chapter has been downloaded before."
+	},
+	"chapterPlaceholderMessage": {
+		"message": "这是一个占位符。从\"$url$\"获取章节失败，错误：\r\n $error$",
+		"description": "Warning message when try to fetch an image and instead get HTML",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			},
+			"error": {
+			    "content": "$2"
+			}
+		}
+	},
+	"convertToXhtmlWarning": {
+		"message": "警告：无法将来自\"$url$\"的章节\"$chapter$\"转换为有效的 XHTML。您的 EPUB 阅读器在查看该章节时可能出错，可能需要使用 Calibre 手动修复。\r\n转换错误信息：($error$)",
+		"description": "Warning message when try to fetch an image and instead get HTML",
+		"placeholders": {
+			"chapter": {
+			    "content": "$1"
+			},
+			"url": {
+			    "content": "$2"
+			},
+			"error": {
+			    "content": "$3"
+			}
+		}
+	},
+	"defaultAuthor": {
+		"message": "未提供作者",
+		"description": "Default author value to use when one is not supplied"
+	},
+	"defaultTitle": {
+		"message": "未提供标题",
+		"description": "Default UUID value to use when one is not supplied"
+	},
+	"defaultUUID": {
+		"message": "未提供 UUID",
+		"description": "Default UUID value to use when one is not supplied"
+	},
+	"errorEditMetadata": {
+		"message": "编辑元数据时出错，无法在 OEBPS/content.opf 中找到需要替换的字符串。",
+		"description": "Error message when regex can't find the string to replace in OEBPS/content.opf"
+	},
+	"errorAddToLibraryLibraryAddPageWithChapters": {
+		"message": "启用高级选项\"将章节列表页面添加到获取列表\"时，\"添加到书库\"功能不可用。",
+		"description": "Error message when user tries to Add to Library if Add Page with Chapters to Chapters List is enabled"
+	},
+	"errorContentNotFound": {
+		"message": "无法找到网页\"$url$\"的内容元素。",
+		"description": "Warning message when can't find content element for a web page",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
+	},
+	"errorIllegalFileName": {
+		"message": "文件名\"$filename$\"不能包含以下字符：$illegalCharacters$",
+		"description": "Warning message when filename isn't legal",
+		"placeholders": {
+			"filename": {
+			    "content": "$1"
+			},
+			"illegalCharacters": {
+			    "content": "$2"
+			}
+		}
+	},
+	"gotHtmlExpectedImageWarning": {
+		"message": "从\"$url$\"获取高分辨率图片失败，将使用低分辨率图片代替。",
+		"description": "Warning message when try to fetch an image and instead get HTML",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
+	},
+	"httpFetchCanRetry": {
+		"message": "这是一个偶发性错误，几分钟后重试可能成功。",
+		"description": "Added message that retrying HTTP operation may succeed."
+	},
+	"htmlFetchFailed": {
+		"message": "获取网址\"$url$\"失败，网络错误：$err$。",
+		"description": "Error message when fetch of a web page fails.",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			},
+			"err": {
+			    "content": "$2"
+			}
+		}
+	},
+	"imageFetchFailed": {
+		"message": "获取页面\"$pageUrl$\"的图片\"$imageUrl$\"失败，网络错误：$err$。",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"imageUrl": {
+			    "content": "$1"
+			},
+			"pageUrl": {
+			    "content": "$2"
+			},
+			"err": {
+			    "content": "$3"
+			}
+		}
+	},
+	"imgurFetchFailed": {
+		"message": "警告：获取页面\"$pageUrl$\"的 imgur 图片\"$imageUrl$\"失败，网络错误：$err$。",
+		"description": "Error message when fetch of an image file fails.",
+		"placeholders": {
+			"imageUrl": {
+			    "content": "$1"
+			},
+			"pageUrl": {
+			    "content": "$2"
+			},
+			"err": {
+			    "content": "$3"
+			}
+		}
+	},
+	"noChaptersFound": {
+		"message": "未找到章节，当前页面可能不是小说详情页。",
+		"description": "Warning message when parser can't find list of chapters."
+	},
+	"informationPageTitle": {
+		"message": "信息",
+		"description": "Title of page that gives information on epub."
+	},
+	"noChaptersFoundAndFetchClicked": {
+		"message": "未找到章节。",
+		"description": "Warning message.  Developer has clicked 'Fetch Chapters' when there are none."
+	},
+	"noImagesFound": {
+		"message": "未找到图片。",
+		"description": "Warning message.  Developer has clicked 'Fetch Images' when there are none."
+	},
+	"noImagesFoundLabel": {
+		"message": "未找到图片",
+		"description": "Text put in images table when no images are found."
+	},
+	"noParserFound": {
+		"message": "未找到该网址的专用解析器，将使用默认解析器。您需要手动指定每章内容的获取方式。",
+		"description": "Warning message when can't figure out how to extract info from web page."
+	},
+	"parserDisabledNotification": {
+		"message": "应网站所有者要求，该网站的支持已被禁用。",
+		"description": "Warning message when user tries to process disabled parser."
+	},
+	"setCover": {
+		"message": "设为封面",
+		"description": "Label for checkboxes used to select the cover image."
+	},
+	"tableOfContentsUrl": {
+		"message": "目录页网址：",
+		"description": "Label on information page for URL where Table of Contents came from."
+	},
+	"unhandledFieldTypeError": {
+		"message": "错误：未处理的字段类型。",
+		"description": "Internal message for developer."
+	},
+	"warning403ErrorResponse": {
+		"message": "警告：网站\"$host$\"返回了拒绝访问（403）错误。\n您可能需要登录该网站，或正常浏览直到通过 Cloudflare 人机验证或其他 CAPTCHA 验证，WebToEpub 才能继续运行。\n若因下载速度过快触发此错误，请尝试增大\"高级选项 → 每章延迟（毫秒）\"的值。\n",
+		"description": "Warning message for user when site sends a 403 response.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
+			}
+		}
+	},
+	"wait403ErrorResponse": {
+		"message": "请等待 Cloudflare 验证通过或完成登录。",
+		"description": "Wait message for user when site sends a 403 response."
+	},
+	"warning429ErrorResponse": {
+		"message": "警告：网站\"$host$\"要求 WebToEpub 降低请求频率。WebToEpub 将等待网站允许再次请求章节。若此方法无效，请在\"高级选项\"中手动增大\"每章延迟（毫秒）\"的值。",
+		"description": "Warning message for user when site sends a 429 response.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
+			}
+		}
+	},
+	"warningNoChapterUrl": {
+		"message": "错误：未提供用于测试的章节网址。",
+		"description": "Warning message when user tries to test the Default Parser without supplying a Chapter URL to test against."
+	},
+	"warningNoVisibleContent": {
+		"message": "警告：网页\"$url$\"的内容元素没有可见内容。",
+		"description": "Warning message when content element for a page has nothing viewable",
+		"placeholders": {
+			"url": {
+			    "content": "$1"
+			}
+		}
+	},
+	"warningWebpImage": {
+		"message": "警告：图片文件\"$filename$\"为 WebP 格式，您的 EPUB 阅读器可能无法显示。",
+		"description": "Warning message when downloaded image is in webp format",
+		"placeholders": {
+			"filename": {
+			    "content": "$1"
+			}
+		}
+	}
+}
