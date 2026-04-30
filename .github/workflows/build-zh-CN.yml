@@ -1,0 +1,127 @@
+# 自动构建 WebToEpub 简体中文版
+# 在推送到主分支或手动触发时运行
+
+name: 构建简体中文版
+
+on:
+  push:
+    branches:
+      - ExperimentalTabMode
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: '发布标签名称（留空则仅构建不发布）'
+        required: false
+        default: ''
+
+# 声明写权限，允许推送 tag 和创建 Release
+permissions:
+  contents: write
+
+jobs:
+  build-zh-CN:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 运行构建（打包插件）
+        run: npm run build
+
+      - name: 读取版本号
+        id: get_version
+        run: |
+          VERSION=$(node -e "const m=require('./plugin/manifest.json'); console.log(m.version);")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "构建版本：$VERSION"
+
+      - name: 重命名构建产物（添加 zh-CN 标识）
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          cd eslint
+          XPI_SRC="WebToEpub${VERSION}.xpi"
+          ZIP_SRC="WebToEpub${VERSION}.zip"
+          XPI_DST="WebToEpub${VERSION}.zh-CN.Firefox.zip"
+          ZIP_DST="WebToEpub${VERSION}.zh-CN.Chrome.zip"
+          if [ -f "$XPI_SRC" ]; then
+            mv "$XPI_SRC" "$XPI_DST"
+            echo "已重命名 $XPI_SRC -> $XPI_DST"
+          fi
+          if [ -f "$ZIP_SRC" ]; then
+            mv "$ZIP_SRC" "$ZIP_DST"
+            echo "已重命名 $ZIP_SRC -> $ZIP_DST"
+          fi
+
+      - name: 上传构建产物（Artifact）
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebToEpub-zh-CN-${{ steps.get_version.outputs.version }}
+          path: |
+            eslint/*.zh-CN.Firefox.zip
+            eslint/*.zh-CN.Chrome.zip
+          retention-days: 30
+
+      - name: 发布 Release（仅在指定标签时）
+        if: ${{ github.event.inputs.release_tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG="${{ github.event.inputs.release_tag }}"
+          BRANCH="${{ github.ref_name }}"
+
+          # 配置 git 用户信息
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 删除同名旧 release 和 tag（如存在）
+          gh release delete "$TAG" --cleanup-tag 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+
+          # 创建并推送新 tag
+          git tag "$TAG"
+          git push origin "$TAG"
+
+          # 生成发布说明
+          printf '## WebToEpub 简体中文版 %s\n\n' "$VERSION" > release_notes.md
+          printf '本版本为 [WebToEpub](https://github.com/dteviot/WebToEpub) 的简体中文 fork，界面与提示信息已完整汉化。\n\n' >> release_notes.md
+          printf '### 安装方法\n\n' >> release_notes.md
+          printf '**Chrome / Chromium（Edge、Opera 等）：**\n' >> release_notes.md
+          printf '1. 下载 `WebToEpub%s.zh-CN.Chrome.zip` 并解压\n' "$VERSION" >> release_notes.md
+          printf '2. 打开 `chrome://extensions`，启用"开发者模式"\n' >> release_notes.md
+          printf '3. 点击"加载已解压的扩展程序"，选择解压目录\n\n' >> release_notes.md
+          printf '**Firefox：**\n' >> release_notes.md
+          printf '1. 下载 `WebToEpub%s.zh-CN.Firefox.zip`\n' "$VERSION" >> release_notes.md
+          printf '2. 打开 `about:debugging#/runtime/this-firefox`\n' >> release_notes.md
+          printf '3. 点击"临时加载附加组件"，选择下载的 zip 文件\n\n' >> release_notes.md
+          printf '### 变更说明\n' >> release_notes.md
+          printf -- '- 界面语言默认切换为简体中文\n' >> release_notes.md
+          printf -- '- 所有按钮、标签、提示信息均已翻译\n' >> release_notes.md
+          printf -- '- 基于上游版本 %s\n' "$VERSION" >> release_notes.md
+
+          # 创建 Release（tag 已存在，直接引用）
+          gh release create "$TAG" \
+            --title "WebToEpub 简体中文版 ${VERSION}" \
+            --target "$BRANCH" \
+            --notes-file release_notes.md \
+            eslint/*.zh-CN.Firefox.zip \
+            eslint/*.zh-CN.Chrome.zip
+
+          echo "已发布 Release：$TAG"
