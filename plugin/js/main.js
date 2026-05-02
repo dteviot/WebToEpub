@@ -79,6 +79,7 @@ var main = (function() {
         setUiFieldToValue("fileNameInput", metaInfo.fileName);
         setUiFieldToValue("subjectInput", metaInfo.subject);
         setUiFieldToValue("descriptionInput", metaInfo.description);
+        setUiFieldToValue("publisherInput", metaInfo.publisher);
         if (metaInfo.seriesName !== null) {
             document.getElementById("seriesRow").hidden = false;
             document.getElementById("volumeRow").hidden = false;
@@ -108,6 +109,7 @@ var main = (function() {
         metaInfo.fileName = getValueFromUiField("fileNameInput");
         metaInfo.subject = getValueFromUiField("subjectInput");
         metaInfo.description = getValueFromUiField("descriptionInput");
+        metaInfo.publisher = getValueFromUiField("publisherInput");
 
         if (document.getElementById("seriesRow").hidden === false) {
             metaInfo.seriesName = getValueFromUiField("seriesNameInput");
@@ -135,6 +137,7 @@ var main = (function() {
         if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
             setUiFieldToValue("subjectInput", "");
             setUiFieldToValue("descriptionInput", "");
+            setUiFieldToValue("publisherInput", "");
         }
         let metaInfo = metaInfoFromControls();
 

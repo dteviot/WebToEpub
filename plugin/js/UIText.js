@@ -43,6 +43,7 @@ class UIText { // eslint-disable-line no-unused-vars
         language: chrome.i18n.getMessage("__MSG_label_Language__"),
         subject: chrome.i18n.getMessage("__MSG_label_Metadata_subject__"),
         description: chrome.i18n.getMessage("__MSG_label_Metadata_description__"),
+        publisher: chrome.i18n.getMessage("__MSG_label_Metadata_publisher__"),
         save: chrome.i18n.getMessage("__MSG_label_Metadata_Save__")
     };
     
