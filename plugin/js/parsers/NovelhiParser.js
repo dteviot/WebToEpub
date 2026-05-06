@@ -8,17 +8,16 @@ class NovelhiParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let tocUrl = dom.querySelector("div.bookChapter a.fr");
+        let tocUrl = dom.querySelector("div.bookChapter a.fr").href;
         let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
         return [...tocDom.querySelectorAll("div.dirList a")]
-            .map(a => NovelhiParser.LinkToChapter(a, dom.baseURI));
+            .map(a => NovelhiParser.LinkToChapter(a));
     }
 
-    static LinkToChapter(link, baseURI) {
-        let onclick = link.getAttribute("onClick").split("'");
+    static LinkToChapter(link) {
         return {
-            sourceUrl: baseURI + "/" + onclick[1],
-            title: link.querySelector("span").textContent            
+            sourceUrl: link.href,
+            title: link.querySelector("span").textContent
         };
     }
 

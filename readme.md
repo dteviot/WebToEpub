@@ -818,6 +818,8 @@ Don't forget to give the project a star! Thanks again!
     <li>crn0</li>
     <li>meowmereo</li>
     <li>Matthew Song</li>
+    <li>senia-psm</li>
+    <li>ltmerletti</li>
   </ul>
 </details>
 

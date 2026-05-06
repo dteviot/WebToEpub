@@ -89,9 +89,9 @@ class RanobesParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        let title = dom.querySelector("h1.title");
+        let title = dom.querySelector("h1.title, div#arrticle h1, div#arrticle h2, div#arrticle h3");
         util.removeChildElementsMatchingSelector(title, "span, div");
-        return title.textContent;
+        return title ? title.textContent : super.findChapterTitle(dom);
     }
 
     findCoverImageUrl(dom) {
