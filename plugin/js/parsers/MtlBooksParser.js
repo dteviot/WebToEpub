@@ -100,15 +100,6 @@ class MtlBooksParser extends Parser {
         return this.title;
     }
 
-    // author of the story
-    // Optional, if not provided, will default to "<unknown>"
-    /* // Sadly this site doesnt provide any
-    extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".meta span a");
-        return authorLabel?.textContent ?? super.extractAuthor(dom);
-    }
-    */
-
     async loadEpubMetaInfo(dom) {
         let slug = new URL(dom.baseURI).pathname.split("/");
         let apiUrl = `https://alpha.mtlbooks.com/api/v1/novels/${slug[2]}`;
@@ -162,23 +153,4 @@ class MtlBooksParser extends Parser {
         ).json;
         return this.jsonToHtml(url, json);
     }
-
-    // Optional, supply these if site can send challenge pages for some chapters
-    /*
-    // return true if response is a challenge response
-    isCustomError(response){
-        return (response.responseXML.title == "Just a moment...");
-    }
-
-    // what to do if encounter challenge
-    setCustomErrorResponse(url, wrapOptions){
-        let newresp = {};
-        newresp.url = url;
-        newresp.wrapOptions = wrapOptions;
-        newresp.response = {};
-        newresp.response.url = this.RestToUrl(checkedresponse.response.url);
-        newresp.response.status = 403;
-        return newresp;
-    }
-    */
 }
