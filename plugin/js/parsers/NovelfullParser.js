@@ -262,6 +262,10 @@ class NovelbinParser extends NovelfullParser {
         return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
+    extractPublisher() {
+        return "NovelBin";
+    }
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".unlock-buttons");
         super.removeUnwantedElementsFromContentElement(element);

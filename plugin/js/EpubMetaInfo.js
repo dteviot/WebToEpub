@@ -23,6 +23,7 @@ class EpubMetaInfo {
         this.fileName = "web.epub";
         this.subject = "";
         this.description = "";
+        this.publisher = "";
         this.seriesName = null;
         this.seriesIndex = null;
         this.styleSheet = EpubMetaInfo.getDefaultStyleSheet();
@@ -164,7 +165,7 @@ class EpubMetaInfo {
             metaAddInfo.description = EpubMetaInfo.addDescriptionNovelupdate(dom);
             metaAddInfo.author = EpubMetaInfo.addAuthorNovelupdate(dom);
         } else {
-            let test = "Error: Fetch of URL '" + url + "' failed to fetch please check if website is novelupdates.com";
+            let test = "Error: Fetch of URL '" + url + "' failed to fetch, please check if website is novelupdates.com";
             ErrorLog.showErrorMessage(test);
         }
         return metaAddInfo;

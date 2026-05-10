@@ -98,6 +98,9 @@ class EpubPacker {
         if (!util.isNullOrEmpty(this.metaInfo.description)) {
             this.createAndAppendChildNS(metadata, dc_ns, "dc:description", this.metaInfo.description);
         }
+        if (!util.isNullOrEmpty(this.metaInfo.publisher)) {
+            this.createAndAppendChildNS(metadata, dc_ns, "dc:publisher", this.metaInfo.publisher);
+        }
 
         let author = this.createAndAppendChildNS(metadata, dc_ns, "dc:creator", this.metaInfo.author);
         this.addMetaProperty(metadata, author, "file-as", "creator", this.metaInfo.getFileAuthorAs());

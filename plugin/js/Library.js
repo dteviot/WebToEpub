@@ -566,6 +566,7 @@ class Library { // eslint-disable-line no-unused-vars
         let LibTemplateMetadataLanguage = document.getElementById("LibTemplateMetadataLanguage").innerHTML;
         let LibTemplateMetadataSubject = document.getElementById("LibTemplateMetadataSubject").innerHTML;
         let LibTemplateMetadataDescription = document.getElementById("LibTemplateMetadataDescription").innerHTML;
+        let LibTemplateMetadataPublisher = document.getElementById("LibTemplateMetadataPublisher").innerHTML;
         let LibRenderResult = document.getElementById("LibRenderMetadata" + objbtn.dataset.libepubid);
         let LibMetadata = await Library.LibGetMetadata(objbtn.dataset.libepubid);
         let LibRenderString = "";
@@ -600,6 +601,11 @@ class Library { // eslint-disable-line no-unused-vars
         LibRenderString += "<td>"+LibTemplateMetadataDescription+"</td>";
         LibRenderString += "<td colspan='2'><textarea  rows='2' cols='60' id='LibDescriptionInput"+objbtn.dataset.libepubid+"' type='text' name='descriptionInput'>"+LibMetadata[4]+"</textarea></td>";
         LibRenderString += "</tr>";
+        LibRenderString += "</tr>";
+        LibRenderString += "<tr id='LibTemplateMetadataPublisher"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<td>"+LibTemplateMetadataPublisher+"</td>";
+        LibRenderString += "<td colspan='2'><input id='LibPublisherInput"+objbtn.dataset.libepubid+"' type='text' value='"+LibMetadata[5]+"'></input></td>";
+        LibRenderString += "</tr>";
         LibRenderString += "</tbody>";
         LibRenderString += "</table>";
         LibRenderString += "</div>";
@@ -613,6 +619,7 @@ class Library { // eslint-disable-line no-unused-vars
         let LibLanguageInput = document.getElementById("LibLanguageInput"+obj.dataset.libepubid).value;
         let LibSubjectInput = document.getElementById("LibSubjectInput"+obj.dataset.libepubid).value;
         let LibDescriptionInput = document.getElementById("LibDescriptionInput"+obj.dataset.libepubid).value;
+        let LibPublisherInput = document.getElementById("LibPublisherInput"+obj.dataset.libepubid).value;
         Library.LibShowLoadingText();
         let LibDateCreated = new EpubPacker().getDateForMetaData();
         try {
@@ -641,6 +648,7 @@ class Library { // eslint-disable-line no-unused-vars
             LibSaveMetadataString += "<dc:subject>"+LibSubjectInput+"</dc:subject>";
             LibSaveMetadataString += "<dc:description>"+LibDescriptionInput+"</dc:description>";
             LibSaveMetadataString += "<dc:creator opf:file-as=\""+LibAuthorInput+"\" opf:role=\"aut\">"+LibAuthorInput+"</dc:creator>";
+            LibSaveMetadataString += "<dc:publisher>"+LibPublisherInput+"</dc:publisher>";
 
             opfFile = opfFile.replace(new RegExp("<dc:title>.+?</dc:creator>", "gs"), LibSaveMetadataString);
 
@@ -661,7 +669,7 @@ class Library { // eslint-disable-line no-unused-vars
             let EpubContent =  await EpubZip.getEntries();
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
             
-            let LibMetadataTags = ["dc:title", "dc:creator", "dc:language", "dc:subject", "dc:description"];
+            let LibMetadataTags = ["dc:title", "dc:creator", "dc:language", "dc:subject", "dc:description", "dc:publisher"];
             let opfFileMatch;
             LibMetadataTags.forEach((element, index) => {
                 LibMetadata[index] = "";
