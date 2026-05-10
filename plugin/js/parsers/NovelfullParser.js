@@ -109,6 +109,11 @@ class NovelfullParser extends Parser {
     }
 
     extractPartialChapterList(dom) {
+        if (!dom.querySelector("ul")) {
+            let templateElement = dom.querySelector("template");
+            return [...templateElement.content.querySelectorAll("li a")]
+                .map(link => util.hyperLinkToChapter(link));
+        }
         return [...dom.querySelectorAll("ul.list-chapter a")]
             .map(link => util.hyperLinkToChapter(link));
     }
