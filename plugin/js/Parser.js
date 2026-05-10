@@ -311,14 +311,10 @@ class Parser {
     * default implementation, 
     * if not available, return ''
     */
-    extractPublisher(dom) {   // eslint-disable-line no-unused-vars
+    extractPublisher(dom) {
         // try metadata extraction
         let publisher = dom.querySelector("meta[property='og:site_name']");
-        if (publisher !== null) {
-            return publisher.content;
-        }
-
-        return "";
+        return publisher?.content ?? "";
     }
 
     /**
