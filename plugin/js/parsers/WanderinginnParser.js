@@ -17,14 +17,13 @@ class WanderinginnParser extends WordpressBaseParser {
     }
 
     findChapterTitle(dom) {
-        const titles = dom.querySelectorAll("h2.elementor-heading-title");
+        const titles = [...dom.querySelectorAll("h2.elementor-heading-title, div#reader-content")];
+        let previous = null;
         for (const title of titles) {
-            // default fetch of the page has a copy of title "loading..." preceding the real one, for some reason
-            const candidate = title.textContent.trim();
-            if ((candidate !== "loading...") &&
-                !candidate.startsWith("Comments are temporarily paused while we perform maintenance.")) {
-                return title;
+            if (title.id === "reader-content") {
+                return previous?.textContent?.trim();
             }
+            previous = title;
         }
         return null;
     }
