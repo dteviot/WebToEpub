@@ -17,27 +17,32 @@ class NovelonomiconParser extends Parser {
 
     getUrlsOfTocPages(dom) {
         let urls = [];
-        let lastLink = dom.querySelector(".pages-nav li.last-page a.pages-nav-item")
-            || [...dom.querySelectorAll(".pages-nav a.pages-nav-item")].slice(-1)[0];
-        if (lastLink !== null) {
-            let href = lastLink.href;
-            // Extract the max page number safely
-            let match = href.match(/page\/(\d+)\//);
-            let max = match ? parseInt(match[1], 10) : 1;
+        let lastLink = [...dom.querySelectorAll("div.pages-nav a")];
+        if (lastLink === undefined || lastLink.length == 0) {
+            urls.push(dom.baseURI);
+            return urls;
+        }
 
-            // Trim to the base ".../page/"
-            let index = href.lastIndexOf("/", href.length - 2);
-            let base = href.substring(0, index + 1);
+        let indexUrl = lastLink.at(-1).baseURI;
+        let href = lastLink.at(-1).href;
+        if (lastLink.at(-1).href < lastLink.at(-2).href) {
+            href = lastLink.at(-2).href;
+        }
+        // Extract the max page number safely
+        let match = href.match(/page\/(\d+)\//);
+        let max = match ? parseInt(match[1], 10) : 1;
 
-            // Always include the index URL (page 1)
-            // This works no matter what the path is
-            let indexUrl = base.replace(/page\/$/, "");
-            urls.push(indexUrl);
+        // Trim to the base ".../page/"
+        let index = href.lastIndexOf("/", href.length - 2);
+        let base = href.substring(0, index + 1);
 
-            // Then add page 2 through max
-            for (let i = 2; i <= max; ++i) {
-                urls.push(base + i + "/");
-            }
+        // Always include the index URL (page 1)
+        // This works no matter what the path is
+        urls.push(indexUrl);
+
+        // Then add page 2 through max
+        for (let i = 2; i <= max; ++i) {
+            urls.push(base + i + "/");
         }
         return urls;
     }
