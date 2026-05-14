@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("truyenmoikk.com", () => new TruyenMoiKKParser());
+parserFactory.register("truyenmoiqq.com", () => new TruyenMoiKKParser());
 
 class TruyenMoiKKParser extends Parser {
     constructor() {
