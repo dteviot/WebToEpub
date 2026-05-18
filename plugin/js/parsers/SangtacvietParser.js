@@ -122,7 +122,7 @@ class SangtacvietParser extends Parser {
                     return `<p>${trimmedLine}</p>`;
                 }
                 return trimmedLine;
-            }).join('\n');
+            }).join("\n");
         }
         
         let content = util.sanitize(rawData);
