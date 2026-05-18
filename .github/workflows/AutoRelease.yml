@@ -4,7 +4,7 @@ name: Auto release developer-build
 
 on:
   push:
-    branches: [ ExperimentalTabMode ] 
+    branches: [ thanhlouis-patch-1 ] 
   workflow_dispatch:
     inputs:
       version:
@@ -43,8 +43,8 @@ jobs:
         git status
         git branch --show-current > git_branch.txt
         set /p var_git_branch=<git_branch.txt
-        if NOT "ExperimentalTabMode"=="%var_git_branch%" (
-          echo this workflow only works in the ExperimentalTabMode branch
+        if NOT "thanhlouis-patch-1"=="%var_git_branch%" (
+          echo this workflow only works in the thanhlouis-patch-1 branch
           exit 1
         )
 
@@ -159,7 +159,7 @@ jobs:
           echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...%var_build% >> output.txt
 
           echo create %var_build% release:
-          gh release create %var_build% --latest -t "Release %var_build%" --target "ExperimentalTabMode" -F output.txt
+          gh release create %var_build% --latest -t "Release %var_build%" --target "thanhlouis-patch-1" -F output.txt
           
           echo add files to release.
           gh release upload %var_build% eslint/WebToEpub%var_build%.Firefox.zip
@@ -171,7 +171,7 @@ jobs:
           echo * WebToEpub%var_build%.Firefox.zip for Firefox >> output.txt
           echo * WebToEpub%var_build%.Chrome.zip for Chrome >> output.txt
           echo.>> output.txt
-          echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/ExperimentalTabMode#user-content-installation>> output.txt
+          echo follow the "How to install from Source (for people who are not developers)" instructions at: https://github.com/dteviot/WebToEpub/tree/thanhlouis-patch-1#user-content-installation>> output.txt
           echo.>> output.txt
           echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...developer-build >> output.txt
 
@@ -179,7 +179,7 @@ jobs:
           gh release delete developer-build --cleanup-tag
 
           echo create developer-build release:
-          gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
+          gh release create developer-build -p -t "Latest developer build" --target "thanhlouis-patch-1" -F output.txt
           
           echo add files to release.
           gh release upload developer-build eslint/WebToEpub%var_build%.Firefox.zip
