@@ -115,10 +115,10 @@ class SangtacvietParser extends Parser {
 
         let rawData = json.data;
 
-        if (json.bookhost === 'faloo') {
-            rawData = rawData.split('\n').map(line => {
+        if (json.bookhost === "faloo") {
+            rawData = rawData.split("\n").map(line => {
                 let trimmedLine = line.trim();
-                if (trimmedLine.length > 0 && !trimmedLine.startsWith('<p>')) {
+                if (trimmedLine.length > 0 && !trimmedLine.startsWith("<p>")) {
                     return `<p>${trimmedLine}</p>`;
                 }
                 return trimmedLine;
