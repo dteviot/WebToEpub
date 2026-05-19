@@ -30,7 +30,7 @@ class FenrirealmParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        let titleText = dom.querySelector("h1").textContent;
+        let titleText = dom.querySelector("h2").textContent;
         return this.removeDuplicatedChapterPrefix(titleText);
     }
 
@@ -42,7 +42,7 @@ class FenrirealmParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector(".main-area .container:nth-of-type(2) img:nth-of-type(2)");
+        let img = dom.querySelector(".main-area .flex-col div.lazy-image-wrapper img:nth-of-type(2)");
         return img?.src || null;
     }
 
