@@ -70,6 +70,10 @@ class SpacebattlesParser extends Parser {
         return parent;
     }
 
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".threadmarkListingHeader-icon");
+    }
+
     findExpectedNextChapter(article) {
         return article.querySelector("li.threadmark-nav")
             ?.querySelector("a:nth-of-type(3)")

@@ -1,11 +1,11 @@
 
 "use strict";
 
-module("TruyenfullParser");
+module("TruyenFullVisionParser");
 
 QUnit.test("getUrlsOfTocPages", function (assert) {
     let dom = new DOMParser().parseFromString(TruyenfullToCSamplePage, "text/html");
-    let urls = TruyenfullParser.getUrlsOfTocPages(dom);
+    let urls = TruyenFullVisionParser.getUrlsOfTocPages(dom);
     assert.equal(urls.length, 17);
     assert.equal(urls[0], "https://truyenfull.vn/he-thong-di-lac-tu-tien-ki/trang-2/");
     assert.equal(urls[16], "https://truyenfull.vn/he-thong-di-lac-tu-tien-ki/trang-18/");

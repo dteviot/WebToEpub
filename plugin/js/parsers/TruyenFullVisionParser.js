@@ -1,5 +1,11 @@
 "use strict";
+parserFactory.register("truyenfull.vn", () => new TruyenFullVisionParser());
 parserFactory.register("truyenfull.vision", () => new TruyenFullVisionParser());
+
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).startsWith("truyenfull.")),
+    () => new TruyenFullVisionParser()
+);
 
 class TruyenFullVisionParser extends Parser {
     constructor() {

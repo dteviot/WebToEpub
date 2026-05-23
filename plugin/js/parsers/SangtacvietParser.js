@@ -112,7 +112,19 @@ class SangtacvietParser extends Parser {
         let title = newDoc.dom.createElement("h1");
         title.textContent = json.chaptername;
         newDoc.content.appendChild(title);
-        let content = util.sanitize(json.data);
+        let rawData = json.data;
+
+        if (json.bookhost === "faloo") {
+            rawData = rawData.split("\n").map(line => {
+                let trimmedLine = line.trim();
+                if (trimmedLine.length > 0 && !trimmedLine.startsWith("<p>")) {
+                    return `<p>${trimmedLine}</p>`;
+                }
+                return trimmedLine;
+            }).join("\n");
+        }
+
+        let content = util.sanitize(rawData);
         util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
