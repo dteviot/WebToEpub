@@ -15,10 +15,13 @@ class NovelhiParser extends Parser {
     }
 
     static LinkToChapter(link, baseURI) {
-        let onclick = link.getAttribute("onClick").split("'");
+        let sourceUrl = link.getAttribute("href") || link.href;
+        if (sourceUrl && !sourceUrl.startsWith("http")) {
+            sourceUrl = new URL(sourceUrl, baseURI).href;
+        }
         return {
-            sourceUrl: baseURI + "/" + onclick[1],
-            title: link.querySelector("span").textContent            
+            sourceUrl: sourceUrl,
+            title: link.querySelector("span")?.textContent?.trim() || link.textContent.trim()
         };
     }
 

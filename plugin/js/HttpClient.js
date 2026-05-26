@@ -279,6 +279,11 @@ class HttpClient {
     }
 
     static async wrapFetchImpl(url, wrapOptions) {
+        if (url == null) {
+            throw new Error("URL is null or undefined");
+        }
+        url = String(url).trim();
+
         if (BlockedHostNames.has(new URL(url).hostname)) {
             let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
             return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
