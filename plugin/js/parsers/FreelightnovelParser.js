@@ -2,6 +2,7 @@
 
 //dead url/ parser
 parserFactory.register("freelightnovel.net", () => new FreelightnovelParser());
+parserFactory.register("freelightnovel.com", () => new FreelightnovelParser());
 //dead url
 parserFactory.register("m.freelightnovel.net", () => new MFreelightnovelParser());
 

@@ -3,9 +3,10 @@
 /*
   KofiParser.js
   Parser for Ko-fi posts and galleries
+  v4.1 - Fast Discovery Edition
 */
 
-console.log("[WebToEpub] KofiParser v2.5 Loaded (Universal Feed Scan)");
+console.log("[WebToEpub] KofiParser v4.1 Loaded (Fast Discovery)");
 
 parserFactory.register("ko-fi.com", () => new KofiParser());
 parserFactory.registerManualSelect("Ko-fi", () => new KofiParser());
@@ -16,11 +17,6 @@ class KofiParser extends Parser {
         this.minimumThrottle = 3000;
     }
 
-    /**
-     * Collect all <a> elements from the document including those inside:
-     *  - live shadow roots (node.shadowRoot)
-     *  - unupgraded <template shadowrootmode> fragments
-     */
     _collectLinks(root) {
         let results = [];
         if (!root || !root.querySelectorAll) return results;
@@ -31,14 +27,12 @@ class KofiParser extends Parser {
             results.push({ hrefRaw, text });
         }
 
-        // Recurse into live shadow roots
         for (let el of root.querySelectorAll("*")) {
             if (el.shadowRoot) {
                 results.push(...this._collectLinks(el.shadowRoot));
             }
         }
 
-        // Recurse into unupgraded <template shadowrootmode> content fragments
         for (let tmpl of root.querySelectorAll("template[shadowrootmode]")) {
             if (tmpl.content) {
                 results.push(...this._collectLinks(tmpl.content));
@@ -48,96 +42,134 @@ class KofiParser extends Parser {
         return results;
     }
 
-    /**
-     * Returns promise with the URLs of the chapters to fetch
-     */
     async getChapterUrls(dom) {
+        console.log("[WebToEpub] getChapterUrls: Starting Discovery Process...");
         let baseUrl = this.state.chapterListUrl || dom.baseURI;
         if (typeof HttpClient !== "undefined" && HttpClient.unproxyUrl) {
             baseUrl = HttpClient.unproxyUrl(baseUrl);
         }
 
-        let allLinks = this._collectLinks(dom);
         let chapters = [];
         let seen = new Set();
+        let normalizedBase = util.normalizeUrlForCompare(baseUrl);
+        seen.add(normalizedBase);
+        
+        // Always add current page
+        chapters.push({ sourceUrl: baseUrl, title: this.extractTitle(dom) });
 
-        const processLink = (hrefRaw, text) => {
-            if (!hrefRaw || hrefRaw.startsWith("#") || hrefRaw.startsWith("javascript:")) return;
-            try {
-                let url = new URL(hrefRaw, baseUrl);
-                let pathname = url.pathname.toLowerCase();
-                if (pathname.includes("/post/") || pathname.includes("/gallery/")) {
-                    let normalized = util.normalizeUrlForCompare(url.href);
-                    if (!seen.has(normalized)) {
-                        seen.add(normalized);
-                        if (text.length < 2 || /^(more|next|previous|prev|support|share|gallery|donate|home|close)$/i.test(text)) {
-                            return;
-                        }
-                        chapters.push({ sourceUrl: url.href, title: text });
-                    }
-                }
-            } catch (e) { /* ignore */ }
-        };
-
-        for (let { hrefRaw, text } of allLinks) {
-            processLink(hrefRaw, text);
+        // Phase 1: Rapid Local Extraction
+        try {
+            console.log("[WebToEpub] Phase 1: Local DOM Sweep...");
+            let allLinks = this._collectLinks(dom);
+            for (let { hrefRaw, text } of allLinks) {
+                this._processLink(hrefRaw, text, baseUrl, chapters, seen);
+            }
+        } catch (e) {
+            console.error("[WebToEpub] Local Extraction Error:", e);
         }
 
-        // FALLBACK 1: Regex Deep Scan on initial DOM
-        if (chapters.length < 2) {
-            this._regexScan(dom, baseUrl, chapters, seen);
+        // Phase 2: Recursive Crawler (Matches user script logic)
+        // Note: This happens in the background of the analysis call
+        try {
+            console.log("[WebToEpub] Phase 2: Recursive History Crawl (This may take a moment)...");
+            await this._recursiveCrawl(dom, baseUrl, chapters, seen);
+        } catch (e) {
+            console.error("[WebToEpub] Crawler Error:", e);
         }
 
-        // FALLBACK 2: AJAX Feed Discovery (Fetches creator's recent posts list)
-        if (chapters.length < 5) {
-            await this._fetchRecentPosts(dom, baseUrl, chapters, seen);
-        }
-
-        if (chapters.length > 0) {
-            return chapters;
-        }
-
-        return [{ sourceUrl: baseUrl, title: this.extractTitle(dom) }];
+        console.log(`[WebToEpub] Discovery Complete. Found ${chapters.length} chapters.`);
+        return chapters;
     }
 
-    /** Aggressive fetch for creator's post feed */
-    async _fetchRecentPosts(dom, baseUrl, chapters, seen) {
-        let buttonId = null;
-        for (let script of dom.querySelectorAll("script")) {
-            let match = script.textContent.match(/buttonId:\s*['"]([a-zA-Z0-9-]+)['"]/);
-            if (match) {
-                buttonId = match[1];
+    _processLink(hrefRaw, text, baseUrl, chapters, seen) {
+        if (!hrefRaw || hrefRaw.startsWith("#") || hrefRaw.startsWith("javascript:")) return;
+        try {
+            let url = new URL(hrefRaw, baseUrl);
+            let normalized = util.normalizeUrlForCompare(url.href);
+            if (seen.has(normalized)) return;
+
+            let pathname = url.pathname.toLowerCase();
+            let hostname = url.hostname.toLowerCase();
+
+            if (pathname.includes("/post/") || pathname.includes("/gallery/") || 
+                hostname.includes("ouo.io") || hostname.includes("bit.ly") || hostname.includes("tinyurl.com")) {
+                
+                seen.add(normalized);
+                // Exclude generic navigation unless explicitly labeled
+                if (text.length < 2 || /^(more|support|share|gallery|donate|home|close|settings)$/i.test(text)) {
+                    if (!/chapter|prev|next|older/i.test(text)) return;
+                }
+                
+                chapters.push({ sourceUrl: url.href, title: text || url.href });
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    async _recursiveCrawl(dom, baseUrl, chapters, seen) {
+        let currentDom = dom;
+        let currentUrl = baseUrl;
+        let depth = 0;
+        const MAX_DEPTH = 50; // Follow up to 50 links deep
+
+        while (depth < MAX_DEPTH) {
+            depth++;
+            let nextUrl = this._findFirstOtherPost(currentDom, currentUrl);
+            if (!nextUrl) break;
+            
+            let normalized = util.normalizeUrlForCompare(nextUrl);
+            if (seen.has(normalized)) break;
+
+            console.log(`[WebToEpub] Crawling Chain Step ${depth}: ${nextUrl}`);
+            try {
+                // Using a slightly longer timeout for the proxy fetches
+                let nextDom = await HttpClient.fetchHtml(nextUrl);
+                if (!nextDom) {
+                    console.log("[WebToEpub] Empty response from proxy. Ending crawl.");
+                    break;
+                }
+                
+                seen.add(normalized);
+                chapters.push({
+                    sourceUrl: nextUrl,
+                    title: this.extractTitle(nextDom)
+                });
+
+                // On each new page, grab any links found in that page's DOM
+                let subLinks = this._collectLinks(nextDom);
+                for (let { hrefRaw, text } of subLinks) {
+                    this._processLink(hrefRaw, text, nextUrl, chapters, seen);
+                }
+
+                currentDom = nextDom;
+                currentUrl = nextUrl;
+            } catch (e) {
+                console.error(`[WebToEpub] Step ${depth} Failed:`, e.message);
                 break;
             }
         }
-
-        if (buttonId) {
-            try {
-                let feedUrl = `https://ko-fi.com/Buttons/LoadRecentPosts?buttonId=${buttonId}`;
-                let xhr = await HttpClient.wrapFetch(feedUrl);
-                if (xhr && xhr.responseXML) {
-                    this._regexScan(xhr.responseXML, baseUrl, chapters, seen);
-                }
-            } catch (e) { /* ignore */ }
-        }
     }
 
-    _regexScan(dom, baseUrl, chapters, seen) {
-        const html = dom.documentElement.innerHTML;
-        const regex = /https:\/\/ko-fi\.com\/(post|gallery)\/[a-zA-Z0-9-]+/gi;
-        let match;
-        while ((match = regex.exec(html)) !== null) {
-            let href = match[0];
-            let normalized = util.normalizeUrlForCompare(href);
-            if (!seen.has(normalized)) {
-                seen.add(normalized);
-                let slug = href.split("/").pop();
-                let titleParts = slug.split("-");
-                if (titleParts.length > 1) titleParts.pop(); 
-                let title = titleParts.join(" ").replace(/_/g, " ").trim();
-                chapters.push({ sourceUrl: href, title: title || slug });
+    _findFirstOtherPost(dom, currentUrl) {
+        let currentSlug = currentUrl.split("/").pop();
+        let links = this._collectLinks(dom);
+        
+        // Priority 1: Navigation Buttons
+        for (let { hrefRaw, text } of links) {
+            if (hrefRaw.includes("/post/") && !hrefRaw.includes(currentSlug)) {
+                if (/prev|older|previous/i.test(text)) {
+                    return new URL(hrefRaw, currentUrl).href;
+                }
             }
         }
+        
+        // Priority 2: Any other post link found on the page (matches bash head -1)
+        for (let { hrefRaw } of links) {
+            if (hrefRaw.includes("/post/") && !hrefRaw.includes(currentSlug)) {
+                return new URL(hrefRaw, currentUrl).href;
+            }
+        }
+        
+        return null;
     }
 
     findContent(dom) {
@@ -179,7 +211,7 @@ class KofiParser extends Parser {
 
     extractAuthor(dom) {
         let authorLabel = dom.querySelector(".nav-profile-title, .post-name-row a, a[href*='/home/profile'] span, .author-name");
-        return authorLabel ? authorLabel.textContent.trim() : super.extractAuthor(dom);
+        return authorLabel ? authorLabel.textContent.trim() : "Ko-fi Author";
     }
 
     findCoverImageUrl(dom) {

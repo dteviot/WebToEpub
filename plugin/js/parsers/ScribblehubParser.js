@@ -11,7 +11,8 @@ class ScribblehubParser extends Parser {
     async getChapterUrls(dom, chapterUrlsUI) {
         let baseUrl = dom.baseURI;
         let nextTocIndex = 1;
-        let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
+        let cntToc = dom.querySelector("span.cnt_toc");
+        let numChapters = cntToc ? parseInt(cntToc.textContent || "0") : 0;
         let nextTocPageUrl = function(_dom, chapters, lastFetch) {
             // site has bug, sometimes, won't return chapters, so 
             // don't loop forever when this happens

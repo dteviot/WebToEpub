@@ -62,15 +62,19 @@ class RoyalRoadParser extends Parser {
     //watermarks are regular <p> elements set to "display: none" by internal css
     removeWatermarks(webPageDom) {
         let internalStyles = [...webPageDom.querySelectorAll("style")]
-            .map(style => style.sheet?.rules);
+            .map(style => style.sheet?.cssRules || style.sheet?.rules);
         let allCssRules = [];
         for (let ruleList of internalStyles) {
-            for (let rule of ruleList) {
-                allCssRules.push(rule);
+            if (ruleList) {
+                for (let rule of ruleList) {
+                    allCssRules.push(rule);
+                }
             }
         }
         for (let rule of allCssRules.filter(s => s.style?.display == "none")) {
-            webPageDom.querySelector(rule.selectorText)?.remove();
+            try {
+                webPageDom.querySelector(rule.selectorText)?.remove();
+            } catch (_) {}
         }        
     }
 
