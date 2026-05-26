@@ -14,12 +14,19 @@ class NoveltranslatedbycParser extends BlogspotParser {
     }
 
     static buttonToChapter(button) {
-        let onClick = button.getAttribute("onclick");
+        let onClick = button.getAttribute("onclick") || "";
         let start = onClick.indexOf("https");
         let end = onClick.lastIndexOf("'");
+        let sourceUrl = "";
+        if (start !== -1 && end !== -1) {
+            sourceUrl = onClick.substring(start, end);
+        } else {
+            let link = button.querySelector("a") || button.closest("a");
+            sourceUrl = link ? (link.getAttribute("href") || link.href) : "";
+        }
         return {
             title: button.textContent.trim(),
-            sourceUrl:  onClick.substring(start, end),
+            sourceUrl:  sourceUrl,
         };
     }
 

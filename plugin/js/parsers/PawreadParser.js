@@ -14,10 +14,25 @@ class PawreadParser extends Parser {
     }
 
     itemToChapter(item, rootUrl) {
-        let pathTip = item.getAttribute("onclick").split("'")[1];
+        let onclick = item.getAttribute("onclick");
+        let pathTip = "";
+        if (onclick) {
+            let parts = onclick.split("'");
+            if (parts.length > 1) pathTip = parts[1];
+        }
+        if (!pathTip) {
+            let link = item.querySelector("a") || item;
+            pathTip = link.getAttribute("href") || "";
+            if (pathTip.startsWith(rootUrl)) {
+                pathTip = pathTip.substring(rootUrl.length);
+            }
+            if (pathTip.endsWith(".html")) {
+                pathTip = pathTip.substring(0, pathTip.length - 5);
+            }
+        }
         return ({
             sourceUrl:  rootUrl + pathTip + ".html",
-            title: item.querySelector(".c_title").textContent,
+            title: item.querySelector(".c_title")?.textContent?.trim() || item.textContent.trim(),
         });
     }
 
