@@ -304,8 +304,14 @@ class HttpClient {
                 if (p.url !== HttpClient.corsProxyUrl) proxiesToTry.push(p.url);
             }
 
+            const targetHostname = new URL(url).hostname;
             // Filter out blacklisted proxies for this attempt
-            proxiesToTry = proxiesToTry.filter(u => !HttpClient.BLACKLISTED_PROXIES.has(u));
+            proxiesToTry = proxiesToTry.filter(u => {
+                if (HttpClient.BLACKLISTED_PROXIES.has(u)) return false;
+                // Specific Ko-fi blacklist for corsproxy.io
+                if (targetHostname === "ko-fi.com" && u.includes("corsproxy.io")) return false;
+                return true;
+            });
 
             // If everything is blacklisted, clear and try again
             if (proxiesToTry.length === 0) {
@@ -346,8 +352,10 @@ class HttpClient {
                     .catch(err => { clearTimeout(tid); throw err; });
             });
 
+            let winnerUrl = null;
             try {
-                const { response, proxyUrl: winnerUrl } = await Promise.any(racePromises);
+                const { response, proxyUrl } = await Promise.any(racePromises);
+                winnerUrl = proxyUrl;
 
                 // Abort LOSING requests only — the winner's controller must stay alive
                 // until we finish reading the response body below.
@@ -387,6 +395,10 @@ class HttpClient {
                 return ret;
 
             } catch (aggErr) {
+                if (winnerUrl) {
+                    console.warn(`[WebToEpub] Winning proxy ${winnerUrl} failed during data retrieval, blacklisting it.`);
+                    HttpClient.BLACKLISTED_PROXIES.add(winnerUrl);
+                }
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
                 let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });

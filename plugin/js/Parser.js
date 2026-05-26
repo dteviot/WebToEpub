@@ -591,6 +591,10 @@ class Parser {
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
+                if (HttpClient.enableCorsProxy && HttpClient.corsProxyUrl) {
+                    console.warn(`[WebToEpub] Content not found on page. Blacklisting current proxy: ${HttpClient.corsProxyUrl}`);
+                    HttpClient.BLACKLISTED_PROXIES.add(HttpClient.corsProxyUrl);
+                }
                 let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
                 throw new Error(errorMsg);
             }
