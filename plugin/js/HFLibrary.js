@@ -7,10 +7,26 @@
 
 class HFLibrary { // eslint-disable-line no-unused-vars
 
-    static HF_API = "https://huggingface.co/api";
-    static HF_BASE = "https://huggingface.co";
+    // Configure your deployed Cloudflare Worker proxy URL here.
+    // If empty, falls back to direct Hugging Face API (which requires browser token storage).
+    static WORKER_URL = localStorage.getItem("hf_worker_url") || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev";
+
     static REPO_NAME = "webtoepub-library";
     static CATALOG_FILE = "catalog.json";
+
+    static _getApiBase() {
+        if (HFLibrary.WORKER_URL) {
+            return `${HFLibrary.WORKER_URL.replace(/\/$/, "")}/api`;
+        }
+        return "https://huggingface.co/api";
+    }
+
+    static _getBase() {
+        if (HFLibrary.WORKER_URL) {
+            return HFLibrary.WORKER_URL.replace(/\/$/, "");
+        }
+        return "https://huggingface.co";
+    }
 
     // ─── Token Management ────────────────────────────────────────
     static getToken() {
@@ -27,10 +43,13 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     static hasToken() {
-        return !!HFLibrary.getToken();
+        return !!HFLibrary.WORKER_URL || !!HFLibrary.getToken();
     }
 
     static ensureTokenConfigured(interactive = false) {
+        if (HFLibrary.WORKER_URL) {
+            return "worker_active"; // Worker handles token securely
+        }
         let token = HFLibrary.getToken();
         if (token) {
             return token;
@@ -46,25 +65,30 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     static _headers() {
-        const token = HFLibrary.ensureTokenConfigured(false);
-        if (!token) throw new Error("No Hugging Face token configured.");
-        return {
-            "Authorization": `Bearer ${token}`,
+        const headers = {
             "Content-Type": "application/json"
         };
+        if (!HFLibrary.WORKER_URL) {
+            const token = HFLibrary.ensureTokenConfigured(false);
+            if (!token) throw new Error("No Hugging Face token configured.");
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        return headers;
     }
 
     static _uploadHeaders() {
-        const token = HFLibrary.ensureTokenConfigured(false);
-        if (!token) throw new Error("No Hugging Face token configured.");
-        return {
-            "Authorization": `Bearer ${token}`
-        };
+        const headers = {};
+        if (!HFLibrary.WORKER_URL) {
+            const token = HFLibrary.ensureTokenConfigured(false);
+            if (!token) throw new Error("No Hugging Face token configured.");
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        return headers;
     }
 
     // ─── Whoami: Get Username ────────────────────────────────────
     static async whoami() {
-        const resp = await fetch(`${HFLibrary.HF_API}/whoami-v2`, {
+        const resp = await fetch(`${HFLibrary._getApiBase()}/whoami-v2`, {
             headers: HFLibrary._headers()
         });
         if (!resp.ok) throw new Error(`HF auth failed (${resp.status})`);
@@ -84,14 +108,14 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         const repoId = await HFLibrary._getRepoId();
         try {
             // Check if repo already exists
-            const checkResp = await fetch(`${HFLibrary.HF_API}/datasets/${repoId}`, {
+            const checkResp = await fetch(`${HFLibrary._getApiBase()}/datasets/${repoId}`, {
                 headers: HFLibrary._headers()
             });
             if (checkResp.ok) return repoId;
         } catch { /* continue to create */ }
 
         // Create the dataset repo
-        const createResp = await fetch(`${HFLibrary.HF_API}/repos/create`, {
+        const createResp = await fetch(`${HFLibrary._getApiBase()}/repos/create`, {
             method: "POST",
             headers: HFLibrary._headers(),
             body: JSON.stringify({
@@ -117,7 +141,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
             return [];
         }
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary.HF_BASE}/datasets/${repoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
         try {
             const resp = await fetch(url, {
                 headers: HFLibrary._uploadHeaders(),
@@ -153,7 +177,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
 
     // ─── Commit API (upload files) ───────────────────────────────
     static async _commitFiles(repoId, commitMessage, operations) {
-        const url = `${HFLibrary.HF_API}/datasets/${repoId}/commit/main`;
+        const url = `${HFLibrary._getApiBase()}/datasets/${repoId}/commit/main`;
 
         const ndjsonLines = [];
 
@@ -265,7 +289,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     // ─── Download a Book ─────────────────────────────────────────
     static async downloadBook(epubPath) {
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary.HF_BASE}/datasets/${repoId}/resolve/main/${epubPath}`;
+        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${epubPath}`;
         const resp = await fetch(url, { cache: "no-store" });
         if (!resp.ok) throw new Error(`Failed to download book: ${resp.status}`);
         const base64Text = await resp.text();
@@ -276,7 +300,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     static async getCoverUrl(coverPath) {
         if (!coverPath) return "";
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary.HF_BASE}/datasets/${repoId}/resolve/main/${coverPath}`;
+        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${coverPath}`;
         try {
             const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) return "";

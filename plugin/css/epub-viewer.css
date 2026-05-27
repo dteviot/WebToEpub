@@ -1,5 +1,10 @@
 /* EPUB Reader / Viewer Layout and Themes */
 
+/* Release EPUB Reader View from parent App-View transform containment bug on mobile */
+#epubReaderView.app-view.active {
+    transform: none !important;
+}
+
 #epubReaderMain {
     display: flex;
     width: 100%;
@@ -145,6 +150,10 @@
     padding: 0 24px;
     background: var(--reader-bg);
     z-index: 10;
+    
+    /* Support safe area safe top padding on mobile screens with notches */
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(64px + env(safe-area-inset-top, 0px));
 }
 
 .reader-header-left, .reader-header-right {
@@ -610,7 +619,8 @@
     /* 2. Header layout simplification on small screens */
     #epubReaderHeader {
         padding: 0 12px;
-        height: 56px;
+        padding-top: env(safe-area-inset-top, 0px);
+        height: calc(56px + env(safe-area-inset-top, 0px));
     }
 
     .reader-header-left, .reader-header-right {

@@ -695,6 +695,10 @@ class EpubViewerUI {
         }
 
         try {
+            // Measure original placeholder height and offset before content replacement
+            const oldHeight = wrapper.offsetHeight;
+            const oldOffsetTop = wrapper.offsetTop;
+
             let xhtmlText = "";
             if (this.isLazyScraped) {
                 // Remote scraped chapter
@@ -740,6 +744,17 @@ class EpubViewerUI {
 
             wrapper.className = "continuous-chapter-wrapper loaded";
             wrapper.removeAttribute("data-loading");
+
+            // Measure new loaded height and compensate viewport scroll top to prevent layout shifts
+            const newHeight = wrapper.offsetHeight;
+            const heightDiff = newHeight - oldHeight;
+            const viewport = document.getElementById("epubReaderViewport");
+            if (viewport && heightDiff > 0) {
+                // If the entire loaded chapter was completely above the current scroll viewport view
+                if (oldOffsetTop + oldHeight <= viewport.scrollTop) {
+                    viewport.scrollTop += heightDiff;
+                }
+            }
 
             // Re-prepare TTS paragraphs to include newly loaded ones, preserving active TTS index
             const activeTtsIndex = this.ttsCurrentIndex;
