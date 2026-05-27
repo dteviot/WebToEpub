@@ -631,6 +631,15 @@ class FetchResponseHandler {
             // Strip speculative preload tags to prevent relative asset fetches through proxies
             data = data.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
             let html = new DOMParser().parseFromString(data, "text/html");
+            // Redefine baseURI to return the original unproxied target URL (crucial for custom parsers in client mode)
+            try {
+                Object.defineProperty(html, "baseURI", {
+                    get: () => this.originalUrl,
+                    configurable: true
+                });
+            } catch (err) {
+                console.warn("baseURI redefinition failed: ", err);
+            }
             // Use the original target URL stored in setResponse — this is reliable
             // even when a proxy performs a server-side redirect that mutates response.url.
             util.setBaseTag(this.originalUrl, html);

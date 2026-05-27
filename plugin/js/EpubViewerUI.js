@@ -1524,6 +1524,16 @@ class EpubViewerUI {
                 throw new Error("Failed to load novel page XML. The website might be blocking us, or the CORS proxy failed.");
             }
 
+            // Ensure baseURI is explicitly defined (crucial for custom parsers in live reader mode)
+            try {
+                Object.defineProperty(doc, "baseURI", {
+                    get: () => url,
+                    configurable: true
+                });
+            } catch (e) {
+                console.warn("Could not redefine baseURI on doc:", e);
+            }
+
             if (loadRequestId !== this.activeLoadRequestId) {
                 return;
             }
