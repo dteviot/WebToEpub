@@ -686,12 +686,6 @@ class EpubViewerUI {
             if (this.lazyLoadObserver) this.lazyLoadObserver.observe(wrapper);
         });
 
-        // Kick off all chapter loading immediately if it's a downloaded EPUB (not lazy-scraped)
-        if (!this.isLazyScraped) {
-            for (let index = 0; index < this.toc.length; index++) {
-                this.lazyLoadChapter(index);
-            }
-        }
     }
 
     async lazyLoadChapter(index) {
