@@ -586,6 +586,7 @@ class EpubViewerUI {
         };
 
         this.lazyLoadObserver = new IntersectionObserver((entries) => {
+            if (this.isNavigatingToChapter) return;
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const idx = parseInt(entry.target.dataset.index);
@@ -1062,7 +1063,12 @@ class EpubViewerUI {
             }
             const coverWrapper = document.getElementById("chapter-wrap-cover");
             if (coverWrapper) {
+                this.isNavigatingToChapter = true;
+                if (this.navigationTimeout) clearTimeout(this.navigationTimeout);
                 coverWrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
+                this.navigationTimeout = setTimeout(() => {
+                    this.isNavigatingToChapter = false;
+                }, 800);
             }
             this.currentChapterIndex = -1;
             this.updateActiveTocHighlight();
@@ -1125,12 +1131,19 @@ class EpubViewerUI {
             // Scroll the target chapter placeholder into view smoothly
             const wrapper = document.getElementById(`chapter-wrap-${index}`);
             if (wrapper) {
+                this.isNavigatingToChapter = true;
+                if (this.navigationTimeout) clearTimeout(this.navigationTimeout);
+
                 wrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
                 
                 // Force immediate lazy load of target chapter so user doesn't wait
                 if (wrapper.classList.contains("placeholder-loading")) {
                     await this.lazyLoadChapter(index);
                 }
+
+                this.navigationTimeout = setTimeout(() => {
+                    this.isNavigatingToChapter = false;
+                }, 800);
             }
             
             this.updateActiveTocHighlight();
