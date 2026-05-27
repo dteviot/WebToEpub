@@ -1338,28 +1338,30 @@ class EpubViewerUI {
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
 
+        if (this.ttsActive) {
+            contentBody.classList.add("tts-mode-active");
+        } else {
+            contentBody.classList.remove("tts-mode-active");
+        }
+
         // Select meaningful text element blocks to narrate
         const selectors = "p, h1, h2, h3, h4, li, blockquote";
         const blocks = Array.from(contentBody.querySelectorAll(selectors));
 
-        blocks.forEach((el, index) => {
+        blocks.forEach((el) => {
             const text = el.textContent.trim();
             if (text.length > 2) {
                 // Save element and its text content
                 this.ttsParagraphs.push({ element: el, text: text });
+                const paraIndex = this.ttsParagraphs.length - 1;
                 
                 // Allow user to click any paragraph to jump speech directly to it
-                el.style.cursor = "pointer";
                 el.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const isSpeaking = window.speechSynthesis.speaking && !window.speechSynthesis.paused;
-                    if (this.ttsActive && isSpeaking) {
+                    if (this.ttsActive) {
                         this.stopTTS();
-                        this.ttsCurrentIndex = index;
+                        this.ttsCurrentIndex = paraIndex;
                         this.playTTS();
-                    } else {
-                        // Just place the start cursor index here, but do not speak!
-                        this.ttsCurrentIndex = index;
                     }
                 });
             }
@@ -1378,6 +1380,11 @@ class EpubViewerUI {
 
         this.stopTTS(); // clear active speech
         this.ttsActive = true;
+
+        const contentBody = document.getElementById("epubReaderContentBody");
+        if (contentBody) {
+            contentBody.classList.add("tts-mode-active");
+        }
         
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
@@ -1460,6 +1467,11 @@ class EpubViewerUI {
         this.ttsActive = false;
         window.speechSynthesis.cancel();
         
+        const contentBody = document.getElementById("epubReaderContentBody");
+        if (contentBody) {
+            contentBody.classList.remove("tts-mode-active");
+        }
+
         // Remove Highlights
         this.ttsParagraphs.forEach(p => p.element.classList.remove("tts-active-paragraph"));
         

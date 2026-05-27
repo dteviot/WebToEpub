@@ -740,3 +740,26 @@
         font-size: 1.5rem;
     }
 }
+
+/* TTS Mode Active Text Selection & Hover Styles */
+.tts-mode-active p,
+.tts-mode-active h1,
+.tts-mode-active h2,
+.tts-mode-active h3,
+.tts-mode-active h4,
+.tts-mode-active li,
+.tts-mode-active blockquote {
+    cursor: pointer !important;
+    transition: background-color 0.2s ease, border-left-color 0.2s ease;
+}
+
+.tts-mode-active p:hover,
+.tts-mode-active h1:hover,
+.tts-mode-active h2:hover,
+.tts-mode-active h3:hover,
+.tts-mode-active h4:hover,
+.tts-mode-active li:hover,
+.tts-mode-active blockquote:hover {
+    background-color: rgba(0, 245, 255, 0.05);
+}
+
