@@ -685,6 +685,13 @@ class EpubViewerUI {
             if (this.observer) this.observer.observe(wrapper);
             if (this.lazyLoadObserver) this.lazyLoadObserver.observe(wrapper);
         });
+
+        // Kick off all chapter loading immediately if it's a downloaded EPUB (not lazy-scraped)
+        if (!this.isLazyScraped) {
+            for (let index = 0; index < this.toc.length; index++) {
+                this.lazyLoadChapter(index);
+            }
+        }
     }
 
     async lazyLoadChapter(index) {
@@ -721,7 +728,7 @@ class EpubViewerUI {
             } else {
                 // Local EPUB file chapter
                 const chapter = this.toc[index];
-                const chapterEntry = this.entries.find(e => e.filename === chapter.href);
+                const chapterEntry = this.entries.find(e => e.filename === chapter.href || decodeURIComponent(e.filename) === decodeURIComponent(chapter.href));
                 if (chapterEntry) {
                     xhtmlText = await chapterEntry.getData(new zip.TextWriter());
                     xhtmlText = await this.resolveChapterImages(xhtmlText, chapter.href);
@@ -1243,7 +1250,7 @@ class EpubViewerUI {
             if (relativeSrc.startsWith("data:")) continue;
 
             const resolvedPath = this.resolveRelativePath(chapterDir, relativeSrc);
-            const imageEntry = this.entries.find(e => e.filename === resolvedPath);
+            const imageEntry = this.entries.find(e => e.filename === resolvedPath || decodeURIComponent(e.filename) === decodeURIComponent(resolvedPath));
 
             if (imageEntry) {
                 try {
