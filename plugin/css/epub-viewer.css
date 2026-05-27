@@ -348,6 +348,9 @@
     padding: 40px 24px;
     box-sizing: border-box;
     display: block; /* Native block layout handles vertical mouse wheel scrolling flawlessly */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }
 
 #epubReaderContentBody {
@@ -598,6 +601,12 @@
         pointer-events: auto;
     }
 
+    #epubReaderSidebarOverlay,
+    #readerExitImmersiveBtn,
+    #readerShowHeaderBtn {
+        backdrop-filter: none !important;
+    }
+
     /* 2. Header layout simplification on small screens */
     #epubReaderHeader {
         padding: 0 12px;
@@ -665,6 +674,14 @@
     /* 4. Viewport padding optimizations */
     #epubReaderViewport {
         padding: 24px 16px;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: auto;
+    }
+
+    #epubReaderMain,
+    #epubReaderViewport,
+    #epubReaderContentBody {
+        will-change: auto;
     }
 
     #epubReaderContentBody {

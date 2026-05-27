@@ -76,6 +76,10 @@ class EpubViewerUI {
         }
     }
 
+    prefersInstantScroll() {
+        return window.innerWidth <= 768;
+    }
+
     bindEvents() {
         // Toggle Sidebar
         const toggleSidebarBtn = document.getElementById("readerToggleSidebar");
@@ -198,7 +202,7 @@ class EpubViewerUI {
         if (viewport) {
             viewport.addEventListener("scroll", () => {
                 // Dual IntersectionObservers handle elegant skeleton loading
-            });
+            }, { passive: true });
 
             // Tap margins of the viewport in page-turn mode to navigate pages
             viewport.addEventListener("click", (e) => {
@@ -392,11 +396,11 @@ class EpubViewerUI {
                 this.initializeScrollViewport();
                 if (this.currentChapterIndex === -1) {
                     const cover = document.getElementById("chapter-wrap-cover");
-                    if (cover) cover.scrollIntoView();
+                    if (cover) cover.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
                 } else {
                     const wrapper = document.getElementById(`chapter-wrap-${this.currentChapterIndex}`);
                     if (wrapper) {
-                        wrapper.scrollIntoView();
+                        wrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
                         this.lazyLoadChapter(this.currentChapterIndex);
                     }
                 }
@@ -568,7 +572,7 @@ class EpubViewerUI {
         // 2. Observer for prefetching and lazy loading chapter placeholders early
         const lazyOptions = {
             root: document.getElementById("epubReaderViewport"),
-            rootMargin: "1000px 0px 1000px 0px", // Trigger early loading when scrolling towards it
+            rootMargin: this.prefersInstantScroll() ? "350px 0px 350px 0px" : "1000px 0px 1000px 0px", // Trigger early loading when scrolling towards it
             threshold: 0
         };
 
@@ -1025,7 +1029,7 @@ class EpubViewerUI {
             }
             const coverWrapper = document.getElementById("chapter-wrap-cover");
             if (coverWrapper) {
-                coverWrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+                coverWrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
             }
             this.currentChapterIndex = -1;
             this.updateActiveTocHighlight();
@@ -1088,7 +1092,7 @@ class EpubViewerUI {
             // Scroll the target chapter placeholder into view smoothly
             const wrapper = document.getElementById(`chapter-wrap-${index}`);
             if (wrapper) {
-                wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+                wrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
                 
                 // Force immediate lazy load of target chapter so user doesn't wait
                 if (wrapper.classList.contains("placeholder-loading")) {
@@ -1362,7 +1366,7 @@ class EpubViewerUI {
 
         // Scroll highlight paragraph into view smoothly if in scroll mode
         if (this.layout === "scroll") {
-            activeBlock.element.scrollIntoView({ behavior: "smooth", block: "center" });
+            activeBlock.element.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "center" });
         } else {
             // In Page-turn mode, calculate which page this paragraph is on and slide to it
             const viewport = document.getElementById("epubReaderViewport");
