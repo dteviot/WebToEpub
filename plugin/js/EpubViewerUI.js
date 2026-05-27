@@ -41,6 +41,15 @@ class EpubViewerUI {
     }
 
     init() {
+        // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
+        if (typeof zip !== "undefined") {
+            if (zip.configure) {
+                zip.configure({ useWebWorkers: false });
+            } else {
+                zip.useWebWorkers = false;
+            }
+        }
+
         this.bindEvents();
         // Set default theme on reader
         const readerMain = document.getElementById("epubReaderMain");
@@ -865,7 +874,9 @@ class EpubViewerUI {
 
             let zipReaderSource;
             if (typeof epubSource === "string" && epubSource.startsWith("data:")) {
-                zipReaderSource = new zip.Data64URIReader(epubSource);
+                // Decode large DataURL string into binary Blob first to prevent memory-exhaustion or hangs in mobile webviews
+                const decodedBlob = this.dataUrlToBlob(epubSource);
+                zipReaderSource = new zip.BlobReader(decodedBlob);
             } else if (epubSource instanceof Blob || epubSource instanceof File) {
                 zipReaderSource = new zip.BlobReader(epubSource);
             } else {
@@ -887,7 +898,10 @@ class EpubViewerUI {
             // 2. Read OPF file contents
             const opfText = await this.opfEntry.getData(new zip.TextWriter());
             const parser = new DOMParser();
-            const opfDoc = parser.parseFromString(opfText, "application/xml");
+            let opfDoc = parser.parseFromString(opfText, "application/xml");
+            if (opfDoc.querySelector("parsererror")) {
+                opfDoc = parser.parseFromString(opfText, "text/html");
+            }
 
             // 3. Parse Metadata
             const titleEl = opfDoc.querySelector("title, [localName='title']");
@@ -913,7 +927,10 @@ class EpubViewerUI {
             if (ncxEntry) {
                 try {
                     const ncxText = await ncxEntry.getData(new zip.TextWriter());
-                    const ncxDoc = parser.parseFromString(ncxText, "application/xml");
+                    let ncxDoc = parser.parseFromString(ncxText, "application/xml");
+                    if (ncxDoc.querySelector("parsererror")) {
+                        ncxDoc = parser.parseFromString(ncxText, "text/html");
+                    }
                     ncxDoc.querySelectorAll("navPoint, [localName='navPoint']").forEach(np => {
                         const labelText = np.querySelector("text, [localName='text']");
                         const contentSrc = np.querySelector("content, [localName='content']");
@@ -2399,5 +2416,16 @@ class EpubViewerUI {
             console.error("Failed to append next lazy chapter:", err);
             this.isChapterLoading = false;
         }
+    }
+
+    dataUrlToBlob(dataUrl) {
+        const [header, base64] = dataUrl.split(",");
+        const mime = header.match(/:(.*?);/)[1];
+        const binary = atob(base64);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+        }
+        return new Blob([array], { type: mime });
     }
 }

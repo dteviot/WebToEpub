@@ -60,6 +60,15 @@ class LibraryUI {
     }
 
     async init() {
+        // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
+        if (typeof zip !== "undefined") {
+            if (zip.configure) {
+                zip.configure({ useWebWorkers: false });
+            } else {
+                zip.useWebWorkers = false;
+            }
+        }
+
         this.bindEvents();
         await this.renderPersonalLibrary();
         this.renderPublicLibrary();
@@ -115,69 +124,78 @@ class LibraryUI {
         try {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const base64Data = e.target.result;
-                
-                // Get EPUB Title / Cover using temporary zip reader
-                const zipSource = new zip.BlobReader(file);
-                const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: false });
-                const entries = await zipReader.getEntries();
-                
-                const opfEntry = entries.find(entry => entry.filename.endsWith(".opf"));
-                let title = file.name.replace(/\.epub$/i, "");
-                let author = "Unknown Author";
-                let coverDataUrl = "";
-
-                if (opfEntry) {
-                    const opfText = await opfEntry.getData(new zip.TextWriter());
-                    const opfDoc = new DOMParser().parseFromString(opfText, "application/xml");
+                try {
+                    const base64Data = e.target.result;
                     
-                    const titleEl = opfDoc.querySelector("title, [localName='title']");
-                    const creatorEl = opfDoc.querySelector("creator, [localName='creator']");
-                    if (titleEl) title = titleEl.textContent;
-                    if (creatorEl) author = creatorEl.textContent;
+                    // Get EPUB Title / Cover using temporary zip reader
+                    const zipSource = new zip.BlobReader(file);
+                    const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: false });
+                    const entries = await zipReader.getEntries();
+                    
+                    const opfEntry = entries.find(entry => entry.filename.endsWith(".opf"));
+                    let title = file.name.replace(/\.epub$/i, "");
+                    let author = "Unknown Author";
+                    let coverDataUrl = "";
 
-                    // Locate Cover
-                    const opfDir = opfEntry.filename.substring(0, opfEntry.filename.lastIndexOf("/") + 1);
-                    const coverItem = opfDoc.querySelector("item[properties~='cover-image'], item[id='cover'], item[id='cover-image']");
-                    let coverPath = "";
-                    if (coverItem) {
-                        coverPath = this.resolvePath(opfDir, coverItem.getAttribute("href"));
-                    } else {
-                        const coverEntry = entries.find(ent => ent.filename.match(/cover\.(jpg|jpeg|png|svg)/i));
-                        if (coverEntry) coverPath = coverEntry.filename;
-                    }
+                    if (opfEntry) {
+                        const opfText = await opfEntry.getData(new zip.TextWriter());
+                        let opfDoc = new DOMParser().parseFromString(opfText, "application/xml");
+                        if (opfDoc.querySelector("parsererror")) {
+                            opfDoc = new DOMParser().parseFromString(opfText, "text/html");
+                        }
+                        
+                        const titleEl = opfDoc.querySelector("title, [localName='title']");
+                        const creatorEl = opfDoc.querySelector("creator, [localName='creator']");
+                        if (titleEl) title = titleEl.textContent;
+                        if (creatorEl) author = creatorEl.textContent;
 
-                    if (coverPath) {
-                        const coverEntry = entries.find(ent => ent.filename === coverPath);
-                        if (coverEntry) {
-                            const ext = coverPath.split(".").pop().toLowerCase();
-                            coverDataUrl = await coverEntry.getData(new zip.Data64URIWriter(`image/${ext === "svg" ? "svg+xml" : ext}`));
+                        // Locate Cover
+                        const opfDir = opfEntry.filename.substring(0, opfEntry.filename.lastIndexOf("/") + 1);
+                        const coverItem = opfDoc.querySelector("item[properties~='cover-image'], item[id='cover'], item[id='cover-image']");
+                        let coverPath = "";
+                        if (coverItem) {
+                            coverPath = this.resolvePath(opfDir, coverItem.getAttribute("href"));
+                        } else {
+                            const coverEntry = entries.find(ent => ent.filename.match(/cover\.(jpg|jpeg|png|svg)/i));
+                            if (coverEntry) coverPath = coverEntry.filename;
+                        }
+
+                        if (coverPath) {
+                            const coverEntry = entries.find(ent => ent.filename === coverPath);
+                            if (coverEntry) {
+                                const ext = coverPath.split(".").pop().toLowerCase();
+                                coverDataUrl = await coverEntry.getData(new zip.Data64URIWriter(`image/${ext === "svg" ? "svg+xml" : ext}`));
+                            }
                         }
                     }
+
+                    // Generate incremental story ID
+                    const storageData = await this.storage.get("LibArray");
+                    let libArray = storageData.LibArray || [];
+                    if (!Array.isArray(libArray)) libArray = [];
+                    
+                    const newId = Date.now().toString();
+                    libArray.push(newId);
+
+                    // Commit to storage database
+                    await this.storage.set({
+                        "LibArray": libArray,
+                        [`LibEpub${newId}`]: base64Data,
+                        [`LibFilename${newId}`]: file.name,
+                        [`LibCover${newId}`]: coverDataUrl || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==",
+                        [`LibStoryURL${newId}`]: "local-upload",
+                        [`LibTitle${newId}`]: title,
+                        [`LibAuthor${newId}`]: author,
+                        [`LibProgress${newId}`]: 0
+                    });
+
+                    await this.renderPersonalLibrary();
+                    if (loader) loader.style.display = "none";
+                } catch (innerErr) {
+                    console.error("Inner import failed:", innerErr);
+                    if (loader) loader.style.display = "none";
+                    alert("Error importing EPUB: " + innerErr.message);
                 }
-
-                // Generate incremental story ID
-                const storageData = await this.storage.get("LibArray");
-                let libArray = storageData.LibArray || [];
-                if (!Array.isArray(libArray)) libArray = [];
-                
-                const newId = Date.now().toString();
-                libArray.push(newId);
-
-                // Commit to storage database
-                await this.storage.set({
-                    "LibArray": libArray,
-                    [`LibEpub${newId}`]: base64Data,
-                    [`LibFilename${newId}`]: file.name,
-                    [`LibCover${newId}`]: coverDataUrl || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==",
-                    [`LibStoryURL${newId}`]: "local-upload",
-                    [`LibTitle${newId}`]: title,
-                    [`LibAuthor${newId}`]: author,
-                    [`LibProgress${newId}`]: 0
-                });
-
-                await this.renderPersonalLibrary();
-                if (loader) loader.style.display = "none";
             };
             reader.readAsDataURL(file);
         } catch (e) {
