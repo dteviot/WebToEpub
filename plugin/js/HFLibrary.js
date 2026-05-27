@@ -292,6 +292,12 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${epubPath}`;
         const resp = await fetch(url, { cache: "no-store" });
         if (!resp.ok) throw new Error(`Failed to download book: ${resp.status}`);
+
+        // If it's a binary epub (doesn't end with .txt), return the blob directly
+        if (!epubPath.toLowerCase().endsWith(".txt")) {
+            return await resp.blob();
+        }
+
         const base64Text = await resp.text();
         return HFLibrary._dataUrlToBlob(`data:application/epub+zip;base64,${base64Text.trim()}`);
     }
@@ -304,6 +310,18 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         try {
             const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) return "";
+
+            // If the cover is stored as a binary image (doesn't end with .txt)
+            if (!coverPath.toLowerCase().endsWith(".txt")) {
+                const blob = await resp.blob();
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => resolve("");
+                    reader.readAsDataURL(blob);
+                });
+            }
+
             const base64Text = await resp.text();
             
             // Extract the original extension to get the correct mime type
