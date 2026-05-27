@@ -2,119 +2,122 @@
 
 /**
  * SearchEngineAPI — thin adapter between UI and search backends.
- * Supports custom site search (SiteSearchEngine) and traditional engines (DDG, Bing, Google, Yandex).
+ * Supports custom site search (SiteSearchEngine).
  */
 class SearchEngineAPI {
     static async search(query, engine, onProgress, startIndex = 0, onResults) {
-        if (engine === "custom") {
+        const normalizedEngine = (engine || "").trim().toLowerCase();
+        if (normalizedEngine === "custom") {
             return await SiteSearchEngine.search(query.trim(), startIndex, 10, false, onProgress, onResults);
         }
-        if (engine === "custom_all") {
+        if (normalizedEngine === "custom_all") {
             return await SiteSearchEngine.search(query.trim(), startIndex, 10, true, onProgress, onResults);
         }
-        let searchQuery = query.trim() + " novel chapter";
-        let results = [];
-        switch (engine) {
-            case "duckduckgo": results = await SearchEngineAPI.searchDuckDuckGo(searchQuery); break;
-            case "bing": results = await SearchEngineAPI.searchBing(searchQuery); break;
-            case "google": results = await SearchEngineAPI.searchGoogle(searchQuery); break;
-            case "yandex": results = await SearchEngineAPI.searchYandex(searchQuery); break;
-            default: throw new Error("Unknown search engine: " + engine);
+        if (normalizedEngine === "victor_web") {
+            return await SearchEngineAPI.searchVictorWeb(query.trim(), startIndex, 20);
         }
-        return { results, nextIndex: -1 }; // Traditional engines don't easily paginate in this POC
+        throw new Error("Unknown search engine: " + engine);
     }
 
-    static async searchDuckDuckGo(query) {
-        let dom = await SearchEngineAPI.fetchDom("https://html.duckduckgo.com/html/?q=" + encodeURIComponent(query));
-        let results = [];
-        let nodes = dom.querySelectorAll(".result");
-        if (nodes.length === 0) nodes = dom.querySelectorAll(".result__body");
-        if (nodes.length === 0) nodes = dom.querySelectorAll("tr");
-        for (let node of nodes) {
-            let a = node.querySelector(".result__title a") || node.querySelector("a.result__a") || node.querySelector("a[href*='&uddg=']");
-            let snippet = node.querySelector(".result__snippet") || node.querySelector(".snippet");
-            if (a && a.href && a.href.includes("uddg=")) {
-                results.push({
-                    title: a.textContent.trim(),
-                    url: SearchEngineUI.extractRealUrl(a.href),
-                    snippet: snippet ? snippet.textContent.trim() : ""
-                });
-            }
-        }
-        return results;
-    }
-
-    static async searchBing(query) {
-        let dom = await SearchEngineAPI.fetchDom("https://www.bing.com/search?q=" + encodeURIComponent(query));
-        let results = [];
-        let nodes = dom.querySelectorAll(".b_algo");
-        if (nodes.length === 0) nodes = dom.querySelectorAll("li.b_algo");
-        for (let node of nodes) {
-            let a = node.querySelector("h2 a") || node.querySelector("a");
-            let snippet = node.querySelector(".b_caption p") || node.querySelector(".b_algoSlug") || node.querySelector(".b_lineclamp3");
-            if (a && a.href && !a.href.startsWith("javascript:") && a.href.includes("http")) {
-                results.push({
-                    title: a.textContent.trim(),
-                    url: a.href,
-                    snippet: snippet ? snippet.textContent.trim() : ""
-                });
-            }
-        }
-        return results;
-    }
-
-    static async searchGoogle(query) {
-        let dom = await SearchEngineAPI.fetchDom("https://www.google.com/search?q=" + encodeURIComponent(query));
-        let results = [];
-        let nodes = dom.querySelectorAll("div.g");
-        if (nodes.length === 0) nodes = dom.querySelectorAll("div.MjjYud");
-        for (let node of nodes) {
-            let a = node.querySelector("a");
-            let titleNode = node.querySelector("h3") || node.querySelector("span[role='heading']");
-            if (a && a.href && a.href.includes("http") && (titleNode || a.textContent.length > 10)) {
-                let snippetText = "";
-                let snippetNodes = node.querySelectorAll("div[style*='-webkit-line-clamp']");
-                if (snippetNodes.length > 0) {
-                    snippetText = snippetNodes[snippetNodes.length - 1].textContent.trim();
-                } else {
-                    let textDiv = node.querySelector("div[data-sncf]") || node.querySelector(".VwiC3b");
-                    if (textDiv) snippetText = textDiv.textContent.trim();
+    static async searchVictorWeb(query, startIndex = 0, targetResultCount = 10) {
+        // Build a flat list of all supported hostnames from SiteSearchEngine
+        if (!SearchEngineAPI._victorSiteList) {
+            SearchEngineAPI._victorSiteList = [];
+            const seen = new Set();
+            if (typeof SiteSearchEngine !== "undefined") {
+                const allSites = [...SiteSearchEngine.PRIMARY_SITES, ...SiteSearchEngine.SECONDARY_SITES];
+                for (let s of allSites) {
+                    let h = (s.hostname || "").toLowerCase().replace(/^www\./, "");
+                    if (h && !seen.has(h)) {
+                        seen.add(h);
+                        SearchEngineAPI._victorSiteList.push(h);
+                    }
                 }
-                results.push({
-                    title: titleNode ? titleNode.textContent.trim() : a.textContent.trim(),
-                    url: a.href,
-                    snippet: snippetText
-                });
             }
         }
-        return results;
+
+        const sites = SearchEngineAPI._victorSiteList;
+        const SITES_PER_BATCH = 10;
+
+        if (startIndex >= sites.length) {
+            return { results: [], nextIndex: -1 };
+        }
+
+        const batchSites = sites.slice(startIndex, startIndex + SITES_PER_BATCH);
+        const siteFilter = batchSites.map(h => `site:${h}`).join(" OR ");
+        const finalQuery = `${query} (${siteFilter})`;
+
+        const results = await SearchEngineAPI._victorFetch(finalQuery, targetResultCount);
+
+        const nextIndex = (startIndex + SITES_PER_BATCH < sites.length)
+            ? startIndex + SITES_PER_BATCH
+            : -1;
+
+        return { results, nextIndex };
     }
 
-    static async searchYandex(query) {
-        let dom = await SearchEngineAPI.fetchDom("https://yandex.com/search/?text=" + encodeURIComponent(query));
-        let results = [];
-        let nodes = dom.querySelectorAll("li.serp-item");
-        for (let node of nodes) {
-            let a = node.querySelector("h2 a[href]");
-            let snippetNode = node.querySelector(".organic__content-wrapper");
-            if (a) {
-                results.push({
-                    title: a.textContent.trim(),
-                    url: a.href,
-                    snippet: snippetNode ? snippetNode.textContent.trim() : ""
-                });
+    /** Internal: POST to Victor Web Gradio API and parse SSE response */
+    static async _victorFetch(queryString, count = 10) {
+        const postUrl = "https://victor-web.hf.space/gradio_api/call/search";
+        const postRes = await fetch(postUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: [queryString, "search", count] })
+        });
+        if (!postRes.ok) {
+            throw new Error(`Victor Web search failed: HTTP ${postRes.status}`);
+        }
+        const { event_id } = await postRes.json();
+        if (!event_id) {
+            throw new Error("No event_id returned from Victor Web API");
+        }
+
+        const streamRes = await fetch(
+            `https://victor-web.hf.space/gradio_api/call/search/${event_id}`
+        );
+        if (!streamRes.ok) {
+            throw new Error(`Victor Web results failed: HTTP ${streamRes.status}`);
+        }
+
+        const text = await streamRes.text();
+        const lines = text.split("\n");
+        let dataStr = null;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].trim().startsWith("event: complete")) {
+                for (let j = i + 1; j < lines.length; j++) {
+                    const dl = lines[j].trim();
+                    if (dl.startsWith("data:")) {
+                        dataStr = dl.slice(5).trim();
+                        break;
+                    }
+                }
+                if (dataStr) break;
             }
         }
-        return results;
+        if (!dataStr) {
+            const dataLines = lines.filter(l => l.trim().startsWith("data:"));
+            if (dataLines.length > 0) {
+                dataStr = dataLines[dataLines.length - 1].trim().slice(5).trim();
+            }
+        }
+        if (!dataStr) {
+            return [];
+        }
+
+        const parsed = JSON.parse(dataStr);
+        const wrapper = parsed[0];
+        if (!wrapper || !wrapper.results) return [];
+
+        return wrapper.results.map(res => ({
+            title: res.title,
+            url: res.link,
+            snippet: res.snippet || "",
+            source: "Victor Web (" + (res.domain || "Unknown") + ")"
+        }));
     }
 
-    static async fetchDom(url) {
-        let response = await HttpClient.fetchHtml(url);
-        if (!response || !response.responseXML) {
-            return document.implementation.createHTMLDocument();
-        }
-        return response.responseXML;
-    }
+    /** Cached site list for Victor Web batching */
+    static _victorSiteList = null;
 }
 
 /**
@@ -160,6 +163,12 @@ class SearchEngineUI {
     }
 
     static bindEvents() {
+        if (typeof UserPreferences !== "undefined") {
+            window.userPreferences = UserPreferences.readFromLocalStorage();
+            HttpClient.enableCorsProxy = window.userPreferences.enableCorsProxy.value;
+            HttpClient.corsProxyUrl = window.userPreferences.corsProxyUrl.value;
+        }
+
         let searchBtn = document.getElementById("searchEngineGoButton");
         let navBtn = document.getElementById("navSearchButton");
         let proxySelect = document.getElementById("corsProxySelect");
@@ -198,7 +207,10 @@ class SearchEngineUI {
 
             if (isKnownProxy) {
                 proxySelect.value = currentProxy;
-                if (proxyInput) proxyInput.style.display = "none";
+                if (proxyInput) {
+                    proxyInput.style.display = "none";
+                    proxyInput.value = currentProxy;
+                }
             } else {
                 proxySelect.value = "custom";
                 if (proxyInput) {
@@ -216,14 +228,31 @@ class SearchEngineUI {
                         HttpClient.corsProxyUrl = proxyInput.value;
                     }
                 } else {
-                    if (proxyInput) proxyInput.style.display = "none";
+                    if (proxyInput) {
+                        proxyInput.style.display = "none";
+                        proxyInput.value = proxySelect.value;
+                    }
                     HttpClient.corsProxyUrl = proxySelect.value;
                 }
                 HttpClient.enableCorsProxy = true;
                 if (enableCheckbox) enableCheckbox.checked = true;
+
+                if (window.userPreferences) {
+                    window.userPreferences.readFromUi();
+                }
             });
 
             if (proxyInput) {
+                proxyInput.addEventListener("change", () => {
+                    HttpClient.corsProxyUrl = proxyInput.value || HttpClient.corsProxyUrl;
+                    if (proxySelect) {
+                        let matching = HttpClient.CORS_PROXIES.find(p => p.url === proxyInput.value);
+                        proxySelect.value = matching ? matching.url : "custom";
+                    }
+                    if (window.userPreferences) {
+                        window.userPreferences.readFromUi();
+                    }
+                });
                 proxyInput.addEventListener("input", () => {
                     if (proxySelect.value === "custom") {
                         HttpClient.corsProxyUrl = proxyInput.value;
@@ -234,6 +263,9 @@ class SearchEngineUI {
             if (enableCheckbox) {
                 enableCheckbox.addEventListener("change", () => {
                     HttpClient.enableCorsProxy = enableCheckbox.checked;
+                    if (window.userPreferences) {
+                        window.userPreferences.readFromUi();
+                    }
                 });
             }
         }
@@ -277,7 +309,7 @@ class SearchEngineUI {
 
         // Reset state
         SearchEngineUI._currentQuery = rawQuery;
-        SearchEngineUI._currentEngine = engineSelect.value;
+        SearchEngineUI._currentEngine = (engineSelect.value || "").trim().toLowerCase();
         SearchEngineUI._nextIndex = 0;
         SearchEngineUI._allResults = [];
         SearchEngineUI._displayedCount = 0;
@@ -288,6 +320,7 @@ class SearchEngineUI {
 
         resultsTable.innerHTML = "";
         statusSpan.textContent = "Starting search...";
+        document.getElementById("searchView").classList.add("has-results");
         console.log(`[SearchEngineUI v${SearchEngineUI.VERSION}] Starting search for: "${SearchEngineUI._currentQuery}"`);
 
         try {
@@ -368,7 +401,7 @@ class SearchEngineUI {
 
             if (statusSpan) {
                 if (SearchEngineUI._allResults.length === 0) {
-                    statusSpan.textContent = "No results found. Try a different query or engine.";
+                    statusSpan.textContent = "No results found. Try a different query or search mode.";
                 } else {
                     let shown = SearchEngineUI._displayedCount;
                     let total = SearchEngineUI._allResults.length;
@@ -418,14 +451,41 @@ class SearchEngineUI {
     static filterSupportedResults(results) {
         let parserMap = null;
         if (typeof parserFactory !== "undefined") parserMap = parserFactory.parsers;
-        if (!parserMap) return results;
+        
+        let supportedHosts = null;
+        if (!parserMap || parserMap.size === 0) {
+            supportedHosts = new Set();
+            if (typeof SiteSearchEngine !== "undefined") {
+                for (let s of SiteSearchEngine.PRIMARY_SITES) {
+                    if (s.hostname) supportedHosts.add(s.hostname.toLowerCase().replace(/^www\./, ""));
+                }
+                for (let s of SiteSearchEngine.SECONDARY_SITES) {
+                    if (s.hostname) supportedHosts.add(s.hostname.toLowerCase().replace(/^www\./, ""));
+                }
+            }
+        }
 
         let supported = [];
         for (let res of results) {
             let realUrl = SearchEngineUI.extractRealUrl(res.url);
             try {
-                let hostName = ParserFactory.hostNameForParserSelection(realUrl);
-                if (parserMap.has(hostName)) {
+                let hostName = "";
+                if (typeof ParserFactory !== "undefined") {
+                    hostName = ParserFactory.hostNameForParserSelection(realUrl);
+                } else if (typeof util !== "undefined" && typeof util.extractHostName === "function") {
+                    let rawHost = util.extractHostName(realUrl);
+                    hostName = rawHost.startsWith("www.") ? rawHost.substring(4) : rawHost;
+                } else {
+                    let u = new URL(realUrl);
+                    let rawHost = u.hostname;
+                    hostName = rawHost.startsWith("www.") ? rawHost.substring(4) : rawHost;
+                }
+                hostName = hostName.toLowerCase();
+
+                if (parserMap && parserMap.has(hostName)) {
+                    res.url = realUrl;
+                    supported.push(res);
+                } else if (supportedHosts && supportedHosts.has(hostName)) {
                     res.url = realUrl;
                     supported.push(res);
                 }
@@ -435,11 +495,6 @@ class SearchEngineUI {
     }
 
     static extractRealUrl(url) {
-        try {
-            if (url.includes("duckduckgo.com/l/?uddg=")) {
-                return decodeURIComponent(new URL(url).searchParams.get("uddg"));
-            }
-        } catch (e) { /* ignore */ }
         return url;
     }
 
@@ -536,6 +591,16 @@ class SearchEngineUI {
                     }
                 };
                 action.appendChild(importBtn);
+
+                // Add "Read Now" button next to Import button
+                const readLiveBtn = document.createElement("button");
+                readLiveBtn.className = "read-now-btn";
+                readLiveBtn.textContent = "Read Now";
+                readLiveBtn.onclick = () => {
+                    SearchEngineUI.startReadLive(res.url, res.title, res.source || "Search Result");
+                };
+                action.appendChild(readLiveBtn);
+
                 row.appendChild(info);
                 row.appendChild(action);
                 card.appendChild(row);
@@ -591,6 +656,62 @@ class SearchEngineUI {
             startInput.value = url;
             let loadBtn = document.getElementById("loadAndAnalyseButton");
             if (loadBtn) loadBtn.click();
+        }
+    }
+
+    static async startReadLive(url, title, source) {
+        let statusSpan = document.getElementById("searchEngineStatus");
+        if (statusSpan) statusSpan.textContent = "Adding live novel to library...";
+        console.log(`[SearchEngineUI] Registering Live Scraped novel: "${title}" (${url})`);
+        
+        try {
+            const newId = "lazy_" + Date.now().toString();
+            
+            // Check if we are inside the main index.html portal or popup.html
+            if (window.libraryManager && window.epubViewer) {
+                const storage = window.libraryManager.storage;
+                
+                const storageData = await storage.get("LibArray");
+                let libArray = storageData.LibArray || [];
+                if (!Array.isArray(libArray)) libArray = [];
+                
+                libArray.push(newId);
+                
+                await storage.set({
+                    "LibArray": libArray,
+                    [`LibEpub${newId}`]: "lazy:" + url,
+                    [`LibFilename${newId}`]: title + ".epub",
+                    [`LibCover${newId}`]: "", // Cover will load dynamically in real-time
+                    [`LibStoryURL${newId}`]: url,
+                    [`LibTitle${newId}`]: title,
+                    [`LibAuthor${newId}`]: source || "Web Novel",
+                    [`LibProgress${newId}`]: 0
+                });
+                
+                // Rerender Personal Catalog grid
+                await window.libraryManager.renderPersonalLibrary();
+                
+                // Switch views directly to EPUB Reader
+                const landing = document.getElementById("netflixLanding");
+                const backBtn = document.getElementById("globalBackBtn");
+                const views = document.querySelectorAll(".app-view");
+                
+                if (landing) landing.style.display = "none";
+                views.forEach(v => {
+                    v.classList.toggle("active", v.id === "epubReaderView");
+                });
+                if (backBtn) backBtn.style.display = "none";
+                
+                // Trigger live-scraped e-reading in reader
+                window.epubViewer.showLoader();
+                await window.epubViewer.loadEpub("lazy:" + url);
+            } else {
+                // Inside popup.html, redirect back to index.html with query params
+                window.location.href = "../index.html?readLive=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(title);
+            }
+        } catch (e) {
+            console.error("Failed to trigger live reading:", e);
+            alert("Failed to trigger live reading: " + e.message);
         }
     }
 }

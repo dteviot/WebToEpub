@@ -114,7 +114,7 @@ ${simplifiedHtml}
             const jsonMatch = aiText.match(/\{[\s\S]*\}/);
             const results = JSON.parse(jsonMatch ? jsonMatch[0] : aiText);
 
-            console.log(`[AiClient] Autocomplete selectors found:`, results);
+            console.log("[AiClient] Autocomplete selectors found:", results);
             return results;
         } catch (e) {
             console.error("[AiClient] Failed to autocomplete selectors:", e);

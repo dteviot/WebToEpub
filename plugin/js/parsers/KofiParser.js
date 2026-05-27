@@ -192,7 +192,7 @@ class KofiParser extends Parser {
             if (text.includes("article-body") || text.includes("shadowDom.innerHTML")) {
                 const match = text.match(/innerHTML\s*\+?=\s*['"](.*?)['"];/s) || text.match(/['"](<div class=".*?article-body.*?">.*?)['"];/s);
                 if (match) {
-                    let html = match[1].replace(/\\(['"/])/g, '$1').replace(/\\n/g, '\n').replace(/\\r/g, '');
+                    let html = match[1].replace(/\\(['"/])/g, "$1").replace(/\\n/g, "\n").replace(/\\r/g, "");
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
                     const content = doc.querySelector(".article-body") || doc.body.firstChild;

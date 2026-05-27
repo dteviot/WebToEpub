@@ -262,11 +262,14 @@ class HttpClient {
 
     static fetchJson(url, fetchOptions) {
         let parser = fetchOptions?.parser;
+        let bypassProxy = fetchOptions?.bypassProxy;
         delete fetchOptions?.parser;
+        delete fetchOptions?.bypassProxy;
         let wrapOptions = {
             responseHandler: new FetchJsonResponseHandler(),
             fetchOptions: fetchOptions,
-            parser: parser
+            parser: parser,
+            bypassProxy: bypassProxy
         };
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
@@ -310,6 +313,7 @@ class HttpClient {
             }
 
             const targetHostname = new URL(url).hostname;
+
             // Filter out blacklisted proxies for this attempt
             proxiesToTry = proxiesToTry.filter(u => {
                 if (HttpClient.BLACKLISTED_PROXIES.has(u)) return false;
@@ -578,6 +582,7 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
+    { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
     { name: "Huggingface Proxy", url: "https://amono5667-versal-scrapper.hf.space/?url=" },
     { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
     { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
@@ -621,8 +626,10 @@ class FetchResponseHandler {
     }
 
     responseToHtml(response) {
-        return response.arrayBuffer().then(function (rawBytes) {
+        return response.arrayBuffer().then(function(rawBytes) {
             let data = this.makeTextDecoder(response).decode(rawBytes);
+            // Strip speculative preload tags to prevent relative asset fetches through proxies
+            data = data.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
             let html = new DOMParser().parseFromString(data, "text/html");
             // Use the original target URL stored in setResponse — this is reliable
             // even when a proxy performs a server-side redirect that mutates response.url.
@@ -634,20 +641,20 @@ class FetchResponseHandler {
     }
 
     responseToBinary(response) {
-        return response.arrayBuffer().then(function (data) {
+        return response.arrayBuffer().then(function(data) {
             this.arrayBuffer = data;
             return this;
         }.bind(this));
     }
 
     responseToText(response) {
-        return response.arrayBuffer().then(function (rawBytes) {
+        return response.arrayBuffer().then(function(rawBytes) {
             return this.makeTextDecoder(response).decode(rawBytes);
         }.bind(this));
     }
 
     responseToJson(response) {
-        return response.text().then(function (data) {
+        return response.text().then(function(data) {
             this.json = JSON.parse(data);
             return this;
         }.bind(this));
@@ -700,4 +707,3 @@ class FetchHtmlResponseHandler extends FetchResponseHandler {
         return super.responseToHtml(response);
     }
 }
-

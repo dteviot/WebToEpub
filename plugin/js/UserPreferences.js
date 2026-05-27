@@ -34,15 +34,18 @@ class BoolUserPreference extends UserPreference {
     }
 
     readFromUi() {
-        this.value = this.getUiElement().checked;
+        let el = this.getUiElement();
+        if (el) this.value = el.checked;
     }
 
     writeToUi() {
-        this.getUiElement().checked = this.value;
+        let el = this.getUiElement();
+        if (el) el.checked = this.value;
     }
 
     hookupUi(readFromUi) {
-        this.getUiElement().onclick = readFromUi;
+        let el = this.getUiElement();
+        if (el) el.onclick = readFromUi;
     }
 }
 
@@ -59,19 +62,23 @@ class StringUserPreference extends UserPreference {
     }
 
     readFromUi() {
-        this.value = this.getUiElement().value;
+        let el = this.getUiElement();
+        if (el) this.value = el.value;
     }
 
     writeToUi() {
-        this.getUiElement().value = this.value;
+        let el = this.getUiElement();
+        if (el) el.value = this.value;
     }
 
     hookupUi(readFromUi) {
         let uiElement = this.getUiElement();
-        if (uiElement.tagName === "SELECT") {
-            uiElement.onchange = readFromUi;
-        } else {
-            uiElement.addEventListener("blur", readFromUi, true);
+        if (uiElement) {
+            if (uiElement.tagName === "SELECT") {
+                uiElement.onchange = readFromUi;
+            } else {
+                uiElement.addEventListener("blur", readFromUi, true);
+            }
         }
     }
 }
@@ -134,7 +141,10 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.corsProxyUrl = this.addPreference("corsProxyUrl", "corsProxyInput", HttpClient.corsProxyUrl);
         this.wtrLabCookieImport = this.addPreference("wtrLabCookieImport", "wtrLabCookieInput", "");
 
-        document.getElementById("themeColorTag").addEventListener("change", UserPreferences.SetTheme);
+        let themeColorTag = document.getElementById("themeColorTag");
+        if (themeColorTag) {
+            themeColorTag.addEventListener("change", UserPreferences.SetTheme);
+        }
     }
 
     /** @private */

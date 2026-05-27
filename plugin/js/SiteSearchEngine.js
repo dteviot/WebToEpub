@@ -330,7 +330,7 @@ class SiteSearchEngine {
             {
                 name: "FreeWebNovel",
                 hostname: "freewebnovel.com",
-                searchUrl: (q) => `https://freewebnovel.com/search`,
+                searchUrl: (q) => "https://freewebnovel.com/search",
                 getFetchOptions: (q) => {
                     return {
                         method: "POST",
@@ -359,7 +359,7 @@ class SiteSearchEngine {
             {
                 name: "NovelCodex",
                 hostname: "novelcodex.com",
-                searchUrl: (q) => `https://www.novelcodex.com/api/t/getSearchResult?batch=1`,
+                searchUrl: (q) => "https://www.novelcodex.com/api/t/getSearchResult?batch=1",
                 getFetchOptions: async (q) => {
                     try {
                         if (typeof CompressionStream !== "undefined") {
@@ -667,6 +667,8 @@ class SiteSearchEngine {
      * URL resolution. Faster than running giant regex on raw HTML strings.
      */
     static parseSafeHtml(html, baseUrl) {
+        // Strip speculative preload tags to prevent relative asset fetches through proxies
+        html = html.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
         let dom = new DOMParser().parseFromString(html, "text/html");
         for (let el of dom.querySelectorAll("script, link, style, iframe, img")) {
             el.remove();

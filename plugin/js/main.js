@@ -2,7 +2,7 @@
     Main processing handler for popup.html
 
 */
-var main = (function () {
+var main = (function() {
     "use strict";
 
     // this will be called when message listener fires (extension-only, no-op in website mode)
@@ -268,7 +268,7 @@ var main = (function () {
         // CORS Proxy selection (website mode)
         let corsProxySelect = document.getElementById("corsProxySelect");
         if (corsProxySelect) {
-            corsProxySelect.innerHTML = '<option value="">Custom...</option>';
+            corsProxySelect.innerHTML = "<option value=\"\">Custom...</option>";
             HttpClient.CORS_PROXIES.forEach(proxy => {
                 let option = document.createElement("option");
                 option.text = proxy.name;

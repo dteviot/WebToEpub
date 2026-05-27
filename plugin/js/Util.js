@@ -7,7 +7,7 @@
 
 "use strict";
 
-const util = (function () {
+const util = (function() {
     var sleepController = new AbortController;
 
     function sleep(ms) {
@@ -479,7 +479,7 @@ const util = (function () {
     }
 
     function findPrimaryStyleSettings(element, styleProperties) {
-        let characterCountForElement = function (element) {
+        let characterCountForElement = function(element) {
             let count = 0;
             let child = element.firstChild;
             while (child) {
@@ -491,7 +491,7 @@ const util = (function () {
             return count;
         };
 
-        let findMaxCount = function (map) {
+        let findMaxCount = function(map) {
             let maxPair = [undefined, 0];
             for (let pair of map) {
                 if (maxPair[1] <= pair[1]) {
@@ -501,7 +501,7 @@ const util = (function () {
             return maxPair[0];
         };
 
-        let mergeStyles = function (parentStyle, currentStyle, styleProperty) {
+        let mergeStyles = function(parentStyle, currentStyle, styleProperty) {
             if (currentStyle === null || currentStyle === undefined) {
                 return parentStyle;
             }
@@ -509,7 +509,7 @@ const util = (function () {
             return c !== "" ? c : parentStyle;
         };
 
-        let updateStat = function (map, key, count) {
+        let updateStat = function(map, key, count) {
             let total = map.get(key);
             if (total === undefined) {
                 total = 0;
@@ -517,7 +517,7 @@ const util = (function () {
             map.set(key, total + count);
         };
 
-        let walk = function (element, stats, parentStyle, styleProperties) {
+        let walk = function(element, stats, parentStyle, styleProperties) {
             let mergedStyle = [];
             let count = characterCountForElement(element);
             for (let i = 0; i < styleProperties.length; ++i) {
@@ -601,7 +601,7 @@ const util = (function () {
         }
 
         let linkSet = new Set();
-        let includeLink = function (link) {
+        let includeLink = function(link) {
             // ignore links with no name or link
             if (isNullOrEmpty(link.innerText) || isNullOrEmpty(link.href)) {
                 return false;
@@ -619,7 +619,7 @@ const util = (function () {
 
         // only set newArc when arc changes
         let currentArc = null;
-        let newArcValueForChapter = function (link) {
+        let newArcValueForChapter = function(link) {
             if (getChapterArc) {
                 let arc = getChapterArc(link);
                 if (arc === currentArc) {
@@ -923,7 +923,7 @@ const util = (function () {
      * @param {string} prefix - text that precedes the embedded JSON
      */
     function locateAndExtractJson(s, prefix) {
-        const findOpeningBracket = function (s, index) {
+        const findOpeningBracket = function(s, index) {
             while (index < s.length) {
                 let ch = s[index];
                 if ((ch === "[") || (ch === "{")) {

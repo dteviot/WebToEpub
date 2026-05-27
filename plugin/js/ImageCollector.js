@@ -21,7 +21,7 @@ class ImageCollector {
     static StubCollector() {
         return {
             coverImageInfo: null,
-            imagesToPackInEpub: function () { return []; }
+            imagesToPackInEpub: function() { return []; }
         };
     }
 
@@ -302,13 +302,13 @@ class ImageCollector {
             let options = { type: imageInfo.mediaType };
             let blob = new Blob([new Uint8Array(imageInfo.arraybuffer)], options);
             let dataUrl = URL.createObjectURL(blob);
-            img.onload = function () {
+            img.onload = function() {
                 imageInfo.height = img.height;
                 imageInfo.width = img.width;
                 URL.revokeObjectURL(dataUrl);
                 resolve(img);
             };
-            img.onerror = function () {
+            img.onerror = function() {
                 // If the image gives an error then set a general height and width
                 imageInfo.height = 1200;
                 imageInfo.width = 1600;

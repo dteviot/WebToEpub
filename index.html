@@ -3,82 +3,355 @@
 
 <head>
     <meta charset="utf-8">
-    <title>WebToEpub — Novel Search Engine</title>
-    <meta name="description" content="Search supported web novel sites and import them directly into WebToEpub.">
+    <title>WebToEpub — Novel Search & Reader Portal</title>
+    <meta name="description" content="Search supported web novel sites, view personal libraries, and read epubs natively with WebToEpub.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="Uwcca-DMQHEtLdjQpQhKWG6GTt4U2Nd6IV4GC47P7Lw" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"></noscript>
-    <link rel="stylesheet" href="plugin/css/design-system.css">
-    <link rel="stylesheet" href="plugin/css/search.css">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="plugin/css/design-system.css?v=20260527_v5">
+    <link rel="stylesheet" href="plugin/css/search.css?v=20260527_v5">
+    <link rel="stylesheet" href="plugin/css/netflix-app.css?v=20260527_v5">
+    <link rel="stylesheet" href="plugin/css/epub-viewer.css?v=20260527_v5">
     <link rel="icon" type="image/png" href="plugin/book128.png">
 </head>
 
 <body>
 
-    <a href="plugin/popup.html?mode=manual" class="launch-btn">Launch WebToEpub Tool →</a>
+    <!-- Back to portal button -->
+    <button id="globalBackBtn" class="back-to-portal-btn" style="display:none;">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Home
+    </button>
 
-    <header>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 1rem;">
-            <img src="plugin/book128.png" alt="WebToEpub Logo"
-                style="width: 80px; height: 80px; filter: drop-shadow(0 0 20px var(--primary-glow));">
-            <h1 style="margin: 0;">WebToEpub</h1>
+    <!-- Netflix Style Profile Landing Screen -->
+    <div id="netflixLanding">
+        <div class="profile-grid">
+            
+            <button id="profileSearch" class="profile-card">
+                <div class="profile-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </div>
+                <span class="profile-name">Search Novels</span>
+            </button>
+
+            <button id="profileLink" class="profile-card">
+                <div class="profile-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                    </svg>
+                </div>
+                <span class="profile-name">Import Link</span>
+            </button>
+
+            <button id="profileLibraries" class="profile-card">
+                <div class="profile-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                </div>
+                <span class="profile-name">Libraries Hub</span>
+            </button>
+
         </div>
-        <p class="subtitle">Search 550+ supported novel sites and import them with a single click. No more manually
-            hunting for URLs.</p>
-    </header>
-
-    <div class="search-container">
-        <input id="searchEngineQuery" type="text" placeholder="Search for a novel title..." autocomplete="off"
-            autofocus>
-        <select id="searchEngineSelect">
-            <option value="custom">Custom (All Sites)</option>
-            <option value="custom_all" selected>Custom + Secondary Sites</option>
-            <option value="duckduckgo">DuckDuckGo</option>
-            <option value="bing">Bing</option>
-            <option value="google">Google</option>
-            <option value="yandex">Yandex</option>
-        </select>
-        <button id="searchEngineGoButton">Search</button>
     </div>
 
-    <!-- Proxy Configuration -->
-    <div class="proxy-config">
-        <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; font-weight: 600;">CORS
-            PROXY</span>
-        <select id="corsProxySelect">
-            <option value="custom">Custom URL...</option>
-        </select>
-        <input id="corsProxyInput" type="text" placeholder="https://your-proxy.com/?url="
-            style="display: none; flex: 1;">
-        <label
-            style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); user-select: none;">
-            <input type="checkbox" id="enableCorsProxyCheckbox" checked style="accent-color: var(--primary);">
-            Enable
-        </label>
+    <!-- 1) Search Engine Section (Originally index.html layout) -->
+    <div id="searchView" class="app-view">
+        <div class="search-hero">
+            <header>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 1rem; cursor: pointer;" onclick="document.getElementById('searchView').classList.remove('has-results'); document.getElementById('searchEngineResultsTable').innerHTML=''; document.getElementById('searchEngineStatus').innerText=''; document.getElementById('searchEngineQuery').value='';">
+                    <img src="plugin/book128.png" alt="WebToEpub Logo"
+                        style="width: 80px; height: 80px; filter: drop-shadow(0 0 20px var(--primary-glow)); transition: all 0.3s ease;">
+                    <h1 style="margin: 0; transition: all 0.3s ease;">WebToEpub</h1>
+                </div>
+                <p class="subtitle">Search 550+ supported novel sites and import them with a single click. No more manually hunting for URLs.</p>
+            </header>
+
+            <div class="search-container">
+                <input id="searchEngineQuery" type="text" placeholder="Search for a novel title..." autocomplete="off">
+                <select id="searchEngineSelect">
+                    <option value="custom">Custom (All Sites)</option>
+                    <option value="custom_all" selected>Custom + Secondary Sites</option>
+                    <option value="victor_web">Victor Web Search</option>
+                </select>
+                <button id="searchEngineGoButton">Search</button>
+            </div>
+
+            <!-- Proxy Configuration -->
+            <div class="proxy-config">
+                <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; font-weight: 600;">CORS PROXY</span>
+                <select id="corsProxySelect">
+                    <option value="custom">Custom URL...</option>
+                </select>
+                <input id="corsProxyInput" type="text" placeholder="https://your-proxy.com/?url=" style="display: none; flex: 1;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); user-select: none;">
+                    <input type="checkbox" id="enableCorsProxyCheckbox" checked style="accent-color: var(--primary);">
+                    Enable
+                </label>
+            </div>
+        </div>
+
+        <div id="searchEngineStatus"></div>
+
+        <section id="searchEngineSection" class="results-wrapper">
+            <div id="searchEngineResultsTable">
+                <!-- Results populated by script -->
+            </div>
+        </section>
     </div>
 
-    <div id="searchEngineStatus"></div>
+    <!-- 2) Libraries View -->
+    <div id="librariesView" class="app-view">
+        <div class="libraries-wrapper">
+            <div class="libraries-header">
+                <h1 class="libraries-title">Libraries Hub</h1>
+                <div class="libraries-tabs-container">
+                    <button id="tabLibraryPersonal" class="library-tab active">Personal Library</button>
+                    <button id="tabLibraryPublic" class="library-tab">Public Library</button>
+                </div>
+            </div>
 
-    <section id="searchEngineSection" class="results-wrapper">
-        <div id="searchEngineResultsTable">
-            <!-- Results populated by script as card-like divs -->
+            <!-- Upload drag/select EPUB section -->
+            <div class="library-upload-section">
+                <label for="libraryImportInput" class="import-btn" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v6.59l1.95-2.1a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 111.1-1.02l1.95 2.1V3.75A.75.75 0 0110 3zm-5 12a1 1 0 100 2h10a1 1 0 100-2H5z" clip-rule="evenodd" /></svg>
+                    Import Local EPUB File
+                </label>
+                <input type="file" id="libraryImportInput" accept=".epub" style="display: none;">
+            </div>
+
+            <!-- Personal Grid -->
+            <div id="personalLibraryGrid" class="library-grid">
+                <!-- Injected dynamically -->
+            </div>
+
+            <!-- Public Grid -->
+            <div id="publicLibraryGrid" class="library-grid" style="display: none;">
+                <!-- Injected dynamically -->
+            </div>
         </div>
-    </section>
 
-    <!-- Scripts (defer = download in parallel, execute after parse, before DOMContentLoaded) -->
-    <script src="plugin/js/HttpClient.js?v=20260322" defer></script>
-    <script src="plugin/js/SiteSearchEngine.js?v=20260322" defer></script>
-    <script src="plugin/js/SearchEngineUI.js?v=20260322" defer></script>
+        <!-- Library Activity Loader -->
+        <div id="libraryLoader" class="subview-loader-overlay">
+            <div class="spinner-ring"></div>
+            <div style="color:var(--primary); font-weight:700;">Loading Book Archive...</div>
+        </div>
+    </div>
+
+    <!-- 3) Custom EPUB Viewer View -->
+    <div id="epubReaderView" class="app-view">
+        <div id="epubReaderMain">
+            <!-- Sidebar Table of Contents -->
+            <div id="epubReaderSidebar">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">Table of Contents</h2>
+                    <button id="readerToggleSidebar" class="reader-btn" title="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </button>
+                </div>
+                <ul id="readerTocList" class="toc-list">
+                    <!-- Chapters injected dynamically -->
+                </ul>
+            </div>
+            <!-- Mobile Sidebar Backdrop Overlay -->
+            <div id="epubReaderSidebarOverlay" class="sidebar-overlay"></div>
+
+            <!-- Main Reading Frame -->
+            <div id="epubReaderContentArea">
+                <header id="epubReaderHeader">
+                    <div class="reader-header-left">
+                        <button id="readerBackBtn" class="reader-btn" style="border:none;" title="Exit Reader">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+                            Home
+                        </button>
+                        <button id="readerToggleSidebarTrigger" class="reader-btn" style="border:none;">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                            TOC
+                        </button>
+                        <span id="readerCurrentChapterName" style="font-weight: 700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">Book Chapter</span>
+                    </div>
+                    
+                    <div class="reader-header-right">
+                        <!-- Direct File Uploader inside Reader -->
+                        <label for="epubReaderUploadInput" class="reader-btn" style="cursor:pointer;">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Open Local EPUB
+                        </label>
+                        <input type="file" id="epubReaderUploadInput" accept=".epub" style="display:none;">
+
+                        <!-- Reader Settings Button -->
+                        <button id="readerSettingsBtn" class="reader-btn">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Floating Exit Fullscreen Button -->
+                <button id="readerExitImmersiveBtn" class="reader-btn" style="display:none; position:fixed; top:15px; right:15px; z-index:950; background:rgba(0,0,0,0.65); color:#fff; border:1px solid rgba(255,255,255,0.25); border-radius:30px; padding:10px 18px; backdrop-filter:blur(8px); cursor:pointer;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3 3m12 12v4.5m0-4.5h4.5m-4.5 0l6 6m0-12v4.5m0-4.5h-4.5m4.5 0l-6-6M9 15v4.5M9 15H4.5m4.5 0l-6 6" /></svg>
+                    Exit Fullscreen
+                </button>
+
+                <!-- Floating Show Header Button -->
+                <button id="readerShowHeaderBtn" class="reader-btn" style="display:none; position:fixed; top:15px; right:15px; z-index:940; background:rgba(0,0,0,0.65); color:#fff; border:1px solid rgba(255,255,255,0.25); border-radius:30px; padding:10px 18px; backdrop-filter:blur(8px); cursor:pointer;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    Show Header
+                </button>
+
+                <!-- Floating Settings Panel -->
+                <div id="readerControlsDropdown" class="reader-controls-dropdown">
+                    <!-- Themes -->
+                    <div>
+                        <div class="control-group-title">Theme Layout</div>
+                        <div class="theme-options">
+                            <button class="theme-btn light" data-theme="light">A</button>
+                            <button class="theme-btn sepia" data-theme="sepia">A</button>
+                            <button class="theme-btn dark" data-theme="dark">A</button>
+                            <button class="theme-btn bw active" data-theme="bw">A</button>
+                        </div>
+                    </div>
+
+                    <!-- Font Style Options -->
+                    <div>
+                        <div class="control-group-title">Font style</div>
+                        <select id="readerFontSelect" class="reader-select" style="width:100%; background:var(--reader-sidebar-bg); color:var(--reader-text); border:1px solid var(--reader-border); border-radius:8px; padding:6px 10px; outline:none; font-size:0.9rem; font-weight:600; cursor:pointer;">
+                            <option value="sans" selected>Sans-Serif (Clean)</option>
+                            <option value="serif">Serif (Literary)</option>
+                            <option value="mono">Monospace (Code)</option>
+                            <option value="dyslexic">Dyslexic (Readable)</option>
+                        </select>
+                    </div>
+
+                    <!-- Font Size Options -->
+                    <div>
+                        <div class="control-group-title">Font Size</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--reader-sidebar-bg); border: 1px solid var(--reader-border); border-radius: 8px; padding: 4px 8px;">
+                            <button id="readerFontSizeDec" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Decrease Font Size">A-</button>
+                            <span id="readerFontSizeDisplay" style="font-size: 0.95rem; font-weight: 700; color: var(--reader-text); width: 50px; text-align: center;">100%</span>
+                            <button id="readerFontSizeInc" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Increase Font Size">A+</button>
+                        </div>
+                    </div>
+
+                    <!-- Layout Options -->
+                    <div>
+                        <div class="control-group-title">Reading Mode</div>
+                        <div class="layout-options">
+                            <button class="layout-btn active" data-layout="scroll">Scroll View</button>
+                            <button class="layout-btn" data-layout="page-turn">Page Turn</button>
+                        </div>
+                    </div>
+
+                    <!-- Immersive Mode Toggle -->
+                    <div>
+                        <button id="readerImmersiveBtn" class="layout-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75h4.5m0-4.5v4.5m0 0L3 3m16.5 16.5h-4.5m0 4.5v-4.5m0 0l5.25 5.25m-17.25 0h4.5m0-4.5v4.5m0 0L3 21M21 3.75h-4.5m0-4.5v4.5m0 0L21 3" /></svg>
+                            Immersive Reading
+                        </button>
+                    </div>
+
+                    <!-- Header Visibility Toggle -->
+                    <div>
+                        <button id="readerToggleHeaderBtn" class="layout-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            Hide Header Bar
+                        </button>
+                    </div>
+
+                    <!-- TTS Voice Controls -->
+                    <div class="tts-controls-section">
+                        <div class="control-group-title" style="display:flex; align-items:center; gap:6px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg>
+                            Voice Assistant
+                        </div>
+                        <div class="tts-sliders">
+                            <div class="slider-row" style="margin-bottom:6px;">
+                                <span>Voice:</span>
+                                <select id="ttsVoiceSelect" class="reader-select" style="flex:1; margin-left:12px; background:var(--reader-bg); color:var(--reader-text); border:1px solid var(--reader-border); border-radius:6px; padding:4px; max-width:180px; font-size:0.8rem; outline:none; font-weight:600; cursor:pointer;">
+                                    <option value="">Default Voice</option>
+                                </select>
+                            </div>
+                            <div class="slider-row">
+                                <span>Speed:</span>
+                                <input type="range" id="ttsRateInput" min="0.5" max="2.0" step="0.1" value="1.0">
+                            </div>
+                            <div class="slider-row">
+                                <span>Pitch:</span>
+                                <input type="range" id="ttsPitchInput" min="0.5" max="2.0" step="0.1" value="1.0">
+                            </div>
+                        </div>
+                        <div class="tts-buttons">
+                            <button id="ttsPlayBtn" class="tts-btn">
+                                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.324-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg> Play
+                            </button>
+                            <button id="ttsPauseBtn" class="tts-btn" style="display: none;">
+                                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M5.75 3a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0v-12.5A.75.75 0 015.75 3zm5 0a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0v-12.5A.75.75 0 0110.75 3z" /></svg> Pause
+                            </button>
+                            <button id="ttsStopBtn" class="tts-btn">
+                                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M5.25 3A2.25 2.25 0 003 5.25v9.5A2.25 2.25 0 005.25 17h9.5A2.25 2.25 0 0017 14.75v-9.5A2.25 2.25 0 0014.75 3h-9.5z" /></svg> Stop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Chapter Viewport -->
+                <div id="epubReaderViewport">
+                    <div id="epubReaderContentBody">
+                        <!-- Chapter content injected here -->
+                    </div>
+                </div>
+
+                <!-- Page navigation indicators for horizontal swipe mode -->
+                <button id="readerPrevPage" class="page-nav-arrow left" title="Previous Page">
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                </button>
+                <button id="readerNextPage" class="page-nav-arrow right" title="Next Page">
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                </button>
+
+                <!-- Footer statistics -->
+                <footer id="epubReaderFooter">
+                    <span id="readerPageNum">Page -- of --</span>
+                    <span>Click paragraph to bookmark voice narration</span>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Reader Loader overlay -->
+        <div id="epubReaderLoader" class="subview-loader-overlay">
+            <div class="spinner-ring"></div>
+            <div style="color:var(--primary); font-weight:700;">Parsing Ebook Elements...</div>
+        </div>
+    </div>
+
+    <!-- Scripts (defer for sequential background execution) -->
+    <script src="plugin/js/ChromePolyfill.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/UIText.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/ErrorLog.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/Util.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/HttpClient.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/ReadingList.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/EpubMetaInfo.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/UserPreferences.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/SiteSearchEngine.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/Secrets.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/SearchEngineUI.js?v=20260527_v5" defer></script>
+    
+    <!-- Local zip.js + Custom UI managers -->
+    <script src="plugin/@zip.js/zip.js/dist/zip-no-worker.min.js" defer></script>
+    <script src="plugin/js/ParserEnvironment.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/EpubViewerUI.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/HFLibrary.js?v=20260527_v5" defer></script>
+    <script src="plugin/js/LibraryUI.js?v=20260527_v5" defer></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Original Search Engine Initialization
             if (typeof SearchEngineUI !== "undefined") {
                 SearchEngineUI.bindEvents();
             }
-            // Pre-build the secondary sites list (~500 entries) during browser idle time
-            // so it's ready before the user clicks Search
             if ("requestIdleCallback" in window) {
                 requestIdleCallback(() => {
                     if (typeof SiteSearchEngine !== "undefined") {
@@ -86,6 +359,74 @@
                     }
                 }, { timeout: 3000 });
             }
+
+            // Initialize custom Epub Viewer and Library Managers
+            const epubViewer = new EpubViewerUI();
+            epubViewer.init();
+            window.epubViewer = epubViewer;
+
+            const libraryManager = new LibraryUI(epubViewer);
+            libraryManager.init();
+            window.libraryManager = libraryManager;
+
+            // Handle Read Live deep-linking parameters
+            let params = new URLSearchParams(window.location.search);
+            let readLiveUrl = params.get("readLive");
+            let readLiveTitle = params.get("title");
+            if (readLiveUrl && readLiveTitle) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => {
+                    if (typeof SearchEngineUI !== "undefined") {
+                        SearchEngineUI.startReadLive(readLiveUrl, readLiveTitle, "Scraped Link");
+                    }
+                }, 400);
+            }
+
+            // Netflix Landing Portal View Switcher
+            const landing = document.getElementById("netflixLanding");
+            const backBtn = document.getElementById("globalBackBtn");
+            const views = document.querySelectorAll(".app-view");
+
+            function showView(viewId) {
+                landing.classList.add("fade-out");
+                setTimeout(() => {
+                    landing.style.display = "none";
+                    views.forEach(v => {
+                        v.classList.toggle("active", v.id === viewId);
+                    });
+                    // Hide floating back button in reader view, show elsewhere
+                    if (viewId === "epubReaderView") {
+                        backBtn.style.display = "none";
+                    } else {
+                        backBtn.style.display = "flex";
+                    }
+                }, 500);
+            }
+
+            function showPortal() {
+                // Cancel active text to speech
+                epubViewer.stopTTS();
+
+                backBtn.style.display = "none";
+                views.forEach(v => v.classList.remove("active"));
+                landing.style.display = "flex";
+                setTimeout(() => {
+                    landing.classList.remove("fade-out");
+                }, 50);
+            }
+
+            // Bind profiles
+            document.getElementById("profileSearch").addEventListener("click", () => showView("searchView"));
+            
+            document.getElementById("profileLink").addEventListener("click", () => {
+                window.location.href = "plugin/popup.html?mode=manual";
+            });
+
+            document.getElementById("profileLibraries").addEventListener("click", () => showView("librariesView"));
+
+            // Back buttons
+            backBtn.addEventListener("click", showPortal);
+            document.getElementById("readerBackBtn").addEventListener("click", showPortal);
         });
     </script>
 </body>

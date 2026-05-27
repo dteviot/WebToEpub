@@ -29,11 +29,11 @@ class DefaultParserSiteSettings {
         if (this.isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl)) {
             this.configs.set(
                 hostname, {
-                contentCss: contentCss,
-                titleCss: titleCss,
-                removeCss: removeCss,
-                testUrl: testUrl
-            }
+                    contentCss: contentCss,
+                    titleCss: titleCss,
+                    removeCss: removeCss,
+                    testUrl: testUrl
+                }
             );
             let serialized = JSON.stringify(Array.from(this.configs.entries()));
             window.localStorage.setItem(DefaultParserSiteSettings.storageName, serialized);
@@ -147,12 +147,12 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
             let html = xhr.responseText || (xhr.responseXML ? xhr.responseXML.documentElement.outerHTML : "");
 
             if (util.isNullOrEmpty(html) || html.length < 100) {
-                throw new Error(`Failed to fetch chapter HTML. Please check your proxy settings and URL.`);
+                throw new Error("Failed to fetch chapter HTML. Please check your proxy settings and URL.");
             }
 
             let selectors = await AiClient.fetchAiSelectors(html, testUrl);
             if (selectors) {
-                console.log(`[DefaultParserUI] AI predicted selectors:`, selectors);
+                console.log("[DefaultParserUI] AI predicted selectors:", selectors);
                 if (selectors.content) DefaultParserUI.getContentCssInput().value = selectors.content;
                 if (selectors.title) DefaultParserUI.getChapterTitleCssInput().value = selectors.title;
                 if (selectors.remove) DefaultParserUI.getUnwantedElementsCssInput().value = selectors.remove;
@@ -168,7 +168,7 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         } finally {
             document.getElementById("autocompleteWithAiButton").disabled = false;
             let label = "Autocomplete with AI";
-            try { label = chrome.i18n.getMessage("button_autocomplete_with_ai") || label; } catch (e) { /* fallback */ }
+            try { label = chrome.i18n.getMessage("__MSG_button_autocomplete_with_ai__") || label; } catch (e) { /* fallback */ }
             document.getElementById("autocompleteWithAiButton").textContent = label;
         }
     }

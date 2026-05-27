@@ -55,6 +55,7 @@ const WTE_MESSAGES = {
     "__MSG_button_error_Open_URL__": { "message": "Open URL for Captcha" },
     "__MSG_button_error_Block_URL__": { "message": "Block Website for future requests" },
     "__MSG_button_finished_default_parser__": { "message": "Apply" },
+    "__MSG_button_autocomplete_with_ai__": { "message": "Autocomplete with AI" },
     "__MSG_button_Help__": { "message": "Help..." },
     "__MSG_button_load_and_analyse__": { "message": "Load and Analyse" },
     "__MSG_button_load_Metadata__": { "message": "Load Additional Metadata" },
@@ -206,7 +207,19 @@ const WTE_MESSAGES = {
 function wteGetMessage(key, substitutions) {
     let entry = WTE_MESSAGES[key];
     if (!entry) {
-        // Try without the MSG_ wrapper (some callers strip it)
+        // Try with __MSG_ and __ wrapper
+        if (!key.startsWith("__MSG_")) {
+            entry = WTE_MESSAGES["__MSG_" + key + "__"];
+        }
+    }
+    if (!entry) {
+        // Try stripping the MSG_ wrapper if key has it
+        if (key.startsWith("__MSG_") && key.endsWith("__")) {
+            let stripped = key.substring(6, key.length - 2);
+            entry = WTE_MESSAGES[stripped];
+        }
+    }
+    if (!entry) {
         return key;
     }
     let msg = entry.message;
@@ -281,9 +294,46 @@ window.chrome = {
 
     storage: {
         local: {
-            async get(keys) { return {}; },
-            async set(items) { },
-            async remove(keys) { }
+            get(keys, callback) {
+                const result = {};
+                if (keys === null || keys === undefined) {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        const val = localStorage.getItem(k);
+                        try { result[k] = JSON.parse(val); } catch { result[k] = val; }
+                    }
+                } else {
+                    const keyList = Array.isArray(keys) ? keys : (typeof keys === "string" ? [keys] : Object.keys(keys));
+                    keyList.forEach(k => {
+                        const val = localStorage.getItem(k);
+                        if (val !== null) {
+                            try { result[k] = JSON.parse(val); } catch { result[k] = val; }
+                        } else if (typeof keys === "object" && !Array.isArray(keys) && keys[k] !== undefined) {
+                            result[k] = keys[k];
+                        }
+                    });
+                }
+                if (typeof callback === "function") callback(result);
+                return Promise.resolve(result);
+            },
+            set(items, callback) {
+                Object.entries(items).forEach(([k, v]) => {
+                    localStorage.setItem(k, typeof v === "object" ? JSON.stringify(v) : v);
+                });
+                if (typeof callback === "function") callback();
+                return Promise.resolve();
+            },
+            remove(keys, callback) {
+                const keyList = Array.isArray(keys) ? keys : [keys];
+                keyList.forEach(k => localStorage.removeItem(k));
+                if (typeof callback === "function") callback();
+                return Promise.resolve();
+            },
+            clear(callback) {
+                localStorage.clear();
+                if (typeof callback === "function") callback();
+                return Promise.resolve();
+            }
         }
     }
 };

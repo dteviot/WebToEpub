@@ -559,7 +559,7 @@ class Parser {
         {
             // Re-throw abort errors — they must propagate up so the conversion
             // pipeline knows to stop immediately (user sent /stop or fetch timed out).
-            if (err.name === 'AbortError' || err.message === 'USER_ABORTED') {
+            if (err.name === "AbortError" || err.message === "USER_ABORTED") {
                 throw err;
             }
             ErrorLog.log(err);
@@ -586,8 +586,8 @@ class Parser {
             if (webPageDom == null) {
                 throw new Error(
                     `Page content could not be parsed from: ${webPage.sourceUrl}\n` +
-                    `The CORS proxy may have returned an unexpected Content-Type. ` +
-                    `Try switching the proxy in the CORS PROXY selector.`
+                    "The CORS proxy may have returned an unexpected Content-Type. " +
+                    "Try switching the proxy in the CORS PROXY selector."
                 );
             }
             delete webPage.error;
@@ -608,7 +608,7 @@ class Parser {
             // Always re-throw abort errors — these come from the user's /stop command
             // (or the 12s fetch timeout). Swallowing them means the fetch loop keeps
             // iterating through every remaining chapter before noticing the abort flag.
-            if (error.name === 'AbortError' || error.message === 'USER_ABORTED') {
+            if (error.name === "AbortError" || error.message === "USER_ABORTED") {
                 throw error;
             }
             if (this.userPreferences.skipChaptersThatFailFetch.value) {

@@ -1,30 +1,29 @@
 :root {
-    /* Colors */
-    --primary: #00f5ff;
-    --primary-hover: #00d1da;
-    --primary-glow: rgba(0, 245, 255, 0.08);
-    --bg: #050808;
-    --bg-gradient: radial-gradient(circle at 50% -20%, #002b33 0%, #050808 80%);
-    --card-bg: rgba(15, 23, 23, 0.7);
-    --text: #f0fdfa;
-    --text-muted: #94a3a8;
+    /* Colors (Bing Dark Theme) */
+    --primary: #0078d4;
+    --primary-hover: #005a9e;
+    --primary-glow: rgba(0, 120, 212, 0.15);
+    --bg: #1b1a19;
+    --bg-gradient: radial-gradient(circle at 50% -20%, #2c2b2a 0%, #1b1a19 80%);
+    --card-bg: rgba(36, 36, 36, 0.85);
+    --text: #f3f2f1;
+    --text-muted: #a19f9d;
 
     /* Glassmorphism */
-    --glass: rgba(255, 255, 255, 0.03);
+    --glass: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: blur(12px);
+    --glass-blur: blur(16px);
 
     /* Effects */
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 
     /* Transitions */
-    --transition-fast: 0.2s ease;
+    --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
 
     /* Premium Glows */
-    --primary-glow: rgba(167, 139, 250, 0.1);
-    --primary-glow-strong: rgba(167, 139, 250, 0.25);
+    --primary-glow-strong: rgba(0, 120, 212, 0.3);
     --glass-pulse: glassPulse 4s infinite ease-in-out;
 
     /* Responsive Tokens */
