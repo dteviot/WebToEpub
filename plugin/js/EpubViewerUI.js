@@ -38,6 +38,10 @@ class EpubViewerUI {
         this.lazyUserPreferences = null;
         this.lazyPrefetchCount = 0;
         this.activeLoadRequestId = 0;
+        this.liveTocTimeoutMs = 12000;
+        this.maxTocPagesToScan = 30;
+        this.tocRetryAttempts = 1;
+        this.tocFetchConcurrency = 4;
     }
 
     init() {
@@ -1545,6 +1549,20 @@ class EpubViewerUI {
         if (loader) loader.style.display = "none";
     }
 
+    async withTimeout(promise, timeoutMs, timeoutMessage) {
+        let timeoutId = null;
+        const timeoutPromise = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+        });
+        try {
+            return await Promise.race([promise, timeoutPromise]);
+        } finally {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+        }
+    }
+
     // --- LIVE NOVEL SCRAPING & LAZY READER CONTROLLERS ---
 
     async loadLazyBook(url, loadRequestId = this.activeLoadRequestId) {
@@ -2005,7 +2023,11 @@ class EpubViewerUI {
 
         if (this.lazyParser && typeof this.lazyParser.getChapterUrls === "function") {
             try {
-                let parserChapters = await this.lazyParser.getChapterUrls(doc, chapterUrlsUI);
+                let parserChapters = await this.withTimeout(
+                    this.lazyParser.getChapterUrls(doc, chapterUrlsUI),
+                    this.liveTocTimeoutMs,
+                    "TOC extraction timed out."
+                );
                 let normalizedChapters = this.normalizeLazyTocChapters(parserChapters, url);
                 if (normalizedChapters.length > 0) {
                     return normalizedChapters;
@@ -2054,28 +2076,41 @@ class EpubViewerUI {
             console.warn("[Live Reader] Failed enumerating TOC pages via parser helper:", error);
         }
 
-        let pendingUrls = [...tocPageUrls];
-        for (let attempt = 1; attempt <= 3 && pendingUrls.length > 0; attempt++) {
+        let pendingUrls = [...tocPageUrls].slice(0, this.maxTocPagesToScan);
+        for (let attempt = 1; attempt <= this.tocRetryAttempts && pendingUrls.length > 0; attempt++) {
             let failedUrls = [];
-            for (let tocPageUrl of pendingUrls) {
-                try {
-                    await this.lazyParser.rateLimitDelay();
-                    let xhr = await HttpClient.wrapFetch(tocPageUrl);
-                    let tocDoc = xhr?.responseXML;
-                    if (!tocDoc && xhr?.responseText) {
-                        tocDoc = new DOMParser().parseFromString(xhr.responseText, "text/html");
+            for (let i = 0; i < pendingUrls.length; i += this.tocFetchConcurrency) {
+                const chunk = pendingUrls.slice(i, i + this.tocFetchConcurrency);
+                const results = await Promise.all(chunk.map(async (tocPageUrl) => {
+                    try {
+                        await this.lazyParser.rateLimitDelay();
+                        let xhr = await HttpClient.wrapFetch(tocPageUrl);
+                        let tocDoc = xhr?.responseXML;
+                        if (!tocDoc && xhr?.responseText) {
+                            tocDoc = new DOMParser().parseFromString(xhr.responseText, "text/html");
+                        }
+                        if (!tocDoc) {
+                            return { ok: false, tocPageUrl };
+                        }
+                        let partialList = this.lazyParser.extractPartialChapterList(tocDoc) || [];
+                        return { ok: true, tocPageUrl, partialList };
+                    } catch (error) {
+                        console.warn(`[Live Reader] TOC page fetch failed on attempt ${attempt}: ${tocPageUrl}`, error);
+                        return { ok: false, tocPageUrl };
                     }
-                    if (!tocDoc) {
-                        failedUrls.push(tocPageUrl);
-                        continue;
+                }));
+
+                results.forEach((result) => {
+                    if (!result.ok) {
+                        failedUrls.push(result.tocPageUrl);
+                        return;
                     }
-                    let partialList = this.lazyParser.extractPartialChapterList(tocDoc) || [];
-                    chapters = chapters.concat(partialList);
-                    chapterUrlsUI.showTocProgress(partialList);
-                } catch (error) {
-                    console.warn(`[Live Reader] TOC page fetch failed on attempt ${attempt}: ${tocPageUrl}`, error);
-                    failedUrls.push(tocPageUrl);
-                }
+                    chapters = chapters.concat(result.partialList);
+                    chapterUrlsUI.showTocProgress(result.partialList);
+                });
+            }
+            if (attempt === 1 && chapters.length > 0) {
+                break;
             }
             pendingUrls = failedUrls;
         }
