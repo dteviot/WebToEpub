@@ -878,7 +878,6 @@ class EpubViewerUI {
         try {
             this.resetBookState();
             this.showLoader();
-            await this.ensureZipAvailable();
 
             // Detect Live-Scraped dynamic novel
             if (typeof epubSource === "string" && epubSource.startsWith("lazy:")) {
@@ -888,6 +887,7 @@ class EpubViewerUI {
                 return;
             }
             this.isLazyScraped = false;
+            await this.ensureZipAvailable();
 
             let zipReaderSource;
             if (typeof epubSource === "string" && epubSource.startsWith("data:")) {
