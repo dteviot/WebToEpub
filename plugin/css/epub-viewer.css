@@ -353,6 +353,7 @@
 #epubReaderViewport {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling layout breaks */
     position: relative;
     padding: 40px 24px;
     box-sizing: border-box;
@@ -369,6 +370,28 @@
     font-size: var(--reader-font-size, 1.15rem);
     box-sizing: border-box;
     margin: 0 auto; /* Horizontal alignment inside block layout */
+    
+    /* Strong word breaking to prevent long URLs from breaking layout */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+#epubReaderContentBody img,
+#epubReaderContentBody video,
+#epubReaderContentBody svg {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+#epubReaderContentBody pre,
+#epubReaderContentBody table {
+    max-width: 100% !important;
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
 #epubReaderContentBody p {
