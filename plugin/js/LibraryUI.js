@@ -381,7 +381,7 @@ class LibraryUI {
                     title: book.title,
                     author: book.author,
                     coverPath: book.coverPath,
-                    desc: \`Size: \${HFLibrary.formatSize(book.size)} | Shared: \${new Date(book.uploadedAt).toLocaleDateString()}\`,
+                    desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
                     isHF: true,
                     epubPath: book.epubPath
                 }));
@@ -440,7 +440,7 @@ class LibraryUI {
         grid.innerHTML = "";
 
         if (pageBooks.length === 0) {
-            grid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No books found.</div>\`;
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No books found.</div>`;
         }
 
         pageBooks.forEach(book => {
@@ -449,19 +449,19 @@ class LibraryUI {
             
             const coverSrc = book.staticCover ? book.staticCover : this.defaultPublicCover();
 
-            card.innerHTML = \`
+            card.innerHTML = `
                 <div class="book-cover-wrap">
-                    <img class="book-cover-img" id="public-cover-\${book.id}" src="\${coverSrc}" alt="Book Cover">
+                    <img class="book-cover-img" id="public-cover-${book.id}" src="${coverSrc}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
-                        \${book.isHF ? '<button class="book-action-btn download-btn-main">Save File</button>' : ""}
+                        ${book.isHF ? '<button class="book-action-btn download-btn-main">Save File</button>' : ""}
                     </div>
                 </div>
                 <div class="book-details">
-                    <div class="book-title" title="\${book.title.replace(/"/g, '&quot;')}">\${book.title}</div>
-                    <div class="book-author">\${book.author}</div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">\${book.desc}</p>
-                    \${book.isHF ? \`
+                    <div class="book-title" title="${book.title.replace(/"/g, '&quot;')}">${book.title}</div>
+                    <div class="book-author">${book.author}</div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc}</p>
+                    ${book.isHF ? `
                     <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
                         <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
                             <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
@@ -469,15 +469,15 @@ class LibraryUI {
                             </svg>
                         </button>
                     </div>
-                    \` : ""}
+                    ` : ""}
                 </div>
-            \`;
+            `;
 
             // Async load HF cover
             if (book.isHF && book.coverPath) {
                 HFLibrary.getCoverUrl(book.coverPath).then(url => {
                     if (url) {
-                        const img = card.querySelector(\`#public-cover-\${book.id}\`);
+                        const img = card.querySelector(`#public-cover-${book.id}`);
                         if (img) img.src = url;
                     }
                 }).catch(e => console.error("Cover load failed", e));
@@ -524,7 +524,7 @@ class LibraryUI {
                     try {
                         const blob = await HFLibrary.downloadBook(book.epubPath);
                         const url = URL.createObjectURL(blob);
-                        this.downloadBlob(url, \`\${book.title}.epub\`);
+                        this.downloadBlob(url, `${book.title}.epub`);
                         URL.revokeObjectURL(url);
                     } catch (e) {
                         alert("Error downloading public book: " + e.message);
@@ -535,7 +535,7 @@ class LibraryUI {
 
                 card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
                     e.stopPropagation();
-                    if (confirm(\`Are you sure you want to delete "\${book.title}" from the Hugging Face Public Library?\`)) {
+                    if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
                         const loader = document.getElementById("libraryLoader");
                         if (loader) {
                             loader.style.display = "flex";
@@ -544,7 +544,7 @@ class LibraryUI {
                         }
                         try {
                             await HFLibrary.deleteBook(book.id);
-                            alert(\`Successfully deleted "\${book.title}" from the public library!\`);
+                            alert(`Successfully deleted "${book.title}" from the public library!`);
                             this.publicCatalog = null; // force reload next time
                             this.renderPublicLibrary();
                         } catch (error) {
@@ -564,7 +564,7 @@ class LibraryUI {
             if (totalPages > 1) {
                 const prevBtn = document.createElement("button");
                 prevBtn.textContent = "Previous";
-                prevBtn.style.cssText = \`padding: 8px 16px; border-radius: 20px; border: none; cursor: \${this.publicCurrentPage > 1 ? 'pointer' : 'not-allowed'}; background: \${this.publicCurrentPage > 1 ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;\`;
+                prevBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage > 1 ? 'pointer' : 'not-allowed'}; background: ${this.publicCurrentPage > 1 ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;`;
                 if (this.publicCurrentPage > 1) {
                     prevBtn.onclick = () => {
                         this.publicCurrentPage--;
@@ -573,12 +573,12 @@ class LibraryUI {
                 }
                 
                 const info = document.createElement("span");
-                info.textContent = \`Page \${this.publicCurrentPage} of \${totalPages}\`;
+                info.textContent = `Page ${this.publicCurrentPage} of ${totalPages}`;
                 info.style.color = "var(--reader-text)";
 
                 const nextBtn = document.createElement("button");
                 nextBtn.textContent = "Next";
-                nextBtn.style.cssText = \`padding: 8px 16px; border-radius: 20px; border: none; cursor: \${this.publicCurrentPage < totalPages ? 'pointer' : 'not-allowed'}; background: \${this.publicCurrentPage < totalPages ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;\`;
+                nextBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage < totalPages ? 'pointer' : 'not-allowed'}; background: ${this.publicCurrentPage < totalPages ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;`;
                 if (this.publicCurrentPage < totalPages) {
                     nextBtn.onclick = () => {
                         this.publicCurrentPage++;
