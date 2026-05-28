@@ -50,12 +50,15 @@ class ParserEnvironment { // eslint-disable-line no-unused-vars
     }
 
     static injectScript(src) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let script = document.createElement("script");
             script.src = src;
             script.async = false;
             script.onload = () => resolve();
-            script.onerror = () => reject(new Error(`Failed to load ${src}`));
+            script.onerror = () => {
+                console.warn(`[Live Reader] Failed to load ${src}. Skipping.`);
+                resolve(); // Resolve instead of reject so it doesn't crash the entire reader!
+            };
             document.head.appendChild(script);
         });
     }
