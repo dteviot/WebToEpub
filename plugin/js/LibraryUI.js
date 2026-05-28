@@ -5,9 +5,6 @@ class LibraryUI {
     constructor(epubViewer) {
         this.epubViewer = epubViewer;
         this.storage = this.initStorage();
-        this.serverCurrentRelativePath = "/";
-        this.serverFolders = [];
-        this.serverBooks = [];
     }
 
     initStorage() {
@@ -99,38 +96,23 @@ class LibraryUI {
         // Library tabs switching (Personal vs Public)
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
-        const tabServer = document.getElementById("tabLibraryServer");
         const uploadSection = document.querySelector(".library-upload-section");
         
-        if (tabPersonal && tabPublic && tabServer) {
+        if (tabPersonal && tabPublic) {
             tabPersonal.addEventListener("click", () => {
                 tabPersonal.classList.add("active");
                 tabPublic.classList.remove("active");
-                tabServer.classList.remove("active");
                 document.getElementById("personalLibraryGrid").style.display = "grid";
-                document.getElementById("publicLibraryGrid").style.display = "none";
-                document.getElementById("serverLibraryGrid").style.display = "none";
+                document.getElementById("publicLibraryView").style.display = "none";
                 if (uploadSection) uploadSection.style.display = "block";
             });
             tabPublic.addEventListener("click", () => {
                 tabPublic.classList.add("active");
                 tabPersonal.classList.remove("active");
-                tabServer.classList.remove("active");
                 document.getElementById("personalLibraryGrid").style.display = "none";
-                document.getElementById("publicLibraryGrid").style.display = "grid";
-                document.getElementById("serverLibraryGrid").style.display = "none";
+                document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
                 this.renderPublicLibrary();
-            });
-            tabServer.addEventListener("click", () => {
-                tabServer.classList.add("active");
-                tabPersonal.classList.remove("active");
-                tabPublic.classList.remove("active");
-                document.getElementById("personalLibraryGrid").style.display = "none";
-                document.getElementById("publicLibraryGrid").style.display = "none";
-                document.getElementById("serverLibraryGrid").style.display = "grid";
-                if (uploadSection) uploadSection.style.display = "none";
-                this.renderServerLibrary();
             });
         }
     }
@@ -545,262 +527,7 @@ class LibraryUI {
         document.body.removeChild(link);
     }
 
-    async fetchBlobViaTab(targetUrl) {
-        return new Promise((resolve, reject) => {
-            if (typeof chrome === "undefined" || !chrome.tabs || !chrome.scripting) {
-                fetch(targetUrl)
-                    .then(resp => {
-                        if (!resp.ok) {
-                            throw new Error(`HTTP ${resp.status}`);
-                        }
-                        return resp.blob();
-                    })
-                    .then(resolve)
-                    .catch(reject);
-                return;
-            }
 
-            chrome.tabs.query({ url: "*://server.elscione.com/*" }, (tabs) => {
-                const tab = tabs[0];
-
-                const runFetch = (tabId) => {
-                    chrome.scripting.executeScript({
-                        target: { tabId },
-                        func: async (url) => {
-                            const resp = await fetch(url);
-                            if (!resp.ok) {
-                                throw new Error(`HTTP ${resp.status}`);
-                            }
-                            const blob = await resp.blob();
-                            return new Promise((res) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => res(reader.result);
-                                reader.readAsDataURL(blob);
-                            });
-                        },
-                        args: [targetUrl]
-                    }, (results) => {
-                        if (results && results[0] && results[0].result) {
-                            resolve(this._dataUrlToBlob(results[0].result));
-                        } else {
-                            reject(new Error("Failed to download via active tab."));
-                        }
-                    });
-                };
-
-                if (!tab) {
-                    chrome.tabs.create({
-                        url: "https://server.elscione.com/",
-                        active: false
-                    }, (newTab) => {
-                        setTimeout(() => {
-                            runFetch(newTab.id);
-                        }, 2500);
-                    });
-                } else {
-                    runFetch(tab.id);
-                }
-            });
-        });
-    }
-
-    _dataUrlToBlob(dataUrl) {
-        const parts = dataUrl.split(",");
-        const contentType = parts[0].split(":")[1].split(";")[0];
-        const raw = atob(parts[1]);
-        const rawLength = raw.length;
-        const uInt8Array = new Uint8Array(rawLength);
-        for (let i = 0; i < rawLength; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i);
-        }
-        return new Blob([uInt8Array], { type: contentType });
-    }
-
-    async renderServerLibrary() {
-        const grid = document.getElementById("serverLibraryGrid");
-        if (!grid) return;
-
-        if (window.ELSCIONE_CATALOG) {
-            this.serverFolders = window.ELSCIONE_CATALOG.folders || [];
-            this.serverBooks = window.ELSCIONE_CATALOG.books || [];
-        } else {
-            this.serverFolders = [];
-            this.serverBooks = [];
-        }
-
-        grid.innerHTML = "";
-
-        if (this.serverFolders.length === 0 && this.serverBooks.length === 0) {
-            grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
-                    <h2 style="font-size: 1.4rem; font-weight: 700; margin: 0 0 10px; color: var(--reader-text, #222);">Static Catalog Missing</h2>
-                    <p style="font-size: 0.95rem; max-width: 500px; margin: 0 auto; line-height: 1.6;">
-                        The static catalog file <code>elscione_catalog.js</code> was not found or is empty.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        if (!this.serverCurrentRelativePath.startsWith("/")) {
-            this.serverCurrentRelativePath = "/" + this.serverCurrentRelativePath;
-        }
-        if (!this.serverCurrentRelativePath.endsWith("/")) {
-            this.serverCurrentRelativePath += "/";
-        }
-
-        const breadcrumbRow = document.createElement("div");
-        breadcrumbRow.style.cssText = "grid-column: 1 / -1; background: var(--reader-sidebar-bg, #f5f4f0); border: 1px solid var(--reader-border, #e6e5e0); border-radius: 8px; padding: 10px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; box-sizing: border-box;";
-
-        const rootSpan = document.createElement("span");
-        rootSpan.textContent = "📁 Root";
-        rootSpan.style.cssText = "color: var(--primary, #00f5ff); cursor: pointer; font-weight: 600;";
-        rootSpan.addEventListener("click", () => {
-            this.serverCurrentRelativePath = "/";
-            this.renderServerLibrary();
-        });
-        breadcrumbRow.appendChild(rootSpan);
-
-        let accumulatedPath = "/";
-        const segments = this.serverCurrentRelativePath.split("/").filter(Boolean);
-        segments.forEach((seg, idx) => {
-            const slash = document.createElement("span");
-            slash.textContent = " / ";
-            slash.style.color = "var(--text-muted, #70706b)";
-            breadcrumbRow.appendChild(slash);
-
-            accumulatedPath += seg + "/";
-            const segSpan = document.createElement("span");
-            segSpan.textContent = seg;
-            if (idx === segments.length - 1) {
-                segSpan.style.color = "var(--reader-text, #222)";
-                segSpan.style.fontWeight = "600";
-            } else {
-                segSpan.style.cssText = "color: var(--primary, #00f5ff); cursor: pointer; font-weight: 600;";
-                const pathTarget = accumulatedPath;
-                segSpan.addEventListener("click", () => {
-                    this.serverCurrentRelativePath = pathTarget;
-                    this.renderServerLibrary();
-                });
-            }
-            breadcrumbRow.appendChild(segSpan);
-        });
-
-        grid.appendChild(breadcrumbRow);
-
-        const currentFolders = this.serverFolders.filter(f => f.parentPath === this.serverCurrentRelativePath);
-        const currentBooks = this.serverBooks.filter(b => b.parentPath === this.serverCurrentRelativePath);
-
-        if (currentFolders.length === 0 && currentBooks.length === 0) {
-            const emptyCard = document.createElement("div");
-            emptyCard.style.cssText = "grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);";
-            emptyCard.innerHTML = "<p style=\"font-size: 1rem; font-weight: 550; margin:0;\">This folder has no subfolders or EPUB files.</p>";
-            grid.appendChild(emptyCard);
-            return;
-        }
-
-        currentFolders.forEach(folder => {
-            const card = document.createElement("div");
-            card.className = "library-book-card folder-card";
-            card.style.cssText = "cursor: pointer; border: 1px dashed var(--reader-border); background: var(--reader-sidebar-bg); transition: transform 0.2s, background-color 0.2s;";
-            card.innerHTML = `
-                <div class="book-cover-wrap" style="background: rgba(0, 120, 212, 0.05); display: flex; align-items: center; justify-content: center; height: 160px;">
-                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; color: #ffca28;">
-                        <path d="M19 5.5h-5.25L11.5 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2v-11.5c0-1.1-.9-2-2-2zm-15 14v-11.5h15v11.5h-15z" />
-                    </svg>
-                </div>
-                <div class="book-details" style="padding: 12px; text-align: center;">
-                    <div class="book-title" style="font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${folder.name}">${folder.name}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Folder</div>
-                </div>
-            `;
-            card.addEventListener("mouseenter", () => card.style.transform = "translateY(-4px)");
-            card.addEventListener("mouseleave", () => card.style.transform = "translateY(0)");
-            card.addEventListener("click", () => {
-                this.serverCurrentRelativePath = folder.path;
-                this.renderServerLibrary();
-            });
-            grid.appendChild(card);
-        });
-
-        currentBooks.forEach(epub => {
-            const card = document.createElement("div");
-            card.className = "library-book-card";
-
-            const words = epub.name.split(" ");
-            const titleTop = (words[0] || "").toUpperCase() + " " + (words[1] || "").toUpperCase();
-            const titleMain = words.slice(2, 5).join(" ").toUpperCase() || "EBOOK";
-            let hash = 0;
-            for (let i = 0; i < epub.name.length; i++) {
-                hash = epub.name.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const hue = Math.abs(hash % 360);
-            const bg = `hsl(${hue}, 45%, 15%)`;
-            const accent = `hsl(${(hue + 120) % 360}, 85%, 65%)`;
-            const cover = LibraryUI.buildInlineCover(bg, accent, titleTop.substring(0, 14), titleMain.substring(0, 16), "Elscione Server");
-
-            card.innerHTML = `
-                <div class="book-cover-wrap">
-                    <img class="book-cover-img" src="${cover}" alt="Book Cover">
-                    <div class="book-overlay-actions">
-                        <button class="book-action-btn read-btn-main">Read Now</button>
-                        <button class="book-action-btn download-btn-main">Save File</button>
-                    </div>
-                </div>
-                <div class="book-details">
-                    <div class="book-title" title="${epub.name}">${epub.name}</div>
-                    <div class="book-author">Elscione Library</div>
-                </div>
-            `;
-
-            card.querySelector(".read-btn-main").addEventListener("click", async () => {
-                const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Downloading from Elscione Library...";
-                }
-
-                try {
-                    const blob = await this.fetchBlobViaTab(epub.url);
-                    this.epubViewer.showLoader();
-                    document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                    document.getElementById("epubReaderView").classList.add("active");
-                    const globalBackBtn = document.getElementById("globalBackBtn");
-                    if (globalBackBtn) globalBackBtn.style.display = "none";
-                    await this.epubViewer.loadEpub(blob);
-                } catch (e) {
-                    console.error("Failed to read elscione book live:", e);
-                    alert(`Failed to download book: ${e.message}`);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
-            });
-
-            card.querySelector(".download-btn-main").addEventListener("click", async () => {
-                const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Downloading file to disk...";
-                }
-
-                try {
-                    const blob = await this.fetchBlobViaTab(epub.url);
-                    const url = URL.createObjectURL(blob);
-                    this.downloadBlob(url, `${epub.name}.epub`);
-                    URL.revokeObjectURL(url);
-                } catch (e) {
-                    console.error("Failed to download elscione file:", e);
-                    alert(`Download failed: ${e.message}`);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
-            });
-
-            grid.appendChild(card);
-        });
-    }
 
     // Path solver
     resolvePath(baseDir, relativePath) {
