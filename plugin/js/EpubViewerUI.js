@@ -598,6 +598,16 @@ class EpubViewerUI {
         }, lazyOptions);
     }
 
+    // Re-observe placeholders near current scroll position so the observer fires for them
+    _reobservePlaceholders() {
+        if (!this.lazyLoadObserver) return;
+        const wrappers = document.querySelectorAll(".continuous-chapter-wrapper.placeholder-loading");
+        wrappers.forEach(w => {
+            this.lazyLoadObserver.unobserve(w);
+            this.lazyLoadObserver.observe(w);
+        });
+    }
+
     initializeScrollViewport() {
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
@@ -1068,6 +1078,7 @@ class EpubViewerUI {
                 coverWrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
                 this.navigationTimeout = setTimeout(() => {
                     this.isNavigatingToChapter = false;
+                    this._reobservePlaceholders();
                 }, 800);
             }
             this.currentChapterIndex = -1;
@@ -1143,9 +1154,10 @@ class EpubViewerUI {
 
                 this.navigationTimeout = setTimeout(() => {
                     this.isNavigatingToChapter = false;
+                    this._reobservePlaceholders();
                 }, 800);
             }
-            
+            this.currentChapterIndex = -1;
             this.updateActiveTocHighlight();
             return;
         }
@@ -1373,9 +1385,15 @@ class EpubViewerUI {
                 el.addEventListener("click", (e) => {
                     e.stopPropagation();
                     if (this.ttsActive) {
-                        this.stopTTS();
+                        if (this.speechUtterance) {
+                            this.speechUtterance.onend = null;
+                            this.speechUtterance.onerror = null;
+                        }
+                        window.speechSynthesis.cancel();
                         this.ttsCurrentIndex = paraIndex;
-                        this.playTTS();
+                        setTimeout(() => {
+                            if (this.ttsActive) this.speakCurrentParagraph();
+                        }, 50);
                     }
                 });
             }
