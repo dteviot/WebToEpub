@@ -878,6 +878,7 @@ class EpubViewerUI {
         try {
             this.resetBookState();
             this.showLoader();
+            await this.ensureZipAvailable();
 
             // Detect Live-Scraped dynamic novel
             if (typeof epubSource === "string" && epubSource.startsWith("lazy:")) {
@@ -1561,6 +1562,56 @@ class EpubViewerUI {
                 clearTimeout(timeoutId);
             }
         }
+    }
+
+    async ensureZipAvailable() {
+        if (typeof zip !== "undefined") {
+            return;
+        }
+
+        const candidateUrls = [];
+        if (typeof chrome !== "undefined" && chrome.runtime && typeof chrome.runtime.getURL === "function") {
+            candidateUrls.push(chrome.runtime.getURL("@zip.js/zip.js/dist/zip-no-worker.min.js"));
+        }
+        candidateUrls.push("@zip.js/zip.js/dist/zip-no-worker.min.js");
+
+        for (const src of candidateUrls) {
+            try {
+                await new Promise((resolve, reject) => {
+                    const existing = document.querySelector(`script[data-wte-zip-loader="true"][src="${src}"]`);
+                    if (existing) {
+                        if (typeof zip !== "undefined") {
+                            resolve();
+                            return;
+                        }
+                        existing.addEventListener("load", () => resolve(), { once: true });
+                        existing.addEventListener("error", () => reject(new Error(`Failed loading zip.js from ${src}`)), { once: true });
+                        return;
+                    }
+
+                    const script = document.createElement("script");
+                    script.src = src;
+                    script.async = true;
+                    script.dataset.wteZipLoader = "true";
+                    script.onload = () => resolve();
+                    script.onerror = () => reject(new Error(`Failed loading zip.js from ${src}`));
+                    document.head.appendChild(script);
+                });
+
+                if (typeof zip !== "undefined") {
+                    if (zip.configure) {
+                        zip.configure({ useWebWorkers: false });
+                    } else {
+                        zip.useWebWorkers = false;
+                    }
+                    return;
+                }
+            } catch (error) {
+                console.warn("[EPUB Reader] zip.js load attempt failed:", error);
+            }
+        }
+
+        throw new Error("zip.js failed to load. Please refresh and try again.");
     }
 
     // --- LIVE NOVEL SCRAPING & LAZY READER CONTROLLERS ---
