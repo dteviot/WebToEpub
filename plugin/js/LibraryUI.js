@@ -5,6 +5,10 @@ class LibraryUI {
     constructor(epubViewer) {
         this.epubViewer = epubViewer;
         this.storage = this.initStorage();
+        this.publicCatalog = null;
+        this.publicSearchQuery = "";
+        this.publicCurrentPage = 1;
+        this.publicBooksPerPage = 10;
     }
 
     initStorage() {
@@ -97,7 +101,30 @@ class LibraryUI {
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
         const uploadSection = document.querySelector(".library-upload-section");
+        const publicSearch = document.getElementById("publicLibrarySearch");
+        const clearPublicSearch = document.getElementById("clearPublicSearch");
         
+        if (publicSearch) {
+            publicSearch.addEventListener("input", (e) => {
+                this.publicSearchQuery = e.target.value.toLowerCase().trim();
+                this.publicCurrentPage = 1;
+                if (clearPublicSearch) {
+                    clearPublicSearch.style.display = this.publicSearchQuery.length > 0 ? "flex" : "none";
+                }
+                this.renderPublicGrid();
+            });
+        }
+        
+        if (clearPublicSearch) {
+            clearPublicSearch.addEventListener("click", () => {
+                if (publicSearch) publicSearch.value = "";
+                this.publicSearchQuery = "";
+                this.publicCurrentPage = 1;
+                clearPublicSearch.style.display = "none";
+                this.renderPublicGrid();
+            });
+        }
+
         if (tabPersonal && tabPublic) {
             tabPersonal.addEventListener("click", () => {
                 tabPersonal.classList.add("active");
@@ -337,170 +364,233 @@ class LibraryUI {
         const grid = document.getElementById("publicLibraryGrid");
         if (!grid) return;
         
-        // Show in-place elegant loader inside the grid
-        grid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
-                <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to Hugging Face Open Database...</p>
-                <style>
-                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                </style>
-            </div>
-        `;
+        if (!this.publicCatalog) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                    <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to Hugging Face Open Database...</p>
+                    <style>
+                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                    </style>
+                </div>
+            `;
+            try {
+                const catalog = await HFLibrary.getCatalog();
+                this.publicCatalog = catalog.map(book => ({
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    coverPath: book.coverPath,
+                    desc: \`Size: \${HFLibrary.formatSize(book.size)} | Shared: \${new Date(book.uploadedAt).toLocaleDateString()}\`,
+                    isHF: true,
+                    epubPath: book.epubPath
+                }));
+                
+                this.publicCatalog.push(
+                    {
+                        id: "static_1",
+                        title: "The Time Machine",
+                        author: "H. G. Wells",
+                        coverPath: null,
+                        staticCover: LibraryUI.buildInlineCover("#1a111f", "#00f5ff", "THE TIME", "MACHINE", "H. G. WELLS"),
+                        desc: "The classic science fiction novella detailing an inventor's journey to the far future of humanity.",
+                        isHF: false,
+                        generator: () => this.generateTimeMachineEPUB()
+                    },
+                    {
+                        id: "static_2",
+                        title: "Alice in Wonderland",
+                        author: "Lewis Carroll",
+                        coverPath: null,
+                        staticCover: LibraryUI.buildInlineCover("#0a2c40", "#38ef7d", "ALICE IN", "WONDERLAND", "LEWIS CARROLL"),
+                        desc: "Follow Alice down the rabbit hole into a whimsical, nonsense fantasy world of colorful creatures.",
+                        isHF: false,
+                        generator: () => this.generateAliceEPUB()
+                    }
+                );
+            } catch (e) {
+                console.error("HFLibrary: Failed to fetch public catalog.", e);
+                this.publicCatalog = [];
+            }
+        }
+        
+        this.renderPublicGrid();
+    }
+
+    renderPublicGrid() {
+        const grid = document.getElementById("publicLibraryGrid");
+        const paginationContainer = document.getElementById("publicLibraryPagination");
+        if (!grid) return;
+
+        let filtered = this.publicCatalog || [];
+        if (this.publicSearchQuery) {
+            filtered = filtered.filter(b => 
+                b.title.toLowerCase().includes(this.publicSearchQuery) || 
+                b.author.toLowerCase().includes(this.publicSearchQuery)
+            );
+        }
+
+        const totalPages = Math.ceil(filtered.length / this.publicBooksPerPage) || 1;
+        if (this.publicCurrentPage > totalPages) this.publicCurrentPage = totalPages;
+        if (this.publicCurrentPage < 1) this.publicCurrentPage = 1;
+
+        const startIndex = (this.publicCurrentPage - 1) * this.publicBooksPerPage;
+        const pageBooks = filtered.slice(startIndex, startIndex + this.publicBooksPerPage);
 
         grid.innerHTML = "";
-        let catalog = [];
-        try {
-            catalog = await HFLibrary.getCatalog();
-        } catch (e) {
-            console.error("HFLibrary: Failed to fetch public catalog.", e);
+
+        if (pageBooks.length === 0) {
+            grid.innerHTML = \`<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No books found.</div>\`;
         }
 
-        const publicBooks = [];
+        pageBooks.forEach(book => {
+            const card = document.createElement("div");
+            card.className = "library-book-card";
+            
+            const coverSrc = book.staticCover ? book.staticCover : this.defaultPublicCover();
 
-        for (const book of catalog) {
-            let coverUrl = "";
-            if (book.coverPath) {
-                try {
-                    coverUrl = await HFLibrary.getCoverUrl(book.coverPath);
-                } catch {
-                    coverUrl = this.defaultPublicCover();
-                }
-            } else {
-                coverUrl = this.defaultPublicCover();
-            }
-
-            publicBooks.push({
-                id: book.id,
-                title: book.title,
-                author: book.author,
-                cover: coverUrl,
-                desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
-                isHF: true,
-                epubPath: book.epubPath
-            });
-        }
-
-        publicBooks.push(
-            {
-                title: "The Time Machine",
-                author: "H. G. Wells",
-                cover: LibraryUI.buildInlineCover("#1a111f", "#00f5ff", "THE TIME", "MACHINE", "H. G. WELLS"),
-                desc: "The classic science fiction novella detailing an inventor's journey to the far future of humanity.",
-                isHF: false,
-                generator: () => this.generateTimeMachineEPUB()
-            },
-            {
-                title: "Alice in Wonderland",
-                author: "Lewis Carroll",
-                cover: LibraryUI.buildInlineCover("#0a2c40", "#38ef7d", "ALICE IN", "WONDERLAND", "LEWIS CARROLL"),
-                desc: "Follow Alice down the rabbit hole into a whimsical, nonsense fantasy world of colorful creatures.",
-                isHF: false,
-                generator: () => this.generateAliceEPUB()
-            }
-        );
-
-        publicBooks.forEach(book => {
-        const card = document.createElement("div");
-        card.className = "library-book-card";
-        card.innerHTML = `
+            card.innerHTML = \`
                 <div class="book-cover-wrap">
-                    <img class="book-cover-img" src="${book.cover}" alt="Book Cover">
+                    <img class="book-cover-img" id="public-cover-\${book.id}" src="\${coverSrc}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
-                        ${book.isHF ? "<button class=\"book-action-btn download-btn-main\">Save File</button>" : ""}
+                        \${book.isHF ? '<button class="book-action-btn download-btn-main">Save File</button>' : ""}
+                    </div>
                 </div>
-            </div>
-            <div class="book-details">
-                <div class="book-title" title="${book.title}">${book.title}</div>
-                <div class="book-author">${book.author}</div>
-                <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc}</p>
-                ${book.isHF ? `
-                <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
-                    <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
-                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
-                            <path fill-rule="evenodd" d="M8.75 3A2.75 2.75 0 006 5.75v.25H4.25a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H14v-.25A2.75 2.75 0 0011.25 3h-2.5zM6 7.5h8v7.25a2.75 2.75 0 01-2.75 2.75h-2.5A2.75 2.75 0 016 14.75V7.5z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+                <div class="book-details">
+                    <div class="book-title" title="\${book.title.replace(/"/g, '&quot;')}">\${book.title}</div>
+                    <div class="book-author">\${book.author}</div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">\${book.desc}</p>
+                    \${book.isHF ? \`
+                    <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
+                        <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
+                                <path fill-rule="evenodd" d="M8.75 3A2.75 2.75 0 006 5.75v.25H4.25a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H14v-.25A2.75 2.75 0 0011.25 3h-2.5zM6 7.5h8v7.25a2.75 2.75 0 01-2.75 2.75h-2.5A2.75 2.75 0 016 14.75V7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    \` : ""}
                 </div>
-                ` : ""}
-            </div>
-        `;
+            \`;
 
-        card.querySelector(".read-btn-main").addEventListener("click", async () => {
-            const loader = document.getElementById("libraryLoader");
-            if (loader) {
-                loader.style.display = "flex";
-                const statusText = loader.querySelector("div:last-child");
-                if (statusText) statusText.textContent = book.isHF ? "Downloading book from Hugging Face..." : "Assembling local classic ebook...";
+            // Async load HF cover
+            if (book.isHF && book.coverPath) {
+                HFLibrary.getCoverUrl(book.coverPath).then(url => {
+                    if (url) {
+                        const img = card.querySelector(\`#public-cover-\${book.id}\`);
+                        if (img) img.src = url;
+                    }
+                }).catch(e => console.error("Cover load failed", e));
             }
 
-            try {
-                let blob;
-                if (book.isHF) {
-                    blob = await HFLibrary.downloadBook(book.epubPath);
-                } else {
-                    blob = await book.generator();
-                }
-
-                this.epubViewer.showLoader();
-                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                document.getElementById("epubReaderView").classList.add("active");
-                const globalBackBtn = document.getElementById("globalBackBtn");
-                if (globalBackBtn) globalBackBtn.style.display = "none";
-
-                await this.epubViewer.loadEpub(blob);
-            } catch (e) {
-                alert("Error loading public book: " + e.message);
-            } finally {
-                if (loader) loader.style.display = "none";
-            }
-        });
-
-        if (book.isHF) {
-            card.querySelector(".download-btn-main").addEventListener("click", async () => {
+            card.querySelector(".read-btn-main").addEventListener("click", async () => {
                 const loader = document.getElementById("libraryLoader");
                 if (loader) {
                     loader.style.display = "flex";
                     const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Downloading book file from Hugging Face...";
+                    if (statusText) statusText.textContent = book.isHF ? "Downloading book from Hugging Face..." : "Assembling local classic ebook...";
                 }
+
                 try {
-                    const blob = await HFLibrary.downloadBook(book.epubPath);
-                    const url = URL.createObjectURL(blob);
-                    this.downloadBlob(url, `${book.title}.epub`);
-                    URL.revokeObjectURL(url);
+                    let blob;
+                    if (book.isHF) {
+                        blob = await HFLibrary.downloadBook(book.epubPath);
+                    } else {
+                        blob = await book.generator();
+                    }
+
+                    this.epubViewer.showLoader();
+                    document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+                    document.getElementById("epubReaderView").classList.add("active");
+                    const globalBackBtn = document.getElementById("globalBackBtn");
+                    if (globalBackBtn) globalBackBtn.style.display = "none";
+
+                    await this.epubViewer.loadEpub(blob);
                 } catch (e) {
-                    alert("Error downloading public book: " + e.message);
+                    alert("Error loading public book: " + e.message);
                 } finally {
                     if (loader) loader.style.display = "none";
                 }
             });
 
-            card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
-                e.stopPropagation();
-                if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
+            if (book.isHF) {
+                card.querySelector(".download-btn-main").addEventListener("click", async () => {
                     const loader = document.getElementById("libraryLoader");
                     if (loader) {
                         loader.style.display = "flex";
                         const statusText = loader.querySelector("div:last-child");
-                        if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
+                        if (statusText) statusText.textContent = "Downloading book file from Hugging Face...";
                     }
                     try {
-                        await HFLibrary.deleteBook(book.id);
-                        alert(`Successfully deleted "${book.title}" from the public library!`);
-                        this.renderPublicLibrary();
-                    } catch (error) {
-                        alert("Error deleting public book: " + error.message);
+                        const blob = await HFLibrary.downloadBook(book.epubPath);
+                        const url = URL.createObjectURL(blob);
+                        this.downloadBlob(url, \`\${book.title}.epub\`);
+                        URL.revokeObjectURL(url);
+                    } catch (e) {
+                        alert("Error downloading public book: " + e.message);
                     } finally {
                         if (loader) loader.style.display = "none";
                     }
-                }
-            });
-        }
+                });
+
+                card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
+                    e.stopPropagation();
+                    if (confirm(\`Are you sure you want to delete "\${book.title}" from the Hugging Face Public Library?\`)) {
+                        const loader = document.getElementById("libraryLoader");
+                        if (loader) {
+                            loader.style.display = "flex";
+                            const statusText = loader.querySelector("div:last-child");
+                            if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
+                        }
+                        try {
+                            await HFLibrary.deleteBook(book.id);
+                            alert(\`Successfully deleted "\${book.title}" from the public library!\`);
+                            this.publicCatalog = null; // force reload next time
+                            this.renderPublicLibrary();
+                        } catch (error) {
+                            alert("Error deleting public book: " + error.message);
+                        } finally {
+                            if (loader) loader.style.display = "none";
+                        }
+                    }
+                });
+            }
 
             grid.appendChild(card);
         });
+
+        if (paginationContainer) {
+            paginationContainer.innerHTML = "";
+            if (totalPages > 1) {
+                const prevBtn = document.createElement("button");
+                prevBtn.textContent = "Previous";
+                prevBtn.style.cssText = \`padding: 8px 16px; border-radius: 20px; border: none; cursor: \${this.publicCurrentPage > 1 ? 'pointer' : 'not-allowed'}; background: \${this.publicCurrentPage > 1 ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;\`;
+                if (this.publicCurrentPage > 1) {
+                    prevBtn.onclick = () => {
+                        this.publicCurrentPage--;
+                        this.renderPublicGrid();
+                    };
+                }
+                
+                const info = document.createElement("span");
+                info.textContent = \`Page \${this.publicCurrentPage} of \${totalPages}\`;
+                info.style.color = "var(--reader-text)";
+
+                const nextBtn = document.createElement("button");
+                nextBtn.textContent = "Next";
+                nextBtn.style.cssText = \`padding: 8px 16px; border-radius: 20px; border: none; cursor: \${this.publicCurrentPage < totalPages ? 'pointer' : 'not-allowed'}; background: \${this.publicCurrentPage < totalPages ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;\`;
+                if (this.publicCurrentPage < totalPages) {
+                    nextBtn.onclick = () => {
+                        this.publicCurrentPage++;
+                        this.renderPublicGrid();
+                    };
+                }
+
+                paginationContainer.appendChild(prevBtn);
+                paginationContainer.appendChild(info);
+                paginationContainer.appendChild(nextBtn);
+            }
+        }
     }
 
     defaultPublicCover() {
