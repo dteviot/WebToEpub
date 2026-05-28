@@ -1379,23 +1379,28 @@ class EpubViewerUI {
             if (text.length > 2) {
                 // Save element and its text content
                 this.ttsParagraphs.push({ element: el, text: text });
-                const paraIndex = this.ttsParagraphs.length - 1;
                 
                 // Allow user to click any paragraph to jump speech directly to it
-                el.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    if (this.ttsActive) {
-                        if (this.speechUtterance) {
-                            this.speechUtterance.onend = null;
-                            this.speechUtterance.onerror = null;
+                if (!el.hasAttribute("data-tts-bound")) {
+                    el.setAttribute("data-tts-bound", "true");
+                    el.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        if (this.ttsActive) {
+                            const currentIdx = this.ttsParagraphs.findIndex(p => p.element === el);
+                            if (currentIdx === -1) return;
+                            
+                            if (this.speechUtterance) {
+                                this.speechUtterance.onend = null;
+                                this.speechUtterance.onerror = null;
+                            }
+                            window.speechSynthesis.cancel();
+                            this.ttsCurrentIndex = currentIdx;
+                            setTimeout(() => {
+                                if (this.ttsActive) this.speakCurrentParagraph();
+                            }, 50);
                         }
-                        window.speechSynthesis.cancel();
-                        this.ttsCurrentIndex = paraIndex;
-                        setTimeout(() => {
-                            if (this.ttsActive) this.speakCurrentParagraph();
-                        }, 50);
-                    }
-                });
+                    });
+                }
             }
         });
     }
