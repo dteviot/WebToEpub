@@ -1,15 +1,10 @@
 /* Personal and Public Library UI Controller */
 "use strict";
 
-/* global HFLibrary, zip */
-
-class LibraryUI { // eslint-disable-line no-unused-vars
+class LibraryUI {
     constructor(epubViewer) {
         this.epubViewer = epubViewer;
         this.storage = this.initStorage();
-        this.publicCatalog = null;
-        this.publicCurrentPage = 0;
-        this.publicSearchQuery = "";
     }
 
     initStorage() {
@@ -101,50 +96,19 @@ class LibraryUI { // eslint-disable-line no-unused-vars
         // Library tabs switching (Personal vs Public)
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
-        const uploadSection = document.querySelector(".library-upload-section");
         
         if (tabPersonal && tabPublic) {
             tabPersonal.addEventListener("click", () => {
                 tabPersonal.classList.add("active");
                 tabPublic.classList.remove("active");
                 document.getElementById("personalLibraryGrid").style.display = "grid";
-                document.getElementById("publicLibraryView").style.display = "none";
-                if (uploadSection) uploadSection.style.display = "block";
+                document.getElementById("publicLibraryGrid").style.display = "none";
             });
             tabPublic.addEventListener("click", () => {
                 tabPublic.classList.add("active");
                 tabPersonal.classList.remove("active");
                 document.getElementById("personalLibraryGrid").style.display = "none";
-                document.getElementById("publicLibraryView").style.display = "block";
-                if (uploadSection) uploadSection.style.display = "block";
-                this.renderPublicLibrary();
-            });
-        }
-
-        // Search Bar Event Handlers
-        const searchInput = document.getElementById("publicLibrarySearch");
-        if (searchInput) {
-            searchInput.addEventListener("input", (e) => {
-                this.publicSearchQuery = e.target.value;
-                this.publicCurrentPage = 0; // Reset pagination to first page on search
-
-                const clearBtn = document.getElementById("clearPublicSearch");
-                if (clearBtn) {
-                    clearBtn.style.display = e.target.value ? "flex" : "none";
-                }
-
-                this.renderPublicLibrary();
-            });
-        }
-
-        const clearBtn = document.getElementById("clearPublicSearch");
-        if (clearBtn) {
-            clearBtn.addEventListener("click", () => {
-                const input = document.getElementById("publicLibrarySearch");
-                if (input) input.value = "";
-                this.publicSearchQuery = "";
-                this.publicCurrentPage = 0;
-                clearBtn.style.display = "none";
+                document.getElementById("publicLibraryGrid").style.display = "grid";
                 this.renderPublicLibrary();
             });
         }
@@ -369,51 +333,53 @@ class LibraryUI { // eslint-disable-line no-unused-vars
     async renderPublicLibrary() {
         const grid = document.getElementById("publicLibraryGrid");
         if (!grid) return;
+        
+        // Show in-place elegant loader inside the grid
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to Hugging Face Open Database...</p>
+                <style>
+                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                </style>
+            </div>
+        `;
 
-        // 1. Fetch catalog once and cache it to avoid duplicate network load
-        if (!this.publicCatalog) {
-            grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
-                    <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to Hugging Face Open Database...</p>
-                    <style>
-                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                    </style>
-                </div>
-            `;
-            try {
-                this.publicCatalog = await HFLibrary.getCatalog();
-            } catch (e) {
-                console.error("HFLibrary: Failed to fetch public catalog.", e);
-                this.publicCatalog = [];
-            }
+        grid.innerHTML = "";
+        let catalog = [];
+        try {
+            catalog = await HFLibrary.getCatalog();
+        } catch (e) {
+            console.error("HFLibrary: Failed to fetch public catalog.", e);
         }
 
-        const catalog = this.publicCatalog || [];
-
-        // 2. Filter books dynamically by query
-        const query = (this.publicSearchQuery || "").toLowerCase().trim();
-        const filteredBooks = [];
+        const publicBooks = [];
 
         for (const book of catalog) {
-            if (!query || (book.title || "").toLowerCase().includes(query) || (book.author || "").toLowerCase().includes(query)) {
-                filteredBooks.push({
-                    id: book.id,
-                    title: book.title,
-                    author: book.author,
-                    cover: this.defaultPublicCover(), // Render with placeholder cover instantly
-                    coverPath: book.coverPath,
-                    desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
-                    isHF: true,
-                    epubPath: book.epubPath
-                });
+            let coverUrl = "";
+            if (book.coverPath) {
+                try {
+                    coverUrl = await HFLibrary.getCoverUrl(book.coverPath);
+                } catch {
+                    coverUrl = this.defaultPublicCover();
+                }
+            } else {
+                coverUrl = this.defaultPublicCover();
             }
+
+            publicBooks.push({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                cover: coverUrl,
+                desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
+                isHF: true,
+                epubPath: book.epubPath
+            });
         }
 
-        // Add local offline classic books if they match
-        const staticBooks = [
+        publicBooks.push(
             {
-                id: "static_time_machine",
                 title: "The Time Machine",
                 author: "H. G. Wells",
                 cover: LibraryUI.buildInlineCover("#1a111f", "#00f5ff", "THE TIME", "MACHINE", "H. G. WELLS"),
@@ -422,7 +388,6 @@ class LibraryUI { // eslint-disable-line no-unused-vars
                 generator: () => this.generateTimeMachineEPUB()
             },
             {
-                id: "static_alice_wonderland",
                 title: "Alice in Wonderland",
                 author: "Lewis Carroll",
                 cover: LibraryUI.buildInlineCover("#0a2c40", "#38ef7d", "ALICE IN", "WONDERLAND", "LEWIS CARROLL"),
@@ -430,199 +395,109 @@ class LibraryUI { // eslint-disable-line no-unused-vars
                 isHF: false,
                 generator: () => this.generateAliceEPUB()
             }
-        ];
+        );
 
-        staticBooks.forEach(book => {
-            if (!query || book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query)) {
-                filteredBooks.push(book);
-            }
-        });
-
-        // 3. Paginate filtered items to 10 books per page
-        const totalBooks = filteredBooks.length;
-        const itemsPerPage = 10;
-        const totalPages = Math.ceil(totalBooks / itemsPerPage);
-
-        if (this.publicCurrentPage >= totalPages && totalPages > 0) {
-            this.publicCurrentPage = totalPages - 1;
-        }
-        if (this.publicCurrentPage < 0) {
-            this.publicCurrentPage = 0;
-        }
-
-        const startIdx = this.publicCurrentPage * itemsPerPage;
-        const endIdx = Math.min(startIdx + itemsPerPage, totalBooks);
-        const pageBooks = filteredBooks.slice(startIdx, endIdx);
-
-        grid.innerHTML = "";
-
-        // Empty search results warning
-        if (totalBooks === 0) {
-            grid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
-                    <p style="font-size: 1.1rem; font-weight: 550; margin: 0;">No books match your search.</p>
-                </div>
-            `;
-            const paginationContainer = document.getElementById("publicLibraryPagination");
-            if (paginationContainer) paginationContainer.style.display = "none";
-            return;
-        }
-
-        // 4. Render the 10 books of the current page
-        pageBooks.forEach(book => {
-            const card = document.createElement("div");
-            card.className = "library-book-card";
-            card.innerHTML = `
+        publicBooks.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "library-book-card";
+        card.innerHTML = `
                 <div class="book-cover-wrap">
                     <img class="book-cover-img" src="${book.cover}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
                         ${book.isHF ? "<button class=\"book-action-btn download-btn-main\">Save File</button>" : ""}
-                    </div>
                 </div>
-                <div class="book-details">
-                    <div class="book-title" title="${book.title}">${book.title}</div>
-                    <div class="book-author">${book.author}</div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc || ""}</p>
-                    ${book.isHF ? `
-                    <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
-                        <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
-                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
-                                <path fill-rule="evenodd" d="M8.75 3A2.75 2.75 0 006 5.75v.25H4.25a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H14v-.25A2.75 2.75 0 0011.25 3h-2.5zM6 7.5h8v7.25a2.75 2.75 0 01-2.75 2.75h-2.5A2.75 2.75 0 016 14.75V7.5z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                    ` : ""}
+            </div>
+            <div class="book-details">
+                <div class="book-title" title="${book.title}">${book.title}</div>
+                <div class="book-author">${book.author}</div>
+                <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc}</p>
+                ${book.isHF ? `
+                <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
+                    <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
+                            <path fill-rule="evenodd" d="M8.75 3A2.75 2.75 0 006 5.75v.25H4.25a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H14v-.25A2.75 2.75 0 0011.25 3h-2.5zM6 7.5h8v7.25a2.75 2.75 0 01-2.75 2.75h-2.5A2.75 2.75 0 016 14.75V7.5z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
-            `;
+                ` : ""}
+            </div>
+        `;
 
-            // Read Now click handler
-            card.querySelector(".read-btn-main").addEventListener("click", async () => {
+        card.querySelector(".read-btn-main").addEventListener("click", async () => {
+            const loader = document.getElementById("libraryLoader");
+            if (loader) {
+                loader.style.display = "flex";
+                const statusText = loader.querySelector("div:last-child");
+                if (statusText) statusText.textContent = book.isHF ? "Downloading book from Hugging Face..." : "Assembling local classic ebook...";
+            }
+
+            try {
+                let blob;
+                if (book.isHF) {
+                    blob = await HFLibrary.downloadBook(book.epubPath);
+                } else {
+                    blob = await book.generator();
+                }
+
+                this.epubViewer.showLoader();
+                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+                document.getElementById("epubReaderView").classList.add("active");
+                const globalBackBtn = document.getElementById("globalBackBtn");
+                if (globalBackBtn) globalBackBtn.style.display = "none";
+
+                await this.epubViewer.loadEpub(blob);
+            } catch (e) {
+                alert("Error loading public book: " + e.message);
+            } finally {
+                if (loader) loader.style.display = "none";
+            }
+        });
+
+        if (book.isHF) {
+            card.querySelector(".download-btn-main").addEventListener("click", async () => {
                 const loader = document.getElementById("libraryLoader");
                 if (loader) {
                     loader.style.display = "flex";
                     const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = book.isHF ? "Downloading book from Hugging Face..." : "Assembling local classic ebook...";
+                    if (statusText) statusText.textContent = "Downloading book file from Hugging Face...";
                 }
-
                 try {
-                    let blob;
-                    if (book.isHF) {
-                        blob = await HFLibrary.downloadBook(book.epubPath);
-                    } else {
-                        blob = await book.generator();
-                    }
-
-                    this.epubViewer.showLoader();
-                    document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                    document.getElementById("epubReaderView").classList.add("active");
-                    const globalBackBtn = document.getElementById("globalBackBtn");
-                    if (globalBackBtn) globalBackBtn.style.display = "none";
-
-                    await this.epubViewer.loadEpub(blob);
+                    const blob = await HFLibrary.downloadBook(book.epubPath);
+                    const url = URL.createObjectURL(blob);
+                    this.downloadBlob(url, `${book.title}.epub`);
+                    URL.revokeObjectURL(url);
                 } catch (e) {
-                    alert("Error loading public book: " + e.message);
+                    alert("Error downloading public book: " + e.message);
                 } finally {
                     if (loader) loader.style.display = "none";
                 }
             });
 
-            // Save File click handler
-            if (book.isHF) {
-                card.querySelector(".download-btn-main").addEventListener("click", async () => {
+            card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
+                e.stopPropagation();
+                if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
                     const loader = document.getElementById("libraryLoader");
                     if (loader) {
                         loader.style.display = "flex";
                         const statusText = loader.querySelector("div:last-child");
-                        if (statusText) statusText.textContent = "Downloading book file from Hugging Face...";
+                        if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
                     }
                     try {
-                        const blob = await HFLibrary.downloadBook(book.epubPath);
-                        const url = URL.createObjectURL(blob);
-                        this.downloadBlob(url, `${book.title}.epub`);
-                        URL.revokeObjectURL(url);
-                    } catch (e) {
-                        alert("Error downloading public book: " + e.message);
+                        await HFLibrary.deleteBook(book.id);
+                        alert(`Successfully deleted "${book.title}" from the public library!`);
+                        this.renderPublicLibrary();
+                    } catch (error) {
+                        alert("Error deleting public book: " + error.message);
                     } finally {
                         if (loader) loader.style.display = "none";
                     }
-                });
-
-                // Delete click handler
-                card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
-                    e.stopPropagation();
-                    if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
-                        const loader = document.getElementById("libraryLoader");
-                        if (loader) {
-                            loader.style.display = "flex";
-                            const statusText = loader.querySelector("div:last-child");
-                            if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
-                        }
-                        try {
-                            await HFLibrary.deleteBook(book.id);
-                            alert(`Successfully deleted "${book.title}" from the public library!`);
-                            this.publicCatalog = null; // Clear catalog cache to trigger clean refresh
-                            this.renderPublicLibrary();
-                        } catch (error) {
-                            alert("Error deleting public book: " + error.message);
-                        } finally {
-                            if (loader) loader.style.display = "none";
-                        }
-                    }
-                });
-            }
+                }
+            });
+        }
 
             grid.appendChild(card);
-
-            // 5. Asynchronously lazy-load the cover poster to prevent rate limiting or tab freezes!
-            if (book.isHF && book.coverPath) {
-                HFLibrary.getCoverUrl(book.coverPath).then(coverUrl => {
-                    if (coverUrl) {
-                        const img = card.querySelector(".book-cover-img");
-                        if (img) img.src = coverUrl;
-                    }
-                }).catch(err => {
-                    console.warn(`Failed to lazy load cover for ${book.title}:`, err);
-                });
-            }
         });
-
-        // 6. Render Pagination controls inside the static pagination div
-        const paginationContainer = document.getElementById("publicLibraryPagination");
-        if (paginationContainer) {
-            paginationContainer.style.display = "flex";
-            paginationContainer.innerHTML = `
-                <button id="prevPublicPage" class="import-btn" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px;" ${this.publicCurrentPage === 0 ? "disabled style=\"opacity: 0.4; cursor: not-allowed;\"" : ""}>
-                    ← Prev
-                </button>
-                <span style="font-size: 0.95rem; font-weight: 550; color: var(--reader-text, #fff);">
-                    Page ${this.publicCurrentPage + 1} of ${totalPages || 1}
-                </span>
-                <button id="nextPublicPage" class="import-btn" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px;" ${this.publicCurrentPage >= totalPages - 1 ? "disabled style=\"opacity: 0.4; cursor: not-allowed;\"" : ""}>
-                    Next →
-                </button>
-            `;
-
-            // Bind Previous button
-            const prevBtn = paginationContainer.querySelector("#prevPublicPage");
-            if (prevBtn && this.publicCurrentPage > 0) {
-                prevBtn.addEventListener("click", () => {
-                    this.publicCurrentPage--;
-                    this.renderPublicLibrary();
-                    document.getElementById("publicLibraryView").scrollIntoView({ behavior: "smooth" });
-                });
-            }
-
-            // Bind Next button
-            const nextBtn = paginationContainer.querySelector("#nextPublicPage");
-            if (nextBtn && this.publicCurrentPage < totalPages - 1) {
-                nextBtn.addEventListener("click", () => {
-                    this.publicCurrentPage++;
-                    this.renderPublicLibrary();
-                    document.getElementById("publicLibraryView").scrollIntoView({ behavior: "smooth" });
-                });
-            }
-        }
     }
 
     defaultPublicCover() {
@@ -821,5 +696,4 @@ class LibraryUI { // eslint-disable-line no-unused-vars
 
         return await zipWriter.close();
     }
-
 }
