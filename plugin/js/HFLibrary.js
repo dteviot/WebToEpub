@@ -299,7 +299,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         }
 
         const base64Text = await resp.text();
-        return HFLibrary._dataUrlToBlob(`data:application/epub+zip;base64,${base64Text.trim()}`);
+        return await HFLibrary._dataUrlToBlobAsync(`data:application/epub+zip;base64,${base64Text.trim()}`);
     }
 
     // ─── Get Cover URL ───────────────────────────────────────────
@@ -376,15 +376,9 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         }
     }
 
-    static _dataUrlToBlob(dataUrl) {
-        const [header, base64] = dataUrl.split(",");
-        const mime = header.match(/:(.*?);/)[1];
-        const binary = atob(base64);
-        const array = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            array[i] = binary.charCodeAt(i);
-        }
-        return new Blob([array], { type: mime });
+    static async _dataUrlToBlobAsync(dataUrl) {
+        const resp = await fetch(dataUrl);
+        return await resp.blob();
     }
 
     static formatSize(bytes) {
