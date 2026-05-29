@@ -901,6 +901,41 @@ class LibraryUI {
         };
     }
 
+    stripHtmlTags(html) {
+        if (!html) return "";
+        
+        // Unescape standard HTML entities so DOMParser can process them as nodes
+        let text = html
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&amp;/g, "&")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+            
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, "text/html");
+            
+            // Insert newlines for common block elements to preserve paragraph formatting
+            doc.querySelectorAll("p, div, li, br, h1, h2, h3, h4, h5, h6").forEach(el => {
+                if (el.tagName.toLowerCase() === "br") {
+                    el.after("\n");
+                } else {
+                    el.after("\n\n");
+                }
+            });
+            
+            let clean = doc.body.textContent || doc.body.innerText || text;
+            return clean
+                .replace(/[ \t]+/g, " ")      // Collapse horizontal whitespace
+                .replace(/\n\s*\n\s*\n+/g, "\n\n") // Collapse 3+ newlines to 2
+                .trim();
+        } catch (e) {
+            // Regex fallback if DOMParser fails
+            return text.replace(/<[^>]*>/g, "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
+        }
+    }
+
     async showBookDetailsPage(bookData, isPersonal) {
         const loader = document.getElementById("libraryLoader");
         if (loader) {
@@ -974,7 +1009,7 @@ class LibraryUI {
             document.getElementById("detailsBookAuthor").textContent = meta.author;
 
             const descText = meta.description && meta.description !== "No description available." ? meta.description : (bookData.desc || "No description available.");
-            document.getElementById("detailsBookDesc").textContent = descText;
+            document.getElementById("detailsBookDesc").textContent = this.stripHtmlTags(descText);
 
             // Series tag
             const seriesTag = document.getElementById("detailsBookSeries");
