@@ -9,10 +9,12 @@ class LibraryUI {
         this.publicSearchQuery = "";
         this.publicCurrentPage = 1;
         this.publicBooksPerPage = 10;
+        this.currentDetailsEpub = null;
+        this.currentDetailsFilename = "";
     }
 
     initStorage() {
-        // Dual-storage manager (extension chrome.storage.local + standard localStorage fallback)
+        // Dual-storage manager (extension chrome.storage.local + standard IndexedDB fallback)
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && !window.WTE_WEBSITE_MODE) {
             return {
                 get: (keys) => new Promise(resolve => chrome.storage.local.get(keys, resolve)),
@@ -21,45 +23,167 @@ class LibraryUI {
                 getAll: () => new Promise(resolve => chrome.storage.local.get(null, resolve))
             };
         } else {
-            return {
-                get: async (keys) => {
-                    const result = {};
-                    const keyList = Array.isArray(keys) ? keys : [keys];
-                    keyList.forEach(k => {
-                        const val = localStorage.getItem(k);
-                        if (val !== null) {
-                            try {
-                                result[k] = JSON.parse(val);
-                            } catch {
-                                result[k] = val;
-                            }
+            // IndexedDB Store wrapper matching the chrome.storage.local API
+            const dbName = "WebToEpubLibrary";
+            const storeName = "books";
+            let dbInstance = null;
+
+            const getDb = () => {
+                if (dbInstance) return Promise.resolve(dbInstance);
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, 1);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(storeName)) {
+                            db.createObjectStore(storeName);
                         }
+                    };
+                    request.onsuccess = (e) => {
+                        dbInstance = e.target.result;
+                        resolve(dbInstance);
+                    };
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            };
+
+            const store = {
+                get: async (keys) => {
+                    const db = await getDb();
+                    return new Promise((resolve) => {
+                        const transaction = db.transaction([storeName], "readonly");
+                        const objectStore = transaction.objectStore(storeName);
+                        const keyList = Array.isArray(keys) ? keys : [keys];
+                        const result = {};
+                        let count = 0;
+
+                        if (keyList.length === 0) {
+                            resolve(result);
+                            return;
+                        }
+
+                        keyList.forEach(k => {
+                            const req = objectStore.get(k);
+                            req.onsuccess = (e) => {
+                                const val = e.target.result;
+                                if (val !== undefined) {
+                                    result[k] = val;
+                                }
+                                count++;
+                                if (count === keyList.length) resolve(result);
+                            };
+                            req.onerror = () => {
+                                count++;
+                                if (count === keyList.length) resolve(result);
+                            };
+                        });
                     });
-                    return result;
                 },
                 set: async (obj) => {
-                    Object.entries(obj).forEach(([k, v]) => {
-                        localStorage.setItem(k, typeof v === "object" ? JSON.stringify(v) : v);
+                    const db = await getDb();
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction([storeName], "readwrite");
+                        const objectStore = transaction.objectStore(storeName);
+                        
+                        Object.entries(obj).forEach(([k, v]) => {
+                            objectStore.put(v, k);
+                        });
+
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = (e) => reject(e.target.error);
                     });
                 },
                 remove: async (keys) => {
-                    const keyList = Array.isArray(keys) ? keys : [keys];
-                    keyList.forEach(k => localStorage.removeItem(k));
+                    const db = await getDb();
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction([storeName], "readwrite");
+                        const objectStore = transaction.objectStore(storeName);
+                        const keyList = Array.isArray(keys) ? keys : [keys];
+
+                        keyList.forEach(k => {
+                            objectStore.delete(k);
+                        });
+
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = (e) => reject(e.target.error);
+                    });
                 },
                 getAll: async () => {
-                    const result = {};
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        const val = localStorage.getItem(k);
-                        try {
-                            result[k] = JSON.parse(val);
-                        } catch {
-                            result[k] = val;
+                    const db = await getDb();
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction([storeName], "readonly");
+                        const objectStore = transaction.objectStore(storeName);
+                        const result = {};
+                        
+                        const cursorRequest = objectStore.openCursor();
+                        cursorRequest.onsuccess = (e) => {
+                            const cursor = e.target.result;
+                            if (cursor) {
+                                result[cursor.key] = cursor.value;
+                                cursor.continue();
+                            } else {
+                                resolve(result);
+                            }
+                        };
+                        cursorRequest.onerror = (e) => reject(e.target.error);
+                    });
+                },
+                migrate: async () => {
+                    try {
+                        const libArrayStr = localStorage.getItem("LibArray");
+                        if (libArrayStr) {
+                            const libArray = JSON.parse(libArrayStr);
+                            if (Array.isArray(libArray)) {
+                                const migrationData = { "LibArray": libArray };
+                                const keysToRemove = ["LibArray"];
+
+                                libArray.forEach(id => {
+                                    const epub = localStorage.getItem(`LibEpub${id}`);
+                                    const filename = localStorage.getItem(`LibFilename${id}`);
+                                    const cover = localStorage.getItem(`LibCover${id}`);
+                                    const storyURL = localStorage.getItem(`LibStoryURL${id}`);
+                                    const title = localStorage.getItem(`LibTitle${id}`);
+                                    const author = localStorage.getItem(`LibAuthor${id}`);
+                                    const progress = localStorage.getItem(`LibProgress${id}`);
+
+                                    if (epub) {
+                                        try { migrationData[`LibEpub${id}`] = JSON.parse(epub); } catch { migrationData[`LibEpub${id}`] = epub; }
+                                    }
+                                    if (filename) {
+                                        try { migrationData[`LibFilename${id}`] = JSON.parse(filename); } catch { migrationData[`LibFilename${id}`] = filename; }
+                                    }
+                                    if (cover) {
+                                        try { migrationData[`LibCover${id}`] = JSON.parse(cover); } catch { migrationData[`LibCover${id}`] = cover; }
+                                    }
+                                    if (storyURL) {
+                                        try { migrationData[`LibStoryURL${id}`] = JSON.parse(storyURL); } catch { migrationData[`LibStoryURL${id}`] = storyURL; }
+                                    }
+                                    if (title) {
+                                        try { migrationData[`LibTitle${id}`] = JSON.parse(title); } catch { migrationData[`LibTitle${id}`] = title; }
+                                    }
+                                    if (author) {
+                                        try { migrationData[`LibAuthor${id}`] = JSON.parse(author); } catch { migrationData[`LibAuthor${id}`] = author; }
+                                    }
+                                    if (progress) {
+                                        try { migrationData[`LibProgress${id}`] = JSON.parse(progress); } catch { migrationData[`LibProgress${id}`] = progress; }
+                                    }
+
+                                    keysToRemove.push(
+                                        `LibEpub${id}`, `LibFilename${id}`, `LibCover${id}`,
+                                        `LibStoryURL${id}`, `LibTitle${id}`, `LibAuthor${id}`, `LibProgress${id}`
+                                    );
+                                });
+
+                                await store.set(migrationData);
+                                keysToRemove.forEach(k => localStorage.removeItem(k));
+                                console.log("IndexedDB Migration: Successfully migrated localStorage data to IndexedDB!");
+                            }
                         }
+                    } catch (e) {
+                        console.error("IndexedDB Migration: Failed to migrate localStorage data", e);
                     }
-                    return result;
                 }
             };
+            return store;
         }
     }
 
@@ -71,6 +195,11 @@ class LibraryUI {
             } else {
                 zip.useWebWorkers = false;
             }
+        }
+
+        // Migrate data if falling back to IndexedDB
+        if (this.storage && this.storage.migrate) {
+            await this.storage.migrate();
         }
 
         this.bindEvents();
@@ -140,6 +269,41 @@ class LibraryUI {
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
                 this.renderPublicLibrary();
+            });
+        }
+
+        // Book details page interactive controls
+        const detailsBackBtn = document.getElementById("detailsBackBtn");
+        if (detailsBackBtn) {
+            detailsBackBtn.addEventListener("click", () => {
+                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+                document.getElementById("librariesView").classList.add("active");
+                const globalBackBtn = document.getElementById("globalBackBtn");
+                if (globalBackBtn) globalBackBtn.style.display = "flex";
+            });
+        }
+
+        const detailsStartReadingBtn = document.getElementById("detailsStartReadingBtn");
+        if (detailsStartReadingBtn) {
+            detailsStartReadingBtn.addEventListener("click", () => {
+                if (this.currentDetailsEpub) {
+                    this.openBookInReader(this.currentDetailsEpub);
+                }
+            });
+        }
+
+        const detailsDownloadBtn = document.getElementById("detailsDownloadBtn");
+        if (detailsDownloadBtn) {
+            detailsDownloadBtn.addEventListener("click", () => {
+                if (this.currentDetailsEpub) {
+                    if (typeof this.currentDetailsEpub === "string") {
+                        this.downloadBlob(this.currentDetailsEpub, this.currentDetailsFilename);
+                    } else {
+                        const url = URL.createObjectURL(this.currentDetailsEpub);
+                        this.downloadBlob(url, this.currentDetailsFilename);
+                        URL.revokeObjectURL(url);
+                    }
+                }
             });
         }
     }
@@ -270,6 +434,7 @@ class LibraryUI {
             const progress = parseFloat(booksData[`LibProgress${id}`] || 0);
             const epubBase64 = booksData[`LibEpub${id}`];
             const filename = booksData[`LibFilename${id}`] || `${title}.epub`;
+            const isLiveBook = typeof epubBase64 === "string" && epubBase64.startsWith("lazy:");
 
             const card = document.createElement("div");
             card.className = "library-book-card";
@@ -278,8 +443,10 @@ class LibraryUI {
                     <img class="book-cover-img" src="${cover}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
-                        <button class="book-action-btn download-btn-main">Save File</button>
-                        <button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>
+                        ${isLiveBook ? "" : `
+                            <button class="book-action-btn download-btn-main">Save File</button>
+                            <button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>
+                        `}
                     </div>
                 </div>
                 <div class="book-details">
@@ -299,49 +466,70 @@ class LibraryUI {
                 </div>
             `;
 
-            // Action triggers
+            // Action triggers (Cover click and Read button redirect to details page)
             card.querySelector(".read-btn-main").addEventListener("click", () => {
-                this.openBookInReader(epubBase64);
+                this.showBookDetailsPage({
+                    id: id,
+                    title: title,
+                    author: author,
+                    cover: cover,
+                    epubBase64: epubBase64,
+                    filename: filename
+                }, true);
             });
 
-            card.querySelector(".download-btn-main").addEventListener("click", () => {
-                this.downloadBlob(epubBase64, filename);
+            card.querySelector(".book-cover-wrap").addEventListener("click", (e) => {
+                if (e.target.classList.contains("book-action-btn")) return;
+                this.showBookDetailsPage({
+                    id: id,
+                    title: title,
+                    author: author,
+                    cover: cover,
+                    epubBase64: epubBase64,
+                    filename: filename
+                }, true);
             });
 
-            card.querySelector(".share-public-btn").addEventListener("click", async () => {
-                const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
-                }
+            if (!isLiveBook) {
+                card.querySelector(".download-btn-main").addEventListener("click", () => {
+                    this.downloadBlob(epubBase64, filename);
+                });
 
-                try {
-                    const token = HFLibrary.ensureTokenConfigured(true);
-                    if (!token) {
-                        throw new Error("Hugging Face token is required to share books publicly.");
+                card.querySelector(".share-public-btn").addEventListener("click", async () => {
+                    const loader = document.getElementById("libraryLoader");
+                    if (loader) {
+                        loader.style.display = "flex";
+                        const statusText = loader.querySelector("div:last-child");
+                        if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
                     }
 
-                    // Convert epubBase64 data URL to a Blob
-                    const epubBlob = HFLibrary._dataUrlToBlob(epubBase64);
-                    
-                    // Upload to HF Public Library
-                    await HFLibrary.uploadBook(epubBlob, {
-                        title: title,
-                        author: author,
-                        coverDataUrl: cover
-                    });
+                    try {
+                        const token = HFLibrary.ensureTokenConfigured(true);
+                        if (!token) {
+                            throw new Error("Hugging Face token is required to share books publicly.");
+                        }
 
-                    alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
-                    
-                    // Trigger a re-render of Public Library to show the new addition
-                    this.renderPublicLibrary();
-                } catch (e) {
-                    alert("Error sharing to public library: " + e.message);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
-            });
+                        // Convert epubBase64 data URL to a Blob
+                        const epubBlob = HFLibrary._dataUrlToBlob(epubBase64);
+                        
+                        // Upload to HF Public Library
+                        await HFLibrary.uploadBook(epubBlob, {
+                            title: title,
+                            author: author,
+                            coverDataUrl: cover
+                        });
+
+                        alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                        
+                        // Trigger a re-render of Public Library to show the new addition
+                        this.renderPublicLibrary();
+                    } catch (e) {
+                        alert("Error sharing to public library: " + e.message);
+                    } finally {
+                        if (loader) loader.style.display = "none";
+                    }
+                });
+            }
 
             card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
                 e.stopPropagation();
@@ -483,34 +671,13 @@ class LibraryUI {
                 }).catch(e => console.error("Cover load failed", e));
             }
 
-            card.querySelector(".read-btn-main").addEventListener("click", async () => {
-                const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = book.isHF ? "Downloading book from Hugging Face..." : "Assembling local classic ebook...";
-                }
+            card.querySelector(".read-btn-main").addEventListener("click", () => {
+                this.showBookDetailsPage(book, false);
+            });
 
-                try {
-                    let blob;
-                    if (book.isHF) {
-                        blob = await HFLibrary.downloadBook(book.epubPath);
-                    } else {
-                        blob = await book.generator();
-                    }
-
-                    this.epubViewer.showLoader();
-                    document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                    document.getElementById("epubReaderView").classList.add("active");
-                    const globalBackBtn = document.getElementById("globalBackBtn");
-                    if (globalBackBtn) globalBackBtn.style.display = "none";
-
-                    await this.epubViewer.loadEpub(blob);
-                } catch (e) {
-                    alert("Error loading public book: " + e.message);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
+            card.querySelector(".book-cover-wrap").addEventListener("click", (e) => {
+                if (e.target.classList.contains("book-action-btn")) return;
+                this.showBookDetailsPage(book, false);
             });
 
             if (book.isHF) {
@@ -615,6 +782,236 @@ class LibraryUI {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    async parseEpubMetadata(epubBlobOrBase64, fallbackTitle, fallbackAuthor, fallbackCover) {
+        let zipReaderSource;
+        if (typeof epubBlobOrBase64 === "string") {
+            let base64 = epubBlobOrBase64;
+            if (base64.startsWith("data:")) {
+                base64 = base64.split(",")[1];
+            }
+            const binary = atob(base64);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+            }
+            const blob = new Blob([array], { type: "application/epub+zip" });
+            zipReaderSource = new zip.BlobReader(blob);
+        } else {
+            zipReaderSource = new zip.BlobReader(epubBlobOrBase64);
+        }
+
+        const zipReader = new zip.ZipReader(zipReaderSource, { useWebWorkers: false });
+        let entries = [];
+        try {
+            entries = await zipReader.getEntries();
+        } catch (e) {
+            console.error("Error reading zip entries:", e);
+        }
+        
+        const opfEntry = entries.find(e => e.filename.endsWith(".opf"));
+        let title = fallbackTitle || "Unknown Book";
+        let author = fallbackAuthor || "Unknown Author";
+        let description = "No description available.";
+        let seriesName = "";
+        let seriesIndex = "";
+        let coverDataUrl = fallbackCover || "";
+
+        if (opfEntry) {
+            try {
+                const opfText = await opfEntry.getData(new zip.TextWriter());
+                const parser = new DOMParser();
+                let opfDoc = parser.parseFromString(opfText, "application/xml");
+                if (opfDoc.querySelector("parsererror")) {
+                    opfDoc = parser.parseFromString(opfText, "text/html");
+                }
+
+                const titleEl = opfDoc.querySelector("title, [localName='title']");
+                const creatorEl = opfDoc.querySelector("creator, [localName='creator']");
+                const descEl = opfDoc.querySelector("description, [localName='description']");
+                
+                if (titleEl) title = titleEl.textContent.trim();
+                if (creatorEl) author = creatorEl.textContent.trim();
+                if (descEl) description = descEl.textContent.trim();
+
+                // Series info
+                const calibreSeries = opfDoc.querySelector("meta[name='calibre:series']");
+                const calibreSeriesIndex = opfDoc.querySelector("meta[name='calibre:series_index']");
+                if (calibreSeries) {
+                    seriesName = calibreSeries.getAttribute("content");
+                }
+                if (calibreSeriesIndex) {
+                    seriesIndex = calibreSeries.getAttribute("content");
+                }
+
+                if (!seriesName) {
+                    const ep3Collection = opfDoc.querySelector("meta[property='belongs-to-collection']");
+                    if (ep3Collection) {
+                        seriesName = ep3Collection.textContent.trim();
+                        const collId = ep3Collection.getAttribute("id");
+                        if (collId) {
+                            const ep3GroupPos = opfDoc.querySelector(`meta[refines='#${collId}'][property='group-position']`);
+                            if (ep3GroupPos) {
+                                seriesIndex = ep3GroupPos.textContent.trim();
+                            }
+                        }
+                    }
+                }
+
+                // If coverDataUrl is not present or is the default, scan the zip file
+                if (!coverDataUrl || coverDataUrl.startsWith("data:image/svg+xml;base64,PD94bW")) {
+                    const opfDir = opfEntry.filename.substring(0, opfEntry.filename.lastIndexOf("/") + 1);
+                    let coverImgPath = "";
+                    const coverItem = opfDoc.querySelector("item[properties~='cover-image'], item[id='cover'], item[id='cover-image']");
+                    if (coverItem) {
+                        coverImgPath = this.resolvePath(opfDir, coverItem.getAttribute("href"));
+                    } else {
+                        const coverEntry = entries.find(e => e.filename.match(/cover\.(jpg|jpeg|png|svg)/i));
+                        if (coverEntry) coverImgPath = coverEntry.filename;
+                    }
+
+                    if (coverImgPath) {
+                        const coverEntry = entries.find(e => e.filename === coverImgPath);
+                        if (coverEntry) {
+                            const fileExt = coverImgPath.split(".").pop().toLowerCase();
+                            const mime = `image/${fileExt === "svg" ? "svg+xml" : fileExt}`;
+                            coverDataUrl = await coverEntry.getData(new zip.Data64URIWriter(mime));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to parse content.opf metadata", err);
+            }
+        }
+
+        try {
+            await zipReader.close();
+        } catch (e) {
+            console.error("Error closing zip reader:", e);
+        }
+
+        return {
+            title,
+            author,
+            description,
+            seriesName,
+            seriesIndex,
+            coverDataUrl
+        };
+    }
+
+    async showBookDetailsPage(bookData, isPersonal) {
+        const loader = document.getElementById("libraryLoader");
+        if (loader) {
+            loader.style.display = "flex";
+            const statusText = loader.querySelector("div:last-child");
+            if (statusText) statusText.textContent = "Fetching book metadata...";
+        }
+
+        try {
+            let epubData;
+            let filename = bookData.filename || `${bookData.title}.epub`;
+            let isLiveBook = false;
+
+            if (isPersonal) {
+                if (bookData.epubBase64) {
+                    epubData = bookData.epubBase64;
+                } else {
+                    const storageKeys = [`LibEpub${bookData.id}`, `LibFilename${bookData.id}`];
+                    const stored = await this.storage.get(storageKeys);
+                    epubData = stored[`LibEpub${bookData.id}`];
+                    if (stored[`LibFilename${bookData.id}`]) {
+                        filename = stored[`LibFilename${bookData.id}`];
+                    }
+                }
+                isLiveBook = typeof epubData === "string" && epubData.startsWith("lazy:");
+            }
+
+            // Save in memory
+            this.currentDetailsEpub = epubData;
+            this.currentDetailsFilename = filename;
+
+            let meta;
+            if (isLiveBook) {
+                // Live books do not have local EPUB binaries to parse
+                meta = {
+                    title: bookData.title,
+                    author: bookData.author,
+                    description: "This book is loaded in Live Reader Mode directly from its web source. Chapters are scraped in real-time as you read.",
+                    seriesName: "",
+                    seriesIndex: "",
+                    coverDataUrl: bookData.cover
+                };
+            } else {
+                if (!isPersonal) {
+                    if (bookData.isHF) {
+                        const loader = document.getElementById("libraryLoader");
+                        const statusText = loader ? loader.querySelector("div:last-child") : null;
+                        if (statusText) statusText.textContent = "Downloading book from Hugging Face...";
+                        
+                        epubData = await HFLibrary.downloadBook(bookData.epubPath);
+                    } else {
+                        epubData = await bookData.generator();
+                    }
+                }
+
+                if (!epubData) {
+                    throw new Error("Unable to retrieve EPUB file contents.");
+                }
+
+                this.currentDetailsEpub = epubData;
+                this.currentDetailsFilename = filename;
+
+                // Parse metadata
+                const fallbackCover = isPersonal ? bookData.cover : (bookData.staticCover || this.defaultPublicCover());
+                meta = await this.parseEpubMetadata(epubData, bookData.title, bookData.author, fallbackCover);
+            }
+
+            // Update UI elements
+            document.getElementById("detailsCoverImg").src = meta.coverDataUrl || (isPersonal ? bookData.cover : this.defaultPublicCover());
+            document.getElementById("detailsBookTitle").textContent = meta.title;
+            document.getElementById("detailsBookAuthor").textContent = meta.author;
+
+            const descText = meta.description && meta.description !== "No description available." ? meta.description : (bookData.desc || "No description available.");
+            document.getElementById("detailsBookDesc").textContent = descText;
+
+            // Series tag
+            const seriesTag = document.getElementById("detailsBookSeries");
+            if (seriesTag) {
+                if (meta.seriesName) {
+                    seriesTag.style.display = "inline-block";
+                    let text = `Series: ${meta.seriesName}`;
+                    if (meta.seriesIndex) {
+                        text += ` (Vol. ${meta.seriesIndex})`;
+                    }
+                    seriesTag.textContent = text;
+                } else {
+                    seriesTag.style.display = "none";
+                }
+            }
+
+            // Show/Hide details page Download button dynamically based on live reader status
+            const downloadBtn = document.getElementById("detailsDownloadBtn");
+            if (downloadBtn) {
+                downloadBtn.style.display = isLiveBook ? "none" : "flex";
+            }
+
+            // Switch view
+            document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+            document.getElementById("bookDetailsView").classList.add("active");
+            
+            const globalBackBtn = document.getElementById("globalBackBtn");
+            if (globalBackBtn) {
+                globalBackBtn.style.display = "none"; // Hide global back button, detailsBackBtn handles going back
+            }
+
+        } catch (e) {
+            console.error("Failed to show book details:", e);
+            alert("Error loading book information: " + e.message);
+        } finally {
+            if (loader) loader.style.display = "none";
+        }
     }
 
 

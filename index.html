@@ -348,6 +348,41 @@
         </div>
     </div>
 
+    <!-- 4) Intermediary Book Details View -->
+    <div id="bookDetailsView" class="app-view">
+        <div class="book-details-wrapper">
+            <button id="detailsBackBtn" class="details-back-btn">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Library
+            </button>
+            <div class="details-container">
+                <div class="details-cover-pane">
+                    <img id="detailsCoverImg" src="" alt="Book Cover" class="details-cover-img">
+                </div>
+                <div class="details-info-pane">
+                    <h1 id="detailsBookTitle" class="details-book-title">Book Title</h1>
+                    <div id="detailsBookAuthor" class="details-book-author">Author Name</div>
+                    <div class="details-meta-tags">
+                        <span id="detailsBookSeries" class="meta-tag series-tag" style="display:none;">Series Info</span>
+                    </div>
+                    <div class="details-description-box">
+                        <h3>Description</h3>
+                        <p id="detailsBookDesc" class="details-book-desc">Loading description...</p>
+                    </div>
+                    <div class="details-action-buttons">
+                        <button id="detailsStartReadingBtn" class="details-btn details-btn-primary">
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                            Start Reading
+                        </button>
+                        <button id="detailsDownloadBtn" class="details-btn details-btn-secondary">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px;"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts (defer for sequential background execution) -->
     <script src="plugin/js/ChromePolyfill.js?v=20260527_v5" defer></script>
     <script src="plugin/js/UIText.js?v=20260527_v5" defer></script>

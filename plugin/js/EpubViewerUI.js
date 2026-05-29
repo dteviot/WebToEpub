@@ -409,11 +409,11 @@ class EpubViewerUI {
                 this.initializeScrollViewport();
                 if (this.currentChapterIndex === -1) {
                     const cover = document.getElementById("chapter-wrap-cover");
-                    if (cover) cover.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
+                    if (cover) cover.scrollIntoView({ behavior: "auto", block: "start" });
                 } else {
                     const wrapper = document.getElementById(`chapter-wrap-${this.currentChapterIndex}`);
                     if (wrapper) {
-                        wrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
+                        wrapper.scrollIntoView({ behavior: "auto", block: "start" });
                         this.lazyLoadChapter(this.currentChapterIndex);
                     }
                 }
@@ -576,6 +576,11 @@ class EpubViewerUI {
                         document.getElementById("readerPageNum").textContent = "Book Cover";
                     } else {
                         document.getElementById("readerPageNum").textContent = `Chapter ${idx + 1}/${this.toc.length}`;
+                        
+                        // Limit/eager load only up to the next 3 chapters from the active position
+                        for (let i = idx; i <= idx + 3; i++) {
+                            this.lazyLoadChapter(i);
+                        }
                     }
                     this.updateActiveTocHighlight();
                 }
@@ -585,7 +590,7 @@ class EpubViewerUI {
         // 2. Observer for prefetching and lazy loading chapter placeholders early
         const lazyOptions = {
             root: document.getElementById("epubReaderViewport"),
-            rootMargin: this.prefersInstantScroll() ? "350px 0px 350px 0px" : "1000px 0px 1000px 0px", // Trigger early loading when scrolling towards it
+            rootMargin: this.prefersInstantScroll() ? "-20px 0px 300px 0px" : "-40px 0px 600px 0px", // Trigger early loading when scrolling towards it
             threshold: 0
         };
 
@@ -595,7 +600,10 @@ class EpubViewerUI {
                 if (entry.isIntersecting) {
                     const idx = parseInt(entry.target.dataset.index);
                     if (idx >= 0 && entry.target.classList.contains("placeholder-loading")) {
-                        this.lazyLoadChapter(idx);
+                        // Enforce scroll view constraint: only load if it is within the next 3 chapters
+                        if (idx <= this.currentChapterIndex + 3) {
+                            this.lazyLoadChapter(idx);
+                        }
                     }
                 }
             });
@@ -1080,11 +1088,11 @@ class EpubViewerUI {
             if (coverWrapper) {
                 this.isNavigatingToChapter = true;
                 if (this.navigationTimeout) clearTimeout(this.navigationTimeout);
-                coverWrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
+                coverWrapper.scrollIntoView({ behavior: "auto", block: "start" });
                 this.navigationTimeout = setTimeout(() => {
                     this.isNavigatingToChapter = false;
                     this._reobservePlaceholders();
-                }, 800);
+                }, 100);
             }
             this.currentChapterIndex = -1;
             this.updateActiveTocHighlight();
@@ -1150,19 +1158,20 @@ class EpubViewerUI {
                 this.isNavigatingToChapter = true;
                 if (this.navigationTimeout) clearTimeout(this.navigationTimeout);
 
-                wrapper.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "start" });
-                
-                // Force immediate lazy load of target chapter so user doesn't wait
+                // Force immediate lazy load of target chapter first so it expands and stabilizes the layout
                 if (wrapper.classList.contains("placeholder-loading")) {
                     await this.lazyLoadChapter(index);
                 }
 
+                // Scroll the target chapter (now fully loaded and stable) into view instantly
+                wrapper.scrollIntoView({ behavior: "auto", block: "start" });
+
                 this.navigationTimeout = setTimeout(() => {
                     this.isNavigatingToChapter = false;
                     this._reobservePlaceholders();
-                }, 800);
+                }, 100);
             }
-            this.currentChapterIndex = -1;
+            this.currentChapterIndex = index;
             this.updateActiveTocHighlight();
             return;
         }
@@ -1663,6 +1672,48 @@ class EpubViewerUI {
             this.metaInfo.title = this.extractLazyTitle(doc);
             this.metaInfo.author = this.extractLazyAuthor(doc);
             this.metaInfo.coverDataUrl = this.extractLazyCover(doc, url);
+
+            // Save/Update live-extracted cover, title, and author in library storage
+            if (window.libraryManager && window.libraryManager.storage) {
+                const storage = window.libraryManager.storage;
+                (async () => {
+                    try {
+                        const storageData = await storage.get("LibArray");
+                        const libArray = storageData.LibArray || [];
+                        let foundId = null;
+
+                        for (let id of libArray) {
+                            const storyUrlObj = await storage.get(`LibStoryURL${id}`);
+                            const storedUrl = storyUrlObj[`LibStoryURL${id}`];
+                            if (storedUrl === url) {
+                                foundId = id;
+                                break;
+                            }
+                        }
+
+                        if (foundId) {
+                            const updateObj = {};
+                            if (this.metaInfo.coverDataUrl) {
+                                updateObj[`LibCover${foundId}`] = this.metaInfo.coverDataUrl;
+                            }
+                            if (this.metaInfo.title) {
+                                updateObj[`LibTitle${foundId}`] = this.metaInfo.title;
+                            }
+                            if (this.metaInfo.author && this.metaInfo.author !== "Live Scraped") {
+                                updateObj[`LibAuthor${foundId}`] = this.metaInfo.author;
+                            }
+
+                            if (Object.keys(updateObj).length > 0) {
+                                await storage.set(updateObj);
+                                console.log(`[Live Reader] Saved cover/metadata for live book ID ${foundId}:`, updateObj);
+                                await window.libraryManager.renderPersonalLibrary();
+                            }
+                        }
+                    } catch (storeErr) {
+                        console.error("[Live Reader] Failed to update storage with live metadata:", storeErr);
+                    }
+                })();
+            }
             
             // 3. Extract TOC
             this.toc = await this.extractLazyToc(doc, url);
