@@ -141,7 +141,8 @@ class HFLibrary { // eslint-disable-line no-unused-vars
             return [];
         }
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        // Download directly from Hugging Face's global CDN to bypass proxy overhead
+        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
         try {
             const resp = await fetch(url, {
                 headers: HFLibrary._uploadHeaders(),
@@ -289,7 +290,8 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     // ─── Download a Book ─────────────────────────────────────────
     static async downloadBook(epubPath) {
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${epubPath}`;
+        // Download directly from Hugging Face's global CDN to bypass proxy overhead
+        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${epubPath}`;
         const resp = await fetch(url, { cache: "no-store" });
         if (!resp.ok) throw new Error(`Failed to download book: ${resp.status}`);
 
@@ -306,7 +308,8 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     static async getCoverUrl(coverPath) {
         if (!coverPath) return "";
         const repoId = await HFLibrary._getRepoId();
-        const url = `${HFLibrary._getBase()}/datasets/${repoId}/resolve/main/${coverPath}`;
+        // Download directly from Hugging Face's global CDN to bypass proxy overhead
+        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${coverPath}`;
         try {
             const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) return "";
