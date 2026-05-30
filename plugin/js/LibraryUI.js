@@ -510,7 +510,7 @@ class LibraryUI {
                         }
 
                         // Convert epubBase64 data URL to a Blob
-                        const epubBlob = HFLibrary._dataUrlToBlob(epubBase64);
+                        const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
                         
                         // Upload to HF Public Library
                         await HFLibrary.uploadBook(epubBlob, {
