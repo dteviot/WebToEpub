@@ -376,9 +376,22 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         }
     }
 
+    static _dataUrlToBlob(dataUrl) {
+        if (!dataUrl) return null;
+        const parts = dataUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const b64Data = parts[1];
+        
+        const byteCharacters = atob(b64Data);
+        const byteNumbers = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        return new Blob([byteNumbers], { type: mime });
+    }
+
     static async _dataUrlToBlobAsync(dataUrl) {
-        const resp = await fetch(dataUrl);
-        return await resp.blob();
+        return HFLibrary._dataUrlToBlob(dataUrl);
     }
 
     static formatSize(bytes) {
