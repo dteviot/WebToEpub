@@ -111,16 +111,9 @@ class RanobelibParser extends Parser {
     }
 
     appendHtml(newDoc, html) {
-        let div = newDoc.dom.createElement("div");
-        div.innerHTML = html;
-
-        while (div.firstChild) {
-            newDoc.content.appendChild(div.firstChild);
-        }
-    }
-
-    extractLanguage() {
-        return this.homedom.querySelector("html").getAttribute("lang");
+        let rawDom = util.sanitize("<div id=\"raw\">" + html + "</div>");
+        let div = rawDom.querySelector("div#raw");
+        util.moveChildElements(div, newDoc.content);
     }
 
     findContent(dom) {
