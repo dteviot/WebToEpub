@@ -5,6 +5,9 @@ parserFactory.register("mydramanovel.com", () => new MydramanovelParser());
 class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     constructor() {
         super();
+        // mydramanovel.com aggressively rate-limits scrapers.
+        // 3 s between requests prevents 429 errors from the CORS proxies.
+        this.minimumThrottle = 3000;
     }
 
     async getChapterUrls(dom) {
@@ -20,10 +23,19 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     findContent(dom) {
-        return dom.querySelector(".tdb_single_content .tdb-block-inner") ||
-            dom.querySelector("div.td-post-content") ||
-            dom.querySelector(".td-post-content") ||
-            dom.querySelector(".tdb-block-inner");
+        // Try the most specific selector first (clean story content, no inline styles)
+        let el = dom.querySelector(".tdb_single_content .tdb-block-inner");
+        // Fall back to the outer content wrapper
+        if (el == null) el = dom.querySelector("div.td-post-content, .td-post-content");
+        // Guard: a proxy error / rate-limit page may match .tdb-block-inner with no text.
+        // Only accept the element if it has meaningful text content (>50 chars).
+        if (el == null) {
+            let candidate = dom.querySelector(".tdb-block-inner");
+            if (candidate && candidate.textContent.trim().length > 50) {
+                el = candidate;
+            }
+        }
+        return el;
     }
 
     async fetchChapter(url) {
@@ -32,10 +44,24 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     isCustomError(response) {
-        let title = response?.responseXML?.querySelector("title")?.textContent;
-        return title === "Just a moment..." ||
-            (title && title.includes("Cloudflare")) ||
-            (title && title.includes("Attention Required!"));
+        let title = response?.responseXML?.querySelector("title")?.textContent || "";
+        // Cloudflare challenge / WAF block
+        if (title === "Just a moment..." ||
+            title.includes("Cloudflare") ||
+            title.includes("Attention Required!")) {
+            return true;
+        }
+        // Some proxies (api.codetabs.com) return an HTML error page instead of
+        // the actual chapter when rate-limited.  Detect this by checking that the
+        // expected content wrapper is missing AND the page has very little text.
+        let bodyText = response?.responseXML?.body?.textContent?.trim() || "";
+        let hasContent = response?.responseXML?.querySelector(
+            ".tdb_single_content, .td-post-content, .tdb-block-inner"
+        );
+        if (!hasContent && bodyText.length < 500) {
+            return true;
+        }
+        return false;
     }
 
     setCustomErrorResponse(url, wrapOptions, response) {
