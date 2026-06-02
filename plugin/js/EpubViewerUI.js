@@ -1869,6 +1869,9 @@ class EpubViewerUI {
                 this.hideLoader();
             }
 
+            // Yield to browser to ensure loader is hidden before heavy processing
+            await new Promise(r => setTimeout(r, 50));
+
             // 4. Extract TOC with streaming callbacks
             this.toc = await this.extractLazyToc(doc, url, (batch, startIndex) => {
                 if (loadRequestId !== this.activeLoadRequestId) return;
