@@ -36,7 +36,9 @@ class EpubViewerUI {
         this.headerHidden = false; // header hidden state
         this.lazyParser = null;
         this.lazyUserPreferences = null;
-        this.lazyPrefetchCount = 0;
+        this.lazyPrefetchCount = 2;          // Pre-fetch 2 chapters ahead silently
+        this.lazyVirtualScrollBatchSize = 20; // Only create this many DOM placeholders initially
+        this.lazyDomRenderedCount = 0;        // How many placeholders are currently in DOM
         this.activeLoadRequestId = 0;
         this.liveTocTimeoutMs = 12000;
         this.maxTocPagesToScan = 30;
@@ -347,6 +349,7 @@ class EpubViewerUI {
         this.lazyCache = new Map();
         this.lazyLoadingQueue = new Set();
         this.lazyPromiseMap = new Map();
+        this.lazyDomRenderedCount = 0;
 
         this.metaInfo = { title: "", author: "", coverDataUrl: "" };
 
@@ -620,6 +623,7 @@ class EpubViewerUI {
         });
     }
 
+
     initializeScrollViewport() {
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
@@ -647,7 +651,7 @@ class EpubViewerUI {
         }
 
         // 1. Render Cover Page at dataset index -1
-        const coverSrc = this.metaInfo.coverDataUrl || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMWExZjtkc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OmNlbnRlcjsiPgo8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iIzFhMWExZifvPgo8dGV4dCB4PSI1MCUiIHk9IjMwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OT1ZFTCBSRUFERVI8L3RleHQ+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSIjMDBmNWZmIiBmb250LXNpemU9IjI4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
+        const coverSrc = this.metaInfo.coverDataUrl || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMWExZjtkc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OmNlbnRlcjsiPgo8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iIzFhMWExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjMwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OT1ZFTCBSRUFERVI8L3RleHQ+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSIjMDBmNWZmIiBmb250LXNpemU9IjI4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
         const coverWrapper = document.createElement("div");
         coverWrapper.className = "continuous-chapter-wrapper";
         coverWrapper.dataset.index = -1;
@@ -666,50 +670,125 @@ class EpubViewerUI {
         contentBody.appendChild(coverWrapper);
         if (this.observer) this.observer.observe(coverWrapper);
 
-        // 2. Render all chapter placeholders in order
-        this.toc.forEach((chapter, index) => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "continuous-chapter-wrapper placeholder-loading";
-            wrapper.dataset.index = index;
-            wrapper.dataset.title = chapter.title;
-            wrapper.id = `chapter-wrap-${index}`;
-            
-            wrapper.innerHTML = `
-                <div class="chapter-scroll-divider" style="margin-top:40px; margin-bottom:30px; border-bottom: 1px solid var(--reader-border); padding-bottom: 10px;">
-                    <span style="font-weight:700; color:var(--primary, #00f5ff);">${chapter.title}</span>
-                </div>
-                <div class="chapter-skeleton-container" style="padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); margin-bottom: 50px;">
-                    <div class="skeleton-line" style="height: 18px; width: 40%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 16px;"></div>
-                    <div class="skeleton-line" style="height: 14px; width: 90%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 12px;"></div>
-                    <div class="skeleton-line" style="height: 14px; width: 85%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 12px;"></div>
-                    <div class="skeleton-line" style="height: 14px; width: 88%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 24px;"></div>
-                    
-                    <div style="display:flex; justify-content:center; margin-top:20px;">
-                        <button class="reader-load-btn" data-index="${index}" style="background: rgba(0,245,255,0.1); border: 1px solid var(--primary, #00f5ff); color: var(--primary, #00f5ff); padding: 10px 24px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                            Load Chapter Now
-                        </button>
-                    </div>
-                    <div style="margin-top: 14px; color: var(--reader-muted); font-size: 0.85rem; line-height: 1.5; word-break: break-all;">
-                        Source Link: ${chapter.href}
-                    </div>
-                </div>
-            `;
-            
-            contentBody.appendChild(wrapper);
-            
-            const loadBtn = wrapper.querySelector(".reader-load-btn");
-            if (loadBtn) {
-                loadBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    this.lazyLoadChapter(index);
-                });
-            }
+        // 2. Render chapter placeholders — virtualized for live-scraped books
+        //    Only create the first lazyVirtualScrollBatchSize nodes to keep the DOM light.
+        //    For local EPUB files, create all placeholders as before (typically small chapter counts).
+        const renderLimit = (this.isLazyScraped && this.toc.length > this.lazyVirtualScrollBatchSize)
+            ? this.lazyVirtualScrollBatchSize
+            : this.toc.length;
 
-            if (this.observer) this.observer.observe(wrapper);
-            if (this.lazyLoadObserver) this.lazyLoadObserver.observe(wrapper);
+        this.toc.slice(0, renderLimit).forEach((chapter, index) => {
+            this._createChapterPlaceholder(contentBody, chapter, index);
         });
+        this.lazyDomRenderedCount = renderLimit;
 
+        // 3. If there are more chapters beyond the initial batch, attach a sentinel
+        //    element that auto-appends more placeholders as the user scrolls.
+        if (this.isLazyScraped && this.toc.length > renderLimit) {
+            this._attachVirtualScrollSentinel(contentBody);
+        }
     }
+
+    /** Build and attach a sentinel div that appends the next batch of placeholders when scrolled into view. */
+    _attachVirtualScrollSentinel(contentBody) {
+        // Remove existing sentinel first
+        const existing = document.getElementById("liveScrollSentinel");
+        if (existing) existing.remove();
+
+        const sentinel = document.createElement("div");
+        sentinel.id = "liveScrollSentinel";
+        sentinel.style.cssText = "height:60px; display:flex; align-items:center; justify-content:center; color:var(--reader-muted); font-size:0.85rem;";
+        sentinel.textContent = `${this.toc.length - this.lazyDomRenderedCount} more chapters below…`;
+        contentBody.appendChild(sentinel);
+
+        const sentinelObs = new IntersectionObserver((entries) => {
+            if (!entries[0].isIntersecting) return;
+            sentinelObs.disconnect();
+            sentinel.remove();
+            this._appendNextVirtualBatch(contentBody);
+        }, {
+            root: document.getElementById("epubReaderViewport"),
+            rootMargin: "0px 0px 400px 0px"
+        });
+        sentinelObs.observe(sentinel);
+    }
+
+    /** Append the next batch of chapter placeholders and re-attach sentinel if more remain. */
+    _appendNextVirtualBatch(contentBody) {
+        const start = this.lazyDomRenderedCount;
+        const end = Math.min(start + this.lazyVirtualScrollBatchSize, this.toc.length);
+        for (let i = start; i < end; i++) {
+            this._createChapterPlaceholder(contentBody, this.toc[i], i);
+        }
+        this.lazyDomRenderedCount = end;
+        if (end < this.toc.length) {
+            this._attachVirtualScrollSentinel(contentBody);
+        }
+    }
+
+    /** Create a single chapter placeholder div and append it to contentBody. */
+    _createChapterPlaceholder(contentBody, chapter, index) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "continuous-chapter-wrapper placeholder-loading";
+        wrapper.dataset.index = index;
+        wrapper.dataset.title = chapter.title;
+        wrapper.id = `chapter-wrap-${index}`;
+        
+        wrapper.innerHTML = `
+            <div class="chapter-scroll-divider" style="margin-top:40px; margin-bottom:30px; border-bottom: 1px solid var(--reader-border); padding-bottom: 10px;">
+                <span style="font-weight:700; color:var(--primary, #00f5ff);">${chapter.title}</span>
+            </div>
+            <div class="chapter-skeleton-container" style="padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); margin-bottom: 50px;">
+                <div class="skeleton-line" style="height: 18px; width: 40%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 16px;"></div>
+                <div class="skeleton-line" style="height: 14px; width: 90%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 12px;"></div>
+                <div class="skeleton-line" style="height: 14px; width: 85%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 12px;"></div>
+                <div class="skeleton-line" style="height: 14px; width: 88%; background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 24px;"></div>
+                
+                <div style="display:flex; justify-content:center; margin-top:20px;">
+                    <button class="reader-load-btn" data-index="${index}" style="background: rgba(0,245,255,0.1); border: 1px solid var(--primary, #00f5ff); color: var(--primary, #00f5ff); padding: 10px 24px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        Load Chapter Now
+                    </button>
+                </div>
+                <div style="margin-top: 14px; color: var(--reader-muted); font-size: 0.85rem; line-height: 1.5; word-break: break-all;">
+                    Source Link: ${chapter.href}
+                </div>
+            </div>
+        `;
+        
+        contentBody.appendChild(wrapper);
+        
+        const loadBtn = wrapper.querySelector(".reader-load-btn");
+        if (loadBtn) {
+            loadBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.lazyLoadChapter(index);
+            });
+        }
+
+        if (this.observer) this.observer.observe(wrapper);
+        if (this.lazyLoadObserver) this.lazyLoadObserver.observe(wrapper);
+    }
+
+    /** Incrementally append chapter placeholder divs for the live reader streaming flow. */
+    appendScrollPlaceholders(chapters, startIndex) {
+        const contentBody = document.getElementById("epubReaderContentBody");
+        if (!contentBody) return;
+        // Remove existing sentinel to re-insert after new placeholders
+        const sentinel = document.getElementById("liveScrollSentinel");
+        if (sentinel) sentinel.remove();
+        chapters.forEach((chapter, i) => {
+            const index = startIndex + i;
+            if (document.getElementById(`chapter-wrap-${index}`)) return; // already exists
+            this._createChapterPlaceholder(contentBody, chapter, index);
+        });
+        this.lazyDomRenderedCount = startIndex + chapters.length;
+        // Re-attach sentinel if more unrendered chapters exist
+        if (this.lazyDomRenderedCount < this.toc.length) {
+            this._attachVirtualScrollSentinel(contentBody);
+        }
+    }
+
+
 
     async lazyLoadChapter(index) {
         if (index < 0 || index >= this.toc.length) return;
@@ -1055,6 +1134,37 @@ class EpubViewerUI {
             if (item.href) {
                 li.title = item.href;
             }
+            li.addEventListener("click", () => {
+                this.loadChapter(index);
+                this.closeSidebarOnMobile();
+            });
+            tocList.appendChild(li);
+        });
+    }
+
+    /**
+     * Incrementally append a batch of TOC items to the sidebar.
+     * Called during live reader streaming so chapters appear in the sidebar
+     * as they are discovered, without rebuilding the full list.
+     * @param {Array} chapters  – array of { title, href } objects
+     * @param {number} startIndex – global index of the first item in this batch
+     */
+    appendToSidebarToc(chapters, startIndex) {
+        const tocList = document.getElementById("readerTocList");
+        if (!tocList) return;
+        // Remove "loading" placeholder if present
+        const loadingItem = document.getElementById("toc-loading-item");
+        if (loadingItem) loadingItem.remove();
+
+        chapters.forEach((item, i) => {
+            const index = startIndex + i;
+            // Avoid duplicate
+            if (tocList.querySelector(`[data-index="${index}"]`)) return;
+            const li = document.createElement("li");
+            li.className = "toc-item";
+            li.textContent = item.title;
+            li.dataset.index = index;
+            if (item.href) li.title = item.href;
             li.addEventListener("click", () => {
                 this.loadChapter(index);
                 this.closeSidebarOnMobile();
@@ -1715,26 +1825,56 @@ class EpubViewerUI {
                 })();
             }
             
-            // 3. Extract TOC
-            this.toc = await this.extractLazyToc(doc, url);
-            if (this.toc.length === 0) {
-                throw new Error("No chapter links could be found on this page. The layout might be unsupported.");
-            }
-
-            if (loadRequestId !== this.activeLoadRequestId) {
-                return;
-            }
-            
-            // 4. Render TOC Sidebar
-            this.renderSidebarToC();
-            
-            // 5. Open cover/start view
+            // 3. Early UI Render
+            // Show the cover page and an empty sidebar immediately while TOC loads
             this.currentChapterIndex = -1;
             this.renderCoverPage();
+            
+            const tocList = document.getElementById("readerTocList");
+            if (tocList) {
+                tocList.innerHTML = "";
+                const coverItem = document.createElement("li");
+                coverItem.className = "toc-item active";
+                coverItem.id = "toc-cover-item";
+                coverItem.textContent = "Book Cover Page";
+                coverItem.addEventListener("click", () => {
+                    this.currentChapterIndex = -1;
+                    this.renderCoverPage();
+                    this.updateActiveTocHighlight();
+                    this.closeSidebarOnMobile();
+                });
+                tocList.appendChild(coverItem);
+                
+                const loadingItem = document.createElement("li");
+                loadingItem.className = "toc-item";
+                loadingItem.id = "toc-loading-item";
+                loadingItem.textContent = "Loading chapters...";
+                loadingItem.style.color = "var(--reader-muted)";
+                loadingItem.style.fontStyle = "italic";
+                tocList.appendChild(loadingItem);
+            }
             
             if (loadRequestId === this.activeLoadRequestId) {
                 this.hideLoader();
             }
+
+            // 4. Extract TOC with streaming callbacks
+            this.toc = await this.extractLazyToc(doc, url, (batch, startIndex) => {
+                if (loadRequestId !== this.activeLoadRequestId) return;
+                this.appendToSidebarToc(batch, startIndex);
+                if (this.layout === "scroll") {
+                    this.appendScrollPlaceholders(batch, startIndex);
+                }
+            });
+
+            if (this.toc.length === 0) {
+                throw new Error("No chapter links could be found on this page. The layout might be unsupported.");
+            }
+            
+            // Remove loading item if it's still there
+            const loadingItem = document.getElementById("toc-loading-item");
+            if (loadingItem) loadingItem.remove();
+
         } catch (e) {
             if (loadRequestId === this.activeLoadRequestId) {
                 this.hideLoader();
@@ -2113,12 +2253,23 @@ class EpubViewerUI {
         return parser;
     }
 
-    async extractLazyToc(doc, url) {
+    async extractLazyToc(doc, url, onBatch) {
         let tocProgressCollector = [];
+        let numReported = 0;
+        
         let chapterUrlsUI = {
             showTocProgress: (chapters) => {
                 if (Array.isArray(chapters) && chapters.length > 0) {
                     tocProgressCollector = tocProgressCollector.concat(chapters);
+                    let normalized = this.normalizeLazyTocChapters(tocProgressCollector, url);
+                    
+                    if (normalized.length > numReported) {
+                        let newBatch = normalized.slice(numReported);
+                        if (newBatch.length > 0 && typeof onBatch === "function") {
+                            onBatch(newBatch, numReported);
+                            numReported = normalized.length;
+                        }
+                    }
                 }
             }
         };
@@ -2130,7 +2281,14 @@ class EpubViewerUI {
                     this.liveTocTimeoutMs,
                     "TOC extraction timed out."
                 );
+                
                 let normalizedChapters = this.normalizeLazyTocChapters(parserChapters, url);
+                
+                // Report any remaining chapters that weren't caught by showTocProgress
+                if (normalizedChapters.length > numReported && typeof onBatch === "function") {
+                    onBatch(normalizedChapters.slice(numReported), numReported);
+                }
+                
                 if (normalizedChapters.length > 0) {
                     return normalizedChapters;
                 }
@@ -2143,13 +2301,20 @@ class EpubViewerUI {
                 }
 
                 let tolerantToc = await this.extractLazyTocFromParserPagesTolerantly(doc, chapterUrlsUI, url);
+                if (tolerantToc.length > numReported && typeof onBatch === "function") {
+                    onBatch(tolerantToc.slice(numReported), numReported);
+                }
                 if (tolerantToc.length > 0) {
                     return tolerantToc;
                 }
             }
         }
 
-        return this.extractLazyChapterLinks(doc, url);
+        let fallbackToc = this.extractLazyChapterLinks(doc, url);
+        if (fallbackToc.length > numReported && typeof onBatch === "function") {
+            onBatch(fallbackToc.slice(numReported), numReported);
+        }
+        return fallbackToc;
     }
 
     async extractLazyTocFromParserPagesTolerantly(doc, chapterUrlsUI, baseUrl) {
@@ -2337,11 +2502,23 @@ class EpubViewerUI {
         
         const fetchPromise = (async () => {
             try {
-                let xhr = await HttpClient.wrapFetch(chapter.href);
-                let doc = xhr?.responseXML;
-                if (!doc && xhr?.responseText) {
-                    doc = new DOMParser().parseFromString(xhr.responseText, "text/html");
+                let doc = null;
+                if (this.lazyParser && typeof this.lazyParser.fetchChapter === "function") {
+                    try {
+                        doc = await this.lazyParser.fetchChapter(chapter.href);
+                    } catch (parserErr) {
+                        console.warn(`[Live Reader] Parser fetchChapter failed for ${chapter.href}, falling back to wrapFetch`, parserErr);
+                    }
                 }
+                
+                if (!doc) {
+                    let xhr = await HttpClient.wrapFetch(chapter.href);
+                    doc = xhr?.responseXML;
+                    if (!doc && xhr?.responseText) {
+                        doc = new DOMParser().parseFromString(xhr.responseText, "text/html");
+                    }
+                }
+
                 if (doc) {
                     if (loadRequestId !== this.activeLoadRequestId) {
                         return;
@@ -2375,6 +2552,25 @@ class EpubViewerUI {
     }
 
     extractLazyChapterContent(doc, url) {
+        // 1. Try parser first (Most accurate)
+        if (this.lazyParser && typeof this.lazyParser.findContent === "function") {
+            try {
+                if (typeof this.lazyParser.preprocessRawDom === "function") {
+                    this.lazyParser.preprocessRawDom(doc);
+                }
+                if (typeof this.lazyParser.removeUnusedElementsToReduceMemoryConsumption === "function") {
+                    this.lazyParser.removeUnusedElementsToReduceMemoryConsumption(doc);
+                }
+                let parserContent = this.lazyParser.findContent(doc);
+                if (parserContent) {
+                    return parserContent.cloneNode(true);
+                }
+            } catch (error) {
+                console.warn("[Live Reader] Parser findContent failed, falling back to heuristics:", error);
+            }
+        }
+
+        // 2. Try DefaultParserConfigs from localStorage
         let hostname = "";
         if (url) {
             hostname = util.extractHostName(url);
@@ -2419,6 +2615,7 @@ class EpubViewerUI {
             }
         }
 
+        // 3. Fallback: Generic CSS selectors
         let commonSelectors = [
             ".chapter-content", ".entry-content", ".read-content", 
             "#chapter-content", "#chapterContent", "article", 
