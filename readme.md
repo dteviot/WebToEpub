@@ -814,6 +814,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Justin Mott</li>
     <li>mobedoor</li>
     <li>nitramkh</li>
+    <li>Arcade Wise (parser for althistory.com)</li>
   </ul>
 </details>
 
