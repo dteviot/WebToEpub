@@ -8,14 +8,14 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("#tdi_48 .td-module-thumb a,#tdi_55 h3.entry-title a")]
+        return [...dom.querySelectorAll(".td-big-grid-flex-posts .entry-title a, .tdb-category-loop-posts .entry-title a")]
             .map(a => this.hyperLinkToChapter(a));
     }
 
     hyperLinkToChapter(link) {
         return {
             sourceUrl: link.href,
-            title: link.getAttribute("title")
+            title: link.getAttribute("title") || link.textContent
         };
     }
 
@@ -32,8 +32,8 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     findCoverImageUrl(dom) {
-        let span = dom.querySelector("#tdi_48 .td-module-thumb a span[data-img-url]");
-        return span.getAttribute("data-img-url") ?? null;
+        let span = dom.querySelector(".td-big-grid-flex-posts .td-module-thumb span[data-img-url]");
+        return span ? (span.getAttribute("data-img-url") ?? null) : null;
     }
 
     getInformationEpubItemChildNodes(dom) {
