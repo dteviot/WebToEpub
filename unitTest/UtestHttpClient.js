@@ -75,52 +75,81 @@ QUnit.test("unproxyUrl", function (assert) {
     assert.equal(HttpClient.unproxyUrl(mixedProxied), target, "unproxifies mixed proxy URL");
 });
 
-QUnit.test("bypassProxy", async function (assert) {
+QUnit.test("bypassProxy", function (assert) {
+    let done = assert.async();
     let originalEnable = HttpClient.enableCorsProxy;
     HttpClient.enableCorsProxy = true;
-    try {
-        // Mock fetch to check if proxy is bypassed
-        let oldFetch = window.fetch;
-        window.fetch = (url) => {
-            assert.notOk(url.startsWith(HttpClient.corsProxyUrl), "URL should not be proxied when bypassProxy is true");
-            return Promise.resolve({
-                ok: true,
-                arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-                headers: { get: () => "image/jpeg" }
-            });
-        };
-        await HttpClient.wrapFetch("https://example.com/test.jpg", { bypassProxy: true });
-        window.fetch = oldFetch;
-    } finally {
-        HttpClient.enableCorsProxy = originalEnable;
-    }
+    
+    // Mock fetch to check if proxy is bypassed
+    let oldFetch = window.fetch;
+    window.fetch = (url) => {
+        assert.notOk(url.startsWith(HttpClient.corsProxyUrl), "URL should not be proxied when bypassProxy is true");
+        return Promise.resolve({
+            ok: true,
+            arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+            headers: { get: () => "image/jpeg" }
+        });
+    };
+    
+    HttpClient.wrapFetch("https://example.com/test.jpg", { bypassProxy: true })
+        .then(() => {
+            assert.ok(true, "Fetch completed successfully");
+        })
+        .catch((e) => {
+            assert.ok(false, "Fetch failed: " + e.message);
+        })
+        .finally(() => {
+            window.fetch = oldFetch;
+            HttpClient.enableCorsProxy = originalEnable;
+            done();
+        });
 });
 
-QUnit.test("proxyFallback", async function (assert) {
+QUnit.test("proxyFallback", function (assert) {
+    let done = assert.async();
     let originalEnable = HttpClient.enableCorsProxy;
+    let originalProxies = HttpClient.CORS_PROXIES;
+    
     HttpClient.enableCorsProxy = true;
+    HttpClient.CORS_PROXIES = [{ name: "Mock Proxy", url: "https://mockproxy.com/?url=" }];
+    HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
+    
     let fetchCount = 0;
-    try {
-        let oldFetch = window.fetch;
-        window.fetch = (url) => {
-            fetchCount++;
-            if (url.startsWith(HttpClient.corsProxyUrl)) {
-                // Fail the proxied fetch
-                return Promise.reject(new TypeError("Proxy down"));
-            }
-            // Succeed the direct fetch
-            assert.notOk(url.startsWith(HttpClient.corsProxyUrl), "Falls back to direct URL");
-            return Promise.resolve({
-                ok: true,
-                arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
-                headers: { get: () => "image/jpeg" }
-            });
-        };
-        let result = await HttpClient.wrapFetch("https://example.com/image.jpg");
-        assert.equal(fetchCount, 2, "Called fetch twice (proxy then direct)");
-        assert.ok(result instanceof ArrayBuffer, "Returned data from direct fetch");
-        window.fetch = oldFetch;
-    } finally {
-        HttpClient.enableCorsProxy = originalEnable;
-    }
+    
+    let oldFetch = window.fetch;
+    let oldGlobalFetch = typeof globalThis !== "undefined" ? globalThis.fetch : null;
+    
+    let mockFetch = (url) => {
+        fetchCount++;
+        if (url !== "https://example.com/image.jpg") {
+            // Fail the proxied fetch
+            return Promise.reject(new TypeError("Proxy down"));
+        }
+        // Succeed the direct fetch
+        return Promise.resolve({
+            ok: true,
+            arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+            headers: { get: () => "image/jpeg" }
+        });
+    };
+    
+    window.fetch = mockFetch;
+    if (typeof globalThis !== "undefined") globalThis.fetch = mockFetch;
+    
+    HttpClient.wrapFetch("https://example.com/image.jpg")
+        .then((result) => {
+            assert.equal(fetchCount, 2, "Called fetch twice (proxy then direct)");
+            assert.ok(result.arrayBuffer instanceof ArrayBuffer, "Returned data from direct fetch");
+        })
+        .catch((e) => {
+            assert.ok(false, "Fetch failed: " + e.message);
+        })
+        .finally(() => {
+            window.fetch = oldFetch;
+            if (typeof globalThis !== "undefined" && oldGlobalFetch) globalThis.fetch = oldGlobalFetch;
+            HttpClient.enableCorsProxy = originalEnable;
+            HttpClient.CORS_PROXIES = originalProxies;
+            HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
+            done();
+        });
 });

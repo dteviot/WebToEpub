@@ -505,8 +505,18 @@ class HttpClient {
                 let parsedProxy = new URL(proxyUrl);
                 if (parsedUrl.origin === parsedProxy.origin) {
                     // Try to find target URL in search params
-                    let target = parsedUrl.searchParams.get("url");
+                    let target = parsedUrl.searchParams.get("url") || parsedUrl.searchParams.get("quest");
                     if (target) return target;
+                    
+                    // Handle proxies where URL is just the query string (e.g., corsproxy.io/?https://...)
+                    let searchStr = parsedUrl.search.substring(1);
+                    if (searchStr.startsWith("http")) {
+                        try {
+                            return decodeURIComponent(searchStr);
+                        } catch (e) {
+                            return searchStr;
+                        }
+                    }
                 }
             }
         } catch (e) { }

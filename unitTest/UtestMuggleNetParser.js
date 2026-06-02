@@ -5,14 +5,14 @@ module("MuggleNetParser");
 
 function loadMuggleNetMultiPageDoc() {
     return util.syncLoadSampleDoc(
-        "../testdata/MuggleNet.html",
+        "../testdata/muggleNet.html",
         "http://fanfiction.mugglenet.com/viewstory.php?sid=123456&chapter=2"
     );
 }
 
 function loadMuggleNetSinglePageDoc() {
     return util.syncLoadSampleDoc(
-        "../testdata/MuggleNetSinglePage.html",
+        "../testdata/muggleNetSinglePage.html",
         "http://fanfiction.mugglenet.com/viewstory.php?sid=123457&chapter=1"
    );
 }
