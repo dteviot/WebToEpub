@@ -20,7 +20,34 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     findContent(dom) {
-        return dom.querySelector("div.td-post-content");
+        return dom.querySelector(".tdb_single_content .tdb-block-inner") ||
+            dom.querySelector("div.td-post-content") ||
+            dom.querySelector(".td-post-content") ||
+            dom.querySelector(".tdb-block-inner");
+    }
+
+    async fetchChapter(url) {
+        let options = { parser: this };
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+
+    isCustomError(response) {
+        let title = response?.responseXML?.querySelector("title")?.textContent;
+        return title === "Just a moment..." ||
+            (title && title.includes("Cloudflare")) ||
+            (title && title.includes("Attention Required!"));
+    }
+
+    setCustomErrorResponse(url, wrapOptions, response) {
+        let newresp = {};
+        newresp.url = url;
+        newresp.wrapOptions = wrapOptions;
+        newresp.response = {
+            url: response.response.url,
+            status: 403
+        };
+        newresp.errorMessage = "mydramanovel.com requested a Cloudflare check or blocked the request. Try switching the CORS proxy or using direct mode.";
+        return newresp;
     }
 
     extractTitleImpl(dom) {

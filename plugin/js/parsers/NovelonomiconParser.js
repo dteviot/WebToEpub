@@ -38,7 +38,9 @@ class NovelonomiconParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector(".tdb_single_content, div.td-post-content");
+        return dom.querySelector(".tdb_single_content .tdb-block-inner") ||
+            dom.querySelector(".tdb_single_content") ||
+            dom.querySelector("div.td-post-content");
     }
 
     extractTitleImpl(dom) {
