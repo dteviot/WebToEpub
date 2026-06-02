@@ -964,7 +964,7 @@ class EpubViewerUI {
         const loadRequestId = ++this.activeLoadRequestId;
         try {
             this.resetBookState();
-            this.showLoader();
+            this.showLoader(typeof epubSource === "string" && epubSource.startsWith("lazy:") ? "Initializing Live Reader..." : "Parsing Ebook Elements...");
 
             // Detect Live-Scraped dynamic novel
             if (typeof epubSource === "string" && epubSource.startsWith("lazy:")) {
@@ -1257,7 +1257,7 @@ class EpubViewerUI {
             // Check if scroll viewport is already initialized (has wrappers)
             const firstChapterWrap = document.getElementById("chapter-wrap-0");
             if (!firstChapterWrap) {
-                this.showLoader();
+                this.showLoader("Initializing Reader...");
                 this.initializeScrollViewport();
                 this.hideLoader();
             }
@@ -1287,9 +1287,8 @@ class EpubViewerUI {
         }
 
         // --- PAGE-TURN MODE (LOAD SINGLE ISOLATED CHAPTER) ---
-        this.showLoader();
-
         if (this.isLazyScraped) {
+            this.showLoader("Loading Chapter...");
             try {
                 await this.loadLazyChapter(index);
             } catch (err) {
@@ -1300,6 +1299,8 @@ class EpubViewerUI {
             return;
         }
 
+        this.showLoader("Parsing Ebook Elements...");
+        
         this.currentChapterIndex = index;
         this.loadedChaptersIndex = index; // track the furthest loaded chapter in the viewport
         this.currentPage = 0;
@@ -1665,8 +1666,12 @@ class EpubViewerUI {
         return resolvedStack.join("/");
     }
 
-    showLoader() {
+    showLoader(message) {
         const loader = document.getElementById("epubReaderLoader");
+        const loaderText = document.getElementById("epubLoaderText");
+        if (loaderText) {
+            loaderText.textContent = message || "Parsing Ebook Elements...";
+        }
         if (loader) loader.style.display = "flex";
     }
 
@@ -1744,7 +1749,7 @@ class EpubViewerUI {
     async loadLazyBook(url, loadRequestId = this.activeLoadRequestId) {
         try {
             this.stopTTS();
-            this.showLoader();
+            this.showLoader("Initializing Live Reader...");
 
             if (typeof ParserEnvironment !== "undefined") {
                 await ParserEnvironment.ensureLoaded();
