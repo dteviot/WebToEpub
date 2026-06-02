@@ -1290,7 +1290,13 @@ class EpubViewerUI {
         this.showLoader();
 
         if (this.isLazyScraped) {
-            await this.loadLazyChapter(index);
+            try {
+                await this.loadLazyChapter(index);
+            } catch (err) {
+                alert("Failed to load live chapter: " + err.message);
+            } finally {
+                this.hideLoader();
+            }
             return;
         }
 
@@ -2658,9 +2664,7 @@ class EpubViewerUI {
         const chapter = this.toc[index];
         
         if (!this.lazyCache.has(index)) {
-            this.showLoader();
             await this.loadLazyChapterIntoCache(index);
-            this.hideLoader();
         }
 
         const xhtmlText = this.lazyCache.get(index) || "<p>Failed to load chapter content from source link.</p>";
