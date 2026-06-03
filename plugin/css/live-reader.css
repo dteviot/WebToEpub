@@ -900,13 +900,30 @@ html, body {
 @media (max-width: 768px) {
     .lr-url-form { flex-direction: column; }
 
-    .lr-details-content { flex-direction: column; }
+    .lr-details-content {
+        flex-direction: column;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
 
     .lr-book-info-panel {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border);
         padding: 20px;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .lr-toc-panel {
+        height: auto !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+
+    #lrTocList {
+        height: auto !important;
+        overflow: visible !important;
     }
 
     #lrReaderSidebar {
