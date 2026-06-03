@@ -71,6 +71,21 @@
                 <span style="position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#00f5ff,#7c3aed);color:#000;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:20px;letter-spacing:0.05em;">NEW</span>
             </button>
 
+            <button id="profileSources" class="profile-card">
+                <div class="profile-avatar" style="background: linear-gradient(135deg, #a78bfa22, #ec489922); border: 1px solid rgba(167,139,250,0.35);">
+                    <svg viewBox="0 0 24 24" style="stroke:url(#sourcesGrad);">
+                        <defs>
+                            <linearGradient id="sourcesGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#a78bfa"/>
+                                <stop offset="100%" style="stop-color:#ec4899"/>
+                            </linearGradient>
+                        </defs>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.03 0 1.9.693 2.166 1.638m-7.377 0A48.536 48.536 0 0112 3m-3 0c-1.135 0-2.098.845-2.192 1.976a48.257 48.257 0 00-.34 3.863M7 9a2 2 0 00-2 2v8.5c0 1.03.693 1.9 1.638 2.166A48.567 48.567 0 0012 21.75c1.033 0 2.032-.05 3.02-.15M7 9H6.108c-1.135 0-2.098.845-2.192 1.976A48.3 48.3 0 003.58 15" />
+                    </svg>
+                </div>
+                <span class="profile-name" style="background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Sources</span>
+            </button>
+
         </div>
     </div>
 
@@ -399,6 +414,24 @@
         </div>
     </div>
 
+    <!-- 5) Sources Test & Search View -->
+    <div id="sourcesView" class="app-view">
+        <div class="sources-wrapper">
+            <div class="sources-header">
+                <h1 class="sources-title">Supported Sites</h1>
+                <p class="subtitle">Search 550+ supported novel sites and test their connectivity using the active CORS proxy.</p>
+            </div>
+            
+            <div class="search-container" style="margin-bottom: 24px; max-width: 100%;">
+                <input id="sourcesSearchInput" type="text" placeholder="Search supported sites (e.g. novelfull)..." autocomplete="off" style="width: 100%; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.04); color: #fff; font-size: 1rem; outline: none; transition: all 0.2s ease;">
+            </div>
+
+            <div id="sourcesList" class="sources-list-container">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts (defer for sequential background execution) -->
     <script src="plugin/js/ChromePolyfill.js?v=20260602_v1" defer></script>
     <script src="plugin/js/UIText.js?v=20260602_v1" defer></script>
@@ -485,9 +518,177 @@
 
             document.getElementById("profileLibraries").addEventListener("click", () => showView("librariesView"));
 
+            document.getElementById("profileSources").addEventListener("click", () => {
+                showView("sourcesView");
+                populateSourcesList();
+            });
+
             // Back buttons
             backBtn.addEventListener("click", showPortal);
             document.getElementById("readerBackBtn").addEventListener("click", showPortal);
+
+            // Sources Tab search and test logic
+            let allSupportedHosts = [];
+
+            function initSourcesList() {
+                if (allSupportedHosts.length > 0) return;
+                let hostsSet = new Set();
+                if (typeof SiteSearchEngine !== "undefined") {
+                    try {
+                        SiteSearchEngine.PRIMARY_SITES.forEach(s => {
+                            if (s.hostname) hostsSet.add(s.hostname);
+                        });
+                        SiteSearchEngine.SECONDARY_SITES.forEach(s => {
+                            if (s.hostname) hostsSet.add(s.hostname);
+                        });
+                    } catch (e) {
+                        console.error("Failed to build sources list", e);
+                    }
+                }
+                allSupportedHosts = Array.from(hostsSet).sort();
+            }
+
+            function populateSourcesList(filterText = "") {
+                initSourcesList();
+                const listContainer = document.getElementById("sourcesList");
+                if (!listContainer) return;
+
+                listContainer.innerHTML = "";
+
+                const query = filterText.toLowerCase().trim();
+                const filtered = allSupportedHosts.filter(host => host.toLowerCase().includes(query));
+
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = "<div class=\"sources-list-empty\">No matching sites found.</div>";
+                    return;
+                }
+
+                filtered.forEach(host => {
+                    const item = document.createElement("div");
+                    item.className = "source-item-row";
+
+                    const nameSpan = document.createElement("span");
+                    nameSpan.className = "source-item-name";
+                    nameSpan.textContent = host;
+
+                    const actionsDiv = document.createElement("div");
+                    actionsDiv.className = "source-item-actions";
+
+                    const statusSpan = document.createElement("span");
+                    statusSpan.className = "source-test-status";
+                    statusSpan.style.display = "none";
+
+                    const testBtn = document.createElement("button");
+                    testBtn.className = "source-test-btn";
+                    testBtn.textContent = "Test";
+                    testBtn.addEventListener("click", () => testSource(host, testBtn, statusSpan));
+
+                    actionsDiv.appendChild(statusSpan);
+                    actionsDiv.appendChild(testBtn);
+                    item.appendChild(nameSpan);
+                    item.appendChild(actionsDiv);
+                    listContainer.appendChild(item);
+                });
+            }
+
+            async function testSource(host, testBtn, statusSpan) {
+                if (!testBtn || !statusSpan) return;
+
+                testBtn.disabled = true;
+                statusSpan.style.display = "inline-block";
+                statusSpan.className = "source-test-status testing";
+                statusSpan.textContent = "Testing...";
+
+                const oldEnableCorsProxy = HttpClient.enableCorsProxy;
+                HttpClient.enableCorsProxy = true;
+
+                let worked = false;
+                let lastError = "";
+
+                class SilentFetchErrorHandler {
+                    onFetchError(url, error) { return Promise.reject(error); }
+                    onResponseError(url, wrapOptions, response, errorMessage) {
+                        return Promise.reject(new Error(errorMessage || `HTTP status ${response.status}`));
+                    }
+                }
+
+                const withTimeout = (promise, ms) => {
+                    return new Promise((resolve, reject) => {
+                        const timer = setTimeout(() => reject(new Error("Timeout")), ms);
+                        promise.then(
+                            (res) => { clearTimeout(timer); resolve(res); },
+                            (err) => { clearTimeout(timer); reject(err); }
+                        );
+                    });
+                };
+
+                for (let protocol of ["https://", "http://"]) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
+                        try { controller.abort(); } catch (_) {}
+                    }, 4000);
+
+                    try {
+                        const targetUrl = protocol + host;
+                        const result = await withTimeout(
+                            HttpClient.wrapFetch(targetUrl, {
+                                errorHandler: new SilentFetchErrorHandler(),
+                                bypassDirectFetchFallback: true,
+                                fetchOptions: {
+                                    signal: controller.signal
+                                }
+                            }),
+                            4000
+                        );
+                        clearTimeout(timeoutId);
+                        if (result && (result.responseXML || result.responseText)) {
+                            worked = true;
+                            break;
+                        }
+                    } catch (err) {
+                        clearTimeout(timeoutId);
+                        if (err.name === "AbortError" || err.message === "Timeout") {
+                            lastError = "Timeout";
+                        } else {
+                            let msg = err.message || "Connection failed";
+                            if (msg.startsWith("Proxy error: ")) {
+                                const codes = msg.replace("Proxy error: ", "").trim();
+                                if (codes === "403" || codes === "403, 403") {
+                                    lastError = "Cloudflare Blocked (403)";
+                                } else if (codes === "400" || codes === "400, 400") {
+                                    lastError = "Invalid Resource / Offline (400)";
+                                } else if (codes.includes("403") || codes.includes("500") || codes.includes("400")) {
+                                    lastError = `Failed: HTTP ${codes}`;
+                                } else {
+                                    lastError = `Proxy failed (${codes})`;
+                                }
+                            } else {
+                                lastError = msg;
+                            }
+                        }
+                    }
+                }
+
+                HttpClient.enableCorsProxy = oldEnableCorsProxy;
+
+                testBtn.disabled = false;
+                if (worked) {
+                    statusSpan.className = "source-test-status success";
+                    statusSpan.textContent = "Working";
+                    statusSpan.removeAttribute("title");
+                } else {
+                    statusSpan.className = "source-test-status failed";
+                    statusSpan.textContent = "Failed";
+                    statusSpan.title = lastError;
+                }
+            }
+
+            const sourcesSearchInput = document.getElementById("sourcesSearchInput");
+            if (sourcesSearchInput) {
+                sourcesSearchInput.addEventListener("input", (e) => {
+                    populateSourcesList(e.target.value);
+                });
+            }
         });
     </script>
 </body>

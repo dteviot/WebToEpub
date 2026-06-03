@@ -230,6 +230,10 @@ html, body {
     gap: 16px;
 }
 
+.lr-book-info-panel > * {
+    flex-shrink: 0;
+}
+
 #lrCoverImg {
     width: 100%;
     max-width: 220px;
@@ -925,3 +929,4 @@ html, body {
 
     .lr-hero h1 { font-size: 1.8rem; }
 }
+

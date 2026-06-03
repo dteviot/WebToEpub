@@ -24,6 +24,9 @@ class LightNovelWorldParser extends Parser {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
         }
         let chapters = this.extractPartialChapterList(dom);
+        if (chapters.length > 0) {
+            chapterUrlsUI.showTocProgress(chapters);
+        }
         let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
 
         for (let url of urlsOfTocPages) {

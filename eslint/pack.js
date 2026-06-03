@@ -9,7 +9,8 @@ var extractFileListFromHtml = function(htmlAsString) {
     let dom = new DOMParser().parseFromString(htmlAsString, "text/html");
     if (dom != null) {
         return Array.from(dom.getElementsByTagName("script"))
-            .map(e => e.getAttribute("src"));
+            .map(e => e.getAttribute("src"))
+            .map(src => src ? src.split("?")[0] : src);
     }
     return [];
 };

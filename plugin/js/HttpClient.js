@@ -345,7 +345,9 @@ class HttpClient {
                     }
                 } catch (err) {
                     console.warn(`[WebToEpub] Active proxy ${activeProxyUrl} failed or timed out: ${err.message}. Fallback to discovery race.`);
-                    HttpClient.BLACKLISTED_PROXIES.add(activeProxyUrl);
+                    if (HttpClient.shouldBlacklistProxy(err)) {
+                        HttpClient.BLACKLISTED_PROXIES.add(activeProxyUrl);
+                    }
                 }
             }
 
@@ -443,9 +445,19 @@ class HttpClient {
                 return ret;
 
             } catch (aggErr) {
-                if (winnerUrl) {
+                if (winnerUrl && HttpClient.shouldBlacklistProxy(aggErr)) {
                     console.warn(`[WebToEpub] Winning proxy ${winnerUrl} failed during data retrieval, blacklisting it.`);
                     HttpClient.BLACKLISTED_PROXIES.add(winnerUrl);
+                }
+                if (wrapOptions.bypassDirectFetchFallback) {
+                    let errMsgs = [];
+                    if (aggErr && aggErr.errors) {
+                        errMsgs = aggErr.errors.map(e => e.message || String(e));
+                    } else {
+                        errMsgs = [aggErr.message || String(aggErr)];
+                    }
+                    const uniqueErrors = Array.from(new Set(errMsgs));
+                    return Promise.reject(new Error(`Proxy error: ${uniqueErrors.join(", ")}`));
                 }
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
@@ -624,6 +636,36 @@ class HttpClient {
             // silently skip
         }
     }
+
+    static getProxiedUrl(url) {
+        if (!url) return "";
+        if (!HttpClient.enableCorsProxy || !HttpClient.corsProxyUrl) return url;
+        return HttpClient.corsProxyUrl + encodeURIComponent(url.trim());
+    }
+
+    /**
+     * Determines if a proxy error indicates the proxy itself is down (vs target site issue)
+     * @param {Error|any} err The error to analyze
+     * @returns {boolean} True if the proxy should be blacklisted
+     */
+    static shouldBlacklistProxy(err) {
+        if (!err) return false;
+        // Network failures, CORS or DNS resolution failures on the proxy domain itself
+        if (err instanceof TypeError || err.name === "TypeError") return true;
+        // Timeout or Abort errors on the proxy request itself
+        const msg = String(err.message || err).toLowerCase();
+        if (msg.includes("timeout") || msg.includes("abort") || err.name === "AbortError") return true;
+        // Specific HTTP status codes that represent proxy/service failure
+        const statusMatch = msg.match(/status:\s*(\d+)/);
+        if (statusMatch) {
+            const status = parseInt(statusMatch[1], 10);
+            // 429: Rate limited, 502/503/504: Proxy/Gateway issues, 520+: Cloudflare server errors
+            if (status === 429 || status === 502 || status === 503 || status === 504 || status >= 520) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 let BlockedHostNames = new Set();
@@ -636,7 +678,7 @@ HttpClient.CORS_PROXIES = [
     { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
     { name: "Nexuspage Proxy", url: "https://nexuspage-extractor.vercel.app/?url=" },
     { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
-    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy?quest=" }
+    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=" }
 ];
 HttpClient.BLACKLISTED_PROXIES = new Set();
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;

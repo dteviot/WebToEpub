@@ -147,9 +147,25 @@ class LiveReaderUI {
         if (tocStatus) tocStatus.textContent = "Loading chapters…";
 
         try {
-            this.toc = await this._extractToc(doc, url, (batch, startIndex) => {
+            this.toc = [];
+            let fullToc = await this._extractToc(doc, url, (batch, startIndex) => {
+                this.toc = this.toc.concat(batch);
                 this._appendTocItems(batch, startIndex);
+                this._appendReaderTocItems(batch, startIndex);
+                this._updateReaderScrollSentinel();
+
+                // Enable Start Reading button as soon as we have chapters
+                const startBtn = document.getElementById("lrStartReadingBtn");
+                if (startBtn && this.toc.length > 0 && startBtn.disabled) {
+                    startBtn.disabled = false;
+                    startBtn.textContent = "Start Reading";
+                }
+
+                if (tocStatus) {
+                    tocStatus.textContent = `Scanning... ${this.toc.length} chapters found`;
+                }
             });
+            this.toc = fullToc;
 
             if (tocStatus) {
                 tocStatus.textContent = this.toc.length > 0
@@ -157,7 +173,7 @@ class LiveReaderUI {
                     : "No chapters found on this page.";
             }
 
-            // Enable Start Reading button
+            // Enable Start Reading button final check
             const startBtn = document.getElementById("lrStartReadingBtn");
             if (startBtn && this.toc.length > 0) {
                 startBtn.disabled = false;
@@ -177,7 +193,9 @@ class LiveReaderUI {
 
         if (coverEl) {
             if (this.metaInfo.coverUrl) {
-                coverEl.src = this.metaInfo.coverUrl;
+                coverEl.src = typeof HttpClient !== "undefined"
+                    ? HttpClient.getProxiedUrl(this.metaInfo.coverUrl)
+                    : this.metaInfo.coverUrl;
                 coverEl.style.display = "";
             } else {
                 coverEl.style.display = "none";
@@ -207,10 +225,73 @@ class LiveReaderUI {
             li.dataset.index = index;
             li.title = ch.href;
             li.addEventListener("click", () => {
-                this._startReading(index);
+                this._startReading(index, true);
             });
             tocList.appendChild(li);
         });
+    }
+
+    _appendReaderTocItems(chapters, startIndex) {
+        const tocList = document.getElementById("lrReaderTocList");
+        if (!tocList || tocList.children.length === 0) return; // Not built yet
+
+        chapters.forEach((ch, i) => {
+            const index = startIndex + i;
+            if (tocList.querySelector(`[data-index="${index}"]`)) return;
+            const li = document.createElement("li");
+            li.className = "lr-rtoc-item";
+            li.textContent = ch.title;
+            li.dataset.index = index;
+            li.title = ch.href;
+            li.addEventListener("click", () => {
+                this.loadChapter(index);
+                this._closeSidebarMobile();
+            });
+            tocList.appendChild(li);
+        });
+
+        const pageNumEl = document.getElementById("lrPageNum");
+        if (pageNumEl && this.currentChapterIndex !== -1) {
+            pageNumEl.textContent = `Chapter ${this.currentChapterIndex + 1} / ${this.toc.length}`;
+        }
+
+        // Update Next Chapter button in page-turn mode if needed
+        if (this.layout !== "scroll" && this.currentChapterIndex !== -1) {
+            const nextBtn = document.getElementById("lrNavNext");
+            if (!nextBtn && this.currentChapterIndex < this.toc.length - 1) {
+                const navEl = document.querySelector(".lr-chapter-nav");
+                if (navEl) {
+                    let navHtml = "";
+                    if (this.currentChapterIndex > 0) {
+                        navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Previous Chapter</button>`;
+                    } else {
+                        navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Book Cover</button>`;
+                    }
+                    navHtml += `<button class="lr-nav-btn lr-nav-primary" id="lrNavNext">Next Chapter →</button>`;
+                    navEl.innerHTML = navHtml;
+                    
+                    const prevBtn = document.getElementById("lrNavPrev");
+                    const newNextBtn = document.getElementById("lrNavNext");
+                    if (prevBtn) prevBtn.addEventListener("click", () => {
+                        if (this.currentChapterIndex > 0) this.loadChapter(this.currentChapterIndex - 1);
+                        else this._renderCoverPage();
+                    });
+                    if (newNextBtn) newNextBtn.addEventListener("click", () => this.loadChapter(this.currentChapterIndex + 1));
+                }
+            }
+        }
+    }
+
+    _updateReaderScrollSentinel() {
+        const contentBody = document.getElementById("lrContentBody");
+        if (!contentBody || !document.getElementById("lr-chapter-wrap-cover")) return;
+
+        const sentinel = document.getElementById("lrScrollSentinel");
+        if (sentinel) {
+            sentinel.textContent = `${this.toc.length - this.lazyDomRenderedCount} more chapters below…`;
+        } else if (this.toc.length > this.lazyDomRenderedCount) {
+            this._attachScrollSentinel(contentBody);
+        }
     }
 
     _setLoadStatus(msg, isError = false) {
@@ -223,7 +304,7 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     // START READING
     // ─────────────────────────────────────────
-    _startReading(chapterIndex = 0) {
+    _startReading(chapterIndex = 0, forceChapterLoad = false) {
         if (this.toc.length === 0) return;
         this._showView("readerView");
         this._applyReaderTheme();
@@ -232,13 +313,16 @@ class LiveReaderUI {
         this._initIntersectionObserver();
         this._initVoices();
         this._buildReaderToc();
-        this._renderCoverPage();
+        
+        if (chapterIndex > 0 || forceChapterLoad) {
+            this.loadChapter(chapterIndex);
+        } else {
+            this._renderCoverPage();
+        }
+
         // Pre-fetch first chapters
         for (let i = 0; i < Math.min(this.lazyPrefetchCount, this.toc.length); i++) {
             this._loadChapterIntoCache(i).catch(() => {});
-        }
-        if (chapterIndex > 0) {
-            setTimeout(() => this.loadChapter(chapterIndex), 200);
         }
     }
 
@@ -255,7 +339,7 @@ class LiveReaderUI {
             let wrapper = document.getElementById(`lr-chapter-wrap-${index}`);
             if (!wrapper) {
                 // Build from beginning in scroll mode
-                this._initializeScrollViewport();
+                this._initializeScrollViewport(index);
                 wrapper = document.getElementById(`lr-chapter-wrap-${index}`);
             }
             if (wrapper) {
@@ -444,7 +528,7 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     // SCROLL VIEW VIEWPORT
     // ─────────────────────────────────────────
-    _initializeScrollViewport() {
+    _initializeScrollViewport(targetIndex = -1) {
         const contentBody = document.getElementById("lrContentBody");
         if (!contentBody) return;
         contentBody.innerHTML = "";
@@ -453,7 +537,12 @@ class LiveReaderUI {
         this._appendCoverToScrollView(contentBody);
 
         // Chapter placeholders (virtualized)
-        const limit = Math.min(this.lazyVirtualScrollBatchSize, this.toc.length);
+        let limit = this.lazyVirtualScrollBatchSize;
+        if (targetIndex >= 0) {
+            limit = Math.max(limit, targetIndex + 1);
+        }
+        limit = Math.min(limit, this.toc.length);
+
         for (let i = 0; i < limit; i++) {
             this._createScrollPlaceholder(contentBody, this.toc[i], i);
         }
@@ -466,6 +555,9 @@ class LiveReaderUI {
 
     _appendCoverToScrollView(contentBody) {
         const coverSrc = this.metaInfo.coverUrl || "";
+        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
+            ? HttpClient.getProxiedUrl(coverSrc)
+            : coverSrc;
         const wrap = document.createElement("div");
         wrap.className = "lr-scroll-wrap";
         wrap.dataset.index = -1;
@@ -473,7 +565,7 @@ class LiveReaderUI {
         wrap.id = "lr-chapter-wrap-cover";
         wrap.innerHTML = `
             <div class="lr-cover-section">
-                ${coverSrc ? `<img src="${coverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
+                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
                 <h1 class="lr-scroll-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-scroll-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 <div class="lr-scroll-start-hint">↓ SCROLL TO START READING ↓</div>
@@ -552,9 +644,12 @@ class LiveReaderUI {
         const contentBody = document.getElementById("lrContentBody");
         if (!contentBody) return;
         const coverSrc = this.metaInfo.coverUrl || "";
+        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
+            ? HttpClient.getProxiedUrl(coverSrc)
+            : coverSrc;
         contentBody.innerHTML = `
             <div class="lr-cover-section" style="min-height:80vh;">
-                ${coverSrc ? `<img src="${coverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
+                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
                 <h1 class="lr-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 ${this.metaInfo.description ? `<p class="lr-cover-desc">${this.metaInfo.description}</p>` : ""}
@@ -717,12 +812,45 @@ class LiveReaderUI {
     }
 
     _extractDescription(doc) {
+        // Try parser first if it has a custom description extraction
+        if (this.parser && typeof this.parser.extractDescription === "function") {
+            try {
+                const d = this.parser.extractDescription(doc);
+                if (d && d.trim()) return d.trim().slice(0, 800);
+            } catch (_) {}
+        }
+
+        // Try page CSS selectors first (they contain the actual detailed synopsis)
+        const selectors = [
+            ".summary .content", ".summary", ".description", ".synopsis",
+            ".novel-desc", "[class*='desc']"
+        ];
+        for (const sel of selectors) {
+            const el = doc.querySelector(sel);
+            if (el) {
+                const cloned = el.cloneNode(true);
+                // Remove header titles like "Summary" or UI elements like "Show More"
+                cloned.querySelectorAll("h1, h2, h3, h4, h5, h6, .expand, .expand-btn, button, nav, a").forEach(e => e.remove());
+                const txt = cloned.textContent.trim().replace(/\s+/g, " ");
+                // Ensure we got a reasonably long description rather than generic small text
+                if (txt && txt.length > 50 && !txt.toLowerCase().includes("online free from your mobile")) {
+                    return txt.slice(0, 800);
+                }
+            }
+        }
+
+        // Fallback to meta tags
         const og = doc.querySelector("meta[property='og:description']");
-        if (og?.getAttribute("content")) return og.getAttribute("content").trim();
+        if (og?.getAttribute("content")) {
+            const val = og.getAttribute("content").trim();
+            if (!val.toLowerCase().includes("online free from your mobile")) return val;
+        }
         const meta = doc.querySelector("meta[name='description']");
-        if (meta?.getAttribute("content")) return meta.getAttribute("content").trim();
-        const descEl = doc.querySelector(".summary, .description, .synopsis, .novel-desc, [class*='desc']");
-        if (descEl) return descEl.textContent.trim().slice(0, 800);
+        if (meta?.getAttribute("content")) {
+            const val = meta.getAttribute("content").trim();
+            if (!val.toLowerCase().includes("online free from your mobile")) return val;
+        }
+        
         return "";
     }
 
