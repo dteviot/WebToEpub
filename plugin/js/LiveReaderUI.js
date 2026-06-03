@@ -805,8 +805,14 @@ class LiveReaderUI {
             try { return new URL(og.getAttribute("content"), baseUrl).href; } catch (_) {}
         }
         const bookCover = doc.querySelector(".book-cover img, .cover img, img.cover, .novel-cover img, .book img");
-        if (bookCover?.src) {
-            try { return new URL(bookCover.src, baseUrl).href; } catch (_) {}
+        if (bookCover) {
+            const attrNames = ["src", "data-src", "data-original", "data-lazy-src", "data-cover"];
+            for (const name of attrNames) {
+                const val = bookCover.getAttribute(name);
+                if (val && val.trim()) {
+                    try { return new URL(val.trim(), baseUrl).href; } catch (_) {}
+                }
+            }
         }
         return "";
     }
