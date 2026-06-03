@@ -592,12 +592,15 @@ class SearchEngineUI {
                 };
                 action.appendChild(importBtn);
 
-                // Add "Read Now" button next to Import button
+                // Add "Read Now" button — opens new standalone Live Reader
                 const readLiveBtn = document.createElement("button");
                 readLiveBtn.className = "read-now-btn";
                 readLiveBtn.textContent = "Read Now";
                 readLiveBtn.onclick = () => {
-                    SearchEngineUI.startReadLive(res.url, res.title, res.source || "Search Result");
+                    // Determine the base path for live-reader.html
+                    const isInsidePlugin = window.location.pathname.includes("/plugin/");
+                    const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+                    window.location.href = lrPath + "?url=" + encodeURIComponent(res.url);
                 };
                 action.appendChild(readLiveBtn);
 
@@ -659,59 +662,5 @@ class SearchEngineUI {
         }
     }
 
-    static async startReadLive(url, title, source) {
-        let statusSpan = document.getElementById("searchEngineStatus");
-        if (statusSpan) statusSpan.textContent = "Adding live novel to library...";
-        console.log(`[SearchEngineUI] Registering Live Scraped novel: "${title}" (${url})`);
-        
-        try {
-            const newId = "lazy_" + Date.now().toString();
-            
-            // Check if we are inside the main index.html portal or popup.html
-            if (window.libraryManager && window.epubViewer) {
-                const storage = window.libraryManager.storage;
-                
-                const storageData = await storage.get("LibArray");
-                let libArray = storageData.LibArray || [];
-                if (!Array.isArray(libArray)) libArray = [];
-                
-                libArray.push(newId);
-                
-                await storage.set({
-                    "LibArray": libArray,
-                    [`LibEpub${newId}`]: "lazy:" + url,
-                    [`LibFilename${newId}`]: title + ".epub",
-                    [`LibCover${newId}`]: "", // Cover will load dynamically in real-time
-                    [`LibStoryURL${newId}`]: url,
-                    [`LibTitle${newId}`]: title,
-                    [`LibAuthor${newId}`]: source || "Web Novel",
-                    [`LibProgress${newId}`]: 0
-                });
-                
-                // Rerender Personal Catalog grid
-                await window.libraryManager.renderPersonalLibrary();
-                
-                // Switch views directly to EPUB Reader
-                const landing = document.getElementById("netflixLanding");
-                const backBtn = document.getElementById("globalBackBtn");
-                const views = document.querySelectorAll(".app-view");
-                
-                if (landing) landing.style.display = "none";
-                views.forEach(v => {
-                    v.classList.toggle("active", v.id === "epubReaderView");
-                });
-                if (backBtn) backBtn.style.display = "none";
-                
-                // Trigger live-scraped e-reading in reader
-                window.epubViewer.showLoader();
-                await window.epubViewer.loadEpub("lazy:" + url);
-            } else {
-                // Inside popup.html, redirect back to index.html with query params
-                window.location.href = "../index.html?readLive=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(title);
-            }
-        } catch (e) {
-            console.error("Failed to trigger live reading:", e);
-            alert("Failed to trigger live reading: " + e.message);
-        }
-    }
 }
+

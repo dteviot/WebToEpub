@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Reader — WebToEpub</title>
+    <meta name="description" content="Read web novels directly in your browser with WebToEpub Live Reader. No download required.">
+    <link rel="icon" type="image/png" href="book128.png">
+    <link href="css/live-reader.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ───────────── URL INPUT VIEW ───────────── -->
+<div id="urlInputView" class="lr-view active" style="display:flex;">
+    <div class="lr-hero">
+        <div class="lr-hero-icon">📖</div>
+        <h1>Live Reader</h1>
+        <p>Read any web novel directly in your browser. Just paste a novel URL to get started.</p>
+    </div>
+
+    <div class="lr-url-form">
+        <input
+            id="lrUrlInput"
+            class="lr-url-input"
+            type="url"
+            placeholder="https://novelfull.com/walker-of-the-worlds.html"
+            autocomplete="off"
+            spellcheck="false"
+        >
+        <button id="lrGoBtn" class="lr-go-btn">Read Now</button>
+    </div>
+
+    <div class="lr-proxy-row">
+        <label>
+            <input type="checkbox" id="lrEnableCorsProxy" checked>
+            CORS Proxy
+        </label>
+        <select id="lrCorsProxySelect" title="Select CORS Proxy">
+            <option value="custom">Loading...</option>
+        </select>
+        <input type="text" id="lrCorsProxyInput" style="display:none;width:180px;" placeholder="Custom proxy URL">
+    </div>
+</div>
+
+<!-- ───────────── LOADING VIEW ───────────── -->
+<div id="bookLoadingView" class="lr-view" style="display:none; align-items:center; justify-content:center; flex-direction:column; height:100vh; background:var(--bg,#0d0d10);">
+    <div class="lr-loading-spinner"></div>
+    <div id="lrLoadStatus" style="color:var(--primary,#00f5ff); font-weight:600; font-size:1rem; margin-top:12px;">Initializing...</div>
+    <div style="color:var(--muted,#888); font-size:0.85rem; margin-top:8px;">Fetching novel page...</div>
+</div>
+
+<!-- ───────────── BOOK DETAILS VIEW ───────────── -->
+<div id="bookDetailsView" class="lr-view" style="display:none; flex-direction:column; height:100vh; overflow:hidden; background:var(--bg,#0d0d10);">
+    <!-- Header -->
+    <div class="lr-details-header">
+        <button id="lrBackToHomeBtn" class="lr-details-back-btn">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            Back
+        </button>
+        <h2>Live Reader</h2>
+    </div>
+
+    <div class="lr-details-content" style="display:flex;flex:1;overflow:hidden;">
+        <!-- Book info (left panel) -->
+        <div class="lr-book-info-panel">
+            <img id="lrCoverImg" src="" alt="Book Cover" style="display:none;">
+            <h1 id="lrBookTitle"></h1>
+            <div id="lrBookAuthor"></div>
+            <p id="lrBookDesc"></p>
+
+            <button id="lrStartReadingBtn" class="lr-start-reading-btn" disabled>
+                Loading Chapters...
+            </button>
+        </div>
+
+        <!-- TOC panel (right) -->
+        <div class="lr-toc-panel">
+            <div class="lr-toc-header">
+                <h3>Table of Contents</h3>
+                <div id="lrTocStatus">Scanning chapter list...</div>
+            </div>
+            <ul id="lrTocList">
+                <li id="lrTocPlaceholder" style="padding:20px;color:var(--muted,#888);font-size:0.9rem;">Detecting chapters...</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- ───────────── READER VIEW ───────────── -->
+<div id="readerView" class="lr-view" style="display:none; position:fixed; inset:0; z-index:999;">
+    <div id="lrReaderMain" class="lr-theme-bw lr-font-sans">
+
+        <!-- Sidebar -->
+        <div id="lrReaderSidebar">
+            <div class="lr-sidebar-header">
+                <span class="lr-sidebar-title">Chapters</span>
+                <button id="lrToggleSidebarBtn" class="lr-reader-btn" title="Close sidebar" style="padding:6px 10px;">
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <ul id="lrReaderTocList" class="toc-list" style="list-style:none;flex:1;overflow-y:auto;padding:12px;"></ul>
+        </div>
+
+        <!-- Content Area -->
+        <div id="lrContentArea">
+            <!-- Header -->
+            <div id="lrReaderHeader">
+                <div class="lr-header-left">
+                    <button id="lrToggleSidebarTrigger" class="lr-reader-btn" title="Toggle chapters">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
+                        TOC
+                    </button>
+                    <button id="lrBackToDetailsBtn" class="lr-reader-btn" title="Back to details">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+                        Home
+                    </button>
+                    <span id="lrCurrentChapterName" style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;font-size:0.9rem;"></span>
+                </div>
+                <div class="lr-header-right">
+                    <!-- Settings button -->
+                    <button id="lrSettingsBtn" class="lr-reader-btn" title="Reading settings">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.282c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+
+                    <!-- Settings dropdown -->
+                    <div id="lrSettingsDropdown" class="lr-settings-dropdown">
+                        <!-- Theme -->
+                        <div>
+                            <div class="lr-control-title">Theme</div>
+                            <div class="lr-theme-options">
+                                <button class="lr-theme-btn light" data-theme="light">Light</button>
+                                <button class="lr-theme-btn dark" data-theme="dark">Dark</button>
+                                <button class="lr-theme-btn sepia" data-theme="sepia">Sepia</button>
+                                <button class="lr-theme-btn bw active" data-theme="bw">B&amp;W</button>
+                            </div>
+                        </div>
+                        <!-- Font -->
+                        <div>
+                            <div class="lr-control-title">Font</div>
+                            <select id="lrFontSelect" class="lr-font-select">
+                                <option value="sans">Sans-Serif</option>
+                                <option value="serif">Serif</option>
+                                <option value="mono">Monospace</option>
+                                <option value="dyslexic">Dyslexic</option>
+                            </select>
+                        </div>
+                        <!-- Font size -->
+                        <div>
+                            <div class="lr-control-title">Font Size</div>
+                            <div class="lr-font-size-row">
+                                <button class="lr-font-size-btn" id="lrFontSizeDec">A−</button>
+                                <span id="lrFontSizeDisplay">100%</span>
+                                <button class="lr-font-size-btn" id="lrFontSizeInc">A+</button>
+                            </div>
+                        </div>
+                        <!-- TTS -->
+                        <div class="lr-tts-section">
+                            <div class="lr-control-title">Text-to-Speech</div>
+                            <div class="lr-tts-sliders">
+                                <div class="lr-slider-row">
+                                    <span>Speed</span>
+                                    <input type="range" id="lrTtsRate" min="0.5" max="2" step="0.1" value="1">
+                                </div>
+                                <div class="lr-slider-row">
+                                    <span>Pitch</span>
+                                    <input type="range" id="lrTtsPitch" min="0.5" max="2" step="0.1" value="1">
+                                </div>
+                            </div>
+                            <select id="lrTtsVoiceSelect" class="lr-tts-select">
+                                <option value="">Default Voice</option>
+                            </select>
+                            <div class="lr-tts-btns">
+                                <button class="lr-tts-btn" id="lrTtsPlayBtn">
+                                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653z"/></svg>
+                                    Play
+                                </button>
+                                <button class="lr-tts-btn" id="lrTtsPauseBtn" style="display:none;">
+                                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5"/></svg>
+                                    Pause
+                                </button>
+                                <button class="lr-tts-btn" id="lrTtsStopBtn">
+                                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/></svg>
+                                    Stop
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span id="lrPageNum" style="font-size:0.82rem;color:var(--lr-muted,#aaa);min-width:80px;text-align:right;"></span>
+                </div>
+            </div>
+
+            <!-- Viewport -->
+            <div id="lrViewport">
+                <div id="lrContentBody"></div>
+            </div>
+
+            <!-- Footer -->
+            <div id="lrReaderFooter">
+                <span id="lrFooterTitle" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
+                <span id="lrPageNum2" style="color:var(--lr-muted,#aaa);font-size:0.8rem;margin-left:12px;"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reader loader overlay -->
+    <div id="lrReaderLoader" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;backdrop-filter:blur(6px);">
+        <div class="lr-loader-ring"></div>
+        <div id="lrReaderLoaderText" style="color:var(--primary,#00f5ff);font-weight:700;">Loading...</div>
+    </div>
+</div>
+
+<!-- ── SHARED SCRIPTS (mirroring popup.html's dependency chain) ── -->
+<script src="js/ChromePolyfill.js"></script>
+<script src="js/UIText.js"></script>
+<script src="js/UserPreferences.js"></script>
+<script src="js/EpubMetaInfo.js"></script>
+<script src="js/ErrorLog.js"></script>
+<script src="js/Util.js"></script>
+<script src="js/Firefox.js"></script>
+<script src="js/HttpClient.js"></script>
+<script src="js/ParserFactory.js"></script>
+<script src="js/ChapterUrlsUI.js"></script>
+<script src="js/Parser.js"></script>
+<script src="js/Library.js"></script>
+
+<!-- Parser base classes -->
+<script src="js/parsers/WordpressBaseParser.js"></script>
+<script src="js/parsers/MadaraParser.js"></script>
+
+<!-- All parsers from popup.html (paste-all for full compatibility) -->
+<script src="js/parsers/230BookParser.js"></script>
+<script src="js/parsers/27kParser.js"></script>
+<script src="js/parsers/4kswParser.js"></script>
+<script src="js/parsers/69shuParser.js"></script>
+<script src="js/parsers/88xiaoshuoParser.js"></script>
+<script src="js/parsers/888novelParser.js"></script>
+<script src="js/parsers/ActiveTranslationsParser.js"></script>
+<script src="js/parsers/AdultfanfictionParser.js"></script>
+<script src="js/parsers/AozoraBunkoParser.js"></script>
+<script src="js/parsers/AriaMoeParser.js"></script>
+<script src="js/parsers/AstralTranslationsParser.js"></script>
+<script src="js/parsers/AsianovelParser.js"></script>
+<script src="js/parsers/AsstrParser.js"></script>
+<script src="js/parsers/BabelChainParser.js"></script>
+<script src="js/parsers/BakaTsukiParser.js"></script>
+<script src="js/parsers/BakaTsukiSeriesPageParser.js"></script>
+<script src="js/parsers/BetwixtedbutterflyParser.js"></script>
+<script src="js/parsers/BiqugetwParser.js"></script>
+<script src="js/parsers/BlogspotParser.js"></script>
+<script src="js/parsers/BlogusParser.js"></script>
+<script src="js/parsers/Book18Parser.js"></script>
+<script src="js/parsers/BookswithqianyaParser.js"></script>
+<script src="js/parsers/Booktoki152Parser.js"></script>
+<script src="js/parsers/BotitranslationParser.js"></script>
+<script src="js/parsers/BoxnovelOrgParser.js"></script>
+<script src="js/parsers/BoyloveParser.js"></script>
+<script src="js/parsers/Bqg225Parser.js"></script>
+<script src="js/parsers/Brittanypage43Parser.js"></script>
+<script src="js/parsers/BuntlsParser.js"></script>
+<script src="js/parsers/BnatranslationsParser.js"></script>
+<script src="js/parsers/CangjiParser.js"></script>
+<script src="js/parsers/CClawTranslationsParser.js"></script>
+<script src="js/parsers/ChaleuriaParser.js"></script>
+<script src="js/parsers/ChichipephParser.js"></script>
+<script src="js/parsers/ChickengegeParser.js"></script>
+<script src="js/parsers/ChineseFantasyNovelsParser.js"></script>
+<script src="js/parsers/ChosentwofanficParser.js"></script>
+<script src="js/parsers/ChrysanthemumgardenParser.js"></script>
+<script src="js/parsers/ChyoaParser.js"></script>
+<script src="js/parsers/ComrademaoParser.js"></script>
+<script src="js/parsers/CoronatranslationParser.js"></script>
+<script src="js/parsers/CreativeNovelsParser.js"></script>
+<script src="js/parsers/DeathtollTranslationsParser.js"></script>
+<script src="js/parsers/DemonicTranslationsParser.js"></script>
+<script src="js/parsers/DimensiontlsParser.js"></script>
+<script src="js/parsers/DmhentaiParser.js"></script>
+<script src="js/parsers/DragonHolicParser.js"></script>
+<script src="js/parsers/DragonTailsParser.js"></script>
+<script src="js/parsers/DynastyScansParser.js"></script>
+<script src="js/parsers/EarwigTranslationsParser.js"></script>
+<script src="js/parsers/EccentricTranslationsParser.js"></script>
+<script src="js/parsers/EznovelParser.js"></script>
+<script src="js/parsers/FanFicFareParser.js"></script>
+<script src="js/parsers/FanfictionNetParser.js"></script>
+<script src="js/parsers/FanFicFareParser.js"></script>
+<script src="js/parsers/FanfictionNetParser.js"></script>
+<script src="js/parsers/FatefulEncountersParser.js"></script>
+<script src="js/parsers/FlowerBridgeTooParser.js"></script>
+<script src="js/parsers/FreewebnovelParser.js"></script>
+<script src="js/parsers/FurrySerpentParser.js"></script>
+<script src="js/parsers/FushigiParser.js"></script>
+<script src="js/parsers/GelbooruParser.js"></script>
+<script src="js/parsers/GravityTalesParser.js"></script>
+<script src="js/parsers/HalfBloodedParser.js"></script>
+<script src="js/parsers/HarempkParser.js"></script>
+<script src="js/parsers/HoaitamParser.js"></script>
+<script src="js/parsers/HonobonoParser.js"></script>
+<script src="js/parsers/HonobonoSequelParser.js"></script>
+<script src="js/parsers/IsekaiScanParser.js"></script>
+<script src="js/parsers/IsotlsParser.js"></script>
+<script src="js/parsers/IxdzsParser.js"></script>
+<script src="js/parsers/JadeRabbitParser.js"></script>
+<script src="js/parsers/JadeScrollsParser.js"></script>
+<script src="js/parsers/JaptemParser.js"></script>
+<script src="js/parsers/JjwxcParser.js"></script>
+<script src="js/parsers/JonaxxstoriesParser.js"></script>
+<script src="js/parsers/JpmtlParser.js"></script>
+<script src="js/parsers/KakaoParser.js"></script>
+<script src="js/parsers/KakuyomuParser.js"></script>
+<script src="js/parsers/KariStudioParser.js"></script>
+<script src="js/parsers/KaystlsParser.js"></script>
+<script src="js/parsers/KemonopartyParser.js"></script>
+<script src="js/parsers/KrytykalParser.js"></script>
+<script src="js/parsers/LanrySpaceParser.js"></script>
+<script src="js/parsers/LeafStudioParser.js"></script>
+<script src="js/parsers/LibersparkParser.js"></script>
+<script src="js/parsers/Libri7Parser.js"></script>
+<script src="js/parsers/LightnovelasiaParser.js"></script>
+<script src="js/parsers/LightNovelBastionParser.js"></script>
+<script src="js/parsers/LightnovelboxParser.js"></script>
+<script src="js/parsers/LightnovelfrParser.js"></script>
+<script src="js/parsers/LightnovelreaderParser.js"></script>
+<script src="js/parsers/LightnovelreadParser.js"></script>
+<script src="js/parsers/LightnovelsmeParser.js"></script>
+<script src="js/parsers/LightNovelWorldParser.js"></script>
+<script src="js/parsers/LiteroticaParser.js"></script>
+<script src="js/parsers/LnmtlParser.js"></script>
+<script src="js/parsers/LoreNovelsParser.js"></script>
+<script src="js/parsers/MachineTranslationParser.js"></script>
+<script src="js/parsers/MagusTalesParser.js"></script>
+<script src="js/parsers/MangatopParser.js"></script>
+<script src="js/parsers/McsTranslationsParser.js"></script>
+<script src="js/parsers/MeionovelParser.js"></script>
+<script src="js/parsers/MetaParser.js"></script>
+<script src="js/parsers/MistressofmysteryParser.js"></script>
+<script src="js/parsers/MtlnovelParser.js"></script>
+<script src="js/parsers/MysticalseriesParser.js"></script>
+<script src="js/parsers/NakimushiParser.js"></script>
+<script src="js/parsers/NavelitParser.js"></script>
+<script src="js/parsers/NazeParser.js"></script>
+<script src="js/parsers/NhentaiParser.js"></script>
+<script src="js/parsers/NocturneTranslationsParser.js"></script>
+<script src="js/parsers/NovelAll2Parser.js"></script>
+<script src="js/parsers/NovelBinParser.js"></script>
+<script src="js/parsers/NovelbookParser.js"></script>
+<script src="js/parsers/Novelcat2Parser.js"></script>
+<script src="js/parsers/NovelfullParser.js"></script>
+<script src="js/parsers/NovelHallParser.js"></script>
+<script src="js/parsers/NovelMultiverseParser.js"></script>
+<script src="js/parsers/NovelNaverParser.js"></script>
+<script src="js/parsers/NovelOnlineFreeParser.js"></script>
+<script src="js/parsers/NovelsfullParser.js"></script>
+<script src="js/parsers/NovelshubParser.js"></script>
+<script src="js/parsers/NovelsOnlineParser.js"></script>
+<script src="js/parsers/NovelonomiconParser.js"></script>
+<script src="js/parsers/NovelpassionParser.js"></script>
+<script src="js/parsers/NovelplexParser.js"></script>
+<script src="js/parsers/NovelsectParser.js"></script>
+<script src="js/parsers/NovelsemperorParser.js"></script>
+<script src="js/parsers/NovelsplParser.js"></script>
+<script src="js/parsers/NovelSpreadParser.js"></script>
+<script src="js/parsers/NovelsquareParser.js"></script>
+<script src="js/parsers/NovelsRockParser.js"></script>
+<script src="js/parsers/NoveltoonParser.js"></script>
+<script src="js/parsers/NoveltranslatedbycParser.js"></script>
+<script src="js/parsers/NovelUniverseParser.js"></script>
+<script src="js/parsers/NovelUpdatesOnlineParser.js"></script>
+<script src="js/parsers/NovelversetranslationsParser.js"></script>
+<script src="js/parsers/NovicetranslationsParser.js"></script>
+<script src="js/parsers/NrvnqsrParser.js"></script>
+<script src="js/parsers/NtruyenParser.js"></script>
+<script src="js/parsers/NyahFanfictionParser.js"></script>
+<script src="js/parsers/NyantlParser.js"></script>
+<script src="js/parsers/OctopiiParser.js"></script>
+<script src="js/parsers/OldranobelibParser.js"></script>
+<script src="js/parsers/OnlinenovelbookParser.js"></script>
+<script src="js/parsers/OntimestoryParser.js"></script>
+<script src="js/parsers/OssantlParser.js"></script>
+<script src="js/parsers/PandaNovelParser.js"></script>
+<script src="js/parsers/PatreonParser.js"></script>
+<script src="js/parsers/PinkMantaParser.js"></script>
+<script src="js/parsers/PrideAndPrejudiceParser.js"></script>
+<script src="js/parsers/QuickfoxParser.js"></script>
+<script src="js/parsers/RanobeParser.js"></script>
+<script src="js/parsers/RanobehubParser.js"></script>
+<script src="js/parsers/RanobelibraryParser.js"></script>
+<script src="js/parsers/RanobenetParser.js"></script>
+<script src="js/parsers/RanobeonlineParser.js"></script>
+<script src="js/parsers/RanobesParser.js"></script>
+<script src="js/parsers/ReadlightnovelParser.js"></script>
+<script src="js/parsers/ReadnovelParser.js"></script>
+<script src="js/parsers/Readnovelonline1Parser.js"></script>
+<script src="js/parsers/ReadovelParser.js"></script>
+<script src="js/parsers/Readwn2Parser.js"></script>
+<script src="js/parsers/RedditParser.js"></script>
+<script src="js/parsers/Rf1000Parser.js"></script>
+<script src="js/parsers/RoyalRoadParser.js"></script>
+<script src="js/parsers/ScribbleHubParser.js"></script>
+<script src="js/parsers/SensationTranslationsParser.js"></script>
+<script src="js/parsers/ShilohTaleParser.js"></script>
+<script src="js/parsers/SkythewoodParser.js"></script>
+<script src="js/parsers/SovietdogParser.js"></script>
+<script src="js/parsers/SpacetranslationsParser.js"></script>
+<script src="js/parsers/StarryTranslationsParser.js"></script>
+<script src="js/parsers/SugarbabiesParser.js"></script>
+<script src="js/parsers/SyosetuParser.js"></script>
+<script src="js/parsers/TapasParser.js"></script>
+<script src="js/parsers/TencentParser.js"></script>
+<script src="js/parsers/TravisTranslationsParser.js"></script>
+<script src="js/parsers/TuankietlsParser.js"></script>
+<script src="js/parsers/TutranslationsParser.js"></script>
+<script src="js/parsers/VolarenovelsParser.js"></script>
+<script src="js/parsers/VynovelParser.js"></script>
+<script src="js/parsers/WattpadVN.js"></script>
+<script src="js/parsers/WanderinginnParser.js"></script>
+<script src="js/parsers/WetriedTlsParser.js"></script>
+<script src="js/parsers/WLPublishingParser.js"></script>
+<script src="js/parsers/WatashiwasugoidesuParser.js"></script>
+<script src="js/parsers/WattpadParser.js"></script>
+<script src="js/parsers/WebNovelOnlineParser.js"></script>
+<script src="js/parsers/WikipediaParser.js"></script>
+<script src="js/parsers/WixParser.js"></script>
+<script src="js/parsers/WnmtlOrgParser.js"></script>
+<script src="js/parsers/WnmtlParser.js"></script>
+<script src="js/parsers/WoopreadParser.js"></script>
+<script src="js/parsers/WtrlabParser.js"></script>
+<script src="js/parsers/WuxiaBlogParser.js"></script>
+<script src="js/parsers/WuxiacityParser.js"></script>
+<script src="js/parsers/WuxiaworldCoParser.js"></script>
+<script src="js/parsers/WuxiaworldeuParser.js"></script>
+<script src="js/parsers/WuxiaworldParser.js"></script>
+<script src="js/parsers/WuxiaworldWorldParser.js"></script>
+<script src="js/parsers/WxscsPaser.js"></script>
+<script src="js/parsers/XbanxiaParser.js"></script>
+<script src="js/parsers/XbiqugeParser.js"></script>
+<script src="js/parsers/XenforoBatchParser.js"></script>
+<script src="js/parsers/XiaoshubaoParser.js"></script>
+<script src="js/parsers/ZenithNovelsParser.js"></script>
+<script src="js/parsers/ZenithtlsParser.js"></script>
+<script src="js/parsers/ZeonicrepublicParser.js"></script>
+<script src="js/parsers/ZhenhunxiaoshuoParser.js"></script>
+<script src="js/parsers/ZirusMusingsParser.js"></script>
+<script src="js/parsers/WtnovelsParser.js"></script>
+<script src="js/parsers/XiaoshuoguiParser.js"></script>
+<script src="js/parsers/XiaxuenovelsParser.js"></script>
+<script src="js/parsers/XklxswParser.js"></script>
+<script src="js/parsers/YedugeParser.js"></script>
+<script src="js/parsers/YushuboParser.js"></script>
+<script src="js/parsers/AsianHobbyistParser.js"></script>
+<script src="js/parsers/FalooParser.js"></script>
+<script src="js/parsers/FoxaholicParser.js"></script>
+<script src="js/parsers/HellpingParser.js"></script>
+<script src="js/parsers/HiscensionParser.js"></script>
+<script src="js/parsers/KobatochanParser.js"></script>
+<script src="js/parsers/KofiParser.js"></script>
+<script src="js/parsers/LightNovelsTranslationsParser.js"></script>
+<script src="js/parsers/ReLibraryParser.js"></script>
+<script src="js/parsers/ShmtranslationsParser.js"></script>
+<script src="js/parsers/SnowyCodexParser.js"></script>
+<script src="js/parsers/StorySeedlingParser.js"></script>
+<script src="js/parsers/SystemTranslationParser.js"></script>
+<script src="js/parsers/TranslationChickenParser.js"></script>
+<script src="js/parsers/SonakoParser.js"></script>
+
+<!-- Live Reader -->
+<script src="js/LiveReaderUI.js"></script>
+<script>
+    window.liveReader = new LiveReaderUI();
+    window.liveReader.init();
+</script>
+
+</body>
+</html>

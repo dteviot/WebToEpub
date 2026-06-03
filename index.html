@@ -55,6 +55,22 @@
                 <span class="profile-name">Libraries Hub</span>
             </button>
 
+            <button id="profileLiveReader" class="profile-card" onclick="window.location.href='plugin/live-reader.html'" style="position:relative;">
+                <div class="profile-avatar" style="background: linear-gradient(135deg, #00f5ff22, #7c3aed22); border: 1px solid rgba(0,245,255,0.3);">
+                    <svg viewBox="0 0 24 24" style="stroke:url(#lrGrad);">
+                        <defs>
+                            <linearGradient id="lrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00f5ff"/>
+                                <stop offset="100%" style="stop-color:#7c3aed"/>
+                            </linearGradient>
+                        </defs>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <span class="profile-name" style="background:linear-gradient(135deg,#00f5ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Live Reader</span>
+                <span style="position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#00f5ff,#7c3aed);color:#000;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:20px;letter-spacing:0.05em;">NEW</span>
+            </button>
+
         </div>
     </div>
 
@@ -426,18 +442,6 @@
             libraryManager.init();
             window.libraryManager = libraryManager;
 
-            // Handle Read Live deep-linking parameters
-            let params = new URLSearchParams(window.location.search);
-            let readLiveUrl = params.get("readLive");
-            let readLiveTitle = params.get("title");
-            if (readLiveUrl && readLiveTitle) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                setTimeout(() => {
-                    if (typeof SearchEngineUI !== "undefined") {
-                        SearchEngineUI.startReadLive(readLiveUrl, readLiveTitle, "Scraped Link");
-                    }
-                }, 400);
-            }
 
             // Netflix Landing Portal View Switcher
             const landing = document.getElementById("netflixLanding");

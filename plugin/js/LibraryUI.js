@@ -434,7 +434,6 @@ class LibraryUI {
             const progress = parseFloat(booksData[`LibProgress${id}`] || 0);
             const epubBase64 = booksData[`LibEpub${id}`];
             const filename = booksData[`LibFilename${id}`] || `${title}.epub`;
-            const isLiveBook = typeof epubBase64 === "string" && epubBase64.startsWith("lazy:");
 
             const card = document.createElement("div");
             card.className = "library-book-card";
@@ -443,10 +442,8 @@ class LibraryUI {
                     <img class="book-cover-img" src="${cover}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
-                        ${isLiveBook ? "" : `
-                            <button class="book-action-btn download-btn-main">Save File</button>
-                            <button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>
-                        `}
+                        <button class="book-action-btn download-btn-main">Save File</button>
+                        <button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>
                     </div>
                 </div>
                 <div class="book-details">
@@ -490,46 +487,44 @@ class LibraryUI {
                 }, true);
             });
 
-            if (!isLiveBook) {
-                card.querySelector(".download-btn-main").addEventListener("click", () => {
-                    this.downloadBlob(epubBase64, filename);
-                });
+            card.querySelector(".download-btn-main").addEventListener("click", () => {
+                this.downloadBlob(epubBase64, filename);
+            });
 
-                card.querySelector(".share-public-btn").addEventListener("click", async () => {
-                    const loader = document.getElementById("libraryLoader");
-                    if (loader) {
-                        loader.style.display = "flex";
-                        const statusText = loader.querySelector("div:last-child");
-                        if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
+            card.querySelector(".share-public-btn").addEventListener("click", async () => {
+                const loader = document.getElementById("libraryLoader");
+                if (loader) {
+                    loader.style.display = "flex";
+                    const statusText = loader.querySelector("div:last-child");
+                    if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
+                }
+
+                try {
+                    const token = HFLibrary.ensureTokenConfigured(true);
+                    if (!token) {
+                        throw new Error("Hugging Face token is required to share books publicly.");
                     }
 
-                    try {
-                        const token = HFLibrary.ensureTokenConfigured(true);
-                        if (!token) {
-                            throw new Error("Hugging Face token is required to share books publicly.");
-                        }
+                    // Convert epubBase64 data URL to a Blob
+                    const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
+                    
+                    // Upload to HF Public Library
+                    await HFLibrary.uploadBook(epubBlob, {
+                        title: title,
+                        author: author,
+                        coverDataUrl: cover
+                    });
 
-                        // Convert epubBase64 data URL to a Blob
-                        const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
-                        
-                        // Upload to HF Public Library
-                        await HFLibrary.uploadBook(epubBlob, {
-                            title: title,
-                            author: author,
-                            coverDataUrl: cover
-                        });
-
-                        alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
-                        
-                        // Trigger a re-render of Public Library to show the new addition
-                        this.renderPublicLibrary();
-                    } catch (e) {
-                        alert("Error sharing to public library: " + e.message);
-                    } finally {
-                        if (loader) loader.style.display = "none";
-                    }
-                });
-            }
+                    alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                    
+                    // Trigger a re-render of Public Library to show the new addition
+                    this.renderPublicLibrary();
+                } catch (e) {
+                    alert("Error sharing to public library: " + e.message);
+                } finally {
+                    if (loader) loader.style.display = "none";
+                }
+            });
 
             card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
                 e.stopPropagation();
