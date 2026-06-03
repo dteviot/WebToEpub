@@ -41,7 +41,7 @@ class LiveReaderUI {
         this.lazyVirtualScrollBatchSize = 20;
 
         // TOC config
-        this.liveTocTimeoutMs = 15000;
+        this.liveTocTimeoutMs = 30000;
         this.maxTocPagesToScan = 30;
         this.tocRetryAttempts = 1;
         this.tocFetchConcurrency = 4;
@@ -742,7 +742,11 @@ class LiveReaderUI {
 
         // Try parser TOC
         if (this.parser && typeof this.parser.getChapterUrls === "function") {
+            const originalRateLimitDelay = this.parser.rateLimitDelay;
             try {
+                // Temporarily disable throttle for super-fast TOC scanning
+                this.parser.rateLimitDelay = async () => {};
+                
                 const parserChapters = await this._withTimeout(
                     this.parser.getChapterUrls(doc, chapterUrlsUI),
                     this.liveTocTimeoutMs,
@@ -757,6 +761,10 @@ class LiveReaderUI {
                 console.warn("[LiveReader] Parser TOC failed:", err);
                 const partial = this._normalizeToc(collector, url);
                 if (partial.length > 0) return partial;
+            } finally {
+                if (this.parser) {
+                    this.parser.rateLimitDelay = originalRateLimitDelay;
+                }
             }
         }
 
@@ -1105,12 +1113,17 @@ class LiveReaderUI {
         const proxyInput = document.getElementById("lrCorsProxyInput");
         const proxyEnable = document.getElementById("lrEnableCorsProxy");
         if (proxySelect && typeof HttpClient !== "undefined") {
+            proxySelect.innerHTML = "";
             HttpClient.CORS_PROXIES.forEach(p => {
                 const opt = document.createElement("option");
                 opt.value = p.url;
                 opt.textContent = p.name;
                 proxySelect.appendChild(opt);
             });
+            const optCustom = document.createElement("option");
+            optCustom.value = "custom";
+            optCustom.textContent = "Custom...";
+            proxySelect.appendChild(optCustom);
             const isKnown = HttpClient.CORS_PROXIES.find(p => p.url === HttpClient.corsProxyUrl);
             if (isKnown) {
                 proxySelect.value = HttpClient.corsProxyUrl;

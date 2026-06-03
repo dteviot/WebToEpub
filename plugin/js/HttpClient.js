@@ -306,13 +306,54 @@ class HttpClient {
         let useProxy = (HttpClient.enableCorsProxy && !wrapOptions.bypassProxy);
 
         if (useProxy) {
+            let activeProxyUrl = HttpClient.corsProxyUrl;
+            const targetHostname = new URL(url).hostname;
 
-            let proxiesToTry = [HttpClient.corsProxyUrl];
-            for (let p of HttpClient.CORS_PROXIES) {
-                if (p.url !== HttpClient.corsProxyUrl) proxiesToTry.push(p.url);
+            // Try active proxy first
+            if (activeProxyUrl && 
+                !BlockedHostNames.has(new URL(activeProxyUrl).hostname) && 
+                !HttpClient.BLACKLISTED_PROXIES.has(activeProxyUrl) &&
+                !(targetHostname === "ko-fi.com" && activeProxyUrl.includes("corsproxy.io"))) {
+                
+                try {
+                    const fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 6000); // Snappy 6s timeout for active proxy
+                    const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
+                        credentials: "omit",
+                        signal: ctrl.signal
+                    });
+                    
+                    let response = await fetch(fetchUrl, fetchOpts);
+                    clearTimeout(tid);
+                    
+                    if (response.ok) {
+                        let proxyWrapOptions = Object.assign({}, wrapOptions, {
+                            isProxyAttempt: true,
+                            isFinalProxyAttempt: true
+                        });
+                        
+                        let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
+                        
+                        try { ctrl.abort(); } catch (_) {}
+                        
+                        if (!proxyWrapOptions.parser?.isCustomError(ret)) {
+                            return ret;
+                        }
+                    } else {
+                        throw new Error(`status: ${response.status}`);
+                    }
+                } catch (err) {
+                    console.warn(`[WebToEpub] Active proxy ${activeProxyUrl} failed or timed out: ${err.message}. Fallback to discovery race.`);
+                    HttpClient.BLACKLISTED_PROXIES.add(activeProxyUrl);
+                }
             }
 
-            const targetHostname = new URL(url).hostname;
+            // Fallback: run the discovery race with the remaining proxies
+            let proxiesToTry = [];
+            for (let p of HttpClient.CORS_PROXIES) {
+                proxiesToTry.push(p.url);
+            }
 
             // Filter out blacklisted proxies for this attempt
             proxiesToTry = proxiesToTry.filter(u => {
@@ -325,9 +366,7 @@ class HttpClient {
             // If everything is blacklisted, clear and try again
             if (proxiesToTry.length === 0) {
                 HttpClient.BLACKLISTED_PROXIES.clear();
-                proxiesToTry = [HttpClient.corsProxyUrl].concat(
-                    HttpClient.CORS_PROXIES.map(p => p.url).filter(u => u !== HttpClient.corsProxyUrl)
-                );
+                proxiesToTry = HttpClient.CORS_PROXIES.map(p => p.url);
             }
 
             // ── Race all proxies simultaneously ─────────────────────────────
@@ -595,12 +634,9 @@ HttpClient.CORS_PROXIES = [
     { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
     { name: "Huggingface Proxy", url: "https://amono5667-versal-scrapper.hf.space/?url=" },
     { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
-    { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
-    { name: "corsproxy.io", url: "https://corsproxy.io/?url=" },
-    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy?quest=" },
     { name: "Nexuspage Proxy", url: "https://nexuspage-extractor.vercel.app/?url=" },
-    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
-    { name: "CORS.lol", url: "https://api.cors.lol/?url=" }
+    { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
+    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy?quest=" }
 ];
 HttpClient.BLACKLISTED_PROXIES = new Set();
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
