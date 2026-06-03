@@ -69,12 +69,21 @@ class RanobelibParser extends Parser {
 
                 case "paragraph": {
                     const isBold = node.content?.some(item =>
-                        item.marks?.some(mark =>
-                            mark.type === "bold"
-                        )
+                        item.marks?.some(mark => mark.type === "bold")
                     );
-                    const tag = isBold ? "b" : "p";
-                    this.appendElement(newDoc, tag, this.getText(node));
+                    const isItalic = node.content?.some(item =>
+                        item.marks?.some(mark => mark.type === "italic")
+                    );
+
+                    const text = this.getText(node);
+
+                    if (isBold) {
+                        this.appendHtml(newDoc, `<p><b>${text}</b></p>`);
+                    } else if (isItalic) {
+                        this.appendHtml(newDoc, `<p><i>${text}</i></p>`);
+                    } else {
+                        this.appendElement(newDoc, "p", text);
+                    }
                     break;
                 }
 
@@ -94,6 +103,44 @@ class RanobelibParser extends Parser {
                     newDoc.content.appendChild(bq);
                     break;
                 }
+
+                case "orderedList":
+                case "bulletList": {
+                    const tag = node.type === "orderedList" ? "ol" : "ul";
+                    const listElement = newDoc.dom.createElement(tag);
+                    if (node.content) {
+                        for (let item of node.content) {
+                            if (item.type === "listItem") {
+                                const li = newDoc.dom.createElement("li");
+                                let text = "";
+                                if (item.content) {
+                                    text = item.content.map(child => this.getText(child)).join(" ");
+                                }
+                                li.textContent = text;
+                                listElement.appendChild(li);
+                            }
+                        }
+                    }
+                    newDoc.content.appendChild(listElement);
+                    break;
+                }
+
+                case "image": {
+                    const imageId = node.attrs?.images?.[0]?.image;
+                    const attachment = data.attachments?.find(a => a.name === imageId);
+
+                    if (attachment) {
+                        const imgUrl = `https://ranobelib.me${attachment.url}`;
+                        const description = node.attrs.description || "";
+
+                        const imgHtml = `<img src="${imgUrl}" alt="${description}"/>`;
+                        this.appendHtml(newDoc, imgHtml);
+                    }
+                    break;
+                }
+
+                default:
+                    console.warn(`unknown node type: ${node.type}`, data);
             }
         }
         return newDoc.dom;
