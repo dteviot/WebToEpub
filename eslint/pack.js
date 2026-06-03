@@ -250,8 +250,9 @@ var packExtension = function(manifest, fileExtension) {
 // pack the extensions for Chrome and firefox
 readFilePromise("../plugin/manifest.json")
     .then(function(data) {
-        packExtension(makeManifestForFirefox(data), ".xpi");
-        packExtension(makeManifestForChrome(data), ".zip");
+        return packExtension(makeManifestForFirefox(data), ".xpi").then(function() {
+            return packExtension(makeManifestForChrome(data), ".zip");
+        });
     }).catch(function(err) {
         console.log(err);
     });
