@@ -87,7 +87,15 @@ class LiveReaderUI {
     _showView(viewId) {
         ["urlInputView", "bookLoadingView", "bookDetailsView", "readerView"].forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.style.display = id === viewId ? "" : "none";
+            if (el) {
+                if (id === viewId) {
+                    el.style.display = (id === "readerView") ? "block" : "flex";
+                    el.classList.add("active");
+                } else {
+                    el.style.display = "none";
+                    el.classList.remove("active");
+                }
+            }
         });
     }
 
