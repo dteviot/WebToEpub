@@ -183,17 +183,12 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     static async getTelegramCatalog() {
-        if (!HFLibrary.hasToken()) {
-            return [];
-        }
         const oldRepoId = HFLibrary.OLD_REPO_ID;
-
-        const url = `${HFLibrary._getBase()}/datasets/${oldRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        // Fetch directly from HF CDN without auth headers to avoid CORS preflight 
+        // and to bypass the worker proxy (which hardcodes routing to the active repo).
+        const url = `https://huggingface.co/datasets/${oldRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
         try {
-            const resp = await fetch(url, {
-                headers: HFLibrary._uploadHeaders(),
-                cache: "no-store"
-            });
+            const resp = await fetch(url, { cache: "no-store" });
             if (resp.ok) {
                 const data = await resp.json();
                 if (Array.isArray(data)) {
@@ -201,18 +196,6 @@ class HFLibrary { // eslint-disable-line no-unused-vars
                     // Sort by uploadedAt descending
                     mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
                     return mapped;
-                }
-            } else if (resp.status === 401 || resp.status === 403) {
-                // Fallback to anonymous fetch if headers caused auth issues (e.g. invalid credentials)
-                const respPublic = await fetch(url, { cache: "no-store" });
-                if (respPublic.ok) {
-                    const data = await respPublic.json();
-                    if (Array.isArray(data)) {
-                        const mapped = data.map(item => ({ ...item, repoId: oldRepoId }));
-                        // Sort by uploadedAt descending
-                        mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-                        return mapped;
-                    }
                 }
             }
             return [];
