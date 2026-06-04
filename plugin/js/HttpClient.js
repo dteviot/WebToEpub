@@ -674,7 +674,6 @@ let BlockedHostNames = new Set();
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
     { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
-    { name: "Huggingface Proxy", url: "https://amono5667-versal-scrapper.hf.space/?url=" },
     { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
     { name: "Nexuspage Proxy", url: "https://nexuspage-extractor.vercel.app/?url=" },
     { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
