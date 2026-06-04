@@ -315,6 +315,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
             id: bookId,
             title: metadata.title || "Unknown Title",
             author: metadata.author || "Unknown Author",
+            description: metadata.description || "",
             epubPath: epubPath,
             coverPath: coverPath,
             uploadedAt: new Date().toISOString(),

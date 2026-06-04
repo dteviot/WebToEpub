@@ -345,6 +345,7 @@ class LibraryUI {
                     let title = file.name.replace(/\.epub$/i, "");
                     let author = "Unknown Author";
                     let coverDataUrl = "";
+                    let description = "";
 
                     if (opfEntry) {
                         const opfText = await opfEntry.getData(new zip.TextWriter());
@@ -376,6 +377,32 @@ class LibraryUI {
                                 coverDataUrl = await coverEntry.getData(new zip.Data64URIWriter(`image/${ext === "svg" ? "svg+xml" : ext}`));
                             }
                         }
+
+                        // Extract a snippet for description (first ~200 characters of the first readable chapter)
+                        const spine = opfDoc.querySelector("spine");
+                        const manifest = opfDoc.querySelector("manifest");
+                        if (spine && manifest) {
+                            const itemrefs = spine.querySelectorAll("itemref");
+                            for (let i = 0; i < itemrefs.length; i++) {
+                                const idref = itemrefs[i].getAttribute("idref");
+                                const item = manifest.querySelector(`item[id="${idref}"]`);
+                                if (!item) continue;
+                                
+                                const href = item.getAttribute("href");
+                                const fullPath = this.resolvePath(opfDir, href);
+                                const entry = entries.find(e => e.filename === fullPath);
+                                if (!entry) continue;
+
+                                const content = await entry.getData(new zip.TextWriter());
+                                const doc = new DOMParser().parseFromString(content, "text/html");
+                                const text = doc.body ? doc.body.textContent.replace(/\s+/g, " ").trim() : "";
+                                
+                                if (text.length > 50) {
+                                    description = text.substring(0, 200) + "...";
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     // Generate incremental story ID
@@ -395,6 +422,7 @@ class LibraryUI {
                         [`LibStoryURL${newId}`]: "local-upload",
                         [`LibTitle${newId}`]: title,
                         [`LibAuthor${newId}`]: author,
+                        [`LibDesc${newId}`]: description,
                         [`LibProgress${newId}`]: 0
                     });
 
@@ -437,7 +465,7 @@ class LibraryUI {
         // Batch load book information from storage keys
         const keys = [];
         libArray.forEach(id => {
-            keys.push(`LibTitle${id}`, `LibAuthor${id}`, `LibCover${id}`, `LibProgress${id}`, `LibEpub${id}`, `LibFilename${id}`);
+            keys.push(`LibTitle${id}`, `LibAuthor${id}`, `LibCover${id}`, `LibProgress${id}`, `LibEpub${id}`, `LibFilename${id}`, `LibDesc${id}`);
         });
 
         const booksData = await this.storage.get(keys);
@@ -449,6 +477,7 @@ class LibraryUI {
             const progress = parseFloat(booksData[`LibProgress${id}`] || 0);
             const epubBase64 = booksData[`LibEpub${id}`];
             const filename = booksData[`LibFilename${id}`] || `${title}.epub`;
+            const description = booksData[`LibDesc${id}`] || "";
 
             const card = document.createElement("div");
             card.className = "library-book-card";
@@ -527,7 +556,8 @@ class LibraryUI {
                     await HFLibrary.uploadBook(epubBlob, {
                         title: title,
                         author: author,
-                        coverDataUrl: cover
+                        coverDataUrl: cover,
+                        description: description
                     });
 
                     alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
@@ -582,7 +612,7 @@ class LibraryUI {
                     title: book.title,
                     author: book.author,
                     coverPath: book.coverPath,
-                    desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
+                    desc: book.description ? `${book.description} (Size: ${HFLibrary.formatSize(book.size)})` : `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
                     isHF: true,
                     isTelegram: isTelegram,
                     epubPath: book.epubPath,
