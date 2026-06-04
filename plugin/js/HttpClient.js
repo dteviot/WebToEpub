@@ -538,40 +538,72 @@ class HttpClient {
      */
     static unproxyUrl(url) {
         let proxies = HttpClient.CORS_PROXIES.map(p => p.url).concat([HttpClient.corsProxyUrl]);
-        for (let proxyUrl of proxies) {
-            if (url.startsWith(proxyUrl)) {
-                let encodedUrl = url.substring(proxyUrl.length);
-                try {
-                    return decodeURIComponent(encodedUrl);
-                } catch (e) {
-                    return encodedUrl;
-                }
-            }
-        }
-        // Fallback: check if the URL origin matches any proxy origin
-        // This handles cases where the proxy redirects or changes paths
-        try {
-            let parsedUrl = new URL(url);
+        let currentUrl = url;
+        let changed = true;
+        let iterations = 0;
+        
+        while (changed && iterations < 5) {
+            changed = false;
+            iterations++;
+            
             for (let proxyUrl of proxies) {
-                let parsedProxy = new URL(proxyUrl);
-                if (parsedUrl.origin === parsedProxy.origin) {
-                    // Try to find target URL in search params
-                    let target = parsedUrl.searchParams.get("url") || parsedUrl.searchParams.get("quest");
-                    if (target) return target;
-                    
-                    // Handle proxies where URL is just the query string (e.g., corsproxy.io/?https://...)
-                    let searchStr = parsedUrl.search.substring(1);
-                    if (searchStr.startsWith("http")) {
-                        try {
-                            return decodeURIComponent(searchStr);
-                        } catch (e) {
-                            return searchStr;
-                        }
+                if (currentUrl.startsWith(proxyUrl)) {
+                    let encodedUrl = currentUrl.substring(proxyUrl.length);
+                    try {
+                        currentUrl = decodeURIComponent(encodedUrl);
+                        changed = true;
+                        break;
+                    } catch (e) {
+                        currentUrl = encodedUrl;
+                        changed = true;
+                        break;
                     }
                 }
             }
-        } catch (e) { }
-        return url;
+            
+            if (changed) continue;
+            
+            try {
+                let parsedUrl = new URL(currentUrl);
+                for (let proxyUrl of proxies) {
+                    let parsedProxy = new URL(proxyUrl);
+                    if (parsedUrl.origin === parsedProxy.origin) {
+                        let target = parsedUrl.searchParams.get("url") || parsedUrl.searchParams.get("quest");
+                        if (target) {
+                            currentUrl = target;
+                            changed = true;
+                            break;
+                        }
+                        
+                        let searchStr = parsedUrl.search.substring(1);
+                        if (searchStr.startsWith("http")) {
+                            try {
+                                currentUrl = decodeURIComponent(searchStr);
+                                changed = true;
+                                break;
+                            } catch (e) {
+                                currentUrl = searchStr;
+                                changed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (e) { }
+        }
+        
+        // Also clean up any nested HTTP proxy inside currentUrl if it's there
+        if (currentUrl.includes("93.115.101.178:11214")) {
+            try {
+                let parsed = new URL(currentUrl);
+                let target = parsed.searchParams.get("url");
+                if (target) {
+                    currentUrl = target;
+                }
+            } catch (e) {}
+        }
+        
+        return currentUrl;
     }
 
     /**
@@ -584,7 +616,9 @@ class HttpClient {
             let parsedUrl = new URL(url);
             let proxies = HttpClient.CORS_PROXIES.map(p => p.url).concat([HttpClient.corsProxyUrl]);
             for (let proxyUrl of proxies) {
-                if (parsedUrl.origin === new URL(proxyUrl).origin) {
+                // If it's a nested/double proxy url (e.g. Vercel wrapping another url), check if origin matches either
+                let parsedProxy = new URL(proxyUrl);
+                if (parsedUrl.origin === parsedProxy.origin) {
                     return true;
                 }
             }
@@ -673,7 +707,7 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
-    { name: "New IP Proxy", url: "http://93.115.101.178:11214/?url=" },
+    { name: "New IP Proxy", url: "https://nexuspage-extractor.vercel.app/?url=http%3A%2F%2F93.115.101.178%3A11214%2F%3Furl%3D" },
     { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
     { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
     { name: "Nexuspage Proxy", url: "https://nexuspage-extractor.vercel.app/?url=" },
