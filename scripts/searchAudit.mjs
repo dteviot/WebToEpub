@@ -43,6 +43,7 @@ global.UIText = {
 // Mock HttpClient (SiteSearchEngine uses it for proxies)
 global.HttpClient = {
     CORS_PROXIES: [
+        { name: "New IP Proxy", url: "http://93.115.101.178:11214/?url=" },
         { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
         { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" }
     ],
