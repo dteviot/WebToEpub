@@ -720,35 +720,35 @@ class LibraryUI {
                 }).catch(e => console.error("Cover load failed", e));
             }
 
-            // Self-healing: Dynamically extract description if missing
-            if (book.isHF && !book.isTelegram && !book.description) {
+            // Self-healing: Dynamically extract description if missing (works for both Public & Telegram)
+            if (book.isHF && !book.description) {
                 const descEl = card.querySelector(".book-desc-text");
                 if (descEl) descEl.innerHTML += ` <span style="color:var(--primary); font-size: 0.75rem;">(Extracting snippet...)</span>`;
-                
+
                 HFLibrary.downloadBook(book.epubPath, book.repoId).then(async (blob) => {
                     const zipSource = new zip.BlobReader(blob);
                     const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: false });
                     const entries = await zipReader.getEntries();
                     const opfEntry = entries.find(entry => entry.filename.endsWith(".opf"));
-                    
+
                     if (opfEntry) {
                         const opfText = await opfEntry.getData(new zip.TextWriter());
                         let opfDoc = new DOMParser().parseFromString(opfText, "application/xml");
                         if (opfDoc.querySelector("parsererror")) opfDoc = new DOMParser().parseFromString(opfText, "text/html");
-                        
+
                         const spine = opfDoc.querySelector("spine");
                         const manifest = opfDoc.querySelector("manifest");
                         let extractedDesc = "";
-                        
+
                         if (spine && manifest) {
                             const itemrefs = spine.querySelectorAll("itemref");
                             const opfDir = opfEntry.filename.substring(0, opfEntry.filename.lastIndexOf("/") + 1);
-                            
+
                             for (let i = 0; i < itemrefs.length; i++) {
                                 const idref = itemrefs[i].getAttribute("idref");
                                 const item = manifest.querySelector(`item[id="${idref}"]`);
                                 if (!item) continue;
-                                
+
                                 const href = item.getAttribute("href");
                                 const fullPath = this.resolvePath(opfDir, href);
                                 const entry = entries.find(e => e.filename === fullPath);
@@ -757,25 +757,27 @@ class LibraryUI {
                                 const content = await entry.getData(new zip.TextWriter());
                                 const doc = new DOMParser().parseFromString(content, "text/html");
                                 const text = doc.body ? doc.body.textContent.replace(/\s+/g, " ").trim() : "";
-                                
+
                                 if (text.length > 50) {
                                     extractedDesc = text.substring(0, 200) + "...";
                                     break;
                                 }
                             }
                         }
-                        
+
                         if (extractedDesc) {
                             book.description = extractedDesc;
                             book.desc = `${extractedDesc} (Size: ${HFLibrary.formatSize(book.size)})`;
                             if (descEl) descEl.textContent = book.desc;
-                            
-                            // Save it back to HF catalog silently
-                            const catalog = await HFLibrary.getCatalog();
-                            const target = catalog.find(b => b.id === book.id);
-                            if (target && !target.description) {
-                                target.description = extractedDesc;
-                                await HFLibrary._writeCatalog(catalog);
+
+                            // Only write back for the active (non-read-only) public catalog
+                            if (!book.isTelegram) {
+                                const catalog = await HFLibrary.getCatalog();
+                                const target = catalog.find(b => b.id === book.id);
+                                if (target && !target.description) {
+                                    target.description = extractedDesc;
+                                    await HFLibrary._writeCatalog(catalog);
+                                }
                             }
                         } else if (descEl) {
                             descEl.textContent = `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`;
