@@ -180,6 +180,38 @@ class WuxiaworldParser extends Parser {
         return WuxiaworldParser.parseGrpcResponse(buffer);
     }
 
+    // ─── Chapter HTML fetching ───────────────────────────────────────────────
+
+    /**
+     * Override fetchChapter: always use the Vercel proxy for Wuxiaworld chapter
+     * pages, since some other proxies (tufive, prasadghanwat123) return 403.
+     * The Vercel nexuspage-extractor proxy works reliably for wuxiaworld.com.
+     */
+    async fetchChapter(url) {
+        const VERCEL_PROXY = "https://nexuspage-extractor.vercel.app/?url=";
+        const proxyUrl = VERCEL_PROXY + encodeURIComponent(url);
+        try {
+            const response = await fetch(proxyUrl, {
+                signal: AbortSignal.timeout(20000),
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const text = await response.text();
+            const doc = new DOMParser().parseFromString(text, "text/html");
+            // Rewrite baseURI so relative links resolve correctly
+            try {
+                Object.defineProperty(doc, "baseURI", {
+                    get: () => url,
+                    configurable: true,
+                });
+            } catch (_) {}
+            util.setBaseTag(url, doc);
+            return doc;
+        } catch (e) {
+            // Fallback to the default proxy system
+            return (await HttpClient.wrapFetch(url)).responseXML;
+        }
+    }
+
     // ─── Extract novel metadata from __REACT_QUERY_STATE__ ──────────────────
 
     static extractReactQueryState(dom) {

@@ -12,6 +12,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     static WORKER_URL = localStorage.getItem("hf_worker_url") || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev";
 
     static REPO_NAME = "webtoepub-library";
+    static OLD_REPO_ID = "Amono5667/webtoepub-library";
     static CATALOG_FILE = "catalog.json";
 
     static _getApiBase() {
@@ -140,9 +141,9 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         if (!HFLibrary.hasToken()) {
             return [];
         }
-        const repoId = await HFLibrary._getRepoId();
-        // Download directly from Hugging Face's global CDN to bypass proxy overhead
-        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        const activeRepoId = await HFLibrary._getRepoId();
+
+        const url = `${HFLibrary._getBase()}/datasets/${activeRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
         try {
             const resp = await fetch(url, {
                 headers: HFLibrary._uploadHeaders(),
@@ -152,9 +153,56 @@ class HFLibrary { // eslint-disable-line no-unused-vars
                 if (resp.status === 404) return [];
                 throw new Error(`Catalog fetch failed: ${resp.status}`);
             }
-            return await resp.json();
+            const data = await resp.json();
+            if (Array.isArray(data)) {
+                const mapped = data.map(item => ({ ...item, repoId: activeRepoId }));
+                // Sort by uploadedAt descending
+                mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                return mapped;
+            }
+            return [];
         } catch (e) {
-            console.warn("HFLibrary: Could not load catalog, returning empty.", e);
+            console.warn("HFLibrary: Could not load active catalog.", e);
+            return [];
+        }
+    }
+
+    static async getTelegramCatalog() {
+        if (!HFLibrary.hasToken()) {
+            return [];
+        }
+        const oldRepoId = HFLibrary.OLD_REPO_ID;
+
+        const url = `${HFLibrary._getBase()}/datasets/${oldRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        try {
+            const resp = await fetch(url, {
+                headers: HFLibrary._uploadHeaders(),
+                cache: "no-store"
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (Array.isArray(data)) {
+                    const mapped = data.map(item => ({ ...item, repoId: oldRepoId }));
+                    // Sort by uploadedAt descending
+                    mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                    return mapped;
+                }
+            } else if (resp.status === 401 || resp.status === 403) {
+                // Fallback to anonymous fetch if headers caused auth issues (e.g. invalid credentials)
+                const respPublic = await fetch(url, { cache: "no-store" });
+                if (respPublic.ok) {
+                    const data = await respPublic.json();
+                    if (Array.isArray(data)) {
+                        const mapped = data.map(item => ({ ...item, repoId: oldRepoId }));
+                        // Sort by uploadedAt descending
+                        mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                        return mapped;
+                    }
+                }
+            }
+            return [];
+        } catch (e) {
+            console.warn("HFLibrary: Could not load Telegram catalog.", e);
             return [];
         }
     }
@@ -288,10 +336,10 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     // ─── Download a Book ─────────────────────────────────────────
-    static async downloadBook(epubPath) {
-        const repoId = await HFLibrary._getRepoId();
+    static async downloadBook(epubPath, repoId) {
+        const targetRepoId = repoId || await HFLibrary._getRepoId();
         // Download directly from Hugging Face's global CDN to bypass proxy overhead
-        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${epubPath}`;
+        const url = `https://huggingface.co/datasets/${targetRepoId}/resolve/main/${epubPath}`;
         const resp = await fetch(url, { cache: "no-store" });
         if (!resp.ok) throw new Error(`Failed to download book: ${resp.status}`);
 
@@ -305,11 +353,11 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     // ─── Get Cover URL ───────────────────────────────────────────
-    static async getCoverUrl(coverPath) {
+    static async getCoverUrl(coverPath, repoId) {
         if (!coverPath) return "";
-        const repoId = await HFLibrary._getRepoId();
+        const targetRepoId = repoId || await HFLibrary._getRepoId();
         // Download directly from Hugging Face's global CDN to bypass proxy overhead
-        const url = `https://huggingface.co/datasets/${repoId}/resolve/main/${coverPath}`;
+        const url = `https://huggingface.co/datasets/${targetRepoId}/resolve/main/${coverPath}`;
         try {
             const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) return "";
@@ -341,10 +389,14 @@ class HFLibrary { // eslint-disable-line no-unused-vars
 
     // ─── Delete a Book ───────────────────────────────────────────
     static async deleteBook(bookId) {
-        const repoId = await HFLibrary._getRepoId();
+        const activeRepoId = await HFLibrary._getRepoId();
         const catalog = await HFLibrary.getCatalog();
         const entry = catalog.find(b => b.id === bookId);
         if (!entry) throw new Error("Book not found in catalog");
+
+        if (entry.repoId && entry.repoId !== activeRepoId) {
+            throw new Error("This book is in the read-only archive dataset and cannot be deleted.");
+        }
 
         // Build delete operations
         const operations = [];
@@ -354,13 +406,20 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         }
 
         // Update catalog (remove entry)
-        const updatedCatalog = catalog.filter(b => b.id !== bookId);
+        const updatedCatalog = catalog
+            .filter(b => b.id !== bookId && b.repoId === activeRepoId)
+            .map(b => {
+                const copy = { ...b };
+                delete copy.repoId;
+                return copy;
+            });
+
         operations.push({
             path: HFLibrary.CATALOG_FILE,
             blob: new Blob([JSON.stringify(updatedCatalog, null, 2)], { type: "application/json" })
         });
 
-        await HFLibrary._commitFiles(repoId, `Delete: ${entry.title}`, operations);
+        await HFLibrary._commitFiles(activeRepoId, `Delete: ${entry.title}`, operations);
     }
 
     // ─── Utilities ───────────────────────────────────────────────

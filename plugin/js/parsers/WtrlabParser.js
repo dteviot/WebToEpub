@@ -166,8 +166,7 @@ class WtrlabParser extends Parser {
             ? chapterPart.slice(8)
             : chapterPart;
 
-        let websiteMode = typeof HttpClient !== "undefined" && HttpClient.enableCorsProxy;
-        if (websiteMode && this.magickey && this.slug) {
+        if (this.magickey && this.slug) {
             let nextUrl = "https://wtr-lab.com/_next/data/" + this.magickey + "/" + language + "/novel/" + id + "/" + this.slug + "/chapter-" + chapter + ".json?service=google";
             try {
                 let nextRet = await HttpClient.fetchJson(nextUrl);

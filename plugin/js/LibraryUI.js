@@ -6,6 +6,8 @@ class LibraryUI {
         this.epubViewer = epubViewer;
         this.storage = this.initStorage();
         this.publicCatalog = null;
+        this.telegramCatalog = null;
+        this.activeLibraryTab = 'personal';
         this.publicSearchQuery = "";
         this.publicCurrentPage = 1;
         this.publicBooksPerPage = 10;
@@ -226,9 +228,9 @@ class LibraryUI {
             uploader.addEventListener("change", (e) => this.handleLocalImport(e));
         }
 
-        // Library tabs switching (Personal vs Public)
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
+        const tabTelegram = document.getElementById("tabLibraryTelegram");
         const uploadSection = document.querySelector(".library-upload-section");
         const publicSearch = document.getElementById("publicLibrarySearch");
         const clearPublicSearch = document.getElementById("clearPublicSearch");
@@ -254,23 +256,36 @@ class LibraryUI {
             });
         }
 
-        if (tabPersonal && tabPublic) {
-            tabPersonal.addEventListener("click", () => {
-                tabPersonal.classList.add("active");
-                tabPublic.classList.remove("active");
+        const setActiveTab = (tabId) => {
+            this.activeLibraryTab = tabId;
+            [tabPersonal, tabPublic, tabTelegram].forEach(tab => {
+                if (tab) tab.classList.remove("active");
+            });
+            if (tabId === 'personal' && tabPersonal) tabPersonal.classList.add("active");
+            if (tabId === 'public' && tabPublic) tabPublic.classList.add("active");
+            if (tabId === 'telegram' && tabTelegram) tabTelegram.classList.add("active");
+
+            if (tabId === 'personal') {
                 document.getElementById("personalLibraryGrid").style.display = "grid";
                 document.getElementById("publicLibraryView").style.display = "none";
                 if (uploadSection) uploadSection.style.display = "block";
-            });
-            tabPublic.addEventListener("click", () => {
-                tabPublic.classList.add("active");
-                tabPersonal.classList.remove("active");
+            } else {
                 document.getElementById("personalLibraryGrid").style.display = "none";
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
+                
+                if (publicSearch) publicSearch.value = "";
+                this.publicSearchQuery = "";
+                this.publicCurrentPage = 1;
+                if (clearPublicSearch) clearPublicSearch.style.display = "none";
+                
                 this.renderPublicLibrary();
-            });
-        }
+            }
+        };
+
+        if (tabPersonal) tabPersonal.addEventListener("click", () => setActiveTab('personal'));
+        if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab('public'));
+        if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab('telegram'));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");
@@ -547,53 +562,62 @@ class LibraryUI {
         const grid = document.getElementById("publicLibraryGrid");
         if (!grid) return;
         
-        if (!this.publicCatalog) {
+        const isTelegram = this.activeLibraryTab === 'telegram';
+        const catalogTarget = isTelegram ? 'telegramCatalog' : 'publicCatalog';
+
+        if (!this[catalogTarget]) {
             grid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
                     <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to Hugging Face Open Database...</p>
+                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to ${isTelegram ? 'Telegram Legacy' : 'Hugging Face Open'} Database...</p>
                     <style>
                         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                     </style>
                 </div>
             `;
             try {
-                const catalog = await HFLibrary.getCatalog();
-                this.publicCatalog = catalog.map(book => ({
+                const catalog = isTelegram ? await HFLibrary.getTelegramCatalog() : await HFLibrary.getCatalog();
+                this[catalogTarget] = catalog.map(book => ({
                     id: book.id,
                     title: book.title,
                     author: book.author,
                     coverPath: book.coverPath,
                     desc: `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
                     isHF: true,
-                    epubPath: book.epubPath
+                    isTelegram: isTelegram,
+                    epubPath: book.epubPath,
+                    repoId: book.repoId
                 }));
                 
-                this.publicCatalog.push(
-                    {
-                        id: "static_1",
-                        title: "The Time Machine",
-                        author: "H. G. Wells",
-                        coverPath: null,
-                        staticCover: LibraryUI.buildInlineCover("#1a111f", "#00f5ff", "THE TIME", "MACHINE", "H. G. WELLS"),
-                        desc: "The classic science fiction novella detailing an inventor's journey to the far future of humanity.",
-                        isHF: false,
-                        generator: () => this.generateTimeMachineEPUB()
-                    },
-                    {
-                        id: "static_2",
-                        title: "Alice in Wonderland",
-                        author: "Lewis Carroll",
-                        coverPath: null,
-                        staticCover: LibraryUI.buildInlineCover("#0a2c40", "#38ef7d", "ALICE IN", "WONDERLAND", "LEWIS CARROLL"),
-                        desc: "Follow Alice down the rabbit hole into a whimsical, nonsense fantasy world of colorful creatures.",
-                        isHF: false,
-                        generator: () => this.generateAliceEPUB()
-                    }
-                );
+                if (!isTelegram) {
+                    this[catalogTarget].push(
+                        {
+                            id: "static_1",
+                            title: "The Time Machine",
+                            author: "H. G. Wells",
+                            coverPath: null,
+                            staticCover: LibraryUI.buildInlineCover("#1a111f", "#00f5ff", "THE TIME", "MACHINE", "H. G. WELLS"),
+                            desc: "The classic science fiction novella detailing an inventor's journey to the far future of humanity.",
+                            isHF: false,
+                            isTelegram: false,
+                            generator: () => this.generateTimeMachineEPUB()
+                        },
+                        {
+                            id: "static_2",
+                            title: "Alice in Wonderland",
+                            author: "Lewis Carroll",
+                            coverPath: null,
+                            staticCover: LibraryUI.buildInlineCover("#0a2c40", "#38ef7d", "ALICE IN", "WONDERLAND", "LEWIS CARROLL"),
+                            desc: "Follow Alice down the rabbit hole into a whimsical, nonsense fantasy world of colorful creatures.",
+                            isHF: false,
+                            isTelegram: false,
+                            generator: () => this.generateAliceEPUB()
+                        }
+                    );
+                }
             } catch (e) {
-                console.error("HFLibrary: Failed to fetch public catalog.", e);
-                this.publicCatalog = [];
+                console.error(`HFLibrary: Failed to fetch ${isTelegram ? 'telegram' : 'public'} catalog.`, e);
+                this[catalogTarget] = [];
             }
         }
         
@@ -605,7 +629,7 @@ class LibraryUI {
         const paginationContainer = document.getElementById("publicLibraryPagination");
         if (!grid) return;
 
-        let filtered = this.publicCatalog || [];
+        let filtered = (this.activeLibraryTab === 'telegram' ? this.telegramCatalog : this.publicCatalog) || [];
         if (this.publicSearchQuery) {
             filtered = filtered.filter(b => 
                 b.title.toLowerCase().includes(this.publicSearchQuery) || 
@@ -644,7 +668,7 @@ class LibraryUI {
                     <div class="book-title" title="${book.title.replace(/"/g, '&quot;')}">${book.title}</div>
                     <div class="book-author">${book.author}</div>
                     <p style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc}</p>
-                    ${book.isHF ? `
+                    ${(book.isHF && !book.isTelegram) ? `
                     <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 8px;">
                         <button class="book-delete-btn" title="Delete from Public Database" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
                             <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;">
@@ -658,7 +682,7 @@ class LibraryUI {
 
             // Async load HF cover
             if (book.isHF && book.coverPath) {
-                HFLibrary.getCoverUrl(book.coverPath).then(url => {
+                HFLibrary.getCoverUrl(book.coverPath, book.repoId).then(url => {
                     if (url) {
                         const img = card.querySelector(`#public-cover-${book.id}`);
                         if (img) img.src = url;
@@ -684,7 +708,7 @@ class LibraryUI {
                         if (statusText) statusText.textContent = "Downloading book file from Hugging Face...";
                     }
                     try {
-                        const blob = await HFLibrary.downloadBook(book.epubPath);
+                        const blob = await HFLibrary.downloadBook(book.epubPath, book.repoId);
                         const url = URL.createObjectURL(blob);
                         this.downloadBlob(url, `${book.title}.epub`);
                         URL.revokeObjectURL(url);
@@ -695,27 +719,29 @@ class LibraryUI {
                     }
                 });
 
-                card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
-                    e.stopPropagation();
-                    if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
-                        const loader = document.getElementById("libraryLoader");
-                        if (loader) {
-                            loader.style.display = "flex";
-                            const statusText = loader.querySelector("div:last-child");
-                            if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
+                if (!book.isTelegram) {
+                    card.querySelector(".book-delete-btn").addEventListener("click", async (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Are you sure you want to delete "${book.title}" from the Hugging Face Public Library?`)) {
+                            const loader = document.getElementById("libraryLoader");
+                            if (loader) {
+                                loader.style.display = "flex";
+                                const statusText = loader.querySelector("div:last-child");
+                                if (statusText) statusText.textContent = "Deleting file from Hugging Face...";
+                            }
+                            try {
+                                await HFLibrary.deleteBook(book.id);
+                                alert(`Successfully deleted "${book.title}" from the public library!`);
+                                this.publicCatalog = null; // force reload next time
+                                this.renderPublicLibrary();
+                            } catch (error) {
+                                alert("Error deleting public book: " + error.message);
+                            } finally {
+                                if (loader) loader.style.display = "none";
+                            }
                         }
-                        try {
-                            await HFLibrary.deleteBook(book.id);
-                            alert(`Successfully deleted "${book.title}" from the public library!`);
-                            this.publicCatalog = null; // force reload next time
-                            this.renderPublicLibrary();
-                        } catch (error) {
-                            alert("Error deleting public book: " + error.message);
-                        } finally {
-                            if (loader) loader.style.display = "none";
-                        }
-                    }
-                });
+                    });
+                }
             }
 
             grid.appendChild(card);
@@ -980,7 +1006,7 @@ class LibraryUI {
                         const statusText = loader ? loader.querySelector("div:last-child") : null;
                         if (statusText) statusText.textContent = "Downloading book from Hugging Face...";
                         
-                        epubData = await HFLibrary.downloadBook(bookData.epubPath);
+                        epubData = await HFLibrary.downloadBook(bookData.epubPath, bookData.repoId);
                     } else {
                         epubData = await bookData.generator();
                     }
