@@ -143,12 +143,9 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         }
         const activeRepoId = await HFLibrary._getRepoId();
 
-        const url = `${HFLibrary._getBase()}/datasets/${activeRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
+        const url = `https://huggingface.co/datasets/${activeRepoId}/resolve/main/${HFLibrary.CATALOG_FILE}`;
         try {
-            const resp = await fetch(url, {
-                headers: HFLibrary._uploadHeaders(),
-                cache: "no-store"
-            });
+            const resp = await fetch(url, { cache: "no-store" });
             if (!resp.ok) {
                 if (resp.status === 404) return [];
                 throw new Error(`Catalog fetch failed: ${resp.status}`);
