@@ -154,8 +154,23 @@ class HFLibrary { // eslint-disable-line no-unused-vars
                 throw new Error(`Catalog fetch failed: ${resp.status}`);
             }
             const data = await resp.json();
+            
+            let oldIds = new Set();
+            if (activeRepoId !== HFLibrary.OLD_REPO_ID) {
+                try {
+                    const oldCatalog = await HFLibrary.getTelegramCatalog();
+                    oldCatalog.forEach(b => oldIds.add(b.id));
+                } catch (e) {
+                    console.warn("Could not fetch old catalog to filter duplicates", e);
+                }
+            }
+
             if (Array.isArray(data)) {
-                const mapped = data.map(item => ({ ...item, repoId: activeRepoId }));
+                const mapped = [];
+                for (const item of data) {
+                    if (oldIds.has(item.id)) continue;
+                    mapped.push({ ...item, repoId: activeRepoId });
+                }
                 // Sort by uploadedAt descending
                 mapped.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
                 return mapped;
