@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 async function testHttpReader() {
     // We will test if we can fetch range from huggingface

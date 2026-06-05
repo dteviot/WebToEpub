@@ -1,6 +1,6 @@
 const HFLibrary = {
     async fetchPrasad() {
-        const url = `https://huggingface.co/datasets/prasadonly/webtoepub-library/resolve/main/catalog.json`;
+        const url = "https://huggingface.co/datasets/prasadonly/webtoepub-library/resolve/main/catalog.json";
         const resp = await fetch(url);
         if (resp.ok) {
             const data = await resp.json();
@@ -11,7 +11,7 @@ const HFLibrary = {
         }
     },
     async fetchAmono() {
-        const url = `https://huggingface.co/datasets/Amono5667/webtoepub-library/resolve/main/catalog.json`;
+        const url = "https://huggingface.co/datasets/Amono5667/webtoepub-library/resolve/main/catalog.json";
         const resp = await fetch(url);
         if (resp.ok) {
             const data = await resp.json();

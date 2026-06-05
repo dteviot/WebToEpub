@@ -42,7 +42,7 @@ class EpubViewerUI {
         // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
         if (typeof zip !== "undefined") {
             const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
             if (useWorkers) {
                 const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
                 if (zip.configure) {
@@ -525,7 +525,7 @@ class EpubViewerUI {
 
     initVoices() {
         const voiceSelect = document.getElementById("ttsVoiceSelect");
-        if (!voiceSelect) return;
+        if (!voiceSelect || !('speechSynthesis' in window)) return;
 
         const populate = () => {
             this.voices = window.speechSynthesis.getVoices();
@@ -1502,7 +1502,9 @@ class EpubViewerUI {
                                 this.speechUtterance.onend = null;
                                 this.speechUtterance.onerror = null;
                             }
-                            window.speechSynthesis.cancel();
+                            if ('speechSynthesis' in window) {
+                                window.speechSynthesis.cancel();
+                            }
                             this.ttsCurrentIndex = currentIdx;
                             setTimeout(() => {
                                 if (this.ttsActive) this.speakCurrentParagraph();
@@ -1515,7 +1517,7 @@ class EpubViewerUI {
     }
 
     playTTS() {
-        if (this.ttsParagraphs.length === 0) return;
+        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
         
         if (window.speechSynthesis.paused && this.ttsActive) {
             window.speechSynthesis.resume();
@@ -1539,7 +1541,7 @@ class EpubViewerUI {
     }
 
     speakCurrentParagraph() {
-        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length) {
+        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !('speechSynthesis' in window)) {
             this.stopTTS();
             return;
         }
@@ -1602,6 +1604,7 @@ class EpubViewerUI {
     }
 
     pauseTTS() {
+        if (!('speechSynthesis' in window)) return;
         if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
             window.speechSynthesis.pause();
             document.getElementById("ttsPauseBtn").style.display = "none";
@@ -1611,7 +1614,9 @@ class EpubViewerUI {
 
     stopTTS() {
         this.ttsActive = false;
-        window.speechSynthesis.cancel();
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
         
         const contentBody = document.getElementById("epubReaderContentBody");
         if (contentBody) {
@@ -1679,12 +1684,13 @@ class EpubViewerUI {
 
         const candidateUrls = [];
         const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-        const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+        const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
         const zipFile = useWorkers ? "zip.min.js" : "zip-no-worker.min.js";
         
         if (typeof chrome !== "undefined" && chrome.runtime && typeof chrome.runtime.getURL === "function") {
             candidateUrls.push(chrome.runtime.getURL(`@zip.js/zip.js/dist/${zipFile}`));
         }
+        candidateUrls.push(`plugin/@zip.js/zip.js/dist/${zipFile}`);
         candidateUrls.push(`@zip.js/zip.js/dist/${zipFile}`);
 
         for (const src of candidateUrls) {
@@ -1712,7 +1718,7 @@ class EpubViewerUI {
 
                 if (typeof zip !== "undefined") {
                     const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-                    const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+                    const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
                     if (useWorkers) {
                         const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
                         if (zip.configure) {

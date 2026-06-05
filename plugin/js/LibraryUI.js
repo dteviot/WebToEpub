@@ -7,7 +7,7 @@ class LibraryUI {
         this.storage = this.initStorage();
         this.publicCatalog = null;
         this.telegramCatalog = null;
-        this.activeLibraryTab = 'personal';
+        this.activeLibraryTab = "personal";
         this.publicSearchQuery = "";
         this.publicCurrentPage = 1;
         this.publicBooksPerPage = 10;
@@ -193,7 +193,7 @@ class LibraryUI {
         // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
         if (typeof zip !== "undefined") {
             const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
             if (useWorkers) {
                 const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
                 if (zip.configure) {
@@ -273,11 +273,11 @@ class LibraryUI {
             [tabPersonal, tabPublic, tabTelegram].forEach(tab => {
                 if (tab) tab.classList.remove("active");
             });
-            if (tabId === 'personal' && tabPersonal) tabPersonal.classList.add("active");
-            if (tabId === 'public' && tabPublic) tabPublic.classList.add("active");
-            if (tabId === 'telegram' && tabTelegram) tabTelegram.classList.add("active");
+            if (tabId === "personal" && tabPersonal) tabPersonal.classList.add("active");
+            if (tabId === "public" && tabPublic) tabPublic.classList.add("active");
+            if (tabId === "telegram" && tabTelegram) tabTelegram.classList.add("active");
 
-            if (tabId === 'personal') {
+            if (tabId === "personal") {
                 document.getElementById("personalLibraryGrid").style.display = "grid";
                 document.getElementById("publicLibraryView").style.display = "none";
                 if (uploadSection) uploadSection.style.display = "block";
@@ -295,9 +295,9 @@ class LibraryUI {
             }
         };
 
-        if (tabPersonal) tabPersonal.addEventListener("click", () => setActiveTab('personal'));
-        if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab('public'));
-        if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab('telegram'));
+        if (tabPersonal) tabPersonal.addEventListener("click", () => setActiveTab("personal"));
+        if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab("public"));
+        if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab("telegram"));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");
@@ -349,6 +349,7 @@ class LibraryUI {
                     const base64Data = e.target.result;
                     
                     // Get EPUB Title / Cover using temporary zip reader
+                    await this.epubViewer.ensureZipAvailable();
                     const zipSource = new zip.BlobReader(file);
                     const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
                     const entries = await zipReader.getEntries();
@@ -604,14 +605,14 @@ class LibraryUI {
         const grid = document.getElementById("publicLibraryGrid");
         if (!grid) return;
         
-        const isTelegram = this.activeLibraryTab === 'telegram';
-        const catalogTarget = isTelegram ? 'telegramCatalog' : 'publicCatalog';
+        const isTelegram = this.activeLibraryTab === "telegram";
+        const catalogTarget = isTelegram ? "telegramCatalog" : "publicCatalog";
 
         if (!this[catalogTarget]) {
             grid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
                     <div class="spinner-ring" style="margin: 0 auto 16px; border: 4px solid rgba(0, 120, 212, 0.1); border-top: 4px solid var(--primary, #0078d4); width: 40px; height: 40px; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to ${isTelegram ? 'Telegram Legacy' : 'Hugging Face Open'} Database...</p>
+                    <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Connecting to ${isTelegram ? "Telegram Legacy" : "Hugging Face Open"} Database...</p>
                     <style>
                         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                     </style>
@@ -658,7 +659,7 @@ class LibraryUI {
                     );
                 }
             } catch (e) {
-                console.error(`HFLibrary: Failed to fetch ${isTelegram ? 'telegram' : 'public'} catalog.`, e);
+                console.error(`HFLibrary: Failed to fetch ${isTelegram ? "telegram" : "public"} catalog.`, e);
                 this[catalogTarget] = [];
             }
         }
@@ -671,7 +672,7 @@ class LibraryUI {
         const paginationContainer = document.getElementById("publicLibraryPagination");
         if (!grid) return;
 
-        let filtered = (this.activeLibraryTab === 'telegram' ? this.telegramCatalog : this.publicCatalog) || [];
+        let filtered = (this.activeLibraryTab === "telegram" ? this.telegramCatalog : this.publicCatalog) || [];
         if (this.publicSearchQuery) {
             filtered = filtered.filter(b => 
                 b.title.toLowerCase().includes(this.publicSearchQuery) || 
@@ -689,7 +690,7 @@ class LibraryUI {
         grid.innerHTML = "";
 
         if (pageBooks.length === 0) {
-            grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No books found.</div>`;
+            grid.innerHTML = "<div style=\"grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);\">No books found.</div>";
         }
 
         pageBooks.forEach(book => {
@@ -703,11 +704,11 @@ class LibraryUI {
                     <img class="book-cover-img" id="public-cover-${book.id}" src="${coverSrc}" alt="Book Cover">
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
-                        ${book.isHF ? '<button class="book-action-btn download-btn-main">Save File</button>' : ""}
+                        ${book.isHF ? "<button class=\"book-action-btn download-btn-main\">Save File</button>" : ""}
                     </div>
                 </div>
                 <div class="book-details">
-                    <div class="book-title" title="${book.title.replace(/"/g, '&quot;')}">${book.title}</div>
+                    <div class="book-title" title="${book.title.replace(/"/g, "&quot;")}">${book.title}</div>
                     <div class="book-author">${book.author}</div>
                     <p class="book-desc-text" style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${book.desc}</p>
                     ${(book.isHF && !book.isTelegram) ? `
@@ -735,9 +736,10 @@ class LibraryUI {
             // Self-healing: Dynamically extract description if missing (works for both Public & Telegram)
             if (book.isHF && !book.description) {
                 const descEl = card.querySelector(".book-desc-text");
-                if (descEl) descEl.innerHTML += ` <span style="color:var(--primary); font-size: 0.75rem;">(Extracting snippet...)</span>`;
+                if (descEl) descEl.innerHTML += " <span style=\"color:var(--primary); font-size: 0.75rem;\">(Extracting snippet...)</span>";
 
                 HFLibrary.downloadBook(book.epubPath, book.repoId).then(async (blob) => {
+                    await this.epubViewer.ensureZipAvailable();
                     const zipSource = new zip.BlobReader(blob);
                     const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
                     const entries = await zipReader.getEntries();
@@ -863,7 +865,7 @@ class LibraryUI {
             if (totalPages > 1) {
                 const prevBtn = document.createElement("button");
                 prevBtn.textContent = "Previous";
-                prevBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage > 1 ? 'pointer' : 'not-allowed'}; background: ${this.publicCurrentPage > 1 ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;`;
+                prevBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage > 1 ? "pointer" : "not-allowed"}; background: ${this.publicCurrentPage > 1 ? "var(--primary)" : "var(--reader-border)"}; color: #fff;`;
                 if (this.publicCurrentPage > 1) {
                     prevBtn.onclick = () => {
                         this.publicCurrentPage--;
@@ -877,7 +879,7 @@ class LibraryUI {
 
                 const nextBtn = document.createElement("button");
                 nextBtn.textContent = "Next";
-                nextBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage < totalPages ? 'pointer' : 'not-allowed'}; background: ${this.publicCurrentPage < totalPages ? 'var(--primary)' : 'var(--reader-border)'}; color: #fff;`;
+                nextBtn.style.cssText = `padding: 8px 16px; border-radius: 20px; border: none; cursor: ${this.publicCurrentPage < totalPages ? "pointer" : "not-allowed"}; background: ${this.publicCurrentPage < totalPages ? "var(--primary)" : "var(--reader-border)"}; color: #fff;`;
                 if (this.publicCurrentPage < totalPages) {
                     nextBtn.onclick = () => {
                         this.publicCurrentPage++;
@@ -917,6 +919,7 @@ class LibraryUI {
     }
 
     async parseEpubMetadata(epubBlobOrBase64, fallbackTitle, fallbackAuthor, fallbackCover) {
+        await this.epubViewer.ensureZipAvailable();
         let zipReaderSource;
         if (typeof epubBlobOrBase64 === "string") {
             let base64 = epubBlobOrBase64;
@@ -1041,7 +1044,7 @@ class LibraryUI {
             .replace(/&lt;/g, "<")
             .replace(/&gt;/g, ">")
             .replace(/&amp;/g, "&")
-            .replace(/&quot;/g, '"')
+            .replace(/&quot;/g, "\"")
             .replace(/&#39;/g, "'");
             
         try {
@@ -1200,6 +1203,7 @@ class LibraryUI {
     // --- MEMORY ZIP EPUB GENERATORS FOR OFFLINE PUBLIC CLASSICS ---
 
     async generateTimeMachineEPUB() {
+        await this.epubViewer.ensureZipAvailable();
         const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
         
         // 1. mimetype
@@ -1281,6 +1285,7 @@ class LibraryUI {
     }
 
     async generateAliceEPUB() {
+        await this.epubViewer.ensureZipAvailable();
         const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
         
         await zipWriter.add("mimetype", new zip.TextReader("application/epub+zip"), { compressionMethod: 0 });

@@ -225,7 +225,7 @@
                             <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
                             TOC
                         </button>
-                        <span id="readerCurrentChapterName" style="font-weight: 700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">Book Chapter</span>
+                        <span id="readerCurrentChapterName" style="font-weight: 700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;"></span>
                     </div>
                     
                     <div class="reader-header-right">
@@ -261,17 +261,17 @@
                     <div>
                         <div class="control-group-title">Theme Layout</div>
                         <div class="theme-options">
-                            <button class="theme-btn light" data-theme="light">A</button>
-                            <button class="theme-btn sepia" data-theme="sepia">A</button>
-                            <button class="theme-btn dark" data-theme="dark">A</button>
-                            <button class="theme-btn bw active" data-theme="bw">A</button>
+                            <button class="theme-btn light" data-theme="light" aria-label="Light Theme">A</button>
+                            <button class="theme-btn sepia" data-theme="sepia" aria-label="Sepia Theme">A</button>
+                            <button class="theme-btn dark" data-theme="dark" aria-label="Dark Theme">A</button>
+                            <button class="theme-btn bw active" data-theme="bw" aria-label="Black and White Theme">A</button>
                         </div>
                     </div>
 
                     <!-- Font Style Options -->
                     <div>
                         <div class="control-group-title">Font style</div>
-                        <select id="readerFontSelect" class="reader-select" style="width:100%; background:var(--reader-sidebar-bg); color:var(--reader-text); border:1px solid var(--reader-border); border-radius:8px; padding:6px 10px; outline:none; font-size:0.9rem; font-weight:600; cursor:pointer;">
+                        <select id="readerFontSelect" class="reader-select" aria-label="Font Style" style="width:100%; background:var(--reader-sidebar-bg); color:var(--reader-text); border:1px solid var(--reader-border); border-radius:8px; padding:6px 10px; outline:none; font-size:0.9rem; font-weight:600; cursor:pointer;">
                             <option value="sans" selected>Sans-Serif (Clean)</option>
                             <option value="serif">Serif (Literary)</option>
                             <option value="mono">Monospace (Code)</option>
@@ -283,9 +283,9 @@
                     <div>
                         <div class="control-group-title">Font Size</div>
                         <div style="display: flex; align-items: center; justify-content: space-between; background: var(--reader-sidebar-bg); border: 1px solid var(--reader-border); border-radius: 8px; padding: 4px 8px;">
-                            <button id="readerFontSizeDec" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Decrease Font Size">A-</button>
-                            <span id="readerFontSizeDisplay" style="font-size: 0.95rem; font-weight: 700; color: var(--reader-text); width: 50px; text-align: center;">100%</span>
-                            <button id="readerFontSizeInc" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Increase Font Size">A+</button>
+                            <button id="readerFontSizeDec" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Decrease Font Size" aria-label="Decrease Font Size">A-</button>
+                            <span id="readerFontSizeDisplay" style="font-size: 0.95rem; font-weight: 700; color: var(--reader-text); width: 50px; text-align: center;" aria-live="polite">100%</span>
+                            <button id="readerFontSizeInc" class="reader-btn" style="border: none; padding: 6px 12px; margin: 0; min-height: unset;" title="Increase Font Size" aria-label="Increase Font Size">A+</button>
                         </div>
                     </div>
 
@@ -367,7 +367,7 @@
 
                 <!-- Footer statistics -->
                 <footer id="epubReaderFooter">
-                    <span id="readerPageNum">Page -- of --</span>
+                    <span id="readerPageNum"></span>
                     <span>Click paragraph to bookmark voice narration</span>
                 </footer>
             </div>
@@ -391,8 +391,8 @@
                     <img id="detailsCoverImg" src="" alt="Book Cover" class="details-cover-img">
                 </div>
                 <div class="details-info-pane">
-                    <h1 id="detailsBookTitle" class="details-book-title">Book Title</h1>
-                    <div id="detailsBookAuthor" class="details-book-author">Author Name</div>
+                    <h1 id="detailsBookTitle" class="details-book-title"></h1>
+                    <div id="detailsBookAuthor" class="details-book-author"></div>
                     <div class="details-meta-tags">
                         <span id="detailsBookSeries" class="meta-tag series-tag" style="display:none;">Series Info</span>
                     </div>
@@ -433,7 +433,7 @@
         </div>
     </div>
 
-    <!-- Scripts (defer for sequential background execution) -->
+    <!-- Base Scripts -->
     <script src="plugin/js/ChromePolyfill.js?v=20260602_v1" defer></script>
     <script src="plugin/js/UIText.js?v=20260602_v1" defer></script>
     <script src="plugin/js/ErrorLog.js?v=20260602_v1" defer></script>
@@ -442,91 +442,110 @@
     <script src="plugin/js/ReadingList.js?v=20260602_v1" defer></script>
     <script src="plugin/js/EpubMetaInfo.js?v=20260602_v1" defer></script>
     <script src="plugin/js/UserPreferences.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/SiteSearchEngine.js?v=20260602_v1" defer></script>
     <script src="plugin/js/Secrets.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/SearchEngineUI.js?v=20260602_v1" defer></script>
-    
-    <!-- Local zip.js + Custom UI managers -->
-    <script src="plugin/@zip.js/zip.js/dist/zip-no-worker.min.js" defer></script>
-    <script src="plugin/js/ParserEnvironment.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/EpubViewerUI.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/HFLibrary.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/LibraryUI.js?v=20260602_v1" defer></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Original Search Engine Initialization
-            if (typeof SearchEngineUI !== "undefined") {
-                SearchEngineUI.bindEvents();
-            }
-            if ("requestIdleCallback" in window) {
-                requestIdleCallback(() => {
-                    if (typeof SiteSearchEngine !== "undefined") {
-                        void SiteSearchEngine.SECONDARY_SITES;
-                    }
-                }, { timeout: 3000 });
-            }
+            const loadedModules = new Set();
+            const loadScripts = async (scripts) => {
+                for (const src of scripts) {
+                    if (loadedModules.has(src)) continue;
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement("script");
+                        s.src = src;
+                        s.onload = () => { loadedModules.add(src); resolve(); };
+                        s.onerror = reject;
+                        document.body.appendChild(s);
+                    });
+                }
+            };
 
-            // Initialize custom Epub Viewer and Library Managers
-            const epubViewer = new EpubViewerUI();
-            epubViewer.init();
-            window.epubViewer = epubViewer;
+            const ensureSearchEngine = async () => {
+                await loadScripts([
+                    "plugin/js/SiteSearchEngine.js?v=20260602_v1",
+                    "plugin/js/SearchEngineUI.js?v=20260602_v1"
+                ]);
+                if (typeof SearchEngineUI !== "undefined" && !SearchEngineUI._eventsBound) {
+                    SearchEngineUI.bindEvents();
+                    SearchEngineUI._eventsBound = true;
+                }
+            };
 
-            const libraryManager = new LibraryUI(epubViewer);
-            libraryManager.init();
-            window.libraryManager = libraryManager;
-
+            const ensureReaderModules = async () => {
+                await loadScripts([
+                    "plugin/js/ParserEnvironment.js?v=20260602_v1",
+                    "plugin/js/EpubViewerUI.js?v=20260602_v1",
+                    "plugin/js/HFLibrary.js?v=20260602_v1",
+                    "plugin/js/LibraryUI.js?v=20260602_v1"
+                ]);
+                if (!window.epubViewer) {
+                    window.epubViewer = new EpubViewerUI();
+                    window.epubViewer.init();
+                    window.libraryManager = new LibraryUI(window.epubViewer);
+                    window.libraryManager.init();
+                }
+            };
 
             // Netflix Landing Portal View Switcher
             const landing = document.getElementById("netflixLanding");
             const backBtn = document.getElementById("globalBackBtn");
             const views = document.querySelectorAll(".app-view");
 
-            function showView(viewId) {
+            async function showView(viewId, pushState = true) {
+                // Ensure required modules are loaded before showing
+                if (viewId === "searchView" || viewId === "sourcesView") await ensureSearchEngine();
+                if (viewId === "librariesView" || viewId === "epubReaderView") await ensureReaderModules();
+
                 landing.classList.add("fade-out");
                 setTimeout(() => {
                     landing.style.display = "none";
-                    views.forEach(v => {
-                        v.classList.toggle("active", v.id === viewId);
-                    });
-                    // Hide floating back button in reader view, show elsewhere
-                    if (viewId === "epubReaderView") {
-                        backBtn.style.display = "none";
-                    } else {
-                        backBtn.style.display = "flex";
+                    views.forEach(v => v.classList.toggle("active", v.id === viewId));
+                    backBtn.style.display = (viewId === "epubReaderView") ? "none" : "flex";
+
+                    if (pushState && window.history.state?.view !== viewId) {
+                        window.history.pushState({ view: viewId }, "", "#" + viewId);
                     }
                 }, 500);
             }
 
-            function showPortal() {
-                // Cancel active text to speech
-                epubViewer.stopTTS();
-
+            function showPortal(pushState = true) {
+                if (window.epubViewer) window.epubViewer.stopTTS();
                 backBtn.style.display = "none";
                 views.forEach(v => v.classList.remove("active"));
                 landing.style.display = "flex";
-                setTimeout(() => {
-                    landing.classList.remove("fade-out");
-                }, 50);
+                setTimeout(() => landing.classList.remove("fade-out"), 50);
+
+                if (pushState && window.history.state?.view !== 'portal') {
+                    window.history.pushState({ view: 'portal' }, "", window.location.pathname);
+                }
             }
+
+            // Handle browser back button
+            window.addEventListener('popstate', (e) => {
+                if (e.state && e.state.view && e.state.view !== 'portal') {
+                    showView(e.state.view, false);
+                } else {
+                    showPortal(false);
+                }
+            });
+
+            // Initial state
+            window.history.replaceState({ view: 'portal' }, "", window.location.pathname);
 
             // Bind profiles
             document.getElementById("profileSearch").addEventListener("click", () => showView("searchView"));
-            
             document.getElementById("profileLink").addEventListener("click", () => {
                 window.location.href = "plugin/popup.html?mode=manual";
             });
-
             document.getElementById("profileLibraries").addEventListener("click", () => showView("librariesView"));
-
-            document.getElementById("profileSources").addEventListener("click", () => {
-                showView("sourcesView");
+            document.getElementById("profileSources").addEventListener("click", async () => {
+                await showView("sourcesView");
                 populateSourcesList();
             });
 
             // Back buttons
-            backBtn.addEventListener("click", showPortal);
-            document.getElementById("readerBackBtn").addEventListener("click", showPortal);
+            backBtn.addEventListener("click", () => showPortal());
+            document.getElementById("readerBackBtn").addEventListener("click", () => showPortal());
 
             // Sources Tab search and test logic
             let allSupportedHosts = [];
@@ -686,8 +705,12 @@
 
             const sourcesSearchInput = document.getElementById("sourcesSearchInput");
             if (sourcesSearchInput) {
+                let debounceTimer;
                 sourcesSearchInput.addEventListener("input", (e) => {
-                    populateSourcesList(e.target.value);
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        populateSourcesList(e.target.value);
+                    }, 300);
                 });
             }
         });

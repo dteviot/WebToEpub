@@ -50,7 +50,7 @@ const util = (function() {
         if (typeof window === "undefined" || !window.WTE_WEBSITE_MODE) {
             return false;
         }
-        if (typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]')) {
+        if (typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]")) {
             return false;
         }
         return true;

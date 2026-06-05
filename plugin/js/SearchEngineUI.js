@@ -5,18 +5,31 @@
  * Supports custom site search (SiteSearchEngine).
  */
 class SearchEngineAPI {
+    static _cache = new Map();
+
     static async search(query, engine, onProgress, startIndex = 0, onResults) {
         const normalizedEngine = (engine || "").trim().toLowerCase();
+        const cacheKey = `${normalizedEngine}:${query.trim()}:${startIndex}`;
+        
+        if (SearchEngineAPI._cache.has(cacheKey)) {
+            const cached = SearchEngineAPI._cache.get(cacheKey);
+            if (onResults && cached.results) onResults(cached.results);
+            return cached;
+        }
+
+        let result;
         if (normalizedEngine === "custom") {
-            return await SiteSearchEngine.search(query.trim(), startIndex, 10, false, onProgress, onResults);
+            result = await SiteSearchEngine.search(query.trim(), startIndex, 10, false, onProgress, onResults);
+        } else if (normalizedEngine === "custom_all") {
+            result = await SiteSearchEngine.search(query.trim(), startIndex, 10, true, onProgress, onResults);
+        } else if (normalizedEngine === "victor_web") {
+            result = await SearchEngineAPI.searchVictorWeb(query.trim(), startIndex, 20);
+        } else {
+            throw new Error("Unknown search engine: " + engine);
         }
-        if (normalizedEngine === "custom_all") {
-            return await SiteSearchEngine.search(query.trim(), startIndex, 10, true, onProgress, onResults);
-        }
-        if (normalizedEngine === "victor_web") {
-            return await SearchEngineAPI.searchVictorWeb(query.trim(), startIndex, 20);
-        }
-        throw new Error("Unknown search engine: " + engine);
+        
+        SearchEngineAPI._cache.set(cacheKey, result);
+        return result;
     }
 
     static async searchVictorWeb(query, startIndex = 0, targetResultCount = 10) {

@@ -43,8 +43,8 @@ global.UIText = {
 // Mock HttpClient (SiteSearchEngine uses it for proxies)
 global.HttpClient = {
     CORS_PROXIES: [
-        { name: "New IP Proxy", url: "https://nexuspage-extractor.vercel.app/?url=http%3A%2F%2F93.115.101.178%3A11214%2F%3Furl%3D" },
-        { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
+        { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
+        { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=" },
         { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" }
     ],
     isProxyUrl: () => false,
@@ -67,7 +67,7 @@ console.log("Evaluating SiteSearchEngine.js...");
 vm.runInThisContext(siteSearchEngineContent);
 
 // Lower timeout for faster audit
-SiteSearchEngine.PROXY_TIMEOUT_MS = 3000;
+SiteSearchEngine.PROXY_TIMEOUT_MS = 8000;
 
 // Ensure classes are attached to global if they aren't already
 if (typeof SiteSearchEngine !== 'undefined') global.SiteSearchEngine = SiteSearchEngine;

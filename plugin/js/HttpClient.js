@@ -707,12 +707,9 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
-    { name: "New IP Proxy", url: "https://nexuspage-extractor.vercel.app/?url=http%3A%2F%2F93.115.101.178%3A11214%2F%3Furl%3D" },
     { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
-    { name: "Workers Proxy", url: "https://nexuspage-extractor.prasadghanwat123.workers.dev/?url=" },
-    { name: "Nexuspage Proxy", url: "https://nexuspage-extractor.vercel.app/?url=" },
-    { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" },
-    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=" }
+    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=" },
+    { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" }
 ];
 HttpClient.BLACKLISTED_PROXIES = new Set();
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
