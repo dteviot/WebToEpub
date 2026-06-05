@@ -225,9 +225,8 @@ class LiveReaderUI {
 
         if (coverEl) {
             if (this.metaInfo.coverUrl) {
-                coverEl.src = typeof HttpClient !== "undefined"
-                    ? HttpClient.getProxiedUrl(this.metaInfo.coverUrl)
-                    : this.metaInfo.coverUrl;
+                // Load directly without proxy, as <img> tags bypass CORS and Cloudflare blocks proxies for images
+                coverEl.src = this.metaInfo.coverUrl;
                 coverEl.style.display = "";
             } else {
                 coverEl.style.display = "none";
@@ -598,9 +597,6 @@ class LiveReaderUI {
 
     _appendCoverToScrollView(contentBody) {
         const coverSrc = this.metaInfo.coverUrl || "";
-        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
-            ? HttpClient.getProxiedUrl(coverSrc)
-            : coverSrc;
         const wrap = document.createElement("div");
         wrap.className = "lr-scroll-wrap";
         wrap.dataset.index = -1;
@@ -608,7 +604,7 @@ class LiveReaderUI {
         wrap.id = "lr-chapter-wrap-cover";
         wrap.innerHTML = `
             <div class="lr-cover-section">
-                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
+                ${coverSrc ? `<img src="${coverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
                 <h1 class="lr-scroll-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-scroll-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 <div class="lr-scroll-start-hint">↓ SCROLL TO START READING ↓</div>
@@ -687,12 +683,9 @@ class LiveReaderUI {
         const contentBody = document.getElementById("lrContentBody");
         if (!contentBody) return;
         const coverSrc = this.metaInfo.coverUrl || "";
-        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
-            ? HttpClient.getProxiedUrl(coverSrc)
-            : coverSrc;
         contentBody.innerHTML = `
             <div class="lr-cover-section" style="min-height:80vh;">
-                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
+                ${coverSrc ? `<img src="${coverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
                 <h1 class="lr-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 ${this.metaInfo.description ? `<p class="lr-cover-desc">${this.metaInfo.description}</p>` : ""}

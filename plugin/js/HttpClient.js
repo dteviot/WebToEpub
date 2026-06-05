@@ -706,16 +706,22 @@ class HttpClient {
         if (!err) return false;
         // Network failures, CORS or DNS resolution failures on the proxy domain itself
         if (err instanceof TypeError || err.name === "TypeError") return true;
-        // Timeout or Abort errors on the proxy request itself
+
         const msg = String(err.message || err).toLowerCase();
-        if (msg.includes("timeout") || msg.includes("abort") || err.name === "AbortError") return true;
+        // Do NOT blacklist on timeout, abort, or 522. 
+        // A timeout or Cloudflare 522 means the TARGET site blocked the proxy or is slow.
+        // It does NOT mean the proxy is dead for all other sites.
+        
         // Specific HTTP status codes that represent proxy/service failure
         const statusMatch = msg.match(/status:\s*(\d+)/);
         if (statusMatch) {
             const status = parseInt(statusMatch[1], 10);
-            // 429: Rate limited, 502/503/504: Proxy/Gateway issues, 520+: Cloudflare server errors
-            if (status === 429 || status === 502 || status === 503 || status === 504 || status >= 520) {
-                return true;
+            // 429: Rate limited, 502/503/504: Proxy/Gateway issues
+            if (status === 429 || status === 502 || status === 503 || status === 504) {
+                // DO NOT blacklist on 502/504/520+ since Cloudflare uses these for target site blocks.
+                // We only blacklist if we are SURE the proxy itself is broken.
+                // Actually, let's just not blacklist on any 5xx since it's almost always the target site's fault.
+                if (status === 429) return true; // Proxy is rate limited globally
             }
         }
         return false;
