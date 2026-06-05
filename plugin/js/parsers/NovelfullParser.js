@@ -1,7 +1,7 @@
 "use strict";
 
 parserFactory.register("allnovel.org", () => new NovelfullParser());
-parserFactory.register("allnovelbin.net", () => new NovelfullParser());
+parserFactory.register("allnovelbin.net", () => new NovelbinParser());
 parserFactory.register("allnovelfull.app", () => new NovelfullParser());
 parserFactory.register("allnovelfull.com", () => new NovelfullParser());
 //dead url
@@ -21,9 +21,9 @@ parserFactory.register("novel-next.com", () => new NovelfullParser());
 parserFactory.registerDeadSite("novel35.com", () => new Novel35Parser());
 parserFactory.register("novelactive.org", () => new NovelfullParser());
 parserFactory.register("novelbin.com", () => new NovelbinParser());
-parserFactory.register("novelbin.me", () => new NovelfullParser());
-parserFactory.register("novelbin.net", () => new NovelfullParser());
-parserFactory.register("novelbin.org", () => new NovelfullParser());
+parserFactory.register("novelbin.me", () => new NovelbinParser());
+parserFactory.register("novelbin.net", () => new NovelbinParser());
+parserFactory.register("novelbin.org", () => new NovelbinParser());
 parserFactory.register("noveldrama.org", () => new NovelfullParser());
 //dead url
 parserFactory.registerDeadSite("novelebook.net", () => new NovelfullParser());
@@ -247,7 +247,7 @@ class NovelbinParser extends NovelfullParser {
         let url = new URL(dom.baseURI);
         let slug = url.pathname.split("/").filter(a => a != "");
         slug = slug[slug.length-1];
-        let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId="+slug)).responseXML;
+        let tocHtml = (await HttpClient.wrapFetch(url.origin + "/ajax/chapter-archive?novelId=" + slug)).responseXML;
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
     }
