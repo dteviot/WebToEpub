@@ -248,7 +248,21 @@ class NovelbinParser extends NovelfullParser {
         let slug = url.pathname.split("/").filter(a => a != "");
         slug = slug[slug.length-1];
         let tocHtml = (await HttpClient.wrapFetch(url.origin + "/ajax/chapter-archive?novelId=" + slug)).responseXML;
-        let chapters = this.extractPartialChapterList(tocHtml);
+        
+        let chapters = [];
+        let template = tocHtml.querySelector("template");
+        if (template && template.content) {
+            chapters = [...template.content.querySelectorAll("a")].map(link => util.hyperLinkToChapter(link));
+        }
+        if (chapters.length === 0) {
+            chapters = this.extractPartialChapterList(tocHtml);
+        }
+        
+        // Sometimes the main page has chapters if AJAX fails
+        if (chapters.length === 0) {
+            chapters = this.extractPartialChapterList(dom);
+        }
+        
         return chapters;
     }
 
