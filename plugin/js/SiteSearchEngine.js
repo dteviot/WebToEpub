@@ -20,7 +20,7 @@ class SiteSearchEngine {
     static MAX_RESULTS_PER_SITE = 20;
 
     /** Timeout per proxy attempt in ms */
-    static PROXY_TIMEOUT_MS = 6000;
+    static PROXY_TIMEOUT_MS = 12000;
 
     // ─── Site Configurations (cached) ────────────────────────────────────
 
@@ -462,7 +462,7 @@ class SiteSearchEngine {
         };
 
         // NovelFull Engine
-        const novelFullHosts = ["akknovel.com","all-novelfull.net","allnovel.org","allnovelbin.net","allnovelbook.com","allnovelfull.app","allnovelfull.com","allnovelfull.net","allnovelfull.org","allnovelnext.com","bestlightnovel.com","boxnovel.com","boxnovel.org","boxnovelfull.com","chinesewuxia.world","fastnovel.net","freenovelsread.com","freewn.com","fullnovel.co","novel-bin.com","novel-bin.net","novel-bin.org","novel-next.com","novel35.com","novelactive.org","novelbin.com","novelbin.me","novelbin.net","novelbin.org","noveldrama.org","novelebook.net","novelfull.com","novelfull.net","novelfullbook.com","novelfulll.com","novelgate.net","novelgreat.net","novelhulk.net","novelmax.net","novelnext.com","novelnext.dramanovels.io","novelnext.net","novelnextz.com","novelonlinefree.com","novelonlinefree.info","novelonlinefull.com","noveltop1.org","noveltrust.net","novelusb.com","novelusb.net","novelxo.net","novlove.com","onlinenovelbook.com","readnoveldaily.com","readnovelfull.com","readnovelfull.me","thenovelbin.org","topnovelfull.com","wuxia-world.online","wuxiaworld.live","wuxiaworld.online","zinnovel.net"];
+        const novelFullHosts = ["akknovel.com","all-novelfull.net","allnovel.org","allnovelbin.net","allnovelbook.com","allnovelfull.app","allnovelfull.com","allnovelfull.net","allnovelfull.org","allnovelnext.com","bestlightnovel.com","boxnovel.com","boxnovel.org","boxnovelfull.com","chinesewuxia.world","fastnovel.net","freenovelsread.com","freewn.com","fullnovel.co","novel-bin.com","novel-bin.net","novel-bin.org","novel-next.com","novel35.com","novelactive.org","novelbin.com","novelbin.me","novelbin.net","novelbin.org","noveldrama.org","novelebook.net","novelfull.com","novelfull.net","novelfullbook.com","novelfulll.com","novelgate.net","novelgreat.net","novelhulk.net","novelmax.net","novelnext.com","novelnext.dramanovels.io","novelnext.net","novelnextz.com","novelonlinefree.com","novelonlinefree.info","novelonlinefull.com","noveltop1.org","noveltrust.net","novelusb.com","novelusb.net","novelxo.net","novgo.net","novlove.com","onlinenovelbook.com","readnoveldaily.com","readnovelfull.com","readnovelfull.me","thenovelbin.org","topnovelfull.com","wuxia-world.online","wuxiaworld.live","wuxiaworld.online","zinnovel.net"];
         for (let h of novelFullHosts) {
             addIfNew(h, {
                 name: h, hostname: h,

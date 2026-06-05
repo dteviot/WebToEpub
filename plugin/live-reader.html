@@ -6,6 +6,9 @@
     <title>Live Reader — WebToEpub</title>
     <meta name="description" content="Read web novels directly in your browser with WebToEpub Live Reader. No download required.">
     <link rel="icon" type="image/png" href="book128.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="css/live-reader.css?v=1.0.6" rel="stylesheet">
 </head>
 <body>
@@ -235,397 +238,419 @@
         <script src="js/SearchEngineUI.js"></script>
 
         <!-- These parsers are (or might be) used as base for other pareser-->
-        <script src="js/parsers/WordpressBaseParser.js"></script>
-        <script src="js/parsers/MadaraParser.js"></script>
+        
+        
 
         <!-- Not used as base -->
-        <script src="js/parsers/230BookParser.js"></script>
-        <script src="js/parsers/27kParser.js"></script>
-        <script src="js/parsers/4kswParser.js"></script>
-        <script src="js/parsers/69shuParser.js"></script>
-        <script src="js/parsers/88xiaoshuoParser.js"></script>
-        <script src="js/parsers/888novelParser.js"></script>
-        <script src="js/parsers/ActiveTranslationsParser.js"></script>
-        <script src="js/parsers/AdultfanfictionParser.js"></script>
-        <script src="js/parsers/AerialrainParser.js"></script>
-        <script src="js/parsers/AkknovelParser.js"></script>
-        <script src="js/parsers/AlphapolisParser.js"></script>
-        <script src="js/parsers/AliceswParser.js"></script>
-        <script src="js/parsers/AmoryaoiParser.js"></script>
-        <script src="js/parsers/AnythingNovelParser.js"></script>
-        <script src="js/parsers/ArchiveOfOurOwnParser.js"></script>
-        <script src="js/parsers/AppYoruWorldParser.js"></script>
-        <script src="js/parsers/AsianfanficsParser.js"></script>
-        <script src="js/parsers/AsianovelParser.js"></script>
-        <script src="js/parsers/AsstrParser.js"></script>
-        <script src="js/parsers/BabelChainParser.js"></script>
-        <script src="js/parsers/BakaTsukiParser.js"></script>
-        <script src="js/parsers/BakaTsukiSeriesPageParser.js"></script>
-        <script src="js/parsers/BetwixtedbutterflyParser.js"></script>
-        <script src="js/parsers/BiqugetwParser.js"></script>
-        <script src="js/parsers/BlogspotParser.js"></script>
-        <script src="js/parsers/BlogusParser.js"></script>
-        <script src="js/parsers/Book18Parser.js"></script>
-        <script src="js/parsers/BookswithqianyaParser.js"></script>
-        <script src="js/parsers/Booktoki152Parser.js"></script>
-        <script src="js/parsers/BotitranslationParser.js"></script>
-        <script src="js/parsers/BoxnovelOrgParser.js"></script>
-        <script src="js/parsers/BoyloveParser.js"></script>
-        <script src="js/parsers/Bqg225Parser.js"></script>
-        <script src="js/parsers/Brittanypage43Parser.js"></script>
-        <script src="js/parsers/BuntlsParser.js"></script>
-        <script src="js/parsers/BnatranslationsParser.js"></script>
-        <script src="js/parsers/CangjiParser.js"></script>
-        <script src="js/parsers/CClawTranslationsParser.js"></script>
-        <script src="js/parsers/ChaleuriaParser.js"></script>
-        <script src="js/parsers/ChichipephParser.js"></script>
-        <script src="js/parsers/ChickengegeParser.js"></script>
-        <script src="js/parsers/ChineseFantasyNovelsParser.js"></script>
-        <script src="js/parsers/ChosentwofanficParser.js"></script>
-        <script src="js/parsers/ChrysanthemumgardenParser.js"></script>
-        <script src="js/parsers/ChyoaParser.js"></script>
-        <script src="js/parsers/ComrademaoParser.js"></script>
-        <script src="js/parsers/CoronatranslationParser.js"></script>
-        <script src="js/parsers/CreativeNovelsParser.js"></script>
-        <script src="js/parsers/CrimsontranslationsParser.js"></script>
-        <script src="js/parsers/CrushnovelParser.js"></script>
-        <script src="js/parsers/CzbooksParser.js"></script>
-        <script src="js/parsers/DaoDivineTlParser.js"></script>
-        <script src="js/parsers/DarkNovelsParser.js"></script>
-        <script src="js/parsers/DasuitlParser.js"></script>
-        <script src="js/parsers/DdxsParser.js"></script>
-        <script src="js/parsers/DefaultParser.js"></script>
-        <script src="js/parsers/DeviantArtParser.js"></script>
-        <script src="js/parsers/DiurnisParser.js"></script>
-        <script src="js/parsers/DudushugeParser.js"></script>
-        <script src="js/parsers/DummynovelsParser.js"></script>
-        <script src="js/parsers/EdanglarstranslationsParser.js"></script>
-        <script src="js/parsers/EightMusesParser.js"></script>
-        <script src="js/parsers/EmpirenovelParser.js"></script>
-        <script src="js/parsers/EngnovelParser.js"></script>
-        <script src="js/parsers/ErofusParser.js"></script>
-        <script src="js/parsers/EstarParser.js"></script>
-        <script src="js/parsers/ExiledrebelsscanlationsParser.js"></script>
-        <script src="js/parsers/FanFicParadiseParser.js"></script>
-        <script src="js/parsers/FanFictionParser.js"></script>
-        <script src="js/parsers/FanficusParser.js"></script>
-        <script src="js/parsers/FastNovelParser.js"></script>
-        <script src="js/parsers/FenrirealmParser.js"></script>
-        <script src="js/parsers/Ffxs8Parser.js"></script>
-        <script src="js/parsers/FicbookParser.js"></script>
-        <script src="js/parsers/FictioneerParser.js"></script>
-        <script src="js/parsers/FictionhuntParser.js"></script>
-        <script src="js/parsers/FictionManiaParser.js"></script>
-        <script src="js/parsers/FicwadParser.js"></script>
-        <script src="js/parsers/FimfictionParser.js"></script>
-        <script src="js/parsers/FlyingLinesParser.js"></script>
-        <script src="js/parsers/FoxtellerParser.js"></script>
-        <script src="js/parsers/FreelightnovelParser.js"></script>
-        <script src="js/parsers/FreeWebNovelParser.js"></script>
-        <script src="js/parsers/FuhuzzParser.js"></script>
-        <script src="js/parsers/FullnovelParser.js"></script>
-        <script src="js/parsers/GamefaqsGamespotParser.js"></script>
-        <script src="js/parsers/GenesiStudioParser.js"></script>
-        <script src="js/parsers/GlobalNovelpiaParser.js"></script>
-        <script src="js/parsers/GoodNovelParser.js"></script>
-        <script src="js/parsers/GraverobbertlParser.js"></script>
-        <script src="js/parsers/GravityNovelsParser.js"></script>
-        <script src="js/parsers/GoldennovelParser.js"></script>
-        <script src="js/parsers/GravityTalesParser.js"></script>
-        <script src="js/parsers/GunnerkriggParser.js"></script>
-        <script src="js/parsers/GutenbergDEParser.js"></script>
-        <script src="js/parsers/GzbpParser.js"></script>
-        <script src="js/parsers/HelheimscansParser.js"></script>
-        <script src="js/parsers/HentaiFoundryParser.js"></script>
-        <script src="js/parsers/HostednovelParser.js"></script>
-        <script src="js/parsers/Hui3rParser.js"></script>
-        <script src="js/parsers/IdleturtletranslationsParser.js"></script>
-        <script src="js/parsers/ImgurParser.js"></script>
-        <script src="js/parsers/IdnovelmyidParser.js"></script>
-        <script src="js/parsers/IndomtlParser.js"></script>
-        <script src="js/parsers/IndowebnovelParser.js"></script>
-        <script src="js/parsers/InkittParser.js"></script>
-        <script src="js/parsers/InoveltranslationParser.js"></script>
-        <script src="js/parsers/IsekaiScanParser.js"></script>
-        <script src="js/parsers/IsotlsParser.js"></script>
-        <script src="js/parsers/IxdzsParser.js"></script>
-        <script src="js/parsers/JadeRabbitParser.js"></script>
-        <script src="js/parsers/JadeScrollsParser.js"></script>
-        <script src="js/parsers/JaptemParser.js"></script>
-        <script src="js/parsers/JjwxcParser.js"></script>
-        <script src="js/parsers/JonaxxstoriesParser.js"></script>
-        <script src="js/parsers/JpmtlParser.js"></script>
-        <script src="js/parsers/KakaoParser.js"></script>
-        <script src="js/parsers/KakuyomuParser.js"></script>
-        <script src="js/parsers/KariStudioParser.js"></script>
-        <script src="js/parsers/KaystlsParser.js"></script>
-        <script src="js/parsers/KemonopartyParser.js"></script>
-        <script src="js/parsers/KrytykalParser.js"></script>
-        <script src="js/parsers/LanrySpaceParser.js"></script>
-        <script src="js/parsers/LeafStudioParser.js"></script>
-        <script src="js/parsers/LibersparkParser.js"></script>
-        <script src="js/parsers/Libri7Parser.js"></script>
-        <script src="js/parsers/LightnovelasiaParser.js"></script>
-        <script src="js/parsers/LightNovelBastionParser.js"></script>
-        <script src="js/parsers/LightnovelboxParser.js"></script>
-        <script src="js/parsers/LightnovelfrParser.js"></script>
-        <script src="js/parsers/LightnovelreaderParser.js"></script>
-        <script src="js/parsers/LightnovelreadParser.js"></script>
-        <script src="js/parsers/LightnovelsmeParser.js"></script>
-        <script src="js/parsers/LightNovelWorldParser.js?v=1.0.6"></script>
-        <script src="js/parsers/LiteroticaParser.js"></script>
-        <script src="js/parsers/LnmtlParser.js"></script>
-        <script src="js/parsers/LoreNovelsParser.js"></script>
-        <script src="js/parsers/MachineTranslationParser.js"></script>
-        <script src="js/parsers/MadnovelParser.js"></script>
-        <script src="js/parsers/MagicWizardsParser.js"></script>
-        <script src="js/parsers/MangadexParser.js"></script>
-        <script src="js/parsers/MandarinducktalesParser.js"></script>
-        <script src="js/parsers/MangakakalotParser.js"></script>
-        <script src="js/parsers/MangallamaParser.js"></script>
-        <script src="js/parsers/ManganeloParser.js"></script>
-        <script src="js/parsers/ManganovParser.js"></script>
-        <script src="js/parsers/MangaHereParser.js"></script>
-        <script src="js/parsers/MangaReadParser.js"></script>
-        <script src="js/parsers/ManhwadenParser.js"></script>
-        <script src="js/parsers/ManhwatopParser.js"></script>
-        <script src="js/parsers/Marx2maoParser.js"></script>
-        <script src="js/parsers/MarxistsCNParser.js"></script>
-        <script src="js/parsers/MayanovelParser.js"></script>
-        <script src="js/parsers/McStoriesParser.js"></script>
-        <script src="js/parsers/MeionovelParser.js"></script>
-        <script src="js/parsers/MetanovelParser.js"></script>
-        <script src="js/parsers/MMyWwuxiaWorldParser.js"></script>
-        <script src="js/parsers/MidnightramblesParser.js"></script>
-        <script src="js/parsers/MimihuiParser.js"></script>
-        <script src="js/parsers/MistmintHavenParser.js"></script>
-        <script src="js/parsers/MtlarchiveParser.js"></script>
-        <script src="js/parsers/MtledNovelsParser.js"></script>
-        <script src="js/parsers/MtlnationParser.js"></script>
-        <script src="js/parsers/MtlnovelsParser.js"></script>
-        <script src="js/parsers/MtlreaderParser.js"></script>
-        <script src="js/parsers/MtnovelParser.js"></script>
-        <script src="js/parsers/MoonDaisyParser.js"></script>
-        <script src="js/parsers/MoonQuillParser.js"></script>
-        <script src="js/parsers/MottruyenParser.js"></script>
-        <script src="js/parsers/MuggleNetParser.js"></script>
-        <script src="js/parsers/MvlempyrParser.js"></script>
-        <script src="js/parsers/MydramanovelParser.js"></script>
-        <script src="js/parsers/MyxlsParser.js"></script>
-        <script src="js/parsers/MznovelsParser.js"></script>
-        <script src="js/parsers/NanodesuParser.js"></script>
-        <script src="js/parsers/NanomashinonlineParser.js"></script>
-        <script src="js/parsers/NeobookParser.js"></script>
-        <script src="js/parsers/NineHeavensParser.js"></script>
-        <script src="js/parsers/NobadnovelParser.js"></script>
-        <script src="js/parsers/NoblemtlParser.js"></script>
-        <script src="js/parsers/Novel543Parser.js"></script>
-        <script src="js/parsers/NovelAllParser.js"></script>
-        <script src="js/parsers/NovelcoolParser.js"></script>
-        <script src="js/parsers/NovelCrushParser.js"></script>
-        <script src="js/parsers/NovelFeverParser.js"></script>
-        <script src="js/parsers/NovelfullParser.js"></script>
-        <script src="js/parsers/NovelebookParser.js"></script>
-        <script src="js/parsers/NovelgoParser.js"></script>
-        <script src="js/parsers/NovelgreatParser.js"></script>
-        <script src="js/parsers/NovelhallParser.js"></script>
-        <script src="js/parsers/NovelhiParser.js"></script>
-        <script src="js/parsers/NovelholdParser.js"></script>
-        <script src="js/parsers/NovelightParser.js"></script>
-        <script src="js/parsers/NovelinguaParser.js"></script>
-        <script src="js/parsers/NovelmaoParser.js"></script>
-        <script src="js/parsers/NovelmaniaParser.js"></script>
-        <script src="js/parsers/NovelmediumParser.js"></script>
-        <script src="js/parsers/NovelNaverParser.js"></script>
-        <script src="js/parsers/NovelOnlineFreeParser.js"></script>
-        <script src="js/parsers/NovelsfullParser.js"></script>
-        <script src="js/parsers/NovelshubParser.js"></script>
-        <script src="js/parsers/NovelsOnlineParser.js"></script>
-        <script src="js/parsers/NovelonomiconParser.js"></script>
-        <script src="js/parsers/NovelpassionParser.js"></script>
-        <script src="js/parsers/NovelplexParser.js"></script>
-        <script src="js/parsers/NovelsectParser.js"></script>
-        <script src="js/parsers/NovelsemperorParser.js"></script>
-        <script src="js/parsers/NovelsplParser.js"></script>
-        <script src="js/parsers/NovelSpreadParser.js"></script>
-        <script src="js/parsers/NovelsquareParser.js"></script>
-        <script src="js/parsers/NovelsRockParser.js"></script>
-        <script src="js/parsers/NoveltoonParser.js"></script>
-        <script src="js/parsers/NoveltranslatedbycParser.js"></script>
-        <script src="js/parsers/NovelUniverseParser.js"></script>
-        <script src="js/parsers/NovelUpdatesOnlineParser.js"></script>
-        <script src="js/parsers/NovelversetranslationsParser.js"></script>
-        <script src="js/parsers/NovicetranslationsParser.js"></script>
-        <script src="js/parsers/NrvnqsrParser.js"></script>
-        <script src="js/parsers/NtruyenParser.js"></script>
-        <script src="js/parsers/NyahFanfictionParser.js"></script>
-        <script src="js/parsers/NyantlParser.js"></script>
-        <script src="js/parsers/OctopiiParser.js"></script>
-        <script src="js/parsers/OldranobelibParser.js"></script>
-        <script src="js/parsers/OnlinenovelbookParser.js"></script>
-        <script src="js/parsers/OntimestoryParser.js"></script>
-        <script src="js/parsers/OssantlParser.js"></script>
-        <script src="js/parsers/PandaNovelParser.js"></script>
-        <script src="js/parsers/PatreonParser.js"></script>
-        <script src="js/parsers/PawreadParser.js"></script>
-        <script src="js/parsers/PeachblossomcodexParser.js"></script>
-        <script src="js/parsers/PeachpittingParser.js"></script>
-        <script src="js/parsers/PeachpuffParser.js"></script>
-        <script src="js/parsers/PeachygardensBlogspotParser.js"></script>
-        <script src="js/parsers/PindangscansParser.js"></script>
-        <script src="js/parsers/PowanjuanParser.js"></script>
-        <script src="js/parsers/PtwxzParser.js"></script>
-        <script src="js/parsers/PuretlParser.js"></script>
-        <script src="js/parsers/QidianParser.js"></script>
-        <script src="js/parsers/QinxiaoshuoParser.js"></script>
-        <script src="js/parsers/QqxsParser.js"></script>
-        <script src="js/parsers/Quanben5Parser.js"></script>
-        <script src="js/parsers/QuanbenParser.js"></script>
-        <script src="js/parsers/QueenrosenovelblogspotParser.js"></script>
-        <script src="js/parsers/QuotevParser.js"></script>
-        <script src="js/parsers/RaeitranslationsParser.js"></script>
-        <script src="js/parsers/RandomtranslatorParser.js"></script>
-        <script src="js/parsers/RanobesParser.js"></script>
-        <script src="js/parsers/RainOfSnowParser.js"></script>
-        <script src="js/parsers/ReadComicOnlineParser.js"></script>
-        <script src="js/parsers/ReaderNovelParser.js"></script>
-        <script src="js/parsers/ReadhiveParser.js"></script>
-        <script src="js/parsers/ReadLightNovelCcParser.js"></script>
-        <script src="js/parsers/ReadLightNovelParser.js"></script>
-        <script src="js/parsers/ReadindpiaParser.js"></script>
-        <script src="js/parsers/ReadnoveldailyParser.js"></script>
-        <script src="js/parsers/ReadnovelfullorgParser.js"></script>
-        <script src="js/parsers/ReadNovelFullParser.js"></script>
-        <script src="js/parsers/ReadnovelmtlParser.js"></script>
-        <script src="js/parsers/ReadwnParser.js"></script>
-        <script src="js/parsers/RebirthOnline.js"></script>
-        <script src="js/parsers/RedditParser.js"></script>
-        <script src="js/parsers/RequiemtlsParser.js"></script>
-        <script src="js/parsers/RoyalRoadParser.js"></script>
-        <script src="js/parsers/RtdMoeParser.js"></script>
-        <script src="js/parsers/RtenzoParser.js"></script>
-        <script src="js/parsers/RubymaybetranslationsParser.js"></script>
-        <script src="js/parsers/RulateParser.js"></script>
-        <script src="js/parsers/RuversParser.js"></script>
-        <script src="js/parsers/SangtacvietParser.js"></script>
-        <script src="js/parsers/ScribblehubParser.js"></script>
-        <script src="js/parsers/SecondlifetranslationsParser.js"></script>
-        <script src="js/parsers/SemprotParser.js"></script>
-        <script src="js/parsers/SexStoriesParser.js"></script>
-        <script src="js/parsers/ShanghaifantasyParser.js"></script>
-        <script src="js/parsers/ShikkakutranslationsParser.js"></script>
-        <script src="js/parsers/ShinningnoveltranslationsParser.js"></script>
-        <script src="js/parsers/ShinsoriParser.js"></script>
-        <script src="js/parsers/ShintranslationsParser.js"></script>
-        <script src="js/parsers/ShirokunsParser.js"></script>
-        <script src="js/parsers/ShitouxsParser.js"></script>
-        <script src="js/parsers/ShubaowbParser.js"></script>
-        <script src="js/parsers/ShubaowParser.js"></script>
-        <script src="js/parsers/Shw5Parser.js"></script>
-        <script src="js/parsers/SitesGoogleParser.js"></script>
-        <script src="js/parsers/Sjks88Parser.js"></script>
-        <script src="js/parsers/SjuukanshuParser.js"></script>
-        <script src="js/parsers/SkydemonorderParser.js"></script>
-        <script src="js/parsers/SnoutandcoParser.js"></script>
-        <script src="js/parsers/SoafpParser.js"></script>
-        <script src="js/parsers/SoverseParser.js"></script>
-        <script src="js/parsers/SpacebattlesParser.js"></script>
-        <script src="js/parsers/SpiritfanfictionParser.js"></script>
-        <script src="js/parsers/SspaiParser.js"></script>
-        <script src="js/parsers/StarlightstreamParser.js"></script>
-        <script src="js/parsers/StellarRealmParser.js"></script>
-        <script src="js/parsers/StocxParser.js"></script>
-        <script src="js/parsers/SweekParser.js"></script>
-        <script src="js/parsers/SyosetuParser.js"></script>
-        <script src="js/parsers/TapasParser.js"></script>
-        <script src="js/parsers/TapreadParser.js"></script>
-        <script src="js/parsers/TeanovelParser.js"></script>
-        <script src="js/parsers/TeenficParser.js"></script>
-        <script src="js/parsers/Taffygirl13Parser.js"></script>
-        <script src="js/parsers/TigertranslationsParser.js"></script>
-        <script src="js/parsers/TimotxtParser.js"></script>
-        <script src="js/parsers/TitannovelParser.js"></script>
-        <script src="js/parsers/ToctruyenParser.js"></script>
-        <script src="js/parsers/TomotranslationsParser.js"></script>
-        <script src="js/parsers/TongrenquanParser.js"></script>
-        <script src="js/parsers/TravistranslationsParser.js"></script>
-        <script src="js/parsers/TruyenfullParser.js"></script>
-        <script src="js/parsers/TruyenFullVisionParser.js"></script>
-        <script src="js/parsers/TruyenyyParser.js"></script>
-        <script src="js/parsers/TruyenParser.js"></script>
-        <script src="js/parsers/TrxsParser.js"></script>
-        <script src="js/parsers/TumblrParser.js"></script>
-        <script src="js/parsers/TwkanParser.js"></script>
-        <script src="js/parsers/UaaParser.js"></script>
-        <script src="js/parsers/UltimaguilParser.js"></script>
-        <script src="js/parsers/UnlimitedNovelFailuresParser.js"></script>
-        <script src="js/parsers/UntamedAlleyParser.js"></script>
-        <script src="js/parsers/VelvetReverieParser.js"></script>
-        <script src="js/parsers/VipNovelParser.js"></script>
-        <script src="js/parsers/Wenku8Parser.js"></script>
-        <script src="js/parsers/WfxsParser.js"></script>
-        <script src="js/parsers/WordexcerptParser.js"></script>
-        <script src="js/parsers/WorldnovelOnlineParser.js"></script>
-        <script src="js/parsers/WtnovelsParser.js"></script>
-        <script src="js/parsers/XiaoshuoguiParser.js"></script>
-        <script src="js/parsers/XiaxuenovelsParser.js"></script>
-        <script src="js/parsers/XklxswParser.js"></script>
-        <script src="js/parsers/YedugeParser.js"></script>
-        <script src="js/parsers/YushuboParser.js"></script>
-        <script src="js/parsers/AsianHobbyistParser.js"></script>
-        <script src="js/parsers/FalooParser.js"></script>
-        <script src="js/parsers/FoxaholicParser.js"></script>
-        <script src="js/parsers/HellpingParser.js"></script>
-        <script src="js/parsers/HiscensionParser.js"></script>
-        <script src="js/parsers/KobatochanParser.js"></script>
-        <script src="js/parsers/KofiParser.js"></script>
-        <script src="js/parsers/LightNovelsTranslationsParser.js"></script>
-        <script src="js/parsers/ReLibraryParser.js"></script>
-        <script src="js/parsers/ShmtranslationsParser.js"></script>
-        <script src="js/parsers/SnowyCodexParser.js"></script>
-        <script src="js/parsers/StorySeedlingParser.js"></script>
-        <script src="js/parsers/SystemTranslationParser.js"></script>
-        <script src="js/parsers/TranslationChickenParser.js"></script>
-        <script src="js/parsers/VolarenovelsParser.js"></script>
-        <script src="js/parsers/VynovelParser.js"></script>
-        <script src="js/parsers/WattpadVN.js"></script>
-        <script src="js/parsers/WanderinginnParser.js"></script>
-        <script src="js/parsers/WetriedTlsParser.js"></script>
-        <script src="js/parsers/WLPublishingParser.js"></script>
-        <script src="js/parsers/WatashiwasugoidesuParser.js"></script>
-        <script src="js/parsers/WattpadParser.js"></script>
-        <script src="js/parsers/WebNovelOnlineParser.js"></script>
-        <script src="js/parsers/WikipediaParser.js"></script>
-        <script src="js/parsers/WixParser.js"></script>
-        <script src="js/parsers/WnmtlOrgParser.js"></script>
-        <script src="js/parsers/WnmtlParser.js"></script>
-        <script src="js/parsers/WoopreadParser.js"></script>
-        <script src="js/parsers/WtrlabParser.js"></script>
-        <script src="js/parsers/WuxiaBlogParser.js"></script>
-        <script src="js/parsers/WuxiacityParser.js"></script>
-        <script src="js/parsers/WuxiaworldCoParser.js"></script>
-        <script src="js/parsers/WuxiaworldeuParser.js"></script>
-        <script src="js/parsers/WuxiaworldParser.js"></script>
-        <script src="js/parsers/WuxiaworldWorldParser.js"></script>
-        <script src="js/parsers/WxscsPaser.js"></script>
-        <script src="js/parsers/XbanxiaParser.js"></script>
-        <script src="js/parsers/XbiqugeParser.js"></script>
-        <script src="js/parsers/XenforoBatchParser.js"></script>
-        <script src="js/parsers/XiaoshubaoParser.js"></script>
-        <script src="js/parsers/ZenithNovelsParser.js"></script>
-        <script src="js/parsers/ZenithtlsParser.js"></script>
-        <script src="js/parsers/ZeonicrepublicParser.js"></script>
-        <script src="js/parsers/ZhenhunxiaoshuoParser.js"></script>
-        <script src="js/parsers/ZirusMusingsParser.js"></script>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         <script src="@zip.js/zip.js/dist/zip-no-worker.min.js"></script>
         <script src="dompurify/dist/purify.min.js"></script>
         <script src="js/EpubItemSupplier.js"></script>
         <script src="js/CoverImageUI.js"></script>
-        <script src="js/parsers/SonakoParser.js"></script>
+        
         <script src="js/EpubPacker.js"></script>
         <script src="js/Secrets.js"></script>
         <script src="js/AiClient.js"></script>
 
+
+        <script>
+            window.loadLiveReaderParsers = async () => {
+                if (window.__parsersLoaded) return;
+                const parsers = ["js/parsers/WordpressBaseParser.js","js/parsers/MadaraParser.js","js/parsers/230BookParser.js","js/parsers/27kParser.js","js/parsers/4kswParser.js","js/parsers/69shuParser.js","js/parsers/88xiaoshuoParser.js","js/parsers/888novelParser.js","js/parsers/ActiveTranslationsParser.js","js/parsers/AdultfanfictionParser.js","js/parsers/AerialrainParser.js","js/parsers/AkknovelParser.js","js/parsers/AlphapolisParser.js","js/parsers/AliceswParser.js","js/parsers/AmoryaoiParser.js","js/parsers/AnythingNovelParser.js","js/parsers/ArchiveOfOurOwnParser.js","js/parsers/AppYoruWorldParser.js","js/parsers/AsianfanficsParser.js","js/parsers/AsianovelParser.js","js/parsers/AsstrParser.js","js/parsers/BabelChainParser.js","js/parsers/BakaTsukiParser.js","js/parsers/BakaTsukiSeriesPageParser.js","js/parsers/BetwixtedbutterflyParser.js","js/parsers/BiqugetwParser.js","js/parsers/BlogspotParser.js","js/parsers/BlogusParser.js","js/parsers/Book18Parser.js","js/parsers/BookswithqianyaParser.js","js/parsers/Booktoki152Parser.js","js/parsers/BotitranslationParser.js","js/parsers/BoxnovelOrgParser.js","js/parsers/BoyloveParser.js","js/parsers/Bqg225Parser.js","js/parsers/Brittanypage43Parser.js","js/parsers/BuntlsParser.js","js/parsers/BnatranslationsParser.js","js/parsers/CangjiParser.js","js/parsers/CClawTranslationsParser.js","js/parsers/ChaleuriaParser.js","js/parsers/ChichipephParser.js","js/parsers/ChickengegeParser.js","js/parsers/ChineseFantasyNovelsParser.js","js/parsers/ChosentwofanficParser.js","js/parsers/ChrysanthemumgardenParser.js","js/parsers/ChyoaParser.js","js/parsers/ComrademaoParser.js","js/parsers/CoronatranslationParser.js","js/parsers/CreativeNovelsParser.js","js/parsers/CrimsontranslationsParser.js","js/parsers/CrushnovelParser.js","js/parsers/CzbooksParser.js","js/parsers/DaoDivineTlParser.js","js/parsers/DarkNovelsParser.js","js/parsers/DasuitlParser.js","js/parsers/DdxsParser.js","js/parsers/DefaultParser.js","js/parsers/DeviantArtParser.js","js/parsers/DiurnisParser.js","js/parsers/DudushugeParser.js","js/parsers/DummynovelsParser.js","js/parsers/EdanglarstranslationsParser.js","js/parsers/EightMusesParser.js","js/parsers/EmpirenovelParser.js","js/parsers/EngnovelParser.js","js/parsers/ErofusParser.js","js/parsers/EstarParser.js","js/parsers/ExiledrebelsscanlationsParser.js","js/parsers/FanFicParadiseParser.js","js/parsers/FanFictionParser.js","js/parsers/FanficusParser.js","js/parsers/FastNovelParser.js","js/parsers/FenrirealmParser.js","js/parsers/Ffxs8Parser.js","js/parsers/FicbookParser.js","js/parsers/FictioneerParser.js","js/parsers/FictionhuntParser.js","js/parsers/FictionManiaParser.js","js/parsers/FicwadParser.js","js/parsers/FimfictionParser.js","js/parsers/FlyingLinesParser.js","js/parsers/FoxtellerParser.js","js/parsers/FreelightnovelParser.js","js/parsers/FreeWebNovelParser.js","js/parsers/FuhuzzParser.js","js/parsers/FullnovelParser.js","js/parsers/GamefaqsGamespotParser.js","js/parsers/GenesiStudioParser.js","js/parsers/GlobalNovelpiaParser.js","js/parsers/GoodNovelParser.js","js/parsers/GraverobbertlParser.js","js/parsers/GravityNovelsParser.js","js/parsers/GoldennovelParser.js","js/parsers/GravityTalesParser.js","js/parsers/GunnerkriggParser.js","js/parsers/GutenbergDEParser.js","js/parsers/GzbpParser.js","js/parsers/HelheimscansParser.js","js/parsers/HentaiFoundryParser.js","js/parsers/HostednovelParser.js","js/parsers/Hui3rParser.js","js/parsers/IdleturtletranslationsParser.js","js/parsers/ImgurParser.js","js/parsers/IdnovelmyidParser.js","js/parsers/IndomtlParser.js","js/parsers/IndowebnovelParser.js","js/parsers/InkittParser.js","js/parsers/InoveltranslationParser.js","js/parsers/IsekaiScanParser.js","js/parsers/IsotlsParser.js","js/parsers/IxdzsParser.js","js/parsers/JadeRabbitParser.js","js/parsers/JadeScrollsParser.js","js/parsers/JaptemParser.js","js/parsers/JjwxcParser.js","js/parsers/JonaxxstoriesParser.js","js/parsers/JpmtlParser.js","js/parsers/KakaoParser.js","js/parsers/KakuyomuParser.js","js/parsers/KariStudioParser.js","js/parsers/KaystlsParser.js","js/parsers/KemonopartyParser.js","js/parsers/KrytykalParser.js","js/parsers/LanrySpaceParser.js","js/parsers/LeafStudioParser.js","js/parsers/LibersparkParser.js","js/parsers/Libri7Parser.js","js/parsers/LightnovelasiaParser.js","js/parsers/LightNovelBastionParser.js","js/parsers/LightnovelboxParser.js","js/parsers/LightnovelfrParser.js","js/parsers/LightnovelreaderParser.js","js/parsers/LightnovelreadParser.js","js/parsers/LightnovelsmeParser.js","js/parsers/LightNovelWorldParser.js?v=1.0.6","js/parsers/LiteroticaParser.js","js/parsers/LnmtlParser.js","js/parsers/LoreNovelsParser.js","js/parsers/MachineTranslationParser.js","js/parsers/MadnovelParser.js","js/parsers/MagicWizardsParser.js","js/parsers/MangadexParser.js","js/parsers/MandarinducktalesParser.js","js/parsers/MangakakalotParser.js","js/parsers/MangallamaParser.js","js/parsers/ManganeloParser.js","js/parsers/ManganovParser.js","js/parsers/MangaHereParser.js","js/parsers/MangaReadParser.js","js/parsers/ManhwadenParser.js","js/parsers/ManhwatopParser.js","js/parsers/Marx2maoParser.js","js/parsers/MarxistsCNParser.js","js/parsers/MayanovelParser.js","js/parsers/McStoriesParser.js","js/parsers/MeionovelParser.js","js/parsers/MetanovelParser.js","js/parsers/MMyWwuxiaWorldParser.js","js/parsers/MidnightramblesParser.js","js/parsers/MimihuiParser.js","js/parsers/MistmintHavenParser.js","js/parsers/MtlarchiveParser.js","js/parsers/MtledNovelsParser.js","js/parsers/MtlnationParser.js","js/parsers/MtlnovelsParser.js","js/parsers/MtlreaderParser.js","js/parsers/MtnovelParser.js","js/parsers/MoonDaisyParser.js","js/parsers/MoonQuillParser.js","js/parsers/MottruyenParser.js","js/parsers/MuggleNetParser.js","js/parsers/MvlempyrParser.js","js/parsers/MydramanovelParser.js","js/parsers/MyxlsParser.js","js/parsers/MznovelsParser.js","js/parsers/NanodesuParser.js","js/parsers/NanomashinonlineParser.js","js/parsers/NeobookParser.js","js/parsers/NineHeavensParser.js","js/parsers/NobadnovelParser.js","js/parsers/NoblemtlParser.js","js/parsers/Novel543Parser.js","js/parsers/NovelAllParser.js","js/parsers/NovelcoolParser.js","js/parsers/NovelCrushParser.js","js/parsers/NovelFeverParser.js","js/parsers/NovelfullParser.js","js/parsers/NovelebookParser.js","js/parsers/NovelgoParser.js","js/parsers/NovelgreatParser.js","js/parsers/NovelhallParser.js","js/parsers/NovelhiParser.js","js/parsers/NovelholdParser.js","js/parsers/NovelightParser.js","js/parsers/NovelinguaParser.js","js/parsers/NovelmaoParser.js","js/parsers/NovelmaniaParser.js","js/parsers/NovelmediumParser.js","js/parsers/NovelNaverParser.js","js/parsers/NovelOnlineFreeParser.js","js/parsers/NovelsfullParser.js","js/parsers/NovelshubParser.js","js/parsers/NovelsOnlineParser.js","js/parsers/NovelonomiconParser.js","js/parsers/NovelpassionParser.js","js/parsers/NovelplexParser.js","js/parsers/NovelsectParser.js","js/parsers/NovelsemperorParser.js","js/parsers/NovelsplParser.js","js/parsers/NovelSpreadParser.js","js/parsers/NovelsquareParser.js","js/parsers/NovelsRockParser.js","js/parsers/NoveltoonParser.js","js/parsers/NoveltranslatedbycParser.js","js/parsers/NovelUniverseParser.js","js/parsers/NovelUpdatesOnlineParser.js","js/parsers/NovelversetranslationsParser.js","js/parsers/NovicetranslationsParser.js","js/parsers/NrvnqsrParser.js","js/parsers/NtruyenParser.js","js/parsers/NyahFanfictionParser.js","js/parsers/NyantlParser.js","js/parsers/OctopiiParser.js","js/parsers/OldranobelibParser.js","js/parsers/OnlinenovelbookParser.js","js/parsers/OntimestoryParser.js","js/parsers/OssantlParser.js","js/parsers/PandaNovelParser.js","js/parsers/PatreonParser.js","js/parsers/PawreadParser.js","js/parsers/PeachblossomcodexParser.js","js/parsers/PeachpittingParser.js","js/parsers/PeachpuffParser.js","js/parsers/PeachygardensBlogspotParser.js","js/parsers/PindangscansParser.js","js/parsers/PowanjuanParser.js","js/parsers/PtwxzParser.js","js/parsers/PuretlParser.js","js/parsers/QidianParser.js","js/parsers/QinxiaoshuoParser.js","js/parsers/QqxsParser.js","js/parsers/Quanben5Parser.js","js/parsers/QuanbenParser.js","js/parsers/QueenrosenovelblogspotParser.js","js/parsers/QuotevParser.js","js/parsers/RaeitranslationsParser.js","js/parsers/RandomtranslatorParser.js","js/parsers/RanobesParser.js","js/parsers/RainOfSnowParser.js","js/parsers/ReadComicOnlineParser.js","js/parsers/ReaderNovelParser.js","js/parsers/ReadhiveParser.js","js/parsers/ReadLightNovelCcParser.js","js/parsers/ReadLightNovelParser.js","js/parsers/ReadindpiaParser.js","js/parsers/ReadnoveldailyParser.js","js/parsers/ReadnovelfullorgParser.js","js/parsers/ReadNovelFullParser.js","js/parsers/ReadnovelmtlParser.js","js/parsers/ReadwnParser.js","js/parsers/RebirthOnline.js","js/parsers/RedditParser.js","js/parsers/RequiemtlsParser.js","js/parsers/RoyalRoadParser.js","js/parsers/RtdMoeParser.js","js/parsers/RtenzoParser.js","js/parsers/RubymaybetranslationsParser.js","js/parsers/RulateParser.js","js/parsers/RuversParser.js","js/parsers/SangtacvietParser.js","js/parsers/ScribblehubParser.js","js/parsers/SecondlifetranslationsParser.js","js/parsers/SemprotParser.js","js/parsers/SexStoriesParser.js","js/parsers/ShanghaifantasyParser.js","js/parsers/ShikkakutranslationsParser.js","js/parsers/ShinningnoveltranslationsParser.js","js/parsers/ShinsoriParser.js","js/parsers/ShintranslationsParser.js","js/parsers/ShirokunsParser.js","js/parsers/ShitouxsParser.js","js/parsers/ShubaowbParser.js","js/parsers/ShubaowParser.js","js/parsers/Shw5Parser.js","js/parsers/SitesGoogleParser.js","js/parsers/Sjks88Parser.js","js/parsers/SjuukanshuParser.js","js/parsers/SkydemonorderParser.js","js/parsers/SnoutandcoParser.js","js/parsers/SoafpParser.js","js/parsers/SoverseParser.js","js/parsers/SpacebattlesParser.js","js/parsers/SpiritfanfictionParser.js","js/parsers/SspaiParser.js","js/parsers/StarlightstreamParser.js","js/parsers/StellarRealmParser.js","js/parsers/StocxParser.js","js/parsers/SweekParser.js","js/parsers/SyosetuParser.js","js/parsers/TapasParser.js","js/parsers/TapreadParser.js","js/parsers/TeanovelParser.js","js/parsers/TeenficParser.js","js/parsers/Taffygirl13Parser.js","js/parsers/TigertranslationsParser.js","js/parsers/TimotxtParser.js","js/parsers/TitannovelParser.js","js/parsers/ToctruyenParser.js","js/parsers/TomotranslationsParser.js","js/parsers/TongrenquanParser.js","js/parsers/TravistranslationsParser.js","js/parsers/TruyenfullParser.js","js/parsers/TruyenFullVisionParser.js","js/parsers/TruyenyyParser.js","js/parsers/TruyenParser.js","js/parsers/TrxsParser.js","js/parsers/TumblrParser.js","js/parsers/TwkanParser.js","js/parsers/UaaParser.js","js/parsers/UltimaguilParser.js","js/parsers/UnlimitedNovelFailuresParser.js","js/parsers/UntamedAlleyParser.js","js/parsers/VelvetReverieParser.js","js/parsers/VipNovelParser.js","js/parsers/Wenku8Parser.js","js/parsers/WfxsParser.js","js/parsers/WordexcerptParser.js","js/parsers/WorldnovelOnlineParser.js","js/parsers/WtnovelsParser.js","js/parsers/XiaoshuoguiParser.js","js/parsers/XiaxuenovelsParser.js","js/parsers/XklxswParser.js","js/parsers/YedugeParser.js","js/parsers/YushuboParser.js","js/parsers/AsianHobbyistParser.js","js/parsers/FalooParser.js","js/parsers/FoxaholicParser.js","js/parsers/HellpingParser.js","js/parsers/HiscensionParser.js","js/parsers/KobatochanParser.js","js/parsers/KofiParser.js","js/parsers/LightNovelsTranslationsParser.js","js/parsers/ReLibraryParser.js","js/parsers/ShmtranslationsParser.js","js/parsers/SnowyCodexParser.js","js/parsers/StorySeedlingParser.js","js/parsers/SystemTranslationParser.js","js/parsers/TranslationChickenParser.js","js/parsers/VolarenovelsParser.js","js/parsers/VynovelParser.js","js/parsers/WattpadVN.js","js/parsers/WanderinginnParser.js","js/parsers/WetriedTlsParser.js","js/parsers/WLPublishingParser.js","js/parsers/WatashiwasugoidesuParser.js","js/parsers/WattpadParser.js","js/parsers/WebNovelOnlineParser.js","js/parsers/WikipediaParser.js","js/parsers/WixParser.js","js/parsers/WnmtlOrgParser.js","js/parsers/WnmtlParser.js","js/parsers/WoopreadParser.js","js/parsers/WtrlabParser.js","js/parsers/WuxiaBlogParser.js","js/parsers/WuxiacityParser.js","js/parsers/WuxiaworldCoParser.js","js/parsers/WuxiaworldeuParser.js","js/parsers/WuxiaworldParser.js","js/parsers/WuxiaworldWorldParser.js","js/parsers/WxscsPaser.js","js/parsers/XbanxiaParser.js","js/parsers/XbiqugeParser.js","js/parsers/XenforoBatchParser.js","js/parsers/XiaoshubaoParser.js","js/parsers/ZenithNovelsParser.js","js/parsers/ZenithtlsParser.js","js/parsers/ZeonicrepublicParser.js","js/parsers/ZhenhunxiaoshuoParser.js","js/parsers/ZirusMusingsParser.js","js/parsers/SonakoParser.js"];
+                
+                const loadScripts = async (scripts) => {
+                    for (const src of scripts) {
+                        await new Promise((resolve, reject) => {
+                            const s = document.createElement("script");
+                            s.src = src;
+                            s.onload = resolve;
+                            s.onerror = reject;
+                            document.body.appendChild(s);
+                        });
+                    }
+                };
+                
+                await loadScripts(parsers);
+                window.__parsersLoaded = true;
+            };
+        </script>
 <!-- Live Reader -->
 <script src="js/LiveReaderUI.js?v=1.0.6"></script>
 <script>

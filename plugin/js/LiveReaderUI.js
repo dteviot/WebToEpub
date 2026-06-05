@@ -106,6 +106,12 @@ class LiveReaderUI {
         this.url = url;
         this._setLoadStatus("Connecting...");
         try {
+            if (typeof window.loadLiveReaderParsers === "function") {
+                this._setLoadStatus("Loading parsers...");
+                await window.loadLiveReaderParsers();
+                this._setLoadStatus("Connecting...");
+            }
+
             // Always enable CORS proxy for live fetching
             HttpClient.enableCorsProxy = true;
 
