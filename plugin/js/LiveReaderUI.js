@@ -1378,7 +1378,7 @@ class LiveReaderUI {
 
             let updateData = {
                 "LibArray": libArray,
-                [`LibEpub${id}`]: "lazy:liveread",
+                [`LibEpub${id}`]: `lazy:liveread:${this.url}`,
                 [`LibFilename${id}`]: "livebook.html",
                 [`LibCover${id}`]: this.metaInfo.coverUrl || "",
                 [`LibStoryURL${id}`]: this.url,

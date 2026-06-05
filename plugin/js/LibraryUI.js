@@ -314,8 +314,11 @@ class LibraryUI {
         if (detailsStartReadingBtn) {
             detailsStartReadingBtn.addEventListener("click", () => {
                 if (this.currentDetailsEpub) {
-                    if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread:")) {
-                        const url = this.currentDetailsEpub.replace("lazy:liveread:", "");
+                    if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread")) {
+                        let url = this.currentDetailsEpub.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+                        if (!url && this.currentDetailsId) {
+                            url = this.currentDetailsId; // fallback for legacy saved live books
+                        }
                         window.location.href = `live-reader.html?url=${encodeURIComponent(url)}`;
                     } else {
                         this.openBookInReader(this.currentDetailsEpub);
@@ -1047,6 +1050,7 @@ class LibraryUI {
             // Save in memory
             this.currentDetailsEpub = epubData;
             this.currentDetailsFilename = filename;
+            this.currentDetailsId = bookData.id;
 
             let meta;
             if (isLiveBook) {
