@@ -1,0 +1,333 @@
+.expandedButton {
+    padding: 5px 10px;
+}
+
+.warning {
+    color: #ff0000;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.scrollingtable {
+    overflow: scroll;
+    height: 300px;
+}
+
+#progressString {
+    width: 36px;
+    display: inline-block;
+    color: white;
+    font-weight: bolder;
+    margin-top: 7px;
+}
+
+#advancedOptionsSection {
+    margin-top: 3px;
+    margin-bottom: 20px;
+    border-bottom: 1px #CCC solid;
+}
+
+
+progress {
+    width: 56%;
+    height: 31px;
+    margin: 0;
+    padding: 0;
+    border-radius: 5px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+progress::-webkit-progress-bar {
+    border: 0;
+    height: 31px;
+    border-radius: 5px;
+}
+
+progress::-webkit-progress-value {
+    border: 0;
+    height: 31px;
+    border-radius: 8px;
+}
+
+progress::-moz-progress-bar {
+    border: 0;
+    height: 31px;
+    border-radius: 5px;
+}
+
+[hidden] {
+    display: none;
+}
+
+table.chapterList {
+    width: 100%;
+}
+
+section.minWidth {
+    min-width: 600px;
+}
+
+.withBorder {
+    border: 1px solid black;
+}
+
+.withMargin {
+    margin-left: 5px;
+}
+
+td.disabled {
+    opacity: 0.5;
+}
+
+button:disabled {
+    opacity: 0.5;
+}
+
+/*----------------------------------------------------*/
+
+.container {
+    border: 1px #CCC solid;
+    display: table;
+    padding: 10px;
+    margin: auto;
+    border-radius: 5px;
+    position: relative;
+}
+
+
+input[type=text],
+input[type=url],
+textarea,
+select,
+#manualDelayPerChapterTag {
+    padding: 4px;
+    border: 1px #CCC solid;
+    border-radius: 3px;
+    max-width: 400px;
+    min-width: 356px;
+}
+
+#advancedOptionsSection textarea,
+#advancedOptionsSection select,
+#manualDelayPerChapterTag {
+    min-width: inherit !important;
+}
+
+textarea.allSpace {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    max-width: none;
+}
+
+#inputSection input {
+    width: 69%;
+}
+
+#inputSection table,
+#chapterUrlsTable {
+    width: 100%;
+}
+
+#chapterUrlsTable input[type=checkbox],
+#chapterUrlsTable img,
+#chapterUrlsTable .tooltip {
+    float: left;
+}
+
+img.downloadState {
+    height: 1em;
+    margin-top: 3px;
+}
+
+.downloadStateDiv {
+    position: relative;
+    display: inline-block;
+}
+
+.downloadStateDiv .tooltipText {
+    visibility: hidden;
+    width: 120px;
+    background-color: #808080;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px;
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 105%;
+}
+
+.downloadStateDiv:hover .tooltipText {
+    visibility: visible;
+}
+
+#chapterUrlsTable input[type=text] {
+    width: 101.5%;
+    position: relative;
+    left: -16px;
+    max-width: 580px;
+}
+
+#chapterUrlsTable tbody>tr>th {
+    text-align: center;
+    border-bottom: 1px #CCC solid;
+    padding: 0;
+}
+
+#inputSection tbody>tr>td:first-child {
+    width: 75px;
+}
+
+#chapterUrlsTable>tr>td:first-child,
+#chapterUrlsTable>tbody>tr>td:nth-child(2) {
+    width: 3px;
+}
+
+button {
+    box-shadow: inset 0px 1px 0px 0px #ffffff;
+    background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #dcdcdc;
+    display: inline-block;
+    cursor: pointer;
+    color: #666666;
+    font-family: Arial;
+    font-size: 12px;
+    padding: 4px 8px;
+    text-decoration: none;
+    max-height: 30px;
+}
+
+button:hover {
+    background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+    background-color: #f6f6f6;
+}
+
+button:active {
+    position: relative;
+    top: 1px;
+}
+
+.progressSection {
+    width: 94%;
+    position: relative;
+    display: flex;
+    height: 60px;
+    border: 1px #CCC solid;
+    padding-top: 30px;
+    padding-left: 39px;
+    border-radius: 8px;
+    max-width: 648px;
+}
+
+#coverUrlSection img {
+    max-height: 142px;
+    max-width: 106.5px;
+    position: absolute;
+    top: 14px;
+    right: 7%;
+}
+
+.LibCover {
+    max-height: 115.5px;
+    max-width: 106.5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.LibCoverCompact {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.HiddenButtonSection {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.sidebar {
+    background-color: rgba(40, 40, 40, 0.85);
+    float: left;
+    margin-right: 5px;
+    height: 100%;
+    width: 0px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0 auto;
+    transition: 0.25s;
+}
+
+.sidebar.sidebarOpen {
+    width: 30%;
+    min-width: 300px;
+}
+
+.sidebar .closebtn {
+    width: calc(100% - 10px);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border: 2px;
+    border-color: #dcdcdc75;
+    border-style: solid;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.sidebar .closebtn:hover {
+    background-color: #cccccc75;
+}
+
+.sidebar th {
+    text-align: center;
+}
+
+.sidebar input.exclude {
+    accent-color: #bb0000;
+}
+
+.sidebar input[type=text],
+.sidebar input[type=url],
+.sidebar textarea,
+.sidebar select {
+    padding: 4px;
+    border: 1px #CCC solid;
+    border-radius: 3px;
+    max-width: 100%;
+    min-width: 100px;
+}
+
+.sidebar label {
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    padding-bottom: 5px;
+    user-select: none;
+}
+
+.sidebar tr label:hover {
+    background-color: rgba(40, 40, 40);
+}
+
+#sbFilters {
+    max-height: calc(50% - 30px);
+    overflow-y: scroll;
+}
+
+#sbFilters input[type=text],
+#sbFilters input[type=url],
+#sbFilters textarea,
+#sbFilters select {
+    width: calc(100% - 15px);
+}

@@ -1,0 +1,407 @@
+{
+    "__MSG_button_Advanced_Options__": {
+        "message": "Tùy Chọn Nâng Cao",
+        "description": ""
+    },
+    "__MSG_button_Apply_Changes__": {
+        "message": "Áp Dụng Thay Đổ",
+        "description": ""
+    },
+    "__MSG_button_Clear_Url__": {
+        "message": "Xóa Đường Dẫn",
+        "description": ""
+    },
+    "__MSG_button_Edit_Chapter_Urls__": {
+        "message": "Chỉnh sửa Đường dẫn của Chương",
+        "description": ""
+    },
+    "__MSG_button_error_Cancel__": {
+        "message": "Ngưng",
+        "description": ""
+    },
+    "__MSG_button_error_Skip__": {
+        "message": "Bỏ qua",
+        "description": ""
+    },
+    "__MSG_button_error_OK__": {
+        "message": "OK",
+        "description": ""
+    },
+    "__MSG_button_error_Retry__": {
+        "message": "Thử lại",
+        "description": ""
+    },
+    "__MSG_button_Help__": {
+        "message": "Trợ giúp...",
+        "description": ""
+    },
+    "__MSG_button_load_and_analyse__": {
+        "message": "Tải và Phân Tích",
+        "description": ""
+    },
+    "__MSG_button_Pack_EPUB__": {
+        "message": "Đóng gói EPUB",
+        "description": ""
+    },
+    "__MSG_button_Reset__": {
+        "message": "Cài đặt về ban đầu",
+        "description": ""
+    },
+    "__MSG_button_Reload__": {
+        "message": "Tải Lại",
+        "description": ""
+    },
+    "__MSG_button_Reset_stylesheet__": {
+        "message": "Thiết đặt stylesheet về mặc định",
+        "description": ""
+    },
+    "__MSG_button_Reverse_Chapter_Urls_Order__": {
+        "message": "Đảo Ngược Vị Trí Đường Dẫn Chương",
+        "description": ""
+    },
+    "__MSG_button_Select_All__": {
+        "message": "Chọn Tất Cả",
+        "description": ""
+    },
+    "__MSG_button_Unselect_All__": {
+        "message": "Bỏ Chọn Tất Cả",
+        "description": ""
+    },
+    "__MSG_column_Include__": {
+        "message": "Bao gồm?",
+        "description": ""
+    },
+    "__MSG_column_Title__": {
+        "message": "Tiêu đề",
+        "description": ""
+    },
+    "__MSG_column_URL__": {
+        "message": "Đường dẫn",
+        "description": ""
+    },
+    "__MSG_label_Advanced_Options_Visible_By_Default__": {
+        "message": "Mặc Định Hiển Thị Tùy Chọn Nâng Cao",
+        "description": ""
+    },
+    "__MSG_label_Author__": {
+        "message": "Tác Giả",
+        "description": ""
+    },
+    "__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__": {
+        "message": "Tự động lựa chọn parser bao gồm Parser dành cho các bộ truyện trên Baka-Tsuki",
+        "description": ""
+    },
+    "__MSG_label_Chapter_Count__": {
+        "message": "Tổng Số Chương:",
+        "description": ""
+    },
+    "__MSG_label_Chapters_Page_In_Chapters_List__": {
+        "message": "Thêm Trang vào Danh Sách Chương",
+        "description": ""
+    },
+    "__MSG_label_Cover_from_URL__": {
+        "message": "Ảnh bìa từ đường dẫn:",
+        "description": ""
+    },
+    "__MSG_label_Cover_Image_URL__": {
+        "message": "Đường dẫn ảnh bìa:",
+        "description": ""
+    },
+    "__MSG_label_Create_Epub_3__": {
+        "message": "Tạo EPUB 3",
+        "description": ""
+    },
+    "__MSG_label_File_Author_as__": {
+        "message": "Tên tác giả cho tập tin",
+        "description": ""
+    },
+    "__MSG_label_Element_With_Chapter_Content__": {
+        "message": "Phần Tử chứa Nội dung Chương:",
+        "description": ""
+    },
+    "__MSG_label_Filename__": {
+        "message": "Tên tập tin",
+        "description": ""
+    },
+    "__MSG_label_Developer_Stuff__": {
+        "message": "Dành Cho Lập Trình Viên:",
+        "description": ""
+    },
+    "__MSG_label_Fetch_Highest_Resolution_Images__": {
+        "message": "Tải Ảnh Độ Phân Giải Cao Nhất",
+        "description": ""
+    },
+    "__MSG_label_Include_URL_of_Images__": {
+        "message": "Bao gồm Đường dẫn của Ảnh",
+        "description": ""
+    },
+    "__MSG_label_Language__": {
+        "message": "Ngôn Ngữ",
+        "description": ""
+    },
+    "__MSG_label_Manually_Select_Parser__": {
+        "message": "Chọn Parser Bằng Tay",
+        "description": ""
+    },
+    "__MSG_label_Max_pages_to_fetch_simultaneously__": {
+        "message": "Lượng trang tối đa tải về đồng thời",
+        "description": ""
+    },
+    "__MSG_label_Range_End_Chapter__": {
+        "message": "Chương Cuối",
+        "description": ""
+    },
+    "__MSG_label_Range_Start_Chapter__": {
+        "message": "Chương Đầu",
+        "description": ""
+    },
+    "__MSG_label_Remove_Author_Notes__": {
+        "message": "Xóa Ghi Chú Tác Giả",
+        "description": ""
+    },
+    "__MSG_label_Remove_Original__": {
+        "message": "Loại bỏ Chữ Bản Gốc/Raw",
+        "description": ""
+    },
+    "__MSG_label_Remove_Duplicate_Images__": {
+        "message": "Loại Bỏ Ảnh Trùng Lặp:",
+        "description": ""
+    },
+    "__MSG_label_Remove_Superscript_From_Alternate_Translations__": {
+        "message": "Loại Bỏ Ký Tự Trên Khỏi Từ",
+        "description": ""
+    },
+    "__MSG_label_Series__": {
+        "message": "Bộ Truyện",
+        "description": ""
+    },
+    "__MSG_label_Starting_URL__": {
+        "message": "Đường Dẫn Bắt Đầu",
+        "description": ""
+    },
+    "__MSG_label_Stylesheet__": {
+        "message": "Stylesheet:",
+        "description": ""
+    },
+    "__MSG_label_Title__": {
+        "message": "Tiêu đề",
+        "description": ""
+    },
+    "__MSG_label_Translator__": {
+        "message": "Dịch Giả",
+        "description": ""
+    },
+    "__MSG_label_Use_SVG_for_Images__": {
+        "message": "Sử dụng <svg> cho hình ảnh",
+        "description": ""
+    },
+    "__MSG_label_Volume__": {
+        "message": "Tập",
+        "description": ""
+    },
+    "__MSG_label_No_Download_Popup__": {
+        "message": "Lưu epub trong nền",
+        "description": "Label for checkbox to download the final epub without a popup"
+    },
+    "__MSG_label_Disable_Shift_Click_Alert__": {
+        "message": "Tắt thông báo chọn bằng Shift+Click",
+        "description": "Label for checkbox to disable the alert shown when user shift-clicks to select multiple chapters"
+    },
+    "__MSG_label_Disable_Image_Res_Error__": {
+        "message": "Tắt cảnh báo lỗi hình ảnh độ phân giải cao",
+        "description": "Label for checkbox to disable warnings when high resolution image fetch fails and lower resolution is used instead"
+    },
+    "__MSG_label_Disable_Webp_Image_Format_Error__": {
+        "message": "Tắt cảnh báo tương thích định dạng WebP",
+        "description": "Label for checkbox to disable warnings that WebP format images may not render in epub viewers"
+    },
+    "__MSG_label_Write_Error_History_To_File__": {
+        "message": "Ghi các thông báo lỗi gần đây vào tập tin",
+        "description": ""
+    },
+    "__MSG_option_Class_Is__": {
+        "message": "Class là",
+        "description": ""
+    },
+    "__MSG_option_Class_Starts_With__": {
+        "message": "Class Bắt Đầu Vớ",
+        "description": ""
+    },
+    "__MSG_option_First_Found__": {
+        "message": "Đầu Tiên Tìm Thấy",
+        "description": ""
+    },
+    "__MSG_option_ID_Is__": {
+        "message": "ID là",
+        "description": ""
+    },
+    "__MSG_option_ID_Starts_With__": {
+        "message": "ID Bắt Đầu Với",
+        "description": ""
+    },
+    "__MSG_Searching_For_URLs_Please_Wait__": {
+        "message": "Đang Truy Tìm Các Đường Dẫn. Vui lòng đợi.",
+        "description": ""
+    },
+    "__MSG_Shift_Click__": {
+        "message": "Bạn có thể chọn hoặc bỏ chọn một dải nhiều chương bằng việc chọn vào ô chọn cho phần chương đầu, sau đó giữ phím Shift và chọn phần chương cuối trong dải chương.",
+        "description": ""
+    },
+    "convertToXhtmlWarning": {
+        "message": "Cảnh báo, không thể chuyển đổi chương '$chapter$' từ '$url$' sang XHTML chuẩn. Trình xem Epub của bạn có thể gặp lỗi khi hiển thị chương này. Bạn có thể cần phải tự sửa chương này bằng tay bằng phần mềm Calibre. \r\nTin nhắn báo lỗi khi chuyển đổi: ($error$)",
+        "description": "",
+        "placeholders": {
+            "chapter": {
+                "content": "$1"
+            },
+            "url": {
+                "content": "$2"
+            },
+            "error": {
+                "content": "$3"
+            }
+        }
+    },
+    "defaultAuthor": {
+        "message": "Tên Tác Giả Không Được Cấp",
+        "description": ""
+    },
+    "defaultTitle": {
+        "message": "Tiêu Đề Không Được Cấp",
+        "description": ""
+    },
+    "defaultUUID": {
+        "message": "UUID Không Được Cấp",
+        "description": ""
+    },
+    "errorContentNotFound": {
+        "message": "Không thể tìm thấy nội dung trang cho trang web '$url$'",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
+    },
+    "errorIllegalFileName": {
+        "message": "Tên tập tin '$filename$' không được phép chứa các ký tự sau: $illegalCharacters$",
+        "description": "",
+        "placeholders": {
+            "filename": {
+                "content": "$1"
+            },
+            "illegalCharacters": {
+                "content": "$2"
+            }
+        }
+    },
+    "gotHtmlExpectedImageWarning": {
+        "message": "Tải trang từ đường dẫn '$url$' trả kết quả lại là HTML, có thể chỉ là hình ảnh",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
+    },
+    "httpFetchCanRetry": {
+        "message": "Bị lỗi gián đoạn. Thử lại có thể thành công.",
+        "description": ""
+    },
+    "htmlFetchFailed": {
+        "message": "Tải trang từ đường dẫn '$url$' bị lỗi do lỗi mạng $err$",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            },
+            "err": {
+                "content": "$2"
+            }
+        }
+    },
+    "imageFetchFailed": {
+        "message": "Sự cố khi lấy hình ảnh '$imageUrl$' cho trang '$pageUrl$' do lỗi mạng $err$.",
+        "description": "",
+        "placeholders": {
+            "imageUrl": {
+                "content": "$1"
+            },
+            "pageUrl": {
+                "content": "$2"
+            },
+            "err": {
+                "content": "$3"
+            }
+        }
+    },
+    "imgurFetchFailed": {
+        "message": "Cảnh Báo: Cố lấy ảnh imgur '$imageUrl$' cho trang '$pageUrl$' bị lỗi do lỗi mạng $err$.",
+        "description": "",
+        "placeholders": {
+            "imageUrl": {
+                "content": "$1"
+            },
+            "pageUrl": {
+                "content": "$2"
+            },
+            "err": {
+                "content": "$3"
+            }
+        }
+    },
+    "noChaptersFound": {
+        "message": "Không tìm thấy chương. Có thể đây không phải một trang thuộc bộ truyện.",
+        "description": ""
+    },
+    "informationPageTitle": {
+        "message": "Thông Tin",
+        "description": ""
+    },
+    "noChaptersFoundAndFetchClicked": {
+        "message": "Không tìm thấy chương.",
+        "description": ""
+    },
+    "noImagesFound": {
+        "message": "Không tìm thấy ảnh.",
+        "description": ""
+    },
+    "noImagesFoundLabel": {
+        "message": "Không tìm thấy ảnh",
+        "description": ""
+    },
+    "noParserFound": {
+        "message": "Không tìm thấy parser nào cho đường dẫn này.  Parser mặc định sẽ được sử dụng.  Bạn sẽ cần phải tự xác định cách thức lấy nội dung trang cho từng chương.",
+        "description": ""
+    },
+    "setCover": {
+        "message": "Đăt Ảnh Bìa",
+        "description": ""
+    },
+    "tableOfContentsUrl": {
+        "message": "Đường Dẫn/URL Mục Lục: ",
+        "description": ""
+    },
+    "unhandledFieldTypeError": {
+        "message": "Lỗi: Unhandled field type.",
+        "description": ""
+    },
+    "warningNoVisibleContent": {
+        "message": "Cảnh báo, nội dung trang cho trang web '$url$' không có nội dung nào có thể nhìn thấy.",
+        "description": "",
+        "placeholders": {
+            "url": {
+                "content": "$1"
+            }
+        }
+    },
+    "warningWebpImage": {
+        "message": "Cảnh báo: tệp hình ảnh '$filename$' ở định dạng webp. Trình xem epub của bạn có thể không dựng được hình ảnh đó.",
+        "description": "",
+        "placeholders": {
+            "filename": {
+                "content": "$1"
+            }
+        }
+    }
+}

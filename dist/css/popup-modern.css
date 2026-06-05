@@ -1,0 +1,374 @@
+/* Popup Modern UI - Overrides for WebToEpub */
+
+@import url('design-system.css');
+
+body {
+    min-width: 320px;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 500px;
+    padding: var(--container-padding);
+    overflow-x: hidden;
+    margin: 0 !important;
+    background: #0f172a;
+    /* Deep background for extension popup */
+}
+
+.container {
+    border: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+section {
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: var(--container-padding);
+    margin-bottom: var(--section-gap);
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Pulse animation for the primary interaction area */
+#inputSection:not([hidden]) {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1), glassPulse 3s infinite ease-in-out;
+}
+
+section h1,
+section h2,
+section h3 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 0 24px 0;
+}
+
+.app-logo {
+    width: 44px;
+    height: 44px;
+    filter: drop-shadow(0 0 10px var(--primary-glow-strong));
+}
+
+.app-title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Premium Form Elements */
+input[type=text],
+input[type=url],
+input[type=number],
+textarea,
+select {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text) !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    margin: 6px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--primary) !important;
+    background: rgba(30, 41, 59, 0.9) !important;
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
+}
+
+/* Premium Buttons */
+button {
+    background: var(--primary) !important;
+    color: #061621 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 10px 24px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    margin: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    min-width: fit-content !important;
+}
+
+button:hover {
+    background: var(--primary-hover) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+button:active {
+    transform: translateY(0) !important;
+    opacity: 0.9 !important;
+}
+
+/* Specific button styles */
+#packEpubButton {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+    font-size: 1.1rem !important;
+    padding: 14px !important;
+}
+
+/* Tables Styling */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+td,
+th {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+th {
+    color: var(--primary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: left;
+}
+
+/* Progress Section Premium */
+.progressSection {
+    background: rgba(30, 41, 59, 0.5) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    margin: 20px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    min-height: fit-content !important;
+    height: auto !important;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
+    width: 100% !important;
+    max-width: 700px !important;
+    margin-left: 50px !important;
+}
+
+progress {
+    height: 12px !important;
+    width: 100% !important;
+    border-radius: 6px !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    overflow: hidden !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+progress::-webkit-progress-bar {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-radius: 6px;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--primary) 0%, #a78bfa 100%) !important;
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(167, 139, 250, 0.3);
+}
+
+progress::-moz-progress-bar {
+    background: linear-gradient(90deg, var(--primary) 0%, #a78bfa 100%) !important;
+    border-radius: 6px;
+}
+
+#progressString {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: var(--text);
+    text-align: center;
+}
+
+/* Cover Image Preview */
+#coverUrlSection #sampleCoverImg {
+    width: 350px !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    border-radius: 16px !important;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid var(--glass-border) !important;
+    transition: transform 0.3s ease !important;
+    background: rgba(30, 41, 59, 0.8) !important;
+}
+
+#sampleCoverImg:hover {
+    transform: scale(1.05) rotate(2deg) !important;
+}
+
+.HiddenButtonSection {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+    width: 100% !important;
+    max-width: 700px !important;
+    margin-left: 50px !important;
+}
+
+.HiddenButtonSection button {
+    margin: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+/* Sections visibility animation */
+[hidden] {
+    display: none !important;
+}
+
+/* PC/Tablet Specific (Width > 600px) */
+@media (min-width: 601px) {
+    #inputSection {
+        padding-right: 0 !important;
+        position: relative !important;
+        max-width: none !important;
+    }
+
+    #inputTable {
+        width: 100% !important;
+        max-width: 700px !important;
+        margin-left: 50px !important;
+    }
+
+    #inputTable td:first-child {
+        width: 180px !important;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+        vertical-align: middle;
+    }
+
+    #coverUrlSection {
+        /* Remove position relative from tr as it is unreliable for absolute children */
+    }
+
+    #coverUrlSection #sampleCoverImg {
+        position: absolute !important;
+        right: 50px !important;
+        top: 50px !important;
+        left: auto !important;
+        bottom: auto !important;
+        z-index: 100 !important;
+        margin: 0 !important;
+        width: 300px !important;
+    }
+
+    /* Style the cell that contains the image so it doesn't take space but doesn't hide it */
+    #coverUrlSection td:last-child {
+        width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        overflow: visible !important;
+    }
+}
+
+/* Mobile Responsive Overrides */
+@media (max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    section {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    #inputTable td,
+    #advancedOptionsTable td,
+    #AdditionalMetadatatable td {
+        display: block !important;
+        width: 100% !important;
+        padding: 4px 0 !important;
+        border: none !important;
+    }
+
+    #inputTable td:first-child {
+        font-size: 0.9rem;
+        color: var(--primary);
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    #coverUrlSection input {
+        width: 100% !important;
+    }
+
+    #sampleCoverImg {
+        margin: 16px auto !important;
+        display: block !important;
+        position: static !important;
+    }
+
+    .app-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    button {
+        width: 100% !important;
+        margin: 4px 0 !important;
+    }
+
+    .HiddenButtonSection {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+/* Modern Checkbox */
+input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 10px !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

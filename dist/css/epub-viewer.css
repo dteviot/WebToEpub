@@ -1,0 +1,788 @@
+/* EPUB Reader / Viewer Layout and Themes */
+
+/* Release EPUB Reader View from parent App-View transform containment bug on mobile */
+#epubReaderView.app-view.active {
+    transform: none !important;
+}
+
+#epubReaderMain {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 900;
+    font-family: 'Inter', Georgia, serif;
+    background: var(--reader-bg);
+    color: var(--reader-text);
+    transition: background 0.3s ease, color 0.3s ease;
+    
+    /* Theme Defaults - Light Mode */
+    --reader-bg: #faf7f2;
+    --reader-text: #2d2d2d;
+    --reader-sidebar-bg: #f2ede2;
+    --reader-border: #e3dbcb;
+    --reader-muted: #7d7260;
+    --reader-active-item: #eae1d0;
+    --reader-font-size: 1.15rem;
+}
+
+/* Theme Configurations */
+#epubReaderMain.theme-light {
+    --reader-bg: #fcfbfa;
+    --reader-text: #222222;
+    --reader-sidebar-bg: #f5f4f0;
+    --reader-border: #e6e5e0;
+    --reader-muted: #70706b;
+    --reader-active-item: #e8e7e1;
+}
+
+#epubReaderMain.theme-dark {
+    --reader-bg: #141416;
+    --reader-text: #e2e2e8;
+    --reader-sidebar-bg: #1c1c1f;
+    --reader-border: #2c2c35;
+    --reader-muted: #888896;
+    --reader-active-item: #282830;
+}
+
+#epubReaderMain.theme-sepia {
+    --reader-bg: #f4ecd8;
+    --reader-text: #5b4636;
+    --reader-sidebar-bg: #eae0c7;
+    --reader-border: #decfa9;
+    --reader-muted: #8a735c;
+    --reader-active-item: #dfd4b7;
+}
+
+#epubReaderMain.theme-bw {
+    --reader-bg: #000000;
+    --reader-text: #ffffff;
+    --reader-sidebar-bg: #111111;
+    --reader-border: #333333;
+    --reader-muted: #aaaaaa;
+    --reader-active-item: #222222;
+}
+
+/* Sidebar Styling */
+#epubReaderSidebar {
+    width: 300px;
+    height: 100%;
+    background: var(--reader-sidebar-bg);
+    border-right: 1px solid var(--reader-border);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    flex-shrink: 0;
+}
+
+#epubReaderSidebar.collapsed {
+    margin-left: -300px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--reader-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--reader-text);
+}
+
+.toc-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 15px;
+    list-style: none;
+    margin: 0;
+}
+
+.toc-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+    color: var(--reader-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.toc-item:hover {
+    background: var(--reader-active-item);
+}
+
+.toc-item.active {
+    background: var(--reader-active-item);
+    font-weight: 700;
+    border-left: 3px solid var(--primary, #00f5ff);
+}
+
+/* Content Panel Styling */
+#epubReaderContentArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+#epubReaderHeader {
+    height: 64px;
+    border-bottom: 1px solid var(--reader-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: var(--reader-bg);
+    z-index: 10;
+    
+    /* Support safe area safe top padding on mobile screens with notches */
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(64px + env(safe-area-inset-top, 0px));
+}
+
+.reader-header-left, .reader-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.reader-btn {
+    background: transparent;
+    border: 1px solid var(--reader-border);
+    color: var(--reader-text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.reader-btn:hover {
+    background: var(--reader-active-item);
+    border-color: var(--reader-text);
+}
+
+.reader-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    fill: none;
+}
+
+/* Tool Panel / Options Dropdowns */
+.reader-controls-dropdown {
+    position: absolute;
+    top: 70px;
+    right: 24px;
+    background: var(--reader-sidebar-bg);
+    border: 1px solid var(--reader-border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    width: 280px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.reader-controls-dropdown.active {
+    display: flex;
+}
+
+.control-group-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--reader-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.theme-btn {
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-btn.light { background: #fcfbfa; color: #222222; }
+.theme-btn.dark { background: #141416; color: #e2e2e8; }
+.theme-btn.sepia { background: #f4ecd8; color: #5b4636; }
+.theme-btn.bw { background: #000000; color: #ffffff; border-color: #333; }
+
+.theme-btn.active {
+    border-color: var(--primary, #00f5ff);
+}
+
+.layout-options {
+    display: flex;
+    gap: 8px;
+}
+
+.layout-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--reader-border);
+    background: transparent;
+    color: var(--reader-text);
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.layout-btn.active {
+    background: var(--reader-active-item);
+    border-color: var(--primary, #00f5ff);
+    font-weight: 700;
+}
+
+/* TTS Controls Section */
+.tts-controls-section {
+    border-top: 1px solid var(--reader-border);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tts-sliders {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.slider-row input[type="range"] {
+    flex: 1;
+    margin-left: 12px;
+    accent-color: var(--primary, #00f5ff);
+}
+
+.tts-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.tts-btn {
+    flex: 1;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--reader-border);
+    background: transparent;
+    color: var(--reader-text);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.tts-btn:hover {
+    background: var(--reader-active-item);
+}
+
+/* Main Font Families Mapping */
+#epubReaderMain.font-sans { --reader-font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+#epubReaderMain.font-serif { --reader-font-family: Georgia, 'Times New Roman', serif; }
+#epubReaderMain.font-mono { --reader-font-family: 'Fira Code', 'Courier New', monospace; }
+#epubReaderMain.font-dyslexic { --reader-font-family: 'Comic Sans MS', cursive, sans-serif; }
+
+#epubReaderMain {
+    font-family: var(--reader-font-family, 'Inter', system-ui, sans-serif) !important;
+}
+
+#epubReaderContentBody {
+    font-family: var(--reader-font-family, 'Inter', system-ui, sans-serif) !important;
+}
+
+/* Immersive Screen State */
+#epubReaderMain.immersive-reading #epubReaderHeader,
+#epubReaderMain.header-hidden #epubReaderHeader {
+    display: none;
+}
+
+/* Main Reader Viewing Windows */
+#epubReaderViewport {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling layout breaks */
+    position: relative;
+    padding: 40px 24px;
+    box-sizing: border-box;
+    display: block; /* Native block layout handles vertical mouse wheel scrolling flawlessly */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+}
+
+#epubReaderContentBody {
+    width: 100%;
+    max-width: 750px;
+    line-height: 1.8;
+    font-size: var(--reader-font-size, 1.15rem);
+    box-sizing: border-box;
+    margin: 0 auto; /* Horizontal alignment inside block layout */
+    
+    /* Strong word breaking to prevent long URLs from breaking layout */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+#epubReaderContentBody img,
+#epubReaderContentBody video,
+#epubReaderContentBody svg {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+#epubReaderContentBody pre,
+#epubReaderContentBody table {
+    max-width: 100% !important;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+#epubReaderContentBody p {
+    margin-bottom: 1.6em;
+    text-indent: 1.5em;
+    text-align: justify;
+}
+
+/* Page Turn Layout Mode Override */
+#epubReaderViewport.page-turn-mode {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    padding: 30px 48px;
+}
+
+#epubReaderViewport.page-turn-mode #epubReaderContentBody {
+    column-fill: auto;
+    column-width: 100%;
+    column-gap: 48px;
+    height: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    display: block;
+}
+
+@media (min-width: 900px) {
+    #epubReaderViewport.page-turn-mode #epubReaderContentBody {
+        column-width: calc(50% - 24px); /* Display double column page on wide screens */
+    }
+}
+
+/* Custom visual reading enhancements */
+.tts-active-paragraph {
+    background: rgba(0, 245, 255, 0.12);
+    border-left: 4px solid var(--primary, #00f5ff);
+    padding-left: 12px;
+    margin-left: -16px !important;
+    border-radius: 0 4px 4px 0;
+    transition: all 0.25s ease;
+}
+
+/* Page Navigation Arrows for Page Turn mode */
+.page-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--reader-sidebar-bg);
+    border: 1px solid var(--reader-border);
+    color: var(--reader-text);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+#epubReaderViewport.page-turn-mode ~ .page-nav-arrow {
+    display: flex;
+}
+
+.page-nav-arrow:hover {
+    background: var(--reader-active-item);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.page-nav-arrow.left { left: 12px; }
+.page-nav-arrow.right { right: 12px; }
+
+.page-nav-arrow svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    fill: none;
+}
+
+/* Reader Footer Navigation */
+#epubReaderFooter {
+    height: 48px;
+    border-top: 1px solid var(--reader-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: var(--reader-bg);
+    font-size: 0.85rem;
+    color: var(--reader-muted);
+}
+
+/* Reader Cover page rendering */
+.reader-cover-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.reader-cover-img {
+    max-height: 60vh;
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    margin-bottom: 24px;
+}
+
+.reader-cover-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+    max-width: 100%;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.reader-cover-author {
+    font-size: 1.25rem;
+    color: var(--reader-muted);
+}
+
+/* Chapter Scroll Divider for Continuous Reading */
+.chapter-scroll-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 80px 0 50px;
+    position: relative;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.chapter-scroll-divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--reader-border) 20%, var(--reader-border) 80%, transparent);
+    z-index: 1;
+}
+
+.chapter-scroll-divider span {
+    background: var(--reader-bg);
+    padding: 8px 24px;
+    color: var(--primary, #00f5ff);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 2;
+    border: 1px solid var(--reader-border);
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Mobile Sidebar Backdrop Overlay */
+#epubReaderSidebarOverlay {
+    display: none;
+}
+
+/* Mobile View Optimizations for Ebook Reader */
+@media (max-width: 768px) {
+    /* 1. Sidebar overlay drawer styling & backdrop overlay */
+    #epubReaderSidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px !important;
+        height: 100%;
+        min-height: 100dvh;
+        z-index: 9990 !important; /* Overlay absolutely on top of everything */
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+        max-width: 85vw; /* Don't cover entire screen, leave edge to click out */
+        transform: translateX(0);
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .toc-list {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Force solid non-transparent background-colors for each theme on mobile */
+    #epubReaderMain.theme-light #epubReaderSidebar {
+        background-color: #f5f4f0 !important;
+        background: #f5f4f0 !important;
+    }
+    #epubReaderMain.theme-dark #epubReaderSidebar {
+        background-color: #1c1c1f !important;
+        background: #1c1c1f !important;
+    }
+    #epubReaderMain.theme-sepia #epubReaderSidebar {
+        background-color: #eae0c7 !important;
+        background: #eae0c7 !important;
+    }
+    #epubReaderMain.theme-bw #epubReaderSidebar {
+        background-color: #111111 !important;
+        background: #111111 !important;
+    }
+
+    #epubReaderSidebar.collapsed {
+        transform: translateX(-100%) !important;
+        margin-left: 0 !important; /* Override desktop margin-left */
+    }
+
+    #epubReaderSidebarOverlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6) !important;
+        z-index: 9980 !important; /* Positioned directly under sidebar */
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #epubReaderSidebarOverlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #epubReaderSidebarOverlay,
+    #readerExitImmersiveBtn,
+    #readerShowHeaderBtn {
+        backdrop-filter: none !important;
+    }
+
+    /* 2. Header layout simplification on small screens */
+    #epubReaderHeader {
+        padding: 0 12px;
+        padding-top: env(safe-area-inset-top, 0px);
+        height: calc(56px + env(safe-area-inset-top, 0px));
+    }
+
+    .reader-header-left, .reader-header-right {
+        gap: 8px;
+    }
+
+    #readerCurrentChapterName {
+        font-size: 0.9rem;
+        max-width: 110px !important;
+    }
+
+    /* Hide text labels on header buttons, leaving clean and intuitive icons */
+    #readerBackBtn {
+        padding: 8px;
+        font-size: 0 !important; /* Hides the "Home" text */
+    }
+    #readerBackBtn svg {
+        margin-right: 0 !important;
+        width: 20px;
+        height: 20px;
+    }
+
+    #readerToggleSidebarTrigger {
+        padding: 8px;
+        font-size: 0 !important; /* Hides "TOC" text */
+    }
+    #readerToggleSidebarTrigger svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Target the file upload label inside header */
+    label[for="epubReaderUploadInput"] {
+        padding: 8px;
+        font-size: 0 !important; /* Hides "Open Local EPUB" text */
+    }
+    label[for="epubReaderUploadInput"] svg {
+        margin-right: 0 !important;
+        width: 20px;
+        height: 20px;
+    }
+
+    #readerSettingsBtn {
+        padding: 8px;
+    }
+    #readerSettingsBtn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* 3. Dropdown Controls Dialog */
+    .reader-controls-dropdown {
+        top: 62px;
+        right: 12px;
+        width: calc(100% - 24px);
+        max-width: 320px;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    /* 4. Viewport padding optimizations */
+    #epubReaderViewport {
+        padding: 24px 16px;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: auto;
+    }
+
+    #epubReaderMain,
+    #epubReaderViewport,
+    #epubReaderContentBody {
+        will-change: auto;
+    }
+
+    #epubReaderContentBody {
+        font-size: var(--reader-font-size, 1.05rem); /* Slightly smaller default base font on mobile */
+    }
+
+    #epubReaderContentBody p {
+        text-align: left; /* Avoid awkward word justification gaps on narrow mobile screens */
+        text-indent: 1em;
+        margin-bottom: 1.2em;
+    }
+
+    /* 5. Page Turn Viewport layout on mobile */
+    #epubReaderViewport.page-turn-mode {
+        padding: 20px 16px;
+    }
+
+    #epubReaderViewport.page-turn-mode #epubReaderContentBody {
+        column-count: 1 !important;
+        column-width: auto !important;
+        column-gap: 16px !important;
+    }
+
+    /* Hide the huge desktop side nav arrows on mobile since clicking screen margins or footer works much better */
+    .page-nav-arrow {
+        display: none !important;
+    }
+
+    /* 6. Footer layout optimization */
+    #epubReaderFooter {
+        height: 40px;
+        padding: 0 12px;
+        font-size: 0.75rem;
+    }
+
+    /* 7. Cover page image scale */
+    .reader-cover-container {
+        padding: 20px;
+    }
+
+    .reader-cover-img {
+        max-height: 45vh;
+    }
+
+    .reader-cover-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* TTS Mode Active Text Selection & Hover Styles */
+.tts-mode-active p,
+.tts-mode-active h1,
+.tts-mode-active h2,
+.tts-mode-active h3,
+.tts-mode-active h4,
+.tts-mode-active li,
+.tts-mode-active blockquote {
+    cursor: pointer !important;
+    transition: background-color 0.2s ease, border-left-color 0.2s ease;
+}
+
+.tts-mode-active p:hover,
+.tts-mode-active h1:hover,
+.tts-mode-active h2:hover,
+.tts-mode-active h3:hover,
+.tts-mode-active h4:hover,
+.tts-mode-active li:hover,
+.tts-mode-active blockquote:hover {
+    background-color: rgba(0, 245, 255, 0.05);
+}
+
