@@ -192,10 +192,22 @@ class LibraryUI {
     async init() {
         // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
         if (typeof zip !== "undefined") {
-            if (zip.configure) {
-                zip.configure({ useWebWorkers: false });
+            const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
+            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+            if (useWorkers) {
+                const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
+                if (zip.configure) {
+                    zip.configure({ useWebWorkers: true, workerScriptsPath: workerPath });
+                } else {
+                    zip.useWebWorkers = true;
+                    zip.workerScriptsPath = workerPath;
+                }
             } else {
-                zip.useWebWorkers = false;
+                if (zip.configure) {
+                    zip.configure({ useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
+                } else {
+                    zip.useWebWorkers = false;
+                }
             }
         }
 
@@ -338,7 +350,7 @@ class LibraryUI {
                     
                     // Get EPUB Title / Cover using temporary zip reader
                     const zipSource = new zip.BlobReader(file);
-                    const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: false });
+                    const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
                     const entries = await zipReader.getEntries();
                     
                     const opfEntry = entries.find(entry => entry.filename.endsWith(".opf"));
@@ -727,7 +739,7 @@ class LibraryUI {
 
                 HFLibrary.downloadBook(book.epubPath, book.repoId).then(async (blob) => {
                     const zipSource = new zip.BlobReader(blob);
-                    const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: false });
+                    const zipReader = new zip.ZipReader(zipSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
                     const entries = await zipReader.getEntries();
                     const opfEntry = entries.find(entry => entry.filename.endsWith(".opf"));
 
@@ -922,7 +934,7 @@ class LibraryUI {
             zipReaderSource = new zip.BlobReader(epubBlobOrBase64);
         }
 
-        const zipReader = new zip.ZipReader(zipReaderSource, { useWebWorkers: false });
+        const zipReader = new zip.ZipReader(zipReaderSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
         let entries = [];
         try {
             entries = await zipReader.getEntries();
@@ -1188,7 +1200,7 @@ class LibraryUI {
     // --- MEMORY ZIP EPUB GENERATORS FOR OFFLINE PUBLIC CLASSICS ---
 
     async generateTimeMachineEPUB() {
-        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: false });
+        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
         
         // 1. mimetype
         await zipWriter.add("mimetype", new zip.TextReader("application/epub+zip"), { compressionMethod: 0 });
@@ -1269,7 +1281,7 @@ class LibraryUI {
     }
 
     async generateAliceEPUB() {
-        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: false });
+        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/epub+zip"), { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
         
         await zipWriter.add("mimetype", new zip.TextReader("application/epub+zip"), { compressionMethod: 0 });
 

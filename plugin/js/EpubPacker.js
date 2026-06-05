@@ -38,7 +38,7 @@ class EpubPacker {
 
     assemble(epubItemSupplier) {
         let zipFileWriter = new zip.BlobWriter("application/epub+zip");
-        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()),compressionMethod: 8, extendedTimestamp: false});
         this.addRequiredFiles(zipWriter);
         zipWriter.add("OEBPS/content.opf", new zip.TextReader(this.buildContentOpf(epubItemSupplier)));
         zipWriter.add("OEBPS/toc.ncx", new zip.TextReader(this.buildTableOfContents(epubItemSupplier)));

@@ -32,7 +32,7 @@
         const blob = new Blob([bytes], { type: "application/epub+zip" });
 
         const { ZipReader, BlobReader, TextWriter } = await import("https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.44/index.js");
-        const zipReader = new ZipReader(new BlobReader(blob), { useWebWorkers: false });
+        const zipReader = new ZipReader(new BlobReader(blob), { useWebWorkers: !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE && !document.querySelector('script[src*="zip-no-worker.min.js"]')) });
         const entries = await zipReader.getEntries();
 
         const opfEntry = entries.find(e => e.filename.endsWith(".opf"));

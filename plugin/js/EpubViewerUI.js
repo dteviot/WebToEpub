@@ -41,10 +41,22 @@ class EpubViewerUI {
     init() {
         // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
         if (typeof zip !== "undefined") {
-            if (zip.configure) {
-                zip.configure({ useWebWorkers: false });
+            const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
+            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+            if (useWorkers) {
+                const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
+                if (zip.configure) {
+                    zip.configure({ useWebWorkers: true, workerScriptsPath: workerPath });
+                } else {
+                    zip.useWebWorkers = true;
+                    zip.workerScriptsPath = workerPath;
+                }
             } else {
-                zip.useWebWorkers = false;
+                if (zip.configure) {
+                    zip.configure({ useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
+                } else {
+                    zip.useWebWorkers = false;
+                }
             }
         }
 
@@ -964,7 +976,7 @@ class EpubViewerUI {
                 throw new Error("Unsupported epub data type.");
             }
 
-            this.currentZipReader = new zip.ZipReader(zipReaderSource, { useWebWorkers: false });
+            this.currentZipReader = new zip.ZipReader(zipReaderSource, { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
             this.entries = await this.currentZipReader.getEntries();
             this.entries = this.entries.filter(e => !e.directory);
 
@@ -1666,10 +1678,14 @@ class EpubViewerUI {
         }
 
         const candidateUrls = [];
+        const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
+        const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+        const zipFile = useWorkers ? "zip.min.js" : "zip-no-worker.min.js";
+        
         if (typeof chrome !== "undefined" && chrome.runtime && typeof chrome.runtime.getURL === "function") {
-            candidateUrls.push(chrome.runtime.getURL("@zip.js/zip.js/dist/zip-no-worker.min.js"));
+            candidateUrls.push(chrome.runtime.getURL(`@zip.js/zip.js/dist/${zipFile}`));
         }
-        candidateUrls.push("@zip.js/zip.js/dist/zip-no-worker.min.js");
+        candidateUrls.push(`@zip.js/zip.js/dist/${zipFile}`);
 
         for (const src of candidateUrls) {
             try {
@@ -1695,10 +1711,22 @@ class EpubViewerUI {
                 });
 
                 if (typeof zip !== "undefined") {
-                    if (zip.configure) {
-                        zip.configure({ useWebWorkers: false });
+                    const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
+                    const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]'));
+                    if (useWorkers) {
+                        const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
+                        if (zip.configure) {
+                            zip.configure({ useWebWorkers: true, workerScriptsPath: workerPath });
+                        } else {
+                            zip.useWebWorkers = true;
+                            zip.workerScriptsPath = workerPath;
+                        }
                     } else {
-                        zip.useWebWorkers = false;
+                        if (zip.configure) {
+                            zip.configure({ useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
+                        } else {
+                            zip.useWebWorkers = false;
+                        }
                     }
                     return;
                 }

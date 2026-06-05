@@ -57,17 +57,17 @@ class Library { // eslint-disable-line no-unused-vars
         Library.LibShowLoadingText();
 
         let PreviousEpubReader = await new zip.Data64URIReader(PreviousEpubBase64);
-        let PreviousEpubZip = new zip.ZipReader(PreviousEpubReader, {useWebWorkers: false});
+        let PreviousEpubZip = new zip.ZipReader(PreviousEpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
         let PreviousEpubContent = await PreviousEpubZip.getEntries();
         PreviousEpubContent = PreviousEpubContent.filter(a => a.directory == false);
 
         let AddEpubReader = await new zip.BlobReader(AddEpubBlob);
-        let AddEpubZip = new zip.ZipReader(AddEpubReader, {useWebWorkers: false});
+        let AddEpubZip = new zip.ZipReader(AddEpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
         let AddEpubContent = await AddEpubZip.getEntries();
         AddEpubContent = AddEpubContent.filter(a => a.directory == false);
 
         let MergedEpubWriter = new zip.BlobWriter("application/epub+zip");
-        let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
+        let MergedEpubZip = new zip.ZipWriter(MergedEpubWriter,{useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()),compressionMethod: 8, extendedTimestamp: false});
         //Copy PreviousEpub in MergedEpub
         for (let element of PreviousEpubContent.filter(a => a.filename != "OEBPS/content.opf" && a.filename != "OEBPS/toc.ncx" && a.filename != "OEBPS/toc.xhtml")) {
             if (element.filename == "mimetype") {
@@ -202,7 +202,7 @@ class Library { // eslint-disable-line no-unused-vars
             chrome.storage.local.get("LibEpub" + idfromepub, async function(items, ) {
                 try {
                     let EpubReader = await new zip.Data64URIReader(items["LibEpub" + idfromepub]);
-                    let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+                    let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
                     let EpubContent =  await EpubZip.getEntries();
                     EpubContent = EpubContent.filter(a => a.directory == false);
 
@@ -617,13 +617,13 @@ class Library { // eslint-disable-line no-unused-vars
         let LibDateCreated = new EpubPacker().getDateForMetaData();
         try {
             let EpubReader = await new zip.Data64URIReader(await Library.LibGetFromStorage("LibEpub"+obj.dataset.libepubid));
-            let EpubZipRead = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+            let EpubZipRead = new zip.ZipReader(EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
             let EpubContent =  await EpubZipRead.getEntries();
             EpubContent = EpubContent.filter(a => a.directory == false);
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
             
             let EpubWriter = new zip.BlobWriter("application/epub+zip");
-            let EpubZipWrite = new zip.ZipWriter(EpubWriter,{useWebWorkers: false,compressionMethod: 8});
+            let EpubZipWrite = new zip.ZipWriter(EpubWriter,{useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()),compressionMethod: 8});
             //Copy Epub in NewEpub
             for (let element of EpubContent.filter(a => a.filename != "OEBPS/content.opf")) {
                 EpubZipWrite.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
@@ -657,7 +657,7 @@ class Library { // eslint-disable-line no-unused-vars
         let LibMetadata = [];
         try {
             let EpubReader = await new zip.Data64URIReader(await Library.LibGetFromStorage("LibEpub"+libepubid));
-            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
             let EpubContent =  await EpubZip.getEntries();
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
             
@@ -741,7 +741,7 @@ class Library { // eslint-disable-line no-unused-vars
     static async LibGetSourceURL(EpubAsDataURL) {
         try {
             let EpubReader = await new zip.Data64URIReader(EpubAsDataURL);
-            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+            let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
             let EpubContent =  await EpubZip.getEntries();
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
             return (opfFile.match(/<dc:identifier id="BookId" opf:scheme="URI">.+?<\/dc:identifier>/)[0].replace(/<dc:identifier id="BookId" opf:scheme="URI">/,"").replace(/<\/dc:identifier>/,""));
@@ -763,13 +763,13 @@ class Library { // eslint-disable-line no-unused-vars
         } catch {
             //In case the Epub is too big atob() fails and this messy method works with bigger files.
             let Base64EpubReader = await new zip.Data64URIReader(DataUrl);
-            let Base64EpubZip = new zip.ZipReader(Base64EpubReader, {useWebWorkers: false});
+            let Base64EpubZip = new zip.ZipReader(Base64EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
             
             let Base64EpubContent = await Base64EpubZip.getEntries();
             Base64EpubContent = Base64EpubContent.filter(a => a.directory == false);
 
             let BlobEpubWriter = new zip.BlobWriter("application/epub+zip");
-            let BlobEpubZip = new zip.ZipWriter(BlobEpubWriter,{useWebWorkers: false,compressionMethod: 8});
+            let BlobEpubZip = new zip.ZipWriter(BlobEpubWriter,{useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()),compressionMethod: 8});
             //Copy Base64Epub in BlobEpub
             for (let element of Base64EpubContent) {
                 if (element.filename == "mimetype") {
@@ -922,7 +922,7 @@ class Library { // eslint-disable-line no-unused-vars
             fileReadingList.ReadingList.epubs = fileReadingList.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
             
             let zipFileWriter = new zip.BlobWriter("application/zip");
-            let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
+            let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()),compressionMethod: 8});
             //in case for future changes to differntiate between different export versions
             zipWriter.add("LibraryVersion.txt", new zip.TextReader("2"));
             zipWriter.add("LibraryCountEntries.txt", new zip.TextReader(CurrentLibKeys.length));
@@ -997,7 +997,7 @@ class Library { // eslint-disable-line no-unused-vars
             });
             let blobfile = new Blob([LibFileReader.result]);
             let zipFileReader = new zip.BlobReader(blobfile);
-            let zipReader = new zip.ZipReader(zipFileReader, {useWebWorkers: false});
+            let zipReader = new zip.ZipReader(zipFileReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
             let entries = await zipReader.getEntries();
             //check export logic version
             let LibraryVersion = await (await entries.filter((a) => a.filename == "LibraryVersion.txt")[0]).getData(new zip.TextWriter());
@@ -1103,7 +1103,7 @@ class Library { // eslint-disable-line no-unused-vars
         
         let EpubBase64 = await Library.LibGetFromStorage("LibEpub" + LibArray[0][0]);
         let EpubReader = await new zip.Data64URIReader(EpubBase64);
-        let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
+        let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
         let EpubContent = await EpubZip.getEntries();
         EpubContent = EpubContent.filter(a => a.directory == false);
         let contentopftext = await EpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());

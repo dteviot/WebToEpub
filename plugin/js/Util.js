@@ -46,6 +46,16 @@ const util = (function() {
         return (typeof (runtime?.getManifest) === "function") ? runtime.getManifest().version : "unknown";
     }
 
+    function useWebWorkers() {
+        if (typeof window === "undefined" || !window.WTE_WEBSITE_MODE) {
+            return false;
+        }
+        if (typeof document !== "undefined" && document.querySelector('script[src*="zip-no-worker.min.js"]')) {
+            return false;
+        }
+        return true;
+    }
+
     function createEmptyXhtmlDoc() {
         let doc = document.implementation.createDocument(XMLNS, "", null);
         addXhtmlDocTypeToStart(doc);
@@ -1258,6 +1268,7 @@ const util = (function() {
         replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags,
         wrapInnerContentInTag: wrapInnerContentInTag,
         getDefaultExtensionByMime: getDefaultExtensionByMime,
-        detectMimeType: detectMimeType
+        detectMimeType: detectMimeType,
+        useWebWorkers: useWebWorkers
     };
 })();

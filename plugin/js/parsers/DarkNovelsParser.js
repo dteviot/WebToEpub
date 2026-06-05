@@ -63,7 +63,7 @@ class DarkNovelsParser extends Parser {
         // server is down so i am unable to test the code here is my guess
         let theFile = null;
         let zipreader = await new zip.Uint8ArrayReader(arrayBuffer);
-        let Zip = new zip.ZipReader(zipreader, {useWebWorkers: false});
+        let Zip = new zip.ZipReader(zipreader, {useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())});
         let ZipContent = await Zip.getEntries();
         ZipContent = ZipContent.filter(a => a.directory == false);
         for (let element of ZipContent) {
