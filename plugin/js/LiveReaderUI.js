@@ -184,6 +184,20 @@ class LiveReaderUI {
             if (startBtn && this.toc.length > 0) {
                 startBtn.disabled = false;
                 startBtn.textContent = "Start Reading";
+                // Check reading list for saved progress
+                if (this.userPrefs && this.userPrefs.readingList && this.url) {
+                    this.userPrefs.readingList.addEpub(this.url);
+                    let savedChapUrl = this.userPrefs.readingList.getEpub(this.url);
+                    if (savedChapUrl) {
+                        let idx = this.toc.findIndex(ch => ch.sourceUrl === savedChapUrl);
+                        if (idx !== -1) {
+                            startBtn.textContent = "Resume Reading";
+                            startBtn.onclick = () => this._startReading(idx, true);
+                            return;
+                        }
+                    }
+                }
+                startBtn.onclick = () => this._startReading(0);
             }
 
         } catch (err) {
@@ -339,6 +353,7 @@ class LiveReaderUI {
         if (index < 0 || index >= this.toc.length) return;
         this.currentChapterIndex = index;
         this.loadedChaptersIndex = index;
+        this._saveProgress(index);
 
         if (this.layout === "scroll") {
             // Scroll view: ensure placeholder exists, then lazy load
@@ -728,7 +743,10 @@ class LiveReaderUI {
                 if (entry.isIntersecting) {
                     const idx = parseInt(entry.target.dataset.index);
                     if (isNaN(idx)) return;
-                    this.currentChapterIndex = idx;
+                    if (this.currentChapterIndex !== idx) {
+                        this.currentChapterIndex = idx;
+                        this._saveProgress(idx);
+                    }
 
                     const nameEl = document.getElementById("lrCurrentChapterName");
                     const pageNumEl = document.getElementById("lrPageNum");
@@ -1199,7 +1217,7 @@ class LiveReaderUI {
 
         // Book details view
         const startReadBtn = document.getElementById("lrStartReadingBtn");
-        if (startReadBtn) startReadBtn.addEventListener("click", () => this._startReading(0));
+        // onClick is set dynamically in _startTocLoad based on saved progress
 
         // Reader sidebar
         const toggleSidebarBtn = document.getElementById("lrToggleSidebarBtn");
@@ -1314,5 +1332,14 @@ class LiveReaderUI {
             const t = setTimeout(() => reject(new Error(message)), ms);
             promise.then(v => { clearTimeout(t); resolve(v); }, e => { clearTimeout(t); reject(e); });
         });
+    }
+
+    _saveProgress(idx) {
+        if (!this.userPrefs || !this.userPrefs.readingList || !this.url || !this.toc) return;
+        if (idx < 0 || idx >= this.toc.length) return;
+        let chap = this.toc[idx];
+        if (chap && chap.sourceUrl) {
+            this.userPrefs.readingList.setEpub(this.url, chap.sourceUrl);
+        }
     }
 }
