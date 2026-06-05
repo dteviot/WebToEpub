@@ -604,7 +604,7 @@ class LiveReaderUI {
         wrap.id = "lr-chapter-wrap-cover";
         wrap.innerHTML = `
             <div class="lr-cover-section">
-                ${coverSrc ? `<img src="${coverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
+                ${coverSrc ? `<img src="${coverSrc}" alt="Cover" class="lr-scroll-cover-img" onerror="this.onerror=null; if(typeof HttpClient !== 'undefined' && HttpClient.corsProxyUrl) { this.src = HttpClient.corsProxyUrl + encodeURIComponent('${coverSrc}'); }">` : ""}
                 <h1 class="lr-scroll-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-scroll-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 <div class="lr-scroll-start-hint">↓ SCROLL TO START READING ↓</div>
@@ -989,15 +989,23 @@ class LiveReaderUI {
         if (!Array.isArray(chapters)) return [];
         const seen = new Set();
         return chapters.filter(ch => {
-            const url = ch?.sourceUrl || ch?.href;
+            const url = ch?.sourceUrl || ch?.href || (typeof ch === "string" ? ch : null);
             if (!url || seen.has(url)) return false;
             seen.add(url);
             return true;
-        }).map((ch, i) => ({
-            title: ch.title?.trim() || `Chapter ${i + 1}`,
-            href: ch.sourceUrl || ch.href,
-            sourceUrl: ch.sourceUrl || ch.href
-        }));
+        }).map((ch, i) => {
+            let rawUrl = ch?.sourceUrl || ch?.href || (typeof ch === "string" ? ch : null);
+            if (rawUrl && !rawUrl.startsWith("http")) {
+                try {
+                    rawUrl = new URL(rawUrl, baseUrl).href;
+                } catch(e) {}
+            }
+            return {
+                title: ch.title?.trim() || `Chapter ${i + 1}`,
+                href: rawUrl,
+                sourceUrl: rawUrl
+            };
+        });
     }
 
     // ─────────────────────────────────────────

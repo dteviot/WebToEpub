@@ -530,28 +530,31 @@ class LibraryUI {
                 </div>
             `;
 
-            // Action triggers (Cover click and Read button redirect to details page)
-            card.querySelector(".read-btn-main").addEventListener("click", () => {
-                this.showBookDetailsPage({
-                    id: id,
-                    title: title,
-                    author: author,
-                    cover: cover,
-                    epubBase64: epubBase64,
-                    filename: filename
-                }, true);
-            });
+            // Action triggers (Cover click and Read button redirect to details page, or Live Reader for live books)
+            const handleBookClick = () => {
+                if (epubBase64 && typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
+                    let url = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+                    if (!url) url = id;
+                    const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                    const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+                    window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
+                } else {
+                    this.showBookDetailsPage({
+                        id: id,
+                        title: title,
+                        author: author,
+                        cover: cover,
+                        epubBase64: epubBase64,
+                        filename: filename
+                    }, true);
+                }
+            };
+
+            card.querySelector(".read-btn-main").addEventListener("click", handleBookClick);
 
             card.querySelector(".book-cover-wrap").addEventListener("click", (e) => {
                 if (e.target.classList.contains("book-action-btn")) return;
-                this.showBookDetailsPage({
-                    id: id,
-                    title: title,
-                    author: author,
-                    cover: cover,
-                    epubBase64: epubBase64,
-                    filename: filename
-                }, true);
+                handleBookClick();
             });
 
             card.querySelector(".download-btn-main").addEventListener("click", () => {
