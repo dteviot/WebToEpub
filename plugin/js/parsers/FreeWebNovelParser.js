@@ -43,7 +43,7 @@ class FreeWebNovelParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("div.txt");
+        return dom.querySelector("div#article") || dom.querySelector("div.txt");
     }
 
     getInformationEpubItemChildNodes(dom) {
