@@ -319,7 +319,9 @@ class LibraryUI {
                         if (!url && this.currentDetailsId) {
                             url = this.currentDetailsId; // fallback for legacy saved live books
                         }
-                        window.location.href = `live-reader.html?url=${encodeURIComponent(url)}`;
+                        const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                        const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+                        window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                     } else {
                         this.openBookInReader(this.currentDetailsEpub);
                     }
