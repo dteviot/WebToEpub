@@ -1270,6 +1270,7 @@ class EpubViewerUI {
 
     async loadChapter(index) {
         if (index < 0 || index >= this.toc.length) return;
+        const wasTtsActive = this.ttsActive;
         this.stopTTS();
 
         if (this.layout === "scroll") {
@@ -1304,6 +1305,9 @@ class EpubViewerUI {
             }
             this.currentChapterIndex = index;
             this.updateActiveTocHighlight();
+            if (wasTtsActive) {
+                setTimeout(() => this.playTTS(), 300);
+            }
             return;
         }
 
@@ -1388,6 +1392,10 @@ class EpubViewerUI {
 
             this.hideLoader();
             document.getElementById("epubReaderViewport").scrollTop = 0;
+
+            if (wasTtsActive) {
+                setTimeout(() => this.playTTS(), 300);
+            }
 
         } catch (err) {
             this.hideLoader();
