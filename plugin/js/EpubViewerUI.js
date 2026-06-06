@@ -1527,12 +1527,42 @@ class EpubViewerUI {
     playTTS() {
         this.prepareTTSParagraphs();
         if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
-        
+
+        let needsSync = false;
+        if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
+            const p = this.ttsParagraphs[this.ttsCurrentIndex].element;
+            const rect = p.getBoundingClientRect();
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.bottom < 0 || rect.top > vHeight) {
+                needsSync = true;
+            }
+        } else {
+            needsSync = true;
+        }
+
+        if (needsSync) {
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            const offset = 60; // rough header height
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].element.getBoundingClientRect();
+                if ((rect.top >= offset && rect.top < vHeight) || (rect.top < offset && rect.bottom > offset)) {
+                    this.ttsCurrentIndex = i;
+                    break;
+                }
+            }
+        }
+
         if (window.speechSynthesis.paused && this.ttsActive) {
-            window.speechSynthesis.resume();
-            document.getElementById("ttsPlayBtn").style.display = "none";
-            document.getElementById("ttsPauseBtn").style.display = "inline-flex";
-            return;
+            if (needsSync) {
+                window.speechSynthesis.cancel();
+                this.ttsActive = false;
+            } else {
+                window.speechSynthesis.resume();
+                document.getElementById("ttsPlayBtn").style.display = "none";
+                document.getElementById("ttsPauseBtn").style.display = "inline-flex";
+                this.ttsAutoScroll = true;
+                return;
+            }
         }
 
         this.stopTTS(); // clear active speech

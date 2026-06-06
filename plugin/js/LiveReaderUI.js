@@ -1180,13 +1180,56 @@ class LiveReaderUI {
     }
 
     _playTTS() {
+        this._prepareTTSParagraphs();
+        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
+
+        let needsSync = false;
+        if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
+            const p = this.ttsParagraphs[this.ttsCurrentIndex];
+            const rect = p.getBoundingClientRect();
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.bottom < 0 || rect.top > vHeight) {
+                needsSync = true;
+            }
+        } else {
+            needsSync = true;
+        }
+
+        if (needsSync) {
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            const offset = 60; // rough header height
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                if ((rect.top >= offset && rect.top < vHeight) || (rect.top < offset && rect.bottom > offset)) {
+                    this.ttsCurrentIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (window.speechSynthesis.paused && this.ttsActive) {
+            if (needsSync) {
+                window.speechSynthesis.cancel();
+                this.ttsActive = false;
+            } else {
+                window.speechSynthesis.resume();
+                const playBtn = document.getElementById("lrTtsPlayBtn");
+                const pauseBtn = document.getElementById("lrTtsPauseBtn");
+                if (playBtn) playBtn.style.display = "none";
+                if (pauseBtn) pauseBtn.style.display = "";
+                this.ttsAutoScroll = true;
+                return;
+            }
+        }
+
         this.ttsActive = true;
         this.ttsAutoScroll = true; // reset auto-scroll on play
-        this._prepareTTSParagraphs();
+        
         const playBtn = document.getElementById("lrTtsPlayBtn");
         const pauseBtn = document.getElementById("lrTtsPauseBtn");
         if (playBtn) playBtn.style.display = "none";
         if (pauseBtn) pauseBtn.style.display = "";
+        
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this._speakParagraph(this.ttsCurrentIndex);
     }
