@@ -730,6 +730,7 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
+    { name: "Render Proxy", url: "https://render-proxy-6mzr.onrender.com/proxy?url=" },
     { name: "allOrigins (raw)", url: "https://api.allorigins.win/raw?url=" },
     { name: "CORS.SH", url: "https://proxy.cors.sh/" },
     { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
