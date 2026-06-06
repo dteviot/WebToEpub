@@ -1128,23 +1128,23 @@ class LiveReaderUI {
             .filter(el => el.textContent.trim().length > 10);
         const main = document.getElementById("lrReaderMain");
         if (main) main.classList.add("lr-tts-mode-active");
-        this.ttsParagraphs.forEach((p, i) => {
-            p.style.cursor = "pointer";
-            p.addEventListener("click", () => {
-                this.ttsCurrentIndex = i;
-                if (!this.ttsActive) this._playTTS();
-                else this._speakParagraph(i);
-            });
-        });
+        // We no longer bind per-element click listeners here. Event delegation is used in _bindEvents.
     }
 
     _speakParagraph(index) {
+        // Refresh paragraphs to account for newly loaded chapters
+        this._prepareTTSParagraphs();
         if (index >= this.ttsParagraphs.length) { this._stopTTS(); return; }
         window.speechSynthesis.cancel();
+        
         const p = this.ttsParagraphs[index];
+        this.currentTtsElement = p;
         document.querySelectorAll(".lr-tts-active-para").forEach(el => el.classList.remove("lr-tts-active-para"));
         p.classList.add("lr-tts-active-para");
-        p.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        if (this.ttsAutoScroll !== false) {
+            p.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
 
         const rate = parseFloat(document.getElementById("lrTtsRate")?.value || 1);
         const pitch = parseFloat(document.getElementById("lrTtsPitch")?.value || 1);
@@ -1157,14 +1157,23 @@ class LiveReaderUI {
             if (voice) this.speechUtterance.voice = voice;
         }
         this.speechUtterance.onend = () => {
-            this.ttsCurrentIndex++;
-            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+            if (!this.ttsActive) return;
+            // Re-evaluate current index based on the DOM in case new elements were added above
+            this._prepareTTSParagraphs();
+            const currentIdx = this.ttsParagraphs.indexOf(this.currentTtsElement);
+            if (currentIdx !== -1) {
+                this.ttsCurrentIndex = currentIdx + 1;
+            } else {
+                this.ttsCurrentIndex++;
+            }
+            this._speakParagraph(this.ttsCurrentIndex);
         };
         window.speechSynthesis.speak(this.speechUtterance);
     }
 
     _playTTS() {
         this.ttsActive = true;
+        this.ttsAutoScroll = true; // reset auto-scroll on play
         this._prepareTTSParagraphs();
         const playBtn = document.getElementById("lrTtsPlayBtn");
         const pauseBtn = document.getElementById("lrTtsPauseBtn");
@@ -1296,6 +1305,38 @@ class LiveReaderUI {
         if (ttsPlay) ttsPlay.addEventListener("click", () => this._playTTS());
         if (ttsPause) ttsPause.addEventListener("click", () => this._pauseTTS());
         if (ttsStop) ttsStop.addEventListener("click", () => this._stopTTS());
+
+        // TTS Event Delegation and Scroll Detection
+        const contentBody = document.getElementById("lrContentBody");
+        if (contentBody) {
+            contentBody.addEventListener("click", (e) => {
+                if (!this.ttsActive) return;
+                const p = e.target.closest("p, h1, h2, h3, blockquote, li");
+                if (p) {
+                    this._prepareTTSParagraphs();
+                    const idx = this.ttsParagraphs.indexOf(p);
+                    if (idx !== -1) {
+                        this.ttsCurrentIndex = idx;
+                        this.ttsAutoScroll = true; // resume auto-scroll on manual jump
+                        this._speakParagraph(this.ttsCurrentIndex);
+                    }
+                }
+            });
+        }
+        
+        const mainReader = document.getElementById("lrReaderMain");
+        if (mainReader) {
+            const disableAutoScroll = () => {
+                if (this.ttsActive) this.ttsAutoScroll = false;
+            };
+            mainReader.addEventListener("wheel", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("touchmove", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("keydown", (e) => {
+                if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
+                    disableAutoScroll();
+                }
+            }, { passive: true });
+        }
 
         // Proxy config
         const proxySelect = document.getElementById("lrCorsProxySelect");

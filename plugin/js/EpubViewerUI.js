@@ -209,6 +209,38 @@ class EpubViewerUI {
             ttsStop.addEventListener("click", () => this.stopTTS());
         }
 
+        // TTS Event Delegation and Scroll Detection
+        const contentBody = document.getElementById("epubReaderContentBody");
+        if (contentBody) {
+            contentBody.addEventListener("click", (e) => {
+                if (!this.ttsActive) return;
+                const p = e.target.closest("p, h1, h2, h3, h4, li, blockquote");
+                if (p) {
+                    this.prepareTTSParagraphs();
+                    const idx = this.ttsParagraphs.findIndex(item => item.element === p);
+                    if (idx !== -1) {
+                        this.ttsCurrentIndex = idx;
+                        this.ttsAutoScroll = true; // resume auto-scroll on manual jump
+                        this.speakCurrentParagraph();
+                    }
+                }
+            });
+        }
+        
+        const mainReader = document.getElementById("epubReaderMain");
+        if (mainReader) {
+            const disableAutoScroll = () => {
+                if (this.ttsActive) this.ttsAutoScroll = false;
+            };
+            mainReader.addEventListener("wheel", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("touchmove", disableAutoScroll, { passive: true });
+            document.addEventListener("keydown", (e) => {
+                if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
+                    disableAutoScroll();
+                }
+            }, { passive: true });
+        }
+
         // Recalculate pages on resize
         window.addEventListener("resize", () => {
             if (this.layout === "page-turn") {
@@ -1488,30 +1520,7 @@ class EpubViewerUI {
             if (text.length > 2) {
                 // Save element and its text content
                 this.ttsParagraphs.push({ element: el, text: text });
-                
-                // Allow user to click any paragraph to jump speech directly to it
-                if (!el.hasAttribute("data-tts-bound")) {
-                    el.setAttribute("data-tts-bound", "true");
-                    el.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        if (this.ttsActive) {
-                            const currentIdx = this.ttsParagraphs.findIndex(p => p.element === el);
-                            if (currentIdx === -1) return;
-                            
-                            if (this.speechUtterance) {
-                                this.speechUtterance.onend = null;
-                                this.speechUtterance.onerror = null;
-                            }
-                            if ('speechSynthesis' in window) {
-                                window.speechSynthesis.cancel();
-                            }
-                            this.ttsCurrentIndex = currentIdx;
-                            setTimeout(() => {
-                                if (this.ttsActive) this.speakCurrentParagraph();
-                            }, 50);
-                        }
-                    });
-                }
+                // We no longer bind per-element click listeners here. Event delegation is used in bindEvents.
             }
         });
     }
@@ -1528,6 +1537,7 @@ class EpubViewerUI {
 
         this.stopTTS(); // clear active speech
         this.ttsActive = true;
+        this.ttsAutoScroll = true; // reset auto-scroll on play
 
         const contentBody = document.getElementById("epubReaderContentBody");
         if (contentBody) {
@@ -1541,6 +1551,9 @@ class EpubViewerUI {
     }
 
     speakCurrentParagraph() {
+        // Refresh paragraphs to account for newly loaded chapters
+        this.prepareTTSParagraphs();
+        
         if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !('speechSynthesis' in window)) {
             this.stopTTS();
             return;
@@ -1549,12 +1562,13 @@ class EpubViewerUI {
         // Highlight Active Block
         this.ttsParagraphs.forEach(p => p.element.classList.remove("tts-active-paragraph"));
         const activeBlock = this.ttsParagraphs[this.ttsCurrentIndex];
+        this.currentTtsElement = activeBlock.element;
         activeBlock.element.classList.add("tts-active-paragraph");
 
         // Scroll highlight paragraph into view smoothly if in scroll mode
-        if (this.layout === "scroll") {
+        if (this.layout === "scroll" && this.ttsAutoScroll !== false) {
             activeBlock.element.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "center" });
-        } else {
+        } else if (this.layout === "page-turn" && this.ttsAutoScroll !== false) {
             // In Page-turn mode, calculate which page this paragraph is on and slide to it
             const viewport = document.getElementById("epubReaderViewport");
             const body = document.getElementById("epubReaderContentBody");
@@ -1581,23 +1595,27 @@ class EpubViewerUI {
             }
         }
         
-        // Apply Speed & Pitch sliders
-        const rateSlider = document.getElementById("ttsRateInput");
-        const pitchSlider = document.getElementById("ttsPitchInput");
-        this.speechUtterance.rate = rateSlider ? parseFloat(rateSlider.value) : 1.0;
-        this.speechUtterance.pitch = pitchSlider ? parseFloat(pitchSlider.value) : 1.0;
+        const rateInput = document.getElementById("ttsRateInput");
+        const pitchInput = document.getElementById("ttsPitchInput");
+        this.speechUtterance.rate = rateInput ? parseFloat(rateInput.value) : 1;
+        this.speechUtterance.pitch = pitchInput ? parseFloat(pitchInput.value) : 1;
 
-        // End of speech callback
         this.speechUtterance.onend = () => {
-            this.ttsCurrentIndex++;
+            if (!this.ttsActive) return;
+            // Re-evaluate current index based on the DOM
+            this.prepareTTSParagraphs();
+            const currentIdx = this.ttsParagraphs.findIndex(p => p.element === this.currentTtsElement);
+            if (currentIdx !== -1) {
+                this.ttsCurrentIndex = currentIdx + 1;
+            } else {
+                this.ttsCurrentIndex++;
+            }
             this.speakCurrentParagraph();
         };
 
         this.speechUtterance.onerror = (e) => {
             console.error("Speech Synthesis Error:", e);
-            if (this.ttsActive) {
-                this.stopTTS();
-            }
+            if (this.ttsActive) this.stopTTS();
         };
 
         window.speechSynthesis.speak(this.speechUtterance);
