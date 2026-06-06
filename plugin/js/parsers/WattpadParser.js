@@ -41,7 +41,9 @@ class WattpadParser extends Parser {
             throw new Error(`Could not extract Wattpad story ID from URL: ${dom.baseURI}\nExpected a URL like wattpad.com/story/12345-story-name`);
         }
         let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
-        let json = (await HttpClient.fetchJson(chaptersUrl)).json;
+        // Wattpad API natively returns Access-Control-Allow-Origin: * so no proxy needed.
+        // Using a proxy here causes failures because wildcard CORS + credentials is blocked.
+        let json = (await HttpClient.fetchJson(chaptersUrl, { bypassProxy: true })).json;
         return json.parts.map(p => ({sourceUrl: p.url, title: p.title}));
     }
 
