@@ -382,7 +382,10 @@ class HttpClient {
             let controllerMap = new Map();
             let racePromises = [];
 
-            for (let proxyUrl of proxiesToTry) {
+            let renderProxyUrl = proxiesToTry.find(u => u.includes("render-proxy-1-hjm6.onrender.com"));
+            let raceProxies = proxiesToTry.filter(u => u !== renderProxyUrl);
+
+            for (let proxyUrl of raceProxies) {
                 const ctrl = new AbortController();
                 controllerMap.set(proxyUrl, ctrl);
                 const fetchUrl = proxyUrl + encodeURIComponent(url.trim());
@@ -414,6 +417,7 @@ class HttpClient {
             }
 
             try {
+                if (racePromises.length === 0) throw new Error("No race proxies available");
                 const { response, proxyUrl: winnerUrl } = await Promise.any(racePromises);
 
                 // Abort losing requests
@@ -454,6 +458,45 @@ class HttpClient {
 
                 return ret;
             } catch (aggregateErr) {
+                // Main proxies failed, try Render proxy as fallback
+                if (renderProxyUrl) {
+                    console.warn(`[WebToEpub] All main proxies failed. Trying fallback Render proxy: ${renderProxyUrl}`);
+                    try {
+                        const fetchUrl = renderProxyUrl + encodeURIComponent(url.trim());
+                        let response = await fetch(fetchUrl, wrapOptions.fetchOptions);
+                        if (!response.ok) throw new Error(`${response.status}`);
+                        let text = await response.clone().text();
+                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+
+                        let proxyWrapOptions = Object.assign({}, wrapOptions, {
+                            isProxyAttempt: true,
+                            isFinalProxyAttempt: true
+                        });
+                        let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
+                        
+                        if (proxyWrapOptions.parser?.isCustomError(ret)) {
+                            let CustomErrorResponse = proxyWrapOptions.parser.setCustomErrorResponse(url, proxyWrapOptions, ret);
+                            return proxyWrapOptions.errorHandler.onResponseError(
+                                CustomErrorResponse.url,
+                                CustomErrorResponse.wrapOptions,
+                                CustomErrorResponse.response,
+                                CustomErrorResponse.errorMessage
+                            );
+                        }
+
+                        if (HttpClient.corsProxyUrl !== renderProxyUrl) {
+                            console.log(`[WebToEpub] Switching to winning proxy: ${renderProxyUrl}`);
+                            HttpClient.corsProxyUrl = renderProxyUrl;
+                            HttpClient.updateCorsProxyUi();
+                        }
+                        raceResolvers.resolve();
+                        HttpClient.proxyRacePromise = null;
+                        return ret;
+                    } catch (renderErr) {
+                        console.warn(`[WebToEpub] Fallback Render proxy also failed: ${renderErr.message}`);
+                    }
+                }
+
                 raceResolvers.reject(aggregateErr);
                 HttpClient.proxyRacePromise = null;
 
@@ -730,13 +773,13 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
-    { name: "Render Proxy", url: "https://render-proxy-1-hjm6.onrender.com/proxy?url=" },
     { name: "allOrigins (raw)", url: "https://api.allorigins.win/raw?url=" },
     { name: "CORS.SH", url: "https://proxy.cors.sh/" },
     { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
     { name: "ThingProxy", url: "https://thingproxy.freeboard.io/fetch/" },
     { name: "cors.lol", url: "https://api.cors.lol/?url=" },
-    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" }
+    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
+    { name: "Render Proxy", url: "https://render-proxy-1-hjm6.onrender.com/proxy?url=" }
 ];
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
 HttpClient.enableCorsProxy = true;
