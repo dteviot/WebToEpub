@@ -20,6 +20,37 @@ class WattpadImageCollector extends ImageCollector {
         url.search = "";
         return url.href;
     }
+
+    // Skip Wattpad UI images: icons, lock images, user avatars — not story content
+    isImageUrlToSkip(url) {
+        try {
+            let parsed = new URL(url);
+            let path = parsed.pathname.toLowerCase();
+            // Skip icon images (lock.png, etc.)
+            if (path.includes("/img/icons/")) return true;
+            // Skip user profile/avatar URLs
+            if (path.startsWith("/user/")) return true;
+            // Skip Wattpad CDN images that are clearly UI assets
+            if (path.includes("/wp-neutral") || path.includes("/wp-") && path.endsWith(".png") && path.includes("icon")) return true;
+        } catch (e) {
+            // ignore malformed URLs
+        }
+        return false;
+    }
+
+    initialUrlToTry(imageInfo) {
+        let url = super.initialUrlToTry(imageInfo);
+        return url;
+    }
+
+    async fetchImage(imageInfo, progressIndicator, parentPageUrl) {
+        let url = this.initialUrlToTry(imageInfo);
+        if (this.isImageUrlToSkip(url)) {
+            progressIndicator();
+            return;
+        }
+        return super.fetchImage(imageInfo, progressIndicator, parentPageUrl);
+    }
 }
 
 class WattpadParser extends Parser {
