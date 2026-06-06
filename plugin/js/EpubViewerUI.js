@@ -1500,7 +1500,6 @@ class EpubViewerUI {
 
     prepareTTSParagraphs() {
         this.ttsParagraphs = [];
-        this.ttsCurrentIndex = 0;
         
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
@@ -1526,6 +1525,7 @@ class EpubViewerUI {
     }
 
     playTTS() {
+        this.prepareTTSParagraphs();
         if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
         
         if (window.speechSynthesis.paused && this.ttsActive) {
@@ -1547,6 +1547,7 @@ class EpubViewerUI {
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
 
+        if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this.speakCurrentParagraph();
     }
 
