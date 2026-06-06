@@ -909,3 +909,19 @@ class FetchHtmlResponseHandler extends FetchResponseHandler {
         return super.responseToHtml(response);
     }
 }
+
+class FetchBinaryResponseHandler extends FetchResponseHandler {
+    isHtml() {
+        return false;
+    }
+}
+
+class SilentFetchErrorHandler extends FetchErrorHandler {
+    onFetchError(url, error) {
+        return Promise.reject(error);
+    }
+
+    onResponseError(url, wrapOptions, response, errorMessage) {
+        return Promise.reject(new Error(errorMessage || `HTTP ${response.status}`));
+    }
+}
