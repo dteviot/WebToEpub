@@ -1049,7 +1049,13 @@ class LiveReaderUI {
                     this.parser.removeUnusedElementsToReduceMemoryConsumption(doc);
                 }
                 const el = this.parser.findContent(doc);
-                if (el) return el.cloneNode(true);
+                if (el) {
+                    const cloned = el.cloneNode(true);
+                    if (typeof this.parser.removeUnwantedElementsFromContentElement === "function") {
+                        this.parser.removeUnwantedElementsFromContentElement(cloned);
+                    }
+                    return cloned;
+                }
             } catch (_) {}
         }
 

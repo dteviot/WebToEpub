@@ -286,21 +286,110 @@ class WattpadParser extends Parser {
     async fetchChapter(url) {
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let extraUris = this.findURIsWithRestOfChapterContent(dom);
-        return this.fetchAndAddExtraContentForChapter(dom, extraUris);
+        if (extraUris.pages > 1) {
+            await this.loadAllPagesFromApi(dom, extraUris);
+        } else {
+            await this.fetchAndAddExtraContentForChapter(dom, extraUris);
+        }
+        return WattpadParser.removeDuplicateParagraphs(dom);
+    }
+
+    async loadAllPagesFromApi(dom, extraUris) {
+        let content = this.findContent(dom);
+        if (!content) {
+            return;
+        }
+        let parts = [];
+        for (let page = 1; page <= extraUris.pages; ++page) {
+            let pageUrl = WattpadParser.buildStoryTextPageUrl(extraUris, page);
+            let text = await WattpadParser.fetchWattpadStoryTextPage(pageUrl);
+            text = WattpadParser.normalizeStoryTextPayload(text);
+            if (!util.isNullOrEmpty(text)) {
+                parts.push(text);
+            }
+        }
+        if (parts.length === 0) {
+            return;
+        }
+        util.removeElements([...content.children]);
+        let combinedNode = this.toHtml(parts.join(""));
+        if (!combinedNode) {
+            return;
+        }
+        while (combinedNode.firstChild) {
+            content.appendChild(combinedNode.firstChild);
+        }
     }
 
     findURIsWithRestOfChapterContent(dom) {
-        let info = { "pages" : 1 };
+        let info = { pages: 1 };
         let json = this.findJsonWithRestOfChapterUriInfo(dom);
-        if (json != null) {
-            info.pages = json.pages;
+        if (json != null && json.text_url != null) {
+            info.pages = json.pages || 1;
             info.refreshToken = json.text_url.refresh_token;
             let uri = json.text_url.text;
-            let index = uri.indexOf("?");
-            info.uriStart = uri.substring(0, index);
-            info.uriEnd = uri.substring(index);
+            if (uri.includes("/apiv2/") && uri.includes("m=storytext")) {
+                info.apiStyle = "apiv2";
+                info.textUrlBase = uri;
+            } else {
+                let index = uri.indexOf("?");
+                info.uriStart = uri.substring(0, index);
+                info.uriEnd = uri.substring(index);
+            }
         }
         return info;
+    }
+
+    static buildStoryTextPageUrl(extraUris, page) {
+        if (extraUris.apiStyle === "apiv2" && !util.isNullOrEmpty(extraUris.textUrlBase)) {
+            return extraUris.textUrlBase + page;
+        }
+        return `${extraUris.uriStart}-${page}${extraUris.uriEnd}`;
+    }
+
+    static normalizeStoryTextPayload(text) {
+        if (Array.isArray(text)) {
+            return text.map(part => WattpadParser.normalizeStoryTextPayload(part)).join("");
+        }
+        if (typeof text !== "string") {
+            return (text == null) ? "" : String(text);
+        }
+        let trimmed = text.trim();
+        if (trimmed.startsWith("[")) {
+            try {
+                let parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.join("");
+                }
+            } catch (e) {
+                // keep raw HTML/text payload
+            }
+        }
+        return text;
+    }
+
+    static async decodeStoryTextBytes(bytes) {
+        if (bytes.length >= 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) {
+            if (typeof DecompressionStream !== "undefined") {
+                let stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+                let buffer = await new Response(stream).arrayBuffer();
+                return new TextDecoder("utf-8").decode(buffer);
+            }
+        }
+        return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    static async fetchWattpadStoryTextPage(pageUrl) {
+        let result = await HttpClient.wrapFetch(pageUrl, {
+            responseHandler: new FetchBinaryResponseHandler(),
+            errorHandler: new SilentFetchErrorHandler(),
+            bypassDirectFetchFallback: !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE)
+        });
+        if (!result?.arrayBuffer) {
+            return "";
+        }
+        let decoded = await WattpadParser.decodeStoryTextBytes(new Uint8Array(result.arrayBuffer));
+        return WattpadParser.normalizeStoryTextPayload(decoded);
     }
 
     findJsonWithRestOfChapterUriInfo(dom) {
@@ -378,6 +467,10 @@ class WattpadParser extends Parser {
     }
 
     toHtml(extraContent) {
+        extraContent = WattpadParser.normalizeStoryTextPayload(extraContent);
+        if (util.isNullOrEmpty(extraContent)) {
+            return null;
+        }
         return util.sanitize("<div>" + extraContent + "</div>")
             .querySelector("div");
     }

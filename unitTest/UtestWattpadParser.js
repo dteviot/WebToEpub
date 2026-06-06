@@ -71,6 +71,32 @@ QUnit.test("fetchExtraChapterContent", function (assert) {
     });
 });
 
+QUnit.test("buildStoryTextPageUrl apiv2", function (assert) {
+    let extraUris = {
+        apiStyle: "apiv2",
+        textUrlBase: "https://www.wattpad.com/apiv2/?m=storytext&id=1284690197&page="
+    };
+    assert.equal(
+        WattpadParser.buildStoryTextPageUrl(extraUris, 2),
+        "https://www.wattpad.com/apiv2/?m=storytext&id=1284690197&page=2"
+    );
+});
+
+QUnit.test("buildStoryTextPageUrl legacy", function (assert) {
+    let extraUris = {
+        uriStart: "https://s.wattpad.com/i68391941-256896823-959d99345",
+        uriEnd: "?Policy=abc"
+    };
+    assert.equal(
+        WattpadParser.buildStoryTextPageUrl(extraUris, 2),
+        "https://s.wattpad.com/i68391941-256896823-959d99345-2?Policy=abc"
+    );
+});
+
+QUnit.test("normalizeStoryTextPayload joins arrays", function (assert) {
+    assert.equal(WattpadParser.normalizeStoryTextPayload(["<p>a</p>", "<p>b</p>"]), "<p>a</p><p>b</p>");
+});
+
 QUnit.test("extractIdFromUrl story slug", function (assert) {
     let url = "https://www.wattpad.com/story/408807838-%F0%9D%90%83%F0%9D%90%88%F0%9D%90%95%F0%9D%90%88%F0%9D%90%8D%F0%9D%90%84-%F0%9D%90%83%F0%9D%90%88%F0%9D%90%92%F0%9D%90%92%F0%9D%90%8E%F0%9D%90%8D%F0%9D%90%80%F0%9D%90%8D%F0%9D%90%82%F0%9D%90%84-%E2%9C%A6-%F0%9D%90%93%F0%9D%90%96%F0%9D%90%92%F0%9D%90%93";
     assert.equal(WattpadParser.extractIdFromUrl(url), "408807838");
