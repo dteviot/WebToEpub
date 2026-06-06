@@ -1,1 +1,172 @@
-"use strict";parserFactory.register("www.mangahere.cc",()=>new MangaHereParser);class MangaHereParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div#chapterlist li a")].map(e=>util.hyperLinkToChapter(e)).reverse()}findContent(e){return Parser.findConstrutedContent(e)}convertSelectToImgTagsToFollow(e,r,t){let a=Array.from(t.querySelectorAll("option"));for(let t of a.filter(e=>!e.value.includes("featured"))){let a=e.createElement("img");a.src=t.value,r.appendChild(a)}let n=this.imageCollector.selectImageUrlFromImagePage(e);r.querySelector("img").src=n}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.detail-info-cover")}async fetchChapter(e){let r=await util.createChapterTab(e);await util.sleep(5e3),await MangaHereParser.closeChapterTab(r);let t=await HttpClient.wrapFetch(e),a=Parser.makeEmptyDocForContent(e);a.dom.base=e;let n=MangaHereParser.makeImgJsonUrls(e,t.responseXML),s=MangaHereParser.extractImgUrlsFromDom(t.responseXML);return n.length<=s.length?(MangaHereParser.addImgsToNewDoc(a,s,new Set),a.dom):MangaHereParser.buildPageWithImageTags(n,new Set,a,"")}static extractImgUrlsFromDom(e){let r=[...e.querySelectorAll("script")].filter(e=>e.innerHTML.includes("al(function(p,a,c,k,e,d){")).map(e=>e.innerHTML);return 1===r.length?MangaHereParser.decryptChapterFun(r[0],""):[]}static closeChapterTab(e){return new Promise(function(r){chrome.tabs.remove(e,()=>r())})}static async buildPageWithImageTags(e,r,t,a){if(!util.isNullOrEmpty(a))return ErrorLog.log(a),t.dom;if(e.length<=r.size)return t.dom;let n=e[r.size],s=await HttpClient.fetchText(n);return a=MangaHereParser.responseToImg(t,s,n,r),MangaHereParser.buildPageWithImageTags(e,r,t,a)}static makeImgJsonUrls(e,r){let t=[...r.querySelectorAll("script")].filter(MangaHereParser.isWantedScriptElement).map(e=>e.innerHTML),a=util.extractSubstring(t[0],MangaHereParser.chatperIdPrefix,";"),n=parseInt(util.extractSubstring(t[0],/var\s*imagecount\s*=\s*/,";")),s=e.lastIndexOf("/"),i=e.substring(0,s+1),l=[];for(let e=1;e<=n;++e)l.push(`${i}chapterfun.ashx?cid=${a}&page=${e}`);return l}static isWantedScriptElement(e){return null!==e.innerHTML.match(MangaHereParser.chatperIdPrefix)}static responseToImg(e,r,t,a){if(util.isNullOrEmpty(r))return`No response for URL ${t}\r\n`;{let t=MangaHereParser.decryptChapterFun(r);return MangaHereParser.addImgsToNewDoc(e,t,a),""}}static addImgsToNewDoc(e,r,t){for(let a of r)if(!t.has(a)){t.add(a);let r=e.dom.createElement("img");r.src=a,e.content.appendChild(r)}}static decryptChapterFun(e,r){let t=MangaHereParser.extractDataFromjs(e),a=MangaHereParser.decrypt(t[0],t[1],t[2],t[3].split("|"));return MangaHereParser.extractFilenameFromClearText(a,r)}static extractDataFromjs(e){let r=util.extractSubstring(e,"return p;}('",".split(");return r=r.replace(/"/g,'\\"').replace(/'/g,'"'),JSON.parse('["'+r+"]")}static extractFilenameFromClearText(e,r){if(void 0===r&&(r=util.extractSubstring(e,'"','"')),!e.includes("[")||!e.includes("]"))return[];return util.extractSubstring(e,"[","]").split(",").map(e=>"http:"+r+e.replace(/"/g,""))}static decrypt(e,r,t,a){let n=function(e){return(e<r?"":n(parseInt(e/r)))+((e%=r)>35?String.fromCharCode(e+29):e.toString(36))},s={};for(;t--;){let e=n(t);s[e]=a[t]||e}return e=e.replace(new RegExp("\\b\\w+\\b","g"),e=>s[e])}}MangaHereParser.chatperIdPrefix=/var\s*chapterid\s*=\s*/;
+/*
+  Parses Manga
+*/
+"use strict";
+
+parserFactory.register("www.mangahere.cc", () => new MangaHereParser());
+
+class MangaHereParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div#chapterlist li a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .reverse();
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    convertSelectToImgTagsToFollow(dom, content, select) {
+        let options = Array.from(select.querySelectorAll("option"));
+        for (let option of options.filter(o => !o.value.includes("featured"))) {
+            let img = dom.createElement("img");
+            img.src = option.value;
+            content.appendChild(img);
+        }
+        
+        // first image in list is current page, so replace with image URL 
+        // to skip fetching this page again
+        let firstImg = this.imageCollector.selectImageUrlFromImagePage(dom);
+        content.querySelector("img").src = firstImg;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.detail-info-cover");
+    }
+
+    async fetchChapter(url) {
+        // need to open chapter in tab so cookies are loaded
+        let tabToClose = await util.createChapterTab(url);
+        await util.sleep(5000);
+        await MangaHereParser.closeChapterTab(tabToClose);
+        let xhr = await HttpClient.wrapFetch(url);
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        newDoc.dom.base = url;
+        let jsonUrls = MangaHereParser.makeImgJsonUrls(url, xhr.responseXML);
+        let imgUrls = MangaHereParser.extractImgUrlsFromDom(xhr.responseXML);
+        if (jsonUrls.length <= imgUrls.length) {
+            MangaHereParser.addImgsToNewDoc(newDoc, imgUrls, new Set());
+            return newDoc.dom;
+        }
+        return MangaHereParser.buildPageWithImageTags(jsonUrls, new Set(), newDoc, "");
+    }
+
+    static extractImgUrlsFromDom(dom) {
+        let script = [...dom.querySelectorAll("script")]
+            .filter(s => s.innerHTML.includes("al(function(p,a,c,k,e,d){"))
+            .map(s => s.innerHTML);
+
+        return (script.length === 1)
+            ? MangaHereParser.decryptChapterFun(script[0], "")
+            : [];
+    }
+
+    static closeChapterTab(tabId) {
+        return new Promise(function(resolve) {
+            chrome.tabs.remove(tabId, () => resolve());
+        });
+    }
+
+    static async buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err) {
+
+        if (!util.isNullOrEmpty(err)) {
+            ErrorLog.log(err);
+            return newDoc.dom;
+        }
+        if (jsonUrls.length <= imgUrls.size) {
+            return newDoc.dom;
+        }
+        let tocUrl = jsonUrls[imgUrls.size];
+        let js = await HttpClient.fetchText(tocUrl);
+        err = MangaHereParser.responseToImg(newDoc, js, tocUrl, imgUrls);
+        return MangaHereParser.buildPageWithImageTags(jsonUrls, imgUrls, newDoc, err);
+    }
+
+    static makeImgJsonUrls(url, dom) {
+        let script = [...dom.querySelectorAll("script")]
+            .filter(MangaHereParser.isWantedScriptElement)
+            .map(s => s.innerHTML);
+
+        let chapterId = util.extractSubstring(script[0], MangaHereParser.chatperIdPrefix, ";");
+        let imageCount = parseInt(util.extractSubstring(script[0], /var\s*imagecount\s*=\s*/, ";"));
+
+        let index = url.lastIndexOf("/");
+        let root = url.substring(0, index + 1);
+        let urls = [];
+        for (let i = 1; i <= imageCount; ++i) {
+            urls.push(`${root}chapterfun.ashx?cid=${chapterId}&page=${i}`);
+        }
+        return urls;
+    }
+
+    static isWantedScriptElement(script) {
+        let match = script.innerHTML.match(MangaHereParser.chatperIdPrefix);
+        return (match !== null);
+    }
+
+    static responseToImg(newDoc, js, tocUrl, imgUrls) {
+        if (util.isNullOrEmpty(js)) {
+            return `No response for URL ${tocUrl}\r\n`;
+        } else {
+            let urls = MangaHereParser.decryptChapterFun(js);
+            MangaHereParser.addImgsToNewDoc(newDoc, urls, imgUrls);
+            return "";
+        }
+    }
+
+    static addImgsToNewDoc(newDoc, urls, imgUrls) {
+        for (let u of urls) {
+            if (!imgUrls.has(u)) {
+                imgUrls.add(u);
+                let img = newDoc.dom.createElement("img");
+                img.src = u;
+                newDoc.content.appendChild(img);
+            }
+        }
+    }
+
+    static decryptChapterFun(js, prefix) {
+        let d = MangaHereParser.extractDataFromjs(js);
+        let clearText = MangaHereParser.decrypt(d[0], d[1], d[2], d[3].split("|"));
+        return MangaHereParser.extractFilenameFromClearText(clearText, prefix);
+    }
+
+    static extractDataFromjs(js) {
+        let text = util.extractSubstring(js, "return p;}('" , ".split(");
+        text = text.replace(/"/g, "\\\"").replace(/'/g, "\"");
+        return JSON.parse("[\"" + text + "]");
+    }
+
+    static extractFilenameFromClearText(clearText, prefix) {
+        if (prefix === undefined) {
+            prefix = util.extractSubstring(clearText, "\"", "\"");
+        }
+        if (!clearText.includes("[") || !clearText.includes("]")) {
+            return [];
+        }
+        let urls = util.extractSubstring(clearText, "[", "]").split(",");
+        return urls.map(u => "http:" + prefix + u.replace(/"/g, ""));
+    }
+
+    // extracted from MangaHere (and deobfuscated)
+    static decrypt(p, max, len, fragments) {
+        let makeKey = function(index) {
+            return (index < max ? "" : makeKey(parseInt(index / max))) + ((index = index % max) > 35 ? String.fromCharCode(index + 29) : index.toString(36));
+        };
+        let replacements = {};
+        while (len--)
+        {
+            let key = makeKey(len);
+            replacements[key] = fragments[len] || key;
+        }
+        let replacerFunction = (key) => replacements[key];
+        p = p.replace(new RegExp("\\b\\w+\\b", "g"), replacerFunction);
+        return p;        
+    }
+}
+
+MangaHereParser.chatperIdPrefix = /var\s*chapterid\s*=\s*/;

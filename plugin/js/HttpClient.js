@@ -68,7 +68,7 @@ class FetchErrorHandler {
         if (wrapOptions.retry.HTTP === 403) {
             msg = new Error(UIText.Warning.warning403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
         } else {
-            msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
+            msg = new Error(this.makeFailCanRetryMessage(url, response.status));
         }
         let cancelLabel = this.getCancelButtonText();
         return new Promise((resolve, reject) => {
@@ -312,7 +312,6 @@ class HttpClient {
             // Try active proxy first
             if (activeProxyUrl && 
                 !BlockedHostNames.has(new URL(activeProxyUrl).hostname) && 
-                !HttpClient.BLACKLISTED_PROXIES.has(activeProxyUrl) &&
                 !(targetHostname === "ko-fi.com" && activeProxyUrl.includes("corsproxy.io"))) {
                 
                 try {
@@ -345,11 +344,26 @@ class HttpClient {
                     }
                 } catch (err) {
                     console.warn(`[WebToEpub] Active proxy ${activeProxyUrl} failed or timed out: ${err.message}. Fallback to discovery race.`);
-                    if (HttpClient.shouldBlacklistProxy(err)) {
-                        HttpClient.BLACKLISTED_PROXIES.add(activeProxyUrl);
-                    }
                 }
             }
+
+            if (wrapOptions._waitedForRace) {
+                console.warn("[WebToEpub] Waited for proxy race but new proxy still failed. Falling back to direct fetch:", url);
+                let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });
+                return HttpClient.wrapFetchImpl(url, newOptions);
+            }
+
+            if (HttpClient.proxyRacePromise) {
+                try { await HttpClient.proxyRacePromise; } catch (_) {}
+                let newOptions = Object.assign({}, wrapOptions, { _waitedForRace: true });
+                return HttpClient.wrapFetchImpl(url, newOptions);
+            }
+
+            let raceResolvers = {};
+            HttpClient.proxyRacePromise = new Promise((resolve, reject) => {
+                raceResolvers.resolve = resolve;
+                raceResolvers.reject = reject;
+            });
 
             // Fallback: run the discovery race with the remaining proxies
             let proxiesToTry = [];
@@ -357,65 +371,55 @@ class HttpClient {
                 proxiesToTry.push(p.url);
             }
 
-            // Filter out blacklisted proxies for this attempt
             proxiesToTry = proxiesToTry.filter(u => {
-                if (HttpClient.BLACKLISTED_PROXIES.has(u)) return false;
                 // Specific Ko-fi blacklist for corsproxy.io
                 if (targetHostname === "ko-fi.com" && u.includes("corsproxy.io")) return false;
+                if (BlockedHostNames.has(new URL(u).hostname)) return false;
                 return true;
             });
 
-            // If everything is blacklisted, clear and try again
-            if (proxiesToTry.length === 0) {
-                HttpClient.BLACKLISTED_PROXIES.clear();
-                proxiesToTry = HttpClient.CORS_PROXIES.map(p => p.url);
-            }
-
-            // ── Race all proxies simultaneously ─────────────────────────────
-            // Launch all proxies at once and use whichever responds first.
-            // Reduces worst-case wait from (N × timeout) to just one timeout.
             const PROXY_TIMEOUT_MS = 8000;
+            let controllerMap = new Map();
+            let racePromises = [];
 
-            // Map proxyUrl → AbortController so we can abort ONLY the losers.
-            // CRITICAL: never abort the winner's controller — doing so cancels the
-            // response body stream and causes arrayBuffer() to throw an AbortError.
-            const controllerMap = new Map();
-
-            const racePromises = proxiesToTry.map((proxyUrl) => {
-                if (BlockedHostNames.has(new URL(proxyUrl).hostname)) {
-                    return Promise.reject(new Error(`blocked: ${proxyUrl}`));
-                }
+            for (let proxyUrl of proxiesToTry) {
                 const ctrl = new AbortController();
                 controllerMap.set(proxyUrl, ctrl);
-                const tid = setTimeout(() => ctrl.abort(), PROXY_TIMEOUT_MS);
                 const fetchUrl = proxyUrl + encodeURIComponent(url.trim());
                 const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
                     credentials: "omit",
                     signal: ctrl.signal
                 });
-                return fetch(fetchUrl, fetchOpts)
-                    .then(async response => {
+
+                let p = new Promise(async (resolve, reject) => {
+                    const tid = setTimeout(() => {
+                        ctrl.abort();
+                        reject(new Error("Timeout"));
+                    }, PROXY_TIMEOUT_MS);
+
+                    try {
+                        let response = await fetch(fetchUrl, fetchOpts);
                         clearTimeout(tid);
                         if (!response.ok) throw new Error(`${response.status}`);
                         let text = await response.clone().text();
-                        if (HttpClient.isCloudflareBlock(text)) {
-                            throw new Error("Cloudflare block page");
-                        }
-                        return { response, proxyUrl };
-                    })
-                    .catch(err => { clearTimeout(tid); throw err; });
-            });
+                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                        
+                        resolve({ response, proxyUrl });
+                    } catch (err) {
+                        clearTimeout(tid);
+                        reject(err);
+                    }
+                });
+                racePromises.push(p);
+            }
 
-            let winnerUrl = null;
             try {
-                const { response, proxyUrl } = await Promise.any(racePromises);
-                winnerUrl = proxyUrl;
+                const { response, proxyUrl: winnerUrl } = await Promise.any(racePromises);
 
-                // Abort LOSING requests only — the winner's controller must stay alive
-                // until we finish reading the response body below.
+                // Abort losing requests
                 for (const [pUrl, ctrl] of controllerMap) {
                     if (pUrl !== winnerUrl) {
-                        try { ctrl.abort(); } catch (_) { /* ignore */ }
+                        try { ctrl.abort(); } catch (_) {}
                     }
                 }
 
@@ -426,8 +430,8 @@ class HttpClient {
 
                 let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
 
-                // Response body fully read — safe to abort winner's controller now
-                try { controllerMap.get(winnerUrl)?.abort(); } catch (_) { /* ignore */ }
+                // Body read, abort winner
+                try { controllerMap.get(winnerUrl)?.abort(); } catch (_) {}
 
                 if (proxyWrapOptions.parser?.isCustomError(ret)) {
                     let CustomErrorResponse = proxyWrapOptions.parser.setCustomErrorResponse(url, proxyWrapOptions, ret);
@@ -439,29 +443,22 @@ class HttpClient {
                     );
                 }
 
-                // Stick to the winning proxy for future requests
                 if (HttpClient.corsProxyUrl !== winnerUrl) {
                     console.log(`[WebToEpub] Switching to winning proxy: ${winnerUrl}`);
                     HttpClient.corsProxyUrl = winnerUrl;
                     HttpClient.updateCorsProxyUi();
                 }
 
-                return ret;
+                raceResolvers.resolve();
+                HttpClient.proxyRacePromise = null;
 
-            } catch (aggErr) {
-                if (winnerUrl && HttpClient.shouldBlacklistProxy(aggErr)) {
-                    console.warn(`[WebToEpub] Winning proxy ${winnerUrl} failed during data retrieval, blacklisting it.`);
-                    HttpClient.BLACKLISTED_PROXIES.add(winnerUrl);
-                }
+                return ret;
+            } catch (aggregateErr) {
+                raceResolvers.reject(aggregateErr);
+                HttpClient.proxyRacePromise = null;
+
                 if (wrapOptions.bypassDirectFetchFallback) {
-                    let errMsgs = [];
-                    if (aggErr && aggErr.errors) {
-                        errMsgs = aggErr.errors.map(e => e.message || String(e));
-                    } else {
-                        errMsgs = [aggErr.message || String(aggErr)];
-                    }
-                    const uniqueErrors = Array.from(new Set(errMsgs));
-                    return Promise.reject(new Error(`Proxy error: ${uniqueErrors.join(", ")}`));
+                    return Promise.reject(new Error(`Proxy error: All proxies failed.`));
                 }
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
@@ -733,11 +730,13 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
-    { name: "Tufive Workers Proxy", url: "https://fragrant-frost-f292.tufive.workers.dev/?url=" },
-    { name: "CodeTabs Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=" },
-    { name: "AllOrigins (Raw)", url: "https://api.allorigins.win/raw?url=" }
+    { name: "allOrigins (raw)", url: "https://api.allorigins.win/raw?url=" },
+    { name: "CORS.SH", url: "https://proxy.cors.sh/" },
+    { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
+    { name: "ThingProxy", url: "https://thingproxy.freeboard.io/fetch/" },
+    { name: "cors.lol", url: "https://api.cors.lol/?url=" },
+    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" }
 ];
-HttpClient.BLACKLISTED_PROXIES = new Set();
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
 HttpClient.enableCorsProxy = true;
 HttpClient.wtrLabCookieHeader = "";

@@ -28,11 +28,10 @@ class LibraryUI {
             // IndexedDB Store wrapper matching the chrome.storage.local API
             const dbName = "WebToEpubLibrary";
             const storeName = "books";
-            let dbInstance = null;
 
             const getDb = () => {
-                if (dbInstance) return Promise.resolve(dbInstance);
-                return new Promise((resolve, reject) => {
+                if (LibraryUI.sharedDbPromise) return LibraryUI.sharedDbPromise;
+                LibraryUI.sharedDbPromise = new Promise((resolve, reject) => {
                     const request = indexedDB.open(dbName, 1);
                     request.onupgradeneeded = (e) => {
                         const db = e.target.result;
@@ -41,11 +40,14 @@ class LibraryUI {
                         }
                     };
                     request.onsuccess = (e) => {
-                        dbInstance = e.target.result;
-                        resolve(dbInstance);
+                        resolve(e.target.result);
                     };
-                    request.onerror = (e) => reject(e.target.error);
+                    request.onerror = (e) => {
+                        LibraryUI.sharedDbPromise = null;
+                        reject(e.target.error);
+                    };
                 });
+                return LibraryUI.sharedDbPromise;
             };
 
             const store = {

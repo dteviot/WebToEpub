@@ -1,1 +1,190 @@
-"use strict";parserFactory.register("gravitytales.com",()=>new GravityTalesParser);class GravityTalesParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("ul.list");if(t)return util.hyperlinksToChapterList(t);t=e.querySelector("div#chapters div.tab-content");let r=util.hyperlinksToChapterList(t);if(0<r.length)return Promise.resolve(r);let l=GravityTalesParser.getNovelId(e);if(null!==l)return GravityTalesParser.fetchUrlsOfChapters(l,e.baseURI,HttpClient.fetchJson);let i=this.findContent(e)||e.querySelector("chapters")||e.body;return util.hyperlinksToChapterList(i,this.isChapterHref)}isChapterHref(e){return"gravitytales.com"===e.hostname&&""===e.search}extractTitleImpl(e){let t=e.querySelector("meta[property='og:title']");return null!==t?t.getAttribute("content"):e.querySelector("h3")}findContent(e){return e.querySelector("div.entry-content")||e.querySelector("div.content")||e.querySelector("section#chapter-content")}findChapterTitle(e){return e.querySelector("h1.entry-title")||e.querySelector("#single h1")||e.querySelector("h1.chapter__title")}findParentNodeOfChapterLinkToRemoveAt(e){let t=util.moveIfParent(e,"strong");return util.moveIfParent(t,"p")}static getNovelId(e){let t=e.querySelector("div#contentElement"),r=null===t?null:t.getAttribute("ng-init"),l=[];return util.isNullOrEmpty(r)||(l=r.split(";").map(e=>GravityTalesParser.splitAtEquals(e)).filter(e=>2===e.length&&"novelId"===e[0]).map(e=>parseInt(e[1]))),1===l.length?l[0]:GravityTalesParser.searchForNovelIdinScriptTags(e)}static splitAtEquals(e){return e.split("=").map(e=>e.trim())}static fetchUrlsOfChapters(e,t,r){return r(`https://gravitytales.com/api/novels/chaptergroups/${e}`).then(function(t){return Promise.all(t.json.map(t=>GravityTalesParser.fetchChapterListForGroup(e,t,r)))}).then(function(e){return GravityTalesParser.mergeChapterLists(e,t)})}static fetchChapterListForGroup(e,t,r){return r(`https://gravitytales.com/api/novels/chaptergroup/${t.ChapterGroupId}`).then(function(e){return{groupTitle:t.Title,chapters:e.json}})}static mergeChapterLists(e,t){let r=new Set;return e.reduce(function(e,l){let i=l.groupTitle;for(let n of l.chapters){let l=util.removeTrailingSlash(t+"/"+n.Slug);r.has(l)||(r.add(l),e.push(GravityTalesParser.makeChapter(l,n.Name,i)),null!=i&&(i=null))}return e},[])}static makeChapter(e,t,r){return{sourceUrl:e,title:t,newArc:r}}static searchForNovelIdinScriptTags(e){for(let t of e.querySelectorAll("script")){let e=GravityTalesParser.searchForNovelIdinString(t.innerText);if(null!==e)return e}return null}static searchForNovelIdinString(e){let t="novelId:",r=e.indexOf(t);if(0<=r){let t=e.substring(r+8);return t=GravityTalesParser.removeStringAfterChar(t,","),t=GravityTalesParser.removeStringAfterChar(t,"}").trim(),parseInt(t)}return null}static removeStringAfterChar(e,t){let r=e.indexOf(t);return 0<=r?e.substring(0,r):e}findCoverImageUrl(e){if(e.querySelector("div.cover"))return util.getFirstImgSrc(e,"div.cover");let t=e.querySelector("div#coverImg");if(null!==t){let e=t.getAttribute("style");if(!util.isNullOrEmpty(e)){let t=e.indexOf("url(")+4,r=e.indexOf(");",t);if(t<r)return e.substring(t,r)}}return util.getFirstImgSrc(e,"figure.story__thumbnail")}getInformationEpubItemChildNodes(e){return[e.querySelector("div.desc, p.description, .story__summary")]}}
+"use strict";
+
+parserFactory.register("gravitytales.com", () => new GravityTalesParser());
+
+class GravityTalesParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let chaptersElement = dom.querySelector("ul.list");
+        if (chaptersElement) {
+            return util.hyperlinksToChapterList(chaptersElement);
+        }
+
+        // logic as @ 2018-06-10
+        chaptersElement = dom.querySelector("div#chapters div.tab-content");
+        let chapters = util.hyperlinksToChapterList(chaptersElement);
+        if (0 < chapters.length) {
+            return Promise.resolve(chapters);
+        }
+
+        // older logic
+        let novelId = GravityTalesParser.getNovelId(dom);
+        if (novelId !== null) {
+            return GravityTalesParser.fetchUrlsOfChapters(novelId, dom.baseURI, HttpClient.fetchJson); 
+        }
+        let content = this.findContent(dom) ||
+            dom.querySelector("chapters") ||
+            dom.body;
+        return util.hyperlinksToChapterList(content, this.isChapterHref);
+    }
+
+    isChapterHref(link) {
+        return (link.hostname === "gravitytales.com") &&
+            (link.search === "");
+    }
+
+    extractTitleImpl(dom) {
+        let title = dom.querySelector("meta[property='og:title']");
+        if (title !== null) {
+            return title.getAttribute("content");
+        }
+        return dom.querySelector("h3");
+    }
+
+    // find the node(s) holding the story content
+    findContent(dom) {
+        return dom.querySelector("div.entry-content")
+            || dom.querySelector("div.content")
+            || dom.querySelector("section#chapter-content");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.entry-title") ||
+            dom.querySelector("#single h1") ||
+            dom.querySelector("h1.chapter__title");
+    }
+
+    findParentNodeOfChapterLinkToRemoveAt(link) {
+        // "previous" chapter may be immediate child of <p> tag to remove
+        // "next" chapter has a <strong> tag wrapping it, then the maybe a <p> tag
+        let toRemove = util.moveIfParent(link, "strong");
+        return util.moveIfParent(toRemove, "p");
+    }
+
+    static getNovelId(dom) {
+        let contentElement = dom.querySelector("div#contentElement");
+        let init = (contentElement === null) ? null : contentElement.getAttribute("ng-init");
+        let valArray = [];
+        if (!util.isNullOrEmpty(init)) {
+            valArray = init.split(";")
+                .map(s => GravityTalesParser.splitAtEquals(s))
+                .filter(a => (a.length === 2) && a[0] === "novelId")
+                .map(a => parseInt(a[1]));
+        }
+        if (valArray.length === 1) {
+            return valArray[0];
+        }
+        return GravityTalesParser.searchForNovelIdinScriptTags(dom);
+    }
+
+    /**
+     * Convert string like "novel = 7" into ["novel", "7"]
+     */
+    static splitAtEquals(param) {
+        return param.split("=").map(s => s.trim());
+    }
+
+    static fetchUrlsOfChapters(novelId, baseUri, fetchJson) {
+        let chapterGroupsUrl = `https://gravitytales.com/api/novels/chaptergroups/${novelId}`;
+        return fetchJson(chapterGroupsUrl).then(function(handler) {
+            return Promise.all(
+                handler.json.map(group => GravityTalesParser.fetchChapterListForGroup(novelId, group, fetchJson))
+            );
+        }).then(function(chapterLists) {
+            return GravityTalesParser.mergeChapterLists(chapterLists, baseUri);
+        });
+    } 
+
+    static fetchChapterListForGroup(novelId, chapterGroup, fetchJson) {
+        let groupId = chapterGroup.ChapterGroupId;
+        let chaptersUrl = `https://gravitytales.com/api/novels/chaptergroup/${groupId}`;
+        return fetchJson(chaptersUrl).then(function(handler) {
+            return {
+                groupTitle: chapterGroup.Title,
+                chapters: handler.json
+            };
+        });
+    }
+
+    static mergeChapterLists(chapterLists, baseUri) {
+        let uniqueChapters = new Set();
+        return chapterLists.reduce(function(chapters, chapterList) {
+            let groupTitle = chapterList.groupTitle;
+            for (let c of chapterList.chapters) {
+                let url = util.removeTrailingSlash(baseUri + "/" + c.Slug);
+                if (!uniqueChapters.has(url)) {
+                    uniqueChapters.add(url);
+                    chapters.push(GravityTalesParser.makeChapter(url, c.Name, groupTitle));
+                    // only first chapter in each group gets the arc name
+                    if (groupTitle != null) {
+                        groupTitle = null; 
+                    }
+                }
+            }
+            return chapters;
+        }, []);
+    }
+
+    static makeChapter(sourceUrl, title, newArc) {
+        return {
+            sourceUrl: sourceUrl,
+            title: title,
+            newArc: newArc
+        };
+    }
+
+    static searchForNovelIdinScriptTags(dom) {
+        for (let e of dom.querySelectorAll("script")) {
+            let novelId = GravityTalesParser.searchForNovelIdinString(e.innerText);
+            if ( novelId !== null) {
+                return novelId;
+            }
+        }
+        return null;
+    }
+
+    static searchForNovelIdinString(s) {
+        let searchFor = "novelId:";
+        let startIndex = s.indexOf(searchFor);
+        if (0 <= startIndex)
+        {
+            let novelId = s.substring(startIndex + searchFor.length);
+            novelId = GravityTalesParser.removeStringAfterChar(novelId, ",");
+            novelId = GravityTalesParser.removeStringAfterChar(novelId, "}").trim();
+            return parseInt(novelId);
+        }
+        return null;
+    }
+
+    static removeStringAfterChar(s, c) {
+        let endIndex = s.indexOf(c);
+        return (0 <= endIndex) ? s.substring(0, endIndex) : s;
+    }
+
+    findCoverImageUrl(dom) {
+        if (dom.querySelector("div.cover")) {
+            return util.getFirstImgSrc(dom, "div.cover");            
+        }
+
+        let img = dom.querySelector("div#coverImg");
+        if (img !== null) {
+            let style = img.getAttribute("style");
+            if (!util.isNullOrEmpty(style)) {
+                let startIndex = style.indexOf("url(") + 4;
+                let endIndex = style.indexOf(");", startIndex);
+                if (startIndex < endIndex) {
+                    return style.substring(startIndex, endIndex);
+                }
+            }
+        }
+
+        return util.getFirstImgSrc(dom, "figure.story__thumbnail");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [dom.querySelector("div.desc, p.description, .story__summary")];
+    }
+}

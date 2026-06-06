@@ -314,7 +314,12 @@ class LibraryUI {
         if (detailsStartReadingBtn) {
             detailsStartReadingBtn.addEventListener("click", () => {
                 if (this.currentDetailsEpub) {
-                    this.openBookInReader(this.currentDetailsEpub);
+                    if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread:")) {
+                        const url = this.currentDetailsEpub.replace("lazy:liveread:", "");
+                        window.location.href = `live-reader.html?url=${encodeURIComponent(url)}`;
+                    } else {
+                        this.openBookInReader(this.currentDetailsEpub);
+                    }
                 }
             });
         }

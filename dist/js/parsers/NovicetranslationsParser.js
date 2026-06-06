@@ -1,15 +1,1 @@
-"use strict";
-parserFactory.register("novicetranslations.com", () => new NovicetranslationsParser());
-class NovicetranslationsParser extends WordpressBaseParser {
-    constructor() {
-        super();
-    }
-    async getChapterUrls(dom) {
-        let menu = dom.querySelector("div.entry");
-        return util.hyperlinksToChapterList(menu);
-    }
-
-    findCoverImageUrl(dom) { 
-        return util.getFirstImgSrc(dom, "div.wp-block-image");
-    }
-}
+"use strict";parserFactory.register("novicetranslations.com",()=>new NovicetranslationsParser);class NovicetranslationsParser extends WordpressBaseParser{constructor(){super()}async getChapterUrls(r){let e=r.querySelector("div.entry");return util.hyperlinksToChapterList(e)}findCoverImageUrl(r){return util.getFirstImgSrc(r,"div.wp-block-image")}}

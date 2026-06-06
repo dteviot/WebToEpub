@@ -6,6 +6,33 @@
 class AiClient {
     static MODEL = "nova-fast"; // Cost-efficient and fast
 
+    // Pre-compiled regexes for performance
+    static REGEX_SCRIPT = /<script\b(?![^>]*\btype=['"]?(?:application\/ld\+json|__NUXT__)['"]?)[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+    static REGEX_STYLE = /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi;
+    static REGEX_SVG = /<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi;
+    static REGEX_COMMENT = /<!--[\s\S]*?-->/g;
+    static REGEX_SPACE = /\s+/g;
+
+    static _extractJson(text) {
+        text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/ig, "$1");
+        let objStart = text.indexOf("{");
+        let arrStart = text.indexOf("[");
+        let startIndex = -1;
+        if (objStart !== -1 && arrStart !== -1) startIndex = Math.min(objStart, arrStart);
+        else if (objStart !== -1) startIndex = objStart;
+        else if (arrStart !== -1) startIndex = arrStart;
+        if (startIndex === -1) return text;
+        
+        let objEnd = text.lastIndexOf("}");
+        let arrEnd = text.lastIndexOf("]");
+        let endIndex = Math.max(objEnd, arrEnd);
+        
+        if (endIndex !== -1 && endIndex > startIndex) {
+            return text.substring(startIndex, endIndex + 1);
+        }
+        return text;
+    }
+
     /**
      * Use AI to extract search results from HTML when manual parsing fails.
      * @param {string} html 
@@ -54,8 +81,7 @@ ${simplifiedHtml}
 
             const data = await response.json();
             const aiText = data.choices[0]?.message?.content || "[]";
-            const jsonMatch = aiText.match(/\[\s*\{[\s\S]*\}\s*\]/);
-            const results = JSON.parse(jsonMatch ? jsonMatch[0] : aiText);
+            const results = JSON.parse(AiClient._extractJson(aiText));
 
             console.log(`[AiClient] Successfully extracted ${results.length} results via AI.`);
             return results;
@@ -111,8 +137,7 @@ ${simplifiedHtml}
             if (!response.ok) throw new Error(`AI API error: ${response.status}`);
             const data = await response.json();
             const aiText = data.choices[0]?.message?.content || "{}";
-            const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-            const results = JSON.parse(jsonMatch ? jsonMatch[0] : aiText);
+            const results = JSON.parse(AiClient._extractJson(aiText));
 
             console.log("[AiClient] Autocomplete selectors found:", results);
             return results;
@@ -168,8 +193,7 @@ ${simplifiedHtml}
             if (!response.ok) throw new Error(`AI API error: ${response.status}`);
             const data = await response.json();
             const aiText = data.choices[0]?.message?.content || "{}";
-            const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-            return JSON.parse(jsonMatch ? jsonMatch[0] : aiText);
+            return JSON.parse(AiClient._extractJson(aiText));
         } catch (e) {
             console.error("[AiClient] Failed to detect first chapter:", e);
             return null;
@@ -182,12 +206,11 @@ ${simplifiedHtml}
     static simplifyHtml(html) {
         if (!html) return "";
         return html
-            // Remove scripts except those likely to contain data
-            .replace(/<script\b(?![^>]*\btype=['"]?(?:application\/ld\+json|__NUXT__)['"]?)[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-            .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, "")
-            .replace(/<!--[\s\S]*?-->/g, "")
-            .replace(/\s+/g, " ")
+            .replace(AiClient.REGEX_SCRIPT, "")
+            .replace(AiClient.REGEX_STYLE, "")
+            .replace(AiClient.REGEX_SVG, "")
+            .replace(AiClient.REGEX_COMMENT, "")
+            .replace(AiClient.REGEX_SPACE, " ")
             .trim();
     }
 }

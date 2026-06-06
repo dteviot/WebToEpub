@@ -1,1 +1,87 @@
-"use strict";parserFactory.register("mtnovel.net",()=>new MtnovelParser);class MtnovelParser extends Parser{constructor(){super()}async getChapterUrls(e,t){return(await this.getChapterUrlsFromMultipleTocPages(e,MtnovelParser.extractPartialChapterList,MtnovelParser.getUrlsOfTocPages,t)).reverse()}static getUrlsOfTocPages(e){let t=e.querySelector("#pagelink a.last").href,r=t.lastIndexOf("/"),n=parseInt(t.substring(r+1)),l=t.substring(0,r+1),a=[];for(let e=2;e<=n;++e)a.push(l+e);return a}static extractPartialChapterList(e){return[...e.querySelectorAll("#list-chapterAll dd a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div.readcontent")}extractTitleImpl(e){return e.querySelector("h1.booktitle")}removeUnwantedElementsFromContentElement(e){let t=[...e.querySelectorAll("a")].filter(e=>e.textContent.includes("Back to top"));for(let e of t)e.replaceWith(e.ownerDocument.createElement("br"));super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("#acontent h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.bookcover")}async fetchChapter(e){let t=(await HttpClient.wrapFetch(e)).responseXML,r=this.findContent(t),n=this.findNextPageOfChapterUrl(t);for(;null!=n;){let e=(await HttpClient.wrapFetch(n)).responseXML,t=this.findContent(e);n=this.findNextPageOfChapterUrl(e),util.moveChildElements(t,r)}return t}findNextPageOfChapterUrl(e){let t=e.querySelector("#linkNext");return null!==t&&t.textContent.includes("Next page")?t.href:null}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("p.bookintro")]}cleanInformationNode(e){util.removeChildElementsMatchingSelector(e,"img")}}
+"use strict";
+
+parserFactory.register("mtnovel.net", () => new MtnovelParser());
+
+class MtnovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return (await this.getChapterUrlsFromMultipleTocPages(dom,
+            MtnovelParser.extractPartialChapterList,
+            MtnovelParser.getUrlsOfTocPages,
+            chapterUrlsUI
+        )).reverse();
+    }
+
+    static getUrlsOfTocPages(dom) {
+        let lastUrl = dom.querySelector("#pagelink a.last").href;
+        let index = lastUrl.lastIndexOf("/");
+        let maxUrl = parseInt(lastUrl.substring(index + 1));
+        let baseUrl = lastUrl.substring(0, index + 1);
+        let urls = [];
+        for (let i = 2; i <= maxUrl; ++i) {
+            urls.push(baseUrl + i);
+        }
+        return urls;
+    }
+
+    static extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("#list-chapterAll dd a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.readcontent");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.booktitle");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let links = [...element.querySelectorAll("a")]
+            .filter(link => link.textContent.includes("Back to top"));
+        for (let link of links) {
+            link.replaceWith(link.ownerDocument.createElement("br"));
+        }
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("#acontent h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.bookcover");
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let content = this.findContent(dom);
+        let nextUrl = this.findNextPageOfChapterUrl(dom);
+        while (nextUrl != null) {
+            let newDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
+            let newContent = this.findContent(newDom);
+            nextUrl = this.findNextPageOfChapterUrl(newDom);
+            util.moveChildElements(newContent, content);
+        }
+        return dom;
+    }
+
+    findNextPageOfChapterUrl(dom) {
+        let nextLink = dom.querySelector("#linkNext");
+        return ((nextLink !== null) && nextLink.textContent.includes("Next page"))
+            ? nextLink.href
+            : null;
+    }     
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("p.bookintro")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "img");
+    }
+}

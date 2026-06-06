@@ -1,1 +1,42 @@
-"use strict";parserFactory.register("m.bqg225.com",()=>new Bqg225Parser);class Bqg225Parser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("div.book_more a").href,r=(await HttpClient.wrapFetch(t)).responseXML.querySelector("div.book_last");return this.removeToToBottomOfPageLink(r),util.hyperlinksToChapterList(r)}removeToToBottomOfPageLink(e){e.querySelector("a[style]")?.remove()}findContent(e){return e.querySelector("div#chaptercontent")}extractTitleImpl(e){return e.querySelector("div.book_box dt.name")?.textContent}findChapterTitle(e){return e.querySelector("span.title")?.textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.cover")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.book_about")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("m.bqg225.com", () => new Bqg225Parser());
+
+class Bqg225Parser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector("div.book_more a").href;
+        let tocPage = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        let menu = tocPage.querySelector("div.book_last");
+        this.removeToToBottomOfPageLink(menu);
+        return util.hyperlinksToChapterList(menu);
+    }
+    
+    removeToToBottomOfPageLink(menu) {
+        menu.querySelector("a[style]")?.remove();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#chaptercontent");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book_box dt.name")?.textContent;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("span.title")?.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.cover");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.book_about")];
+    }
+}

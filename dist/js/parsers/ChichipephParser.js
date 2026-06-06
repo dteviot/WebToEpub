@@ -1,1 +1,33 @@
-"use strict";parserFactory.register("chichipeph.com",()=>new ChichipephParser);class ChichipephParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.entry-content a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div.entry-content")}extractTitleImpl(e){return e.querySelector("article header h3")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"div.entry-meta"),super.removeUnwantedElementsFromContentElement(e)}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.entry-content p")].filter(e=>null===e.querySelector("a"))}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("chichipeph.com", () => new ChichipephParser());
+
+class ChichipephParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.entry-content a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.entry-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("article header h3");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "div.entry-meta");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.entry-content p")]
+            .filter(p => p.querySelector("a") === null);
+    }
+}

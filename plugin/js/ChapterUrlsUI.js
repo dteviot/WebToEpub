@@ -40,17 +40,19 @@ class ChapterUrlsUI {
         let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
+        let fragment = document.createDocumentFragment();
         chapters.forEach((chapter) => {
             let row = document.createElement("tr");
             ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
             ChapterUrlsUI.appendInputTextToRow(row, chapter);
             chapter.row = row;
             ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
-            linksTable.appendChild(row);
+            fragment.appendChild(row);
             ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter, memberForTextOption);
             ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter, memberForTextOption);
             ++index;
         });
+        linksTable.appendChild(fragment);
         ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
         this.showHideChapterUrlsColumn();
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
@@ -58,16 +60,18 @@ class ChapterUrlsUI {
 
     showTocProgress(chapters) {
         let linksTable = ChapterUrlsUI.getChapterUrlsTable();
+        let fragment = document.createDocumentFragment();
         chapters.forEach((chapter) => {
             let row = document.createElement("tr");
-            linksTable.appendChild(row);
             row.appendChild(document.createElement("td"));
             let col = document.createElement("td");
             col.className = "disabled";
             col.appendChild(document.createTextNode(chapter.title));
             row.appendChild(col);
             row.appendChild(document.createElement("td"));
+            fragment.appendChild(row);
         });
+        linksTable.appendChild(fragment);
     }
 
     static showDownloadState(row, state) {

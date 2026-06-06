@@ -10,13 +10,26 @@ class FetchCache { // eslint-disable-line no-unused-vars
     constructor() {
         this.path = null;
         this.dom = null;
+        this.pendingFetches = new Map();
     }
 
     async fetch(url) {
-        if  (!this.inCache(url)) {
-            this.dom = (await HttpClient.wrapFetch(url)).responseXML;
-            this.path = new URL(url).pathname;
+        let urlPath = new URL(url).pathname;
+        if (this.path === urlPath && this.dom !== null) {
+            return this.dom.cloneNode(true);
         }
+
+        if (!this.pendingFetches.has(urlPath)) {
+            let promise = HttpClient.wrapFetch(url).then(res => res.responseXML);
+            this.pendingFetches.set(urlPath, promise);
+        }
+
+        let dom = await this.pendingFetches.get(urlPath);
+        
+        this.dom = dom;
+        this.path = urlPath;
+        this.pendingFetches.delete(urlPath);
+
         return this.dom.cloneNode(true);
     }
 
@@ -597,8 +610,7 @@ class Parser {
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
                 if (HttpClient.enableCorsProxy && HttpClient.corsProxyUrl) {
-                    console.warn(`[WebToEpub] Content not found on page. Blacklisting current proxy: ${HttpClient.corsProxyUrl}`);
-                    HttpClient.BLACKLISTED_PROXIES.add(HttpClient.corsProxyUrl);
+                    console.warn(`[WebToEpub] Content not found on page. (Proxy issue possible, but not blacklisted)`);
                 }
                 let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
                 throw new Error(errorMsg);

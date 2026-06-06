@@ -1,1 +1,44 @@
-"use strict";parserFactory.register("idnovel.my.id",()=>new IdnovelmyidParser);class IdnovelmyidParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("div.bxcl");return util.hyperlinksToChapterList(t).reverse()}findContent(e){return e.querySelector("div.text-left")}extractTitleImpl(e){return e.querySelector("div.infox h1")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"center"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("div.maincontent b")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.thumb")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.desc")]}cleanInformationNode(e){util.removeChildElementsMatchingSelector(e,"script")}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("idnovel.my.id", () => new IdnovelmyidParser());
+
+class IdnovelmyidParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("div.bxcl");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.text-left");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.infox h1");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "center");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.maincontent b");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.thumb");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.desc")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "script");
+    }
+}

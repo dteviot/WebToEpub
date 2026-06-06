@@ -1,1 +1,209 @@
-"use strict";parserFactory.register("mistminthaven.com",()=>new MistmintHavenParser);class MistmintHavenParser extends Parser{constructor(){super(),this.chapterTitles=new Map}async getChapterUrls(e){let t=[...e.querySelectorAll("[role='tabpanel'] a[href*='/novels/'][title^='Chapter']")].map(e=>({sourceUrl:e.href,title:e.title||e.querySelector(".font-semibold")?.textContent?.trim(),isIncludeable:!0}));0===t.length&&(t=[...e.querySelectorAll("a[href*='/novels/'][title^='Chapter']")].filter(e=>!e.closest("[aria-hidden='true']")).map(e=>({sourceUrl:e.href,title:e.title||e.querySelector(".font-semibold")?.textContent?.trim(),isIncludeable:!0})));for(let e of t)this.chapterTitles.set(e.sourceUrl,e.title);return t}async fetchChapter(e){let t=(await HttpClient.wrapFetch(e)).responseXML,r="self.__next_f.push(",n=[...t.querySelectorAll("script")].map(e=>e.textContent).filter(e=>e.includes(r)).map(e=>{let t=e.slice(19,-1);try{return JSON.parse(t)}catch{return null}}).filter(Boolean).find(([e,t])=>1===e&&"string"==typeof t&&/<p\b[^>]*>/i.test(t)&&t.length>1e3);if(!n)throw new Error("No HTML chapter content found.");let l=Parser.makeEmptyDocForContent(e),o=util.sanitize(n[1]);return util.moveChildElements(o.body,l.content),l.dom}findContent(e){return Parser.findConstrutedContent(e)}extractTitleImpl(e){return e.querySelector("h1.text-text-primary-button")||e.querySelector("h1")}extractAuthor(e){let t=e.querySelectorAll("svg");for(let e of t){if(e.querySelector("path[d*='M8 6.66667']")||e.querySelector("path[d*='M2 13.6']")){let t=e.closest("div"),r=t?.querySelector("span");if(r?.textContent?.trim())return r.textContent.trim()}}return super.extractAuthor(e)}extractDescription(e){return(e.querySelector(".text-text-badge")?.textContent?.trim()||"")+"\n\n"+(e.querySelector(".whitespace-pre-line")?.textContent?.trim()||"")}findChapterTitle(e,t){return this.chapterTitles.get(t.sourceUrl)}findCoverImageUrl(e){let t=e.querySelector(".aspect-\\[2\\/3\\] img")||e.querySelector("img[alt][data-nimg='fill']");if(!t)return null;let r=t.getAttribute("srcset");if(r){let e=r.match(/url=([^&]+)/);if(e)return decodeURIComponent(e[1])}return t.src||null}removeUnwantedElementsFromContentElement(e){util.removeElements(e.querySelectorAll("ins.adsbygoogle, section:has(ins.adsbygoogle)")),util.removeElements(e.querySelectorAll("span.inline-block:has(svg)")),super.removeUnwantedElementsFromContentElement(e)}getInformationEpubItemChildNodes(e){let t=[],r=document.createElement("div"),n=e.querySelector("h1.text-text-primary-button");if(n){let e=document.createElement("h2");e.textContent=n.textContent.trim(),r.appendChild(e)}let l=e.querySelector(".text-text-badge");if(l){let e=document.createElement("p");e.textContent=l.textContent.trim(),r.appendChild(e)}let o=e.querySelectorAll("h1.text-text-primary-button ~ div .flex.items-center.gap-1 span");if(o.length>0){let e=document.createElement("p"),t=[...o].map(e=>e.textContent.trim()).filter(e=>e);e.textContent=t.join(" | "),r.appendChild(e)}let i=e.querySelector("span.bg-\\[\\#5EA0FE\\]");if(i){let e=document.createElement("p");e.textContent="Translator: "+i.textContent.trim(),r.appendChild(e)}let a=[...e.querySelectorAll("a[href*='?genres=']")];if(a.length>0){let e=document.createElement("p");e.textContent="Genres: "+a.map(e=>e.textContent.trim()).join(", "),r.appendChild(e)}r.children.length>0&&t.push(r);let s=e.querySelector(".whitespace-pre-line");if(s){let e=document.createElement("div"),r=document.createElement("h3");r.textContent="Synopsis",e.appendChild(r);for(let t of s.textContent.split("\n")){let r=t.trim();if(r){let t=document.createElement("p");t.textContent=r,e.appendChild(t)}}t.push(e)}return t}extractSubject(e){return[...e.querySelectorAll("a[href*='?genres=']")].map(e=>e.textContent?.trim()).join(", ")}}
+"use strict";
+
+parserFactory.register("mistminthaven.com", () => new MistmintHavenParser());
+
+class MistmintHavenParser extends Parser {
+    constructor() {
+        super();
+        this.chapterTitles = new Map();
+    }
+
+    async getChapterUrls(dom) {
+        // Free chapters are in the first tab panel, inside a grid of <a> elements
+        let chapters = [...dom.querySelectorAll("[role='tabpanel'] a[href*='/novels/'][title^='Chapter']")]
+            .map(a => ({
+                sourceUrl: a.href,
+                title: a.title || a.querySelector(".font-semibold")?.textContent?.trim(),
+                isIncludeable: true
+            }));
+
+        // If no tab panel found, try broader selector
+        if (chapters.length === 0) {
+            chapters = [...dom.querySelectorAll("a[href*='/novels/'][title^='Chapter']")]
+                .filter(a => !a.closest("[aria-hidden='true']"))
+                .map(a => ({
+                    sourceUrl: a.href,
+                    title: a.title || a.querySelector(".font-semibold")?.textContent?.trim(),
+                    isIncludeable: true
+                }));
+        }
+
+        for (let c of chapters) {
+            this.chapterTitles.set(c.sourceUrl, c.title);
+        }
+        return chapters;
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let startString = "self.__next_f.push(";
+        let scriptElements = [...dom.querySelectorAll("script")]
+            .map(el => el.textContent)
+            .filter(text => text.includes(startString));
+
+        let parsedChunks = scriptElements
+            .map(script => {
+                let jsonText = script.slice(startString.length, -1);
+                try {
+                    return JSON.parse(jsonText);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+
+        let htmlChunk = parsedChunks.find(
+            ([type, data]) =>
+                type === 1 &&
+                typeof data === "string" &&
+                /<p\b[^>]*>/i.test(data) &&
+                data.length > 1000
+        );
+
+        if (!htmlChunk) throw new Error("No HTML chapter content found.");
+
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let content = util.sanitize(htmlChunk[1]);
+        util.moveChildElements(content.body, newDoc.content);
+        return newDoc.dom;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        // Index page: h1 in the novel info section
+        return dom.querySelector("h1.text-text-primary-button") ||
+            dom.querySelector("h1");
+    }
+
+    extractAuthor(dom) {
+        // The author name is in a span next to a person/user SVG icon
+        // Look for the SVG with the person icon path, then get the adjacent span
+        let personIcons = dom.querySelectorAll("svg");
+        for (let svg of personIcons) {
+            let path = svg.querySelector("path[d*='M8 6.66667']") ||
+                svg.querySelector("path[d*='M2 13.6']");
+            if (path) {
+                let container = svg.closest("div");
+                let authorSpan = container?.querySelector("span");
+                if (authorSpan?.textContent?.trim()) {
+                    return authorSpan.textContent.trim();
+                }
+            }
+        }
+        return super.extractAuthor(dom);
+    }
+
+    extractDescription(dom) {
+        let altName = dom.querySelector(".text-text-badge")?.textContent?.trim() || "";
+        let desc = dom.querySelector(".whitespace-pre-line")?.textContent?.trim() || "";
+
+        return altName + "\n\n" + desc;
+    }
+
+    findChapterTitle(dom, webPage) {
+        return this.chapterTitles.get(webPage.sourceUrl);
+    }
+
+    findCoverImageUrl(dom) {
+        // The cover image on the index page has aspect-[2/3] parent
+        let img = dom.querySelector(".aspect-\\[2\\/3\\] img") ||
+            dom.querySelector("img[alt][data-nimg='fill']");
+        if (!img) return null;
+
+        // Extract the actual S3 URL from the Next.js image srcset
+        let srcset = img.getAttribute("srcset");
+        if (srcset) {
+            let match = srcset.match(/url=([^&]+)/);
+            if (match) {
+                return decodeURIComponent(match[1]);
+            }
+        }
+        return img.src || null;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeElements(element.querySelectorAll("ins.adsbygoogle, section:has(ins.adsbygoogle)"));
+        util.removeElements(element.querySelectorAll("span.inline-block:has(svg)"));
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+
+        // Build a clean info block with title, metadata, and synopsis
+        let infoDiv = document.createElement("div");
+
+        // Title
+        let title = dom.querySelector("h1.text-text-primary-button");
+        if (title) {
+            let h2 = document.createElement("h2");
+            h2.textContent = title.textContent.trim();
+            infoDiv.appendChild(h2);
+        }
+
+        // Other name / alt title
+        let altName = dom.querySelector(".text-text-badge");
+        if (altName) {
+            let p = document.createElement("p");
+            p.textContent = altName.textContent.trim();
+            infoDiv.appendChild(p);
+        }
+
+        // Author, status, and metadata from the info line
+        let metaItems = dom.querySelectorAll("h1.text-text-primary-button ~ div .flex.items-center.gap-1 span");
+        if (metaItems.length > 0) {
+            let p = document.createElement("p");
+            let texts = [...metaItems].map(s => s.textContent.trim()).filter(t => t);
+            p.textContent = texts.join(" | ");
+            infoDiv.appendChild(p);
+        }
+
+        // Translator badge
+        let translator = dom.querySelector("span.bg-\\[\\#5EA0FE\\]");
+        if (translator) {
+            let p = document.createElement("p");
+            p.textContent = "Translator: " + translator.textContent.trim();
+            infoDiv.appendChild(p);
+        }
+
+        // Genres
+        let genres = [...dom.querySelectorAll("a[href*='?genres=']")];
+        if (genres.length > 0) {
+            let p = document.createElement("p");
+            p.textContent = "Genres: " + genres.map(g => g.textContent.trim()).join(", ");
+            infoDiv.appendChild(p);
+        }
+
+        if (infoDiv.children.length > 0) {
+            nodes.push(infoDiv);
+        }
+
+        // Synopsis
+        let synopsis = dom.querySelector(".whitespace-pre-line");
+        if (synopsis) {
+            let synDiv = document.createElement("div");
+            let h3 = document.createElement("h3");
+            h3.textContent = "Synopsis";
+            synDiv.appendChild(h3);
+            for (let line of synopsis.textContent.split("\n")) {
+                let trimmed = line.trim();
+                if (trimmed) {
+                    let p = document.createElement("p");
+                    p.textContent = trimmed;
+                    synDiv.appendChild(p);
+                }
+            }
+            nodes.push(synDiv);
+        }
+
+        return nodes;
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll("a[href*='?genres=']")];
+        return tags.map(t => t.textContent?.trim()).join(", ");
+    }
+}

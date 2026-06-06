@@ -1,1 +1,81 @@
-"use strict";parserFactory.register("jpmtl.com",()=>new JpmtlParser);class JpmtlParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("a.book-ccontent__content")].map(this.linkToChapter)}linkToChapter(e){let t=e.querySelector("div.book-ccontent__index").textContent,r=e.querySelector("div.book-ccontent__title").textContent;return{sourceUrl:e.href,title:`${t}: ${r}`,newArc:null}}findContent(e){return e.querySelector("div.chapter-content__content")}extractTitleImpl(e){return e.querySelector("h1.book-sidebar__title")}removeUnwantedElementsFromContentElement(e){[...e.querySelectorAll("p")].filter(e=>e.textContent.includes("This novel has been translated by JPMTL.com")).forEach(e=>e.remove()),[...e.querySelectorAll("p")].forEach(this.removeWatermark),super.removeUnwantedElementsFromContentElement(e)}removeWatermark(e){let t=e.textContent.substring(0,80).toLowerCase(),r=t.indexOf("y");if(-1===r)return;if("translatedby"===t.substring(0,r+1).replace(/\s+/g,"")){let n=12;for(;r<t.length;)if(" "!==t[++r]&&21===++n)return void(e.textContent=e.textContent.substring(r+1))}}findChapterTitle(e){return e.querySelector("div.chapter-content__title").textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.book-sidebar__cover")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.main-book__container")]}cleanInformationNode(e){return[...e.querySelectorAll("svg")].forEach(e=>e.remove()),e}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("jpmtl.com", () => new JpmtlParser());
+
+class JpmtlParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let chapters = [...dom.querySelectorAll("a.book-ccontent__content")];
+        return chapters.map(this.linkToChapter);
+    }
+
+    linkToChapter(link) {
+        let chapterNum = link.querySelector("div.book-ccontent__index").textContent;
+        let titleText = link.querySelector("div.book-ccontent__title").textContent;
+        return {
+            sourceUrl:  link.href,
+            title: `${chapterNum}: ${titleText}`,
+            newArc: null
+        };
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.chapter-content__content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.book-sidebar__title");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        [...element.querySelectorAll("p")]
+            .filter(p => p.textContent.includes("This novel has been translated by JPMTL.com"))
+            .forEach(p => p.remove());
+        [...element.querySelectorAll("p")]
+            .forEach(this.removeWatermark);
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    removeWatermark(paragraph) {
+        let text = paragraph.textContent.substring(0, 80).toLowerCase();
+        let index = text.indexOf("y");
+        if (index === -1 ) {
+            return;
+        }
+        let watermark = text.substring(0, index + 1).replace(/\s+/g, "");
+        const watermarkLength = 21;
+        if (watermark === "translatedby") {
+            let count = 12;
+            while (index < text.length) {
+                if (text[++index] !== " ") {
+                    if (++count === watermarkLength) {
+                        paragraph.textContent = paragraph.textContent.substring(index + 1);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.chapter-content__title").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.book-sidebar__cover");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.main-book__container")];
+    }
+
+    cleanInformationNode(node) {
+        [...node.querySelectorAll("svg")]
+            .forEach(p => p.remove());
+        return node;
+    }
+}

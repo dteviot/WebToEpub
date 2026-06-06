@@ -47,7 +47,7 @@ const util = (function() {
     }
 
     function useWebWorkers() {
-        if (typeof window === "undefined" || !window.WTE_WEBSITE_MODE) {
+        if (typeof window === "undefined") {
             return false;
         }
         if (typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]")) {

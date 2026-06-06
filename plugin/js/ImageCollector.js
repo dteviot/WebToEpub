@@ -100,21 +100,26 @@ class ImageCollector {
         return this.imagesToFetch.length;
     }
 
-    async fetchImages(progressIndicator, parentPageUrl) {
-        for (let imageInfo of this.imagesToFetch) {
-            if (!imageInfo.queuedForFetch) {
-                imageInfo.queuedForFetch = true;
-                await this.fetchImage(imageInfo, progressIndicator, parentPageUrl);
-            }
-        }
+    async fetchImages(progressIndicator, parentPageUrl, concurrency = 5) {
+        const pending = this.imagesToFetch.filter(r => !r.queuedForFetch);
+        pending.forEach(r => r.queuedForFetch = true);
         this.imagesToFetch = [];
+
+        const queue = [...pending];
+        const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
+            while (queue.length > 0) {
+                const img = queue.shift();
+                if (img) await this.fetchImage(img, progressIndicator, parentPageUrl);
+            }
+        });
+        await Promise.all(workers);
     }
 
     /**
     * @private
     */
-    addToPackList(imageInfo) {
-        let hash = ImageCollector.calculateHash(imageInfo.arraybuffer);
+    async addToPackList(imageInfo) {
+        let hash = await ImageCollector.calculateHash(imageInfo.arraybuffer);
         let index = this.bitmapIndex.get(hash);
         if (index === undefined) {
             // first time we've seen the bitmap, so all OK
@@ -134,16 +139,10 @@ class ImageCollector {
     /**
     * @private
     */
-    static calculateHash(arraybuffer) {
-        let hash = 0;
-        let byteArray = new Uint8Array(arraybuffer);
-        if (byteArray.length !== 0) {
-            for (let i = 0; i < byteArray.length; ++i) {
-                hash = ((hash << 5) - hash) + byteArray[i];
-                hash |= 0;
-            }
-        }
-        return ImageCollector.toHex(byteArray.length) + ImageCollector.toHex(hash);
+    static async calculateHash(arraybuffer) {
+        const hashBuffer = await crypto.subtle.digest("SHA-1", arraybuffer);
+        const hashArray = new Uint8Array(hashBuffer);
+        return Array.from(hashArray).map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
 
@@ -397,7 +396,7 @@ class ImageCollector {
                 await this.runCompression(imageInfo, img);
             }
             progressIndicator();
-            this.addToPackList(imageInfo);
+            await this.addToPackList(imageInfo);
         }
         catch (error) {
             // ToDo, implement error handler.

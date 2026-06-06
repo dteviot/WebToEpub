@@ -1,1 +1,70 @@
-"use strict";parserFactory.register("mangadex.org",()=>new MangadexParser),parserFactory.register("api.mangadex.org",()=>new MangadexParser);class MangadexParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=new URL(e.baseURI).pathname.split("/")[2],r=new URL(`https://api.mangadex.org/manga/${t}/feed`);return r.searchParams.set("translatedLanguage[]","en"),(await HttpClient.fetchJson(r.href)).json.data.map(this.buildChapterInfo)}buildChapterInfo(e){let t="",r=e.attributes;return r.volume&&(t="Volume: "+r.volume+" "),r.chapter&&(t+="Chapter: "+r.chapter+" "),r.title&&(t+=r.title),{title:t.trim(),sourceUrl:`https://api.mangadex.org/at-home/server/${e.id}`}}extractTitleImpl(e){return e.querySelector(".title p")}findContent(e){return Parser.findConstrutedContent(e)}findCoverImageUrl(e){return util.getFirstImgSrc(e,"[style='grid-area: art;']")}async fetchChapter(e){let t=(await HttpClient.fetchJson(e,{})).json;return MangadexParser.jsonToHtmlWithImgTags(e,t)}static jsonToHtmlWithImgTags(e,t){let r=Parser.makeEmptyDocForContent(e),a=t.baseUrl+"/data/"+t.chapter.hash+"/";for(let e of t.chapter.data){let t=r.dom.createElement("img");t.src=a+e,r.content.appendChild(t)}return r.dom}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.md-md-container")].filter(e=>null===e.querySelector("img, button"))}}
+"use strict";
+
+parserFactory.register("mangadex.org", () => new MangadexParser());
+parserFactory.register("api.mangadex.org", () => new MangadexParser());
+
+class MangadexParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let mangaId = new URL(dom.baseURI).pathname.split("/")[2];
+        let feedUrl = new URL(`https://api.mangadex.org/manga/${mangaId}/feed`);
+        feedUrl.searchParams.set("translatedLanguage[]", "en");
+        let json = (await HttpClient.fetchJson(feedUrl.href)).json;
+        return json.data.map(this.buildChapterInfo);
+    }
+
+    buildChapterInfo(json) {
+        let title = "";
+        let attributes = json.attributes;
+        if (attributes.volume) {
+            title = "Volume: " + attributes.volume + " ";
+        }
+        if (attributes.chapter) {
+            title += "Chapter: " + attributes.chapter + " ";
+        }
+        if (attributes.title) {
+            title += attributes.title;
+        }
+        return ({
+            title: title.trim(),
+            sourceUrl: `https://api.mangadex.org/at-home/server/${json.id}`
+        });
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".title p");
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "[style='grid-area: art;']");
+    }
+    
+    async fetchChapter(url) {
+        let options = { };
+        let json = (await HttpClient.fetchJson(url, options)).json;
+        return MangadexParser.jsonToHtmlWithImgTags(url, json);
+    }
+
+    static jsonToHtmlWithImgTags(pageUrl, json) {
+        let newDoc = Parser.makeEmptyDocForContent(pageUrl);
+        let baseUrl = json.baseUrl + "/data/" + json.chapter.hash + "/";
+        for (let data of json.chapter.data) {
+            let img = newDoc.dom.createElement("img");
+            img.src = baseUrl + data;
+            newDoc.content.appendChild(img);
+        }
+        return newDoc.dom;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.md-md-container")]
+            .filter(row => (row.querySelector("img, button") === null));
+    }
+}

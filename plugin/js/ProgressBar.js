@@ -13,28 +13,39 @@ class ProgressBar { // eslint-disable-line no-unused-vars
     }
 
     static setValue(value) {
-        ProgressBar.getUiElement().value = value;
-        ProgressBar.updateText();
+        let el = ProgressBar.getUiElement();
+        if (el) {
+            el.value = value;
+            ProgressBar.updateText();
+        }
     }
 
     static updateValue(increment) {
-        ProgressBar.getUiElement().value += increment;
-        ProgressBar.updateText();
+        let el = ProgressBar.getUiElement();
+        if (el) {
+            el.value += increment;
+            ProgressBar.updateText();
+        }
     }
 
     static setMax(max) {
-        ProgressBar.getUiElement().max = max;
-        ProgressBar.updateText();
+        let el = ProgressBar.getUiElement();
+        if (el) {
+            el.max = max;
+            ProgressBar.updateText();
+        }
     }
 
     static updateText() {
         let element = ProgressBar.getUiElement();
+        if (!element) return;
         let text = "";
         if (1 < element.max) {
             text = `${element.value}/${element.max}`;
             ProgressBar.updateTabTitle(element.value, element.max);
         }
-        document.getElementById("progressString").textContent = text;
+        let progressString = document.getElementById("progressString");
+        if (progressString) progressString.textContent = text;
     }
 
     static updateTabTitle(value, max) {

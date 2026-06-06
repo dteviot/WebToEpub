@@ -219,9 +219,21 @@ var main = (function() {
     }
 
     function packEpub(metaInfo) {
+        let progress = ProgressBar.getUiElement();
+        if (progress) progress.removeAttribute("value");
+        let progressString = document.getElementById("progressString");
+        if (progressString) progressString.textContent = "Assembling EPUB…";
+
         let epubVersion = epubVersionFromPreferences();
         let epub = new EpubPacker(metaInfo, epubVersion);
-        return epub.assemble(parser.epubItemSupplier());
+        let promise = epub.assemble(parser.epubItemSupplier());
+        
+        promise.then(() => {
+            if (progress) progress.value = progress.max;
+            if (progressString) progressString.textContent = "Done!";
+        }).catch(() => {});
+        
+        return promise;
     }
 
     function dumpErrorLogToFile() {
@@ -482,6 +494,7 @@ var main = (function() {
     }
 
     function onReadingListCheckboxClicked() {
+        if (!parser) return;
         let url = parser.state.chapterListUrl;
         let checked = UserPreferences.getReadingListCheckbox().checked;
         userPreferences.readingList.onReadingListCheckboxClicked(checked, url);
@@ -530,9 +543,6 @@ var main = (function() {
     function onUnloadEvent(event) {
         if (window.workInProgress === true) {
             event.preventDefault();
-            event.returnValue = "";
-        } else {
-            delete event["returnValue"];
         }
     }
 

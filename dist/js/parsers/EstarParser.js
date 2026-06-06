@@ -1,1 +1,98 @@
-"use strict";parserFactory.register("estar.jp",()=>new EstarParser);class EstarParser extends Parser{constructor(){super()}async getChapterUrls(e){await HttpClient.setDeclarativeNetRequestRules([{id:1,priority:1,action:{type:"modifyHeaders",requestHeaders:[{header:"origin",operation:"remove"}]},condition:{urlFilter:"estar.jp"}}]);let t=e.baseURI.split("/"),r=t[t.length-1],n="https://estar.jp/api/graphql",a={query:"pages/novels/workId/episodes",data:{workId:r,first:30,page:1}},o={"Content-Type":"application/json;charset=UTF-8","x-from":"https://estar.jp/"},s={method:"POST",credentials:"include",body:JSON.stringify(a),headers:o},i=(await HttpClient.fetchJson(n,s)).json;return a={query:"pages/novels/workId/episodes",data:{workId:r,first:i.data.novel.episodeCount,page:1}},s={method:"POST",credentials:"include",body:JSON.stringify(a),headers:o},i=(await HttpClient.fetchJson(n,s)).json,i.data.novel.episodes.nodes.map(e=>({sourceUrl:"https://estar.jp/novels/"+i.data.novel.workId+"/viewer?page="+e.pageNo,title:e.title}))}findContent(e){return Parser.findConstrutedContent(e)}extractTitleImpl(e){return e.querySelector("div.info .title").textContent}extractAuthor(e){return e.querySelector("div.info .nickname").textContent}extractSubject(e){return[...e.querySelectorAll(".tags a")].map(e=>e.textContent).join(", ")}extractDescription(e){return e.querySelector(".description").textContent.trim()}findCoverImageUrl(e){return e.querySelector(".novelData picture meta").content}async fetchChapter(e){let t=(await HttpClient.wrapFetch(e)).responseXML;return this.buildChapter(t,e)}buildChapter(e,t){let r=Parser.makeEmptyDocForContent(t),n=r.dom.createElement("h1");n.textContent=e.querySelector("h1.subject").textContent,r.content.appendChild(n);let a=e.querySelector(".mainBody .content").textContent;a=a.replace("\n\n","\n"),a=a.split("\n");let o=r.dom.createElement("br");for(let e of a){let t=r.dom.createElement("p");t.textContent=e,r.content.appendChild(t),r.content.appendChild(o)}return r.dom}}
+"use strict";
+
+parserFactory.register("estar.jp", () => new EstarParser());
+
+class EstarParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let rule = 
+        [{
+            "id": 1,
+            "priority": 1,
+            "action": {
+                "type": "modifyHeaders",
+                "requestHeaders": [{ "header": "origin", "operation": "remove" }]
+            },
+            "condition": { "urlFilter" : "estar.jp"}
+        }];
+        await HttpClient.setDeclarativeNetRequestRules(rule);
+
+        let leaves = dom.baseURI.split("/");
+        let id = leaves[leaves.length - 1];
+        let fetchUrl = "https://estar.jp/api/graphql";
+        let formData = {"query":"pages/novels/workId/episodes","data":{"workId":id,"first":30,"page":1}};
+        let header = {"Content-Type": "application/json;charset=UTF-8", "x-from": "https://estar.jp/"};
+        let options = {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(formData),
+            headers: header
+        };
+        let bookinfo = (await HttpClient.fetchJson(fetchUrl, options)).json;
+        formData = {"query":"pages/novels/workId/episodes","data":{"workId":id,"first":bookinfo.data.novel.episodeCount,"page":1}};
+        options = {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(formData),
+            headers: header
+        };
+        bookinfo = (await HttpClient.fetchJson(fetchUrl, options)).json;
+        let chapters = bookinfo.data.novel.episodes.nodes.map(a => ({
+            sourceUrl: "https://estar.jp/novels/"+bookinfo.data.novel.workId+"/viewer?page="+a.pageNo, 
+            title: a.title
+        }));
+        return chapters;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.info .title").textContent;
+    }
+
+    extractAuthor(dom) {
+        return dom.querySelector("div.info .nickname").textContent;
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll(".tags a")];
+        return tags.map(a => a.textContent).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector(".description").textContent.trim();
+    }
+
+    findCoverImageUrl(dom) {
+        let pic = dom.querySelector(".novelData picture meta");
+        return pic.content;
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        return this.buildChapter(dom, url);
+    }
+
+    buildChapter(dom, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = dom.querySelector("h1.subject").textContent;
+        newDoc.content.appendChild(title);
+        let text = dom.querySelector(".mainBody .content").textContent;
+        text = text.replace("\n\n", "\n");
+        text = text.split("\n");
+        let br = newDoc.dom.createElement("br");
+        for (let element of text) {
+            let pnode = newDoc.dom.createElement("p");
+            pnode.textContent = element;
+            newDoc.content.appendChild(pnode);
+            newDoc.content.appendChild(br);
+        }
+        return newDoc.dom;
+    }
+}

@@ -1,1 +1,39 @@
-"use strict";parserFactory.register("jonaxxstories.com",()=>new JonaxxstoriesParser);class JonaxxstoriesParser extends WordpressBaseParser{constructor(){super()}async getChapterUrls(e,t){return(await this.getChapterUrlsFromMultipleTocPages(e,this.extractPartialChapterList,this.getUrlsOfTocPages,t)).reverse()}getUrlsOfTocPages(e){let t=[],r=[...e.querySelectorAll(".nav-links a:not(.next)")].slice(-1);if(0<r.length){let e=parseInt(r[0].textContent),s=r[0].href,a=s.lastIndexOf("/",s.length-2);s=s.substring(0,a+1);for(let r=2;r<=e;++r)t.push(s+r+"/")}return t}extractPartialChapterList(e){return[...e.querySelectorAll(".entry-title a")].map(e=>util.hyperLinkToChapter(e))}}
+"use strict";
+
+parserFactory.register("jonaxxstories.com", () => new JonaxxstoriesParser());
+
+class JonaxxstoriesParser extends WordpressBaseParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return (await this.getChapterUrlsFromMultipleTocPages(dom,
+            this.extractPartialChapterList,
+            this.getUrlsOfTocPages,
+            chapterUrlsUI
+        )).reverse();
+    }
+
+    getUrlsOfTocPages(dom) {
+        let urls = [];
+        let lastLink = [...dom.querySelectorAll(".nav-links a:not(.next)")]
+            .slice(-1);
+        if (0 < lastLink.length)
+        {
+            let max = parseInt(lastLink[0].textContent);
+            let href = lastLink[0].href;
+            let index = href.lastIndexOf("/", href.length - 2);
+            href = href.substring(0, index + 1);
+            for (let i = 2; i <= max; ++i) {
+                urls.push(href + i + "/");
+            }
+        }
+        return urls;
+    }
+
+    extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll(".entry-title a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+}

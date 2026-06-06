@@ -14,7 +14,23 @@ class LiveReaderUI {
         this.currentChapterIndex = -1;
 
         // Reading state
-        this.lazyCache = new Map();
+        this.lazyCacheLimit = 15;
+        this.lazyCache = {
+            map: new Map(),
+            has: (key) => this.lazyCache.map.has(key),
+            get: (key) => this.lazyCache.map.get(key),
+            set: (key, val) => {
+                const { map } = this.lazyCache;
+                if (map.has(key)) map.delete(key);
+                map.set(key, val);
+                if (map.size > this.lazyCacheLimit) {
+                    map.delete(map.keys().next().value); // Evict oldest
+                }
+                return this.lazyCache;
+            },
+            delete: (key) => this.lazyCache.map.delete(key),
+            clear: () => this.lazyCache.map.clear()
+        };
         this.lazyPromiseMap = new Map();
         this.lazyPrefetchCount = 3;
 
@@ -51,6 +67,7 @@ class LiveReaderUI {
     // INIT
     // ─────────────────────────────────────────
     init() {
+        this._teardownObservers();
         this._bindUIEvents();
         this._loadPreferences();
 
@@ -62,6 +79,17 @@ class LiveReaderUI {
             this._loadBookDetails(targetUrl);
         } else {
             this._showView("urlInputView");
+        }
+    }
+
+    _teardownObservers() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        if (this.lazyLoadObserver) {
+            this.lazyLoadObserver.disconnect();
+            this.lazyLoadObserver = null;
         }
     }
 
@@ -182,6 +210,7 @@ class LiveReaderUI {
                 if (startBtn && this.toc.length > 0 && startBtn.disabled) {
                     startBtn.disabled = false;
                     startBtn.textContent = "Start Reading";
+                    startBtn.onclick = () => this._startReading(0);
                 }
 
                 if (tocStatus) {
@@ -205,7 +234,7 @@ class LiveReaderUI {
                     let idx = this.toc.findIndex(ch => ch.sourceUrl === savedChapUrl);
                     if (idx !== -1) {
                         startBtn.textContent = "Resume Reading";
-                        startBtn.onclick = () => this._startReading(idx, true);
+                        startBtn.onclick = () => this._startReading(idx);
                         return;
                     }
                 }
@@ -256,7 +285,7 @@ class LiveReaderUI {
             li.dataset.index = index;
             li.title = ch.href;
             li.addEventListener("click", () => {
-                this._startReading(index, true);
+                this._startReading(index);
             });
             tocList.appendChild(li);
         });
@@ -335,7 +364,7 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     // START READING
     // ─────────────────────────────────────────
-    _startReading(chapterIndex = 0, forceChapterLoad = false) {
+    _startReading(chapterIndex = 0) {
         if (this.toc.length === 0) return;
         this._showView("readerView");
         this._applyReaderTheme();
@@ -344,16 +373,16 @@ class LiveReaderUI {
         this._initIntersectionObserver();
         this._initVoices();
         this._buildReaderToc();
-        
-        if (chapterIndex > 0 || forceChapterLoad) {
-            this.loadChapter(chapterIndex);
-        } else {
-            this._renderCoverPage();
-        }
+
+        this._renderCoverPage();
 
         // Pre-fetch first chapters
         for (let i = 0; i < Math.min(this.lazyPrefetchCount, this.toc.length); i++) {
             this._loadChapterIntoCache(i).catch(() => {});
+        }
+
+        if (chapterIndex > 0) {
+            setTimeout(() => this.loadChapter(chapterIndex), 200);
         }
     }
 
@@ -1128,7 +1157,6 @@ class LiveReaderUI {
             .filter(el => el.textContent.trim().length > 10);
         const main = document.getElementById("lrReaderMain");
         if (main) main.classList.add("lr-tts-mode-active");
-        // We no longer bind per-element click listeners here. Event delegation is used in _bindEvents.
     }
 
     _speakParagraph(index) {
@@ -1151,7 +1179,9 @@ class LiveReaderUI {
         p.classList.add("lr-tts-active-para");
         
         if (this.ttsAutoScroll !== false) {
+            this.isAutoScrolling = true;
             p.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => this.isAutoScrolling = false, 250);
         }
 
         const rate = parseFloat(document.getElementById("lrTtsRate")?.value || 1);
@@ -1166,13 +1196,20 @@ class LiveReaderUI {
         }
         this.speechUtterance.onend = () => {
             if (!this.ttsActive) return;
-            // Re-evaluate current index based on the DOM in case new elements were added above
             this._prepareTTSParagraphs();
             const currentIdx = this.ttsParagraphs.indexOf(this.currentTtsElement);
             if (currentIdx !== -1) {
                 this.ttsCurrentIndex = currentIdx + 1;
             } else {
-                this.ttsCurrentIndex++;
+                let targetIdx = 0;
+                for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                    const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                    if (rect.bottom > 0) {
+                        targetIdx = i;
+                        break;
+                    }
+                }
+                this.ttsCurrentIndex = targetIdx;
             }
             this._speakParagraph(this.ttsCurrentIndex);
         };
@@ -1183,6 +1220,20 @@ class LiveReaderUI {
         this._prepareTTSParagraphs();
         if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
 
+        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
+            let targetIdx = 0;
+            const viewportHeight = window.innerHeight;
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                if (rect.bottom > 0 && rect.top < viewportHeight) {
+                    targetIdx = i;
+                    break;
+                }
+            }
+            this.ttsCurrentIndex = targetIdx;
+        }
+
+        // Check if we are resuming from a paused state;
         let needsSync = false;
         if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
             const p = this.ttsParagraphs[this.ttsCurrentIndex];
@@ -1378,10 +1429,9 @@ class LiveReaderUI {
         const mainReader = document.getElementById("lrReaderMain");
         if (mainReader) {
             const disableAutoScroll = () => {
-                if (this.ttsActive) this.ttsAutoScroll = false;
+                if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("wheel", disableAutoScroll, { passive: true });
-            mainReader.addEventListener("touchmove", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
             mainReader.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();

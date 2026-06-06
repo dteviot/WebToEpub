@@ -230,10 +230,9 @@ class EpubViewerUI {
         const mainReader = document.getElementById("epubReaderMain");
         if (mainReader) {
             const disableAutoScroll = () => {
-                if (this.ttsActive) this.ttsAutoScroll = false;
+                if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("wheel", disableAutoScroll, { passive: true });
-            mainReader.addEventListener("touchmove", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
             document.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();
@@ -1585,6 +1584,19 @@ class EpubViewerUI {
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
 
+        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
+            let targetIdx = 0;
+            const viewportHeight = window.innerHeight;
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].element.getBoundingClientRect();
+                if (rect.bottom > 0 && rect.top < viewportHeight) {
+                    targetIdx = i;
+                    break;
+                }
+            }
+            this.ttsCurrentIndex = targetIdx;
+        }
+
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this.speakCurrentParagraph();
     }
@@ -1606,7 +1618,9 @@ class EpubViewerUI {
 
         // Scroll highlight paragraph into view smoothly if in scroll mode
         if (this.layout === "scroll" && this.ttsAutoScroll !== false) {
+            this.isAutoScrolling = true;
             activeBlock.element.scrollIntoView({ behavior: this.prefersInstantScroll() ? "auto" : "smooth", block: "center" });
+            setTimeout(() => this.isAutoScrolling = false, 250);
         } else if (this.layout === "page-turn" && this.ttsAutoScroll !== false) {
             // In Page-turn mode, calculate which page this paragraph is on and slide to it
             const viewport = document.getElementById("epubReaderViewport");
@@ -1656,7 +1670,15 @@ class EpubViewerUI {
             if (currentIdx !== -1) {
                 this.ttsCurrentIndex = currentIdx + 1;
             } else {
-                this.ttsCurrentIndex++;
+                let targetIdx = 0;
+                for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                    const rect = this.ttsParagraphs[i].element.getBoundingClientRect();
+                    if (rect.bottom > 0) {
+                        targetIdx = i;
+                        break;
+                    }
+                }
+                this.ttsCurrentIndex = targetIdx;
             }
             this.speakCurrentParagraph();
         };

@@ -1,1 +1,83 @@
-"use strict";parserFactory.register("ficwad.com",()=>new FicwadParser);class FicwadParser extends Parser{constructor(){super()}getChapterUrls(e){if(this.isStoryIndexPage(e))return Promise.resolve(this.getChaptersFromStoryIndex(e));let t=this.getBaseUrl(e),r=[...e.querySelectorAll("form[name='chapterlist'] option")];return 0===r.length?Promise.resolve(this.singleChapterStory(t,e)):Promise.resolve(r.map(e=>this.optionToChapterInfo(t,e)))}isStoryIndexPage(e){return null===this.findContent(e)}getChaptersFromStoryIndex(e){return[...e.querySelectorAll("div#chapters h4 a")].map(e=>util.hyperLinkToChapter(e))}optionToChapterInfo(e,t){let r=t.getAttribute("value");return{sourceUrl:util.resolveRelativeUrl(e,r),title:t.innerText}}findContent(e){return e.querySelector("div#storytext")}extractTitleImpl(e){if(this.isStoryIndexPage(e))return e.querySelector("div.storylist h4");let t=[...e.querySelectorAll("div#story h2 a")];return 0<t.length?t.pop():void 0}extractAuthor(e){return e.querySelector("span.author a").textContent.trim()}findChapterTitle(e){let t=e.querySelector("div.storylist h4");if(null!==t){let e=t.textContent;for(let e of t.querySelectorAll("a"))e.remove();t.textContent=e}return t}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.storylist")]}}
+/*
+  Parses files on ficwad.com
+*/
+"use strict";
+
+parserFactory.register("ficwad.com", () => new FicwadParser());
+
+class FicwadParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        if (this.isStoryIndexPage(dom)) {
+            return Promise.resolve(this.getChaptersFromStoryIndex(dom));
+        }
+
+        let baseUrl = this.getBaseUrl(dom);
+        let options = [...dom.querySelectorAll("form[name='chapterlist'] option")];
+        if (options.length ===0) {
+            // no list of chapters found, assume it's a single chapter story
+            return Promise.resolve(this.singleChapterStory(baseUrl, dom));
+        } else {
+            return Promise.resolve(
+                options.map(option => this.optionToChapterInfo(baseUrl, option))
+            );
+        }
+    }
+
+    isStoryIndexPage(dom) {
+        return this.findContent(dom) === null;
+    }
+    
+    getChaptersFromStoryIndex(dom) {
+        return [...dom.querySelectorAll("div#chapters h4 a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+    
+    optionToChapterInfo(baseUrl, optionElement) {
+        let relativeUrl = optionElement.getAttribute("value");
+        let url = util.resolveRelativeUrl(baseUrl, relativeUrl);
+        return {
+            sourceUrl:  url,
+            title: optionElement.innerText
+        };
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#storytext");
+    }
+
+    extractTitleImpl(dom) {
+        if (this.isStoryIndexPage(dom)) {
+            return dom.querySelector("div.storylist h4");
+        }
+
+        // assume dom is first chapter of story
+        let titles = [...dom.querySelectorAll("div#story h2 a")];
+        if (0 < titles.length) {
+            return titles.pop();
+        }
+    }
+
+    extractAuthor(dom) {
+        return dom.querySelector("span.author a").textContent.trim();
+    }
+
+    findChapterTitle(dom) {
+        let title = dom.querySelector("div.storylist h4");
+        if (title !== null) {
+            let s = title.textContent;
+            for (let link of title.querySelectorAll("a")) {
+                link.remove();
+            }
+            title.textContent = s;
+        }
+        return title;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.storylist")];
+    }
+}
