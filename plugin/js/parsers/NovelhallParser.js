@@ -8,17 +8,10 @@ class NovelhallParser extends Parser {
     }
 
     getChapterUrls(dom) {
-        let container = dom.querySelector("div.book-catalog") ||
-            dom.querySelector("div.catalog") ||
-            dom.querySelector("div.chapter-list") ||
-            dom.querySelector("div.more-chapters") ||
-            dom.querySelector("#more-chapters");
+        let containers = dom.querySelectorAll("div.book-catalog, div.catalog, div.chapter-list, div.more-chapters, #more-chapters");
         let chapters = [];
-        if (container) {
-            chapters = [...container.querySelectorAll("a")]
-                .map(a => util.hyperLinkToChapter(a));
-        } else {
-            chapters = [...dom.querySelectorAll("div.book-catalog")]
+        if (containers && containers.length > 0) {
+            chapters = [...containers]
                 .map(c => [...c.querySelectorAll("a")])
                 .reduce((a, c) => a.length < c.length ? c : a, [])
                 .map(a => util.hyperLinkToChapter(a));
