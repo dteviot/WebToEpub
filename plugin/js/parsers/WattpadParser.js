@@ -175,6 +175,11 @@ class WattpadParser extends Parser {
 
     addExtraContent(dom, extraContent) {
         let content = this.findContent(dom);
+        if (!content) {
+            // Fallback: append to body or documentElement if no content container found
+            content = dom.querySelector("body") || dom.documentElement;
+        }
+        if (!content) return dom;
         for (let s of extraContent) {
             content.appendChild(this.toHtml(s));
         }
@@ -200,7 +205,11 @@ class WattpadParser extends Parser {
     }
 
     findContent(dom) {
-        return dom.querySelector("div[data-page-number]");
+        return dom.querySelector("div[data-page-number]") ||
+            dom.querySelector("div.story-parts") ||
+            dom.querySelector("div.content") ||
+            dom.querySelector("article") ||
+            dom.querySelector("main");
     }
 
     // title of the story  (not to be confused with title of each chapter)
