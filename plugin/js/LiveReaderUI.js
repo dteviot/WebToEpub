@@ -1135,7 +1135,15 @@ class LiveReaderUI {
         // Refresh paragraphs to account for newly loaded chapters
         this._prepareTTSParagraphs();
         if (index >= this.ttsParagraphs.length) { this._stopTTS(); return; }
-        window.speechSynthesis.cancel();
+        
+        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        if (this.speechUtterance) {
+            this.speechUtterance.onend = null;
+            this.speechUtterance.onerror = null;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
         
         const p = this.ttsParagraphs[index];
         this.currentTtsElement = p;

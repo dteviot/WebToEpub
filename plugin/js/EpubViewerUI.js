@@ -1585,6 +1585,15 @@ class EpubViewerUI {
             }
         }
 
+        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        if (this.speechUtterance) {
+            this.speechUtterance.onend = null;
+            this.speechUtterance.onerror = null;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+
         // Setup Utterance
         this.speechUtterance = new SpeechSynthesisUtterance(activeBlock.text);
         
