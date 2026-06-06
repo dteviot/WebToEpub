@@ -165,7 +165,7 @@ class HttpClient {
     }
 
     static makeOptions() {
-        return { credentials: "include" };
+        return {};
     }
 
     /**
