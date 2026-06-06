@@ -364,6 +364,8 @@ class HttpClient {
                 raceResolvers.resolve = resolve;
                 raceResolvers.reject = reject;
             });
+            // Suppress Uncaught in promise errors if the promise is rejected when nobody is awaiting it
+            HttpClient.proxyRacePromise.catch(() => {});
 
             // Fallback: run the discovery race with the remaining proxies
             let proxiesToTry = [];
@@ -463,7 +465,10 @@ class HttpClient {
                     console.warn(`[WebToEpub] All main proxies failed. Trying fallback Render proxy: ${renderProxyUrl}`);
                     try {
                         const fetchUrl = renderProxyUrl + encodeURIComponent(url.trim());
-                        let response = await fetch(fetchUrl, wrapOptions.fetchOptions);
+                        const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
+                            credentials: "omit"
+                        });
+                        let response = await fetch(fetchUrl, fetchOpts);
                         if (!response.ok) throw new Error(`${response.status}`);
                         let text = await response.clone().text();
                         if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
