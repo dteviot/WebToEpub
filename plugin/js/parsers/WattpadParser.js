@@ -136,6 +136,108 @@ class WattpadParser extends Parser {
         return null; // caller handles this
     }
 
+    static isWattpadStoryUrl(url) {
+        try {
+            let hostname = new URL(url).hostname.toLowerCase();
+            if (!hostname.endsWith("wattpad.com")) {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+        return WattpadParser.extractIdFromUrl(url) != null;
+    }
+
+    static buildWpdMyDownloadUrl(storyId) {
+        return `https://wpd.my/download/${storyId}?om=1&mode=story&format=epub`;
+    }
+
+    static parseFilenameFromContentDisposition(header) {
+        if (util.isNullOrEmpty(header)) {
+            return null;
+        }
+        let utf8Match = header.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match) {
+            return decodeURIComponent(utf8Match[1].trim());
+        }
+        let plainMatch = header.match(/filename="?([^";]+)"?/i);
+        if (plainMatch) {
+            return plainMatch[1].trim();
+        }
+        return null;
+    }
+
+    static isZipArchive(bytes) {
+        return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B;
+    }
+
+    static async tryFetchDirectEpub(url) {
+        let storyId = WattpadParser.extractIdFromUrl(url);
+        if (!storyId) {
+            return null;
+        }
+        let downloadUrl = WattpadParser.buildWpdMyDownloadUrl(storyId);
+        let fetched = await WattpadParser.fetchEpubFromWpdMy(downloadUrl);
+        if (!fetched) {
+            return null;
+        }
+        let fileName = fetched.fileName || `wattpad-${storyId}.epub`;
+        return {
+            blob: fetched.blob,
+            fileName: EpubPacker.addExtensionIfMissing(fileName)
+        };
+    }
+
+    static async fetchEpubFromWpdMy(downloadUrl) {
+        let fetchAttempts = [{ url: downloadUrl }];
+        if (typeof HttpClient !== "undefined" && HttpClient.enableCorsProxy) {
+            let seen = new Set();
+            let addProxyAttempt = (proxyUrl) => {
+                if (util.isNullOrEmpty(proxyUrl) || seen.has(proxyUrl)) {
+                    return;
+                }
+                seen.add(proxyUrl);
+                fetchAttempts.push({ url: proxyUrl + encodeURIComponent(downloadUrl) });
+            };
+            addProxyAttempt(HttpClient.corsProxyUrl);
+            if (Array.isArray(HttpClient.CORS_PROXIES)) {
+                for (let proxy of HttpClient.CORS_PROXIES) {
+                    addProxyAttempt(proxy.url);
+                }
+            }
+        }
+
+        for (let attempt of fetchAttempts) {
+            try {
+                let ctrl = new AbortController();
+                let tid = setTimeout(() => ctrl.abort(), 20000);
+                let response = await fetch(attempt.url, {
+                    credentials: "omit",
+                    signal: ctrl.signal
+                });
+                clearTimeout(tid);
+                if (!response.ok) {
+                    continue;
+                }
+                let buffer = await response.arrayBuffer();
+                let bytes = new Uint8Array(buffer);
+                if (!WattpadParser.isZipArchive(bytes)) {
+                    continue;
+                }
+                let fileName = WattpadParser.parseFilenameFromContentDisposition(
+                    response.headers.get("content-disposition")
+                );
+                return {
+                    blob: new Blob([buffer], { type: "application/epub+zip" }),
+                    fileName: fileName
+                };
+            } catch (err) {
+                // try next fetch strategy
+            }
+        }
+        return null;
+    }
+
     async fetchChapter(url) {
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let extraUris = this.findURIsWithRestOfChapterContent(dom);

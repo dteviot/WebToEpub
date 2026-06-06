@@ -135,6 +135,27 @@ var main = (function() {
         }
     }
 
+    async function tryWattpadDirectEpubDownload(url) {
+        if (typeof WattpadParser === "undefined" || !WattpadParser.isWattpadStoryUrl(url)) {
+            return false;
+        }
+        let progressString = document.getElementById("progressString");
+        if (progressString) {
+            progressString.textContent = "Trying direct EPUB download from wpd.my...";
+        }
+        let direct = await WattpadParser.tryFetchDirectEpub(url);
+        if (!direct) {
+            return false;
+        }
+        let overwriteExisting = userPreferences.overwriteExistingEpub.value;
+        let backgroundDownload = userPreferences.noDownloadPopup.value;
+        await Download.save(direct.blob, direct.fileName, overwriteExisting, backgroundDownload);
+        if (progressString) {
+            progressString.textContent = "EPUB downloaded from wpd.my.";
+        }
+        return true;
+    }
+
     async function fetchContentAndPackEpub() {
         let libclick = this;
         if (document.getElementById("noAdditionalMetadataCheckbox").checked == true) {
@@ -151,6 +172,11 @@ var main = (function() {
         }
 
         try {
+            let startingUrl = document.getElementById("startingUrlInput").value;
+            if (await tryWattpadDirectEpubDownload(startingUrl)) {
+                return;
+            }
+
             ChapterUrlsUI.limitNumOfChapterS(userPreferences.maxChaptersPerEpub.value);
             ChapterUrlsUI.resetDownloadStateImages();
             ErrorLog.clearHistory();
@@ -389,6 +415,10 @@ var main = (function() {
         let url = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         try {
+            if (await tryWattpadDirectEpubDownload(url)) {
+                getLoadAndAnalyseButton().disabled = false;
+                return;
+            }
             let xhr = await HttpClient.wrapFetch(url);
             await populateControlsWithDom(url, xhr.responseXML);
             getLoadAndAnalyseButton().disabled = false;

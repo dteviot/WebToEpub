@@ -71,6 +71,16 @@ QUnit.test("fetchExtraChapterContent", function (assert) {
     });
 });
 
+QUnit.test("extractIdFromUrl story slug", function (assert) {
+    let url = "https://www.wattpad.com/story/408807838-%F0%9D%90%83%F0%9D%90%88%F0%9D%90%95%F0%9D%90%88%F0%9D%90%8D%F0%9D%90%84-%F0%9D%90%83%F0%9D%90%88%F0%9D%90%92%F0%9D%90%92%F0%9D%90%8E%F0%9D%90%8D%F0%9D%90%80%F0%9D%90%8D%F0%9D%90%82%F0%9D%90%84-%E2%9C%A6-%F0%9D%90%93%F0%9D%90%96%F0%9D%90%92%F0%9D%90%93";
+    assert.equal(WattpadParser.extractIdFromUrl(url), "408807838");
+    assert.ok(WattpadParser.isWattpadStoryUrl(url));
+    assert.equal(
+        WattpadParser.buildWpdMyDownloadUrl("408807838"),
+        "https://wpd.my/download/408807838?om=1&mode=story&format=epub"
+    );
+});
+
 QUnit.test("removeDuplicateParagraphs", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<body>" +
