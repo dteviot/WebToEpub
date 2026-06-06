@@ -36,15 +36,49 @@ class WattpadParser extends Parser {
     }
 
     async fetchChapterList(dom) {
+        // Wattpad returns 400 for API calls from non-wattpad.com origins.
+        // Instead, extract chapter list from the embedded JSON in the story page HTML.
+        let parts = WattpadParser.extractPartsFromDom(dom);
+        if (parts && parts.length > 0) {
+            return parts.map(p => ({sourceUrl: p.url, title: p.title}));
+        }
+
+        // Fallback: try the API via proxy (proxy strips Origin/Referer so Wattpad accepts it)
         let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
         if (!storyId) {
             throw new Error(`Could not extract Wattpad story ID from URL: ${dom.baseURI}\nExpected a URL like wattpad.com/story/12345-story-name`);
         }
         let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
-        // Wattpad API natively returns Access-Control-Allow-Origin: * so no proxy needed.
-        // Using a proxy here causes failures because wildcard CORS + credentials is blocked.
-        let json = (await HttpClient.fetchJson(chaptersUrl, { bypassProxy: true })).json;
+        let json = (await HttpClient.fetchJson(chaptersUrl)).json;
         return json.parts.map(p => ({sourceUrl: p.url, title: p.title}));
+    }
+
+    static extractPartsFromDom(dom) {
+        // Wattpad embeds a JSON blob in a <script> tag containing "parts":[...]
+        for (let script of dom.querySelectorAll("script")) {
+            let src = script.textContent || script.innerHTML || "";
+            let idx = src.indexOf('"parts":[');
+            if (idx === -1) continue;
+            try {
+                // Find the enclosing object by searching backwards for '{'
+                // and extracting just the parts array
+                let arrStart = src.indexOf("[", idx + 8);
+                let depth = 0;
+                let arrEnd = arrStart;
+                for (let i = arrStart; i < src.length; i++) {
+                    if (src[i] === "[" || src[i] === "{") depth++;
+                    else if (src[i] === "]" || src[i] === "}") {
+                        depth--;
+                        if (depth === 0) { arrEnd = i; break; }
+                    }
+                }
+                let partsJson = src.substring(arrStart, arrEnd + 1);
+                return JSON.parse(partsJson);
+            } catch (e) {
+                // continue to next script tag
+            }
+        }
+        return null;
     }
 
     static extractIdFromUrl(url) {
