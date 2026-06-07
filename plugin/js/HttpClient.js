@@ -216,7 +216,14 @@ class HttpClient {
         if (url == null) {
             throw new Error("URL is null or undefined");
         }
-        url = String(url).trim();
+        const normalized = util.normalizeHttpUrl(url);
+        if (!normalized) {
+            const raw = String(url).trim();
+            throw new Error(raw
+                ? `Invalid URL: ${raw}`
+                : "Please enter a web page URL.");
+        }
+        url = normalized;
 
         if (BlockedHostNames.has(new URL(url).hostname)) {
             let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");

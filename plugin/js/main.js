@@ -429,9 +429,18 @@ var main = (function() {
 
     async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
-        let url = getValueFromUiField("startingUrlInput");
+        let rawUrl = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         try {
+            let url = util.normalizeHttpUrl(rawUrl);
+            if (!url) {
+                throw new Error(util.isNullOrEmpty(rawUrl)
+                    ? "Please enter a web page URL to convert."
+                    : `Invalid URL: ${String(rawUrl).trim()}`);
+            }
+            if (url !== String(rawUrl).trim()) {
+                setUiFieldToValue("startingUrlInput", url);
+            }
             if (await tryWattpadDirectEpubDownload(url)) {
                 getLoadAndAnalyseButton().disabled = false;
                 return;
@@ -452,7 +461,7 @@ var main = (function() {
         if (!util.isNullOrEmpty(windowId)) {
             // Check if it's a URL parameter or a Tab ID
             let params = new URLSearchParams(window.location.search);
-            let targetUrl = params.get("url");
+            let targetUrl = util.normalizeHttpUrl(params.get("url"));
             if (targetUrl) {
                 setUiFieldToValue("startingUrlInput", targetUrl);
                 // Trigger analysis
@@ -748,7 +757,7 @@ var main = (function() {
 
             // If a URL was passed in the query string, automatically start analysis
             let params = new URLSearchParams(window.location.search);
-            let targetUrl = params.get("url");
+            let targetUrl = util.normalizeHttpUrl(params.get("url"));
             if (targetUrl) {
                 setUiFieldToValue("startingUrlInput", targetUrl);
                 // Wait a tiny bit for handlers to be fully ready

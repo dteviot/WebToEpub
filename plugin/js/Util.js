@@ -732,6 +732,26 @@ const util = (function() {
         }
     }
 
+    /** Normalize user-entered http(s) URLs; returns null when invalid. */
+    function normalizeHttpUrl(raw) {
+        let url = String(raw ?? "").trim();
+        if (isNullOrEmpty(url)) {
+            return null;
+        }
+        if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(url)) {
+            url = "https://" + url.replace(/^\/+/, "");
+        }
+        try {
+            let parsed = new URL(url);
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                return null;
+            }
+            return parsed.href;
+        } catch (_) {
+            return null;
+        }
+    }
+
     function xmlToString(dom) {
         addXmlDeclarationToStart(dom);
         return new XMLSerializer().serializeToString(dom);
@@ -1246,6 +1266,7 @@ const util = (function() {
         isElementWhiteSpace: isElementWhiteSpace,
         isHeaderTag: isHeaderTag,
         isUrl: isUrl,
+        normalizeHttpUrl: normalizeHttpUrl,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,
