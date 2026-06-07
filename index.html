@@ -493,10 +493,11 @@
 
             const ensureReaderModules = async () => {
                 await loadScripts([
-                    "plugin/js/ParserEnvironment.js?v=20260602_v1",
-                    "plugin/js/EpubViewerUI.js?v=20260602_v1",
+                    "plugin/@zip.js/zip.js/dist/zip-no-worker.min.js",
+                    "plugin/js/ParserEnvironment.js?v=20260607_v2",
+                    "plugin/js/EpubViewerUI.js?v=20260607_v2",
                     "plugin/js/HFLibrary.js?v=20260602_v1",
-                    "plugin/js/LibraryUI.js?v=20260602_v1"
+                    "plugin/js/LibraryUI.js?v=20260607_v2"
                 ]);
                 if (!window.epubViewer) {
                     window.epubViewer = new EpubViewerUI();

@@ -192,25 +192,9 @@ class LibraryUI {
     }
 
     async init() {
-        // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
-        if (typeof zip !== "undefined") {
-            const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
-            if (useWorkers) {
-                const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
-                if (zip.configure) {
-                    zip.configure({ useWebWorkers: true, workerScriptsPath: workerPath });
-                } else {
-                    zip.useWebWorkers = true;
-                    zip.workerScriptsPath = workerPath;
-                }
-            } else {
-                if (zip.configure) {
-                    zip.configure({ useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
-                } else {
-                    zip.useWebWorkers = false;
-                }
-            }
+        if (typeof zip !== "undefined" && typeof EpubViewerUI !== "undefined"
+            && typeof EpubViewerUI._configureZipRuntime === "function") {
+            EpubViewerUI._configureZipRuntime();
         }
 
         // Migrate data if falling back to IndexedDB

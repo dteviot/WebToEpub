@@ -28,11 +28,10 @@ class LibraryUI {
             // IndexedDB Store wrapper matching the chrome.storage.local API
             const dbName = "WebToEpubLibrary";
             const storeName = "books";
-            let dbInstance = null;
 
             const getDb = () => {
-                if (dbInstance) return Promise.resolve(dbInstance);
-                return new Promise((resolve, reject) => {
+                if (LibraryUI.sharedDbPromise) return LibraryUI.sharedDbPromise;
+                LibraryUI.sharedDbPromise = new Promise((resolve, reject) => {
                     const request = indexedDB.open(dbName, 1);
                     request.onupgradeneeded = (e) => {
                         const db = e.target.result;
@@ -41,11 +40,14 @@ class LibraryUI {
                         }
                     };
                     request.onsuccess = (e) => {
-                        dbInstance = e.target.result;
-                        resolve(dbInstance);
+                        resolve(e.target.result);
                     };
-                    request.onerror = (e) => reject(e.target.error);
+                    request.onerror = (e) => {
+                        LibraryUI.sharedDbPromise = null;
+                        reject(e.target.error);
+                    };
                 });
+                return LibraryUI.sharedDbPromise;
             };
 
             const store = {
@@ -190,25 +192,9 @@ class LibraryUI {
     }
 
     async init() {
-        // Configure zip.js globally to not use web workers (critical for mobile webviews and extensions)
-        if (typeof zip !== "undefined") {
-            const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
-            const useWorkers = isWebsite && !(typeof document !== "undefined" && document.querySelector("script[src*=\"zip-no-worker.min.js\"]"));
-            if (useWorkers) {
-                const workerPath = window.location.pathname.includes("/plugin/") ? "@zip.js/zip.js/dist/" : "plugin/@zip.js/zip.js/dist/";
-                if (zip.configure) {
-                    zip.configure({ useWebWorkers: true, workerScriptsPath: workerPath });
-                } else {
-                    zip.useWebWorkers = true;
-                    zip.workerScriptsPath = workerPath;
-                }
-            } else {
-                if (zip.configure) {
-                    zip.configure({ useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) });
-                } else {
-                    zip.useWebWorkers = false;
-                }
-            }
+        if (typeof zip !== "undefined" && typeof EpubViewerUI !== "undefined"
+            && typeof EpubViewerUI._configureZipRuntime === "function") {
+            EpubViewerUI._configureZipRuntime();
         }
 
         // Migrate data if falling back to IndexedDB
@@ -314,9 +300,14 @@ class LibraryUI {
         if (detailsStartReadingBtn) {
             detailsStartReadingBtn.addEventListener("click", () => {
                 if (this.currentDetailsEpub) {
-                    if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread:")) {
-                        const url = this.currentDetailsEpub.replace("lazy:liveread:", "");
-                        window.location.href = `live-reader.html?url=${encodeURIComponent(url)}`;
+                    if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread")) {
+                        let url = this.currentDetailsEpub.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+                        if (!url && this.currentDetailsId) {
+                            url = this.currentDetailsId; // fallback for legacy saved live books
+                        }
+                        const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                        const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+                        window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                     } else {
                         this.openBookInReader(this.currentDetailsEpub);
                     }
@@ -525,28 +516,31 @@ class LibraryUI {
                 </div>
             `;
 
-            // Action triggers (Cover click and Read button redirect to details page)
-            card.querySelector(".read-btn-main").addEventListener("click", () => {
-                this.showBookDetailsPage({
-                    id: id,
-                    title: title,
-                    author: author,
-                    cover: cover,
-                    epubBase64: epubBase64,
-                    filename: filename
-                }, true);
-            });
+            // Action triggers (Cover click and Read button redirect to details page, or Live Reader for live books)
+            const handleBookClick = () => {
+                if (epubBase64 && typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
+                    let url = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+                    if (!url) url = id;
+                    const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                    const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+                    window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
+                } else {
+                    this.showBookDetailsPage({
+                        id: id,
+                        title: title,
+                        author: author,
+                        cover: cover,
+                        epubBase64: epubBase64,
+                        filename: filename
+                    }, true);
+                }
+            };
+
+            card.querySelector(".read-btn-main").addEventListener("click", handleBookClick);
 
             card.querySelector(".book-cover-wrap").addEventListener("click", (e) => {
                 if (e.target.classList.contains("book-action-btn")) return;
-                this.showBookDetailsPage({
-                    id: id,
-                    title: title,
-                    author: author,
-                    cover: cover,
-                    epubBase64: epubBase64,
-                    filename: filename
-                }, true);
+                handleBookClick();
             });
 
             card.querySelector(".download-btn-main").addEventListener("click", () => {
@@ -771,6 +765,15 @@ class LibraryUI {
                         const url = URL.createObjectURL(blob);
                         this.downloadBlob(url, `${book.title}.epub`);
                         URL.revokeObjectURL(url);
+                        if (typeof HFStatsLibrary !== "undefined") {
+                            HFStatsLibrary.recordEvent({
+                                url: book.sourceUrl || `hf-library://${book.id}`,
+                                mode: "library",
+                                action: "download",
+                                title: book.title,
+                                author: book.author
+                            });
+                        }
                     } catch (e) {
                         alert("Error downloading public book: " + e.message);
                     } finally {
@@ -853,6 +856,22 @@ class LibraryUI {
         
         // Load into viewer
         this.epubViewer.loadEpub(base64Data);
+
+        if (typeof HFStatsLibrary !== "undefined" && this.currentDetailsId != null) {
+            this.storage.get([
+                `LibStoryURL${this.currentDetailsId}`,
+                `LibTitle${this.currentDetailsId}`,
+                `LibAuthor${this.currentDetailsId}`
+            ]).then(stored => {
+                HFStatsLibrary.recordEvent({
+                    url: stored[`LibStoryURL${this.currentDetailsId}`] || `library://personal/${this.currentDetailsId}`,
+                    mode: "library",
+                    action: "read",
+                    title: stored[`LibTitle${this.currentDetailsId}`] || this.currentDetailsFilename,
+                    author: stored[`LibAuthor${this.currentDetailsId}`] || ""
+                });
+            }).catch(() => {});
+        }
     }
 
     downloadBlob(base64Data, filename) {
@@ -1047,6 +1066,7 @@ class LibraryUI {
             // Save in memory
             this.currentDetailsEpub = epubData;
             this.currentDetailsFilename = filename;
+            this.currentDetailsId = bookData.id;
 
             let meta;
             if (isLiveBook) {
@@ -1120,6 +1140,25 @@ class LibraryUI {
             const globalBackBtn = document.getElementById("globalBackBtn");
             if (globalBackBtn) {
                 globalBackBtn.style.display = "none"; // Hide global back button, detailsBackBtn handles going back
+            }
+
+            if (typeof HFStatsLibrary !== "undefined") {
+                let statsUrl = bookData.sourceUrl || "";
+                if (isPersonal && bookData.id != null) {
+                    const stored = await this.storage.get([`LibStoryURL${bookData.id}`]);
+                    statsUrl = stored[`LibStoryURL${bookData.id}`] || statsUrl;
+                }
+                if (!statsUrl) {
+                    statsUrl = isPersonal ? `library://personal/${bookData.id}` : `hf-library://${bookData.id}`;
+                }
+                HFStatsLibrary.recordEvent({
+                    url: statsUrl,
+                    mode: "library",
+                    action: "open",
+                    title: meta.title,
+                    author: meta.author,
+                    coverUrl: meta.coverDataUrl
+                });
             }
 
         } catch (e) {
