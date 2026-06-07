@@ -15,6 +15,21 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     static STATS_CATALOG_FILE = "stats-catalog.json";
     static FETCH_TIMEOUT_MS = 6000;
     static _reportedReads = new Set();
+    static _WORKER_BLOCKED_KEY = "hf_stats_worker_blocked";
+
+    static isWorkerBlocked() {
+        try {
+            return localStorage.getItem(HFStatsLibrary._WORKER_BLOCKED_KEY) === "1";
+        } catch (_) {
+            return false;
+        }
+    }
+
+    static markWorkerBlocked() {
+        try {
+            localStorage.setItem(HFStatsLibrary._WORKER_BLOCKED_KEY, "1");
+        } catch (_) { /* ignore */ }
+    }
 
     static getStatsCatalogUrl() {
         return `https://huggingface.co/datasets/${HFStatsLibrary.STATS_REPO_ID}/resolve/main/${HFStatsLibrary.STATS_CATALOG_FILE}`;
@@ -76,6 +91,20 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             + (m.library?.reads || 0);
     }
 
+    static getPrimaryMode(entry) {
+        const modes = ["live", "manual", "library"];
+        let best = "live";
+        let bestScore = -1;
+        for (const mode of modes) {
+            const score = HFStatsLibrary.computeTotalScore(entry, mode);
+            if (score > bestScore) {
+                bestScore = score;
+                best = mode;
+            }
+        }
+        return best;
+    }
+
     static formatModeBadge(entry, modeFilter) {
         if (!entry?.modes) {
             return "";
@@ -119,7 +148,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
 
         const base = HFStatsLibrary.getWorkerBase();
-        if (!base) {
+        if (!base || HFStatsLibrary.isWorkerBlocked()) {
             return;
         }
 
@@ -143,8 +172,35 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
                 body: JSON.stringify(payload),
                 keepalive: true,
                 mode: "cors"
+            }).then(resp => {
+                if (resp.status === 403) {
+                    HFStatsLibrary.markWorkerBlocked();
+                }
             }).catch(() => {});
         } catch (_) { /* fire-and-forget */ }
+    }
+
+    static async _fetchTopFromWorker(mode, limit, signal) {
+        const workerBase = HFStatsLibrary.getWorkerBase();
+        if (!workerBase || HFStatsLibrary.isWorkerBlocked()) {
+            return null;
+        }
+        try {
+            const workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}`;
+            const resp = await fetch(workerUrl, { signal, cache: "no-store" });
+            if (resp.status === 403) {
+                HFStatsLibrary.markWorkerBlocked();
+                return null;
+            }
+            if (!resp.ok) {
+                return null;
+            }
+            const data = await resp.json();
+            const entries = HFStatsLibrary._normalizeEntries(data, mode, limit);
+            return entries.length > 0 ? entries : null;
+        } catch (_) {
+            return null;
+        }
     }
 
     static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS } = {}) {
@@ -152,22 +208,9 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         const timer = setTimeout(() => controller.abort(), timeoutMs);
 
         try {
-            const workerBase = HFStatsLibrary.getWorkerBase();
-            if (workerBase) {
-                try {
-                    const workerCtrl = new AbortController();
-                    const workerTimer = setTimeout(() => workerCtrl.abort(), 2000);
-                    const workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}`;
-                    const resp = await fetch(workerUrl, { signal: workerCtrl.signal, cache: "no-store" });
-                    clearTimeout(workerTimer);
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        const entries = HFStatsLibrary._normalizeEntries(data, mode, limit);
-                        if (entries.length > 0) {
-                            return { entries, source: "worker" };
-                        }
-                    }
-                } catch (_) { /* fall through to HF CDN */ }
+            const workerEntries = await HFStatsLibrary._fetchTopFromWorker(mode, limit, controller.signal);
+            if (workerEntries?.length) {
+                return { entries: workerEntries, source: "worker" };
             }
 
             const catalogUrl = HFStatsLibrary.getStatsCatalogUrl();
@@ -205,6 +248,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
                     try { return new URL(e.url).hostname; } catch (_) { return ""; }
                 })(),
                 modes: e.modes || {},
+                openMode: mode === "all" ? HFStatsLibrary.getPrimaryMode(e) : mode,
                 totalScore: e.totalScore != null ? e.totalScore : HFStatsLibrary.computeTotalScore(e, mode)
             }))
             .sort((a, b) => {

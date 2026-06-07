@@ -1,8 +1,11 @@
 /* Netflix Landing Portal and View Transitions */
 
 #netflixLanding {
-    min-height: 100vh;
     width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -19,6 +22,7 @@
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     padding: clamp(40px, 8vh, 80px) 20px 40px;
+    box-sizing: border-box;
 }
 
 #netflixLanding.fade-out {
@@ -195,16 +199,51 @@
     background: rgba(0, 245, 255, 0.1);
 }
 
+.top-novels-scroll-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.top-novels-scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.top-novels-scroll-btn:hover {
+    background: rgba(0, 245, 255, 0.2);
+    border-color: rgba(0, 245, 255, 0.45);
+}
+
+.top-novels-scroll-btn.prev { left: -6px; }
+.top-novels-scroll-btn.next { right: -6px; }
+
 .top-novels-row {
     display: flex;
     gap: 16px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 8px;
+    padding: 4px 6px 8px;
     scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    touch-action: pan-x;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .top-novels-row::-webkit-scrollbar {

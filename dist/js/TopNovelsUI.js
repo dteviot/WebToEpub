@@ -14,7 +14,24 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         }
 
         TopNovelsUI._bindTabs();
+        TopNovelsUI._bindRowScroll();
         TopNovelsUI.load("all");
+    }
+
+    static _bindRowScroll() {
+        const row = document.getElementById("topNovelsRow");
+        const prev = document.getElementById("topNovelsScrollPrev");
+        const next = document.getElementById("topNovelsScrollNext");
+        if (!row || !prev || !next) {
+            return;
+        }
+        const scrollBy = () => Math.max(220, Math.floor(row.clientWidth * 0.8));
+        prev.addEventListener("click", () => {
+            row.scrollBy({ left: -scrollBy(), behavior: "smooth" });
+        });
+        next.addEventListener("click", () => {
+            row.scrollBy({ left: scrollBy(), behavior: "smooth" });
+        });
     }
 
     static _bindTabs() {
@@ -96,15 +113,38 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         });
     }
 
+    static _isLibraryUrl(url) {
+        return /^(library|hf-library):\/\//i.test(url || "");
+    }
+
     static _openNovel(entry) {
         const url = entry.url || "";
+        const openMode = entry.openMode
+            || (typeof HFStatsLibrary !== "undefined" ? HFStatsLibrary.getPrimaryMode(entry) : "live");
+        const inPlugin = window.location.pathname.includes("/plugin/")
+            || window.location.protocol === "chrome-extension:";
+
+        if (openMode === "library" || TopNovelsUI._isLibraryUrl(url)) {
+            if (typeof window.showView === "function") {
+                window.showView("librariesView");
+            } else {
+                window.location.href = "index.html#librariesView";
+            }
+            return;
+        }
+
+        if (openMode === "manual" && /^https?:\/\//i.test(url)) {
+            const popupPath = inPlugin ? "popup.html" : "plugin/popup.html";
+            window.location.href = `${popupPath}?mode=manual&url=${encodeURIComponent(url)}`;
+            return;
+        }
+
         if (/^https?:\/\//i.test(url)) {
-            const lrPath = (window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:")
-                ? "live-reader.html"
-                : "plugin/live-reader.html";
+            const lrPath = inPlugin ? "live-reader.html" : "plugin/live-reader.html";
             window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
             return;
         }
+
         if (typeof window.showView === "function") {
             window.showView("librariesView");
         } else {
