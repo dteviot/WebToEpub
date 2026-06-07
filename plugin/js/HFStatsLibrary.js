@@ -1,6 +1,7 @@
 /*
   HFStatsLibrary — Anonymous usage stats for Top Novels
   Records events via Cloudflare Worker; reads aggregated stats-catalog.json from HF CDN.
+  Never embeds or sends a Hugging Face token — reads are public CDN, writes go to the worker.
 */
 "use strict";
 

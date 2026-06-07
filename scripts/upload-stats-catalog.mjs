@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Create/update prasadonly/webtoepub-stats on Hugging Face and upload stats-catalog.json
- * Usage: HF_TOKEN=... node scripts/upload-stats-catalog.mjs
+ * Upload stats-catalog.json to prasadonly/webtoepub-library via the Cloudflare worker.
+ * The worker holds the HF token server-side — this script never uses or needs HF_TOKEN.
+ *
+ * Usage: node scripts/upload-stats-catalog.mjs
  */
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -10,20 +12,14 @@ import { dirname, join } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = "prasadonly/webtoepub-library";
 const FILE = "stats-catalog.json";
-const TOKEN = process.env.HF_TOKEN || process.env.HUGGING_FACE_HUB_TOKEN;
+const WORKER_BASE = (process.env.HF_WORKER_URL || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev").replace(/\/$/, "");
 
 const catalogPath = join(__dirname, "..", "data", FILE);
 const catalogText = readFileSync(catalogPath, "utf8");
 JSON.parse(catalogText); // validate
 
-const headers = {
-    Authorization: `Bearer ${TOKEN}`,
-    "Content-Type": "application/json"
-};
-
 async function ensureRepo() {
-    const workerBase = process.env.HF_WORKER_URL || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev";
-    const check = await fetch(`${workerBase}/api/datasets/${REPO}`);
+    const check = await fetch(`${WORKER_BASE}/api/datasets/${REPO}`);
     if (check.ok) {
         console.log(`Dataset ${REPO} exists`);
         return;
@@ -45,17 +41,9 @@ async function uploadCatalog() {
         })
     ].join("\n");
 
-    const workerBase = process.env.HF_WORKER_URL || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev";
-    const useWorker = !TOKEN;
-    const url = useWorker
-        ? `${workerBase}/api/datasets/${REPO}/commit/main`
-        : `https://huggingface.co/api/datasets/${REPO}/commit/main`;
-    const uploadHeaders = useWorker
-        ? { "Content-Type": "application/x-ndjson" }
-        : { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/x-ndjson" };
-    const resp = await fetch(url, {
+    const resp = await fetch(`${WORKER_BASE}/api/datasets/${REPO}/commit/main`, {
         method: "POST",
-        headers: uploadHeaders,
+        headers: { "Content-Type": "application/x-ndjson" },
         body: ndjson
     });
     if (!resp.ok) {
