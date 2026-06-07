@@ -15,7 +15,18 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
 
         TopNovelsUI._bindTabs();
         TopNovelsUI._bindRowScroll();
+        TopNovelsUI._bindRefresh();
         TopNovelsUI.load("all");
+    }
+
+    static _bindRefresh() {
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState !== "visible") {
+                return;
+            }
+            const activeTab = document.querySelector(".top-novels-tab.active");
+            TopNovelsUI.load(activeTab?.dataset.mode || "all");
+        });
     }
 
     static _bindRowScroll() {

@@ -107,6 +107,51 @@ QUnit.test("extractIdFromUrl story slug", function (assert) {
     );
 });
 
+QUnit.test("isWpdMyStoryNotFoundText detects wpd.my error page", function (assert) {
+    let msg = "This story does not exist, or has been deleted. Support is available on the Discord";
+    assert.ok(WattpadParser.isWpdMyStoryNotFoundText(msg));
+    assert.notOk(WattpadParser.isWpdMyStoryNotFoundText("Chapter 1"));
+});
+
+QUnit.test("inspectWpdMyResponse ignores wpd.my error HTML", function (assert) {
+    let text = "This story does not exist, or has been deleted. Support is available on the Discord";
+    let buffer = new TextEncoder().encode(text).buffer;
+    assert.strictEqual(WattpadParser.inspectWpdMyResponse(buffer), null);
+});
+
+QUnit.test("getLiveReaderUrl encodes story url", function (assert) {
+    let storyUrl = "https://www.wattpad.com/story/408807838-test";
+    assert.ok(WattpadParser.getLiveReaderUrl(storyUrl).includes("url=" + encodeURIComponent(storyUrl)));
+});
+
+QUnit.test("WattpadDownloader API urls", function (assert) {
+    assert.equal(
+        WattpadParser.buildStoryApiUrl("408807838"),
+        "https://www.wattpad.com/api/v3/stories/408807838?fields=" + WattpadParser.STORY_API_FIELDS
+    );
+    assert.equal(
+        WattpadParser.buildStoryContentZipUrl("408807838"),
+        "https://www.wattpad.com/apiv2/?m=storytext&group_id=408807838&output=zip"
+    );
+    assert.equal(
+        WattpadParser.buildPartUrl("https://www.wattpad.com/story/408807838-test", 123),
+        "https://www.wattpad.com/story/408807838-test/part/123"
+    );
+    assert.equal(
+        WattpadParser.extractPartIdFromUrl("https://www.wattpad.com/story/408807838-test/part/123-slug"),
+        "123"
+    );
+});
+
+QUnit.test("cleanTree keeps paragraphs and images", function (assert) {
+    let body = "<body><p><b>Hello</b></p><p><img src=\"https://img.wattpad.com/a.jpg\" data-original-height=\"100\" data-original-width=\"200\"></p></body>";
+    let section = WattpadParser.cleanTree("Chapter 1", 99, body);
+    assert.equal(section.querySelector("h2").textContent, "Chapter 1");
+    assert.equal(section.querySelectorAll("p").length, 1);
+    assert.equal(section.querySelectorAll("img").length, 1);
+    assert.equal(section.querySelector("img").getAttribute("src"), "https://img.wattpad.com/a.jpg");
+});
+
 QUnit.test("removeDuplicateParagraphs", function (assert) {
     let dom = new DOMParser().parseFromString(
         "<body>" +

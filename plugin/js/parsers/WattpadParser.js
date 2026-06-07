@@ -56,6 +56,9 @@ class WattpadImageCollector extends ImageCollector {
 class WattpadParser extends Parser {
     constructor() {
         super(new WattpadImageCollector());
+        this.storyId = null;
+        this.storyMetadata = null;
+        this.storyPartHtml = null;
     }
 
     async getChapterUrls(dom) {
@@ -66,22 +69,73 @@ class WattpadParser extends Parser {
         return util.hyperlinksToChapterList(menu);
     }
 
+    onStartCollecting() {
+        super.onStartCollecting();
+        let storyId = WattpadParser.extractIdFromUrl(this.state.chapterListUrl);
+        if (storyId) {
+            return this.ensureStoryCache(storyId);
+        }
+    }
+
+    async loadEpubMetaInfo(dom) {
+        let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
+        if (storyId) {
+            try {
+                await this.ensureStoryCache(storyId);
+            } catch (err) {
+                console.warn("[WattpadParser] API metadata preload failed:", err.message);
+            }
+        }
+    }
+
+    async ensureStoryCache(storyId) {
+        if (this.storyId === storyId && this.storyMetadata != null) {
+            return;
+        }
+        this.storyId = storyId;
+        this.storyMetadata = null;
+        this.storyPartHtml = null;
+
+        this.storyMetadata = await WattpadParser.fetchStoryMetadata(storyId);
+        try {
+            this.storyPartHtml = await WattpadParser.fetchStoryContentZip(storyId);
+        } catch (err) {
+            console.warn("[WattpadParser] story content zip unavailable, using per-chapter fallback:", err.message);
+            this.storyPartHtml = null;
+        }
+    }
+
     async fetchChapterList(dom) {
-        // Wattpad returns 400 for API calls from non-wattpad.com origins.
-        // Instead, extract chapter list from the embedded JSON in the story page HTML.
+        let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
+        if (storyId) {
+            try {
+                await this.ensureStoryCache(storyId);
+                if (this.storyMetadata?.parts?.length) {
+                    let storyUrl = this.storyMetadata.url || dom.baseURI;
+                    return this.storyMetadata.parts.map(part => ({
+                        sourceUrl: WattpadParser.buildPartUrl(storyUrl, part.id),
+                        title: part.title
+                    }));
+                }
+            } catch (err) {
+                console.warn("[WattpadParser] API chapter list failed:", err.message);
+            }
+        }
+
+        // Fallback: embedded JSON in the story page HTML
         let parts = WattpadParser.extractPartsFromDom(dom);
         if (parts && parts.length > 0) {
             return parts.map(p => ({sourceUrl: p.url, title: p.title}));
         }
 
-        // Fallback: try the API via proxy (proxy strips Origin/Referer so Wattpad accepts it)
-        let storyId = WattpadParser.extractIdFromUrl(dom.baseURI);
         if (!storyId) {
             throw new Error(`Could not extract Wattpad story ID from URL: ${dom.baseURI}\nExpected a URL like wattpad.com/story/12345-story-name`);
         }
-        let chaptersUrl = `https://www.wattpad.com/api/v3/stories/${storyId}`;
-        let json = (await HttpClient.fetchJson(chaptersUrl)).json;
-        return json.parts.map(p => ({sourceUrl: p.url, title: p.title}));
+        let json = (await HttpClient.fetchJson(WattpadParser.buildStoryApiUrl(storyId))).json;
+        return json.parts.map(part => ({
+            sourceUrl: WattpadParser.buildPartUrl(json.url || dom.baseURI, part.id),
+            title: part.title
+        }));
     }
 
     static extractPartsFromDom(dom) {
@@ -148,6 +202,161 @@ class WattpadParser extends Parser {
         return WattpadParser.extractIdFromUrl(url) != null;
     }
 
+    static STORY_API_FIELDS = "tags,id,title,createDate,modifyDate,language(name),description,completed,mature,url,isPaywalled,user(username,avatar,description),parts(id,title),copyright";
+
+    static buildStoryApiUrl(storyId) {
+        return `https://www.wattpad.com/api/v3/stories/${storyId}?fields=${WattpadParser.STORY_API_FIELDS}`;
+    }
+
+    static buildStoryContentZipUrl(storyId) {
+        return `https://www.wattpad.com/apiv2/?m=storytext&group_id=${storyId}&output=zip`;
+    }
+
+    static buildPartUrl(storyUrl, partId) {
+        try {
+            let url = new URL(storyUrl);
+            let base = url.origin + url.pathname.replace(/\/$/, "");
+            return `${base}/part/${partId}`;
+        } catch (e) {
+            return `https://www.wattpad.com/part/${partId}`;
+        }
+    }
+
+    static extractPartIdFromUrl(url) {
+        try {
+            let match = new URL(url).pathname.match(/\/part\/(\d+)/);
+            if (match) {
+                return match[1];
+            }
+        } catch (e) {
+            let match = String(url).match(/\/part\/(\d+)/);
+            if (match) {
+                return match[1];
+            }
+        }
+        return null;
+    }
+
+    static async fetchStoryMetadata(storyId) {
+        let result = await HttpClient.fetchJson(WattpadParser.buildStoryApiUrl(storyId));
+        let json = result?.json;
+        if (json?.error_code === 1017) {
+            throw new Error(`Wattpad story ${storyId} not found.`);
+        }
+        if (!json?.parts) {
+            throw new Error(`Could not load Wattpad story metadata for ${storyId}.`);
+        }
+        return json;
+    }
+
+    static async fetchStoryContentZip(storyId) {
+        let url = WattpadParser.buildStoryContentZipUrl(storyId);
+        let result = await HttpClient.wrapFetch(url, {
+            responseHandler: new FetchBinaryResponseHandler(),
+            errorHandler: new SilentFetchErrorHandler(),
+            bypassDirectFetchFallback: !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE)
+        });
+        if (!result?.arrayBuffer) {
+            throw new Error("Empty Wattpad story content zip.");
+        }
+        return WattpadParser.parseStoryContentZip(result.arrayBuffer);
+    }
+
+    static async parseStoryContentZip(arrayBuffer) {
+        if (typeof zip === "undefined") {
+            throw new Error("zip.js is not loaded.");
+        }
+        let contentMap = new Map();
+        let zipReader = new zip.ZipReader(
+            new zip.BlobReader(new Blob([arrayBuffer])),
+            { useWebWorkers: (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers()) }
+        );
+        try {
+            let entries = await zipReader.getEntries();
+            for (let entry of entries) {
+                if (entry.directory) {
+                    continue;
+                }
+                let partId = entry.filename.replace(/\/$/, "");
+                let html = await entry.getData(new zip.TextWriter());
+                contentMap.set(partId, html);
+            }
+        } finally {
+            await zipReader.close();
+        }
+        return contentMap;
+    }
+
+    static cleanTree(title, partId, body) {
+        let originalDoc = new DOMParser().parseFromString(body, "text/html");
+        let section = document.createElement("section");
+        let heading = document.createElement("h2");
+        heading.id = String(partId);
+        heading.textContent = title || "";
+        section.appendChild(heading);
+
+        let bodyEl = originalDoc.body;
+        if (!bodyEl) {
+            return section;
+        }
+
+        for (let tag of [...bodyEl.children]) {
+            if (tag.tagName?.toLowerCase() !== "p") {
+                continue;
+            }
+            let style = tag.getAttribute("style");
+            for (let child of [...tag.childNodes]) {
+                if (child.nodeType === Node.TEXT_NODE
+                    || ["B", "I", "U", "STRONG", "EM"].includes(child.nodeName)) {
+                    let pTag = tag.cloneNode(true);
+                    pTag.removeAttribute("class");
+                    if (style) {
+                        pTag.setAttribute("style", style);
+                    }
+                    section.appendChild(pTag);
+                    break;
+                }
+                if (child.nodeName === "IMG") {
+                    let imgTag = document.createElement("img");
+                    imgTag.setAttribute("height", child.getAttribute("data-original-height") || "");
+                    imgTag.setAttribute("width", child.getAttribute("data-original-width") || "");
+                    imgTag.setAttribute("src", child.getAttribute("src") || "");
+                    if (style) {
+                        imgTag.setAttribute("style", style);
+                    }
+                    section.appendChild(imgTag);
+                    break;
+                }
+                if (child.nodeName === "BR") {
+                    let brTag = document.createElement("br");
+                    if (style) {
+                        brTag.setAttribute("style", style);
+                    }
+                    section.appendChild(brTag);
+                    break;
+                }
+            }
+        }
+        return section;
+    }
+
+    static buildChapterDom(title, partId, body) {
+        let section = WattpadParser.cleanTree(title, partId, body);
+        let dom = new DOMParser().parseFromString("<!DOCTYPE html><html><body></body></html>", "text/html");
+        let chapterTitle = dom.createElement("h1");
+        chapterTitle.className = "h2";
+        chapterTitle.textContent = title || "";
+        dom.body.appendChild(chapterTitle);
+
+        let content = dom.createElement("div");
+        content.setAttribute("data-page-number", "1");
+        while (section.firstChild) {
+            content.appendChild(section.firstChild);
+        }
+        dom.body.appendChild(content);
+        return dom;
+    }
+
     static buildWpdMyDownloadUrl(storyId) {
         return `https://wpd.my/download/${storyId}?om=1&mode=story&format=epub`;
     }
@@ -169,6 +378,48 @@ class WattpadParser extends Parser {
 
     static isZipArchive(bytes) {
         return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B;
+    }
+
+    static decodeResponseText(bytes) {
+        try {
+            return new TextDecoder("utf-8").decode(bytes);
+        } catch (e) {
+            return "";
+        }
+    }
+
+    static isWpdMyStoryNotFoundText(text) {
+        if (util.isNullOrEmpty(text)) {
+            return false;
+        }
+        let lower = text.toLowerCase();
+        return lower.includes("does not exist") && lower.includes("deleted");
+    }
+
+    static isStoryNotFoundDom(dom) {
+        if (!dom) {
+            return false;
+        }
+        let text = dom.body?.textContent || dom.documentElement?.textContent || "";
+        return WattpadParser.isWpdMyStoryNotFoundText(text);
+    }
+
+    static getLiveReaderUrl(storyUrl) {
+        let isInsidePlugin = typeof window !== "undefined"
+            && window.location.pathname.includes("/plugin/");
+        let lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+        return lrPath + "?url=" + encodeURIComponent(storyUrl);
+    }
+
+    static inspectWpdMyResponse(buffer, response) {
+        let bytes = new Uint8Array(buffer);
+        if (WattpadParser.isZipArchive(bytes)) {
+            return WattpadParser.epubFromBinaryBuffer(buffer, response);
+        }
+        if (WattpadParser.isWpdMyStoryNotFoundText(WattpadParser.decodeResponseText(bytes))) {
+            return null;
+        }
+        return null;
     }
 
     static async tryFetchDirectEpub(url) {
@@ -238,11 +489,12 @@ class WattpadParser extends Parser {
                 signal: ctrl.signal
             });
             clearTimeout(tid);
+            let buffer = await response.arrayBuffer();
+            let inspected = WattpadParser.inspectWpdMyResponse(buffer, response);
             if (!response.ok) {
                 return null;
             }
-            let buffer = await response.arrayBuffer();
-            return WattpadParser.epubFromBinaryBuffer(buffer, response);
+            return inspected;
         } catch (err) {
             clearTimeout(tid);
             return null;
@@ -275,7 +527,7 @@ class WattpadParser extends Parser {
                 bypassDirectFetchFallback: true
             });
             if (result?.arrayBuffer) {
-                return WattpadParser.epubFromBinaryBuffer(result.arrayBuffer, result.response);
+                return WattpadParser.inspectWpdMyResponse(result.arrayBuffer, result.response);
             }
         } catch (err) {
             console.warn("[WattpadParser] wpd.my HttpClient proxy race failed:", err.message);
@@ -284,6 +536,25 @@ class WattpadParser extends Parser {
     }
 
     async fetchChapter(url) {
+        let partId = WattpadParser.extractPartIdFromUrl(url);
+        let storyId = this.storyId || WattpadParser.extractIdFromUrl(this.state?.chapterListUrl || url);
+        if (partId && storyId) {
+            try {
+                await this.ensureStoryCache(storyId);
+                let html = this.storyPartHtml?.get(String(partId));
+                if (!util.isNullOrEmpty(html)) {
+                    let title = this.storyMetadata?.parts?.find(part => String(part.id) === String(partId))?.title || "";
+                    return WattpadParser.buildChapterDom(title, partId, html);
+                }
+            } catch (err) {
+                console.warn("[WattpadParser] zip chapter load failed, falling back:", err.message);
+            }
+        }
+
+        return this.fetchChapterFromPage(url);
+    }
+
+    async fetchChapterFromPage(url) {
         let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let extraUris = this.findURIsWithRestOfChapterContent(dom);
         if (extraUris.pages > 1) {
@@ -421,9 +692,13 @@ class WattpadParser extends Parser {
     async fetchPage(extraUris, page) {
         let retry = 4;
         while (0 <= --retry) {
-            let url = `${extraUris.uriStart}-${page}${extraUris.uriEnd}`;
+            let url = WattpadParser.buildStoryTextPageUrl(extraUris, page);
             try {
-                let text = (await HttpClient.fetchText(url));
+                let text = await WattpadParser.fetchWattpadStoryTextPage(url);
+                if (!util.isNullOrEmpty(text)) {
+                    return text;
+                }
+                text = (await HttpClient.fetchText(url));
                 return text;
             } catch (err) { 
                 try {
@@ -437,7 +712,7 @@ class WattpadParser extends Parser {
             }
         }
 
-        throw new Error("Unable to fetch " + extraUris.uriStart);
+        throw new Error("Unable to fetch " + WattpadParser.buildStoryTextPageUrl(extraUris, page));
     }
 
     addExtraContent(dom, extraContent) {
@@ -485,26 +760,41 @@ class WattpadParser extends Parser {
 
     // title of the story  (not to be confused with title of each chapter)
     extractTitleImpl(dom) {
+        if (this.storyMetadata?.title) {
+            let el = dom.createElement("span");
+            el.textContent = this.storyMetadata.title;
+            return el;
+        }
         return dom.querySelector("div.story-info span.sr-only");
     }
 
     extractAuthor(dom) {
+        if (this.storyMetadata?.user?.username) {
+            return this.storyMetadata.user.username;
+        }
         let authorLabel = dom.querySelector("div.af6dp a");
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
     extractSubject(dom) {
+        if (Array.isArray(this.storyMetadata?.tags) && this.storyMetadata.tags.length > 0) {
+            return this.storyMetadata.tags.join(", ");
+        }
         let tags = ([...dom.querySelectorAll("div._9c7jH a")]);
         return tags.map(e => e.textContent.trim()).join(", ");
     }
 
     extractDescription(dom) {
-        return dom.querySelector("div.glL-c").textContent.trim();
+        if (!util.isNullOrEmpty(this.storyMetadata?.description)) {
+            return this.storyMetadata.description.trim();
+        }
+        let el = dom.querySelector("div.glL-c");
+        return el?.textContent?.trim() ?? "";
     }
 
-    // custom cleanup of content
+    // custom cleanup of content — keep paragraphs, images, and line breaks (WattpadDownloader parity)
     removeUnwantedElementsFromContentElement(element) {
-        let keep = [...element.querySelectorAll("p")];
+        let keep = [...element.querySelectorAll("p, img, br")];
         util.removeElements([...element.children]);
         for (let e of keep) {
             element.appendChild(e);
@@ -518,6 +808,9 @@ class WattpadParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
+        if (!util.isNullOrEmpty(this.storyMetadata?.cover)) {
+            return this.storyMetadata.cover.replace("-256-", "-512-");
+        }
         return util.getFirstImgSrc(dom, "div[data-testid='cover']");
     }
 }

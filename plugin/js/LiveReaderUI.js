@@ -150,6 +150,12 @@ class LiveReaderUI {
             }
             if (!doc) throw new Error("Failed to fetch the novel page. The CORS proxy may have failed.");
 
+            if (typeof WattpadParser !== "undefined"
+                && WattpadParser.isWattpadStoryUrl(url)
+                && WattpadParser.isStoryNotFoundDom(doc)) {
+                throw new Error("This story does not exist, or has been deleted on Wattpad.");
+            }
+
             // Inject baseURI if possible
             try {
                 Object.defineProperty(doc, "baseURI", { get: () => url, configurable: true });

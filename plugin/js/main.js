@@ -141,6 +141,9 @@ var main = (function() {
         }
         let direct = await WattpadParser.tryFetchDirectEpub(url);
         if (!direct) {
+            if (progressString) {
+                progressString.textContent = "wpd.my unavailable — loading via Wattpad parser…";
+            }
             return false;
         }
         let overwriteExisting = userPreferences.overwriteExistingEpub.value;
