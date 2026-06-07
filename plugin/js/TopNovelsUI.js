@@ -119,7 +119,11 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
                     if (fb && img.src !== fb) img.src = fb;
                 });
             }
-            card.addEventListener("click", () => TopNovelsUI._openNovel(entry));
+            card.addEventListener("click", () => {
+                TopNovelsUI._openNovel(entry).catch(err => {
+                    console.warn("[TopNovels] Open failed:", err);
+                });
+            });
             container.appendChild(card);
         });
     }
@@ -128,7 +132,31 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         return /^(library|hf-library):\/\//i.test(url || "");
     }
 
-    static _openNovel(entry) {
+    static async _waitForLibraryManager(maxMs = 12000) {
+        const start = Date.now();
+        while (Date.now() - start < maxMs) {
+            if (window.libraryManager?.openFromStatsEntry) {
+                return window.libraryManager;
+            }
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        return null;
+    }
+
+    static async _openLibraryEntry(entry) {
+        if (typeof window.showView === "function") {
+            await window.showView("librariesView");
+        } else {
+            window.location.href = "index.html#librariesView";
+        }
+        const mgr = await TopNovelsUI._waitForLibraryManager();
+        if (!mgr) {
+            return false;
+        }
+        return mgr.openFromStatsEntry(entry);
+    }
+
+    static async _openNovel(entry) {
         const url = entry.url || "";
         const openMode = entry.openMode
             || (typeof HFStatsLibrary !== "undefined" ? HFStatsLibrary.getPrimaryMode(entry) : "live");
@@ -136,8 +164,12 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
             || window.location.protocol === "chrome-extension:";
 
         if (openMode === "library" || TopNovelsUI._isLibraryUrl(url)) {
+            const opened = await TopNovelsUI._openLibraryEntry(entry);
+            if (opened) {
+                return;
+            }
             if (typeof window.showView === "function") {
-                window.showView("librariesView");
+                await window.showView("librariesView");
             } else {
                 window.location.href = "index.html#librariesView";
             }
@@ -145,19 +177,25 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         }
 
         if (openMode === "manual" && /^https?:\/\//i.test(url)) {
+            const normalized = typeof util !== "undefined" && util.normalizeHttpUrl
+                ? util.normalizeHttpUrl(url)
+                : url;
             const popupPath = inPlugin ? "popup.html" : "plugin/popup.html";
-            window.location.href = `${popupPath}?mode=manual&url=${encodeURIComponent(url)}`;
+            window.location.href = `${popupPath}?mode=manual&url=${encodeURIComponent(normalized || url)}`;
             return;
         }
 
         if (/^https?:\/\//i.test(url)) {
+            const normalized = typeof util !== "undefined" && util.normalizeHttpUrl
+                ? util.normalizeHttpUrl(url)
+                : url;
             const lrPath = inPlugin ? "live-reader.html" : "plugin/live-reader.html";
-            window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
+            window.location.href = `${lrPath}?url=${encodeURIComponent(normalized || url)}`;
             return;
         }
 
         if (typeof window.showView === "function") {
-            window.showView("librariesView");
+            await window.showView("librariesView");
         } else {
             window.location.href = "index.html#librariesView";
         }

@@ -627,6 +627,7 @@ class LibraryUI {
                     title: book.title,
                     author: book.author,
                     coverPath: book.coverPath,
+                    sourceUrl: book.sourceUrl || "",
                     desc: book.description ? `${book.description} (Size: ${HFLibrary.formatSize(book.size)})` : `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
                     isHF: true,
                     isTelegram: isTelegram,
@@ -1034,6 +1035,130 @@ class LibraryUI {
             // Regex fallback if DOMParser fails
             return text.replace(/<[^>]*>/g, "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
         }
+    }
+
+    async ensureCatalogsLoaded() {
+        const prevTab = this.activeLibraryTab;
+        if (!this.publicCatalog) {
+            this.activeLibraryTab = "public";
+            await this.renderPublicLibrary();
+        }
+        if (!this.telegramCatalog) {
+            this.activeLibraryTab = "telegram";
+            await this.renderPublicLibrary();
+        }
+        this.activeLibraryTab = prevTab;
+    }
+
+    _findPublicBookById(id) {
+        const all = [...(this.publicCatalog || []), ...(this.telegramCatalog || [])];
+        return all.find(b => String(b.id) === String(id)) || null;
+    }
+
+    async _findPersonalBookById(id) {
+        const storageData = await this.storage.get(["LibArray", `LibTitle${id}`, `LibAuthor${id}`, `LibCover${id}`, `LibEpub${id}`, `LibFilename${id}`, `LibDesc${id}`]);
+        const libArray = storageData.LibArray || [];
+        if (!libArray.includes(id)) {
+            return null;
+        }
+        return {
+            id: id,
+            title: storageData[`LibTitle${id}`] || "Unknown Novel",
+            author: storageData[`LibAuthor${id}`] || "Unknown Author",
+            cover: storageData[`LibCover${id}`] || "",
+            epubBase64: storageData[`LibEpub${id}`],
+            filename: storageData[`LibFilename${id}`] || `${storageData[`LibTitle${id}`] || "book"}.epub`,
+            desc: storageData[`LibDesc${id}`] || ""
+        };
+    }
+
+    async _findPersonalBookByStoryUrl(normalizedUrl) {
+        if (!normalizedUrl || typeof HFStatsLibrary === "undefined") {
+            return null;
+        }
+        const storageData = await this.storage.get("LibArray");
+        const libArray = storageData.LibArray || [];
+        if (libArray.length === 0) {
+            return null;
+        }
+        const urlKeys = libArray.map(bookId => `LibStoryURL${bookId}`);
+        const stored = await this.storage.get(urlKeys);
+        for (const bookId of libArray) {
+            const storyUrl = stored[`LibStoryURL${bookId}`];
+            if (storyUrl && HFStatsLibrary.normalizeUrl(storyUrl) === normalizedUrl) {
+                return this._findPersonalBookById(bookId);
+            }
+        }
+        return null;
+    }
+
+    _findPublicBookBySourceUrl(normalizedUrl) {
+        if (!normalizedUrl || typeof HFStatsLibrary === "undefined") {
+            return null;
+        }
+        const all = [...(this.publicCatalog || []), ...(this.telegramCatalog || [])];
+        return all.find(b => b.sourceUrl && HFStatsLibrary.normalizeUrl(b.sourceUrl) === normalizedUrl) || null;
+    }
+
+    async _openPersonalBook(book) {
+        if (!book) {
+            return false;
+        }
+        const epubBase64 = book.epubBase64;
+        if (typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
+            let liveUrl = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+            if (!liveUrl) {
+                liveUrl = book.id;
+            }
+            const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
+            const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+            window.location.href = `${lrPath}?url=${encodeURIComponent(liveUrl)}`;
+            return true;
+        }
+        await this.showBookDetailsPage(book, true);
+        return true;
+    }
+
+    async openFromStatsEntry(entry) {
+        const url = String(entry?.url || "").trim();
+        if (!url) {
+            return false;
+        }
+
+        const hfMatch = url.match(/^hf-library:\/\/(.+)$/i);
+        if (hfMatch) {
+            await this.ensureCatalogsLoaded();
+            const book = this._findPublicBookById(hfMatch[1]);
+            if (book) {
+                await this.showBookDetailsPage(book, false);
+                return true;
+            }
+        }
+
+        const personalMatch = url.match(/^library:\/\/personal\/(.+)$/i);
+        if (personalMatch) {
+            const book = await this._findPersonalBookById(personalMatch[1]);
+            if (book) {
+                return this._openPersonalBook(book);
+            }
+        }
+
+        if (/^https?:\/\//i.test(url) && typeof HFStatsLibrary !== "undefined") {
+            const normalized = HFStatsLibrary.normalizeUrl(url);
+            const personalBook = await this._findPersonalBookByStoryUrl(normalized);
+            if (personalBook) {
+                return this._openPersonalBook(personalBook);
+            }
+
+            await this.ensureCatalogsLoaded();
+            const publicBook = this._findPublicBookBySourceUrl(normalized);
+            if (publicBook) {
+                await this.showBookDetailsPage(publicBook, false);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     async showBookDetailsPage(bookData, isPersonal) {

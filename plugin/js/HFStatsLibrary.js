@@ -58,8 +58,16 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             const parsed = new URL(url);
             parsed.hash = "";
             parsed.search = "";
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                const path = parsed.pathname.replace(/\/+$/, "");
+                return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+            }
+            let hostname = parsed.hostname.toLowerCase();
+            if (hostname.startsWith("www.")) {
+                hostname = hostname.slice(4);
+            }
             let path = parsed.pathname.replace(/\/+$/, "") || "/";
-            return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+            return `${parsed.protocol}//${hostname}${path}`;
         } catch (_) {
             return url.toLowerCase();
         }
@@ -327,8 +335,66 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
     }
 
+    static _entryMergeKeys(entry) {
+        const keys = new Set();
+        const url = String(entry?.url || "").trim();
+        if (!url) {
+            return [];
+        }
+
+        const hfMatch = url.match(/^hf-library:\/\/(.+)$/i);
+        if (hfMatch) {
+            keys.add(`hf:${hfMatch[1]}`);
+        }
+
+        const personalMatch = url.match(/^library:\/\/personal\/(.+)$/i);
+        if (personalMatch) {
+            keys.add(`personal:${personalMatch[1]}`);
+        }
+
+        const normalized = HFStatsLibrary.normalizeUrl(url);
+        if (normalized && /^https?:\/\//i.test(normalized)) {
+            keys.add(`url:${normalized}`);
+        }
+
+        const title = String(entry.title || "").trim().toLowerCase();
+        const author = String(entry.author || "").trim().toLowerCase();
+        let host = String(entry.host || "").trim().toLowerCase().replace(/^www\./, "");
+        if (!host && normalized && /^https?:\/\//i.test(normalized)) {
+            try {
+                host = new URL(normalized).hostname.replace(/^www\./, "");
+            } catch (_) { /* ignore */ }
+        }
+        if (title && host) {
+            keys.add(`ta:${host}|${title}|${author}`);
+        }
+
+        return [...keys];
+    }
+
+    static _mergeEntryInto(target, source) {
+        if (source.title && (!target.title || target.title.length < source.title.length)) {
+            target.title = source.title;
+        }
+        if (source.author && !target.author) {
+            target.author = source.author;
+        }
+        if (source.coverUrl && !target.coverUrl) {
+            target.coverUrl = source.coverUrl;
+        }
+        if (source.host && !target.host) {
+            target.host = source.host;
+        }
+        if (/^https?:\/\//i.test(source.url) && !/^https?:\/\//i.test(target.url)) {
+            target.url = HFStatsLibrary.normalizeUrl(source.url) || source.url;
+        }
+        HFStatsLibrary._mergeModeBuckets(target.modes, source.modes);
+    }
+
     static _mergeEntryLists(lists, mode, limit) {
-        const byUrl = new Map();
+        const entries = [];
+        const keyToIndex = new Map();
+
         for (const list of lists) {
             if (!Array.isArray(list)) {
                 continue;
@@ -337,31 +403,42 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
                 if (!entry?.url || HFStatsLibrary.isSampleEntry(entry)) {
                     continue;
                 }
-                const key = HFStatsLibrary.normalizeUrl(entry.url);
-                if (!key) {
+                const mergeKeys = HFStatsLibrary._entryMergeKeys(entry);
+                if (mergeKeys.length === 0) {
                     continue;
                 }
-                if (!byUrl.has(key)) {
-                    byUrl.set(key, {
-                        url: key,
+
+                let targetIndex = null;
+                for (const key of mergeKeys) {
+                    if (keyToIndex.has(key)) {
+                        targetIndex = keyToIndex.get(key);
+                        break;
+                    }
+                }
+
+                if (targetIndex == null) {
+                    targetIndex = entries.length;
+                    entries.push({
+                        url: /^https?:\/\//i.test(entry.url)
+                            ? (HFStatsLibrary.normalizeUrl(entry.url) || entry.url)
+                            : entry.url,
                         title: entry.title || "",
                         author: entry.author || "",
                         coverUrl: entry.coverUrl || "",
                         host: entry.host || "",
                         modes: JSON.parse(JSON.stringify(entry.modes || {}))
                     });
-                    continue;
+                } else {
+                    HFStatsLibrary._mergeEntryInto(entries[targetIndex], entry);
                 }
-                const existing = byUrl.get(key);
-                if (!existing.title && entry.title) existing.title = entry.title;
-                if (!existing.author && entry.author) existing.author = entry.author;
-                if (!existing.coverUrl && entry.coverUrl) existing.coverUrl = entry.coverUrl;
-                if (!existing.host && entry.host) existing.host = entry.host;
-                HFStatsLibrary._mergeModeBuckets(existing.modes, entry.modes);
+
+                for (const key of HFStatsLibrary._entryMergeKeys(entries[targetIndex])) {
+                    keyToIndex.set(key, targetIndex);
+                }
             }
         }
 
-        let merged = [...byUrl.values()].map(e => ({
+        let merged = entries.map(e => ({
             ...e,
             openMode: mode === "all" ? HFStatsLibrary.getPrimaryMode(e) : mode,
             totalScore: HFStatsLibrary.computeTotalScore(e, mode)
