@@ -17,7 +17,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     static FETCH_TIMEOUT_MS = 6000;
     static WORKER_TOP_TIMEOUT_MS = 2500;
     static _reportedReads = new Set();
-    static _WORKER_BLOCKED_KEY = "hf_stats_worker_blocked";
+    static _WORKER_BLOCKED_KEY = "hf_stats_worker_blocked_v2";
 
     static isWorkerBlocked() {
         try {
@@ -30,6 +30,12 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     static markWorkerBlocked() {
         try {
             localStorage.setItem(HFStatsLibrary._WORKER_BLOCKED_KEY, "1");
+        } catch (_) { /* ignore */ }
+    }
+
+    static clearWorkerBlocked() {
+        try {
+            localStorage.removeItem(HFStatsLibrary._WORKER_BLOCKED_KEY);
         } catch (_) { /* ignore */ }
     }
 
@@ -297,7 +303,9 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
                 keepalive: true,
                 mode: "cors"
             }).then(resp => {
-                if (resp.status === 403) {
+                if (resp.ok) {
+                    HFStatsLibrary.clearWorkerBlocked();
+                } else if (resp.status === 403) {
                     HFStatsLibrary.markWorkerBlocked();
                 }
             }).catch(() => {});
@@ -319,6 +327,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             if (!resp.ok) {
                 return null;
             }
+            HFStatsLibrary.clearWorkerBlocked();
             const data = await resp.json();
             const entries = HFStatsLibrary._normalizeEntries(data, mode, limit)
                 .filter(e => !HFStatsLibrary.isSampleEntry(e));
