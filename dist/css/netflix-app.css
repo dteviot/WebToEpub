@@ -5,7 +5,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     background: radial-gradient(circle at 50% 50%, #151b22 0%, #090b0e 100%);
     position: fixed;
@@ -15,7 +15,10 @@
     transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     opacity: 1;
     overflow-y: auto;
-    padding: 40px 20px;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: clamp(40px, 8vh, 80px) 20px 40px;
 }
 
 #netflixLanding.fade-out {
@@ -42,6 +45,7 @@
     flex-wrap: wrap;
     max-width: 1000px;
     margin: 0 auto 60px;
+    flex-shrink: 0;
     animation: netflixFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
 
@@ -195,9 +199,12 @@
     display: flex;
     gap: 16px;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 8px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
 }
 
 .top-novels-row::-webkit-scrollbar {

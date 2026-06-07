@@ -61,7 +61,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
         const m = entry.modes;
         if (modeFilter === "live") {
-            return m.live?.reads || 0;
+            return (m.live?.reads || 0) + (m.live?.opens || 0);
         }
         if (modeFilter === "manual") {
             return m.manual?.epubConversions || 0;
@@ -69,7 +69,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         if (modeFilter === "library") {
             return (m.library?.downloads || 0) + (m.library?.opens || 0) + (m.library?.reads || 0);
         }
-        return (m.live?.reads || 0)
+        return (m.live?.reads || 0) + (m.live?.opens || 0)
             + (m.manual?.epubConversions || 0) * 3
             + (m.library?.downloads || 0) * 2
             + (m.library?.opens || 0)
@@ -82,7 +82,8 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
         const m = entry.modes;
         if (modeFilter === "live") {
-            return `${m.live?.reads || 0} reads`;
+            const activity = (m.live?.reads || 0) + (m.live?.opens || 0);
+            return `${activity} reads`;
         }
         if (modeFilter === "manual") {
             return `${m.manual?.epubConversions || 0} EPUBs`;
@@ -194,6 +195,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
         entries = entries
             .filter(e => e && e.url)
+            .filter(e => mode === "all" || HFStatsLibrary.computeTotalScore(e, mode) > 0)
             .map(e => ({
                 url: e.url,
                 title: e.title || HFStatsLibrary._titleFromUrl(e.url),

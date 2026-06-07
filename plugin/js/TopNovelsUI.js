@@ -5,6 +5,8 @@
 
 class TopNovelsUI { // eslint-disable-line no-unused-vars
 
+    static _loadGeneration = 0;
+
     static init() {
         const section = document.getElementById("topNovelsSection");
         if (!section || typeof HFStatsLibrary === "undefined") {
@@ -33,17 +35,24 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
             return;
         }
 
+        const generation = ++TopNovelsUI._loadGeneration;
         section.hidden = true;
         row.innerHTML = "";
 
         try {
             const result = await HFStatsLibrary.fetchTopNovels({ mode, limit: 16 });
+            if (generation !== TopNovelsUI._loadGeneration) {
+                return;
+            }
             if (!result?.entries?.length) {
                 return;
             }
             TopNovelsUI._render(row, result.entries, mode);
             section.hidden = false;
         } catch (e) {
+            if (generation !== TopNovelsUI._loadGeneration) {
+                return;
+            }
             console.warn("[TopNovels] Catalog unavailable, hiding section:", e.message);
             section.hidden = true;
             row.innerHTML = "";

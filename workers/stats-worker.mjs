@@ -41,12 +41,12 @@ function normalizeUrl(url) {
 
 function scoreEntry(entry, mode) {
     const m = entry.modes || {};
-    if (mode === "live") return m.live?.reads || 0;
+    if (mode === "live") return (m.live?.reads || 0) + (m.live?.opens || 0);
     if (mode === "manual") return m.manual?.epubConversions || 0;
     if (mode === "library") {
         return (m.library?.downloads || 0) + (m.library?.opens || 0) + (m.library?.reads || 0);
     }
-    return (m.live?.reads || 0)
+    return (m.live?.reads || 0) + (m.live?.opens || 0)
         + (m.manual?.epubConversions || 0) * 3
         + (m.library?.downloads || 0) * 2
         + (m.library?.opens || 0)
