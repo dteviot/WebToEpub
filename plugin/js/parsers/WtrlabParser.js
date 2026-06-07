@@ -12,6 +12,21 @@ class WtrlabParser extends Parser {
         return 1;
     }
 
+    /** Live Reader has no popup checkboxes; fall back to saved preferences. */
+    shouldRemoveChapterNumber() {
+        let el = document.getElementById("removeChapterNumberCheckbox");
+        if (el) return el.checked;
+        return typeof window !== "undefined"
+            && window.localStorage?.getItem("removeChapterNumber") === "true";
+    }
+
+    shouldRetryLonger() {
+        let el = document.getElementById("selectRetryLongerCheckbox");
+        if (el) return el.checked;
+        return typeof window !== "undefined"
+            && window.localStorage?.getItem("selectRetryLonger") === "true";
+    }
+
     populateUIImpl() {
         document.getElementById("removeChapterNumberRow").hidden = false;
         // raw download no longer supported as the raw text is encoded and i don't know how.
@@ -30,6 +45,10 @@ class WtrlabParser extends Parser {
             if (nextRaw) {
                 let parsed = JSON.parse(nextRaw);
                 this.magickey = parsed?.buildId;
+                let dataSlug = parsed?.props?.pageProps?.serie?.serie_data?.slug;
+                if (dataSlug) {
+                    this.slug = dataSlug;
+                }
             }
         } catch (e) {
             this.magickey = undefined;
@@ -49,8 +68,9 @@ class WtrlabParser extends Parser {
             let idPart = leaves[novelIndex + 1] || leaves[novelIndex];
             id = idPart.startsWith("serie-") ? idPart.slice(6) : idPart;
         }
-        let slug = leaves[leaves.length - 1].split("?")[0];
-        this.slug = slug;
+        if (!this.slug) {
+            this.slug = leaves[leaves.length - 1].split("?")[0];
+        }
         this.language = language;
         this.id = id;
 
@@ -100,8 +120,8 @@ class WtrlabParser extends Parser {
             }
         }
         return chapters.chapters.map(a => ({
-            sourceUrl: "https://wtr-lab.com/" + language + "/novel/" + id + "/" + slug + "/chapter-" + a.order,
-            title: (document.getElementById("removeChapterNumberCheckbox").checked) ? a.title : a.order + ": " + a.title
+            sourceUrl: "https://wtr-lab.com/" + language + "/novel/" + id + "/" + this.slug + "/chapter-" + a.order,
+            title: this.shouldRemoveChapterNumber() ? a.title : a.order + ": " + a.title
         }));
     }
 
@@ -207,7 +227,7 @@ class WtrlabParser extends Parser {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
         let num = chapterData.chapter_no != null ? String(chapterData.chapter_no) : chapterNum;
-        title.textContent = (document.getElementById("removeChapterNumberCheckbox").checked)
+        title.textContent = this.shouldRemoveChapterNumber()
             ? chapterData.title
             : num + ": " + chapterData.title;
         newDoc.content.appendChild(title);
@@ -247,7 +267,7 @@ class WtrlabParser extends Parser {
             newresp.response = {};
             newresp.response.url = this.PostToUrl(checkedresponse.response.url, JSON.parse(wrapOptions.fetchOptions.body));
             newresp.response.status = 999;
-            if (document.getElementById("selectRetryLongerCheckbox").checked) {
+            if (this.shouldRetryLonger()) {
                 newresp.response.retryDelay = [80, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120];
             } else {
                 newresp.response.retryDelay = [80, 40, 25, 25, 25];
@@ -271,7 +291,7 @@ class WtrlabParser extends Parser {
         let chapter = leaves[leaves.length - 1].split("?")[0].replace("chapter-", "");
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked) ? "" : chapter + ": ") + json.chapter.title;
+        title.textContent = (this.shouldRemoveChapterNumber() ? "" : chapter + ": ") + json.chapter.title;
         newDoc.content.appendChild(title);
         let br = newDoc.dom.createElement("br");
         let imagecounter = 0;

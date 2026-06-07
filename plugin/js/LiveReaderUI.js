@@ -99,6 +99,9 @@ class LiveReaderUI {
                 this.userPrefs = UserPreferences.readFromLocalStorage();
                 HttpClient.enableCorsProxy = this.userPrefs.enableCorsProxy.value;
                 HttpClient.corsProxyUrl = this.userPrefs.corsProxyUrl.value;
+                if (this.userPrefs.wtrLabCookieImport) {
+                    HttpClient.setWtrLabCookiesFromUserInput(this.userPrefs.wtrLabCookieImport.value);
+                }
             }
         } catch (e) { /* ignore */ }
 
