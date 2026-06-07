@@ -67,7 +67,7 @@ class ParserState {
 class Parser {    
     constructor(imageCollector) {
         this.minimumThrottle = 500;
-        this.maxSimultanousFetchSize = 1;
+        this.maxSimultanousFetchSize = 4;
         this.state = new ParserState();
         this.imageCollector = imageCollector || new ImageCollector();
         this.userPreferences = null;
@@ -468,7 +468,10 @@ class Parser {
         let chapterUrlsUI = new ChapterUrlsUI(this);
         this.userPreferences.setReadingListCheckbox(url);
 
+        const originalRateLimitDelay = this.rateLimitDelay;
         try {
+            // Match live reader: skip throttle while scanning the chapter list
+            this.rateLimitDelay = async () => {};
             let chapters = await this.getChapterUrls(firstPageDom, chapterUrlsUI);
             if (this.userPreferences.chaptersPageInChapterList.value) {
                 chapters = this.addFirstPageUrlToWebPages(url, firstPageDom, chapters);
@@ -488,6 +491,8 @@ class Parser {
             chapterUrlsUI.connectButtonHandlers();
         } catch (err) {
             ErrorLog.showErrorMessage(err);
+        } finally {
+            this.rateLimitDelay = originalRateLimitDelay;
         }
     }
 
@@ -560,6 +565,9 @@ class Parser {
         {
             let group = this.groupPagesToFetch(pagesToFetch, index);
             while (0 < group.length) {
+                if (0 < index) {
+                    await this.rateLimitDelay();
+                }
                 await Promise.all(group.map(async (webPage) => this.fetchWebPageContent(webPage)));
                 index += group.length;
                 group = this.groupPagesToFetch(pagesToFetch, index);
@@ -588,8 +596,6 @@ class Parser {
     }
 
     async fetchWebPageContent(webPage) {
-        ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_SLEEPING);
-        await this.rateLimitDelay();
         ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
         let pageParser = webPage.parser;
         try {

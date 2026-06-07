@@ -33,10 +33,6 @@ class WtrlabParser extends Parser {
         // leaving old code in case it gets solved.
         // document.getElementById("selectTranslationAiRow").hidden = false;
         document.getElementById("selectRetryLongerRow").hidden = false;
-        let wtrLabCookieRow = document.getElementById("wtrLabCookieRow");
-        if (wtrLabCookieRow) {
-            wtrLabCookieRow.hidden = false;
-        }
     }
 
     async getChapterUrls(dom) {
@@ -76,48 +72,40 @@ class WtrlabParser extends Parser {
 
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
 
-        let websiteMode = typeof HttpClient !== "undefined" && HttpClient.enableCorsProxy;
-        let wtrCookies = typeof HttpClient !== "undefined" && HttpClient.wtrLabCookieHeader && HttpClient.wtrLabCookieHeader.trim();
-        let fetchGlossaryApis = !websiteMode || wtrCookies;
-        if (!fetchGlossaryApis) {
+        let serie_id = chapters.chapters[0].serie_id;
+        try {
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
+            terms = (terms?.config?.terms ?? []).filter(a => (a[4] == null) || (a[4].includes(serie_id)));
+            terms = terms.map(a => ({ from: a[2].split("|"), to: a[1] }));
+            let index = 0;
             this.termsuser = [];
+            for (let i = 0; i < terms.length; i++) {
+                for (let j = 0; j < terms[i].from.length; j++) {
+                    this.termsuser[index] = ({ from: terms[i].from[j], to: terms[i].to });
+                    index++;
+                }
+            }
+        } catch (error) {
+            this.termsuser = [];
+        }
+        // entire stories have their own terms that supersede the chapter ones
+        try {
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/reader/terms/" + id + ".json")).json;
+            let termstmp = {};
+            for (let i = 0; i < terms?.glossaries?.length; i++) {
+                for (let j = 0; j < terms.glossaries[i]?.data?.terms?.length; j++) {
+                    if (terms.glossaries[i]?.data.terms[j]?.length > 1 && terms.glossaries[i]?.data.terms[j][0].length > 0) {
+                        termstmp[terms.glossaries[i].data.terms[j][1]] = terms.glossaries[i].data.terms[j][0][0];
+                    }
+                }
+            }
             this.termsstory = [];
-        } else {
-            let serie_id = chapters.chapters[0].serie_id;
-            try {
-                let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
-                terms = (terms?.config?.terms ?? []).filter(a => (a[4] == null) || (a[4].includes(serie_id)));
-                terms = terms.map(a => ({ from: a[2].split("|"), to: a[1] }));
-                let index = 0;
-                this.termsuser = [];
-                for (let i = 0; i < terms.length; i++) {
-                    for (let j = 0; j < terms[i].from.length; j++) {
-                        this.termsuser[index] = ({ from: terms[i].from[j], to: terms[i].to });
-                        index++;
-                    }
-                }
-            } catch (error) {
-                this.termsuser = [];
+            let index = 0;
+            for (let key in termstmp) {
+                this.termsstory[index++] = ({ from: key, to: termstmp[key] });
             }
-            // entire stories have their own terms that supersede the chapter ones
-            try {
-                let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/reader/terms/" + id + ".json")).json;
-                let termstmp = {};
-                for (let i = 0; i < terms?.glossaries?.length; i++) {
-                    for (let j = 0; j < terms.glossaries[i]?.data?.terms?.length; j++) {
-                        if (terms.glossaries[i]?.data.terms[j]?.length > 1 && terms.glossaries[i]?.data.terms[j][0].length > 0) {
-                            termstmp[terms.glossaries[i].data.terms[j][1]] = terms.glossaries[i].data.terms[j][0][0];
-                        }
-                    }
-                }
-                this.termsstory = [];
-                let index = 0;
-                for (let key in termstmp) {
-                    this.termsstory[index++] = ({ from: key, to: termstmp[key] });
-                }
-            } catch (error) {
-                this.termsstory = [];
-            }
+        } catch (error) {
+            this.termsstory = [];
         }
         return chapters.chapters.map(a => ({
             sourceUrl: "https://wtr-lab.com/" + language + "/novel/" + id + "/" + this.slug + "/chapter-" + a.order,

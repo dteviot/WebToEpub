@@ -87,6 +87,20 @@
             </button>
 
         </div>
+
+        <!-- Top Novels (hidden automatically when stats catalog is unreachable) -->
+        <section id="topNovelsSection" class="top-novels-section" hidden>
+            <div class="top-novels-header">
+                <h2 class="top-novels-title">Top Novels</h2>
+                <div class="top-novels-tabs">
+                    <button type="button" class="top-novels-tab active" data-mode="all">All</button>
+                    <button type="button" class="top-novels-tab" data-mode="live">Live</button>
+                    <button type="button" class="top-novels-tab" data-mode="manual">Manual</button>
+                    <button type="button" class="top-novels-tab" data-mode="library">Library</button>
+                </div>
+            </div>
+            <div id="topNovelsRow" class="top-novels-row"></div>
+        </section>
     </div>
 
     <!-- 1) Search Engine Section (Originally index.html layout) -->
@@ -443,6 +457,8 @@
     <script src="plugin/js/EpubMetaInfo.js?v=20260602_v1" defer></script>
     <script src="plugin/js/UserPreferences.js?v=20260602_v1" defer></script>
     <script src="plugin/js/Secrets.js?v=20260602_v1" defer></script>
+    <script src="plugin/js/HFStatsLibrary.js?v=20260602_v1" defer></script>
+    <script src="plugin/js/TopNovelsUI.js?v=20260602_v1" defer></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -518,6 +534,11 @@
                 if (pushState && window.history.state?.view !== 'portal') {
                     window.history.pushState({ view: 'portal' }, "", window.location.pathname);
                 }
+
+                if (typeof TopNovelsUI !== "undefined") {
+                    const activeTab = document.querySelector(".top-novels-tab.active");
+                    TopNovelsUI.load(activeTab?.dataset.mode || "all");
+                }
             }
 
             // Handle browser back button
@@ -531,6 +552,14 @@
 
             // Initial state
             window.history.replaceState({ view: 'portal' }, "", window.location.pathname);
+
+            // Expose showView for Top Novels card navigation
+            window.showView = showView;
+
+            // Top Novels (section stays hidden if catalog unreachable)
+            if (typeof TopNovelsUI !== "undefined") {
+                TopNovelsUI.init();
+            }
 
             // Bind profiles
             document.getElementById("profileSearch").addEventListener("click", () => showView("searchView"));

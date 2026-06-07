@@ -781,6 +781,15 @@ class LibraryUI {
                         const url = URL.createObjectURL(blob);
                         this.downloadBlob(url, `${book.title}.epub`);
                         URL.revokeObjectURL(url);
+                        if (typeof HFStatsLibrary !== "undefined") {
+                            HFStatsLibrary.recordEvent({
+                                url: book.sourceUrl || `hf-library://${book.id}`,
+                                mode: "library",
+                                action: "download",
+                                title: book.title,
+                                author: book.author
+                            });
+                        }
                     } catch (e) {
                         alert("Error downloading public book: " + e.message);
                     } finally {
@@ -863,6 +872,22 @@ class LibraryUI {
         
         // Load into viewer
         this.epubViewer.loadEpub(base64Data);
+
+        if (typeof HFStatsLibrary !== "undefined" && this.currentDetailsId != null) {
+            this.storage.get([
+                `LibStoryURL${this.currentDetailsId}`,
+                `LibTitle${this.currentDetailsId}`,
+                `LibAuthor${this.currentDetailsId}`
+            ]).then(stored => {
+                HFStatsLibrary.recordEvent({
+                    url: stored[`LibStoryURL${this.currentDetailsId}`] || `library://personal/${this.currentDetailsId}`,
+                    mode: "library",
+                    action: "read",
+                    title: stored[`LibTitle${this.currentDetailsId}`] || this.currentDetailsFilename,
+                    author: stored[`LibAuthor${this.currentDetailsId}`] || ""
+                });
+            }).catch(() => {});
+        }
     }
 
     downloadBlob(base64Data, filename) {
@@ -1131,6 +1156,25 @@ class LibraryUI {
             const globalBackBtn = document.getElementById("globalBackBtn");
             if (globalBackBtn) {
                 globalBackBtn.style.display = "none"; // Hide global back button, detailsBackBtn handles going back
+            }
+
+            if (typeof HFStatsLibrary !== "undefined") {
+                let statsUrl = bookData.sourceUrl || "";
+                if (isPersonal && bookData.id != null) {
+                    const stored = await this.storage.get([`LibStoryURL${bookData.id}`]);
+                    statsUrl = stored[`LibStoryURL${bookData.id}`] || statsUrl;
+                }
+                if (!statsUrl) {
+                    statsUrl = isPersonal ? `library://personal/${bookData.id}` : `hf-library://${bookData.id}`;
+                }
+                HFStatsLibrary.recordEvent({
+                    url: statsUrl,
+                    mode: "library",
+                    action: "open",
+                    title: meta.title,
+                    author: meta.author,
+                    coverUrl: meta.coverDataUrl
+                });
             }
 
         } catch (e) {

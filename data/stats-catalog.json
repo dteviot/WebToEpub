@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-07T12:00:00.000Z",
+  "entries": [
+    {
+      "url": "https://novelfull.net/legend-of-swordsman.html",
+      "title": "Legend of Swordsman",
+      "author": "Unknown",
+      "coverUrl": "",
+      "host": "novelfull.net",
+      "modes": {
+        "live": { "reads": 42, "opens": 18, "lastAt": "2026-06-07T11:00:00.000Z" },
+        "manual": { "epubConversions": 12, "lastAt": "2026-06-06T20:00:00.000Z" },
+        "library": { "downloads": 5, "opens": 9, "reads": 7, "lastAt": "2026-06-07T10:00:00.000Z" }
+      },
+      "totalScore": 95
+    },
+    {
+      "url": "https://www.wattpad.com/story/29396964",
+      "title": "Sample Wattpad Story",
+      "author": "Community",
+      "coverUrl": "",
+      "host": "www.wattpad.com",
+      "modes": {
+        "live": { "reads": 28, "opens": 14, "lastAt": "2026-06-07T09:30:00.000Z" },
+        "manual": { "epubConversions": 8, "lastAt": "2026-06-05T15:00:00.000Z" },
+        "library": { "downloads": 3, "opens": 4, "reads": 2, "lastAt": "2026-06-06T12:00:00.000Z" }
+      },
+      "totalScore": 58
+    },
+    {
+      "url": "https://wtr-lab.com/en/novel/serie-123/example-novel",
+      "title": "WTR-Lab Novel",
+      "author": "Unknown",
+      "coverUrl": "",
+      "host": "wtr-lab.com",
+      "modes": {
+        "live": { "reads": 15, "opens": 10, "lastAt": "2026-06-07T08:00:00.000Z" },
+        "manual": { "epubConversions": 6, "lastAt": "2026-06-04T18:00:00.000Z" },
+        "library": { "downloads": 1, "opens": 2, "reads": 1, "lastAt": "2026-06-05T09:00:00.000Z" }
+      },
+      "totalScore": 36
+    }
+  ]
+}

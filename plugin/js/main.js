@@ -70,10 +70,6 @@ var main = (function() {
         document.getElementById("translatorRow").hidden = true;
         document.getElementById("fileAuthorAsRow").hidden = true;
         document.getElementById("defaultParserSection").hidden = true;
-        let wtrLabCookieRow = document.getElementById("wtrLabCookieRow");
-        if (wtrLabCookieRow) {
-            wtrLabCookieRow.hidden = true;
-        }
     }
 
     function populateMetaInfo(metaInfo) {
@@ -150,6 +146,15 @@ var main = (function() {
         let overwriteExisting = userPreferences.overwriteExistingEpub.value;
         let backgroundDownload = userPreferences.noDownloadPopup.value;
         await Download.save(direct.blob, direct.fileName, overwriteExisting, backgroundDownload);
+        if (typeof HFStatsLibrary !== "undefined") {
+            HFStatsLibrary.recordEvent({
+                url: url,
+                mode: "manual",
+                action: "epub_convert",
+                title: direct.fileName,
+                author: ""
+            });
+        }
         if (progressString) {
             progressString.textContent = "EPUB downloaded from wpd.my.";
         }
@@ -198,6 +203,16 @@ var main = (function() {
                 await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             } else {
                 await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            }
+            if (typeof HFStatsLibrary !== "undefined") {
+                HFStatsLibrary.recordEvent({
+                    url: startingUrl,
+                    mode: "manual",
+                    action: "epub_convert",
+                    title: metaInfo.title,
+                    author: metaInfo.author,
+                    coverUrl: CoverImageUI.getCoverImageUrl()
+                });
             }
             try {
                 parser.updateReadingList();
@@ -334,7 +349,6 @@ var main = (function() {
         // Sync HttpClient with preferences
         HttpClient.enableCorsProxy = userPreferences.enableCorsProxy.value;
         HttpClient.corsProxyUrl = userPreferences.corsProxyUrl.value;
-        HttpClient.setWtrLabCookiesFromUserInput(userPreferences.wtrLabCookieImport.value);
     }
 
     function isRunningInTabMode() {

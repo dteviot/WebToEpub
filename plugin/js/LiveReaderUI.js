@@ -99,9 +99,6 @@ class LiveReaderUI {
                 this.userPrefs = UserPreferences.readFromLocalStorage();
                 HttpClient.enableCorsProxy = this.userPrefs.enableCorsProxy.value;
                 HttpClient.corsProxyUrl = this.userPrefs.corsProxyUrl.value;
-                if (this.userPrefs.wtrLabCookieImport) {
-                    HttpClient.setWtrLabCookiesFromUserInput(this.userPrefs.wtrLabCookieImport.value);
-                }
             }
         } catch (e) { /* ignore */ }
 
@@ -169,6 +166,17 @@ class LiveReaderUI {
 
             this._renderBookDetailsCard();
             this._showView("bookDetailsView");
+
+            if (typeof HFStatsLibrary !== "undefined") {
+                HFStatsLibrary.recordEvent({
+                    url: url,
+                    mode: "live",
+                    action: "open",
+                    title: this.metaInfo.title,
+                    author: this.metaInfo.author,
+                    coverUrl: this.metaInfo.coverUrl
+                });
+            }
             
             const addToLibBtn = document.getElementById("lrAddToLibraryBtn");
             if (addToLibBtn) {
@@ -397,6 +405,17 @@ class LiveReaderUI {
         this.currentChapterIndex = index;
         this.loadedChaptersIndex = index;
         this._saveProgress(index);
+
+        if (typeof HFStatsLibrary !== "undefined" && this.url) {
+            HFStatsLibrary.recordEvent({
+                url: this.url,
+                mode: "live",
+                action: "read",
+                title: this.metaInfo?.title,
+                author: this.metaInfo?.author,
+                coverUrl: this.metaInfo?.coverUrl
+            });
+        }
 
         if (this.layout === "scroll") {
             // Scroll view: ensure placeholder exists, then lazy load

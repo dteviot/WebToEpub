@@ -168,75 +168,6 @@ class HttpClient {
         return {};
     }
 
-    /**
-     * Optional session cookies for wtr-lab.com (paste Netscape export or "Cookie:" header in Advanced options).
-     * Sent on requests to wtr-lab.com and *.wtr-lab.com. Public CORS proxies may still strip headers.
-     */
-    static setWtrLabCookiesFromUserInput(raw) {
-        HttpClient.wtrLabCookieHeader = HttpClient.parseNetscapeOrCookieHeader(raw || "");
-    }
-
-    static parseNetscapeOrCookieHeader(text) {
-        text = (text || "").trim();
-        if (!text) {
-            return "";
-        }
-        if (text.includes("\t")) {
-            let parts = [];
-            for (let rawLine of text.split(/\r?\n/)) {
-                let line = rawLine.trim();
-                if (!line) {
-                    continue;
-                }
-                if (line.startsWith("#HttpOnly_")) {
-                    line = line.replace(/^#HttpOnly_/, "");
-                } else if (line.startsWith("#")) {
-                    continue;
-                }
-                let cols = line.split("\t");
-                if (cols.length >= 7) {
-                    let name = cols[5];
-                    let value = cols.slice(6).join("\t");
-                    if (name) {
-                        parts.push(name + "=" + value);
-                    }
-                }
-            }
-            if (parts.length > 0) {
-                return parts.join("; ");
-            }
-        }
-        if (/^cookie\s*:/i.test(text)) {
-            text = text.replace(/^cookie\s*:/i, "").trim();
-        }
-        return text.replace(/\s*;\s*/g, "; ").trim();
-    }
-
-    static applyWtrLabCookieHeaderIfNeeded(fetchOptions, targetUrl) {
-        let cookie = HttpClient.wtrLabCookieHeader;
-        if (!cookie || !String(cookie).trim()) {
-            return;
-        }
-        let host = "";
-        try {
-            host = new URL(targetUrl).hostname;
-        } catch (e) {
-            return;
-        }
-        if (host !== "wtr-lab.com" && !host.endsWith(".wtr-lab.com")) {
-            return;
-        }
-        if (!fetchOptions.headers) {
-            fetchOptions.headers = { Cookie: cookie };
-            return;
-        }
-        if (typeof fetchOptions.headers.set === "function") {
-            fetchOptions.headers.set("Cookie", cookie);
-            return;
-        }
-        fetchOptions.headers = Object.assign({}, fetchOptions.headers, { Cookie: cookie });
-    }
-
     static wrapFetch(url, wrapOptions) {
         if (wrapOptions == null) {
             wrapOptions = {
@@ -297,8 +228,6 @@ class HttpClient {
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
-        HttpClient.applyWtrLabCookieHeaderIfNeeded(wrapOptions.fetchOptions, url);
-
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
         }
@@ -788,7 +717,6 @@ HttpClient.CORS_PROXIES = [
 ];
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
 HttpClient.enableCorsProxy = true;
-HttpClient.wtrLabCookieHeader = "";
 
 class FetchResponseHandler {
     isHtml() {

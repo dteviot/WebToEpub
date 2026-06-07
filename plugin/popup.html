@@ -188,13 +188,6 @@
                         <label for="enableCorsProxyCheckbox">Enable</label>
                     </td>
                 </tr>
-                <tr id="wtrLabCookieRow" hidden="true">
-                    <td>WTR-Lab cookies (optional)</td>
-                    <td colspan="3">
-                        <textarea id="wtrLabCookieInput" rows="3" style="width:95%"
-                            placeholder="Netscape export (Cookie-Editor) or Cookie header. Improves glossary and logged-in API calls; extension mode is more reliable than website + proxy."></textarea>
-                    </td>
-                </tr>
             </table>
 
             <div class="progressSection">
@@ -489,6 +482,11 @@
                                 name="advancedOptionsVisibleByDefaultCheckbox" value="true"></td>
                         <td>__MSG_label_Advanced_Options_Visible_By_Default__</td>
                     </tr>
+                    <tr id="contributeUsageStatsRow">
+                        <td><input id="contributeUsageStatsCheckbox" type="checkbox"
+                                name="contributeUsageStatsCheckbox" value="true" checked></td>
+                        <td>Contribute anonymous usage stats (helps Top Novels rankings)</td>
+                    </tr>
                     <tr>
                         <td>__MSG_label_Manually_Select_Parser__</td>
                         <td>
@@ -745,6 +743,7 @@
         <script src="js/ProgressBar.js"></script>
         <script src="js/Parser.js"></script>
         <script src="js/Library.js"></script>
+        <script src="js/HFStatsLibrary.js"></script>
         <script src="js/SiteSearchEngine.js"></script>
         <script src="js/SearchEngineUI.js"></script>
 
