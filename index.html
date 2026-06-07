@@ -461,50 +461,102 @@
     <script src="plugin/js/EpubMetaInfo.js?v=20260602_v1" defer></script>
     <script src="plugin/js/UserPreferences.js?v=20260602_v1" defer></script>
     <script src="plugin/js/Secrets.js?v=20260602_v1" defer></script>
-    <script src="plugin/js/HFStatsLibrary.js?v=20260607_v4" defer></script>
-    <script src="plugin/js/TopNovelsUI.js?v=20260607_v4" defer></script>
+    <script src="plugin/js/HFStatsLibrary.js?v=20260607_v5" defer></script>
+    <script src="plugin/js/TopNovelsUI.js?v=20260607_v5" defer></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const loadedModules = new Set();
+            const loadingPromises = new Map();
+            const scriptGlobals = {
+                "plugin/js/SiteSearchEngine.js": "SiteSearchEngine",
+                "plugin/js/SearchEngineUI.js": "SearchEngineUI",
+                "plugin/js/ParserEnvironment.js": "ParserEnvironment",
+                "plugin/js/EpubViewerUI.js": "EpubViewerUI",
+                "plugin/js/HFLibrary.js": "HFLibrary",
+                "plugin/js/LibraryUI.js": "LibraryUI"
+            };
+
+            const scriptBase = (src) => src.split("?")[0];
+
+            const loadScript = (src) => {
+                const base = scriptBase(src);
+                const globalName = scriptGlobals[base];
+                if (globalName && typeof window[globalName] !== "undefined") {
+                    loadedModules.add(base);
+                    return Promise.resolve();
+                }
+                if (loadedModules.has(base)) {
+                    return Promise.resolve();
+                }
+                if (loadingPromises.has(base)) {
+                    return loadingPromises.get(base);
+                }
+                const promise = new Promise((resolve, reject) => {
+                    const s = document.createElement("script");
+                    s.src = src;
+                    s.onload = () => {
+                        loadedModules.add(base);
+                        loadingPromises.delete(base);
+                        resolve();
+                    };
+                    s.onerror = () => {
+                        loadingPromises.delete(base);
+                        reject(new Error(`Failed to load ${src}`));
+                    };
+                    document.body.appendChild(s);
+                });
+                loadingPromises.set(base, promise);
+                return promise;
+            };
+
             const loadScripts = async (scripts) => {
                 for (const src of scripts) {
-                    if (loadedModules.has(src)) continue;
-                    await new Promise((resolve, reject) => {
-                        const s = document.createElement("script");
-                        s.src = src;
-                        s.onload = () => { loadedModules.add(src); resolve(); };
-                        s.onerror = reject;
-                        document.body.appendChild(s);
+                    await loadScript(src);
+                }
+            };
+
+            let searchEnginePromise = null;
+            const ensureSearchEngine = async () => {
+                if (typeof SearchEngineUI !== "undefined" && SearchEngineUI._eventsBound) {
+                    return;
+                }
+                if (!searchEnginePromise) {
+                    searchEnginePromise = loadScripts([
+                        "plugin/js/SiteSearchEngine.js?v=20260602_v1",
+                        "plugin/js/SearchEngineUI.js?v=20260602_v1"
+                    ]).then(() => {
+                        if (typeof SearchEngineUI !== "undefined" && !SearchEngineUI._eventsBound) {
+                            SearchEngineUI.bindEvents();
+                            SearchEngineUI._eventsBound = true;
+                        }
                     });
                 }
+                return searchEnginePromise;
             };
 
-            const ensureSearchEngine = async () => {
-                await loadScripts([
-                    "plugin/js/SiteSearchEngine.js?v=20260602_v1",
-                    "plugin/js/SearchEngineUI.js?v=20260602_v1"
-                ]);
-                if (typeof SearchEngineUI !== "undefined" && !SearchEngineUI._eventsBound) {
-                    SearchEngineUI.bindEvents();
-                    SearchEngineUI._eventsBound = true;
-                }
-            };
-
+            let readerModulesPromise = null;
             const ensureReaderModules = async () => {
-                await loadScripts([
-                    "plugin/@zip.js/zip.js/dist/zip-no-worker.min.js",
-                    "plugin/js/ParserEnvironment.js?v=20260607_v2",
-                    "plugin/js/EpubViewerUI.js?v=20260607_v2",
-                    "plugin/js/HFLibrary.js?v=20260602_v1",
-                    "plugin/js/LibraryUI.js?v=20260607_v2"
-                ]);
-                if (!window.epubViewer) {
-                    window.epubViewer = new EpubViewerUI();
-                    window.epubViewer.init();
-                    window.libraryManager = new LibraryUI(window.epubViewer);
-                    window.libraryManager.init();
+                if (window.epubViewer && window.libraryManager) {
+                    return;
                 }
+                if (!readerModulesPromise) {
+                    readerModulesPromise = loadScripts([
+                        "plugin/@zip.js/zip.js/dist/zip-no-worker.min.js",
+                        "plugin/js/ParserEnvironment.js?v=20260607_v2",
+                        "plugin/js/EpubViewerUI.js?v=20260607_v2",
+                        "plugin/js/HFLibrary.js?v=20260602_v1",
+                        "plugin/js/LibraryUI.js?v=20260607_v2"
+                    ]).then(() => {
+                        if (!window.epubViewer) {
+                            window.epubViewer = new EpubViewerUI();
+                            window.epubViewer.init();
+                            window.libraryManager = new LibraryUI(window.epubViewer);
+                            window.libraryManager.init();
+                        }
+                    });
+                }
+                return readerModulesPromise;
             };
 
             // Netflix Landing Portal View Switcher

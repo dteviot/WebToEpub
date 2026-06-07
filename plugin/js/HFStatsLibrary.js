@@ -14,28 +14,14 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     static STATS_REPO_ID = "prasadonly/webtoepub-library";
     static STATS_CATALOG_FILE = "stats-catalog.json";
     static LOCAL_STATS_KEY = "wte_usage_stats_v1";
-    static FETCH_TIMEOUT_MS = 6000;
-    static WORKER_TOP_TIMEOUT_MS = 2500;
+    static FETCH_TIMEOUT_MS = 8000;
+    static WORKER_TOP_TIMEOUT_MS = 8000;
     static _reportedReads = new Set();
-    static _WORKER_BLOCKED_KEY = "hf_stats_worker_blocked_v2";
 
-    static isWorkerBlocked() {
+    static _clearLegacyWorkerBlocks() {
         try {
-            return localStorage.getItem(HFStatsLibrary._WORKER_BLOCKED_KEY) === "1";
-        } catch (_) {
-            return false;
-        }
-    }
-
-    static markWorkerBlocked() {
-        try {
-            localStorage.setItem(HFStatsLibrary._WORKER_BLOCKED_KEY, "1");
-        } catch (_) { /* ignore */ }
-    }
-
-    static clearWorkerBlocked() {
-        try {
-            localStorage.removeItem(HFStatsLibrary._WORKER_BLOCKED_KEY);
+            localStorage.removeItem("hf_stats_worker_blocked");
+            localStorage.removeItem("hf_stats_worker_blocked_v2");
         } catch (_) { /* ignore */ }
     }
 
@@ -291,7 +277,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         HFStatsLibrary.recordLocalEvent(payload);
 
         const base = HFStatsLibrary.getWorkerBase();
-        if (!base || HFStatsLibrary.isWorkerBlocked()) {
+        if (!base) {
             return;
         }
 
@@ -302,32 +288,21 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
                 body: JSON.stringify(payload),
                 keepalive: true,
                 mode: "cors"
-            }).then(resp => {
-                if (resp.ok) {
-                    HFStatsLibrary.clearWorkerBlocked();
-                } else if (resp.status === 403) {
-                    HFStatsLibrary.markWorkerBlocked();
-                }
             }).catch(() => {});
         } catch (_) { /* fire-and-forget */ }
     }
 
     static async _fetchTopFromWorker(mode, limit, signal) {
         const workerBase = HFStatsLibrary.getWorkerBase();
-        if (!workerBase || HFStatsLibrary.isWorkerBlocked()) {
+        if (!workerBase) {
             return null;
         }
         try {
             const workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
-            const resp = await fetch(workerUrl, { signal, cache: "no-store" });
-            if (resp.status === 403) {
-                HFStatsLibrary.markWorkerBlocked();
-                return null;
-            }
+            const resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
             if (!resp.ok) {
                 return null;
             }
-            HFStatsLibrary.clearWorkerBlocked();
             const data = await resp.json();
             const entries = HFStatsLibrary._normalizeEntries(data, mode, limit)
                 .filter(e => !HFStatsLibrary.isSampleEntry(e));
@@ -406,24 +381,23 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     }
 
     static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS } = {}) {
+        HFStatsLibrary._clearLegacyWorkerBlocks();
         const localEntries = HFStatsLibrary.getLocalTopEntries(mode, limit);
 
         const workerController = new AbortController();
+        const hfController = new AbortController();
         const workerTimer = setTimeout(() => workerController.abort(), HFStatsLibrary.WORKER_TOP_TIMEOUT_MS);
+        const hfTimer = setTimeout(() => hfController.abort(), timeoutMs);
         let workerEntries = null;
-        try {
-            workerEntries = await HFStatsLibrary._fetchTopFromWorker(mode, limit, workerController.signal);
-        } finally {
-            clearTimeout(workerTimer);
-        }
-
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
         let hfEntries = null;
         try {
-            hfEntries = await HFStatsLibrary._fetchTopFromHf(mode, limit, controller.signal);
+            [workerEntries, hfEntries] = await Promise.all([
+                HFStatsLibrary._fetchTopFromWorker(mode, limit, workerController.signal),
+                HFStatsLibrary._fetchTopFromHf(mode, limit, hfController.signal)
+            ]);
         } finally {
-            clearTimeout(timer);
+            clearTimeout(workerTimer);
+            clearTimeout(hfTimer);
         }
 
         const merged = HFStatsLibrary._mergeEntryLists([workerEntries, hfEntries, localEntries], mode, limit);
