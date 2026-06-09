@@ -1,1 +1,928 @@
-"use strict";class FetchErrorHandler{constructor(){}makeFailMessage(e,t){return UIText.Error.htmlFetchFailed(e,t)}makeFailCanRetryMessage(e,t){return this.makeFailMessage(e,t)+" "+UIText.Warning.httpFetchCanRetry}getCancelButtonText(){return UIText.Common.cancel}static cancelButtonText(){return UIText.Common.cancel}onFetchError(e,t){return Promise.reject(new Error(this.makeFailMessage(e,t.message)))}onResponseError(e,t,r,s){let n;if(n=s?new Error(s):new Error(this.makeFailMessage(r.url,r.status)),t.isProxyAttempt&&!t.isFinalProxyAttempt)return Promise.reject(n);let o=FetchErrorHandler.getAutomaticRetryBehaviourForStatus(r);return 0===o.retryDelay.length?Promise.reject(n):void 0===t.retry?(t.retry=o,this.retryFetch(e,t)):0<t.retry.retryDelay.length?this.retryFetch(e,t):t.retry.promptUser?this.promptUserForRetry(e,t,r,n):Promise.reject(n)}promptUserForRetry(e,t,r,s){let n;n=403===t.retry.HTTP?new Error(UIText.Warning.warning403ErrorResponse(new URL(r.url).hostname)+this.makeFailCanRetryMessage(e,r.status)):new Error(new Error(this.makeFailCanRetryMessage(e,r.status)));let o=this.getCancelButtonText();return new Promise((a,i)=>{if(403===t.retry.HTTP){let t=r.url;HttpClient.isProxyUrl(t)?n.blockurl=t:n.blockurl=e,n.openurl=t}n.retryAction=()=>a(HttpClient.wrapFetchImpl(e,t)),n.cancelAction=()=>{s.isUserCancel=!0,i(s)},n.cancelLabel=o,ErrorLog.showErrorMessage(n)})}async retryFetch(e,t){let r=1e3*t.retry.retryDelay.pop();return await util.sleep(r),HttpClient.wrapFetchImpl(e,t)}static getAutomaticRetryBehaviourForStatus(e){let t=[120,60,30,15];switch(e.status){case 403:return{retryDelay:[1],promptUser:!0,HTTP:403};case 429:return FetchErrorHandler.show429Error(e),{retryDelay:t,promptUser:!0};case 445:case 500:return{retryDelay:t,promptUser:!1};case 509:case 502:case 503:case 504:case 520:case 522:return{retryDelay:t,promptUser:!0};case 524:return{retryDelay:[1],promptUser:!0};case 999:return{retryDelay:e.retryDelay,promptUser:!1};default:return{retryDelay:[],promptUser:!1}}}static show429Error(e){let t=new URL(e.url).hostname;FetchErrorHandler.rateLimitedHosts.has(t)||(FetchErrorHandler.rateLimitedHosts.add(t),alert(UIText.Warning.warning429ErrorResponse(t)))}}FetchErrorHandler.rateLimitedHosts=new Set;class FetchImageErrorHandler extends FetchErrorHandler{constructor(e){super(),this.parentPageUrl=e}makeFailMessage(e,t){return UIText.Error.imageFetchFailed(e,this.parentPageUrl,t)}getCancelButtonText(){return UIText.Common.skip}}class HttpClient{constructor(){}static makeOptions(){return{credentials:"include"}}static setWtrLabCookiesFromUserInput(e){HttpClient.wtrLabCookieHeader=HttpClient.parseNetscapeOrCookieHeader(e||"")}static parseNetscapeOrCookieHeader(e){if(!(e=(e||"").trim()))return"";if(e.includes("\t")){let t=[];for(let r of e.split(/\r?\n/)){let e=r.trim();if(!e)continue;if(e.startsWith("#HttpOnly_"))e=e.replace(/^#HttpOnly_/,"");else if(e.startsWith("#"))continue;let s=e.split("\t");if(s.length>=7){let e=s[5],r=s.slice(6).join("\t");e&&t.push(e+"="+r)}}if(t.length>0)return t.join("; ")}return/^cookie\s*:/i.test(e)&&(e=e.replace(/^cookie\s*:/i,"").trim()),e.replace(/\s*;\s*/g,"; ").trim()}static applyWtrLabCookieHeaderIfNeeded(e,t){let r=HttpClient.wtrLabCookieHeader;if(!r||!String(r).trim())return;let s="";try{s=new URL(t).hostname}catch(e){return}("wtr-lab.com"===s||s.endsWith(".wtr-lab.com"))&&(e.headers?"function"!=typeof e.headers.set?e.headers=Object.assign({},e.headers,{Cookie:r}):e.headers.set("Cookie",r):e.headers={Cookie:r})}static wrapFetch(e,t){return null==t&&(t={errorHandler:new FetchErrorHandler}),null==t.errorHandler&&(t.errorHandler=new FetchErrorHandler),t.responseHandler=new FetchResponseHandler,null!=t.makeTextDecoder&&(t.responseHandler.makeTextDecoder=t.makeTextDecoder),HttpClient.wrapFetchImpl(e,t)}static fetchHtml(e){let t={responseHandler:new FetchHtmlResponseHandler};return HttpClient.wrapFetchImpl(e,t)}static fetchJson(e,t){let r=t?.parser,s=t?.bypassProxy;delete t?.parser,delete t?.bypassProxy;let n={responseHandler:new FetchJsonResponseHandler,fetchOptions:t,parser:r,bypassProxy:s};return HttpClient.wrapFetchImpl(e,n)}static fetchText(e){let t={responseHandler:new FetchTextResponseHandler};return HttpClient.wrapFetchImpl(e,t)}static async wrapFetchImpl(e,t){if(null==e)throw new Error("URL is null or undefined");if(e=String(e).trim(),BlockedHostNames.has(new URL(e).hostname)){let r=new Error("!Blocked! URL skipped because the user blocked the site");return t.errorHandler.onFetchError(e,r)}if(await HttpClient.setPartitionCookies(e),null==t.fetchOptions&&(t.fetchOptions=HttpClient.makeOptions()),HttpClient.applyWtrLabCookieHeaderIfNeeded(t.fetchOptions,e),null==t.errorHandler&&(t.errorHandler=new FetchErrorHandler),HttpClient.enableCorsProxy&&!t.bypassProxy){let r=HttpClient.corsProxyUrl;const s=new URL(e).hostname;if(r&&!BlockedHostNames.has(new URL(r).hostname)&&!HttpClient.BLACKLISTED_PROXIES.has(r)&&("ko-fi.com"!==s||!r.includes("corsproxy.io")))try{const s=r+encodeURIComponent(e.trim()),n=new AbortController,o=setTimeout(()=>n.abort(),6e3),a=Object.assign({},t.fetchOptions,{credentials:"omit",signal:n.signal});let i=await fetch(s,a);if(clearTimeout(o),!i.ok)throw new Error(`status: ${i.status}`);{let r=Object.assign({},t,{isProxyAttempt:!0,isFinalProxyAttempt:!0}),s=await HttpClient.checkResponseAndGetData(e,r,i);try{n.abort()}catch(e){}if(!r.parser?.isCustomError(s))return s}}catch(e){console.warn(`[WebToEpub] Active proxy ${r} failed or timed out: ${e.message}. Fallback to discovery race.`),HttpClient.shouldBlacklistProxy(e)&&HttpClient.BLACKLISTED_PROXIES.add(r)}let n=[];for(let e of HttpClient.CORS_PROXIES)n.push(e.url);n=n.filter(e=>!(HttpClient.BLACKLISTED_PROXIES.has(e)||"ko-fi.com"===s&&e.includes("corsproxy.io"))),0===n.length&&(HttpClient.BLACKLISTED_PROXIES.clear(),n=HttpClient.CORS_PROXIES.map(e=>e.url));const o=8e3,a=new Map,i=n.map(r=>{if(BlockedHostNames.has(new URL(r).hostname))return Promise.reject(new Error(`blocked: ${r}`));const s=new AbortController;a.set(r,s);const n=setTimeout(()=>s.abort(),o),i=r+encodeURIComponent(e.trim()),l=Object.assign({},t.fetchOptions,{credentials:"omit",signal:s.signal});return fetch(i,l).then(async e=>{if(clearTimeout(n),!e.ok)throw new Error(`${e.status}`);let t=await e.clone().text();if(HttpClient.isCloudflareBlock(t))throw new Error("Cloudflare block page");return{response:e,proxyUrl:r}}).catch(e=>{throw clearTimeout(n),e})});let l=null;try{const{response:r,proxyUrl:s}=await Promise.any(i);l=s;for(const[t,r]of a)if(t!==l)try{r.abort()}catch(e){}let n=Object.assign({},t,{isProxyAttempt:!0,isFinalProxyAttempt:!0}),o=await HttpClient.checkResponseAndGetData(e,n,r);try{a.get(l)?.abort()}catch(e){}if(n.parser?.isCustomError(o)){let t=n.parser.setCustomErrorResponse(e,n,o);return n.errorHandler.onResponseError(t.url,t.wrapOptions,t.response,t.errorMessage)}return HttpClient.corsProxyUrl!==l&&(console.log(`[WebToEpub] Switching to winning proxy: ${l}`),HttpClient.corsProxyUrl=l,HttpClient.updateCorsProxyUi()),o}catch(r){if(l&&HttpClient.shouldBlacklistProxy(r)&&(console.warn(`[WebToEpub] Winning proxy ${l} failed during data retrieval, blacklisting it.`),HttpClient.BLACKLISTED_PROXIES.add(l)),t.bypassDirectFetchFallback){let e=[];e=r&&r.errors?r.errors.map(e=>e.message||String(e)):[r.message||String(r)];const t=Array.from(new Set(e));return Promise.reject(new Error(`Proxy error: ${t.join(", ")}`))}console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:",e);let s=Object.assign({},t,{bypassProxy:!0});return HttpClient.wrapFetchImpl(e,s)}}try{let r=await fetch(e,t.fetchOptions),s=await HttpClient.checkResponseAndGetData(e,t,r);if(t.parser?.isCustomError(s)){let r=t.parser.setCustomErrorResponse(e,t,s);return t.errorHandler.onResponseError(r.url,r.wrapOptions,r.response,r.errorMessage)}return s}catch(r){return!HttpClient.enableCorsProxy&&r instanceof TypeError?(console.warn("[WebToEpub] Direct fetch failed (CORS). Switching to proxy:",e),HttpClient.enableCorsProxy=!0,HttpClient.updateCorsProxyUi(),HttpClient.wrapFetchImpl(e,t)):t.errorHandler.onFetchError(e,r)}}static updateCorsProxyUi(){try{let e=document.getElementById("enableCorsProxyCheckbox");e&&(e.checked=HttpClient.enableCorsProxy);let t=document.getElementById("corsProxyInput");t&&(t.value=HttpClient.corsProxyUrl);let r=document.getElementById("corsProxySelect");if(r){let e=HttpClient.CORS_PROXIES.find(e=>e.url===HttpClient.corsProxyUrl);r.value=e?e.url:"custom",t&&(t.style.display=e?"none":"block")}}catch(e){}}static checkResponseAndGetData(e,t,r){if(r.ok){let s=t.responseHandler;return s.setResponse(r,e),s.extractContentFromResponse(r)}return t.errorHandler.onResponseError(e,t,r)}static unproxyUrl(e){let t=HttpClient.CORS_PROXIES.map(e=>e.url).concat([HttpClient.corsProxyUrl]),r=e,s=!0,n=0;for(;s&&n<5;){s=!1,n++;for(let n of t)if(r.startsWith(n)){let t=r.substring(n.length);try{r=decodeURIComponent(t),s=!0;break}catch(e){r=t,s=!0;break}}if(!s)try{let n=new URL(r);for(let o of t){let t=new URL(o);if(n.origin===t.origin){let t=n.searchParams.get("url")||n.searchParams.get("quest");if(t){r=t,s=!0;break}let o=n.search.substring(1);if(o.startsWith("http"))try{r=decodeURIComponent(o),s=!0;break}catch(e){r=o,s=!0;break}}}}catch(e){}}if(r.includes("93.115.101.178:11214"))try{let e=new URL(r).searchParams.get("url");e&&(r=e)}catch(e){}return r}static isProxyUrl(e){try{let t=new URL(e),r=HttpClient.CORS_PROXIES.map(e=>e.url).concat([HttpClient.corsProxyUrl]);for(let e of r){let r=new URL(e);if(t.origin===r.origin)return!0}}catch(e){}return!1}static async setDeclarativeNetRequestRules(e){try{if("undefined"==typeof chrome||!chrome.declarativeNetRequest?.updateSessionRules)return;let t=chrome.runtime.getURL("").split("/").filter(e=>""!=e),r=t[t.length-1];for(let t=0;t<e.length;t++)e[t].condition.initiatorDomains=[r];let s=await chrome.declarativeNetRequest.getSessionRules();null==s&&(s=[]);let n=s.map(e=>e.id);await chrome.declarativeNetRequest.updateSessionRules({removeRuleIds:n,addRules:e})}catch(e){console.log("setDeclarativeNetRequestRules skipped:",e.message)}}static async setPartitionCookies(e){if(!HttpClient.enableCorsProxy)try{let t=new URL(e).hostname.split("."),r=t[t.length-2]+"."+t[t.length-1],s="undefined"!=typeof browser&&util.isFirefox()?browser.cookies:chrome.cookies,n=await s.getAll({domain:r,partitionKey:{}});n=(n||[]).filter(e=>null!=e.partitionKey),n.forEach(e=>chrome.cookies.set({domain:e.domain,url:"https://"+e.domain.substring(1),name:e.name,value:e.value}))}catch{}}static getProxiedUrl(e){return e?HttpClient.enableCorsProxy&&HttpClient.corsProxyUrl?HttpClient.corsProxyUrl+encodeURIComponent(e.trim()):e:""}static isCloudflareBlock(e){if(!e||e.length<200)return!1;let t=e.toLowerCase();return t.includes("window._cf_chl_opt")||t.includes("cf-challenge-")||t.includes("cf-browser-verification")||t.includes("cloudflare")&&(t.includes("<title>just a moment...</title>")||t.includes("<title>attention required")||t.includes("please complete the security check")||t.includes("checking your browser before accessing")||t.includes("enable javascript and cookies")||t.includes("access denied")&&(t.includes("ray id")||t.includes("error 10")||t.includes("error 403")))}static shouldBlacklistProxy(e){if(!e)return!1;if(e instanceof TypeError||"TypeError"===e.name)return!0;const t=String(e.message||e).toLowerCase();if(t.includes("timeout")||t.includes("abort")||"AbortError"===e.name)return!0;const r=t.match(/status:\s*(\d+)/);if(r){const e=parseInt(r[1],10);if(429===e||502===e||503===e||504===e||e>=520)return!0}return!1}}let BlockedHostNames=new Set;HttpClient.CORS_PROXIES=[{name:"Tufive Workers Proxy",url:"https://fragrant-frost-f292.tufive.workers.dev/?url="},{name:"CodeTabs Proxy",url:"https://api.codetabs.com/v1/proxy/?quest="},{name:"AllOrigins (Raw)",url:"https://api.allorigins.win/raw?url="}],HttpClient.BLACKLISTED_PROXIES=new Set,HttpClient.corsProxyUrl=HttpClient.CORS_PROXIES[0].url,HttpClient.enableCorsProxy=!0,HttpClient.wtrLabCookieHeader="";class FetchResponseHandler{isHtml(){if(!this.contentType)return!0;let e=this.contentType.split(";")[0].trim().toLowerCase();return"text/html"===e||"text/plain"===e}setResponse(e,t=null){this.response=e,this.contentType=e.headers.get("content-type"),this.originalUrl=t||HttpClient.unproxyUrl(e.url)}extractContentFromResponse(e){return this.isHtml()?this.responseToHtml(e):this.responseToBinary(e)}responseToHtml(e){return e.arrayBuffer().then(function(t){let r=this.makeTextDecoder(e).decode(t);r=r.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi,"");let s=(new DOMParser).parseFromString(r,"text/html");try{Object.defineProperty(s,"baseURI",{get:()=>this.originalUrl,configurable:!0})}catch(e){console.warn("baseURI redefinition failed: ",e)}return util.setBaseTag(this.originalUrl,s),this.responseXML=s,this.responseText=r,this}.bind(this))}responseToBinary(e){return e.arrayBuffer().then(function(e){return this.arrayBuffer=e,this}.bind(this))}responseToText(e){return e.arrayBuffer().then(function(t){return this.makeTextDecoder(e).decode(t)}.bind(this))}responseToJson(e){return e.text().then(function(e){return this.json=JSON.parse(e),this}.bind(this))}makeTextDecoder(e){let t=this.charsetFromHeaders(e.headers);return new TextDecoder(t)}charsetFromHeaders(e){let t=e.get("Content-Type");if(!util.isNullOrEmpty(t)){let e=t.toLowerCase().split("charset=");if(2<=e.length)return e[1].split(";")[0].replace(/"/g,"").trim()}return FetchResponseHandler.DEFAULT_CHARSET}}FetchResponseHandler.DEFAULT_CHARSET="utf-8";class FetchJsonResponseHandler extends FetchResponseHandler{constructor(){super()}extractContentFromResponse(e){return super.responseToJson(e)}}class FetchTextResponseHandler extends FetchResponseHandler{constructor(){super()}extractContentFromResponse(e){return super.responseToText(e)}}class FetchHtmlResponseHandler extends FetchResponseHandler{constructor(){super()}extractContentFromResponse(e){return super.responseToHtml(e)}}
+/*
+  Makes HTML calls using Fetch API
+*/
+"use strict";
+
+class FetchErrorHandler {
+    constructor() {
+    }
+
+    makeFailMessage(url, error) {
+        return UIText.Error.htmlFetchFailed(url, error);
+    }
+
+    makeFailCanRetryMessage(url, error) {
+        return this.makeFailMessage(url, error) + " " +
+            UIText.Warning.httpFetchCanRetry;
+    }
+
+    getCancelButtonText() {
+        return UIText.Common.cancel;
+    }
+
+    static cancelButtonText() {
+        return UIText.Common.cancel;
+    }
+
+    onFetchError(url, error) {
+        return Promise.reject(new Error(this.makeFailMessage(url, error.message)));
+    }
+
+    onResponseError(url, wrapOptions, response, errorMessage) {
+        let failError;
+        if (errorMessage) {
+            failError = new Error(errorMessage);
+        } else {
+            failError = new Error(this.makeFailMessage(response.url, response.status));
+        }
+
+        // If this is a proxy attempt and NOT the final one, or if we want to skip retries,
+        // then just reject so the loop can move on.
+        if (wrapOptions.isProxyAttempt && !wrapOptions.isFinalProxyAttempt) {
+            return Promise.reject(failError);
+        }
+
+        let retry = FetchErrorHandler.getAutomaticRetryBehaviourForStatus(response);
+        if (retry.retryDelay.length === 0) {
+            return Promise.reject(failError);
+        }
+
+        if (wrapOptions.retry === undefined) {
+            wrapOptions.retry = retry;
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        if (0 < wrapOptions.retry.retryDelay.length) {
+            return this.retryFetch(url, wrapOptions);
+        }
+
+        if (wrapOptions.retry.promptUser) {
+            return this.promptUserForRetry(url, wrapOptions, response, failError);
+        } else {
+            return Promise.reject(failError);
+        }
+    }
+
+    promptUserForRetry(url, wrapOptions, response, failError) {
+        let msg;
+        if (wrapOptions.retry.HTTP === 403) {
+            msg = new Error(UIText.Warning.warning403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+        } else {
+            msg = new Error(this.makeFailCanRetryMessage(url, response.status));
+        }
+        let cancelLabel = this.getCancelButtonText();
+        return new Promise((resolve, reject) => {
+            if (wrapOptions.retry.HTTP === 403) {
+                // If the error URL is a proxy URL, then we should block the proxy, not the target site
+                let errorUrl = response.url;
+                if (HttpClient.isProxyUrl(errorUrl)) {
+                    msg.blockurl = errorUrl;
+                } else {
+                    msg.blockurl = url;
+                }
+                msg.openurl = errorUrl;
+            }
+            msg.retryAction = () => resolve(HttpClient.wrapFetchImpl(url, wrapOptions));
+            msg.cancelAction = () => {
+                failError.isUserCancel = true;
+                reject(failError);
+            };
+            msg.cancelLabel = cancelLabel;
+            ErrorLog.showErrorMessage(msg);
+        });
+    }
+
+    async retryFetch(url, wrapOptions) {
+        let delayBeforeRetry = wrapOptions.retry.retryDelay.pop() * 1000;
+        await util.sleep(delayBeforeRetry);
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    static getAutomaticRetryBehaviourForStatus(response) {
+        // seconds to wait before each retry (note: order is reversed)
+        let retryDelay = [120, 60, 30, 15];
+        switch (response.status) {
+            case 403:
+                return { retryDelay: [1], promptUser: true, HTTP: 403 };
+            case 429:
+                FetchErrorHandler.show429Error(response);
+                return { retryDelay: retryDelay, promptUser: true };
+            case 445:
+                //Random Unique exception thrown on Webnovel/Qidian. Not part of w3 spec.
+                return { retryDelay: retryDelay, promptUser: false };
+            case 509:
+                // server asked for rate limiting
+                return { retryDelay: retryDelay, promptUser: true };
+            case 500:
+                // is fault at server, retry might clear
+                return { retryDelay: retryDelay, promptUser: false };
+            case 502:
+            case 503:
+            case 504:
+            case 520:
+            case 522:
+                // intermittant fault
+                return { retryDelay: retryDelay, promptUser: true };
+            case 524:
+                // claudflare random error
+                return { retryDelay: [1], promptUser: true };
+            case 999:
+                // custom WebToEpub error (some api's fail and a few seconds later it is a success)
+                return { retryDelay: response.retryDelay, promptUser: false };
+            default:
+                // it's dead Jim
+                return { retryDelay: [], promptUser: false };
+        }
+    }
+
+    static show429Error(response) {
+        let host = new URL(response.url).hostname;
+        if (!FetchErrorHandler.rateLimitedHosts.has(host)) {
+            FetchErrorHandler.rateLimitedHosts.add(host);
+            alert(UIText.Warning.warning429ErrorResponse(host));
+        }
+    }
+}
+FetchErrorHandler.rateLimitedHosts = new Set();
+
+class FetchImageErrorHandler extends FetchErrorHandler { // eslint-disable-line no-unused-vars
+    constructor(parentPageUrl) {
+        super();
+        this.parentPageUrl = parentPageUrl;
+    }
+
+    makeFailMessage(url, error) {
+        return UIText.Error.imageFetchFailed(url, this.parentPageUrl, error);
+    }
+
+    getCancelButtonText() {
+        return UIText.Common.skip;
+    }
+}
+
+class HttpClient {
+    constructor() {
+    }
+
+    static makeOptions() {
+        return {};
+    }
+
+    /**
+     * Optional session cookies for wtr-lab.com (paste Netscape export or "Cookie:" header in Advanced options).
+     * Sent on requests to wtr-lab.com and *.wtr-lab.com. Public CORS proxies may still strip headers.
+     */
+    static setWtrLabCookiesFromUserInput(raw) {
+        HttpClient.wtrLabCookieHeader = HttpClient.parseNetscapeOrCookieHeader(raw || "");
+    }
+
+    static parseNetscapeOrCookieHeader(text) {
+        text = (text || "").trim();
+        if (!text) {
+            return "";
+        }
+        if (text.includes("\t")) {
+            let parts = [];
+            for (let rawLine of text.split(/\r?\n/)) {
+                let line = rawLine.trim();
+                if (!line) {
+                    continue;
+                }
+                if (line.startsWith("#HttpOnly_")) {
+                    line = line.replace(/^#HttpOnly_/, "");
+                } else if (line.startsWith("#")) {
+                    continue;
+                }
+                let cols = line.split("\t");
+                if (cols.length >= 7) {
+                    let name = cols[5];
+                    let value = cols.slice(6).join("\t");
+                    if (name) {
+                        parts.push(name + "=" + value);
+                    }
+                }
+            }
+            if (parts.length > 0) {
+                return parts.join("; ");
+            }
+        }
+        if (/^cookie\s*:/i.test(text)) {
+            text = text.replace(/^cookie\s*:/i, "").trim();
+        }
+        return text.replace(/\s*;\s*/g, "; ").trim();
+    }
+
+    static applyWtrLabCookieHeaderIfNeeded(fetchOptions, targetUrl) {
+        let cookie = HttpClient.wtrLabCookieHeader;
+        if (!cookie || !String(cookie).trim()) {
+            return;
+        }
+        let host = "";
+        try {
+            host = new URL(targetUrl).hostname;
+        } catch (e) {
+            return;
+        }
+        if (host !== "wtr-lab.com" && !host.endsWith(".wtr-lab.com")) {
+            return;
+        }
+        if (!fetchOptions.headers) {
+            fetchOptions.headers = { Cookie: cookie };
+            return;
+        }
+        if (typeof fetchOptions.headers.set === "function") {
+            fetchOptions.headers.set("Cookie", cookie);
+            return;
+        }
+        fetchOptions.headers = Object.assign({}, fetchOptions.headers, { Cookie: cookie });
+    }
+
+    static wrapFetch(url, wrapOptions) {
+        if (wrapOptions == null) {
+            wrapOptions = {
+                errorHandler: new FetchErrorHandler()
+            };
+        }
+        if (wrapOptions.errorHandler == null) {
+            wrapOptions.errorHandler = new FetchErrorHandler();
+        }
+        wrapOptions.responseHandler = new FetchResponseHandler();
+        if (wrapOptions.makeTextDecoder != null) {
+            wrapOptions.responseHandler.makeTextDecoder = wrapOptions.makeTextDecoder;
+        }
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    static fetchHtml(url) {
+        let wrapOptions = {
+            responseHandler: new FetchHtmlResponseHandler()
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    static fetchJson(url, fetchOptions) {
+        let parser = fetchOptions?.parser;
+        let bypassProxy = fetchOptions?.bypassProxy;
+        delete fetchOptions?.parser;
+        delete fetchOptions?.bypassProxy;
+        let wrapOptions = {
+            responseHandler: new FetchJsonResponseHandler(),
+            fetchOptions: fetchOptions,
+            parser: parser,
+            bypassProxy: bypassProxy
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    static fetchText(url) {
+        let wrapOptions = {
+            responseHandler: new FetchTextResponseHandler(),
+        };
+        return HttpClient.wrapFetchImpl(url, wrapOptions);
+    }
+
+    static async wrapFetchImpl(url, wrapOptions) {
+        if (url == null) {
+            throw new Error("URL is null or undefined");
+        }
+        url = String(url).trim();
+
+        if (BlockedHostNames.has(new URL(url).hostname)) {
+            let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
+            return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
+        }
+
+        await HttpClient.setPartitionCookies(url);
+
+        if (wrapOptions.fetchOptions == null) {
+            wrapOptions.fetchOptions = HttpClient.makeOptions();
+        }
+        HttpClient.applyWtrLabCookieHeaderIfNeeded(wrapOptions.fetchOptions, url);
+
+        if (wrapOptions.errorHandler == null) {
+            wrapOptions.errorHandler = new FetchErrorHandler();
+        }
+
+        let useProxy = (HttpClient.enableCorsProxy && !wrapOptions.bypassProxy);
+
+        if (useProxy) {
+            let activeProxyUrl = HttpClient.corsProxyUrl;
+            const targetHostname = new URL(url).hostname;
+
+            // Try active proxy first
+            if (activeProxyUrl && 
+                !BlockedHostNames.has(new URL(activeProxyUrl).hostname) && 
+                !(targetHostname === "ko-fi.com" && activeProxyUrl.includes("corsproxy.io"))) {
+                
+                try {
+                    const fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 6000); // Snappy 6s timeout for active proxy
+                    const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
+                        credentials: "omit",
+                        signal: ctrl.signal
+                    });
+                    
+                    let response = await fetch(fetchUrl, fetchOpts);
+                    clearTimeout(tid);
+                    
+                    if (response.ok) {
+                        let proxyWrapOptions = Object.assign({}, wrapOptions, {
+                            isProxyAttempt: true,
+                            isFinalProxyAttempt: true
+                        });
+                        
+                        let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
+                        
+                        try { ctrl.abort(); } catch (_) {}
+                        
+                        if (!proxyWrapOptions.parser?.isCustomError(ret)) {
+                            return ret;
+                        }
+                    } else {
+                        throw new Error(`status: ${response.status}`);
+                    }
+                } catch (err) {
+                    console.warn(`[WebToEpub] Active proxy ${activeProxyUrl} failed or timed out: ${err.message}. Fallback to discovery race.`);
+                }
+            }
+
+            if (wrapOptions._waitedForRace) {
+                console.warn("[WebToEpub] Waited for proxy race but new proxy still failed. Falling back to direct fetch:", url);
+                let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });
+                return HttpClient.wrapFetchImpl(url, newOptions);
+            }
+
+            if (HttpClient.proxyRacePromise) {
+                try { await HttpClient.proxyRacePromise; } catch (_) {}
+                let newOptions = Object.assign({}, wrapOptions, { _waitedForRace: true });
+                return HttpClient.wrapFetchImpl(url, newOptions);
+            }
+
+            let raceResolvers = {};
+            HttpClient.proxyRacePromise = new Promise((resolve, reject) => {
+                raceResolvers.resolve = resolve;
+                raceResolvers.reject = reject;
+            });
+            // Suppress Uncaught in promise errors if the promise is rejected when nobody is awaiting it
+            HttpClient.proxyRacePromise.catch(() => {});
+
+            // Fallback: run the discovery race with the remaining proxies
+            let proxiesToTry = [];
+            for (let p of HttpClient.CORS_PROXIES) {
+                proxiesToTry.push(p.url);
+            }
+
+            proxiesToTry = proxiesToTry.filter(u => {
+                // Specific Ko-fi blacklist for corsproxy.io
+                if (targetHostname === "ko-fi.com" && u.includes("corsproxy.io")) return false;
+                if (BlockedHostNames.has(new URL(u).hostname)) return false;
+                return true;
+            });
+
+            const PROXY_TIMEOUT_MS = 8000;
+            let controllerMap = new Map();
+            let racePromises = [];
+
+            let renderProxyUrl = proxiesToTry.find(u => u.includes("render-proxy-1-hjm6.onrender.com"));
+            let raceProxies = proxiesToTry.filter(u => u !== renderProxyUrl);
+
+            for (let proxyUrl of raceProxies) {
+                const ctrl = new AbortController();
+                controllerMap.set(proxyUrl, ctrl);
+                const fetchUrl = proxyUrl + encodeURIComponent(url.trim());
+                const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
+                    credentials: "omit",
+                    signal: ctrl.signal
+                });
+
+                let p = new Promise(async (resolve, reject) => {
+                    const tid = setTimeout(() => {
+                        ctrl.abort();
+                        reject(new Error("Timeout"));
+                    }, PROXY_TIMEOUT_MS);
+
+                    try {
+                        let response = await fetch(fetchUrl, fetchOpts);
+                        clearTimeout(tid);
+                        if (!response.ok) throw new Error(`${response.status}`);
+                        let text = await response.clone().text();
+                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                        
+                        resolve({ response, proxyUrl });
+                    } catch (err) {
+                        clearTimeout(tid);
+                        reject(err);
+                    }
+                });
+                racePromises.push(p);
+            }
+
+            try {
+                if (racePromises.length === 0) throw new Error("No race proxies available");
+                const { response, proxyUrl: winnerUrl } = await Promise.any(racePromises);
+
+                // Abort losing requests
+                for (const [pUrl, ctrl] of controllerMap) {
+                    if (pUrl !== winnerUrl) {
+                        try { ctrl.abort(); } catch (_) {}
+                    }
+                }
+
+                let proxyWrapOptions = Object.assign({}, wrapOptions, {
+                    isProxyAttempt: true,
+                    isFinalProxyAttempt: true
+                });
+
+                let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
+
+                // Body read, abort winner
+                try { controllerMap.get(winnerUrl)?.abort(); } catch (_) {}
+
+                if (proxyWrapOptions.parser?.isCustomError(ret)) {
+                    let CustomErrorResponse = proxyWrapOptions.parser.setCustomErrorResponse(url, proxyWrapOptions, ret);
+                    return proxyWrapOptions.errorHandler.onResponseError(
+                        CustomErrorResponse.url,
+                        CustomErrorResponse.wrapOptions,
+                        CustomErrorResponse.response,
+                        CustomErrorResponse.errorMessage
+                    );
+                }
+
+                if (HttpClient.corsProxyUrl !== winnerUrl) {
+                    console.log(`[WebToEpub] Switching to winning proxy: ${winnerUrl}`);
+                    HttpClient.corsProxyUrl = winnerUrl;
+                    HttpClient.updateCorsProxyUi();
+                }
+
+                raceResolvers.resolve();
+                HttpClient.proxyRacePromise = null;
+
+                return ret;
+            } catch (aggregateErr) {
+                // Main proxies failed, try Render proxy as fallback
+                if (renderProxyUrl) {
+                    console.warn(`[WebToEpub] All main proxies failed. Trying fallback Render proxy: ${renderProxyUrl}`);
+                    try {
+                        const fetchUrl = renderProxyUrl + encodeURIComponent(url.trim());
+                        const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
+                            credentials: "omit"
+                        });
+                        let response = await fetch(fetchUrl, fetchOpts);
+                        if (!response.ok) throw new Error(`${response.status}`);
+                        let text = await response.clone().text();
+                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+
+                        let proxyWrapOptions = Object.assign({}, wrapOptions, {
+                            isProxyAttempt: true,
+                            isFinalProxyAttempt: true
+                        });
+                        let ret = await HttpClient.checkResponseAndGetData(url, proxyWrapOptions, response);
+                        
+                        if (proxyWrapOptions.parser?.isCustomError(ret)) {
+                            let CustomErrorResponse = proxyWrapOptions.parser.setCustomErrorResponse(url, proxyWrapOptions, ret);
+                            return proxyWrapOptions.errorHandler.onResponseError(
+                                CustomErrorResponse.url,
+                                CustomErrorResponse.wrapOptions,
+                                CustomErrorResponse.response,
+                                CustomErrorResponse.errorMessage
+                            );
+                        }
+
+                        if (HttpClient.corsProxyUrl !== renderProxyUrl) {
+                            console.log(`[WebToEpub] Switching to winning proxy: ${renderProxyUrl}`);
+                            HttpClient.corsProxyUrl = renderProxyUrl;
+                            HttpClient.updateCorsProxyUi();
+                        }
+                        raceResolvers.resolve();
+                        HttpClient.proxyRacePromise = null;
+                        return ret;
+                    } catch (renderErr) {
+                        console.warn(`[WebToEpub] Fallback Render proxy also failed: ${renderErr.message}`);
+                    }
+                }
+
+                raceResolvers.reject(aggregateErr);
+                HttpClient.proxyRacePromise = null;
+
+                if (wrapOptions.bypassDirectFetchFallback) {
+                    return Promise.reject(new Error(`Proxy error: All proxies failed.`));
+                }
+                // AggregateError — every proxy failed or timed out
+                console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
+                let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });
+                return HttpClient.wrapFetchImpl(url, newOptions);
+            }
+        }
+
+        try {
+
+            let response = await fetch(url, wrapOptions.fetchOptions);
+
+            let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
+
+            if (wrapOptions.parser?.isCustomError(ret)) {
+
+                let CustomErrorResponse = wrapOptions.parser.setCustomErrorResponse(url, wrapOptions, ret);
+
+                return wrapOptions.errorHandler.onResponseError(
+                    CustomErrorResponse.url,
+                    CustomErrorResponse.wrapOptions,
+                    CustomErrorResponse.response,
+                    CustomErrorResponse.errorMessage
+                );
+            }
+
+            return ret;
+
+        } catch (error) {
+
+            if (!HttpClient.enableCorsProxy && error instanceof TypeError) {
+
+                console.warn("[WebToEpub] Direct fetch failed (CORS). Switching to proxy:", url);
+
+                HttpClient.enableCorsProxy = true;
+
+                HttpClient.updateCorsProxyUi();
+
+                return HttpClient.wrapFetchImpl(url, wrapOptions);
+            }
+
+            return wrapOptions.errorHandler.onFetchError(url, error);
+        }
+    }
+
+    /** Update CORS proxy UI controls to reflect current state */
+    static updateCorsProxyUi() {
+        try {
+            let checkbox = document.getElementById("enableCorsProxyCheckbox");
+            if (checkbox) checkbox.checked = HttpClient.enableCorsProxy;
+
+            let input = document.getElementById("corsProxyInput");
+            if (input) input.value = HttpClient.corsProxyUrl;
+
+            let select = document.getElementById("corsProxySelect");
+            if (select) {
+                let matching = HttpClient.CORS_PROXIES.find(p => p.url === HttpClient.corsProxyUrl);
+                select.value = matching ? matching.url : "custom";
+                if (input) input.style.display = matching ? "none" : "block";
+            }
+        } catch (e) { /* ignore if DOM not available */ }
+    }
+
+    static checkResponseAndGetData(url, wrapOptions, response) {
+        if (!response.ok) {
+            return wrapOptions.errorHandler.onResponseError(url, wrapOptions, response);
+        } else {
+            let handler = wrapOptions.responseHandler;
+            handler.setResponse(response, url);
+            return handler.extractContentFromResponse(response);
+        }
+    }
+
+    /**
+     * Extracts the original URL from a potentially proxied URL
+     * @param {string} url The URL to unproxy
+     * @returns {string} The original URL
+     */
+    static unproxyUrl(url) {
+        let proxies = HttpClient.CORS_PROXIES.map(p => p.url).concat([HttpClient.corsProxyUrl]);
+        let currentUrl = url;
+        let changed = true;
+        let iterations = 0;
+        
+        while (changed && iterations < 5) {
+            changed = false;
+            iterations++;
+            
+            for (let proxyUrl of proxies) {
+                if (currentUrl.startsWith(proxyUrl)) {
+                    let encodedUrl = currentUrl.substring(proxyUrl.length);
+                    try {
+                        currentUrl = decodeURIComponent(encodedUrl);
+                        changed = true;
+                        break;
+                    } catch (e) {
+                        currentUrl = encodedUrl;
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (changed) continue;
+            
+            try {
+                let parsedUrl = new URL(currentUrl);
+                for (let proxyUrl of proxies) {
+                    let parsedProxy = new URL(proxyUrl);
+                    if (parsedUrl.origin === parsedProxy.origin) {
+                        let target = parsedUrl.searchParams.get("url") || parsedUrl.searchParams.get("quest");
+                        if (target) {
+                            currentUrl = target;
+                            changed = true;
+                            break;
+                        }
+                        
+                        let searchStr = parsedUrl.search.substring(1);
+                        if (searchStr.startsWith("http")) {
+                            try {
+                                currentUrl = decodeURIComponent(searchStr);
+                                changed = true;
+                                break;
+                            } catch (e) {
+                                currentUrl = searchStr;
+                                changed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (e) { }
+        }
+        
+        // Also clean up any nested HTTP proxy inside currentUrl if it's there
+        if (currentUrl.includes("93.115.101.178:11214")) {
+            try {
+                let parsed = new URL(currentUrl);
+                let target = parsed.searchParams.get("url");
+                if (target) {
+                    currentUrl = target;
+                }
+            } catch (e) {}
+        }
+        
+        return currentUrl;
+    }
+
+    /**
+     * Checks if a URL is a proxy URL based on origin matching
+     * @param {string} url The URL to check
+     * @returns {boolean} True if the URL is a proxy URL
+     */
+    static isProxyUrl(url) {
+        try {
+            let parsedUrl = new URL(url);
+            let proxies = HttpClient.CORS_PROXIES.map(p => p.url).concat([HttpClient.corsProxyUrl]);
+            for (let proxyUrl of proxies) {
+                // If it's a nested/double proxy url (e.g. Vercel wrapping another url), check if origin matches either
+                let parsedProxy = new URL(proxyUrl);
+                if (parsedUrl.origin === parsedProxy.origin) {
+                    return true;
+                }
+            }
+        } catch (e) { }
+        return false;
+    }
+
+    static async setDeclarativeNetRequestRules(RulesArray) {
+        // No-op in website mode (declarativeNetRequest is extension-only)
+        // In extension mode, gracefully skip if chrome.declarativeNetRequest is unavailable
+        try {
+            if (typeof chrome === "undefined" || !chrome.declarativeNetRequest?.updateSessionRules) return;
+            let url = chrome.runtime.getURL("").split("/").filter(a => a != "");
+            let id = url[url.length - 1];
+            for (let i = 0; i < RulesArray.length; i++) {
+                RulesArray[i].condition.initiatorDomains = [id];
+            }
+            let oldRules = await chrome.declarativeNetRequest.getSessionRules();
+            if (oldRules == null) { oldRules = []; }
+            let oldRuleIds = oldRules.map(rule => rule.id);
+            await chrome.declarativeNetRequest.updateSessionRules({
+                removeRuleIds: oldRuleIds,
+                addRules: RulesArray
+            });
+        } catch (e) {
+            console.log("setDeclarativeNetRequestRules skipped:", e.message);
+        }
+    }
+
+    static async setPartitionCookies(url) {
+        // In website mode (CORS proxy active) cookie injection is not possible or needed.
+        if (HttpClient.enableCorsProxy) return;
+        // Extension mode: attempt partitioned cookie injection
+        try {
+            let parsedUrl = new URL(url);
+            let urlparts = parsedUrl.hostname.split(".");
+            let domain = urlparts[urlparts.length - 2] + "." + urlparts[urlparts.length - 1];
+            let cookieApi = (typeof browser !== "undefined" && util.isFirefox()) ? browser.cookies : chrome.cookies;
+            let cookies = await cookieApi.getAll({ domain: domain, partitionKey: {} });
+            cookies = (cookies || []).filter(item => item.partitionKey != undefined);
+            cookies.forEach(element => chrome.cookies.set({
+                domain: element.domain,
+                url: "https://" + element.domain.substring(1),
+                name: element.name,
+                value: element.value
+            }));
+        } catch {
+            // Browsers without partitionKey support (e.g. Kiwi, website mode)
+            // silently skip
+        }
+    }
+
+    static getProxiedUrl(url) {
+        if (!url) return "";
+        if (!HttpClient.enableCorsProxy || !HttpClient.corsProxyUrl) return url;
+        return HttpClient.corsProxyUrl + encodeURIComponent(url.trim());
+    }
+
+    /**
+     * Determines if a proxy error indicates the proxy itself is down (vs target site issue)
+     * @param {Error|any} err The error to analyze
+     * @returns {boolean} True if the proxy should be blacklisted
+     */
+    static isCloudflareBlock(text) {
+        if (!text || text.length < 200) return false;
+        let lower = text.toLowerCase();
+        return lower.includes("window._cf_chl_opt") ||
+            lower.includes("cf-challenge-") ||
+            lower.includes("cf-browser-verification") ||
+            (lower.includes("cloudflare") && (
+                lower.includes("<title>just a moment...</title>") ||
+                lower.includes("<title>attention required") ||
+                lower.includes("please complete the security check") ||
+                lower.includes("checking your browser before accessing") ||
+                lower.includes("enable javascript and cookies") ||
+                (lower.includes("access denied") && (lower.includes("ray id") || lower.includes("error 10") || lower.includes("error 403")))
+            ));
+    }
+
+    static shouldBlacklistProxy(err) {
+        if (!err) return false;
+        // Network failures, CORS or DNS resolution failures on the proxy domain itself
+        if (err instanceof TypeError || err.name === "TypeError") return true;
+
+        const msg = String(err.message || err).toLowerCase();
+        // Do NOT blacklist on timeout, abort, or 522. 
+        // A timeout or Cloudflare 522 means the TARGET site blocked the proxy or is slow.
+        // It does NOT mean the proxy is dead for all other sites.
+        
+        // Specific HTTP status codes that represent proxy/service failure
+        const statusMatch = msg.match(/status:\s*(\d+)/);
+        if (statusMatch) {
+            const status = parseInt(statusMatch[1], 10);
+            // 429: Rate limited, 502/503/504: Proxy/Gateway issues
+            if (status === 429 || status === 502 || status === 503 || status === 504) {
+                // DO NOT blacklist on 502/504/520+ since Cloudflare uses these for target site blocks.
+                // We only blacklist if we are SURE the proxy itself is broken.
+                // Actually, let's just not blacklist on any 5xx since it's almost always the target site's fault.
+                if (status === 429) return true; // Proxy is rate limited globally
+            }
+        }
+        return false;
+    }
+}
+
+let BlockedHostNames = new Set();
+
+// CORS proxy settings (website mode)
+// These can be updated via the UI CORS proxy controls in popup.html
+HttpClient.CORS_PROXIES = [
+    { name: "allOrigins (raw)", url: "https://api.allorigins.win/raw?url=" },
+    { name: "CORS.SH", url: "https://proxy.cors.sh/" },
+    { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
+    { name: "ThingProxy", url: "https://thingproxy.freeboard.io/fetch/" },
+    { name: "cors.lol", url: "https://api.cors.lol/?url=" },
+    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
+    { name: "Render Proxy", url: "https://render-proxy-1-hjm6.onrender.com/proxy?url=" },
+    { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" }
+];
+HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
+HttpClient.enableCorsProxy = true;
+HttpClient.wtrLabCookieHeader = "";
+
+class FetchResponseHandler {
+    isHtml() {
+        // Guard against null — response.headers.get("content-type") returns null
+        // when the CORS proxy doesn't forward the header.
+        if (!this.contentType) return true; // default to HTML (all fetches here are web pages)
+        let type = this.contentType.split(";")[0].trim().toLowerCase();
+        // Some CORS proxies (corsproxy.io, CORS.lol) return text/plain for HTML content
+        return type === "text/html" || type === "text/plain";
+    }
+
+    setResponse(response, originalUrl = null) {
+        this.response = response;
+        this.contentType = response.headers.get("content-type");
+        // Store the TRUE target URL so responseToHtml never has to reverse-engineer
+        // the proxy prefix from response.url (which changes when proxies redirect).
+        this.originalUrl = originalUrl || HttpClient.unproxyUrl(response.url);
+    }
+
+    extractContentFromResponse(response) {
+        // Default to HTML when content-type is absent or looks like text —
+        // this tool almost exclusively fetches web pages.
+        if (this.isHtml()) {
+            return this.responseToHtml(response);
+        } else {
+            return this.responseToBinary(response);
+        }
+    }
+
+    responseToHtml(response) {
+        return response.arrayBuffer().then(function(rawBytes) {
+            let data = this.makeTextDecoder(response).decode(rawBytes);
+            // Strip speculative preload tags to prevent relative asset fetches through proxies
+            data = data.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
+            let html = new DOMParser().parseFromString(data, "text/html");
+            // Redefine baseURI to return the original unproxied target URL (crucial for custom parsers in client mode)
+            try {
+                Object.defineProperty(html, "baseURI", {
+                    get: () => this.originalUrl,
+                    configurable: true
+                });
+            } catch (err) {
+                console.warn("baseURI redefinition failed: ", err);
+            }
+            // Use the original target URL stored in setResponse — this is reliable
+            // even when a proxy performs a server-side redirect that mutates response.url.
+            util.setBaseTag(this.originalUrl, html);
+            this.responseXML = html;
+            this.responseText = data;
+            return this;
+        }.bind(this));
+    }
+
+    responseToBinary(response) {
+        return response.arrayBuffer().then(function(data) {
+            this.arrayBuffer = data;
+            return this;
+        }.bind(this));
+    }
+
+    responseToText(response) {
+        return response.arrayBuffer().then(function(rawBytes) {
+            return this.makeTextDecoder(response).decode(rawBytes);
+        }.bind(this));
+    }
+
+    responseToJson(response) {
+        return response.text().then(function(data) {
+            this.json = JSON.parse(data);
+            return this;
+        }.bind(this));
+    }
+
+    makeTextDecoder(response) {
+        let utflabel = this.charsetFromHeaders(response.headers);
+        return new TextDecoder(utflabel);
+    }
+
+    charsetFromHeaders(headers) {
+        let contentType = headers.get("Content-Type");
+        if (!util.isNullOrEmpty(contentType)) {
+            let pieces = contentType.toLowerCase().split("charset=");
+            if (2 <= pieces.length) {
+                return pieces[1].split(";")[0].replace(/"/g, "").trim();
+            }
+        }
+        return FetchResponseHandler.DEFAULT_CHARSET;
+    }
+}
+FetchResponseHandler.DEFAULT_CHARSET = "utf-8";
+
+class FetchJsonResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToJson(response);
+    }
+}
+
+class FetchTextResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToText(response);
+    }
+}
+
+class FetchHtmlResponseHandler extends FetchResponseHandler {
+    constructor() {
+        super();
+    }
+
+    extractContentFromResponse(response) {
+        return super.responseToHtml(response);
+    }
+}
+
+class FetchBinaryResponseHandler extends FetchResponseHandler {
+    isHtml() {
+        return false;
+    }
+}
+
+class SilentFetchErrorHandler extends FetchErrorHandler {
+    onFetchError(url, error) {
+        return Promise.reject(error);
+    }
+
+    onResponseError(url, wrapOptions, response, errorMessage) {
+        return Promise.reject(new Error(errorMessage || `HTTP ${response.status}`));
+    }
+}
