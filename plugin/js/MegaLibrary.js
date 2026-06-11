@@ -249,9 +249,9 @@ class MegaLibrary {
             // Monkeypatch the blob so it has a name property, needed by loadEpubFile
             blob.name = file.name || "book.epub";
             
-            if (window.libraryManager && window.libraryManager.loadEpubFile) {
+            if (window.libraryManager && window.libraryManager.openBookInReader) {
                 // Let the library manager handle loading the blob into the reader
-                window.libraryManager.loadEpubFile(blob);
+                window.libraryManager.openBookInReader(blob);
             } else {
                 throw new Error("Library manager not available to load epub");
             }
