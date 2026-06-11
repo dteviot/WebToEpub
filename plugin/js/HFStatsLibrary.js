@@ -322,7 +322,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
 
     static async _fetchTopFromHf(mode, limit, signal) {
         try {
-            const resp = await fetch(HFStatsLibrary.getStatsCatalogUrl(), { signal, cache: "no-store" });
+            const resp = await fetch(HFStatsLibrary.getStatsCatalogUrl(), { signal, cache: "default" });
             if (!resp.ok) {
                 return null;
             }
@@ -478,9 +478,6 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
 
         const merged = HFStatsLibrary._mergeEntryLists([workerEntries, hfEntries, localEntries], mode, limit);
-        if (merged.length === 0) {
-            throw new Error("No usage stats yet");
-        }
 
         let source = "local";
         if (workerEntries?.length && localEntries.length) {

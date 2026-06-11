@@ -64,26 +64,37 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         }
 
         const generation = ++TopNovelsUI._loadGeneration;
-        section.hidden = true;
-        row.innerHTML = "";
+        section.hidden = false;
+        
+        // 1. Render local stats instantly (Stale-while-revalidate)
+        try {
+            const local = HFStatsLibrary.getLocalTopEntries(mode, 16);
+            if (local && local.length > 0) {
+                TopNovelsUI._render(row, local, mode);
+            } else {
+                row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+            }
+        } catch (_) {
+            row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+        }
 
+        // 2. Fetch remote and merge
         try {
             const result = await HFStatsLibrary.fetchTopNovels({ mode, limit: 16 });
             if (generation !== TopNovelsUI._loadGeneration) {
                 return;
             }
             if (!result?.entries?.length) {
+                row.innerHTML = `<div class="top-novels-empty">No usage stats yet. Start reading to populate the catalog!</div>`;
                 return;
             }
             TopNovelsUI._render(row, result.entries, mode);
-            section.hidden = false;
         } catch (e) {
             if (generation !== TopNovelsUI._loadGeneration) {
                 return;
             }
-            console.warn("[TopNovels] Catalog unavailable, hiding section:", e.message);
-            section.hidden = true;
-            row.innerHTML = "";
+            console.warn("[TopNovels] Catalog unavailable, showing empty state:", e.message);
+            row.innerHTML = `<div class="top-novels-empty">Catalog unavailable. Please try again later.</div>`;
         }
     }
 
