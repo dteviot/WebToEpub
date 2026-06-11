@@ -598,23 +598,44 @@
                 if (viewId === "librariesView" || viewId === "epubReaderView") await ensureReaderModules();
 
                 landing.classList.add("fade-out");
-                setTimeout(() => {
-                    landing.style.display = "none";
-                    views.forEach(v => v.classList.toggle("active", v.id === viewId));
-                    backBtn.style.display = (viewId === "epubReaderView") ? "none" : "flex";
-
-                    if (pushState && window.history.state?.view !== viewId) {
-                        window.history.pushState({ view: viewId }, "", "#" + viewId);
+                landing.style.display = "none";
+                
+                views.forEach(v => {
+                    if (v.id === viewId) {
+                        v.style.display = "block";
+                        // Yield to let browser apply display:block before transitioning opacity
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                v.classList.add("active");
+                            });
+                        });
+                    } else {
+                        v.classList.remove("active");
+                        v.style.display = "none";
                     }
-                }, 500);
+                });
+                
+                backBtn.style.display = (viewId === "epubReaderView") ? "none" : "flex";
+
+                if (pushState && window.history.state?.view !== viewId) {
+                    window.history.pushState({ view: viewId }, "", "#" + viewId);
+                }
             }
 
             function showPortal(pushState = true) {
                 if (window.epubViewer) window.epubViewer.stopTTS();
                 backBtn.style.display = "none";
-                views.forEach(v => v.classList.remove("active"));
+                views.forEach(v => {
+                    v.classList.remove("active");
+                    v.style.display = "none";
+                });
+                
                 landing.style.display = "flex";
-                setTimeout(() => landing.classList.remove("fade-out"), 50);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        landing.classList.remove("fade-out");
+                    });
+                });
 
                 if (pushState && window.history.state?.view !== 'portal') {
                     window.history.pushState({ view: 'portal' }, "", window.location.pathname);
