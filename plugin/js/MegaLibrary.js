@@ -41,9 +41,9 @@ class MegaLibrary {
 
     async loadFolder(url) {
         const statusEl = document.getElementById("megaLibraryStatus");
-        const tbody = document.querySelector("#megaLibraryResultsTable tbody");
+        const grid = document.getElementById("megaLibraryGrid");
         
-        if (!statusEl || !tbody) return;
+        if (!statusEl || !grid) return;
 
         if (!url) {
             statusEl.textContent = "Please enter a valid Mega folder URL.";
@@ -53,7 +53,7 @@ class MegaLibrary {
 
         statusEl.textContent = "Loading folder metadata...";
         statusEl.style.color = "#a78bfa";
-        tbody.innerHTML = "";
+        grid.innerHTML = "";
 
         try {
             // Using megajs browser build
@@ -91,7 +91,7 @@ class MegaLibrary {
             // Sort alphabetically
             epubFiles.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
             
-            this.renderFiles(epubFiles, tbody);
+            this.renderFiles(epubFiles, grid);
             
         } catch (error) {
             console.error("Mega folder load error:", error);
@@ -100,40 +100,36 @@ class MegaLibrary {
         }
     }
     
-    renderFiles(files, tbody) {
+    renderFiles(files, grid) {
         files.forEach((file, index) => {
-            const tr = document.createElement("tr");
+            const title = file.name.replace(/\.epub$/i, "");
             
-            const titleTd = document.createElement("td");
-            titleTd.style.padding = "5px";
-            titleTd.style.borderBottom = "1px solid #444";
-            titleTd.textContent = file.name;
+            const card = document.createElement("div");
+            card.className = "book-card";
             
-            const sizeTd = document.createElement("td");
-            sizeTd.style.padding = "5px";
-            sizeTd.style.borderBottom = "1px solid #444";
-            sizeTd.textContent = this.formatSize(file.size);
+            card.innerHTML = `
+                <div class="book-cover-wrap">
+                    <!-- Placeholder cover for Mega files -->
+                    <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #2d2d2d, #1a1a1a); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #666; font-size: 3rem;">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <div class="book-hover-actions">
+                        <button class="book-action-btn download-btn-main">Save File</button>
+                    </div>
+                </div>
+                <div class="book-details">
+                    <div class="book-title" title="${title.replace(/"/g, "&quot;")}">${title}</div>
+                    <div class="book-author">Mega.nz File</div>
+                    <p class="book-desc-text" style="font-size:0.8rem; color:var(--text-muted); line-height: 1.4; margin: 8px 0 0; overflow:hidden; display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">Size: ${this.formatSize(file.size)}<br><br><i>Note: Mega library EPUBs do not contain cached covers or descriptions.</i></p>
+                </div>
+            `;
             
-            const actionTd = document.createElement("td");
-            actionTd.style.padding = "5px";
-            actionTd.style.borderBottom = "1px solid #444";
-            
-            const dlBtn = document.createElement("button");
-            dlBtn.textContent = "Download";
-            dlBtn.className = "expandedButton";
-            dlBtn.style.padding = "2px 8px";
-            dlBtn.style.fontSize = "12px";
-            dlBtn.style.width = "auto";
-            
+            const dlBtn = card.querySelector(".download-btn-main");
             dlBtn.addEventListener("click", () => this.downloadFile(file, dlBtn));
             
-            actionTd.appendChild(dlBtn);
-            
-            tr.appendChild(titleTd);
-            tr.appendChild(sizeTd);
-            tr.appendChild(actionTd);
-            
-            tbody.appendChild(tr);
+            grid.appendChild(card);
         });
     }
     

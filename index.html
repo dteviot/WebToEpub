@@ -210,18 +210,9 @@
                 <div style="margin-bottom: 24px; font-weight: bold; color: #a78bfa;">
                     <span id="megaLibraryStatus"></span>
                 </div>
-                <div class="scrollingtable" style="max-height: 60vh; overflow-y: auto;">
-                    <table id="megaLibraryResultsTable" style="width: 100%; border-collapse: collapse; text-align: left;">
-                        <thead>
-                            <tr>
-                                <th style="padding: 10px; border-bottom: 1px solid #444; color: #fff;">Title</th>
-                                <th style="padding: 10px; border-bottom: 1px solid #444; width: 100px; color: #fff;">Size</th>
-                                <th style="padding: 10px; border-bottom: 1px solid #444; width: 100px; color: #fff;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                
+                <div id="megaLibraryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 10px;">
+                    <!-- Cards will be injected here -->
                 </div>
             </div>
 
