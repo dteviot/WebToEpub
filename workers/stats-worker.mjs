@@ -77,14 +77,14 @@ export default {
         const url = new URL(request.url);
         const path = url.pathname.replace(/\/+$/, "") || "/";
 
-        if (path === "/stats/event" && request.method === "POST") {
-            return handleEvent(request, env);
+        if ((path === "/stats/event" || path === "/api/event") && request.method === "POST") {
+            return await handleEvent(request, env);
         }
-        if (path === "/stats/top" && request.method === "GET") {
-            return handleTop(url, env);
+        if ((path === "/stats/top" || path === "/api/top") && request.method === "GET") {
+            return await handleTop(url, env);
         }
-        if (path === "/stats/catalog" && request.method === "GET") {
-            return handleCatalog(env);
+        if ((path === "/stats/catalog" || path === "/api/catalog") && request.method === "GET") {
+            return await handleCatalog(url, env);
         }
 
         return json({ error: "Not found" }, 404);

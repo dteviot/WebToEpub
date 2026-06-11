@@ -291,7 +291,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
 
         try {
-            fetch(`${base}/stats/event`, {
+            fetch(`${base}/api/event`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -307,7 +307,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             return null;
         }
         try {
-            const workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
+            const workerUrl = `${workerBase}/api/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
             const resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
             if (!resp.ok) {
                 return null;
