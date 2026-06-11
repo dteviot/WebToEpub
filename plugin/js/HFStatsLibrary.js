@@ -301,30 +301,6 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         } catch (_) { /* fire-and-forget */ }
     }
 
-    static async _fetchTopFromWorker(mode, limit, signal) {
-        const workerBase = HFStatsLibrary.getWorkerBase();
-        if (!workerBase) {
-            return null;
-        }
-        try {
-            let workerUrl = `${workerBase}/api/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
-            let resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
-            if (!resp.ok) {
-                workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
-                resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
-            }
-            if (!resp.ok) {
-                return null;
-            }
-            const data = await resp.json();
-            const entries = HFStatsLibrary._normalizeEntries(data, mode, limit)
-                .filter(e => !HFStatsLibrary.isSampleEntry(e));
-            return entries.length > 0 ? entries : null;
-        } catch (_) {
-            return null;
-        }
-    }
-
     static async _fetchTopFromHf(mode, limit, signal) {
         try {
             const resp = await fetch(HFStatsLibrary.getStatsCatalogUrl(), { signal, cache: "default" });
@@ -480,37 +456,26 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         HFStatsLibrary._clearLegacyWorkerBlocks();
         const localEntries = HFStatsLibrary.getLocalTopEntries(mode, limit);
 
-        const workerController = new AbortController();
         const hfController = new AbortController();
-        const workerTimer = setTimeout(() => workerController.abort(), HFStatsLibrary.WORKER_TOP_TIMEOUT_MS);
         const hfTimer = setTimeout(() => hfController.abort(), timeoutMs);
-        let workerEntries = null;
         let hfEntries = null;
         try {
-            [workerEntries, hfEntries] = await Promise.all([
-                HFStatsLibrary._fetchTopFromWorker(mode, limit, workerController.signal),
-                HFStatsLibrary._fetchTopFromHf(mode, limit, hfController.signal)
-            ]);
+            hfEntries = await HFStatsLibrary._fetchTopFromHf(mode, limit, hfController.signal);
         } finally {
-            clearTimeout(workerTimer);
             clearTimeout(hfTimer);
         }
 
-        const merged = HFStatsLibrary._mergeEntryLists([workerEntries, hfEntries, localEntries], mode, limit);
+        const merged = HFStatsLibrary._mergeEntryLists([hfEntries, localEntries], mode, limit);
 
         let source = "local";
-        if (workerEntries?.length && localEntries.length) {
-            source = "worker+local";
-        } else if (workerEntries?.length) {
-            source = "worker";
-        } else if (hfEntries?.length && localEntries.length) {
+        if (hfEntries?.length && localEntries.length) {
             source = "hf+local";
         } else if (hfEntries?.length) {
             source = "hf";
         }
 
         const data = { entries: merged, source };
-        if (workerEntries !== null || hfEntries !== null) {
+        if (hfEntries !== null) {
             HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
         }
         return data;
