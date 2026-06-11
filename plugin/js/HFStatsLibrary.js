@@ -27,7 +27,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     }
 
     static getStatsCatalogUrl() {
-        const base = `https://huggingface.co/datasets/${HFStatsLibrary.STATS_REPO_ID}/resolve/main/${HFStatsLibrary.STATS_CATALOG_FILE}`;
+        const base = `https://huggingface.co/datasets/${HFStatsLibrary.STATS_REPO_ID}/raw/main/${HFStatsLibrary.STATS_CATALOG_FILE}`;
         return `${base}?t=${Date.now()}`;
     }
 

@@ -6,7 +6,8 @@
     "@zip.js/zip.js": "~2.7.72",
     "dompurify": "^3.2.6",
     "jsdom": "^27.4.0",
-    "linkedom": "^0.18.12"
+    "linkedom": "^0.18.12",
+    "megajs": "^1.3.10"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.7.5",

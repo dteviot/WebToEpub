@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mega JS Browser Test</title>
+  <script src="../node_modules/megajs/dist/main.browser-umd.js"></script>
+</head>
+<body>
+  <h1>Mega Browser Test</h1>
+  <div id="output"></div>
+  <script>
+    async function test() {
+      const out = document.getElementById("output");
+      try {
+        out.innerHTML += "Loading folder...<br>";
+        const folder = mega.File.fromURL('https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw');
+        await folder.loadAttributes();
+        out.innerHTML += "Folder loaded: " + folder.name + "<br>";
+        out.innerHTML += "Children count: " + folder.children.length + "<br>";
+        
+        const child = folder.children[0];
+        out.innerHTML += "First child: " + child.name + " (" + child.size + " bytes)<br>";
+        
+        const data = await child.downloadBuffer();
+        out.innerHTML += "Downloaded: " + data.length + " bytes.<br>";
+        
+      } catch (err) {
+        out.innerHTML += "<span style='color:red'>Error: " + err.message + "</span><br>";
+        console.error(err);
+      }
+    }
+    test();
+  </script>
+</body>
+</html>

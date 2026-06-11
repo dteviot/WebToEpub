@@ -201,6 +201,7 @@
             </div>
             <div class="HiddenButtonSection">
                 <button id="hiddenBibButton">__MSG_button_Lib_Library__</button>
+                <button id="megaLibraryButton">Mega Library</button>
                 <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
                 <button id="navSearchButton">Search Novels</button>
             </div>
@@ -636,6 +637,34 @@
             </div>
         </section>
 
+        <!-- Mega Library Section -->
+        <section id="megaLibrarySection" hidden="true" style="margin-top: 15px;">
+            <h2>Mega.nz Library</h2>
+            <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+                <input id="megaLibraryUrl" type="text" placeholder="Paste Mega Folder URL..."
+                    value="https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw"
+                    style="flex: 1; padding: 5px;">
+                <button id="megaLibraryLoadButton" class="expandedButton" style="width: auto;">Load Folder</button>
+            </div>
+            <div style="margin-bottom: 10px; font-weight: bold; color: #a78bfa;">
+                <span id="megaLibraryStatus"></span>
+            </div>
+            <div class="scrollingtable" style="max-height: 400px; overflow-y: auto;">
+                <table id="megaLibraryResultsTable" style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 5px; border-bottom: 1px solid #444;">Title</th>
+                            <th style="padding: 5px; border-bottom: 1px solid #444; width: 100px;">Size</th>
+                            <th style="padding: 5px; border-bottom: 1px solid #444; width: 80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Results populated by MegaLibrary.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section id="testSection"></section>
         <section id="imageSection" hidden="true">
             <table id="imageOptionsTable">
@@ -744,6 +773,8 @@
         <script src="js/Parser.js"></script>
         <script src="js/Library.js"></script>
         <script src="js/HFStatsLibrary.js"></script>
+        <script src="js/megajs.browser.js"></script>
+        <script src="js/MegaLibrary.js"></script>
         <script src="js/SiteSearchEngine.js"></script>
         <script src="js/SearchEngineUI.js"></script>
 
