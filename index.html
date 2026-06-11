@@ -161,6 +161,7 @@
                     <button id="tabLibraryPersonal" class="library-tab active">Personal Library</button>
                     <button id="tabLibraryPublic" class="library-tab">Public Library</button>
                     <button id="tabLibraryTelegram" class="library-tab">Telegram</button>
+                    <button id="tabLibraryMega" class="library-tab">Mega Library</button>
                 </div>
             </div>
 
@@ -201,6 +202,32 @@
                 <!-- Pagination Container -->
                 <div id="publicLibraryPagination" style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--reader-border, #333);">
                     <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Mega Library View -->
+            <div id="megaLibraryView" style="display: none;">
+                <div style="margin-bottom: 24px; display: flex; gap: 10px;">
+                    <input id="megaLibraryUrl" type="text" placeholder="Paste Mega Folder URL..."
+                        value="https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw"
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--reader-border); background: var(--reader-sidebar-bg); color: #fff;">
+                    <button id="megaLibraryLoadButton" class="library-tab active" style="width: auto; padding: 10px 20px;">Load Folder</button>
+                </div>
+                <div style="margin-bottom: 24px; font-weight: bold; color: #a78bfa;">
+                    <span id="megaLibraryStatus"></span>
+                </div>
+                <div class="scrollingtable" style="max-height: 60vh; overflow-y: auto;">
+                    <table id="megaLibraryResultsTable" style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 10px; border-bottom: 1px solid #444; color: #fff;">Title</th>
+                                <th style="padding: 10px; border-bottom: 1px solid #444; width: 100px; color: #fff;">Size</th>
+                                <th style="padding: 10px; border-bottom: 1px solid #444; width: 100px; color: #fff;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

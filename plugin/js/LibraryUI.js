@@ -229,6 +229,7 @@ class LibraryUI {
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
         const tabTelegram = document.getElementById("tabLibraryTelegram");
+        const tabMega = document.getElementById("tabLibraryMega");
         const uploadSection = document.querySelector(".library-upload-section");
         const publicSearch = document.getElementById("publicLibrarySearch");
         const clearPublicSearch = document.getElementById("clearPublicSearch");
@@ -256,19 +257,29 @@ class LibraryUI {
 
         const setActiveTab = (tabId) => {
             this.activeLibraryTab = tabId;
-            [tabPersonal, tabPublic, tabTelegram].forEach(tab => {
+            [tabPersonal, tabPublic, tabTelegram, tabMega].forEach(tab => {
                 if (tab) tab.classList.remove("active");
             });
             if (tabId === "personal" && tabPersonal) tabPersonal.classList.add("active");
             if (tabId === "public" && tabPublic) tabPublic.classList.add("active");
             if (tabId === "telegram" && tabTelegram) tabTelegram.classList.add("active");
+            if (tabId === "mega" && tabMega) tabMega.classList.add("active");
+
+            // Hide all views first
+            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView"];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = "none";
+            });
 
             if (tabId === "personal") {
                 document.getElementById("personalLibraryGrid").style.display = "grid";
-                document.getElementById("publicLibraryView").style.display = "none";
                 if (uploadSection) uploadSection.style.display = "block";
+            } else if (tabId === "mega") {
+                const megaView = document.getElementById("megaLibraryView");
+                if (megaView) megaView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
             } else {
-                document.getElementById("personalLibraryGrid").style.display = "none";
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
                 
@@ -284,6 +295,7 @@ class LibraryUI {
         if (tabPersonal) tabPersonal.addEventListener("click", () => setActiveTab("personal"));
         if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab("public"));
         if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab("telegram"));
+        if (tabMega) tabMega.addEventListener("click", () => setActiveTab("mega"));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");
