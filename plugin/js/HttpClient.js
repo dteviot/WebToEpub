@@ -483,6 +483,10 @@ class HttpClient {
 
                 return HttpClient.wrapFetchImpl(url, wrapOptions);
             }
+            if (error.message === "Cloudflare block page") {
+                let fakeResponse = { url: url, status: 524 };
+                return wrapOptions.errorHandler.onResponseError(url, wrapOptions, fakeResponse, error.message);
+            }
 
             return wrapOptions.errorHandler.onFetchError(url, error);
         }
