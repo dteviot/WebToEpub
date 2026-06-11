@@ -90,7 +90,9 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
                 return;
             }
             if (!result?.entries?.length) {
-                row.innerHTML = `<div class="top-novels-empty">No usage stats yet. Start reading to populate the catalog!</div>`;
+                if (!row.querySelector(".top-novel-card")) {
+                    row.innerHTML = `<div class="top-novels-empty">No usage stats yet. Start reading to populate the catalog!</div>`;
+                }
                 return;
             }
             TopNovelsUI._render(row, result.entries, mode);
@@ -98,8 +100,10 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
             if (generation !== TopNovelsUI._loadGeneration) {
                 return;
             }
-            console.warn("[TopNovels] Catalog unavailable, showing empty state:", e.message);
-            row.innerHTML = `<div class="top-novels-empty">Catalog unavailable. Please try again later.</div>`;
+            console.warn("[TopNovels] Catalog fetch failed:", e.message);
+            if (!row.querySelector(".top-novel-card")) {
+                row.innerHTML = `<div class="top-novels-empty">Catalog unavailable. Please try again later.</div>`;
+            }
         }
     }
 
