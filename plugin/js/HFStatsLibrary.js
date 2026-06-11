@@ -307,8 +307,12 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             return null;
         }
         try {
-            const workerUrl = `${workerBase}/api/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
-            const resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
+            let workerUrl = `${workerBase}/api/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
+            let resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
+            if (!resp.ok) {
+                workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}&t=${Date.now()}`;
+                resp = await fetch(workerUrl, { signal, cache: "no-store", mode: "cors" });
+            }
             if (!resp.ok) {
                 return null;
             }
@@ -506,7 +510,9 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
 
         const data = { entries: merged, source };
-        HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
+        if (workerEntries !== null || hfEntries !== null) {
+            HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
+        }
         return data;
     }
 
