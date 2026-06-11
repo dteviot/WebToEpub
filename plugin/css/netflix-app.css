@@ -344,6 +344,11 @@
     transform: translateY(0);
 }
 
+/* Release Libraries View from parent transform containment so fixed overlays (libraryLoader) cover the viewport */
+#librariesView.app-view.active {
+    transform: none !important;
+}
+
 /* Home back button styled nicely */
 .back-to-portal-btn {
     position: fixed;

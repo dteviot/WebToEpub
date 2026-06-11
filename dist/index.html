@@ -495,6 +495,7 @@
                 const promise = new Promise((resolve, reject) => {
                     const s = document.createElement("script");
                     s.src = src;
+                    s.async = false; // preserve insertion order when loading scripts in parallel
                     s.onload = () => {
                         loadedModules.add(base);
                         loadingPromises.delete(base);
@@ -511,9 +512,7 @@
             };
 
             const loadScripts = async (scripts) => {
-                for (const src of scripts) {
-                    await loadScript(src);
-                }
+                await Promise.all(scripts.map(src => loadScript(src)));
             };
 
             let searchEnginePromise = null;
@@ -570,23 +569,42 @@
                 if (viewId === "librariesView" || viewId === "epubReaderView") await ensureReaderModules();
 
                 landing.classList.add("fade-out");
-                setTimeout(() => {
-                    landing.style.display = "none";
-                    views.forEach(v => v.classList.toggle("active", v.id === viewId));
-                    backBtn.style.display = (viewId === "epubReaderView") ? "none" : "flex";
+                landing.style.display = "none";
 
-                    if (pushState && window.history.state?.view !== viewId) {
-                        window.history.pushState({ view: viewId }, "", "#" + viewId);
+                views.forEach(v => {
+                    if (v.id === viewId) {
+                        v.style.display = "block";
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                v.classList.add("active");
+                            });
+                        });
+                    } else {
+                        v.classList.remove("active");
+                        v.style.display = "none";
                     }
-                }, 500);
+                });
+
+                backBtn.style.display = (viewId === "epubReaderView") ? "none" : "flex";
+
+                if (pushState && window.history.state?.view !== viewId) {
+                    window.history.pushState({ view: viewId }, "", "#" + viewId);
+                }
             }
 
             function showPortal(pushState = true) {
                 if (window.epubViewer) window.epubViewer.stopTTS();
                 backBtn.style.display = "none";
-                views.forEach(v => v.classList.remove("active"));
+                views.forEach(v => {
+                    v.classList.remove("active");
+                    v.style.display = "none";
+                });
                 landing.style.display = "flex";
-                setTimeout(() => landing.classList.remove("fade-out"), 50);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        landing.classList.remove("fade-out");
+                    });
+                });
 
                 if (pushState && window.history.state?.view !== 'portal') {
                     window.history.pushState({ view: 'portal' }, "", window.location.pathname);
@@ -799,6 +817,9 @@
                     }, 300);
                 });
             }
+
+            // Eagerly preload reader modules so Libraries Hub loads instantly
+            ensureReaderModules();
         });
     </script>
 </body>

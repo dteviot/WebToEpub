@@ -524,6 +524,7 @@
                 const promise = new Promise((resolve, reject) => {
                     const s = document.createElement("script");
                     s.src = src;
+                    s.async = false; // preserve insertion order when loading scripts in parallel
                     s.onload = () => {
                         loadedModules.add(base);
                         loadingPromises.delete(base);
@@ -540,9 +541,7 @@
             };
 
             const loadScripts = async (scripts) => {
-                for (const src of scripts) {
-                    await loadScript(src);
-                }
+                await Promise.all(scripts.map(src => loadScript(src)));
             };
 
             let searchEnginePromise = null;
@@ -855,6 +854,9 @@
                     }, 300);
                 });
             }
+
+            // Eagerly preload reader modules so Libraries Hub loads instantly
+            ensureReaderModules();
         });
     </script>
 </body>
