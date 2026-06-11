@@ -71,6 +71,7 @@ class ParserFactory {
     }
 
     fetchByUrl(url) {
+        if (typeof HttpClient !== "undefined") url = HttpClient.unproxyUrl(url);
         let hostName = ParserFactory.hostNameForParserSelection(url);
         let constructor = this.parsers.get(hostName);
         if (constructor !== undefined) {
@@ -87,6 +88,7 @@ class ParserFactory {
     }
 
     fetch(url, dom) {
+        if (typeof HttpClient !== "undefined") url = HttpClient.unproxyUrl(url);
         let forUrl = this.fetchByUrl(url);
         if (forUrl != null) {
             return forUrl;
@@ -111,6 +113,9 @@ class ParserFactory {
     }
 
     static hostNameForParserSelection(url) {
+        if (typeof HttpClient !== "undefined") {
+            url = HttpClient.unproxyUrl(url);
+        }
         if (ParserFactory.isWebArchive(url)) {
             url = ParserFactory.stripWebArchive(url);
         }
