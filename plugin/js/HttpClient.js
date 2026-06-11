@@ -251,7 +251,12 @@ class HttpClient {
                 !(targetHostname === "ko-fi.com" && activeProxyUrl.includes("corsproxy.io"))) {
                 
                 try {
-                    const fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    let fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    if (activeProxyUrl.includes("lovable.app") && wrapOptions.fetchOptions && wrapOptions.fetchOptions.headers) {
+                        try {
+                            fetchUrl += "&headers=" + encodeURIComponent(JSON.stringify(wrapOptions.fetchOptions.headers));
+                        } catch (e) {}
+                    }
                     const ctrl = new AbortController();
                     const tid = setTimeout(() => ctrl.abort(), 6000); // Snappy 6s timeout for active proxy
                     const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
@@ -326,7 +331,12 @@ class HttpClient {
             for (let proxyUrl of raceProxies) {
                 const ctrl = new AbortController();
                 controllerMap.set(proxyUrl, ctrl);
-                const fetchUrl = proxyUrl + encodeURIComponent(url.trim());
+                let fetchUrl = proxyUrl + encodeURIComponent(url.trim());
+                if (proxyUrl.includes("lovable.app") && wrapOptions.fetchOptions && wrapOptions.fetchOptions.headers) {
+                    try {
+                        fetchUrl += "&headers=" + encodeURIComponent(JSON.stringify(wrapOptions.fetchOptions.headers));
+                    } catch (e) {}
+                }
                 const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
                     credentials: "omit",
                     signal: ctrl.signal
@@ -727,7 +737,8 @@ HttpClient.CORS_PROXIES = [
     { name: "cors.lol", url: "https://api.cors.lol/?url=" },
     { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
     { name: "Render Proxy", url: "https://render-proxy-1-hjm6.onrender.com/proxy?url=" },
-    { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" }
+    { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" },
+    { name: "Lovable Proxy", url: "https://loveable-proxy-forwebtoepub.lovable.app/api/proxy?url=" }
 ];
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
 HttpClient.enableCorsProxy = true;
