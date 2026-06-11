@@ -420,22 +420,27 @@ class MegaLibrary {
             if (window.libraryManager && typeof window.libraryManager.openBookInReader === "function") {
                 window.libraryManager.openBookInReader(blob);
             } else {
-                // Fallback direct path
+                // Fallback direct path using window.showView for proper display:block
                 const readerLoader = document.getElementById("epubReaderLoader");
                 const readerLoaderText = document.getElementById("epubLoaderText");
                 if (readerLoader) {
                     if (readerLoaderText) readerLoaderText.textContent = "Loading EPUB…";
                     readerLoader.style.display = "flex";
                 }
-                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                const rv = document.getElementById("epubReaderView");
-                if (rv) rv.classList.add("active");
-                const globalBackBtn = document.getElementById("globalBackBtn");
-                if (globalBackBtn) globalBackBtn.style.display = "none";
-                if (window.epubViewerInstance) {
-                    requestAnimationFrame(() => requestAnimationFrame(() => window.epubViewerInstance.loadEpub(blob)));
+                const viewer = window.epubViewer || window.epubViewerInstance;
+                if (typeof window.showView === "function") {
+                    window.showView("epubReaderView").then(() => {
+                        if (viewer) viewer.loadEpub(blob);
+                    });
+                } else {
+                    const rv = document.getElementById("epubReaderView");
+                    if (rv) { rv.style.display = "block"; rv.classList.add("active"); }
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        if (viewer) viewer.loadEpub(blob);
+                    }));
                 }
             }
+
 
             // Reset button state after a moment (view has already changed)
             setTimeout(resetBtn, 2000);

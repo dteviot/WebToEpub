@@ -864,7 +864,7 @@ class LibraryUI {
         return "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
     }
 
-    openBookInReader(base64Data) {
+    openBookInReader(epubData) {
         // Pre-show the reader loader BEFORE switching views so the user
         // always sees a spinner — never a black flash.
         const readerLoader = document.getElementById("epubReaderLoader");
@@ -874,18 +874,27 @@ class LibraryUI {
             readerLoader.style.display = "flex";
         }
 
-        // Switch view
-        document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-        document.getElementById("epubReaderView").classList.add("active");
-        const globalBackBtn = document.getElementById("globalBackBtn");
-        if (globalBackBtn) globalBackBtn.style.display = "none";
-
-        // Let the browser paint the loader before the heavy parsing starts
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                this.epubViewer.loadEpub(base64Data);
+        // Use window.showView if available (sets display:block AND active class correctly)
+        if (typeof window.showView === "function") {
+            // showView is async but we don't await — it will set up the view,
+            // then we load the epub after two rAF frames so the view is painted.
+            window.showView("epubReaderView").then(() => {
+                this.epubViewer.loadEpub(epubData);
             });
-        });
+        } else {
+            // Fallback for extension context where showView isn't exposed
+            const epubReaderView = document.getElementById("epubReaderView");
+            if (epubReaderView) {
+                epubReaderView.style.display = "block";
+            }
+            document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+            if (epubReaderView) epubReaderView.classList.add("active");
+            const globalBackBtn = document.getElementById("globalBackBtn");
+            if (globalBackBtn) globalBackBtn.style.display = "none";
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                this.epubViewer.loadEpub(epubData);
+            }));
+        }
 
         if (typeof HFStatsLibrary !== "undefined" && this.currentDetailsId != null) {
             this.storage.get([
@@ -903,7 +912,6 @@ class LibraryUI {
             }).catch(() => {});
         }
     }
-
 
     downloadBlob(base64Data, filename) {
         const link = document.createElement("a");

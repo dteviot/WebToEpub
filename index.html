@@ -624,6 +624,10 @@
                     window.history.pushState({ view: viewId }, "", "#" + viewId);
                 }
             }
+            // Expose globally so LibraryUI / MegaLibrary can trigger view switches
+            window.showView = showView;
+            window.showPortal = () => showPortal();
+
 
             function showPortal(pushState = true) {
                 if (window.epubViewer) window.epubViewer.stopTTS();
