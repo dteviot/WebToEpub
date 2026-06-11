@@ -757,6 +757,9 @@ class FetchResponseHandler {
     responseToHtml(response) {
         return response.arrayBuffer().then(function(rawBytes) {
             let data = this.makeTextDecoder(response).decode(rawBytes);
+            if (HttpClient.isCloudflareBlock(data)) {
+                throw new Error("Cloudflare block page");
+            }
             // Strip speculative preload tags to prevent relative asset fetches through proxies
             data = data.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
             let html = new DOMParser().parseFromString(data, "text/html");
@@ -787,7 +790,11 @@ class FetchResponseHandler {
 
     responseToText(response) {
         return response.arrayBuffer().then(function(rawBytes) {
-            return this.makeTextDecoder(response).decode(rawBytes);
+            let data = this.makeTextDecoder(response).decode(rawBytes);
+            if (HttpClient.isCloudflareBlock(data)) {
+                throw new Error("Cloudflare block page");
+            }
+            return data;
         }.bind(this));
     }
 

@@ -634,7 +634,7 @@ class EpubViewerUI {
     }
 
 
-    initializeScrollViewport() {
+    initializeScrollViewport(targetIndex = -1) {
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
         contentBody.innerHTML = "";
@@ -683,9 +683,14 @@ class EpubViewerUI {
         // 2. Render chapter placeholders — virtualized for live-scraped books
         //    Only create the first lazyVirtualScrollBatchSize nodes to keep the DOM light.
         //    For local EPUB files, create all placeholders as before (typically small chapter counts).
-        const renderLimit = (this.isLazyScraped && this.toc.length > this.lazyVirtualScrollBatchSize)
+        let renderLimit = (this.isLazyScraped && this.toc.length > this.lazyVirtualScrollBatchSize)
             ? this.lazyVirtualScrollBatchSize
             : this.toc.length;
+
+        if (targetIndex >= 0) {
+            renderLimit = Math.max(renderLimit, targetIndex + 1);
+        }
+        renderLimit = Math.min(renderLimit, this.toc.length);
 
         this.toc.slice(0, renderLimit).forEach((chapter, index) => {
             this._createChapterPlaceholder(contentBody, chapter, index);
@@ -1262,8 +1267,16 @@ class EpubViewerUI {
             const firstChapterWrap = document.getElementById("chapter-wrap-0");
             if (!firstChapterWrap) {
                 this.showLoader("Initializing Reader...");
-                this.initializeScrollViewport();
+                this.initializeScrollViewport(index);
                 this.hideLoader();
+            } else {
+                // If the target chapter is beyond the current virtual scroll limit, force expansion
+                const targetWrapper = document.getElementById(`chapter-wrap-${index}`);
+                if (!targetWrapper) {
+                    this.showLoader("Expanding Reader...");
+                    this.initializeScrollViewport(index);
+                    this.hideLoader();
+                }
             }
 
             // Scroll the target chapter placeholder into view smoothly
