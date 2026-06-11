@@ -339,36 +339,59 @@ class MegaLibrary {
         this.currentLoadToken = loadToken;
 
         const originalHTML = btnElement.innerHTML;
-        btnElement.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;animation:spin 1s linear infinite;"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd"/></svg> Loading…`;
+        btnElement.innerHTML = `
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;animation:spin 1s linear infinite;">
+                <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd"/>
+            </svg> Downloading…`;
         btnElement.disabled = true;
         btnElement.style.opacity = "0.7";
 
-        // Show global loader
+        const bookTitle = file.name.replace(/\.epub$/i, "");
+
+        // Show the library loader overlay — user stays on library page during download
         const loader = document.getElementById("libraryLoader");
         const cancelBtn = document.getElementById("cancelLibraryLoadBtn");
         let cancelled = false;
+
+        const resetBtn = () => {
+            btnElement.innerHTML = originalHTML;
+            btnElement.disabled = false;
+            btnElement.style.opacity = "";
+            btnElement.style.background = "";
+            btnElement.style.color = "";
+            btnElement.style.border = "";
+        };
 
         const onCancel = () => {
             cancelled = true;
             this.currentLoadToken = null;
             if (loader) loader.style.display = "none";
             if (cancelBtn) { cancelBtn.style.display = "none"; cancelBtn.onclick = null; }
-            btnElement.innerHTML = originalHTML;
-            btnElement.disabled = false;
-            btnElement.style.opacity = "";
+            resetBtn();
         };
 
         if (loader) {
+            // Update loader text to give context
+            const spinnerEl = loader.querySelector(".spinner-ring");
+            const textEl = loader.querySelector("div:not(.spinner-ring)") || loader.querySelector("div:last-child");
+
+            // Re-inject loader content with progress info
+            loader.innerHTML = `
+                <div class="spinner-ring"></div>
+                <div style="color:var(--primary,#a78bfa); font-weight:700; font-size:1rem; text-align:center; max-width:300px; line-height:1.5;">
+                    Downloading EPUB from Mega…<br>
+                    <span style="font-size:0.82rem; color:var(--text-muted,#888); font-weight:400;">"${bookTitle}"</span>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted,#888); margin-top:4px;">Large files may take a moment</div>
+                <button id="cancelLibraryLoadBtn" class="book-action-btn download-btn-main" style="display:inline-block; width:auto; padding:6px 20px; margin-top:14px; font-size:0.85rem;">Cancel</button>
+            `;
             loader.style.display = "flex";
-            const textDiv = loader.querySelector("div:nth-of-type(2)") || loader.querySelector("div:last-child");
-            if (textDiv) textDiv.textContent = `Downloading "${file.name.replace(/\.epub$/i,"")}" from Mega…`;
-            if (cancelBtn) {
-                cancelBtn.style.display = "inline-block";
-                cancelBtn.onclick = onCancel;
-            }
+
+            const newCancelBtn = document.getElementById("cancelLibraryLoadBtn");
+            if (newCancelBtn) newCancelBtn.onclick = onCancel;
         }
 
-        // Yield to allow loader to paint
+        // Yield to let the loader paint before starting the potentially long download
         await new Promise(r => setTimeout(r, 60));
 
         try {
@@ -379,54 +402,55 @@ class MegaLibrary {
             const blob = new Blob([data], { type: "application/epub+zip" });
             blob.name = file.name || "book.epub";
 
-            // Hide loader
+            // Hide the download loader — openBookInReader will show the reader loader
             if (loader) loader.style.display = "none";
-            if (cancelBtn) { cancelBtn.style.display = "none"; cancelBtn.onclick = null; }
 
-            // Open in reader via LibraryUI
+            // Update button briefly to show success before view switch
+            btnElement.innerHTML = `✓ Opening…`;
+            btnElement.style.background = "#10b981";
+            btnElement.style.color = "#fff";
+            btnElement.style.border = "none";
+            btnElement.style.opacity = "1";
+
+            // Small delay so the user sees the success state before transition
+            await new Promise(r => setTimeout(r, 150));
+
+            // Now open in reader — openBookInReader will show epubReaderLoader
+            // BEFORE switching views so there's no black screen
             if (window.libraryManager && typeof window.libraryManager.openBookInReader === "function") {
                 window.libraryManager.openBookInReader(blob);
             } else {
-                // Fallback: switch to reader view manually and load
+                // Fallback direct path
+                const readerLoader = document.getElementById("epubReaderLoader");
+                const readerLoaderText = document.getElementById("epubLoaderText");
+                if (readerLoader) {
+                    if (readerLoaderText) readerLoaderText.textContent = "Loading EPUB…";
+                    readerLoader.style.display = "flex";
+                }
                 document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
                 const rv = document.getElementById("epubReaderView");
                 if (rv) rv.classList.add("active");
                 const globalBackBtn = document.getElementById("globalBackBtn");
                 if (globalBackBtn) globalBackBtn.style.display = "none";
                 if (window.epubViewerInstance) {
-                    window.epubViewerInstance.loadEpub(blob);
+                    requestAnimationFrame(() => requestAnimationFrame(() => window.epubViewerInstance.loadEpub(blob)));
                 }
             }
 
-            btnElement.innerHTML = `✓ Opened`;
-            btnElement.style.background = "#10b981";
-            btnElement.style.color = "#fff";
-            btnElement.style.border = "none";
-            setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
-                btnElement.disabled = false;
-                btnElement.style.opacity = "";
-                btnElement.style.background = "";
-                btnElement.style.color = "";
-                btnElement.style.border = "";
-            }, 2500);
+            // Reset button state after a moment (view has already changed)
+            setTimeout(resetBtn, 2000);
 
         } catch (error) {
             if (this.currentLoadToken !== loadToken || cancelled) return;
             console.error("Mega read online error:", error);
 
             if (loader) loader.style.display = "none";
-            if (cancelBtn) { cancelBtn.style.display = "none"; cancelBtn.onclick = null; }
 
+            resetBtn();
             btnElement.innerHTML = `✗ Failed`;
             btnElement.style.background = "#dc2626";
             btnElement.style.opacity = "1";
-            setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
-                btnElement.disabled = false;
-                btnElement.style.opacity = "";
-                btnElement.style.background = "";
-            }, 3000);
+            setTimeout(resetBtn, 3000);
 
             alert("Failed to load EPUB: " + error.message);
         }
