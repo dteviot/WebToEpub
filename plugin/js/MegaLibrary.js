@@ -6,20 +6,8 @@ class MegaLibrary {
     }
 
     init() {
-        const loadBtn = document.getElementById("megaLibraryLoadButton");
-        if (loadBtn) {
-            loadBtn.addEventListener("click", () => this.handleLoadFolder());
-        }
-        
-        // Hide mega library button if mega isn't supported/loaded
-        const megaBtn = document.getElementById("megaLibraryButton");
-        if (megaBtn) {
-            if (typeof megajs === "undefined") {
-                megaBtn.style.display = "none";
-            } else {
-                megaBtn.addEventListener("click", () => this.showMegaSection());
-            }
-        }
+        // Expose instance globally
+        window.megaLibrary = this;
     }
 
     showMegaSection() {
@@ -51,14 +39,12 @@ class MegaLibrary {
         }
     }
 
-    async handleLoadFolder() {
-        const urlInput = document.getElementById("megaLibraryUrl");
+    async loadFolder(url) {
         const statusEl = document.getElementById("megaLibraryStatus");
         const tbody = document.querySelector("#megaLibraryResultsTable tbody");
         
-        if (!urlInput || !statusEl || !tbody) return;
+        if (!statusEl || !tbody) return;
 
-        const url = urlInput.value.trim();
         if (!url) {
             statusEl.textContent = "Please enter a valid Mega folder URL.";
             statusEl.style.color = "red";

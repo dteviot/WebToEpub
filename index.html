@@ -207,12 +207,6 @@
 
             <!-- Mega Library View -->
             <div id="megaLibraryView" style="display: none;">
-                <div style="margin-bottom: 24px; display: flex; gap: 10px;">
-                    <input id="megaLibraryUrl" type="text" placeholder="Paste Mega Folder URL..."
-                        value="https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw"
-                        style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--reader-border); background: var(--reader-sidebar-bg); color: #fff;">
-                    <button id="megaLibraryLoadButton" class="library-tab active" style="width: auto; padding: 10px 20px;">Load Folder</button>
-                </div>
                 <div style="margin-bottom: 24px; font-weight: bold; color: #a78bfa;">
                     <span id="megaLibraryStatus"></span>
                 </div>
@@ -573,7 +567,9 @@
                         "plugin/js/ParserEnvironment.js?v=20260607_v2",
                         "plugin/js/EpubViewerUI.js?v=20260607_v2",
                         "plugin/js/HFLibrary.js?v=20260602_v1",
-                        "plugin/js/LibraryUI.js?v=20260607_v3"
+                        "plugin/js/LibraryUI.js?v=20260607_v3",
+                        "plugin/js/megajs.browser.js",
+                        "plugin/js/MegaLibrary.js"
                     ]).then(() => {
                         if (!window.epubViewer) {
                             window.epubViewer = new EpubViewerUI();

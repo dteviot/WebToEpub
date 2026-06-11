@@ -279,6 +279,10 @@ class LibraryUI {
                 const megaView = document.getElementById("megaLibraryView");
                 if (megaView) megaView.style.display = "block";
                 if (uploadSection) uploadSection.style.display = "none";
+                
+                if (window.megaLibrary && !window.megaLibrary.currentFolder) {
+                    window.megaLibrary.loadFolder("https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw");
+                }
             } else {
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
