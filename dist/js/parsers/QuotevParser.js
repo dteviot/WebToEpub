@@ -1,1 +1,55 @@
-"use strict";parserFactory.register("quotev.com",()=>new QuotevParser);class QuotevParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.baseURI;if(!t.endsWith("/")){const e=t.lastIndexOf("/");t=t.substring(0,e+1)}let r=e.querySelector("div#footer_pages select");return null===r?this.makeUrlListForSingleChapterStory(e):[...r.querySelectorAll("option")].map(e=>this.optionToChapter(e,t))}optionToChapter(e,t){return{sourceUrl:t+e.getAttribute("value"),title:e.textContent}}makeUrlListForSingleChapterStory(e){let t=this.extractTitleImpl(e).textContent.trim();return[{sourceUrl:e.baseURI,title:t}]}findContent(e){return e.querySelector("div#quizResArea")}extractTitleImpl(e){return e.querySelector("div#quizHeaderTitle h1")}extractAuthor(e){let t=e.querySelector("div.quizAuthorList a");return null===t?super.extractAuthor(e):t.textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div#quizResArea")}}
+"use strict";
+
+parserFactory.register("quotev.com", () => new QuotevParser());
+
+class QuotevParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let baseUrl = dom.baseURI;
+        if (!baseUrl.endsWith("/")) {
+            const index = baseUrl.lastIndexOf("/");
+            baseUrl = baseUrl.substring(0, index + 1);
+        }
+        let select = dom.querySelector("div#footer_pages select");
+        if (select === null) {
+            return this.makeUrlListForSingleChapterStory(dom);
+        }
+        return [...select.querySelectorAll("option")]
+            .map(o => this.optionToChapter(o, baseUrl));
+    }
+
+    optionToChapter(option, baseUrl) {
+        return {
+            sourceUrl:  baseUrl + option.getAttribute("value"),
+            title: option.textContent,
+        };
+    }
+
+    makeUrlListForSingleChapterStory(dom) {
+        let title = this.extractTitleImpl(dom).textContent.trim();
+        return [({
+            sourceUrl:  dom.baseURI,
+            title: title,
+        })];
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#quizResArea");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div#quizHeaderTitle h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.quizAuthorList a");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div#quizResArea");
+    }
+}

@@ -1,1 +1,116 @@
-"use strict";parserFactory.register("panda-novel.com",()=>new PandaNovelParser),parserFactory.register("pandasnovel.com",()=>new PandaNovelParser),parserFactory.register("www.lightsnovel.com",()=>new PandaNovelParser);class PandaNovelParser extends Parser{constructor(){super()}async getChapterUrls(e,t){let r=[],n=PandaNovelParser.getUrlsOfTocPages(e),a=new URL(e.baseURI).origin;for(let e of n){await this.rateLimitDelay();let n=(await HttpClient.fetchJson(e)).json,l=PandaNovelParser.extractPartialChapterList(n.data.list,a);t.showTocProgress(l),r=r.concat(l)}return r}static getUrlsOfTocPages(e){let t=[...e.querySelectorAll("ul.pagination li a")].filter(e=>e.text).map(e=>parseInt(e.text.trim()));t.concat(1);let r=Math.max(...t),n=new URL(e.baseURI).origin,a=parseInt(e.baseURI.split("-").pop()),l=[];for(let e=1;e<=r;++e)l.push(n+"/api/book/chapters/"+a+"/"+e);return l}static extractPartialChapterList(e,t){return e.map(e=>({sourceUrl:t+e.chapterUrl,title:e.name.trim()}))}findContent(e){return e.querySelector("#novelArticle2")}customRawDomToContentStep(e,t){let r=this.getRealContent(e,t);r=r.replaceAll(/<br><br>|<\/p><p>/g,"</p>\n<p>").replaceAll(/(?<!\n)<p>/g,"\n<p>"),util.parseHtmlAndInsertIntoContent(r,t),util.removeChildElementsMatchingSelector(t,"ins")}getRealContent(e,t){let r=[...e.rawDom.querySelectorAll("script")].map(e=>e.textContent.trim()).filter(e=>e.includes("_pageParameter['contents'] ="));if(0===r.length)return"\n<p>"+t.innerHTML+"</p>";let n=r[0],a=n.indexOf('"'),l=n.lastIndexOf('"');return n=this.addMissingPTag(n.substring(a+1,l)),n='{"a": "'+n+'"}',JSON.parse(n).a}addMissingPTag(e){return e.split("<\\/p>").map(e=>e.trim().startsWith("<p>")?e:"<p>"+e).join("<\\/p>")}extractTitleImpl(e){return e.querySelector(".novel-desc h1")}findChapterTitle(e){return e.querySelector(".novel-content h2")}extractAuthor(e){let t=[...e.querySelectorAll(".novel-desc a[href*='/author']")].map(e=>e.textContent.trim());return 0===t.length?super.extractAuthor(e):t.join(", ")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,".novel-ins, sub"),super.removeUnwantedElementsFromContentElement(e)}findCoverImageUrl(e){return e.querySelector(".novel-cover [style*=background-image]").dataset.src}getInformationEpubItemChildNodes(e){return[e.querySelector(".details-section dd")]}extractSubject(e){return[...e.querySelectorAll(".details-tags li")].map(e=>e.textContent.trim()).join(", ")}}
+"use strict";
+
+parserFactory.register("panda-novel.com", () => new PandaNovelParser());
+parserFactory.register("pandasnovel.com", () => new PandaNovelParser());
+parserFactory.register("www.lightsnovel.com", () => new PandaNovelParser());
+
+class PandaNovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let chapters = [];
+        let urlsOfTocPages = PandaNovelParser.getUrlsOfTocPages(dom);
+        let baseUrl = new URL(dom.baseURI).origin;
+        for (let url of urlsOfTocPages) {
+            await this.rateLimitDelay();
+            let jsonContent = (await HttpClient.fetchJson(url)).json;
+            let partialList = PandaNovelParser.extractPartialChapterList(jsonContent.data.list, baseUrl);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
+    }
+
+    static getUrlsOfTocPages(dom) {
+        let pageIds = [...dom.querySelectorAll("ul.pagination li a")]
+            .filter(a => a.text)
+            .map(a => parseInt(a.text.trim()));
+        pageIds.concat(1);
+        let maxPage = Math.max(...pageIds);
+        let baseUrl = new URL(dom.baseURI).origin;
+        let bookId = parseInt(dom.baseURI.split("-").pop());
+        let urls = [];
+        for (let i = 1; i <= maxPage; ++i) {
+            urls.push(baseUrl + "/api/book/chapters/" + bookId + "/" + i);
+        }
+        return urls;
+    }
+
+    static extractPartialChapterList(jsonContent, baseUrl) {
+        return jsonContent.map(data => ({
+            sourceUrl: baseUrl + data.chapterUrl,
+            title: data.name.trim()
+        }));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#novelArticle2");
+    }
+
+    customRawDomToContentStep(webPage, content) {
+        let html = this.getRealContent(webPage, content);
+        html = html.replaceAll(/<br><br>|<\/p><p>/g, "</p>\n<p>").replaceAll(/(?<!\n)<p>/g, "\n<p>");
+        util.parseHtmlAndInsertIntoContent(html, content);
+        util.removeChildElementsMatchingSelector(content, "ins");
+    }
+
+    getRealContent(webPage, content) {
+        let startString = "_pageParameter['contents'] =";
+        let scriptElement = [...webPage.rawDom.querySelectorAll("script")]
+            .map(s => s.textContent.trim())
+            .filter(s => s.includes(startString));
+        if (0 === scriptElement.length) {
+            return "\n<p>" + content.innerHTML + "</p>";
+        }
+        let temp = scriptElement[0];
+        let start = temp.indexOf("\"");
+        let end = temp.lastIndexOf("\"");
+        temp = this.addMissingPTag(temp.substring(start + 1, end));
+        temp = "{\"a\": \"" +  temp + "\"}";
+        let temp2 = JSON.parse(temp);
+        return temp2.a;
+    }
+
+    addMissingPTag(html) {
+        let addStartTag = (s) => s.trim().startsWith("<p>")
+            ? s
+            : "<p>" + s;
+        let paragraphs = html.split("<\\/p>")
+            .map(addStartTag);
+        return paragraphs.join("<\\/p>");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".novel-desc h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".novel-content h2");
+    }
+
+    extractAuthor(dom) {
+        //Note: In "a[href*='/author']" forward slash is required
+        let authorLabel = [...dom.querySelectorAll(".novel-desc a[href*='/author']")].map(x => x.textContent.trim());
+        return (authorLabel.length === 0) ? super.extractAuthor(dom) : authorLabel.join(", ");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, ".novel-ins, sub");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findCoverImageUrl(dom) {
+        return dom.querySelector(".novel-cover [style*=background-image]").dataset.src;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [dom.querySelector(".details-section dd")];
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll(".details-tags li")];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+}

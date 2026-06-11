@@ -1,1 +1,59 @@
-"use strict";parserFactory.register("hentai-foundry.com",()=>new HentaiFoundryParser);class HentaiFoundryParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("#yw0");return"storiesView"===t.className?[]:"galleryView"===t.className?this.selectChapterUrls(t,"div.thumbTitle a"):this.selectChapterUrls(t,"div.boxbody a")}async selectChapterUrls(e,t){return[...e.querySelectorAll(t)].map(e=>util.hyperLinkToChapter(e))}findContent(e){let t=e.querySelector("section#viewChapter div.boxbody");return null===t&&(t=e.querySelector("section#picBox div.boxbody")),t}extractTitleImpl(e){return e.querySelector("h1.titleSemantic")}extractAuthor(e){let t=null,r=[...e.querySelectorAll("td.storyInfo span.label")].filter(e=>"Author"===e.textContent.trim());return 0<r.length&&(t=r[0].parentElement.querySelector("a")),null===t?super.extractAuthor(e):t.textContent}findChapterTitle(e){return e.querySelector("h1.titleSemantic")}getInformationEpubItemChildNodes(e){let t=e.querySelector("td.storyDescript");util.removeChildElementsMatchingSelector(t,"div");let r=e.createElement("table");return r.appendChild(t.cloneNode(!0)),[r]}}
+"use strict";
+
+parserFactory.register("hentai-foundry.com", () => new HentaiFoundryParser());
+
+class HentaiFoundryParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let content = dom.querySelector("#yw0");
+        if (content.className === "storiesView") {
+            return [];
+        } else if (content.className === "galleryView") {
+            return this.selectChapterUrls(content, "div.thumbTitle a");
+        } else {
+            return this.selectChapterUrls(content, "div.boxbody a");
+        }
+    }
+
+    async selectChapterUrls(content, linkSelector) {
+        return [...content.querySelectorAll(linkSelector)]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector("section#viewChapter div.boxbody");
+        if (content === null) {
+            content = dom.querySelector("section#picBox div.boxbody");
+        }
+        return content;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.titleSemantic");
+    }
+
+    extractAuthor(dom) {
+        let author = null;
+        let label = [...dom.querySelectorAll("td.storyInfo span.label")]
+            .filter(l => l.textContent.trim() === "Author");
+        if (0 < label.length) {
+            author = label[0].parentElement.querySelector("a");
+        }
+        return (author === null) ? super.extractAuthor(dom) : author.textContent;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.titleSemantic");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let desc = dom.querySelector("td.storyDescript");
+        util.removeChildElementsMatchingSelector(desc, "div");
+        let info = dom.createElement("table");
+        info.appendChild(desc.cloneNode(true));
+        return [info];
+    }
+}

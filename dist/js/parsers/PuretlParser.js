@@ -1,1 +1,31 @@
-"use strict";parserFactory.register("puretl.com",()=>new PuretlParser);class PuretlParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("ul.accordion-items-container")||e.querySelector("ul.archive-group-list");return util.hyperlinksToChapterList(t)}findContent(e){return[...e.querySelectorAll("div.sqs-html-content")][1]}extractTitleImpl(e){return e.querySelector(".content .sqs-html-content p")}findChapterTitle(e){return e.querySelector("h1")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".content .sqs-html-content")]}}
+"use strict";
+
+parserFactory.register("puretl.com", () => new PuretlParser());
+
+class PuretlParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.accordion-items-container")
+            || dom.querySelector("ul.archive-group-list");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return [...dom.querySelectorAll("div.sqs-html-content")][1];
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".content .sqs-html-content p");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".content .sqs-html-content")];
+    }
+}

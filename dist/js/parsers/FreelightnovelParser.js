@@ -1,1 +1,70 @@
-"use strict";parserFactory.register("freelightnovel.net",()=>new FreelightnovelParser),parserFactory.register("freelightnovel.com",()=>new FreelightnovelParser),parserFactory.register("m.freelightnovel.net",()=>new MFreelightnovelParser);class FreelightnovelParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div#list a")].filter(e=>"newchapter"!==e.parentNode.parentNode.id).map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("#content")}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return[...e.querySelectorAll(".con_top a")].pop()?.textContent??null}findCoverImageUrl(e){return util.getFirstImgSrc(e,"#fmimg")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("#intro")]}}class MFreelightnovelParser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("ul#chapterlist");return util.hyperlinksToChapterList(r)}findContent(e){return e.querySelector("#BookText")}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return e.querySelector("p.title")?.textContent??null}findCoverImageUrl(e){return util.getFirstImgSrc(e,".baseinfo")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".intro")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("freelightnovel.net", () => new FreelightnovelParser());
+parserFactory.register("freelightnovel.com", () => new FreelightnovelParser());
+//dead url
+parserFactory.register("m.freelightnovel.net", () => new MFreelightnovelParser());
+
+class FreelightnovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div#list a")]
+            .filter(a => a.parentNode.parentNode.id !== "newchapter")
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return [...dom.querySelectorAll(".con_top a")].pop()?.textContent ?? null;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "#fmimg");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("#intro")];
+    }
+}
+
+class MFreelightnovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul#chapterlist");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#BookText");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("p.title")?.textContent ?? null;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".baseinfo");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".intro")];
+    }
+}

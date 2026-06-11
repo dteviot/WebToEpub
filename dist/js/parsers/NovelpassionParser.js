@@ -1,1 +1,47 @@
-"use strict";parserFactory.register("novelpassion.com",()=>new NovelpassionParser);class NovelpassionParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("li a")].map(this.linkToChapter).filter(e=>null!==e).reverse()}linkToChapter(e){let r=e.querySelector(".sp1");return null===r?null:{sourceUrl:e.href,title:r.innerText.trim()}}findContent(e){return e.querySelector("div#c_ct")}extractTitleImpl(e){return e.querySelector("div.psn h2")}findChapterTitle(e){return e.querySelector("h2.dac").textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"i.g_thumb")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.g_txt_over")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("novelpassion.com", () => new NovelpassionParser());
+
+class NovelpassionParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("li a")]
+            .map(this.linkToChapter)
+            .filter(s => s !== null)
+            .reverse();
+    }
+
+    linkToChapter(link) {
+        let title = link.querySelector(".sp1");
+        return title === null
+            ? null
+            : ({
+                sourceUrl:  link.href,
+                title: title.innerText.trim()
+            });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#c_ct");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.psn h2");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h2.dac").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "i.g_thumb");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.g_txt_over")];
+    }
+}

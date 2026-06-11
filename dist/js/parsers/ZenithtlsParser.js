@@ -1,1 +1,148 @@
-"use strict";parserFactory.register("zenithtls.com",()=>new ZenithtlsParser);class ZenithtlsParser extends Parser{constructor(){super()}async getChapterUrls(t){let e=t.baseURI.split("/"),r=e[e.length-1];return r=r.replace(/#google_vignette.*$/,""),(await HttpClient.fetchJson("https://www.zenithtls.com/api/chapter?novelId="+r+"&limit=0&page=1")).json.chapters.map(t=>({sourceUrl:"https://www.zenithtls.com/chapter/"+t.id,title:t.title,isIncludeable:0==t.price||null==t.price}))}async loadEpubMetaInfo(t){let e=t.baseURI.split("/"),r=e[e.length-1],l=(await HttpClient.fetchJson("https://www.zenithtls.com/api/novels/"+r)).json;this.title=l?.title,this.author=l?.translator?.username,this.tags=l?.tags,this.description=l?.synopsis,this.img=null!=l?.cover?.url?"https://www.zenithtls.com/"+l?.cover?.url:""}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(){return null!=this.title?this.title:""}extractAuthor(){return null!=this.author?this.author:""}extractSubject(){return this.tags.join(", ")}extractDescription(){return null!=this.description?this.description.trim():""}findCoverImageUrl(){return this.img}async fetchChapter(t){let e=[...(await HttpClient.wrapFetch(t)).responseXML.querySelectorAll("script")].map(t=>t.textContent).filter(t=>t.includes("self.__next_f.push(")),r=[],l=0,n=0,s=0,a=0;for(;n<e.length;){try{r[l]=this.parseNextjsHydration(e[n]),l++,e[n].length>a&&(a=e[n].length,s=l-1)}catch(t){}n++}if("backslash"==r[s].webtoepubformat){r[s].title="";for(let e of r)try{r[s].title=e.chapter.title.trim()}catch(t){}}return this.buildChapter(r[s],t)}parseNextjsHydration(t){let e,r=t.match(/{.*}/s);if(null==r){r=t.match(/\[.*\]/s);let l=r[0];e=JSON.parse(l),e.webtoepubformat="backslash"}else{let t=r[0];t=t.replaceAll('\\\\\\"','[webtoepubescape"]'),t=t.replaceAll("\\",""),t=t.replaceAll('[webtoepubescape"]','\\"'),e=JSON.parse(t),e.webtoepubformat="array"}return e}buildChapter(t,e){let r=Parser.makeEmptyDocForContent(e),l=r.dom.createElement("h1"),n=r.dom.createElement("br");if("backslash"==t.webtoepubformat){l.textContent=t.title,r.content.appendChild(l);let e=t[t[0]];e=e.replaceAll("\n\n","\n"),e=e.split("\n");for(let l of e){let e=r.dom.createElement("p");l!=t.title&&(e.textContent=l,r.content.appendChild(e)),r.content.appendChild(n)}}else{l.textContent=t.chapter.title,r.content.appendChild(l);let e=t.chapter.content.root.children.filter(t=>null!=t.direction);for(let t of e){let e="";t.children.map(t=>e+=t.text);let l=r.dom.createElement("p");l.textContent=e,r.content.appendChild(l),r.content.appendChild(n)}}return r.dom}}
+"use strict";
+
+parserFactory.register("zenithtls.com", () => new ZenithtlsParser());
+
+class ZenithtlsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let leaves = dom.baseURI.split("/");
+        let id = leaves[leaves.length - 1];
+        id = id.replace(/#google_vignette.*$/,"");
+        let chapters = (await HttpClient.fetchJson("https://www.zenithtls.com/api/chapter?novelId="+id+"&limit=0&page=1")).json;
+        return chapters.chapters.map(a => ({
+            sourceUrl: "https://www.zenithtls.com/chapter/" + a.id, 
+            title: a.title, 
+            isIncludeable: (a.price==0||a.price==null)
+        }));
+    }
+    
+    async loadEpubMetaInfo(dom) {
+        let leaves = dom.baseURI.split("/");
+        let id = leaves[leaves.length - 1];
+        let bookinfo = (await HttpClient.fetchJson("https://www.zenithtls.com/api/novels/" + id)).json;
+        this.title = bookinfo?.title;
+        this.author = bookinfo?.translator?.username;
+        this.tags = bookinfo?.tags;
+        this.description = bookinfo?.synopsis;
+        this.img = (bookinfo?.cover?.url!=null)?"https://www.zenithtls.com/"+bookinfo?.cover?.url:"";
+        return;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl() {
+        return (this.title!=null)?this.title:"";
+    }
+
+    extractAuthor() {
+        return (this.author!=null)?this.author:"";
+    }
+
+    extractSubject() {
+        let tags = this.tags;
+        return tags.join(", ");
+    }
+
+    extractDescription() {
+        return (this.description!=null)?this.description.trim():"";
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+    
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let startString = "self.__next_f.push(";
+        let scriptElement = [...dom.querySelectorAll("script")].map(a => a.textContent).filter(s => s.includes(startString));
+        let json = [];
+        let i = 0;
+        let j = 0;
+        let longestindex = 0;
+        let longestcontent = 0;
+        //search longest content to build chapter
+        while ( j < scriptElement.length) {
+            try {
+                json[i] = this.parseNextjsHydration(scriptElement[j]);
+                i++;
+                if (scriptElement[j].length > longestcontent) {
+                    longestcontent = scriptElement[j].length;
+                    longestindex = i-1;
+                }
+            } catch (error) {
+                //catch maleformed json
+            }
+            j++;
+        }
+        if (json[longestindex].webtoepubformat == "backslash") {
+            json[longestindex].title = "";
+            for (let jsonentry of json) {
+                try {
+                    json[longestindex].title = jsonentry.chapter.title.trim();
+                } catch (error) {
+                    //set title
+                }
+            }
+        }
+        return this.buildChapter(json[longestindex], url);
+    }
+
+    parseNextjsHydration(nextjs) {
+        let malformedjson = nextjs.match(/{.*}/s);
+        let json;
+        if (malformedjson == null) {
+            malformedjson = nextjs.match(/\[.*\]/s);
+            let ret = malformedjson[0];
+            json = JSON.parse(ret);
+            json.webtoepubformat = "backslash";
+        } else {
+            let ret = malformedjson[0];
+            ret = ret.replaceAll("\\\\\\\"", "[webtoepubescape\"]");
+            ret = ret.replaceAll("\\", "");
+            ret = ret.replaceAll("[webtoepubescape\"]","\\\"");
+            json = JSON.parse(ret);
+            json.webtoepubformat = "array";
+        }
+        return json;
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        let br = newDoc.dom.createElement("br");
+        if (json.webtoepubformat == "backslash") {
+            title.textContent = json.title;
+            newDoc.content.appendChild(title);
+            let text = json[json[0]];
+            text = text.replaceAll("\n\n", "\n");
+            text = text.split("\n");
+            for (let element of text) {
+                let pnode = newDoc.dom.createElement("p");
+                //filter title
+                if (element != json.title) {
+                    pnode.textContent = element;
+                    newDoc.content.appendChild(pnode);
+                }
+                newDoc.content.appendChild(br);
+            }
+        } else {
+            title.textContent = json.chapter.title;
+            newDoc.content.appendChild(title);
+            let textleaves = json.chapter.content.root.children.filter(a => a.direction!=null);
+            for (let element of textleaves) {
+                let newtext = "";
+                element.children.map(a => newtext += a.text);
+                let pnode = newDoc.dom.createElement("p");
+                pnode.textContent = newtext;
+                newDoc.content.appendChild(pnode);
+                newDoc.content.appendChild(br);
+            }
+        }
+        return newDoc.dom;
+    }
+}

@@ -1,1 +1,121 @@
-"use strict";parserFactory.register("novelebook.com",()=>new NovelebookParser);class NovelebookParser extends Parser{constructor(){super()}async getChapterUrls(e,t){return this.getChapterUrlsFromMultipleTocPages(e,this.extractPartialChapterList,this.getUrlsOfTocPages,t)}getUrlsOfTocPages(e){let t=[],r=e.querySelector(".pagination-wg .page-number"),s=0;if(r&&(s=parseInt(r.getAttribute("data-max")||"0")),0===s){let t=[...e.querySelectorAll(".pagination-wg .pagination li a")];for(let r of t)try{let t=new URL(r.href,e.baseURI),a=parseInt(t.searchParams.get("page")||"0");a>s&&(s=a)}catch(e){}}if(s>0){let r=e.baseURI.split("?")[0];for(let e=1;e<=s;++e)t.push(`${r}?page=${e}`)}return t}extractPartialChapterList(e){let t=[...e.querySelectorAll(".chapters-table a[ord]")];return t.sort((e,t)=>parseInt(e.getAttribute("ord")||"0")-parseInt(t.getAttribute("ord")||"0")),t.map(e=>util.hyperLinkToChapter(e))}findContent(e){let t=e.querySelector(".readerbody-wg");return t&&this.deobfuscateContent(t,e),t}findChapterTitle(e){return e.querySelector("h2.chapter-title")?.textContent||super.findChapterTitle(e)}extractTitleImpl(e){return e.querySelector("h1.book-title")||super.extractTitleImpl(e)}deobfuscateContent(e,t){let r=[...t.querySelectorAll("style")],s=new Map,a=new Map,l=/p\.(\w+)::before\s*\{\s*content\s*:\s*attr\s*\(\s*(\w+)\s*\)\s*\}/g,o=/p\.(\w+)::after\s*\{\s*content\s*:\s*attr\s*\(\s*(\w+)\s*\)\s*\}/g;for(let e of r){let t,r=e.textContent;for(;null!==(t=l.exec(r));)s.set(t[1],t[2]);for(;null!==(t=o.exec(r));)a.set(t[1],t[2])}let n=[...e.querySelectorAll("p")];for(let e of n){let t=e.className.split(/\s+/),r="",l="";for(let o of t){let t=s.get(o),n=a.get(o);t&&(r+=e.getAttribute(t)||""),n&&(l=(e.getAttribute(n)||"")+l)}(r||l)&&(e.textContent=r+e.textContent+l)}}}
+"use strict";
+
+parserFactory.register("novelebook.com", () => new NovelebookParser());
+
+class NovelebookParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return this.getChapterUrlsFromMultipleTocPages(dom,
+            this.extractPartialChapterList,
+            this.getUrlsOfTocPages,
+            chapterUrlsUI
+        );
+    }
+
+    getUrlsOfTocPages(dom) {
+        let urls = [];
+        let pageNumberInput = dom.querySelector(".pagination-wg .page-number");
+        let maxPage = 0;
+        if (pageNumberInput) {
+            maxPage = parseInt(pageNumberInput.getAttribute("data-max") || "0");
+        }
+
+        if (maxPage === 0) {
+            // Fallback to searching all links
+            let links = [...dom.querySelectorAll(".pagination-wg .pagination li a")];
+            for (let link of links) {
+                try {
+                    let url = new URL(link.href, dom.baseURI);
+                    let page = parseInt(url.searchParams.get("page") || "0");
+                    if (page > maxPage) maxPage = page;
+                } catch (e) { }
+            }
+        }
+
+        if (maxPage > 0) {
+            let baseUrl = dom.baseURI.split("?")[0];
+            for (let i = 1; i <= maxPage; ++i) {
+                urls.push(`${baseUrl}?page=${i}`);
+            }
+        }
+        return urls;
+    }
+
+    extractPartialChapterList(dom) {
+        let links = [...dom.querySelectorAll(".chapters-table a[ord]")];
+        // Sort by the 'ord' attribute to fix columnar layout
+        links.sort((a, b) => {
+            let ordA = parseInt(a.getAttribute("ord") || "0");
+            let ordB = parseInt(b.getAttribute("ord") || "0");
+            return ordA - ordB;
+        });
+        return links.map(link => util.hyperLinkToChapter(link));
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector(".readerbody-wg");
+        if (content) {
+            this.deobfuscateContent(content, dom);
+        }
+        return content;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h2.chapter-title")?.textContent || super.findChapterTitle(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.book-title") || super.extractTitleImpl(dom);
+    }
+
+    deobfuscateContent(container, dom) {
+        // Parse the style block to find pseudo-element mappings
+        // The style block usually contains rules like:
+        // p.bikwyyxv::before{content:attr(imgazobf)}
+        // p.bikwyyxv::after{content:attr(fzaaelim)}
+        let styleBlocks = [...dom.querySelectorAll("style")];
+        let beforeMap = new Map(); // class -> attrName
+        let afterMap = new Map();  // class -> attrName
+
+        let beforeRegex = /p\.(\w+)::before\s*\{\s*content\s*:\s*attr\s*\(\s*(\w+)\s*\)\s*\}/g;
+        let afterRegex = /p\.(\w+)::after\s*\{\s*content\s*:\s*attr\s*\(\s*(\w+)\s*\)\s*\}/g;
+
+        for (let style of styleBlocks) {
+            let text = style.textContent;
+            let match;
+            while ((match = beforeRegex.exec(text)) !== null) {
+                beforeMap.set(match[1], match[2]);
+            }
+            while ((match = afterRegex.exec(text)) !== null) {
+                afterMap.set(match[1], match[2]);
+            }
+        }
+
+        // Apply de-obfuscation to each <p> tag
+        let paragraphs = [...container.querySelectorAll("p")];
+        for (let p of paragraphs) {
+            // Some paragraphs might have multiple classes
+            let classes = p.className.split(/\s+/);
+            let beforeText = "";
+            let afterText = "";
+
+            for (let cls of classes) {
+                let beforeAttr = beforeMap.get(cls);
+                let afterAttr = afterMap.get(cls);
+                if (beforeAttr) {
+                    beforeText += (p.getAttribute(beforeAttr) || "");
+                }
+                if (afterAttr) {
+                    afterText = (p.getAttribute(afterAttr) || "") + afterText;
+                }
+            }
+
+            if (beforeText || afterText) {
+                p.textContent = beforeText + p.textContent + afterText;
+            }
+        }
+    }
+}

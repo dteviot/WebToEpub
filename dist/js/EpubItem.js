@@ -1,1 +1,334 @@
-"use strict";class EpubItem{constructor(e){this.sourceUrl=e,this.isInSpine=!0,this.chapterTitle=null}setIndex(e){this.index=e}getZipHref(){return util.makeStorageFileName("OEBPS/Text/",this.index,this.chapterTitle,"xhtml")}getId(){return"xhtml"+util.zeroPad(this.index)}getMediaType(){return"application/xhtml+xml"}hasSvg(){if(null!=this.nodes)for(let e of this.nodes)if(e.nodeType===Node.ELEMENT_NODE&&null!==e.querySelector("svg"))return!0;return!1}fileContentForEpub(e,t){let i=util.xmlToString(this.makeChapterDoc(e)),r=t(i);if(r){let e=UIText.Error.convertToXhtmlWarning(this.chapterTitle,this.sourceUrl,r);ErrorLog.log(e)}return i}packInEpub(e,t,i){let r=this.fileContentForEpub(t,i);e.add(this.getZipHref(),new zip.TextReader(r))}makeChapterDoc(e){let t=e(),i=t.getElementsByTagName("body")[0];for(let e of this.nodes){let t=util.sanitizeNode(e);t&&i.appendChild(t)}return this.populateTitle(t,i),delete this.nodes,t}populateTitle(e,t){let i=e.querySelector("title"),r=t.querySelector("h1");util.isNullOrEmpty(i.textContent)&&null!==r&&(i.textContent=r.textContent)}tagNameToTocDepth(e){return e[1]-"1"}*chapterInfo(){for(let e of this.nodes)util.isHeaderTag(e)&&(yield{depth:this.tagNameToTocDepth(e.tagName),title:e.textContent,src:this.getZipHref()})}getHyperlinks(){let e=[];for(let t of this.nodes)if(t.nodeType===Node.ELEMENT_NODE){"a"===t.tagName.toLowerCase()&&e.push(t);for(let i of t.querySelectorAll("a"))e.push(i)}return e}}class ChapterEpubItem extends EpubItem{constructor(e,t,i){super(e.sourceUrl),super.setIndex(i),this.nodes=Array.from(t.childNodes),this.chapterTitle=e.title,this.newArc=e.newArc}*chapterInfo(){null!==this.newArc&&void 0!==this.newArc&&(yield{depth:0,title:this.newArc,src:this.getZipHref()}),void 0!==this.chapterTitle&&(yield{depth:1,title:this.chapterTitle,src:this.getZipHref()})}}class ImageInfo extends EpubItem{constructor(e,t,i,r){super(i),super.index=t,super.isInSpine=!1,this.wrappingUrl=e,this.mediaType="image/jpeg",this.isCover=!1,this.isOutsideGallery=!1,this.arraybuffer=null,this.height=null,this.width=null,this.dataOrigFileUrl=r,this.queuedForFetch=!1}getZipHref(){let e=util.getDefaultExtensionByMime(this.mediaType)||this.findImageSuffix(this.wrappingUrl);return util.makeStorageFileName("OEBPS/Images/",this.index,this.getImageName(this.wrappingUrl),e)}getBase64(e){var t="",i=new Uint8Array(this.arraybuffer),r=i.byteLength;e>0&&(r=Math.min(r,e));for(var l=0;l<r;l++)t+=String.fromCharCode(i[l]);return window.btoa(t)}getId(){return this.isCover?"cover-image":"image"+util.zeroPad(this.index)}getMediaType(){return this.mediaType}packInEpub(e){e.add(this.getZipHref(),new zip.BlobReader(new Blob([this.arraybuffer])))}findImageSuffix(e){let t="",i=this.extractImageFileNameFromUrl(e);if(null!=i){let e=i.lastIndexOf(".");t=i.substring(e+1)}if(null==i){let e=this.mediaType.split("/");t=e[e.length-1],"svg+xml"===t&&(t="svg")}return t}extractImageFileNameFromUrl(e){let t=null;try{t=new URL(e)}catch(e){return}let i=(t.pathname+t.search).split(/=|&|:|\/|\?/).filter(e=>this.isImageFileNameCandidate(e));if(0<i.length)return i[i.length-1]}isImageFileNameCandidate(e){let t=e.toLowerCase();return 4<t.length&&-1!==t.indexOf(".")&&-1===t.indexOf(".html")&&-1===t.indexOf(".php")&&4<=t.length-t.lastIndexOf(".")}getImageName(e){if(e){let t=this.extractImageFileNameFromUrl(e);if(t)return t.split(/\./gi)[0]}}createImageElement(e){return this.isSvgImageUsedHere(e)?util.createSvgImageElement(this.getZipHref(),this.width,this.height,this.wrappingUrl,e.includeImageSourceUrl.value):this.createImgImageElement("div")}isSvgImageUsedHere(e){return e.useSvgForImages.value&&300<=this.width&&300<=this.height}createImgImageElement(e){let t=this.getZipHref(),i=this.wrappingUrl,r=util.createEmptyXhtmlDoc(),l=r.getElementsByTagName("body")[0],a=r.createElementNS(util.XMLNS,e);l.appendChild(a);let s=r.createElementNS(util.XMLNS,"img");return"span"===e&&(s.className="inline"),s.src=util.makeRelative(t),s.alt="",a.appendChild(s),a.appendChild(util.createComment(r,i)),a}*chapterInfo(){}}class FontInfo extends ImageInfo{constructor(e){super(),this.fontName=e}packInEpub(e){e.add("OEBPS/Fonts/"+this.fontName,new zip.BlobReader(new Blob([this.arraybuffer])))}}
+/*
+  An item (file) that will go into an EPUB
+  It has the following properties
+      type:  XHTML or image
+      sourceUrl: where the html came from
+      id:  the id value in the content.opf file
+
+      optional members:
+      nodes:  list of nodes that make up the content (if it's XHTML content)
+*/
+"use strict";
+
+class EpubItem {
+    constructor(sourceUrl) {
+        this.sourceUrl = sourceUrl;
+        this.isInSpine = true;
+        this.chapterTitle = null;
+    }
+
+    setIndex(index) {
+        this.index = index;
+    }
+
+    // name of the item in the zip.
+    getZipHref() {
+        return util.makeStorageFileName("OEBPS/Text/", this.index, this.chapterTitle, "xhtml");
+    }
+
+    getId() {
+        return "xhtml" + util.zeroPad(this.index);
+    }
+
+    getMediaType() {
+        return "application/xhtml+xml";
+    }
+
+    hasSvg() {
+        if (this.nodes != null) {
+            for (let n of this.nodes) {
+                if ((n.nodeType === Node.ELEMENT_NODE) &&
+                    (n.querySelector("svg") !== null)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    fileContentForEpub(emptyDocFactory, contentValidator) {
+        let xml = util.xmlToString(this.makeChapterDoc(emptyDocFactory));
+        let errorMessage = contentValidator(xml);
+        if (errorMessage) {
+            let errorMsg = UIText.Error.convertToXhtmlWarning(this.chapterTitle, this.sourceUrl, errorMessage);
+            ErrorLog.log(errorMsg);
+        }
+        return xml;
+    }
+
+    packInEpub(zipWriter, emptyDocFactory, contentValidator) {
+        let content = this.fileContentForEpub(emptyDocFactory, contentValidator);
+        zipWriter.add(this.getZipHref(), new zip.TextReader(content));
+    }
+
+    makeChapterDoc(emptyDocFactory) {
+        let doc = emptyDocFactory();
+        let body = doc.getElementsByTagName("body")[0];
+        for (let node of this.nodes) {
+            let clean = util.sanitizeNode(node);
+            if (clean) {
+                body.appendChild(clean);
+            }
+        }
+        this.populateTitle(doc, body);
+        delete(this.nodes);
+        return doc;
+    }
+
+    populateTitle(doc, body) {
+        let title = doc.querySelector("title");
+        let h1 = body.querySelector("h1");
+        if (util.isNullOrEmpty(title.textContent) && (h1 !== null)) {
+            title.textContent = h1.textContent;
+        }
+    }
+
+    // convert type of heading element to nesting depth on Table of Contents
+    // H1 = 0, H2 = 1, etc
+    tagNameToTocDepth(tagName) {
+        // ToDo: assert that tagName in range <h1> ... <h4>
+        return tagName[1] - "1";
+    }
+
+    *chapterInfo() {
+        for (let element of this.nodes) {
+            if (util.isHeaderTag(element)) {
+                yield {
+                    depth: this.tagNameToTocDepth(element.tagName),
+                    title: element.textContent,
+                    src: this.getZipHref()
+                };
+            }
+        }
+    }
+
+    getHyperlinks() {
+        let links = [];
+        for (let element of this.nodes) {
+            if (element.nodeType === Node.ELEMENT_NODE) {
+                if (element.tagName.toLowerCase() === "a") {
+                    links.push(element);
+                }
+                for (let link of element.querySelectorAll("a")) {
+                    links.push(link);
+                }
+            }
+        }
+        return links;
+    }
+}
+
+//==============================================================
+// Construct an Epub item from source where each chapter 
+// was a separate HTML file.
+class ChapterEpubItem extends EpubItem { // eslint-disable-line no-unused-vars
+    constructor(chapter, content, index) {
+        super(chapter.sourceUrl);
+        super.setIndex(index);
+        this.nodes = Array.from(content.childNodes);
+        this.chapterTitle = chapter.title;
+        this.newArc = chapter.newArc;
+    }
+
+    *chapterInfo() {
+        let isStartOfNewArc = ((this.newArc !== null) && (this.newArc !== undefined));
+        if (isStartOfNewArc) {
+            yield {
+                depth: 0,
+                title: this.newArc,
+                src: this.getZipHref()
+            };
+        }
+
+        if (typeof (this.chapterTitle) !== "undefined") {
+            yield {
+                depth: 1,
+                title: this.chapterTitle,
+                src: this.getZipHref()
+            };
+        }
+    }
+}
+
+//==============================================================
+/*
+    Details of an image in BakaTsuki web page
+    wrappingUrl :  URL of <a> tag that wraps the <img> (For Baka-Tsuki, is a web page that holds list of versions of the image)
+    sourceUrl : URL of actual image  (initially, image on page)
+    mediaType: jpeg, png, etc.
+    arrayBuffer: the image bytes
+    isCover :  use this as the cover image?
+    height: "full size" image height 
+    width: "full size" image width
+*/
+class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
+    constructor(wrappingUrl, index, sourceUrl, dataOrigFileUrl) {
+        super(sourceUrl);
+        super.index = index;
+        super.isInSpine = false;
+        this.wrappingUrl = wrappingUrl;
+        this.mediaType = "image/jpeg";
+        this.isCover = false;
+        this.isOutsideGallery = false;
+        this.arraybuffer = null;
+        this.height = null;
+        this.width = null;
+        this.dataOrigFileUrl = dataOrigFileUrl;
+        this.queuedForFetch = false;
+    }
+
+    getZipHref() {
+        let suffix = util.getDefaultExtensionByMime(this.mediaType) || this.findImageSuffix(this.wrappingUrl);
+        return util.makeStorageFileName("OEBPS/Images/", this.index, this.getImageName(this.wrappingUrl), suffix);
+    }
+
+    getBase64(maxLength) {
+        var binary = "";
+        var bytes = new Uint8Array(this.arraybuffer);
+        var len = bytes.byteLength;
+        if (maxLength > 0) len = Math.min(len, maxLength);
+        for (var i = 0; i < len; i++)
+        {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa( binary );
+    }
+
+    getId() {
+        if (this.isCover) {
+            return "cover-image";
+        } else {
+            return "image" + util.zeroPad(this.index);
+        }
+    }
+
+    getMediaType() {
+        return this.mediaType;
+    }
+
+    packInEpub(zipWriter) {
+        zipWriter.add(this.getZipHref(),
+            new zip.BlobReader(new Blob([this.arraybuffer])));
+    }
+
+    findImageSuffix(wrappingUrl) {
+        let suffix = "";
+        let fileName = this.extractImageFileNameFromUrl(wrappingUrl);
+        if (fileName != null) {
+            let index = fileName.lastIndexOf(".");
+            suffix = fileName.substring(index + 1);
+        }
+
+        // if can't find suffix from file, use the media type
+        if (fileName == null) {
+            let split = this.mediaType.split("/");
+            suffix = split[split.length - 1];
+
+            // special case
+            if (suffix === "svg+xml") {
+                suffix = "svg";
+            }
+        }
+        return suffix;
+    }
+
+    // assume image URL looks like one one of the following
+    // https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg
+    // https://www.baka-tsuki.org/project/thumb.php?f=HSDxD_v01_cover.gif&width=427
+    // https://www.baka-tsuki.org/project/images/7/76/HSDxD_v01_cover.jpg
+
+    // http://sonako.wikia.com/wiki/File:Date4_000c.png
+    // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest?cb=20140821053052
+    // http://vignette2.wikia.nocookie.net/sonako/images/d/db/Date4_000c.png/revision/latest/scale-to-width-down/332?cb=20140821053052
+    extractImageFileNameFromUrl(url) {
+        let parsedUrl = null;
+        try {
+            parsedUrl = new URL(url);
+        } catch (err) {
+            return undefined;
+        }
+
+        // examine pathname and query
+        let temp = parsedUrl.pathname + parsedUrl.search;
+        let fileNames = temp.split(/=|&|:|\/|\?/).filter(s => this.isImageFileNameCandidate(s));
+        if (0 < fileNames.length) {
+            return fileNames[fileNames.length - 1];
+        }
+    
+        // if get here, nothing found
+        return undefined;
+    }
+
+    // Crude. If string has '.' and is not a .php or .html, 
+    // and there's at least 3 characters after the '.'
+    // assume it's an image filename
+    isImageFileNameCandidate(candidate) {
+        let lowerString = candidate.toLowerCase();
+        return (4 < lowerString.length) &&
+            (lowerString.indexOf(".") !== -1) &&
+            (lowerString.indexOf(".html") === -1) &&
+            (lowerString.indexOf(".php") === -1) &&
+            (4 <= (lowerString.length - lowerString.lastIndexOf(".")));
+    }
+
+    getImageName(page) {
+        if (page) {
+            let name = this.extractImageFileNameFromUrl(page);
+            if (name) {
+                return name.split(/\./gi)[0];
+            }
+        }
+        // This is actually wise to do now.
+        return undefined;
+    }
+
+    createImageElement(userPreferences) {
+        if (this.isSvgImageUsedHere(userPreferences)) {
+            return util.createSvgImageElement(this.getZipHref(), this.width, this.height, 
+                this.wrappingUrl, userPreferences.includeImageSourceUrl.value);
+        } else {
+            return this.createImgImageElement("div");
+        }
+    }
+
+    isSvgImageUsedHere(userPreferences) {
+        const MIN_SVG_IMAGE_DIMENSION = 300;
+        return userPreferences.useSvgForImages.value &&
+            MIN_SVG_IMAGE_DIMENSION <= this.width &&
+            MIN_SVG_IMAGE_DIMENSION <= this.height;
+    }
+
+    createImgImageElement(wrappingTag) {
+        let src = this.getZipHref();
+        let origin = this.wrappingUrl;
+        let doc = util.createEmptyXhtmlDoc();
+        let body = doc.getElementsByTagName("body")[0];
+        let wrapper = doc.createElementNS(util.XMLNS, wrappingTag);
+        body.appendChild(wrapper);
+        let img = doc.createElementNS(util.XMLNS,"img");
+        if (wrappingTag === "span") {
+            img.className = "inline";
+        }
+        img.src = util.makeRelative(src);
+        img.alt = "";
+        wrapper.appendChild(img);
+        wrapper.appendChild(util.createComment(doc, origin));
+        return wrapper;
+    }
+
+    *chapterInfo() {
+        // images do not appear in table of contents
+    }
+}
+
+class FontInfo extends ImageInfo {
+    constructor(fontName) {
+        super();
+        this.fontName = fontName;
+    }
+
+    packInEpub(zipWriter) {
+        zipWriter.add("OEBPS/Fonts/"+this.fontName,
+            new zip.BlobReader(new Blob([this.arraybuffer])));
+    }
+}

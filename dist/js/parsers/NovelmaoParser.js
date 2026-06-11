@@ -1,1 +1,35 @@
-"use strict";parserFactory.register("novelmao.com",()=>new NovelmaoParser);class NovelmaoParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("ul.chapter-list");return util.removeChildElementsMatchingSelector(t,"span.time"),util.hyperlinksToChapterList(t).reverse()}findContent(e){return e.querySelector("article")}extractTitleImpl(e){return e.querySelector("h1.single-title")}removeUnwantedElementsFromContentElement(e){e.querySelector("div.entry-content").removeAttribute("[class]"),util.removeChildElementsMatchingSelector(e,"div.chapter-nav, p.china, div.snpconainer, amp-selector, div#popupreport"),super.removeUnwantedElementsFromContentElement(e)}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.info")]}}
+"use strict";
+
+parserFactory.register("novelmao.com", () => new NovelmaoParser());
+
+class NovelmaoParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.chapter-list");
+        util.removeChildElementsMatchingSelector(menu, "span.time");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("article");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.single-title");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        element.querySelector("div.entry-content").removeAttribute("[class]");
+        util.removeChildElementsMatchingSelector(element, "div.chapter-nav, " +
+            "p.china, div.snpconainer, amp-selector, div#popupreport"
+        );
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.info")];
+    }
+}

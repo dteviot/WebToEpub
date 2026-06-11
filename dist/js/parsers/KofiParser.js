@@ -1,1 +1,231 @@
-"use strict";console.log("[WebToEpub] KofiParser v4.1 Loaded (Fast Discovery)"),parserFactory.register("ko-fi.com",()=>new KofiParser),parserFactory.registerManualSelect("Ko-fi",()=>new KofiParser);class KofiParser extends Parser{constructor(){super(),this.minimumThrottle=3e3}_collectLinks(e){let t=[];if(!e||!e.querySelectorAll)return t;for(let r of e.querySelectorAll("a")){let e=r.getAttribute("href")||"",o=r.textContent.trim()||r.getAttribute("title")||"";t.push({hrefRaw:e,text:o})}for(let r of e.querySelectorAll("*"))r.shadowRoot&&t.push(...this._collectLinks(r.shadowRoot));for(let r of e.querySelectorAll("template[shadowrootmode]"))r.content&&t.push(...this._collectLinks(r.content));return t}async getChapterUrls(e){console.log("[WebToEpub] getChapterUrls: Starting Discovery Process...");let t=this.state.chapterListUrl||e.baseURI;"undefined"!=typeof HttpClient&&HttpClient.unproxyUrl&&(t=HttpClient.unproxyUrl(t));let r=[],o=new Set,l=util.normalizeUrlForCompare(t);o.add(l),r.push({sourceUrl:t,title:this.extractTitle(e)});try{console.log("[WebToEpub] Phase 1: Local DOM Sweep...");let l=this._collectLinks(e);for(let{hrefRaw:e,text:s}of l)this._processLink(e,s,t,r,o)}catch(e){console.error("[WebToEpub] Local Extraction Error:",e)}try{console.log("[WebToEpub] Phase 2: Recursive History Crawl (This may take a moment)..."),await this._recursiveCrawl(e,t,r,o)}catch(e){console.error("[WebToEpub] Crawler Error:",e)}return console.log(`[WebToEpub] Discovery Complete. Found ${r.length} chapters.`),r}_processLink(e,t,r,o,l){if(e&&!e.startsWith("#")&&!e.startsWith("javascript:"))try{let s=new URL(e,r),i=util.normalizeUrlForCompare(s.href);if(l.has(i))return;let n=s.pathname.toLowerCase(),a=s.hostname.toLowerCase();if(n.includes("/post/")||n.includes("/gallery/")||a.includes("ouo.io")||a.includes("bit.ly")||a.includes("tinyurl.com")){if(l.add(i),(t.length<2||/^(more|support|share|gallery|donate|home|close|settings)$/i.test(t))&&!/chapter|prev|next|older/i.test(t))return;o.push({sourceUrl:s.href,title:t||s.href})}}catch(e){}}async _recursiveCrawl(e,t,r,o){let l=e,s=t,i=0;for(;i<50;){i++;let t=this._findFirstOtherPost(l,s);if(!t)break;let n=util.normalizeUrlForCompare(t);if(o.has(n))break;console.log(`[WebToEpub] Crawling Chain Step ${i}: ${t}`);try{let e=await HttpClient.fetchHtml(t);if(!e){console.log("[WebToEpub] Empty response from proxy. Ending crawl.");break}o.add(n),r.push({sourceUrl:t,title:this.extractTitle(e)});let i=this._collectLinks(e);for(let{hrefRaw:e,text:l}of i)this._processLink(e,l,t,r,o);l=e,s=t}catch(e){console.error(`[WebToEpub] Step ${i} Failed:`,e.message);break}}}_findFirstOtherPost(e,t){let r=t.split("/").pop(),o=this._collectLinks(e);for(let{hrefRaw:e,text:l}of o)if(e.includes("/post/")&&!e.includes(r)&&/prev|older|previous/i.test(l))return new URL(e,t).href;for(let{hrefRaw:e}of o)if(e.includes("/post/")&&!e.includes(r))return new URL(e,t).href;return null}findContent(e){let t=this._scanScriptsForContent(e);if(t)return t;let r=e.querySelector(".article-host");if(r){if(r.shadowRoot)return r.shadowRoot.querySelector(".fr-view, .article-body")||r.shadowRoot;let e=r.querySelector("template[shadowrootmode]");if(e&&e.content)return e.content.querySelector(".fr-view, .article-body")||e.content}return e.querySelector(".article-body, #post-container, .post-content-container, .post-body, .p-post-content, article")||e.body}_scanScriptsForContent(e){for(let t of e.querySelectorAll("script")){const e=t.textContent;if(e.includes("article-body")||e.includes("shadowDom.innerHTML")){const t=e.match(/innerHTML\s*\+?=\s*['"](.*?)['"];/s)||e.match(/['"](<div class=".*?article-body.*?">.*?)['"];/s);if(t){let e=t[1].replace(/\\(['"/])/g,"$1").replace(/\\n/g,"\n").replace(/\\r/g,"");const r=(new DOMParser).parseFromString(`<div>${e}</div>`,"text/html"),o=r.querySelector(".article-body")||r.body.firstChild;if(o&&o.textContent.trim().length>50)return o}}}return null}extractTitleImpl(e){if("403 Forbidden"===e.title||"Just a moment..."===e.title)return"Blocked by Cloudflare (Use Active Tab)";let t=e.querySelector(".article-title h1, h1, .post-title, .breakall, title");return t?t.textContent.trim():super.extractTitleImpl(e)}extractAuthor(e){let t=e.querySelector(".nav-profile-title, .post-name-row a, a[href*='/home/profile'] span, .author-name");return t?t.textContent.trim():"Ko-fi Author"}findCoverImageUrl(e){return util.getFirstImgSrc(e,".article-image, .post-main-image, #post-container img, a.label-hires")}isCustomError(e){return!(!e||!e.title)&&("403 Forbidden"===e.title||"Just a moment..."===e.title||e.querySelector&&null!==e.querySelector("#challenge-running"))}setCustomErrorResponse(e,t,r){return{url:e,wrapOptions:t,response:r,errorMessage:`Blocked by Cloudflare on ${new URL(e).hostname}. Solve the captcha in the proxy tab then try again.`}}}
+"use strict";
+
+/*
+  KofiParser.js
+  Parser for Ko-fi posts and galleries
+  v4.1 - Fast Discovery Edition
+*/
+
+console.log("[WebToEpub] KofiParser v4.1 Loaded (Fast Discovery)");
+
+parserFactory.register("ko-fi.com", () => new KofiParser());
+parserFactory.registerManualSelect("Ko-fi", () => new KofiParser());
+
+class KofiParser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
+    }
+
+    _collectLinks(root) {
+        let results = [];
+        if (!root || !root.querySelectorAll) return results;
+
+        for (let a of root.querySelectorAll("a")) {
+            let hrefRaw = a.getAttribute("href") || "";
+            let text = a.textContent.trim() || a.getAttribute("title") || "";
+            results.push({ hrefRaw, text });
+        }
+
+        for (let el of root.querySelectorAll("*")) {
+            if (el.shadowRoot) {
+                results.push(...this._collectLinks(el.shadowRoot));
+            }
+        }
+
+        for (let tmpl of root.querySelectorAll("template[shadowrootmode]")) {
+            if (tmpl.content) {
+                results.push(...this._collectLinks(tmpl.content));
+            }
+        }
+
+        return results;
+    }
+
+    async getChapterUrls(dom) {
+        console.log("[WebToEpub] getChapterUrls: Starting Discovery Process...");
+        let baseUrl = this.state.chapterListUrl || dom.baseURI;
+        if (typeof HttpClient !== "undefined" && HttpClient.unproxyUrl) {
+            baseUrl = HttpClient.unproxyUrl(baseUrl);
+        }
+
+        let chapters = [];
+        let seen = new Set();
+        let normalizedBase = util.normalizeUrlForCompare(baseUrl);
+        seen.add(normalizedBase);
+        
+        // Always add current page
+        chapters.push({ sourceUrl: baseUrl, title: this.extractTitle(dom) });
+
+        // Phase 1: Rapid Local Extraction
+        try {
+            console.log("[WebToEpub] Phase 1: Local DOM Sweep...");
+            let allLinks = this._collectLinks(dom);
+            for (let { hrefRaw, text } of allLinks) {
+                this._processLink(hrefRaw, text, baseUrl, chapters, seen);
+            }
+        } catch (e) {
+            console.error("[WebToEpub] Local Extraction Error:", e);
+        }
+
+        // Phase 2: Recursive Crawler (Matches user script logic)
+        // Note: This happens in the background of the analysis call
+        try {
+            console.log("[WebToEpub] Phase 2: Recursive History Crawl (This may take a moment)...");
+            await this._recursiveCrawl(dom, baseUrl, chapters, seen);
+        } catch (e) {
+            console.error("[WebToEpub] Crawler Error:", e);
+        }
+
+        console.log(`[WebToEpub] Discovery Complete. Found ${chapters.length} chapters.`);
+        return chapters;
+    }
+
+    _processLink(hrefRaw, text, baseUrl, chapters, seen) {
+        if (!hrefRaw || hrefRaw.startsWith("#") || hrefRaw.startsWith("javascript:")) return;
+        try {
+            let url = new URL(hrefRaw, baseUrl);
+            let normalized = util.normalizeUrlForCompare(url.href);
+            if (seen.has(normalized)) return;
+
+            let pathname = url.pathname.toLowerCase();
+            let hostname = url.hostname.toLowerCase();
+
+            if (pathname.includes("/post/") || pathname.includes("/gallery/") || 
+                hostname.includes("ouo.io") || hostname.includes("bit.ly") || hostname.includes("tinyurl.com")) {
+                
+                seen.add(normalized);
+                // Exclude generic navigation unless explicitly labeled
+                if (text.length < 2 || /^(more|support|share|gallery|donate|home|close|settings)$/i.test(text)) {
+                    if (!/chapter|prev|next|older/i.test(text)) return;
+                }
+                
+                chapters.push({ sourceUrl: url.href, title: text || url.href });
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    async _recursiveCrawl(dom, baseUrl, chapters, seen) {
+        let currentDom = dom;
+        let currentUrl = baseUrl;
+        let depth = 0;
+        const MAX_DEPTH = 50; // Follow up to 50 links deep
+
+        while (depth < MAX_DEPTH) {
+            depth++;
+            let nextUrl = this._findFirstOtherPost(currentDom, currentUrl);
+            if (!nextUrl) break;
+            
+            let normalized = util.normalizeUrlForCompare(nextUrl);
+            if (seen.has(normalized)) break;
+
+            console.log(`[WebToEpub] Crawling Chain Step ${depth}: ${nextUrl}`);
+            try {
+                // Using a slightly longer timeout for the proxy fetches
+                let nextDom = await HttpClient.fetchHtml(nextUrl);
+                if (!nextDom) {
+                    console.log("[WebToEpub] Empty response from proxy. Ending crawl.");
+                    break;
+                }
+                
+                seen.add(normalized);
+                chapters.push({
+                    sourceUrl: nextUrl,
+                    title: this.extractTitle(nextDom)
+                });
+
+                // On each new page, grab any links found in that page's DOM
+                let subLinks = this._collectLinks(nextDom);
+                for (let { hrefRaw, text } of subLinks) {
+                    this._processLink(hrefRaw, text, nextUrl, chapters, seen);
+                }
+
+                currentDom = nextDom;
+                currentUrl = nextUrl;
+            } catch (e) {
+                console.error(`[WebToEpub] Step ${depth} Failed:`, e.message);
+                break;
+            }
+        }
+    }
+
+    _findFirstOtherPost(dom, currentUrl) {
+        let currentSlug = currentUrl.split("/").pop();
+        let links = this._collectLinks(dom);
+        
+        // Priority 1: Navigation Buttons
+        for (let { hrefRaw, text } of links) {
+            if (hrefRaw.includes("/post/") && !hrefRaw.includes(currentSlug)) {
+                if (/prev|older|previous/i.test(text)) {
+                    return new URL(hrefRaw, currentUrl).href;
+                }
+            }
+        }
+        
+        // Priority 2: Any other post link found on the page (matches bash head -1)
+        for (let { hrefRaw } of links) {
+            if (hrefRaw.includes("/post/") && !hrefRaw.includes(currentSlug)) {
+                return new URL(hrefRaw, currentUrl).href;
+            }
+        }
+        
+        return null;
+    }
+
+    findContent(dom) {
+        let fromScripts = this._scanScriptsForContent(dom);
+        if (fromScripts) return fromScripts;
+
+        let articleHost = dom.querySelector(".article-host");
+        if (articleHost) {
+            if (articleHost.shadowRoot) return articleHost.shadowRoot.querySelector(".fr-view, .article-body") || articleHost.shadowRoot;
+            let tmpl = articleHost.querySelector("template[shadowrootmode]");
+            if (tmpl && tmpl.content) return tmpl.content.querySelector(".fr-view, .article-body") || tmpl.content;
+        }
+
+        return dom.querySelector(".article-body, #post-container, .post-content-container, .post-body, .p-post-content, article") || dom.body;
+    }
+
+    _scanScriptsForContent(dom) {
+        for (let script of dom.querySelectorAll("script")) {
+            const text = script.textContent;
+            if (text.includes("article-body") || text.includes("shadowDom.innerHTML")) {
+                const match = text.match(/innerHTML\s*\+?=\s*['"](.*?)['"];/s) || text.match(/['"](<div class=".*?article-body.*?">.*?)['"];/s);
+                if (match) {
+                    let html = match[1].replace(/\\(['"/])/g, "$1").replace(/\\n/g, "\n").replace(/\\r/g, "");
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+                    const content = doc.querySelector(".article-body") || doc.body.firstChild;
+                    if (content && content.textContent.trim().length > 50) return content;
+                }
+            }
+        }
+        return null;
+    }
+
+    extractTitleImpl(dom) {
+        if (dom.title === "403 Forbidden" || dom.title === "Just a moment...") return "Blocked by Cloudflare (Use Active Tab)";
+        let titleElement = dom.querySelector(".article-title h1, h1, .post-title, .breakall, title");
+        return titleElement ? titleElement.textContent.trim() : super.extractTitleImpl(dom);
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".nav-profile-title, .post-name-row a, a[href*='/home/profile'] span, .author-name");
+        return authorLabel ? authorLabel.textContent.trim() : "Ko-fi Author";
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".article-image, .post-main-image, #post-container img, a.label-hires");
+    }
+
+    isCustomError(ret) {
+        if (!ret || !ret.title) return false;
+        return ret.title === "403 Forbidden" || ret.title === "Just a moment..." || (ret.querySelector && ret.querySelector("#challenge-running") !== null);
+    }
+
+    setCustomErrorResponse(url, wrapOptions, ret) {
+        let hostname = new URL(url).hostname;
+        let errorMessage = `Blocked by Cloudflare on ${hostname}. Solve the captcha in the proxy tab then try again.`;
+        return { url, wrapOptions, response: ret, errorMessage };
+    }
+}

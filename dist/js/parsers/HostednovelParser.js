@@ -1,1 +1,87 @@
-"use strict";parserFactory.register("hostednovel.com",()=>new HostednovelParser);class HostednovelParser extends Parser{constructor(){super()}async getChapterUrls(e,t){let r=this.extractTocPageUrls(e),l=this.extractPartialChapterList(e);return(await this.getChaptersFromAllTocPages(l,this.extractPartialChapterList,r,t)).concat(this.chapterUrlsOnPage(e))}extractTocPageUrls(e){let t=e.querySelector("nav[aria-label='Pagination']");if(null===t)return[];let r=[],l=[...t.querySelectorAll("a")].pop();if(null!==l){let e=new URL(l.href),t=parseInt(e.searchParams.get("page"));for(let l=2;l<=t;++l)e.searchParams.set("page",l),r.push(e.href)}return r}extractPartialChapterList(e){return[...e.querySelectorAll("li.flow-root.my-1 a")].map(e=>({sourceUrl:e.href,title:HostednovelParser.formatTitle(e)}))}static formatTitle(e){let t=e.querySelector("div");return util.removeChildElementsMatchingSelector(t,"span, p"),t.textContent.trim()}chapterUrlsOnPage(e){return[...e.querySelectorAll(".chaptergroup a:not([rel])")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div.fontchanger")}populateUIImpl(){document.getElementById("removeAuthorNotesRow").hidden=!1}extractTitleImpl(e){let t=e.querySelector("h1");return util.removeChildElementsMatchingSelector(t,"a"),t}removeUnwantedElementsFromContentElement(e){this.tagAuthorNotesBySelector(e,"div.bg-light-200"),util.removeChildElementsMatchingSelector(e,"div.adbox"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("h1 span.fontchanger")}findCoverImageUrl(){return null}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".prose")]}}
+"use strict";
+
+parserFactory.register("hostednovel.com", () => new HostednovelParser());
+
+class HostednovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let urlsOfTocPages = this.extractTocPageUrls(dom);
+        let chapters = this.extractPartialChapterList(dom);
+        return (await this.getChaptersFromAllTocPages(chapters, 
+            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI))
+            .concat(this.chapterUrlsOnPage(dom));
+    }
+
+    extractTocPageUrls(dom) {
+        let pagination = dom.querySelector("nav[aria-label='Pagination']");
+        if (pagination === null) {
+            return [];
+        }
+        let urls = [];
+        let lastLink = [...pagination.querySelectorAll("a")].pop();
+        if (lastLink !== null) {
+            let url = new URL(lastLink.href);
+            let maxPage = parseInt(url.searchParams.get("page"));
+            for (let i = 2; i <= maxPage; ++i) {
+                url.searchParams.set("page", i);
+                urls.push(url.href);
+            }
+        }
+        return urls;
+    }
+
+    extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("li.flow-root.my-1 a")]
+            .map(a => ({
+                sourceUrl:  a.href,
+                title: HostednovelParser.formatTitle(a)
+            }));
+    }
+
+    static formatTitle(link) {
+        let div = link.querySelector("div");
+        util.removeChildElementsMatchingSelector(div, "span, p");
+        return div.textContent.trim();
+    }
+
+    chapterUrlsOnPage(dom) {
+        return [...dom.querySelectorAll(".chaptergroup a:not([rel])")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.fontchanger");
+    }
+
+    populateUIImpl() {
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
+    extractTitleImpl(dom) {
+        let link = dom.querySelector("h1");
+        util.removeChildElementsMatchingSelector(link, "a");
+        return link;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        this.tagAuthorNotesBySelector(element, "div.bg-light-200");
+        util.removeChildElementsMatchingSelector(element, "div.adbox");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1 span.fontchanger");
+    }
+
+    findCoverImageUrl() {
+        // CDN blocks attempt to fetch cover image
+        return null;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".prose")];
+    }
+}

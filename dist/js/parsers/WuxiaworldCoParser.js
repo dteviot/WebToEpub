@@ -1,1 +1,39 @@
-"use strict";parserFactory.register("wuxiaworld.co",()=>new WuxiaworldCoParser),parserFactory.register("m.wuxiaworld.co",()=>new WuxiaworldCoParser),parserFactory.register("novelupdates.cc",()=>new WuxiaworldCoParser);class WuxiaworldCoParser extends Parser{constructor(){super()}async getChapterUrls(r){let e=r.querySelector("ul.chapter-list");return util.hyperlinksToChapterList(e)}findContent(r){return r.querySelector("div.section-list")}extractTitleImpl(r){return r.querySelector("div.book-name")}extractAuthor(r){return r.querySelector("div.author span.name").textContent}findCoverImageUrl(r){return util.getFirstImgSrc(r,"div.book-img")}getInformationEpubItemChildNodes(r){return[...r.querySelectorAll("div.synopsis")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("wuxiaworld.co", () => new WuxiaworldCoParser());
+//dead url
+parserFactory.register("m.wuxiaworld.co", () => new WuxiaworldCoParser());
+//dead url
+parserFactory.register("novelupdates.cc", () => new WuxiaworldCoParser());
+
+class WuxiaworldCoParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let list = dom.querySelector("ul.chapter-list");
+        return util.hyperlinksToChapterList(list);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.section-list");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book-name");
+    }
+
+    extractAuthor(dom) {
+        return dom.querySelector("div.author span.name").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.book-img");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.synopsis")];
+    }
+}

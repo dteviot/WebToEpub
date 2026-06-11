@@ -1,1 +1,49 @@
-"use strict";parserFactory.register("wuxiaworld.eu",()=>new WuxiaworldeuParser),parserFactory.register("wuxia.click",()=>new WuxiaworldeuParser);class WuxiaworldeuParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=new URL(e.baseURI).host,r=e.baseURI.replace("/novel/","/api/chapters/")+"/";return(await HttpClient.fetchJson(r)).json.map(e=>this.toChapter(e,t))}toChapter(e,t){return{sourceUrl:`https://${t}/chapter/${e.novSlugChapSlug}`,title:e.title}}findContent(e){return e.querySelector("#chapterText")?.parentElement?.parentElement}extractTitleImpl(e){return e.querySelector("h5")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"div.mantine-Group-root, div.mantine-Container-root"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.mantine-Image-imageWrapper")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".mantine-Spoiler-root")]}}
+"use strict";
+
+parserFactory.register("wuxiaworld.eu", () => new WuxiaworldeuParser());
+parserFactory.register("wuxia.click", () => new WuxiaworldeuParser());
+
+class WuxiaworldeuParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let host = new URL(dom.baseURI).host;
+        let tocUrl = dom.baseURI.replace("/novel/", "/api/chapters/") + "/";
+        let json = (await HttpClient.fetchJson(tocUrl)).json;
+        return json.map(j => this.toChapter(j, host));
+    }
+
+    toChapter(json, host) {
+        return ({
+            sourceUrl:  `https://${host}/chapter/${json.novSlugChapSlug}`,
+            title: json.title
+        });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#chapterText")?.parentElement?.parentElement;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h5");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "div.mantine-Group-root, div.mantine-Container-root");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.mantine-Image-imageWrapper");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".mantine-Spoiler-root")];
+    }
+}

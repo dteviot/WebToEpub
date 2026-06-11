@@ -1,1 +1,188 @@
-"use strict";parserFactory.register("lanry.space",()=>new LanrySpaceParser);class LanrySpaceParser extends Parser{constructor(){super(),this.bookid=""}async getChapterUrls(t){let e=this.getSlug(t),r=await this.fetchBookinfo(t);this.bookid=r.id;let a=new Set;r.chapter_unlocks.map(t=>a.add(t.chapter_number));let n=Date.now(),l=[...r.chapters];return l=l.sort((t,e)=>(null==t.part_number?0:t.part_number)-(null==e.part_number?0:e.part_number)),l=l.sort((t,e)=>t.chapter_number-e.chapter_number),l=[...l.map(t=>({sourceUrl:this.sourceURL(t,e),title:this.chtitle(t),isIncludeable:null==t.publish_at||Date.parse(t.publish_at)<n}))],l}async fetchBookinfo(t){let e=this.getSlug(t);return(await HttpClient.fetchJson("https://vkgkhipasxqxitwlktwz.supabase.co/rest/v1/novels?select=*%2Cchapter_unlocks%21left%28chapter_number%2Cprofile_id%29%2Ccategories%3Acategories_on_novels%28category%3Acategory_id%28id%2Cname%2Ccreated_at%2Cupdated_at%29%29%2Ctags%3Atags_on_novels%21left%28novel_id%2Ctag_id%2Ccreated_at%2Ctag%3Atag_id%28id%2Cname%2Cdescription%29%29%2Cchapters%28id%2Ctitle%2Ccreated_at%2Cchapter_number%2Cpart_number%2Cpublish_at%2Ccoins%2Cvolume_id%2Cage_rating%29"+e+"&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ2toaXBhc3hxeGl0d2xrdHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMzE4MzMsImV4cCI6MjA0NTgwNzgzM30.mHBd2yrRm934yPGy4pui3p7cW4FxfIf6yxh7b2TpUA8")).json[0]}getSlug(t){let e=new RegExp("/novels/.+"),r="&slug=eq."+t.baseURI.match(e)?.[0].slice(8);return r.endsWith("/chapters")?r.substring(0,r.length-9):r}sourceURL(t,e){return null==t.part_number?"https://www.lanry.space/novels/"+e.replace("&slug=eq.","")+"/c"+t.chapter_number:"https://www.lanry.space/novels/"+e.replace("&slug=eq.","")+"/c"+t.chapter_number+"-p"+t.part_number}chtitle(t){let e=null==t.part_number?`Ch. ${t.chapter_number}`:`Ch. ${t.chapter_number}-${t.part_number}`;return""!=t.title?e+" "+t.title:e}async loadEpubMetaInfo(t){let e=await this.fetchBookinfo(t);this.title=e.title,this.author=e.author,this.tags=e.tags.map(t=>t.tag.name),this.tags=this.tags.concat(e.categories.map(t=>t.category.name)),this.description=e.description,this.img=e.cover_image_url}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(){return this.title}extractAuthor(){return this.author}extractSubject(){return this.tags.join(", ")}extractDescription(){return this.description.trim()}findCoverImageUrl(){return this.img}async fetchChapter(t){let e=[...(await HttpClient.wrapFetch(t)).responseXML.querySelectorAll("script")].map(t=>t.textContent).filter(t=>t.includes("self.__next_f.push(")),r=[],a=0,n=0,l=0,i=0;for(;n<e.length;){try{r[a]=this.parseNextjsHydration(e[n]),a++,e[n].length>i&&2==r[a-1].length&&(i=e[n].length,l=a-1)}catch(t){}n++}if("backslash"==r[l].webtoepubformat){r[l].title="";for(let e of r)try{r[l].title=e.chapter.title.trim()}catch(t){}}return this.buildChapter(r[l],t)}parseNextjsHydration(t){let e,r=t.match(/{.*}/s);if(null==r){r=t.match(/\[.*\]/s);let a=r[0];e=JSON.parse(a),e.webtoepubformat="backslash"}else{let t=r[0];t=t.replaceAll('\\\\\\"','[webtoepubescape"]'),t=t.replaceAll("\\",""),t=t.replaceAll('[webtoepubescape"]','\\"'),e=JSON.parse(t),e.webtoepubformat="array"}return e}buildChapter(t,e){let r=Parser.makeEmptyDocForContent(e),a=r.dom.createElement("h1"),n=r.dom.createElement("br");if("backslash"==t.webtoepubformat){a.textContent=t.title,r.content.appendChild(a);let e=t[t[0]];e=e.replaceAll("\n\n","\n"),e=e.split("\n");for(let a of e){let e=r.dom.createElement("p");a!=t.title&&(e.textContent=a,r.content.appendChild(e)),r.content.appendChild(n)}}else{a.textContent=t.chapter.title,r.content.appendChild(a);let e=t.chapter.content.root.children.filter(t=>null!=t.direction);for(let t of e){let e="";t.children.map(t=>e+=t.text);let a=r.dom.createElement("p");a.textContent=e,r.content.appendChild(a),r.content.appendChild(n)}}return r.dom}}
+"use strict";
+
+parserFactory.register("lanry.space", () => new LanrySpaceParser());
+
+class LanrySpaceParser extends Parser {
+    constructor() {
+        super();
+        this.bookid = "";
+    }
+
+    async getChapterUrls(dom) {
+        let slug = this.getSlug(dom);
+        let bookinfo = await this.fetchBookinfo(dom);
+        this.bookid = bookinfo.id;
+        let unlocked = new Set();
+        bookinfo.chapter_unlocks.map(a => unlocked.add(a.chapter_number));
+        let currenttime = Date.now();
+        let chapterlist = [...bookinfo.chapters];
+        chapterlist = chapterlist.sort((a,b) => (a.part_number==null?0:a.part_number) - (b.part_number==null?0:b.part_number));
+        chapterlist = chapterlist.sort((a,b) => a.chapter_number - b.chapter_number);
+        chapterlist = [...chapterlist.map(a => ({
+            sourceUrl: this.sourceURL(a, slug),
+            title: this.chtitle(a),
+            isIncludeable: (a.publish_at == null || Date.parse(a.publish_at) < currenttime)
+        }))];
+        return chapterlist;
+    }
+
+    async fetchBookinfo(dom) {
+        let slug = this.getSlug(dom);
+        let apikey = "&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ2toaXBhc3hxeGl0d2xrdHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAyMzE4MzMsImV4cCI6MjA0NTgwNzgzM30.mHBd2yrRm934yPGy4pui3p7cW4FxfIf6yxh7b2TpUA8";
+        let apibasetoc = "https://vkgkhipasxqxitwlktwz.supabase.co/rest/v1/novels?select=*%2Cchapter_unlocks%21left%28chapter_number%2Cprofile_id%29%2Ccategories%3Acategories_on_novels%28category%3Acategory_id%28id%2Cname%2Ccreated_at%2Cupdated_at%29%29%2Ctags%3Atags_on_novels%21left%28novel_id%2Ctag_id%2Ccreated_at%2Ctag%3Atag_id%28id%2Cname%2Cdescription%29%29%2Cchapters%28id%2Ctitle%2Ccreated_at%2Cchapter_number%2Cpart_number%2Cpublish_at%2Ccoins%2Cvolume_id%2Cage_rating%29";
+        return (await HttpClient.fetchJson(apibasetoc+slug+apikey)).json[0];
+    }
+
+    getSlug(dom) {
+        // eslint-disable-next-line
+        let regex = new RegExp("\/novels\/.+");
+        let slug = "&slug=eq."+dom.baseURI.match(regex)?.[0].slice(8);
+        const suffix = "/chapters";
+        return slug.endsWith(suffix)
+            ? slug.substring(0, slug.length - suffix.length)
+            : slug;
+    }
+
+    sourceURL(a, slug) {
+        if (a.part_number == null) {
+            return "https://www.lanry.space/novels/"+slug.replace("&slug=eq.","")+"/c" + a.chapter_number;
+        } else {
+            return "https://www.lanry.space/novels/"+slug.replace("&slug=eq.","")+"/c" + a.chapter_number + "-p" + a.part_number;
+        }
+    }
+
+    chtitle(a) {
+        let chapNum = (a.part_number == null)
+            ? `Ch. ${a.chapter_number}`
+            : `Ch. ${a.chapter_number}-${a.part_number}`;
+        return (a.title != "")
+            ? chapNum + " " + a.title
+            : chapNum;
+    }
+    
+    async loadEpubMetaInfo(dom) {
+        let bookinfo = await this.fetchBookinfo(dom);
+        this.title = bookinfo.title;
+        this.author = bookinfo.author;
+        this.tags = bookinfo.tags.map(a => a.tag.name);
+        this.tags = this.tags.concat(bookinfo.categories.map(a => a.category.name));
+        this.description = bookinfo.description;
+        this.img = bookinfo.cover_image_url	;
+        return;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl() {
+        return this.title;
+    }
+
+    extractAuthor() {
+        return this.author;
+    }
+
+    extractSubject() {
+        let tags = this.tags;
+        return tags.join(", ");
+    }
+
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+    
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let startString = "self.__next_f.push(";
+        let scriptElement = [...dom.querySelectorAll("script")].map(a => a.textContent).filter(s => s.includes(startString));
+        let json = [];
+        let i = 0;
+        let j = 0;
+        let longestindex = 0;
+        let longestcontent = 0;
+        //search longest content to build chapter
+        while ( j < scriptElement.length) {
+            try {
+                json[i] = this.parseNextjsHydration(scriptElement[j]);
+                i++;
+                if (scriptElement[j].length > longestcontent && json[i-1].length == 2) {
+                    longestcontent = scriptElement[j].length;
+                    longestindex = i-1;
+                }
+            } catch (error) {
+                //catch maleformed json
+            }
+            j++;
+        }
+        if (json[longestindex].webtoepubformat == "backslash") {
+            json[longestindex].title = "";
+            for (let jsonentry of json) {
+                try {
+                    json[longestindex].title = jsonentry.chapter.title.trim();
+                } catch (error) {
+                    //set title
+                }
+            }
+        }
+        return this.buildChapter(json[longestindex], url);
+    }
+
+    parseNextjsHydration(nextjs) {
+        let malformedjson = nextjs.match(/{.*}/s);
+        let json;
+        if (malformedjson == null) {
+            malformedjson = nextjs.match(/\[.*\]/s);
+            let ret = malformedjson[0];
+            json = JSON.parse(ret);
+            json.webtoepubformat = "backslash";
+        } else {
+            let ret = malformedjson[0];
+            ret = ret.replaceAll("\\\\\\\"", "[webtoepubescape\"]");
+            ret = ret.replaceAll("\\", "");
+            ret = ret.replaceAll("[webtoepubescape\"]","\\\"");
+            json = JSON.parse(ret);
+            json.webtoepubformat = "array";
+        }
+        return json;
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        let br = newDoc.dom.createElement("br");
+        if (json.webtoepubformat == "backslash") {
+            title.textContent = json.title;
+            newDoc.content.appendChild(title);
+            let text = json[json[0]];
+            text = text.replaceAll("\n\n", "\n");
+            text = text.split("\n");
+            for (let element of text) {
+                let pnode = newDoc.dom.createElement("p");
+                //filter title
+                if (element != json.title) {
+                    pnode.textContent = element;
+                    newDoc.content.appendChild(pnode);
+                }
+                newDoc.content.appendChild(br);
+            }
+        } else {
+            title.textContent = json.chapter.title;
+            newDoc.content.appendChild(title);
+            let textleaves = json.chapter.content.root.children.filter(a => a.direction!=null);
+            for (let element of textleaves) {
+                let newtext = "";
+                element.children.map(a => newtext += a.text);
+                let pnode = newDoc.dom.createElement("p");
+                pnode.textContent = newtext;
+                newDoc.content.appendChild(pnode);
+                newDoc.content.appendChild(br);
+            }
+        }
+        return newDoc.dom;
+    }
+}

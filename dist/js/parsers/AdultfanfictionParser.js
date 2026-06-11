@@ -1,1 +1,34 @@
-"use strict";parserFactory.registerRule(e=>.9*AdultfanfictionParser.isAdultFanFiction(e),()=>new AdultfanfictionParser);class AdultfanfictionParser extends Parser{constructor(){super()}static isAdultFanFiction(e){return-1!=util.extractHostName(e).indexOf(".adult-fanfiction.org")}async getChapterUrls(e){let t=e.querySelector("ul#dropdown1");return util.hyperlinksToChapterList(t)}findContent(e){return e.querySelector("#contentdata")}extractTitleImpl(e){return e.querySelector("h4")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"ul#dropdown1, a.dropdown-trigger, ul.pagination"),super.removeUnwantedElementsFromContentElement(e)}}
+"use strict";
+
+parserFactory.registerRule(
+    (url) => AdultfanfictionParser.isAdultFanFiction(url) * 0.9,
+    () => new AdultfanfictionParser()
+);
+
+class AdultfanfictionParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    static isAdultFanFiction(url) {
+        return (util.extractHostName(url).indexOf(".adult-fanfiction.org") != -1);
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul#dropdown1");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#contentdata");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h4");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "ul#dropdown1, a.dropdown-trigger, ul.pagination");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}

@@ -1,1 +1,48 @@
-"use strict";parserFactory.register("fastnovel.net",()=>new FastNovelParser),parserFactory.register("novelgate.net",()=>new FastNovelParser);class FastNovelParser extends Parser{constructor(){super()}getChapterUrls(e){let t=[...e.querySelectorAll("div#list-chapters li a")].map(e=>util.hyperLinkToChapter(e));return Promise.resolve(t)}findContent(e){return e.querySelector("div#chapter-body")}extractTitleImpl(e){return e.querySelector("div.film-info h1")}extractAuthor(e){let t=e.querySelector("div.film-info ul.meta-data a");return null===t?super.extractAuthor(e):t.textContent}findChapterTitle(e){return e.querySelector("h1.episode-name")}findCoverImageUrl(e){let t=e.querySelector("div.book-cover");return null===t?null:t.getAttribute("data-original")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.film-content")]}cleanInformationNode(e){util.removeChildElementsMatchingSelector(e,"div.tags")}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("fastnovel.net", () => new FastNovelParser());
+//dead url
+parserFactory.register("novelgate.net", () => new FastNovelParser());
+
+class FastNovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let chapters = [...dom.querySelectorAll("div#list-chapters li a")]
+            .map(a => util.hyperLinkToChapter(a));
+        return Promise.resolve(chapters);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#chapter-body");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.film-info h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.film-info ul.meta-data a");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.episode-name");
+    }
+
+    findCoverImageUrl(dom) {
+        let img = dom.querySelector("div.book-cover");
+        return img === null ? null : img.getAttribute("data-original");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.film-content")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "div.tags");
+    }    
+}

@@ -1,1 +1,57 @@
-"use strict";parserFactory.register("novelhall.com",()=>new NovelhallParser);class NovelhallParser extends Parser{constructor(){super()}getChapterUrls(e){let r=e.querySelector("div.book-catalog")||e.querySelector("div.catalog")||e.querySelector("div.chapter-list")||e.querySelector("div.more-chapters")||e.querySelector("#more-chapters"),t=[];return t=r?[...r.querySelectorAll("a")].map(e=>util.hyperLinkToChapter(e)):[...e.querySelectorAll("div.book-catalog")].map(e=>[...e.querySelectorAll("a")]).reduce((e,r)=>e.length<r.length?r:e,[]).map(e=>util.hyperLinkToChapter(e)),Promise.resolve(t)}findContent(e){return e.querySelector("article div.entry-content")||e.querySelector("div.entry-content")||e.querySelector("div.read-content")||e.querySelector("div.chapter-content")||e.querySelector("div.content")||e.querySelector("div#htmlContent")||e.querySelector("article")}extractTitleImpl(e){return e.querySelector("div.book-info h1")}extractAuthor(e){let r=e.querySelector("meta[property='books:author']");return null!==r&&(r=r.getAttribute("content")),null===r?super.extractAuthor(e):r}findChapterTitle(e){return e.querySelector("article div.single-header h1")||e.querySelector("div.single-header h1")||e.querySelector("h1.single-header")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.book-img")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.book-info div.intro")]}}
+"use strict";
+
+parserFactory.register("novelhall.com", () => new NovelhallParser());
+
+class NovelhallParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let containers = dom.querySelectorAll("div.book-catalog, div.catalog, div.chapter-list, div.more-chapters, #more-chapters");
+        let chapters = [];
+        if (containers && containers.length > 0) {
+            chapters = [...containers]
+                .map(c => [...c.querySelectorAll("a")])
+                .reduce((a, c) => a.length < c.length ? c : a, [])
+                .map(a => util.hyperLinkToChapter(a));
+        }
+        return Promise.resolve(chapters);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("article div.entry-content") ||
+            dom.querySelector("div.entry-content") ||
+            dom.querySelector("div.read-content") ||
+            dom.querySelector("div.chapter-content") ||
+            dom.querySelector("div.content") ||
+            dom.querySelector("div#htmlContent") ||
+            dom.querySelector("article");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book-info h1");
+    }
+
+    extractAuthor(dom) {
+        let meta = dom.querySelector("meta[property='books:author']");
+        if (meta !== null) {
+            meta = meta.getAttribute("content");
+        }
+        return (meta === null) ? super.extractAuthor(dom) : meta;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("article div.single-header h1") ||
+            dom.querySelector("div.single-header h1") ||
+            dom.querySelector("h1.single-header");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.book-img");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.book-info div.intro")];
+    }
+}

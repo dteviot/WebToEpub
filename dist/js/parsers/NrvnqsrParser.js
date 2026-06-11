@@ -1,1 +1,30 @@
-"use strict";parserFactory.register("forums.nrvnqsr.com",()=>new NrvnqsrParser);class NrvnqsrParser extends Parser{constructor(){super()}getChapterUrls(r){let e=r.querySelector("div.postlist");return Promise.resolve(util.hyperlinksToChapterList(e))}findContent(r){let e=util.getParamFromUrl(r.baseURI,"p"),t=null===e?"div.postbody div.content":"div#post_message_"+e;return r.querySelector(t)}extractTitleImpl(r){return r.querySelector("span.threadtitle")}extractAuthor(r){let e=r.querySelector("div.userinfo a.username");return null===e?super.extractAuthor(r):e.textContent}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("forums.nrvnqsr.com", () => new NrvnqsrParser());
+
+class NrvnqsrParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let menu = dom.querySelector("div.postlist");
+        return Promise.resolve(util.hyperlinksToChapterList(menu));        
+    }
+
+    findContent(dom) {
+        let postId = util.getParamFromUrl(dom.baseURI, "p");
+        let selector = (postId === null) ? "div.postbody div.content" : "div#post_message_" + postId;
+        return dom.querySelector(selector);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("span.threadtitle");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.userinfo a.username");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+}

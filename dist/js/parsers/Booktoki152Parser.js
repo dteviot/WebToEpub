@@ -1,1 +1,50 @@
-"use strict";parserFactory.registerUrlRule(e=>util.extractHostName(e).startsWith("booktoki"),()=>new Booktoki152Parser);class Booktoki152Parser extends Parser{constructor(){super(),this.minimumThrottle=1500}async getChapterUrls(e){return[...e.querySelectorAll("ul.list-body a")].map(this.linkToChapter).reverse()}linkToChapter(e){return util.removeChildElementsMatchingSelector(e,"span"),{sourceUrl:e.href,title:e.textContent.trim()}}findContent(e){return e.querySelector("#novel_content")}extractTitleImpl(e){return e.querySelector("div.view-content span b")}findChapterTitle(e){return e.querySelector("div.toon-title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.view-title")}getInformationEpubItemChildNodes(e){let t=[...e.querySelectorAll("div.view-content div.view-content")];return 3===t.length?[t[1]]:[]}}
+"use strict";
+
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).startsWith("booktoki")),
+    () => new Booktoki152Parser()
+);
+
+class Booktoki152Parser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 1500;
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("ul.list-body a")]
+            .map(this.linkToChapter)
+            .reverse();
+    }
+
+    linkToChapter(link) {
+        util.removeChildElementsMatchingSelector(link, "span");
+        return ({
+            sourceUrl:  link.href,
+            title: link.textContent.trim()
+        });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#novel_content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.view-content span b");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.toon-title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.view-title");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [...dom.querySelectorAll("div.view-content div.view-content")];
+        return (nodes.length === 3)
+            ? [nodes[1]]
+            : [];
+    }
+}

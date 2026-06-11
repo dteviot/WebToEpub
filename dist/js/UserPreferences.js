@@ -1,1 +1,310 @@
-"use strict";class UserPreference{constructor(e,t,r){this.storageName=e,this.uiElementName=t,this.value=r}getUiElement(){return document.getElementById(this.uiElementName)}writeToLocalStorage(){window.localStorage.setItem(this.storageName,this.value)}}class BoolUserPreference extends UserPreference{constructor(e,t,r){super(e,t,r)}readFromLocalStorage(){let e=window.localStorage.getItem(this.storageName);null!==e&&(this.value="true"===e)}readFromUi(){let e=this.getUiElement();e&&(this.value=e.checked)}writeToUi(){let e=this.getUiElement();e&&(e.checked=this.value)}hookupUi(e){let t=this.getUiElement();t&&(t.onclick=e)}}class StringUserPreference extends UserPreference{constructor(e,t,r){super(e,t,r)}readFromLocalStorage(){let e=window.localStorage.getItem(this.storageName);null!==e&&(this.value=e)}readFromUi(){let e=this.getUiElement();e&&(this.value=e.value)}writeToUi(){let e=this.getUiElement();e&&(e.value=this.value)}hookupUi(e){let t=this.getUiElement();t&&("SELECT"===t.tagName?t.onchange=e:t.addEventListener("blur",e,!0))}}class UserPreferences{constructor(){this.preferences=[],this.observers=[],this.readingList=new ReadingList,this.removeDuplicateImages=this.addPreference("removeDuplicateImages","removeDuplicateImages",!1),this.includeImageSourceUrl=this.addPreference("includeImageSourceUrl","includeImageSourceUrlCheckboxInput",!0),this.highestResolutionImages=this.addPreference("highestResolutionImages","highestResolutionImagesCheckboxInput",!0),this.unSuperScriptAlternateTranslations=this.addPreference("unSuperScriptAlternateTranslations","unSuperScriptCheckboxInput",!1),this.styleSheet=this.addPreference("styleSheet","stylesheetInput",EpubMetaInfo.getDefaultStyleSheet()),this.CustomFilename=this.addPreference("CustomFilename","CustomFilenameInput","%Filename%"),this.useSvgForImages=this.addPreference("useSvgForImages","useSvgForImagesInput",!0),this.removeNextAndPreviousChapterHyperlinks=this.addPreference("removeNextAndPreviousChapterHyperlinks","removeNextAndPreviousChapterHyperlinksInput",!0),this.advancedOptionsVisibleByDefault=this.addPreference("advancedOptionsVisibleByDefault","advancedOptionsVisibleByDefaultCheckbox",!1),this.noDownloadPopup=this.addPreference("noDownloadPopup","noDownloadPopupCheckbox",!1),this.writeErrorHistoryToFile=this.addPreference("writeErrorHistoryToFile","writeErrorHistoryToFileCheckbox",!1),this.createEpub3=this.addPreference("createEpub3","createEpub3Checkbox",!1),this.chaptersPageInChapterList=this.addPreference("chaptersPageInChapterList","chaptersPageInChapterListCheckbox",!1),this.autoSelectBTSeriesPage=this.addPreference("autoSelectBTSeriesPage","autoParserSelectIncludesBTSeriesPageCheckbox",!1),this.removeAuthorNotes=this.addPreference("removeAuthorNotes","removeAuthorNotesCheckbox",!1),this.removeChapterNumber=this.addPreference("removeChapterNumber","removeChapterNumberCheckbox",!1),this.removeOriginal=this.addPreference("removeOriginal","removeOriginalCheckbox",!0),this.selectTranslationAi=this.addPreference("selectTranslationAi","selectTranslationAiCheckbox",!1),this.selectRetryLonger=this.addPreference("selectRetryLonger","selectRetryLongerCheckbox",!1),this.removeTranslated=this.addPreference("removeTranslated","removeTranslatedCheckbox",!1),this.skipChaptersThatFailFetch=this.addPreference("skipChaptersThatFailFetch","skipChaptersThatFailFetchCheckbox",!1),this.maxChaptersPerEpub=this.addPreference("maxChaptersPerEpub","maxChaptersPerEpubTag","10,000"),this.manualDelayPerChapter=this.addPreference("manualDelayPerChapter","manualDelayPerChapterTag","0"),this.overrideMinimumDelay=this.addPreference("overrideMinimumDelay","overrideMinimumDelayCheckbox",!1),this.skipImages=this.addPreference("skipImages","skipImagesCheckbox",!1),this.compressImages=this.addPreference("compressImages","compressImagesCheckbox",!1),this.compressImagesJpgCover=this.addPreference("compressImagesJpgCover","compressImagesJpgCoverCheckbox",!1),this.compressImagesType=this.addPreference("compressImagesType","compressImagesType","jpg"),this.compressImagesMaxResolution=this.addPreference("compressImagesMaxResolution","compressImagesMaxResolutionTag","1080"),this.overwriteExistingEpub=this.addPreference("overwriteExistingEpub","overwriteEpubWhenDuplicateFilenameCheckbox",!1),this.themeColor=this.addPreference("themeColor","themeColorTag",""),this.useFullTitle=this.addPreference("useFullTitle","useFullTitleAsFileNameCheckbox",!1),this.addInformationPage=this.addPreference("addInformationPage","addInformationPageToEpubCheckbox",!0),this.lesstags=this.addPreference("lesstags","lesstagsCheckbox",!0),this.autosearchmetadata=this.addPreference("autosearchmetadata","autosearchmetadataCheckbox",!1),this.noAdditionalMetadata=this.addPreference("noAdditionalMetadata","noAdditionalMetadataCheckbox",!0),this.ShowMoreMetadataOptions=this.addPreference("ShowMoreMetadataOptions","ShowMoreMetadataOptionsCheckbox",!1),this.LibShowAdvancedOptions=this.addPreference("LibShowAdvancedOptions","LibShowAdvancedOptionsCheckbox",!1),this.LibShowCompactView=this.addPreference("LibShowCompactView","LibShowCompactViewCheckbox",!1),this.LibDownloadEpubAfterUpdate=this.addPreference("LibDownloadEpubAfterUpdate","LibDownloadEpubAfterUpdateCheckbox",!1),this.disableShiftClickAlert=this.addPreference("disableShiftClickAlert","disableShiftClickAlertCheckbox",!1),this.disableImageResError=this.addPreference("disableImageResError","disableImageResErrorCheckbox",!1),this.disableWebpImageFormatError=this.addPreference("disableWebpImageFormatError","disableWebpImageFormatErrorCheckbox",!1),this.enableCorsProxy=this.addPreference("enableCorsProxy","enableCorsProxyCheckbox",!0),this.corsProxyUrl=this.addPreference("corsProxyUrl","corsProxyInput",HttpClient.corsProxyUrl),this.wtrLabCookieImport=this.addPreference("wtrLabCookieImport","wtrLabCookieInput","");let e=document.getElementById("themeColorTag");e&&e.addEventListener("change",UserPreferences.SetTheme)}addPreference(e,t,r){let s=null;if("boolean"==typeof r)s=new BoolUserPreference(e,t,r);else{if("string"!=typeof r)throw new Error("Unknown preference type");s=new StringUserPreference(e,t,r)}return this.preferences.push(s),s}static readFromLocalStorage(){let e=new UserPreferences;for(let t of e.preferences)t.readFromLocalStorage();return e.readingList.readFromLocalStorage(),e}writeToLocalStorage(){for(let e of this.preferences)e.writeToLocalStorage();this.readingList.writeToLocalStorage()}addObserver(e){this.observers.push(e),this.notifyObserversOfChange()}readFromUi(){for(let e of this.preferences)e.readFromUi();this.writeToLocalStorage(),"undefined"!=typeof HttpClient&&this.wtrLabCookieImport&&HttpClient.setWtrLabCookiesFromUserInput(this.wtrLabCookieImport.value),this.notifyObserversOfChange()}notifyObserversOfChange(){for(let e of this.observers)e.onUserPreferencesUpdate(this)}writeToUi(){for(let e of this.preferences)e.writeToUi();UserPreferences.SetTheme()}hookupUi(){let e=this.readFromUi.bind(this);for(let t of this.preferences)t.hookupUi(e);this.notifyObserversOfChange()}writeToFile(){let e={},t=window.localStorage.getItem(DefaultParserSiteSettings.storageName);null!=t&&(e[DefaultParserSiteSettings.storageName]=JSON.parse(t)),e[ReadingList.storageName]=JSON.parse(this.readingList.toJson());for(let t of this.preferences)e[t.storageName]=t.value;t=JSON.stringify(e);let r=new Blob([t],{type:"text"});return Download.save(r,"Options.json").catch(e=>ErrorLog.showErrorMessage(e))}readFromFile(e,t){if(0==e.target.files.length)return;let r=e.target.files[0],s=new FileReader;s.onload=r=>{let s=r.target.result;e.target.value=null;try{let e=JSON.parse(s);this.loadOptionsFromJson(e),this.loadDefaultParserFromJson(e),this.loadReadingListFromJson(e),t()}catch(e){ErrorLog.showErrorMessage(e)}},s.readAsText(r)}loadOptionsFromJson(e){for(let t of this.preferences){let r=e[t.storageName];void 0!==r&&t.value!==r&&(t.value=r,t.writeToLocalStorage())}}loadDefaultParserFromJson(e){let t=e[DefaultParserSiteSettings.storageName];if(void 0===t)window.localStorage.removeItem(DefaultParserSiteSettings.storageName);else{let e=JSON.stringify(t);window.localStorage.setItem(DefaultParserSiteSettings.storageName,e)}}loadReadingListFromJson(e){let t=e[ReadingList.storageName];if(void 0!==t){let e=JSON.stringify(t);this.readingList=ReadingList.fromJson(e),window.localStorage.setItem(ReadingList.storageName,e)}}setReadingListCheckbox(e){let t=null!=this.readingList.getEpub(e);UserPreferences.getReadingListCheckbox().checked=t}static getReadingListCheckbox(){return document.getElementById("includeInReadingListCheckbox")}static SetTheme(){let e=document.querySelector("#themeColorTag").value,t=document.querySelector("link#autoDark"),r=document.querySelector("link#alwaysDark");t.disabled=!0,r.disabled=!0,""==e?t.disabled=!1:"DarkMode"==e&&(r.disabled=!1)}}
+/*
+    User settings for how extension should behave
+*/
+
+"use strict";
+
+/** Holds a single preference value for user  */
+class UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        this.storageName = storageName;
+        this.uiElementName = uiElementName;
+        this.value = defaultValue;
+    }
+
+    getUiElement() {
+        return document.getElementById(this.uiElementName);
+    }
+
+    writeToLocalStorage() {
+        window.localStorage.setItem(this.storageName, this.value);
+    }
+}
+
+class BoolUserPreference extends UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        super(storageName, uiElementName, defaultValue);
+    }
+
+    readFromLocalStorage() {
+        let test = window.localStorage.getItem(this.storageName);
+        if (test !== null) {
+            this.value = (test === "true");
+        }
+    }
+
+    readFromUi() {
+        let el = this.getUiElement();
+        if (el) this.value = el.checked;
+    }
+
+    writeToUi() {
+        let el = this.getUiElement();
+        if (el) el.checked = this.value;
+    }
+
+    hookupUi(readFromUi) {
+        let el = this.getUiElement();
+        if (el) el.onclick = readFromUi;
+    }
+}
+
+class StringUserPreference extends UserPreference {
+    constructor(storageName, uiElementName, defaultValue) {
+        super(storageName, uiElementName, defaultValue);
+    }
+
+    readFromLocalStorage() {
+        let test = window.localStorage.getItem(this.storageName);
+        if (test !== null) {
+            this.value = test;
+        }
+    }
+
+    readFromUi() {
+        let el = this.getUiElement();
+        if (el) this.value = el.value;
+    }
+
+    writeToUi() {
+        let el = this.getUiElement();
+        if (el) el.value = this.value;
+    }
+
+    hookupUi(readFromUi) {
+        let uiElement = this.getUiElement();
+        if (uiElement) {
+            if (uiElement.tagName === "SELECT") {
+                uiElement.onchange = readFromUi;
+            } else {
+                uiElement.addEventListener("blur", readFromUi, true);
+            }
+        }
+    }
+}
+
+/** The collection of all preferences for user  */
+class UserPreferences { // eslint-disable-line no-unused-vars
+    constructor() {
+        this.preferences = [];
+        this.observers = [];
+        this.readingList = new ReadingList();
+
+        // Initialize all preferences explicitly for IDE support
+        // (autocomplete, type inference, no unresolved variable warnings)
+        this.removeDuplicateImages = this.addPreference("removeDuplicateImages", "removeDuplicateImages", false);
+        this.includeImageSourceUrl = this.addPreference("includeImageSourceUrl", "includeImageSourceUrlCheckboxInput", true);
+        this.highestResolutionImages = this.addPreference("highestResolutionImages", "highestResolutionImagesCheckboxInput", true);
+        this.unSuperScriptAlternateTranslations = this.addPreference("unSuperScriptAlternateTranslations", "unSuperScriptCheckboxInput", false);
+        this.styleSheet = this.addPreference("styleSheet", "stylesheetInput", EpubMetaInfo.getDefaultStyleSheet());
+        this.CustomFilename = this.addPreference("CustomFilename", "CustomFilenameInput", "%Filename%");
+        this.useSvgForImages = this.addPreference("useSvgForImages", "useSvgForImagesInput", true);
+        this.removeNextAndPreviousChapterHyperlinks = this.addPreference("removeNextAndPreviousChapterHyperlinks", "removeNextAndPreviousChapterHyperlinksInput", true);
+        this.advancedOptionsVisibleByDefault = this.addPreference("advancedOptionsVisibleByDefault", "advancedOptionsVisibleByDefaultCheckbox", false);
+        this.noDownloadPopup = this.addPreference("noDownloadPopup", "noDownloadPopupCheckbox", false);
+        this.writeErrorHistoryToFile = this.addPreference("writeErrorHistoryToFile", "writeErrorHistoryToFileCheckbox", false);
+        this.createEpub3 = this.addPreference("createEpub3", "createEpub3Checkbox", false);
+        this.chaptersPageInChapterList = this.addPreference("chaptersPageInChapterList", "chaptersPageInChapterListCheckbox", false);
+        this.autoSelectBTSeriesPage = this.addPreference("autoSelectBTSeriesPage", "autoParserSelectIncludesBTSeriesPageCheckbox", false);
+        this.removeAuthorNotes = this.addPreference("removeAuthorNotes", "removeAuthorNotesCheckbox", false);
+        this.removeChapterNumber = this.addPreference("removeChapterNumber", "removeChapterNumberCheckbox", false);
+        this.removeOriginal = this.addPreference("removeOriginal", "removeOriginalCheckbox", true);
+        this.selectTranslationAi = this.addPreference("selectTranslationAi", "selectTranslationAiCheckbox", false);
+        this.selectRetryLonger = this.addPreference("selectRetryLonger", "selectRetryLongerCheckbox", false);
+        this.removeTranslated = this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
+        this.skipChaptersThatFailFetch = this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
+        this.maxChaptersPerEpub = this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
+        this.manualDelayPerChapter = this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
+        this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
+        this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
+        this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
+        this.compressImagesJpgCover = this.addPreference("compressImagesJpgCover", "compressImagesJpgCoverCheckbox", false);
+        this.compressImagesType = this.addPreference("compressImagesType", "compressImagesType", "jpg");
+        this.compressImagesMaxResolution = this.addPreference("compressImagesMaxResolution", "compressImagesMaxResolutionTag", "1080");
+        this.overwriteExistingEpub = this.addPreference("overwriteExistingEpub", "overwriteEpubWhenDuplicateFilenameCheckbox", false);
+        this.themeColor = this.addPreference("themeColor", "themeColorTag", "");
+        this.useFullTitle = this.addPreference("useFullTitle", "useFullTitleAsFileNameCheckbox", false);
+        this.addInformationPage = this.addPreference("addInformationPage", "addInformationPageToEpubCheckbox", true);
+        this.lesstags = this.addPreference("lesstags", "lesstagsCheckbox", true);
+        this.autosearchmetadata = this.addPreference("autosearchmetadata", "autosearchmetadataCheckbox", false);
+        this.noAdditionalMetadata = this.addPreference("noAdditionalMetadata", "noAdditionalMetadataCheckbox", true);
+        this.ShowMoreMetadataOptions = this.addPreference("ShowMoreMetadataOptions", "ShowMoreMetadataOptionsCheckbox", false);
+        this.LibShowAdvancedOptions = this.addPreference("LibShowAdvancedOptions", "LibShowAdvancedOptionsCheckbox", false);
+        this.LibShowCompactView = this.addPreference("LibShowCompactView", "LibShowCompactViewCheckbox", false);
+        this.LibDownloadEpubAfterUpdate = this.addPreference("LibDownloadEpubAfterUpdate", "LibDownloadEpubAfterUpdateCheckbox", false);
+        this.disableShiftClickAlert = this.addPreference("disableShiftClickAlert", "disableShiftClickAlertCheckbox", false);
+        this.disableImageResError = this.addPreference("disableImageResError", "disableImageResErrorCheckbox", false);
+        this.disableWebpImageFormatError = this.addPreference("disableWebpImageFormatError", "disableWebpImageFormatErrorCheckbox", false);
+
+        // CORS Proxy Preferences (Website Mode)
+        this.enableCorsProxy = this.addPreference("enableCorsProxy", "enableCorsProxyCheckbox", true);
+        this.corsProxyUrl = this.addPreference("corsProxyUrl", "corsProxyInput", HttpClient.corsProxyUrl);
+        this.wtrLabCookieImport = this.addPreference("wtrLabCookieImport", "wtrLabCookieInput", "");
+
+        let themeColorTag = document.getElementById("themeColorTag");
+        if (themeColorTag) {
+            themeColorTag.addEventListener("change", UserPreferences.SetTheme);
+        }
+    }
+
+    /** @private */
+    addPreference(storageName, uiElementName, defaultValue) {
+        let preference = null;
+        if (typeof (defaultValue) === "boolean") {
+            preference = new BoolUserPreference(storageName, uiElementName, defaultValue);
+        } else if (typeof (defaultValue) === "string") {
+            preference = new StringUserPreference(storageName, uiElementName, defaultValue);
+        } else {
+            throw new Error("Unknown preference type");
+        }
+        this.preferences.push(preference);
+        return preference;
+    }
+
+    static readFromLocalStorage() {
+        let newPreferences = new UserPreferences();
+        for (let p of newPreferences.preferences) {
+            p.readFromLocalStorage();
+        }
+        newPreferences.readingList.readFromLocalStorage();
+        return newPreferences;
+    }
+
+    writeToLocalStorage() {
+        for (let p of this.preferences) {
+            p.writeToLocalStorage();
+        }
+        this.readingList.writeToLocalStorage();
+    }
+
+    addObserver(observer) {
+        this.observers.push(observer);
+        this.notifyObserversOfChange();
+    }
+
+    readFromUi() {
+        for (let p of this.preferences) {
+            p.readFromUi();
+        }
+
+        this.writeToLocalStorage();
+        if (typeof HttpClient !== "undefined" && this.wtrLabCookieImport) {
+            HttpClient.setWtrLabCookiesFromUserInput(this.wtrLabCookieImport.value);
+        }
+        this.notifyObserversOfChange();
+    }
+
+    notifyObserversOfChange() {
+        for (let observer of this.observers) {
+            observer.onUserPreferencesUpdate(this);
+        }
+    }
+
+    writeToUi() {
+        for (let p of this.preferences) {
+            p.writeToUi();
+        }
+        UserPreferences.SetTheme();
+    }
+
+    hookupUi() {
+        let readFromUi = this.readFromUi.bind(this);
+        for (let p of this.preferences) {
+            p.hookupUi(readFromUi);
+        }
+
+        this.notifyObserversOfChange();
+    }
+
+    writeToFile() {
+        let obj = {};
+        let serialized = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
+        if (serialized != null) {
+            obj[DefaultParserSiteSettings.storageName] = JSON.parse(serialized);
+        }
+        obj[ReadingList.storageName] = JSON.parse(this.readingList.toJson());
+        for (let p of this.preferences) {
+            obj[p.storageName] = p.value;
+        }
+        serialized = JSON.stringify(obj);
+        let blob = new Blob([serialized], { type: "text" });
+        return Download.save(blob, "Options.json")
+            .catch(err => ErrorLog.showErrorMessage(err));
+    }
+
+    readFromFile(event, populateControls) {
+        if (event.target.files.length == 0) {
+            return;
+        }
+
+        let file = event.target.files[0];
+        let reader = new FileReader();
+        reader.onload = readerEvent => {
+            let content = readerEvent.target.result;
+
+            // reset so triggers if user selects same file again  
+            event.target.value = null;
+            try {
+                let json = JSON.parse(content);
+                this.loadOptionsFromJson(json);
+                this.loadDefaultParserFromJson(json);
+                this.loadReadingListFromJson(json);
+                populateControls();
+            } catch (err) {
+                ErrorLog.showErrorMessage(err);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    loadOptionsFromJson(json) {
+        for (let p of this.preferences) {
+            let val = json[p.storageName];
+            if (val !== undefined && (p.value !== val)) {
+                p.value = val;
+                p.writeToLocalStorage();
+            }
+        }
+    }
+
+    loadDefaultParserFromJson(json) {
+        let val = json[DefaultParserSiteSettings.storageName];
+        if (val === undefined) {
+            window.localStorage.removeItem(DefaultParserSiteSettings.storageName);
+        } else {
+            let serialized = JSON.stringify(val);
+            window.localStorage.setItem(DefaultParserSiteSettings.storageName, serialized);
+        }
+    }
+
+    loadReadingListFromJson(json) {
+        let val = json[ReadingList.storageName];
+        if (val !== undefined) {
+            let serialized = JSON.stringify(val);
+            this.readingList = ReadingList.fromJson(serialized);
+            window.localStorage.setItem(ReadingList.storageName, serialized);
+        }
+    }
+
+    setReadingListCheckbox(url) {
+        let inlist = this.readingList.getEpub(url) != null;
+        UserPreferences.getReadingListCheckbox().checked = inlist;
+    }
+
+    static getReadingListCheckbox() {
+        return document.getElementById("includeInReadingListCheckbox");
+    }
+
+    static SetTheme() {
+        let theme = document.querySelector("#themeColorTag").value;
+        let autodark = document.querySelector("link#autoDark");
+        let alwaysDark = document.querySelector("link#alwaysDark");
+        autodark.disabled = true;
+        alwaysDark.disabled = true;
+        if (theme == "") {
+            autodark.disabled = false;
+        } else if (theme == "DarkMode") {
+            alwaysDark.disabled = false;
+        }
+    }
+}

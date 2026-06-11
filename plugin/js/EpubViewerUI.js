@@ -623,13 +623,18 @@ class EpubViewerUI {
         }, lazyOptions);
     }
 
-    // Re-observe placeholders near current scroll position so the observer fires for them
     _reobservePlaceholders() {
         if (!this.lazyLoadObserver) return;
-        const wrappers = document.querySelectorAll(".continuous-chapter-wrapper.placeholder-loading");
+        const wrappers = document.querySelectorAll(".continuous-chapter-wrapper");
         wrappers.forEach(w => {
-            this.lazyLoadObserver.unobserve(w);
-            this.lazyLoadObserver.observe(w);
+            if (w.classList.contains("placeholder-loading")) {
+                this.lazyLoadObserver.unobserve(w);
+                this.lazyLoadObserver.observe(w);
+            }
+            if (this.observer) {
+                this.observer.unobserve(w);
+                this.observer.observe(w);
+            }
         });
     }
 
@@ -871,6 +876,8 @@ class EpubViewerUI {
 
             wrapper.className = "continuous-chapter-wrapper loaded";
             wrapper.removeAttribute("data-loading");
+
+            if (this.observer) this.observer.observe(wrapper);
 
             // Measure new loaded height and compensate viewport scroll top to prevent layout shifts
             const newHeight = wrapper.offsetHeight;

@@ -1,1 +1,64 @@
-"use strict";parserFactory.register("mtlnovels.com",()=>new MtlnovelsParser),parserFactory.register("mtlnovel.com",()=>new MtlnovelsParser),parserFactory.registerUrlRule(e=>util.extractHostName(e).endsWith(".mtlnovels.com"),()=>new MtlnovelsParser),parserFactory.registerUrlRule(e=>util.extractHostName(e).endsWith(".mtlnovel.com"),()=>new MtlnovelsParser);class MtlnovelsParser extends Parser{constructor(){super()}populateUIImpl(){document.getElementById("removeOriginalRow").hidden=!1}async getChapterUrls(e){const t=e.querySelector("#panelchapterlist > a").href;return[...(await HttpClient.fetchHtml(t)).responseXML.querySelectorAll(".ch-list > p > a")].map(e=>({title:e.textContent.trim(),sourceUrl:e.href})).reverse()}findContent(e){return e.querySelector("div.single-page")}extractTitleImpl(e){return e.querySelector(".entry-title")}extractAuthor(e){let t=e.querySelector("#author");return null===t?super.extractAuthor(e):t.textContent}removeUnwantedElementsFromContentElement(e){let t="";this.userPreferences.removeOriginal.value&&(t=", p.cn"),util.removeChildElementsMatchingSelector(e,".crumbs, .chapter-nav, .lang-btn, .sharer, amp-embed, .link-title, ol.link-box, a.view-more, button, span[hidden]"+t);for(let t of[...e.querySelectorAll("div")])t.removeAttribute("[class]");super.removeUnwantedElementsFromContentElement(e)}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div#panelnovelinfo div.desc")]}}
+"use strict";
+parserFactory.register("mtlnovels.com", () => new MtlnovelsParser());
+parserFactory.register("mtlnovel.com", () => new MtlnovelsParser());
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).endsWith(".mtlnovels.com")),
+    () => new MtlnovelsParser()
+);
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).endsWith(".mtlnovel.com")),
+    () => new MtlnovelsParser()
+);
+
+class MtlnovelsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    populateUIImpl() {
+        document.getElementById("removeOriginalRow").hidden = false;
+    }
+
+    async getChapterUrls(dom) {
+        const tocUrl = dom.querySelector("#panelchapterlist > a").href;
+
+        const chapterDom = (await HttpClient.fetchHtml(tocUrl)).responseXML;
+
+        return [...chapterDom.querySelectorAll(".ch-list > p > a")]
+            .map(a => ({
+                title: a.textContent.trim(),
+                sourceUrl: a.href
+            }))
+            .reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.single-page");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("#author");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let original = "";
+        if (this.userPreferences.removeOriginal.value) {
+            original = ", p.cn";
+        }
+        util.removeChildElementsMatchingSelector(element, ".crumbs, .chapter-nav, .lang-btn, .sharer," +
+            " amp-embed, .link-title, ol.link-box, a.view-more, button, span[hidden]" + original);
+        for (let e of [...element.querySelectorAll("div")]) {
+            e.removeAttribute("[class]");
+        }
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div#panelnovelinfo div.desc")];
+    }
+}

@@ -1,1 +1,100 @@
-"use strict";parserFactory.register("genesistudio.com",()=>new GenesiStudioParser);class GenesiStudioParser extends Parser{constructor(){super(),this.minimumThrottle=2e3}populateUIImpl(){document.getElementById("removeChapterNumberRow").hidden=!1}async getChapterUrls(t){let e=(await HttpClient.fetchJson(t.baseURI+"/__data.json")).json,a=e.nodes[2].data[0].chapters,n=e.nodes[2].data[e.nodes[2].data[a].free],s=e.nodes[2].data[e.nodes[2].data[a].premium],d=n.map(t=>({sourceUrl:"https://genesistudio.com/viewer/"+e.nodes[2].data[e.nodes[2].data[t].id],title:document.getElementById("removeChapterNumberCheckbox").checked?e.nodes[2].data[e.nodes[2].data[t].chapter_title]:"Chapter "+e.nodes[2].data[e.nodes[2].data[t].chapter_number]+": "+e.nodes[2].data[e.nodes[2].data[t].chapter_title],isIncludeable:!0})),r=s.map(t=>({sourceUrl:"https://genesistudio.com/viewer/"+e.nodes[2].data[e.nodes[2].data[t].id],title:document.getElementById("removeChapterNumberCheckbox").checked?e.nodes[2].data[e.nodes[2].data[t].chapter_title]:"Chapter "+e.nodes[2].data[e.nodes[2].data[t].chapter_number]+": "+e.nodes[2].data[e.nodes[2].data[t].chapter_title],isIncludeable:!1}));return d.concat(r)}async loadEpubMetaInfo(t){let e=(await HttpClient.fetchJson(t.baseURI+"/__data.json")).json,a=e.nodes[2].data[e.nodes[2].data[0].novel];this.title=e.nodes[2].data[a.novel_title],this.author=e.nodes[2].data[a.author];let n=e.nodes[2].data[a.genres];n=n.map(t=>e.nodes[2].data[t]),this.tags=n,this.description=e.nodes[2].data[a.synopsis],this.img=e.nodes[2].data[a.cover]}extractTitleImpl(){return this.title}extractAuthor(){return this.author}extractSubject(){return this.tags.join(", ")}extractDescription(){return this.description.trim()}findCoverImageUrl(){return this.img}async fetchChapter(t){let e=this.toRestUrl(t),a=(await HttpClient.fetchJson(e)).json;return this.buildChapter(a,t)}toRestUrl(t){return t+"/__data.json"}buildChapter(t,e){let a=Parser.makeEmptyDocForContent(e),n=t.nodes[2].data[0].content,s=util.sanitize(t.nodes[2].data[n]);return util.moveChildElements(s.body,a.content),a.dom}addTitleToContent(t,e){let a=t.rawDom.createElement("h2");a.innerText=t.title.trim(),e.prepend(a)}findContent(t){return Parser.findConstrutedContent(t)}}
+/*
+  Parses files on https://genesistudio.com
+*/
+"use strict";
+
+parserFactory.register("genesistudio.com", () => new GenesiStudioParser());
+
+class GenesiStudioParser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 2000;
+    }
+    populateUIImpl() {
+        document.getElementById("removeChapterNumberRow").hidden = false; 
+    }
+
+    async getChapterUrls(dom) {
+        let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
+        let tmpids = data.nodes[2].data[0].chapters;
+        let freeids = data.nodes[2].data[data.nodes[2].data[tmpids].free];
+        let paidids = data.nodes[2].data[data.nodes[2].data[tmpids].premium];
+
+        let chapters = freeids.map(a => ({
+            sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
+            title: document.getElementById("removeChapterNumberCheckbox").checked ? data.nodes[2].data[data.nodes[2].data[a].chapter_title]: "Chapter " + data.nodes[2].data[data.nodes[2].data[a].chapter_number]+ ": " + data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            isIncludeable: true    
+        }));
+
+        let pchapters = paidids.map(a => ({
+            sourceUrl:  "https://genesistudio.com/viewer/"+data.nodes[2].data[data.nodes[2].data[a].id],
+            title: document.getElementById("removeChapterNumberCheckbox").checked ? data.nodes[2].data[data.nodes[2].data[a].chapter_title]: "Chapter " + data.nodes[2].data[data.nodes[2].data[a].chapter_number]+ ": " + data.nodes[2].data[data.nodes[2].data[a].chapter_title],
+            isIncludeable: false    
+        }));
+
+        return chapters.concat(pchapters);
+    }
+    
+    async loadEpubMetaInfo(dom) {
+        // eslint-disable-next-line
+        let data = (await HttpClient.fetchJson(dom.baseURI + "/__data.json")).json;
+        let tmpids = data.nodes[2].data[data.nodes[2].data[0].novel];
+        this.title = data.nodes[2].data[tmpids.novel_title];
+        this.author = data.nodes[2].data[tmpids.author];
+        let genre = data.nodes[2].data[tmpids.genres];
+        genre = genre.map(a => data.nodes[2].data[a]);
+        this.tags = genre;
+        this.description = data.nodes[2].data[tmpids.synopsis];
+        this.img = data.nodes[2].data[tmpids.cover];
+        return;
+    }
+
+    extractTitleImpl() {
+        return this.title;
+    }
+
+    extractAuthor() {
+        return this.author;
+    }
+
+    extractSubject() {
+        let tags = this.tags;
+        return tags.join(", ");
+    }
+
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+
+    async fetchChapter(url) {
+        let restUrl = this.toRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        return this.buildChapter(json, url);
+    }
+
+    toRestUrl(url) {
+        return url + "/__data.json";
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let index = json.nodes[2].data[0].content;
+        let content = util.sanitize(json.nodes[2].data[index]);
+        util.moveChildElements(content.body, newDoc.content);
+        return newDoc.dom;
+    }
+
+    addTitleToContent(webPage, content) {
+        let h2 = webPage.rawDom.createElement("h2");
+        h2.innerText = webPage.title.trim();
+        content.prepend(h2);
+    }
+    
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+}

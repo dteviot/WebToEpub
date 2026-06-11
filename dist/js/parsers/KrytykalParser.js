@@ -1,1 +1,21 @@
-"use strict";parserFactory.register("krytykal.org",()=>new KrytykalParser);class KrytykalParser extends Parser{constructor(){super()}getChapterUrls(r){let e=r.querySelector("div.nav-menu");return Promise.resolve(util.hyperlinksToChapterList(e))}findContent(r){return r.querySelector("div#content article")}}
+/*
+  parses krytykal.org
+*/
+"use strict";
+
+parserFactory.register("krytykal.org", () => new KrytykalParser());
+
+class KrytykalParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let menu = dom.querySelector("div.nav-menu");
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#content article");
+    }
+}

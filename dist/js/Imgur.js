@@ -1,1 +1,112 @@
-"use strict";class Imgur{constructor(){}static async expandGalleries(e,t){for(let r of Imgur.getGalleryLinksToReplace(e)){let e=Imgur.fixupImgurGalleryUrl(r.href);try{let t=await HttpClient.wrapFetch(e);Imgur.replaceGalleryHyperlinkWithImages(r,t.responseXML)}catch(e){let l=UIText.Error.imgurFetchFailed(r.href,t,e);ErrorLog.log(l)}}return e}static isImgurGallery(e){let t=util.extractHostName(e.baseURI).toLowerCase();return Imgur.isImgurHostName(t)}static isImgurHostName(e){return"imgur.com"===e||e.endsWith(".imgur.com")}static convertGalleryToConventionalForm(e){let t=Imgur.findImagesList(e);return null==t?null:Imgur.constructStandardHtmForImgur(t)}static constructStandardHtmForImgur(e){let t=document.implementation.createHTMLDocument(),r=t.createElement("div");t.body.appendChild(r);for(let l of e){let e=t.createElement("img");e.src="http://i.imgur.com/"+l.hash+l.ext,r.appendChild(e)}return r}static findImagesList(e){let t=Imgur.findImagesJson(e);if(null!=t)return null!=t.album_images?t.album_images.images:[t]}static findImagesJson(e){for(let t of Imgur.scriptsWithRunSlots(e)){let e=util.locateAndExtractJson(t,"item:");if(null!=e)return e}return null}static scriptsWithRunSlots(e){return[...e.querySelectorAll("script")].map(e=>e.innerHTML).filter(e=>0<=e.indexOf("window.runSlots"))}static isHyperlinkToImgurGallery(e){return Imgur.isImgurHostName(e.hostname)&&!ImageCollector.linkContainsImageTag(e)&&Imgur.isLinkToGallery(e)}static isLinkToGallery(e){return!util.extractFilename(e).includes(".")}static replaceGalleryHyperlinkWithImages(e,t){if(Imgur.isImgurGallery(t)){let r=Imgur.convertGalleryToConventionalForm(t);e.replaceWith(r)}}static getGalleryLinksToReplace(e){return util.getElements(e,"a",Imgur.isHyperlinkToImgurGallery)}static fixupImgurGalleryUrl(e){let t=document.createElement("a");return t.href=e,Imgur.isHyperlinkToImgurGallery(t)&&!e.endsWith("?grid")?e+"?grid":e}}
+/*
+  This holds code for transforming an imgur gallery into content image collector can handle
+*/
+"use strict";
+
+class Imgur { // eslint-disable-line no-unused-vars
+    constructor() {
+    }
+
+    static async expandGalleries(content, parentPageUrl) {
+        for (let link of Imgur.getGalleryLinksToReplace(content)) {
+            let href = Imgur.fixupImgurGalleryUrl(link.href);
+            try { 
+                let xhr = await HttpClient.wrapFetch(href);
+                Imgur.replaceGalleryHyperlinkWithImages(link, xhr.responseXML);
+            } catch (err) {
+                let errorMsg = UIText.Error.imgurFetchFailed(link.href, parentPageUrl, err);
+                ErrorLog.log(errorMsg);
+            }
+        }
+        return content; 
+    }
+
+    static isImgurGallery(dom) {
+        let host = util.extractHostName(dom.baseURI).toLowerCase();
+        return Imgur.isImgurHostName(host);
+    }
+
+    static isImgurHostName(host) {
+        return (host === "imgur.com") || (host.endsWith(".imgur.com"));
+    }
+
+    static convertGalleryToConventionalForm(dom) {
+        let imagesList = Imgur.findImagesList(dom);
+        return (imagesList == null) ? null : Imgur.constructStandardHtmForImgur(imagesList);
+    }
+
+    static constructStandardHtmForImgur(imagesList) {
+        let doc = document.implementation.createHTMLDocument();
+        let div = doc.createElement("div");
+        doc.body.appendChild(div);
+        for (let item of imagesList) {
+            let img = doc.createElement("img");
+            // ToDo: use real image to build URI
+            img.src = "http://i.imgur.com/" + item.hash + item.ext;
+            div.appendChild(img);
+        }
+        return div;
+    }
+
+    static findImagesList(dom) {
+        let json = Imgur.findImagesJson(dom);
+        if (json != null) {
+            if (json.album_images != null) {
+                return json.album_images.images;
+            } else {
+                return [ json ];
+            }
+        }
+    }
+
+    static findImagesJson(dom) {
+        // Ugly hack, need to find the list of images as image links are created dynamically in HTML.
+        // Obviously this will break each time imgur change their scripts.
+        for (let text of Imgur.scriptsWithRunSlots(dom)) {
+            let json = util.locateAndExtractJson(text, "item:");
+            if (json != null) {
+                return json;
+            }
+        }
+        return null;
+    }
+
+    static scriptsWithRunSlots(dom) {
+        return [...dom.querySelectorAll("script")]
+            .map(s => s.innerHTML)
+            .filter(i => (0 <= i.indexOf("window.runSlots")));
+    }
+
+    static isHyperlinkToImgurGallery(hyperlink) {
+        return Imgur.isImgurHostName(hyperlink.hostname)
+          && !ImageCollector.linkContainsImageTag(hyperlink)
+          && Imgur.isLinkToGallery(hyperlink);
+    }
+
+    /** @private 
+     * Hack, assume if no extension, it's a gallery
+    */
+    static isLinkToGallery(hyperlink) {
+        return !util.extractFilename(hyperlink).includes(".");
+    }
+
+    static replaceGalleryHyperlinkWithImages(link, galleryDom) {
+        if (Imgur.isImgurGallery(galleryDom)) {
+            let images =  Imgur.convertGalleryToConventionalForm(galleryDom);
+            link.replaceWith(images);
+        }       
+    }
+
+    static getGalleryLinksToReplace(dom) {
+        return util.getElements(dom, "a", Imgur.isHyperlinkToImgurGallery);
+    }
+
+    static fixupImgurGalleryUrl(url) {
+        let link = document.createElement("a");
+        link.href = url;
+        if (Imgur.isHyperlinkToImgurGallery(link) && !url.endsWith("?grid")) {
+            return url + "?grid";
+        }
+        return url;
+    }
+}

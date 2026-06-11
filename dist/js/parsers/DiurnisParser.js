@@ -1,1 +1,78 @@
-"use strict";parserFactory.register("diurnis.com",()=>new DiurnisParser);class DiurnisParser extends Parser{constructor(){super()}async getChapterUrls(t,e){let r=this.extractPartialChapterList(t),n=this.getUrlsOfTocPages(t);return(await this.getChaptersFromAllTocPages(r,this.extractPartialChapterList,n,e)).reverse()}getUrlsOfTocPages(t){let e=t.baseURI,r=this.extractMaxToc(t),n=[];for(let t=2;t<=r;++t)n.push(`${e}?page=${t}`);return n}extractMaxToc(t){let e=[...t.querySelectorAll("main div.justify-center button")];return e.length<4?1:parseInt(e[e.length-2].textContent)}extractPartialChapterList(t){let e=t.querySelector("table");return util.hyperlinksToChapterList(e)}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(t){return t.querySelector("h1")}findCoverImageUrl(t){return util.getFirstImgSrc(t,"main picture")}async fetchChapter(t){let e=(await HttpClient.wrapFetch(t)).responseXML;return this.buildChapter(e,t)}buildChapter(t,e){let r=Parser.makeEmptyDocForContent(e),n=r.dom.createElement("h1");n.textContent=t.querySelector("h1").textContent,r.content.appendChild(n);let a=t.querySelector("p.break-words").textContent.replace(/\n\n/g,"\n").split("\n");for(let t of a){let e=r.dom.createElement("p");e.textContent=t,r.content.appendChild(e)}return r.dom}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll(".pb-4")]}}
+"use strict";
+
+parserFactory.register("diurnis.com", () => new DiurnisParser());
+
+class DiurnisParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let tocPage1chapters = this.extractPartialChapterList(dom);
+        let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
+        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
+            this.extractPartialChapterList,
+            urlsOfTocPages,
+            chapterUrlsUI
+        )).reverse();
+    }
+
+    getUrlsOfTocPages(dom) {
+        let baseUrl = dom.baseURI;
+        let max = this.extractMaxToc(dom);
+        let tocUrls = [];
+        for (let i = 2; i <= max; ++i) {
+            tocUrls.push(`${baseUrl}?page=${i}`);
+        }
+        return tocUrls;
+    }
+
+    extractMaxToc(dom) {
+        let buttons = [...dom.querySelectorAll("main div.justify-center button")];
+        return (buttons.length < 4) 
+            ? 1
+            : parseInt(buttons[buttons.length-2].textContent);
+    }
+
+    extractPartialChapterList(dom) {
+        let menu = dom.querySelector("table");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "main picture");
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        return this.buildChapter(dom, url);
+    }
+
+    buildChapter(dom, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = dom.querySelector("h1").textContent;
+        newDoc.content.appendChild(title);
+        let text = dom.querySelector("p.break-words").textContent
+            .replace(/\n\n/g, "\n")
+            .split("\n");
+        for (let element of text) {
+            let pnode = newDoc.dom.createElement("p");
+            pnode.textContent = element;
+            newDoc.content.appendChild(pnode);
+        }
+        return newDoc.dom;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".pb-4")];
+    }
+}

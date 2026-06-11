@@ -1,1 +1,47 @@
-"use strict";parserFactory.register("www.rebirth.online",()=>new RebirthOnlineParser);class RebirthOnlineParser extends Parser{constructor(){super()}getChapterUrls(e){let t=e.querySelector("div.table_of_content");return Promise.resolve(util.hyperlinksToChapterList(t))}findContent(e){return e.querySelector(".entry-content")}extractTitleImpl(e){return e.querySelector(".entry-title a")}findChapterTitle(e){return e.querySelector(".chapter-title")}customRawDomToContentStep(e,t){const r=Array.from(e.rawDom.querySelectorAll("head style")).filter(e=>e.textContent.trim()),n=[];r.forEach(e=>{const t=/(\.[a-zA-Z0-9]+)/g,r=e.textContent;if(!~r.indexOf("-999"))return;let o;for(;null!=(o=t.exec(r));)n.push(...o)}),n.filter((e,t,r)=>r.indexOf(e)===t).forEach(e=>{t.querySelectorAll(e).forEach(e=>e.remove())})}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".entry-title, div.entry-content p")]}}
+"use strict";
+
+parserFactory.register("www.rebirth.online", () => new RebirthOnlineParser());
+
+class RebirthOnlineParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let menu = dom.querySelector("div.table_of_content");
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
+    }
+
+    findContent(dom) {
+        return dom.querySelector(".entry-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title a");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".chapter-title");
+    }
+
+    customRawDomToContentStep(webPage, content) {
+        const styles = Array.from(webPage.rawDom.querySelectorAll("head style")).filter(s => s.textContent.trim());
+        const classes = [];
+        styles.forEach(s => {
+            const re = /(\.[a-zA-Z0-9]+)/g;
+            const t = s.textContent;
+            if (!~t.indexOf("-999")) return;
+            let c;
+            while ((c = re.exec(t)) != null) {
+                classes.push(...c);
+            }
+        });
+        classes.filter((v,i,a) => a.indexOf(v)===i).forEach(c => {
+            content.querySelectorAll(c).forEach(n => n.remove());
+        });
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".entry-title, div.entry-content p")];
+    }
+}

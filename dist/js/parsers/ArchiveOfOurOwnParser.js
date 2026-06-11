@@ -1,1 +1,146 @@
-"use strict";parserFactory.register("archiveofourown.org",()=>new ArchiveOfOurOwnParser);class ArchiveOfOurOwnParser extends Parser{constructor(){super()}isExtension(){return"undefined"!=typeof chrome&&!!chrome.runtime&&!!chrome.runtime.id||"undefined"!=typeof browser&&!!browser.runtime&&!!browser.runtime.id}async getChapterUrls(e,t){if(e.baseURI.includes("/series/")){let r=[],n=[...e.querySelectorAll("ul.series.work > li")];for(let e of n){let n=await this.processWorkElement(e);t.showTocProgress(n),r=r.concat(n)}return r}let r=this.getBaseUrl(e);if(null===e.querySelector("li.chapter"))return this.singleChapterStory(r,e);{let t=e.querySelector("ul#chapter_index a")||e.querySelector("li.chapter noscript a");return t?this.fetchChapterUrls(t.href):this.singleChapterStory(r,e)}}async processWorkElement(e){let t=e.querySelector("dd.chapters a");return null===t?this.processSingleChapterWork(e):this.processMultiChapterWork(t)}async processSingleChapterWork(e){let t=e.querySelector("h4.heading a");return[this.linkToTocEntry(t)]}async processMultiChapterWork(e){let t=this.linkToTocUrl(e);return this.fetchChapterUrls(t)}async fetchChapterUrls(e){let t=this.isExtension()?{bypassProxy:!0}:{};return[...(await HttpClient.wrapFetch(e,t)).responseXML.querySelectorAll("ol.chapter a")].map(e=>this.linkToTocEntry(e))}linkToTocEntry(e){return{sourceUrl:this.setViewAdultFlag(e.href),title:e.textContent}}setViewAdultFlag(e){return(e=new URL(e)).searchParams.set("view_adult","true"),e.href}linkToTocUrl(e){let t=e.href.indexOf("/chapters/");return e.href.substring(0,t)+"/navigate"}findContent(e){return e.querySelector("div#chapters")}populateUIImpl(){document.getElementById("removeAuthorNotesRow").hidden=!1}extractTitleImpl(e){return e.querySelector("h2.heading")}extractAuthor(e){let t=e.querySelector("a[rel='author']")?.innerText;return t??super.extractAuthor(e)}extractLanguage(e){return e.querySelector("meta[name='language']")?.getAttribute("content")??"en"}extractSubject(e){return[...e.querySelectorAll(".meta .tags a")].map(e=>e.textContent.trim()).filter(e=>e).join(", ")}extractDescription(e){return e.querySelector("div.summary blockquote")?.textContent.trim()??""}findChapterTitle(e){return e.querySelector("h3.title")?null:e.querySelector("h2.heading")}async fetchChapter(e){let t=this.isExtension()?{bypassProxy:!0}:{};return(await HttpClient.wrapFetch(e,t)).responseXML}removeUnwantedElementsFromContentElement(e){if(this.tagAuthorNotes(e.querySelectorAll(".notes")),this.userPreferences.removeAuthorNotes.value){let t=[...e.querySelectorAll(".chapter.preface.group")],r=e.querySelector("h3.title");t[0].replaceWith(r),util.removeElements(t.slice(1))}util.removeChildElementsMatchingSelector(e,"h3.landmark.heading"),super.removeUnwantedElementsFromContentElement(e)}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("dl.meta, div.summary, .notes.module")]}}
+"use strict";
+
+parserFactory.register("archiveofourown.org", () => new ArchiveOfOurOwnParser());
+
+class ArchiveOfOurOwnParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    isExtension() {
+        return (typeof chrome !== "undefined" && !!chrome.runtime && !!chrome.runtime.id) ||
+            (typeof browser !== "undefined" && !!browser.runtime && !!browser.runtime.id);
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let isSeries = dom.baseURI.includes("/series/");
+        if (isSeries) {
+            let chapters = [];
+            let works = [...dom.querySelectorAll("ul.series.work > li")];
+            for (let work of works) {
+                let partialList = await this.processWorkElement(work);
+                chapterUrlsUI.showTocProgress(partialList);
+                chapters = chapters.concat(partialList);
+            }
+            return chapters;
+        }
+
+        let baseUrl = this.getBaseUrl(dom);
+        let chaptersElement = dom.querySelector("li.chapter");
+        if (chaptersElement === null) {
+            return this.singleChapterStory(baseUrl, dom);
+        } else {
+            // Find the Full-Page Index link. 
+            // It could be directly in ul#chapter_index or inside a noscript tag.
+            let chaptersUrlLink = dom.querySelector("ul#chapter_index a") ||
+                dom.querySelector("li.chapter noscript a");
+            if (chaptersUrlLink) {
+                return this.fetchChapterUrls(chaptersUrlLink.href);
+            }
+            // Fallback for single-chapter work (or if navigate is missing)
+            return this.singleChapterStory(baseUrl, dom);
+        }
+    }
+
+    async processWorkElement(work) {
+        let chaptersLink = work.querySelector("dd.chapters a");
+        return chaptersLink === null
+            ? this.processSingleChapterWork(work)
+            : this.processMultiChapterWork(chaptersLink);
+    }
+
+    async processSingleChapterWork(work) {
+        let link = work.querySelector("h4.heading a");
+        return [this.linkToTocEntry(link)];
+    }
+
+    async processMultiChapterWork(chaptersLink) {
+        let url = this.linkToTocUrl(chaptersLink);
+        return this.fetchChapterUrls(url);
+    }
+
+    async fetchChapterUrls(url) {
+        let options = this.isExtension() ? { bypassProxy: true } : {};
+        let dom = (await HttpClient.wrapFetch(url, options)).responseXML;
+        return [...dom.querySelectorAll("ol.chapter a")]
+            .map(link => this.linkToTocEntry(link));
+    }
+
+    linkToTocEntry(link) {
+        return ({
+            sourceUrl: this.setViewAdultFlag(link.href),
+            title: link.textContent
+        });
+    }
+
+    setViewAdultFlag(url) {
+        url = new URL(url);
+        url.searchParams.set("view_adult", "true");
+        return url.href;
+    }
+
+    linkToTocUrl(link) {
+        let index = link.href.indexOf("/chapters/");
+        return link.href.substring(0, index) + "/navigate";
+    }
+
+    // find the node(s) holding the story content
+    findContent(dom) {
+        return dom.querySelector("div#chapters");
+    }
+
+    populateUIImpl() {
+        document.getElementById("removeAuthorNotesRow").hidden = false;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h2.heading");
+    }
+
+    extractAuthor(dom) {
+        let author = dom.querySelector("a[rel='author']")?.innerText;
+        return author ?? super.extractAuthor(dom);
+    }
+
+    extractLanguage(dom) {
+        return dom.querySelector("meta[name='language']")?.getAttribute("content") ?? "en";
+    }
+
+    extractSubject(dom) {
+        let tags = ([...dom.querySelectorAll(".meta .tags a")]);
+        return tags.map(e => e.textContent.trim()).filter(t => t).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector("div.summary blockquote")?.textContent.trim() ?? "";
+    }
+
+    findChapterTitle(dom) {
+        let contentHasTitle = dom.querySelector("h3.title");
+        return contentHasTitle
+            ? null
+            : dom.querySelector("h2.heading");
+    }
+
+    async fetchChapter(url) {
+        let options = this.isExtension() ? { bypassProxy: true } : {};
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        this.tagAuthorNotes(element.querySelectorAll(".notes"));
+        if (this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...element.querySelectorAll(".chapter.preface.group")];
+            let title = element.querySelector("h3.title");
+            notes[0].replaceWith(title);
+            util.removeElements(notes.slice(1));
+        }
+
+        util.removeChildElementsMatchingSelector(element, "h3.landmark.heading");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("dl.meta, div.summary, .notes.module")];
+    }
+}

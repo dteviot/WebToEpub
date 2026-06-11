@@ -1,1 +1,43 @@
-"use strict";parserFactory.register("libri7.com",()=>new Libri7Parser);class Libri7Parser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("ul.chapter-list");return util.hyperlinksToChapterList(r).reverse()}findContent(e){return e.querySelector("div.c-chapter")}extractTitleImpl(e){return e.querySelector(".p-book-detail h3")}async fetchChapter(e){return(await HttpClient.fetchHtml(e)).responseXML}customRawDomToContentStep(e,r){let t=r.querySelector("p.pre-line");if(null!==t){util.convertPreTagToPTags(e.rawDom,t,"\n\n");let r=e.rawDom.createElement("div");util.convertElement(t,r)}}findCoverImageUrl(e){return util.getFirstImgSrc(e,".c-book-cover__wrap")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".book-panel-info__desc")]}}
+"use strict";
+
+parserFactory.register("libri7.com", () => new Libri7Parser());
+
+class Libri7Parser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.chapter-list");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.c-chapter");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".p-book-detail h3");
+    }
+
+    async fetchChapter(url) {
+        return (await HttpClient.fetchHtml(url)).responseXML;
+    }
+
+    customRawDomToContentStep(chapter, content) {
+        let toParse = content.querySelector("p.pre-line");
+        if (toParse !== null) {
+            util.convertPreTagToPTags(chapter.rawDom, toParse, "\n\n");
+            let div = chapter.rawDom.createElement("div");
+            util.convertElement(toParse, div);
+        }
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".c-book-cover__wrap");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".book-panel-info__desc")];
+    }
+}

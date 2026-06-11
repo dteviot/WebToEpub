@@ -1,1 +1,95 @@
-"use strict";parserFactory.register("tapread.com",()=>new TapreadParser);class TapreadParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=[...e.querySelectorAll("a.chapter-item")].map(TapreadParser.linkToChapter);return 0==t.length&&(t=this.fetchToc(e.baseURI)),t}static linkToChapter(e){let t=e.querySelector("p");return t.querySelector("span").remove(),{sourceUrl:e.href,title:t.textContent}}async fetchToc(e){let t=new URL(e).pathname.split("/").pop(),r=`bookId=${t}`;return(await this.fetchJson("http://www.tapread.com/ajax/book/contents",r)).result.chapterList.map(e=>this.jsonToChapterUrl(e,t))}jsonToChapterUrl(e,t){return{sourceUrl:`http://www.tapread.com/book/index/${t}/${e.chapterId}`,title:e.chapterName}}findContent(e){return Parser.findConstrutedContent(e)}extractTitleImpl(e){return e.querySelector("div.book-name")}extractAuthor(e){let t=e.querySelector("div.author > span.name");return null===t?super.extractAuthor(e):t.textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.book-img")}async fetchChapter(e){let t=new URL(e).pathname.split("/"),r=t.pop(),a=`bookId=${t.pop()}&chapterId=${r}`,o="http://www.tapread.com/ajax/book/chapter",n=await this.fetchJson(o,a);return TapreadParser.jsonToHtml(n,o)}async fetchJson(e,t){let r={method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"},credentials:"include",body:t};return(await HttpClient.fetchJson(e,r)).json}static jsonToHtml(e,t){let r=Parser.makeEmptyDocForContent(t),a=r.dom.createElement("h1");a.textContent=e.result.chapterName,r.content.appendChild(a);let o=util.sanitize(e.result.content);return util.moveChildElements(o.body,r.content),r.dom}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.synopsis p.desc")]}}
+"use strict";
+
+parserFactory.register("tapread.com", () => new TapreadParser());
+
+class TapreadParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let chapters = [...dom.querySelectorAll("a.chapter-item")]
+            .map(TapreadParser.linkToChapter);
+        if (chapters.length == 0) {
+            chapters = this.fetchToc(dom.baseURI);
+        }
+        return chapters;
+    }
+
+    static linkToChapter(link) {
+        let title = link.querySelector("p");
+        title.querySelector("span").remove();
+        return ({
+            sourceUrl: link.href,
+            title: title.textContent
+        });
+    }
+
+    async fetchToc(url) {
+        let bookId = new URL(url).pathname.split("/").pop();
+        let body = `bookId=${bookId}`;
+        let fetchUrl = "http://www.tapread.com/ajax/book/contents";
+        let json = await this.fetchJson(fetchUrl, body);
+        return json.result.chapterList.map(j => this.jsonToChapterUrl(j, bookId));
+    }
+
+    jsonToChapterUrl(json, bookId) {
+        return {
+            sourceUrl: `http://www.tapread.com/book/index/${bookId}/${json.chapterId}`,
+            title: json.chapterName
+        };
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book-name");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.author > span.name");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.book-img");
+    }
+
+    async fetchChapter(url) {
+        let parts = new URL(url).pathname.split("/");
+        let chapterId = parts.pop();
+        let bookId = parts.pop();
+        let body = `bookId=${bookId}&chapterId=${chapterId}`;
+        let fetchUrl = "http://www.tapread.com/ajax/book/chapter";
+        let json = await this.fetchJson(fetchUrl, body);
+        return TapreadParser.jsonToHtml(json, fetchUrl);
+    }
+
+    async fetchJson(url, body) {
+        let options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            credentials: "include",
+            body: body
+        };
+        return (await HttpClient.fetchJson(url, options)).json;
+    }
+
+    static jsonToHtml(json, fetchUrl) {
+        let newDoc = Parser.makeEmptyDocForContent(fetchUrl);
+        let header = newDoc.dom.createElement("h1");
+        header.textContent = json.result.chapterName;
+        newDoc.content.appendChild(header);
+        let content = util.sanitize(json.result.content);
+        util.moveChildElements(content.body, newDoc.content);
+        return newDoc.dom;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.synopsis p.desc")];
+    }
+}

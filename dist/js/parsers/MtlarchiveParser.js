@@ -1,1 +1,100 @@
-"use strict";parserFactory.register("fictionzone.net",()=>new MtlarchiveParser);class MtlarchiveParser extends Parser{constructor(){super(),this.minimumThrottle=3e3}async getChapterUrls(t){let e=await this.fetchStoryId(t.baseURI),r=await this.fetchChaptersJson(e);return this.jsonToChapterList(r,e)}toChapter(t){return{title:t.querySelector("span.chapter-title").textContent,sourceUrl:t.href}}async fetchStoryId(t){let e="/platform/novel-details?slug="+this.extractSlug(t),r=await this.fetchJsonFromSite(e);return r?.data?.id||null}async fetchChaptersJson(t){let e="/platform/chapter-lists?novel_id="+t,r=await this.fetchJsonFromSite(e);return r?.data?.chapters??[]}jsonToChapterList(t,e){return t.map(t=>({title:t.title,sourceUrl:`https://fictionzone.net/platform/chapter-content?novel_id=${e}&chapter_id=${t.chapter_id}&&highlight=true`}))}extractSlug(t){return t.split("/").pop()}async fetchJsonFromSite(t){let e={method:"POST",headers:{Accept:"application/json","Content-Type":"application/json"},credentials:"include",body:`{"path": "${t}","method": "get" }`};return(await HttpClient.fetchJson("https://fictionzone.net/api/__api_party/fictionzone",e)).json}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(t){return t.querySelector("h1.novel-title")}extractAuthor(t){let e=t.querySelector(".metadata-value");return e?.textContent??super.extractAuthor(t)}async fetchChapter(t){let e=t.replace("https://fictionzone.net",""),r=await this.fetchJsonFromSite(e);return this.buildChapter(r.data,t)}buildChapter(t,e){let r=Parser.makeEmptyDocForContent(e),n=r.dom.createElement("h1");return n.textContent=t.title,r.content.appendChild(n),Parser.addTextToChapterContent(r,t.content),r.dom}findCoverImageUrl(t){return util.getFirstImgSrc(t,".cover-image-wrapper")}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll(".synopsis-text")]}}
+"use strict";
+
+parserFactory.register("fictionzone.net", () => new MtlarchiveParser());
+
+// mtlarchive.com and reader-hub.com were previous names of site
+
+class MtlarchiveParser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
+    }
+
+    async getChapterUrls(dom) {
+        let storyId = await this.fetchStoryId(dom.baseURI);
+        let json = await this.fetchChaptersJson(storyId);
+        return this.jsonToChapterList(json, storyId);
+    }
+
+    toChapter(link) {
+        return ({
+            title: link.querySelector("span.chapter-title").textContent,
+            sourceUrl: link.href
+        });
+    }
+
+    async fetchStoryId(url) {
+        let path = "/platform/novel-details?slug=" + this.extractSlug(url);
+        let json = await this.fetchJsonFromSite(path);
+        return json?.data?.id || null;
+    }
+
+    async fetchChaptersJson(storyId) {
+        let path = "/platform/chapter-lists?novel_id=" + storyId;
+        let json = await this.fetchJsonFromSite(path);
+        return json?.data?.chapters ?? [];
+    }
+
+    jsonToChapterList(json, storyId) {
+        return json.map(c => ({
+            title: c.title,
+            sourceUrl: `https://fictionzone.net/platform/chapter-content?novel_id=${storyId}&chapter_id=${c.chapter_id}&&highlight=true`
+        }));
+    }
+
+    extractSlug(url) {
+        return url.split("/").pop();
+    }
+
+    async fetchJsonFromSite(path) {
+        let payload = `{"path": "${path}",` +
+            "\"method\": \"get\" }";
+        let options = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: payload
+        };
+        let json = (await HttpClient.fetchJson("https://fictionzone.net/api/__api_party/fictionzone", options)).json;
+        return json;
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.novel-title");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".metadata-value");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    async fetchChapter(url) {
+        let path = url.replace("https://fictionzone.net", "");
+        let json = await this.fetchJsonFromSite(path);
+        return this.buildChapter(json.data, url);
+    }
+
+    buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = json.title;
+        newDoc.content.appendChild(title);
+        Parser.addTextToChapterContent(newDoc, json.content);
+        return newDoc.dom;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".cover-image-wrapper");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".synopsis-text")];
+    }
+}

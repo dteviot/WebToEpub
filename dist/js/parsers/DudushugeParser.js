@@ -1,1 +1,55 @@
-"use strict";parserFactory.register("www.dudushuge.com",()=>new DudushugeParser);class DudushugeParser extends Parser{constructor(){super()}async getChapterUrls(e,t){let r=DudushugeParser.extractPartialChapterList(e),a=DudushugeParser.getUrlsOfTocPages(e);return await this.getChaptersFromAllTocPages(r,DudushugeParser.extractPartialChapterList,a,t)}static getUrlsOfTocPages(e){return[...e.querySelectorAll(".middle > select:nth-child(1) option")].map(t=>new URL(t.value,e.baseURI).href)}static extractPartialChapterList(e){return[...e.querySelectorAll("div.section-box:nth-child(4) > ul:nth-child(1) li a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("#content")}extractTitleImpl(e){return e.querySelector(".top > h1:nth-child(1)")}extractAuthor(e){let t=e.querySelector("div.fix > p:nth-child(1)");return t?.textContent.replace("作者：","").trim()??super.extractAuthor(e)}extractLanguage(){return"zh-CN"}extractDescription(e){return e.querySelector(".desc").textContent.trim()}findCoverImageUrl(e){return util.getFirstImgSrc(e,".imgbox")}}
+"use strict";
+
+parserFactory.register("www.dudushuge.com", () => new DudushugeParser());
+
+class DudushugeParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let tocPage1chapters = DudushugeParser.extractPartialChapterList(dom);
+        let urlsOfTocPages  = DudushugeParser.getUrlsOfTocPages(dom);
+        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
+            DudushugeParser.extractPartialChapterList,
+            urlsOfTocPages,
+            chapterUrlsUI
+        ));
+    }
+
+    static getUrlsOfTocPages(dom) {
+        return [...dom.querySelectorAll(".middle > select:nth-child(1) option")]
+            .map(opt => new URL(opt.value, dom.baseURI).href);
+    }
+
+    static extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("div.section-box:nth-child(4) > ul:nth-child(1) li a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+    
+    findContent(dom) {
+        return dom.querySelector("#content");
+    }
+        
+    extractTitleImpl(dom) {
+        return dom.querySelector(".top > h1:nth-child(1)");
+    }
+    
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.fix > p:nth-child(1)");
+        
+        return authorLabel?.textContent.replace("作者：", "").trim() ?? super.extractAuthor(dom);
+    }
+    
+    extractLanguage() {
+        return "zh-CN";
+    }
+    
+    extractDescription(dom) {
+        return dom.querySelector(".desc").textContent.trim();
+    }
+    
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".imgbox");
+    }
+}

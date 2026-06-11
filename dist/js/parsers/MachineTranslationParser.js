@@ -1,1 +1,44 @@
-"use strict";parserFactory.register("machine-translation.org",()=>new MachineTranslationParser);class MachineTranslationParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("div.table-body, div.chapter-list");return util.hyperlinksToChapterList(t).reverse()}findContent(e){return e.querySelector("div.read-context")}extractTitleImpl(e){return e.querySelector("div.title b, h2.title")}extractAuthor(e){let t=e.querySelector("div.title span, p.author");return null===t?super.extractAuthor(e):t.textContent}findChapterTitle(e){return e.querySelector(".read-title")}findCoverImageUrl(e){let t=e.querySelector("div.book-img");return t.querySelector("img")?util.getFirstImgSrc(e,"div.book-img"):util.extractUrlFromBackgroundImage(t)}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.book-info-bottom .context")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("machine-translation.org", () => new MachineTranslationParser());
+
+class MachineTranslationParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let toc = dom.querySelector("div.table-body, div.chapter-list");
+        return util.hyperlinksToChapterList(toc).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.read-context");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.title b, h2.title");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.title span, p.author");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".read-title");
+    }
+
+    findCoverImageUrl(dom) {
+        let bookimg = dom.querySelector("div.book-img");
+        if (bookimg.querySelector("img")) {
+            return util.getFirstImgSrc(dom, "div.book-img");
+        }
+        return util.extractUrlFromBackgroundImage(bookimg);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.book-info-bottom .context")];
+    }
+}

@@ -1,1 +1,17 @@
-"use strict";parserFactory.register("midnightrambles.in",()=>new MidnightramblesParser);class MidnightramblesParser extends WordpressBaseParser{constructor(){super()}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"span[data-ez-ph-id]"),[...e.querySelectorAll("span")].filter(e=>e.id.startsWith("ezoic-")).forEach(e=>e.remove()),super.removeUnwantedElementsFromContentElement(e)}}
+"use strict";
+
+parserFactory.register("midnightrambles.in", () => new MidnightramblesParser());
+
+class MidnightramblesParser extends WordpressBaseParser {
+    constructor() {
+        super();
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "span[data-ez-ph-id]");
+        [...element.querySelectorAll("span")]
+            .filter(s => s.id.startsWith("ezoic-"))
+            .forEach(s => s.remove());
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}

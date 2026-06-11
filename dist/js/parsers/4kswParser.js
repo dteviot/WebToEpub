@@ -1,1 +1,35 @@
-"use strict";parserFactory.register("4ksw.com",()=>new _4kswParser);class _4kswParser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("ul.list-charts");return util.hyperlinksToChapterList(r)}findContent(e){return e.querySelector(".content-body")}findChapterTitle(e){return e.querySelector(".panel-heading")}findCoverImageUrl(e){return util.getFirstImgSrc(e,".info1")}async fetchChapter(e){let r={makeTextDecoder:()=>new TextDecoder("gbk")};return(await HttpClient.wrapFetch(e,r)).responseXML}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".info2 div")]}}
+"use strict";
+
+parserFactory.register("4ksw.com", () => new _4kswParser());
+
+class _4kswParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.list-charts");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector(".content-body");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".panel-heading");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".info1");
+    }
+
+    async fetchChapter(url) {
+        let options = { makeTextDecoder: () => new TextDecoder("gbk") };
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".info2 div")];
+    }
+}

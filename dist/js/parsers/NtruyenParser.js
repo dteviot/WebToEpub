@@ -1,1 +1,83 @@
-"use strict";parserFactory.register("ntruyen.vn",()=>new NtruyenParser);class NtruyenParser extends Parser{constructor(){super()}async getChapterUrls(t,e){let r=this.extractPartialChapterList(t);e.showTocProgress(r);let a=this.getNumOfTocPages(t),o=this.getStoryId(t);for(let t=2;t<=a;++t){let a=this.createFormData(o,t),s=await this.fetchToc(a),n=this.extractPartialChapterList(s);e.showTocProgress(n),r=r.concat(n)}return r}extractPartialChapterList(t){let e=t.querySelector("ul.chapter-list");return util.hyperlinksToChapterList(e)}getNumOfTocPages(t){let e=t.querySelector(".goto button")?.getAttribute("data-total");return null!=e?parseInt(e):1}getStoryId(t){return t.baseURI.split("-").pop().split(".")[0]}async fetchToc(t){let e={method:"POST",credentials:"include",body:t},r=(await HttpClient.fetchJson("https://ntruyen.vn//ajax/load_chapter",e)).json;return util.sanitize(r.chapters)}createFormData(t,e){let r=new FormData;return r.append("story_id",t),r.append("page",e),r}findContent(t){return t.querySelector("#chapter-content")}extractTitleImpl(t){return t.querySelector(".story-title h1")}extractAuthor(t){let e=t.querySelector(".story-title a");return e?.textContent??super.extractAuthor(t)}findChapterTitle(t){return t.querySelector(".chapter-infos h1")}findCoverImageUrl(t){return util.getFirstImgSrc(t,".cover")}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll(".description")]}}
+"use strict";
+
+parserFactory.register("ntruyen.vn", () => new NtruyenParser());
+
+class NtruyenParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let chapters = this.extractPartialChapterList(dom);
+        chapterUrlsUI.showTocProgress(chapters);
+
+        let numPages = this.getNumOfTocPages(dom);
+        let storyId = this.getStoryId(dom);
+        for (let i = 2; i <= numPages; ++i) {
+            let formData = this.createFormData(storyId, i);
+            let tocPage = await (this.fetchToc(formData));
+            let partialList = this.extractPartialChapterList(tocPage);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
+    }
+
+    extractPartialChapterList(dom) {
+        let menu = dom.querySelector("ul.chapter-list");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    getNumOfTocPages(dom) {
+        let val = dom.querySelector(".goto button")?.getAttribute("data-total");
+        return val != null
+            ? parseInt(val)
+            : 1;
+    }
+
+    getStoryId(dom) {
+        return dom.baseURI.split("-").pop().split(".")[0];
+    }
+
+    async fetchToc(formData) {
+        let options = {
+            method: "POST",
+            credentials: "include",
+            body: formData
+        };
+        let json = (await HttpClient.fetchJson("https://ntruyen.vn//ajax/load_chapter", options)).json;
+        return util.sanitize(json.chapters);
+    }
+
+    createFormData(storyId, page) {
+        let formData = new FormData();
+        formData.append("story_id", storyId);
+        formData.append("page", page);
+        return formData;
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#chapter-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".story-title h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".story-title a");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".chapter-infos h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".cover");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".description")];
+    }
+}

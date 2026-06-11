@@ -1,1 +1,68 @@
-"use strict";class ParserEnvironment{static async ensureLoaded(){if("undefined"==typeof parserFactory||"undefined"==typeof Parser)return ParserEnvironment.loadPromise||(ParserEnvironment.loadPromise=ParserEnvironment.loadFromPopupHtml()),ParserEnvironment.loadPromise}static async loadFromPopupHtml(){let r=await fetch("plugin/popup.html",{credentials:"same-origin"});if(!r.ok)throw new Error(`Failed to load parser environment: ${r.status}`);let e=[...(await r.text()).matchAll(/<script\s+src="([^"]+)"/g)].map(r=>r[1]).filter(ParserEnvironment.shouldLoadScript).map(r=>ParserEnvironment.toIndexPath(r));for(let r of e)ParserEnvironment.loadedScripts.has(r)||(await ParserEnvironment.injectScript(r),ParserEnvironment.loadedScripts.add(r))}static shouldLoadScript(r){return"js/ParserFactory.js"===r||"js/ImageCollector.js"===r||"js/Imgur.js"===r||"js/ChapterUrlsUI.js"===r||"js/DefaultParserUI.js"===r||"js/ProgressBar.js"===r||"js/Parser.js"===r||"js/CoverImageUI.js"===r||r.startsWith("js/parsers/")}static toIndexPath(r){return r.startsWith("js/")?`plugin/${r}`:r}static injectScript(r){return new Promise(e=>{let t=document.createElement("script");t.src=r,t.async=!1,t.onload=()=>e(),t.onerror=()=>{console.warn(`[Live Reader] Failed to load ${r}. Skipping.`),e()},document.head.appendChild(t)})}}ParserEnvironment.loadPromise=null,ParserEnvironment.loadedScripts=new Set;
+"use strict";
+
+class ParserEnvironment { // eslint-disable-line no-unused-vars
+    static async ensureLoaded() {
+        if (typeof parserFactory !== "undefined" && typeof Parser !== "undefined") {
+            return;
+        }
+
+        if (!ParserEnvironment.loadPromise) {
+            ParserEnvironment.loadPromise = ParserEnvironment.loadFromPopupHtml();
+        }
+        return ParserEnvironment.loadPromise;
+    }
+
+    static async loadFromPopupHtml() {
+        let response = await fetch("plugin/popup.html", { credentials: "same-origin" });
+        if (!response.ok) {
+            throw new Error(`Failed to load parser environment: ${response.status}`);
+        }
+
+        let html = await response.text();
+        let matches = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map(match => match[1]);
+        let scripts = matches
+            .filter(ParserEnvironment.shouldLoadScript)
+            .map(src => ParserEnvironment.toIndexPath(src));
+
+        for (let scriptSrc of scripts) {
+            if (ParserEnvironment.loadedScripts.has(scriptSrc)) {
+                continue;
+            }
+            await ParserEnvironment.injectScript(scriptSrc);
+            ParserEnvironment.loadedScripts.add(scriptSrc);
+        }
+    }
+
+    static shouldLoadScript(src) {
+        return src === "js/ParserFactory.js"
+            || src === "js/ImageCollector.js"
+            || src === "js/Imgur.js"
+            || src === "js/ChapterUrlsUI.js"
+            || src === "js/DefaultParserUI.js"
+            || src === "js/ProgressBar.js"
+            || src === "js/Parser.js"
+            || src === "js/CoverImageUI.js"
+            || src.startsWith("js/parsers/");
+    }
+
+    static toIndexPath(src) {
+        return src.startsWith("js/") ? `plugin/${src}` : src;
+    }
+
+    static injectScript(src) {
+        return new Promise((resolve) => {
+            let script = document.createElement("script");
+            script.src = src;
+            script.async = false;
+            script.onload = () => resolve();
+            script.onerror = () => {
+                console.warn(`[Live Reader] Failed to load ${src}. Skipping.`);
+                resolve(); // Resolve instead of reject so it doesn't crash the entire reader!
+            };
+            document.head.appendChild(script);
+        });
+    }
+}
+
+ParserEnvironment.loadPromise = null;
+ParserEnvironment.loadedScripts = new Set();

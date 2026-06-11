@@ -1,1 +1,476 @@
-"use strict";parserFactory.register("wuxiaworld.com",()=>new WuxiaworldParser);class WuxiaworldParser extends Parser{constructor(){super()}static encodeVarint(e){const t=[];for(;e>127;)t.push(127&e|128),e>>>=7;return t.push(127&e),t}static buildGrpcPayload(e,t){const r=[];r.push(8),r.push(...WuxiaworldParser.encodeVarint(e)),r.push(16),r.push(...WuxiaworldParser.encodeVarint(t));const a=r.length;return new Uint8Array([0,a>>24&255,a>>16&255,a>>8&255,255&a,...r])}static readVarint(e,t){let r=0,a=0;for(;t<e.length;){const n=e[t++];if(r|=(127&n)<<a,a+=7,!(128&n))break}return{value:r,pos:t}}static readUtf8(e,t,r){const a=e.slice(t,t+r);return(new TextDecoder).decode(a)}static parseChapterMsg(e){const t={name:"",slug:""};let r=0;for(;r<e.length;){const a=e[r++],n=a>>3,o=7&a;if(0===o)r=WuxiaworldParser.readVarint(e,r).pos;else if(2===o){const a=WuxiaworldParser.readVarint(e,r);r=a.pos,2===n?t.name=WuxiaworldParser.readUtf8(e,r,a.value):3===n&&(t.slug=WuxiaworldParser.readUtf8(e,r,a.value)),r+=a.value}else if(5===o)r+=4;else{if(1!==o)break;r+=8}}return t}static parseChapterGroupMsg(e){const t={id:0,title:"",chapters:[]};let r=0;for(;r<e.length;){const a=e[r++],n=a>>3,o=7&a;if(0===o){const a=WuxiaworldParser.readVarint(e,r);r=a.pos,1===n&&(t.id=a.value)}else if(2===o){const a=WuxiaworldParser.readVarint(e,r);r=a.pos;const o=e.slice(r,r+a.value);if(2===n)t.title=WuxiaworldParser.readUtf8(e,r,a.value);else if(6===n){const e=WuxiaworldParser.parseChapterMsg(o);e.slug&&t.chapters.push(e)}r+=a.value}else if(5===o)r+=4;else{if(1!==o)break;r+=8}}return t}static parseGrpcResponse(e){const t=new Uint8Array(e),r=[];let a=0;for(;a<t.length&&!(a+5>t.length);){const e=t[a],n=t[a+1]<<24|t[a+2]<<16|t[a+3]<<8|t[a+4];if(a+=5,128===e)break;const o=a+n;let l=a;for(;l<o;){const e=t[l++],a=e>>3,n=7&e;if(2===n){const e=WuxiaworldParser.readVarint(t,l);if(l=e.pos,1===a){const a=t.slice(l,l+e.value);r.push(WuxiaworldParser.parseChapterGroupMsg(a))}l+=e.value}else{if(0!==n)break;l=WuxiaworldParser.readVarint(t,l).pos}}a=o}return r}static async fetchChapterGroup(e,t){const r=WuxiaworldParser.buildGrpcPayload(e,t),a=await fetch("https://api2.wuxiaworld.com/wuxiaworld.api.v2.Chapters/GetChapterList",{method:"POST",headers:{"Content-Type":"application/grpc-web+proto","x-grpc-web":"1"},body:r});if(!a.ok)throw new Error(`gRPC HTTP ${a.status}`);const n=await a.arrayBuffer();return WuxiaworldParser.parseGrpcResponse(n)}async fetchChapter(e){const t="https://nexuspage-extractor.vercel.app/?url="+encodeURIComponent(e);try{const r=await fetch(t,{signal:AbortSignal.timeout(2e4)});if(!r.ok)throw new Error(`HTTP ${r.status}`);const a=await r.text(),n=(new DOMParser).parseFromString(a,"text/html");try{Object.defineProperty(n,"baseURI",{get:()=>e,configurable:!0})}catch(e){}return util.setBaseTag(e,n),n}catch(t){return(await HttpClient.wrapFetch(e)).responseXML}}static extractReactQueryState(e){try{const t=[...e.querySelectorAll("script")].find(e=>e.textContent.includes("__REACT_QUERY_STATE__"));if(!t)return null;const r=t.textContent.match(/window\.__REACT_QUERY_STATE__\s*=\s*(\{[\s\S]*?\});\s*window\.__APP_CONTEXT__/);if(r)return JSON.parse(r[1])}catch(e){}return null}static getNovelItem(e){const t=WuxiaworldParser.extractReactQueryState(e);if(!t)return null;const r=t.queries.find(e=>e.queryKey&&"novel"===e.queryKey[0]);return r?.state?.data?.item??null}static getChapterItem(e){const t=WuxiaworldParser.extractReactQueryState(e);if(!t)return null;const r=t.queries.find(e=>e.queryKey&&"chapter"===e.queryKey[0]);return r?.state?.data?.item??null}async getChapterUrls(e){try{const t=WuxiaworldParser.getNovelItem(e);if(t&&t.id&&t.slug&&t.chapterInfo){const e=t.id,r=t.slug,a=t.chapterInfo.chapterGroups||[];if(a.length>0){const t=[];for(const n of a){const o=await WuxiaworldParser.fetchChapterGroup(e,n.id);for(const e of o){let n=!0;for(const o of e.chapters){const l={sourceUrl:`https://www.wuxiaworld.com/novel/${r}/${o.slug}`,title:o.name};n&&e.title&&a.length>1&&(l.newArc=e.title,n=!1),t.push(l)}}}if(t.length>0)return t}}}catch(e){}let t=[],r=e.querySelector("div.content div.panel-group");if(null!=r&&(t=util.hyperlinksToChapterList(r,WuxiaworldParser.isChapterHref,WuxiaworldParser.getChapterArc),WuxiaworldParser.removeArcsWhenOnlyOne(t)),0===t.length&&(t=[...e.querySelectorAll("li.chapter-item a")].map(e=>util.hyperLinkToChapter(e))),0===t.length){let r=e.baseURI||"",a=r.split("/novel/")[1]?.split("/")[0]?.split("?")[0];a&&(t=[...e.querySelectorAll("a")].filter(e=>{let t=e.getAttribute("href");return t&&t.includes(`/novel/${a}/`)}).map(e=>util.hyperLinkToChapter(e)))}return t}static isChapterHref(e){let t=e.parentNode;return"li"===t.tagName.toLowerCase()&&"chapter-item"===t.className}static getChapterArc(e){let t=function(e){return"div"===e.tagName.toLowerCase()&&"panel panel-default"===e.className},r=e;do{if(r=r.parentNode,null==r)return null}while(!t(r));let a=r.querySelector("span.title a");return null==a?null:a.textContent.trim()}static removeArcsWhenOnlyOne(e){e.reduce((e,t)=>e+(null!=t.newArc),0)<2&&e.forEach(e=>e.newArc=null)}findContent(e){try{const t=WuxiaworldParser.getChapterItem(e);if(t&&t.content&&t.content.value){const r=(e.ownerDocument||e).createElement("div");r.id="wte-wuxia-content",r.innerHTML=t.content.value;const a=e.querySelector("body");return a&&a.appendChild(r),r}}catch(e){}let t=[...e.querySelectorAll("#chapter-content, .chapter-content, div.fr-view:not(.panel-body), div.fr-view")],r=WuxiaworldParser.elementWithMostParagraphs(t);return null==r&&(r=super.findContent(e)),r&&this.cleanContent(r),r}static elementWithMostParagraphs(e){return 0===e.length?null:e.map(e=>({e:e,numParagraphs:[...e.querySelectorAll("p")].length})).reduce((e,t)=>e.numParagraphs<t.numParagraphs?t:e).e}cleanContent(e){util.removeChildElementsMatchingSelector(e,"button, #spoiler_teaser");let t=[...e.querySelectorAll("a")].filter(e=>"Teaser"===e.textContent);util.removeElements(t)}findChapterTitle(e){try{const t=WuxiaworldParser.getChapterItem(e);if(t&&t.name){const r=(e.ownerDocument||e).createElement("h1");return r.textContent=t.name,r}}catch(e){}return e.querySelector("div.caption h4")||e.querySelector("h4.chapter-title")||e.querySelector("h1.chapter-title")||e.querySelector("h3.chapter-title")||e.querySelector(".chapter-title")||e.querySelector("h1")||e.querySelector("h2")||e.querySelector("h3")||e.querySelector("h4")}extractTitleImpl(e){try{const t=WuxiaworldParser.getNovelItem(e);if(t&&t.name)return t.name}catch(e){}return super.extractTitleImpl(e)}extractAuthor(e){try{const t=WuxiaworldParser.getNovelItem(e);if(t&&t.authorName&&t.authorName.value)return t.authorName.value}catch(e){}let t=e.querySelector("meta[property='books:author']")||e.querySelector("meta[name='author']");return t?t.getAttribute("content"):super.extractAuthor(e)}findCoverImageUrl(e){try{const t=WuxiaworldParser.getNovelItem(e);if(t&&t.coverUrl&&t.coverUrl.value)return t.coverUrl.value}catch(e){}let t=e.querySelector("meta[property='og:image']");return t?t.getAttribute("content"):util.getFirstImgSrc(e,"div.novel-index")||super.findCoverImageUrl(e)}getInformationEpubItemChildNodes(e){let t=[];try{const r=WuxiaworldParser.getNovelItem(e);if(r){const a=e.ownerDocument||e;if(r.synopsis&&r.synopsis.value){const e=a.createElement("div");e.innerHTML="<h3>Synopsis</h3>"+r.synopsis.value,t.push(e)}if(r.description&&r.description.value){const e=a.createElement("div");e.innerHTML="<h3>Description</h3>"+r.description.value,t.push(e)}}}catch(e){}if(0===t.length){t=[...e.querySelectorAll("div.media-novel-index div.media-body")];let r=[...e.querySelectorAll("div.fr-view")];r.length>1&&t.push(r[1])}return t}}
+/*
+  Parses www.wuxiaworld.com
+  Uses gRPC-web API (api2.wuxiaworld.com) which has open CORS - no proxy needed.
+*/
+"use strict";
+
+parserFactory.register("wuxiaworld.com", () => new WuxiaworldParser());
+
+class WuxiaworldParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    // ─── gRPC-web helpers ────────────────────────────────────────────────────
+
+    static encodeVarint(value) {
+        const bytes = [];
+        while (value > 127) {
+            bytes.push((value & 0x7f) | 0x80);
+            value >>>= 7;
+        }
+        bytes.push(value & 0x7f);
+        return bytes;
+    }
+
+    static buildGrpcPayload(novelId, chapterGroupId) {
+        const body = [];
+        // field 1 = novelId (varint)
+        body.push(0x08);
+        body.push(...WuxiaworldParser.encodeVarint(novelId));
+        // field 2 = chapterGroupId (varint)
+        body.push(0x10);
+        body.push(...WuxiaworldParser.encodeVarint(chapterGroupId));
+        // gRPC-web envelope: flag(0x00) + 4-byte big-endian length
+        const len = body.length;
+        return new Uint8Array([
+            0x00,
+            (len >> 24) & 0xff, (len >> 16) & 0xff, (len >> 8) & 0xff, len & 0xff,
+            ...body
+        ]);
+    }
+
+    static readVarint(bytes, pos) {
+        let result = 0, shift = 0;
+        while (pos < bytes.length) {
+            const b = bytes[pos++];
+            result |= (b & 0x7f) << shift;
+            shift += 7;
+            if ((b & 0x80) === 0) break;
+        }
+        return { value: result, pos };
+    }
+
+    static readUtf8(bytes, start, len) {
+        const slice = bytes.slice(start, start + len);
+        return new TextDecoder().decode(slice);
+    }
+
+    // Parse a single Chapter protobuf message
+    // field2=name(string), field3=slug(string), field6=novelId(varint)
+    static parseChapterMsg(bytes) {
+        const ch = { name: "", slug: "" };
+        let pos = 0;
+        while (pos < bytes.length) {
+            const tagByte = bytes[pos++];
+            const fieldNum = tagByte >> 3;
+            const wireType = tagByte & 0x07;
+            if (wireType === 0) {
+                const r = WuxiaworldParser.readVarint(bytes, pos);
+                pos = r.pos;
+                // skip varint fields we don't need
+            } else if (wireType === 2) {
+                const r = WuxiaworldParser.readVarint(bytes, pos);
+                pos = r.pos;
+                if (fieldNum === 2) ch.name = WuxiaworldParser.readUtf8(bytes, pos, r.value);
+                else if (fieldNum === 3) ch.slug = WuxiaworldParser.readUtf8(bytes, pos, r.value);
+                pos += r.value;
+            } else if (wireType === 5) {
+                pos += 4;
+            } else if (wireType === 1) {
+                pos += 8;
+            } else {
+                break;
+            }
+        }
+        return ch;
+    }
+
+    // Parse a ChapterGroup protobuf message
+    // field1=groupId(varint), field2=title(string), field6=repeated Chapter
+    static parseChapterGroupMsg(bytes) {
+        const group = { id: 0, title: "", chapters: [] };
+        let pos = 0;
+        while (pos < bytes.length) {
+            const tagByte = bytes[pos++];
+            const fieldNum = tagByte >> 3;
+            const wireType = tagByte & 0x07;
+            if (wireType === 0) {
+                const r = WuxiaworldParser.readVarint(bytes, pos);
+                pos = r.pos;
+                if (fieldNum === 1) group.id = r.value;
+            } else if (wireType === 2) {
+                const r = WuxiaworldParser.readVarint(bytes, pos);
+                pos = r.pos;
+                const sub = bytes.slice(pos, pos + r.value);
+                if (fieldNum === 2) {
+                    group.title = WuxiaworldParser.readUtf8(bytes, pos, r.value);
+                } else if (fieldNum === 6) {
+                    const ch = WuxiaworldParser.parseChapterMsg(sub);
+                    if (ch.slug) group.chapters.push(ch);
+                }
+                pos += r.value;
+            } else if (wireType === 5) {
+                pos += 4;
+            } else if (wireType === 1) {
+                pos += 8;
+            } else {
+                break;
+            }
+        }
+        return group;
+    }
+
+    // Parse a GetChapterListResponse gRPC-web frame
+    // Top-level field1 = repeated ChapterGroup
+    static parseGrpcResponse(buffer) {
+        const bytes = new Uint8Array(buffer);
+        const groups = [];
+        let pos = 0;
+
+        while (pos < bytes.length) {
+            if (pos + 5 > bytes.length) break;
+            const flag = bytes[pos];
+            const msgLen = (bytes[pos+1] << 24) | (bytes[pos+2] << 16) | (bytes[pos+3] << 8) | bytes[pos+4];
+            pos += 5;
+            if (flag === 0x80) break; // trailers frame
+
+            const end = pos + msgLen;
+            let fp = pos;
+            while (fp < end) {
+                const tagByte = bytes[fp++];
+                const fieldNum = tagByte >> 3;
+                const wireType = tagByte & 0x07;
+                if (wireType === 2) {
+                    const r = WuxiaworldParser.readVarint(bytes, fp);
+                    fp = r.pos;
+                    if (fieldNum === 1) {
+                        const sub = bytes.slice(fp, fp + r.value);
+                        groups.push(WuxiaworldParser.parseChapterGroupMsg(sub));
+                    }
+                    fp += r.value;
+                } else if (wireType === 0) {
+                    const r = WuxiaworldParser.readVarint(bytes, fp);
+                    fp = r.pos;
+                } else {
+                    break;
+                }
+            }
+            pos = end;
+        }
+        return groups;
+    }
+
+    // Fetch chapters for one chapter group via gRPC-web (direct, no proxy needed)
+    static async fetchChapterGroup(novelId, groupId) {
+        const payload = WuxiaworldParser.buildGrpcPayload(novelId, groupId);
+        const response = await fetch(
+            "https://api2.wuxiaworld.com/wuxiaworld.api.v2.Chapters/GetChapterList",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/grpc-web+proto",
+                    "x-grpc-web": "1",
+                },
+                body: payload,
+            }
+        );
+        if (!response.ok) throw new Error(`gRPC HTTP ${response.status}`);
+        const buffer = await response.arrayBuffer();
+        return WuxiaworldParser.parseGrpcResponse(buffer);
+    }
+
+    // ─── Chapter HTML fetching ───────────────────────────────────────────────
+
+    /**
+     * Override fetchChapter: always use the Vercel proxy for Wuxiaworld chapter
+     * pages, since some other proxies (tufive, prasadghanwat123) return 403.
+     * The Vercel nexuspage-extractor proxy works reliably for wuxiaworld.com.
+     */
+    async fetchChapter(url) {
+        const VERCEL_PROXY = "https://nexuspage-extractor.vercel.app/?url=";
+        const proxyUrl = VERCEL_PROXY + encodeURIComponent(url);
+        try {
+            const response = await fetch(proxyUrl, {
+                signal: AbortSignal.timeout(20000),
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const text = await response.text();
+            const doc = new DOMParser().parseFromString(text, "text/html");
+            // Rewrite baseURI so relative links resolve correctly
+            try {
+                Object.defineProperty(doc, "baseURI", {
+                    get: () => url,
+                    configurable: true,
+                });
+            } catch (_) {}
+            util.setBaseTag(url, doc);
+            return doc;
+        } catch (e) {
+            // Fallback to the default proxy system
+            return (await HttpClient.wrapFetch(url)).responseXML;
+        }
+    }
+
+    // ─── Extract novel metadata from __REACT_QUERY_STATE__ ──────────────────
+
+    static extractReactQueryState(dom) {
+        try {
+            const scriptEl = [...dom.querySelectorAll("script")]
+                .find(s => s.textContent.includes("__REACT_QUERY_STATE__"));
+            if (!scriptEl) return null;
+            const match = scriptEl.textContent.match(
+                /window\.__REACT_QUERY_STATE__\s*=\s*(\{[\s\S]*?\});\s*window\.__APP_CONTEXT__/
+            );
+            if (match) return JSON.parse(match[1]);
+        } catch (e) {
+            // ignore
+        }
+        return null;
+    }
+
+    static getNovelItem(dom) {
+        const state = WuxiaworldParser.extractReactQueryState(dom);
+        if (!state) return null;
+        const novelQuery = state.queries.find(q => q.queryKey && q.queryKey[0] === "novel");
+        return novelQuery?.state?.data?.item ?? null;
+    }
+
+    static getChapterItem(dom) {
+        const state = WuxiaworldParser.extractReactQueryState(dom);
+        if (!state) return null;
+        const chapterQuery = state.queries.find(q => q.queryKey && q.queryKey[0] === "chapter");
+        return chapterQuery?.state?.data?.item ?? null;
+    }
+
+    // ─── Chapter URL list ────────────────────────────────────────────────────
+
+    async getChapterUrls(dom) {
+        // Try gRPC-web API first (new site uses React SPA, no chapter links in HTML)
+        try {
+            const item = WuxiaworldParser.getNovelItem(dom);
+            if (item && item.id && item.slug && item.chapterInfo) {
+                const novelId = item.id;
+                const novelSlug = item.slug;
+                const groups = item.chapterInfo.chapterGroups || [];
+
+                if (groups.length > 0) {
+                    const allChapters = [];
+                    for (const group of groups) {
+                        const fetchedGroups = await WuxiaworldParser.fetchChapterGroup(novelId, group.id);
+                        for (const fg of fetchedGroups) {
+                            let isFirst = true;
+                            for (const ch of fg.chapters) {
+                                const entry = {
+                                    sourceUrl: `https://www.wuxiaworld.com/novel/${novelSlug}/${ch.slug}`,
+                                    title: ch.name,
+                                };
+                                if (isFirst && fg.title && groups.length > 1) {
+                                    entry.newArc = fg.title;
+                                    isFirst = false;
+                                }
+                                allChapters.push(entry);
+                            }
+                        }
+                    }
+                    if (allChapters.length > 0) return allChapters;
+                }
+            }
+        } catch (e) {
+            // fall through to DOM-based methods
+        }
+
+        // Legacy DOM-based fallback (old site layout)
+        let chapters = [];
+        let chaptersElement = dom.querySelector("div.content div.panel-group");
+        if (chaptersElement != null) {
+            chapters = util.hyperlinksToChapterList(chaptersElement,
+                WuxiaworldParser.isChapterHref, WuxiaworldParser.getChapterArc);
+            WuxiaworldParser.removeArcsWhenOnlyOne(chapters);
+        }
+        if (chapters.length === 0) {
+            chapters = [...dom.querySelectorAll("li.chapter-item a")]
+                .map(link => util.hyperLinkToChapter(link));
+        }
+        if (chapters.length === 0) {
+            let baseURI = dom.baseURI || "";
+            let slug = baseURI.split("/novel/")[1]?.split("/")[0]?.split("?")[0];
+            if (slug) {
+                chapters = [...dom.querySelectorAll("a")]
+                    .filter(a => {
+                        let href = a.getAttribute("href");
+                        return href && href.includes(`/novel/${slug}/`);
+                    })
+                    .map(link => util.hyperLinkToChapter(link));
+            }
+        }
+        return chapters;
+    }
+
+    static isChapterHref(link) {
+        let parent = link.parentNode;
+        return (parent.tagName.toLowerCase() === "li")
+            && (parent.className === "chapter-item");
+    }
+
+    static getChapterArc(link) {
+        let isPanel = function(element) {
+            return (element.tagName.toLowerCase() === "div")
+                && (element.className === "panel panel-default");
+        };
+        let parent = link;
+        do {
+            parent = parent.parentNode;
+            if (parent == null) return null;
+        } while (!isPanel(parent));
+        let arc = parent.querySelector("span.title a");
+        return arc == null ? null : arc.textContent.trim();
+    }
+
+    static removeArcsWhenOnlyOne(chapters) {
+        let arcCount = chapters.reduce((p, c) => p + (c.newArc != null), 0);
+        if (arcCount < 2) {
+            chapters.forEach(c => c.newArc = null);
+        }
+    }
+
+    // ─── Chapter content ─────────────────────────────────────────────────────
+
+    // find the node(s) holding the story content
+    findContent(dom) {
+        // Try to extract from __REACT_QUERY_STATE__ (website mode - no JS rendering)
+        try {
+            const chapterItem = WuxiaworldParser.getChapterItem(dom);
+            if (chapterItem && chapterItem.content && chapterItem.content.value) {
+                const doc = dom.ownerDocument || dom;
+                const div = doc.createElement("div");
+                div.id = "wte-wuxia-content";
+                div.innerHTML = chapterItem.content.value;
+                // Inject into document so other methods can find it
+                const body = dom.querySelector("body");
+                if (body) body.appendChild(div);
+                return div;
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        // DOM fallback for rendered pages
+        let candidates = [...dom.querySelectorAll("#chapter-content, .chapter-content, div.fr-view:not(.panel-body), div.fr-view")];
+        let content = WuxiaworldParser.elementWithMostParagraphs(candidates);
+        if (content == null) {
+            content = super.findContent(dom);
+        }
+        if (content) {
+            this.cleanContent(content);
+        }
+        return content;
+    }
+
+    static elementWithMostParagraphs(elements) {
+        if (elements.length === 0) return null;
+        return elements.map(
+            e => ({ e: e, numParagraphs: [...e.querySelectorAll("p")].length })
+        ).reduce(
+            (a, c) => a.numParagraphs < c.numParagraphs ? c : a
+        ).e;
+    }
+
+    cleanContent(content) {
+        util.removeChildElementsMatchingSelector(content, "button, #spoiler_teaser");
+        let toDelete = [...content.querySelectorAll("a")]
+            .filter(a => a.textContent === "Teaser");
+        util.removeElements(toDelete);
+    }
+
+    // ─── Chapter title ───────────────────────────────────────────────────────
+
+    findChapterTitle(dom) {
+        // Try from React state first
+        try {
+            const chapterItem = WuxiaworldParser.getChapterItem(dom);
+            if (chapterItem && chapterItem.name) {
+                const doc = dom.ownerDocument || dom;
+                const h1 = doc.createElement("h1");
+                h1.textContent = chapterItem.name;
+                return h1;
+            }
+        } catch (e) {
+            // ignore
+        }
+        return dom.querySelector("div.caption h4") ||
+            dom.querySelector("h4.chapter-title") ||
+            dom.querySelector("h1.chapter-title") ||
+            dom.querySelector("h3.chapter-title") ||
+            dom.querySelector(".chapter-title") ||
+            dom.querySelector("h1") ||
+            dom.querySelector("h2") ||
+            dom.querySelector("h3") ||
+            dom.querySelector("h4");
+    }
+
+    // ─── Novel metadata ──────────────────────────────────────────────────────
+
+    extractTitleImpl(dom) {
+        try {
+            const item = WuxiaworldParser.getNovelItem(dom);
+            if (item && item.name) return item.name;
+        } catch (e) {
+            // ignore
+        }
+        return super.extractTitleImpl(dom);
+    }
+
+    extractAuthor(dom) {
+        try {
+            const item = WuxiaworldParser.getNovelItem(dom);
+            if (item && item.authorName && item.authorName.value) return item.authorName.value;
+        } catch (e) {
+            // ignore
+        }
+        let meta = dom.querySelector("meta[property='books:author']") || dom.querySelector("meta[name='author']");
+        return meta ? meta.getAttribute("content") : super.extractAuthor(dom);
+    }
+
+    findCoverImageUrl(dom) {
+        try {
+            const item = WuxiaworldParser.getNovelItem(dom);
+            if (item && item.coverUrl && item.coverUrl.value) return item.coverUrl.value;
+        } catch (e) {
+            // ignore
+        }
+        let ogImg = dom.querySelector("meta[property='og:image']");
+        if (ogImg) return ogImg.getAttribute("content");
+        return util.getFirstImgSrc(dom, "div.novel-index") || super.findCoverImageUrl(dom);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [];
+        try {
+            const item = WuxiaworldParser.getNovelItem(dom);
+            if (item) {
+                const doc = dom.ownerDocument || dom;
+                if (item.synopsis && item.synopsis.value) {
+                    const div = doc.createElement("div");
+                    div.innerHTML = "<h3>Synopsis</h3>" + item.synopsis.value;
+                    nodes.push(div);
+                }
+                if (item.description && item.description.value) {
+                    const div = doc.createElement("div");
+                    div.innerHTML = "<h3>Description</h3>" + item.description.value;
+                    nodes.push(div);
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
+        if (nodes.length === 0) {
+            nodes = [...dom.querySelectorAll("div.media-novel-index div.media-body")];
+            let summary = [...dom.querySelectorAll("div.fr-view")];
+            if (summary.length > 1) {
+                nodes.push(summary[1]);
+            }
+        }
+        return nodes;
+    }
+}

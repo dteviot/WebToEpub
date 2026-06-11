@@ -1,1 +1,39 @@
-"use strict";parserFactory.register("isotls.com",()=>new IsotlsParser);class IsotlsParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("ul.table-of-contents");return util.hyperlinksToChapterList(t)}findContent(e){return e.querySelector("article")}extractTitleImpl(e){return e.querySelector("header h1")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"header, nav, footer"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.title}findCoverImageUrl(e){return util.getFirstImgSrc(e,"section.project-information")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("section.project-information > div")]}}
+"use strict";
+
+parserFactory.register("isotls.com", () => new IsotlsParser());
+
+class IsotlsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.table-of-contents");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("article");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("header h1");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "header, nav, footer");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.title;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "section.project-information");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("section.project-information > div")];
+    }
+}

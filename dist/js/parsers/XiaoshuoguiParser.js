@@ -1,1 +1,57 @@
-"use strict";parserFactory.register("xiaoshuogui.com",()=>new XiaoshuoguiParser);class XiaoshuoguiParser extends Parser{constructor(){super()}getChapterUrls(e){let t=e.querySelector("#chapterList");return Promise.resolve(util.hyperlinksToChapterList(t))}findContent(e){return e.querySelector("div#mlfy_main_text")}extractTitleImpl(e){return e.querySelector("div.d_title h1")}extractAuthor(e){let t=e.querySelector("span.p_author a");return null===t?super.extractAuthor(e):t.textContent}extractLanguage(){return"zh"}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div#bookinfo")}fetchChapter(e){return HttpClient.wrapFetch(e,this.makeOptions()).then(function(e){return Promise.resolve(e.responseXML)})}makeOptions(){return{makeTextDecoder:()=>new TextDecoder("gb18030")}}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div#bookinfo div.bookright")]}cleanInformationNode(e){util.removeChildElementsMatchingSelector(e,"script")}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("xiaoshuogui.com", () => new XiaoshuoguiParser());
+
+class XiaoshuoguiParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let menu = dom.querySelector("#chapterList");
+        return Promise.resolve(util.hyperlinksToChapterList(menu));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#mlfy_main_text");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.d_title h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("span.p_author a");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    extractLanguage() {
+        return "zh";
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div#bookinfo");
+    }
+
+    fetchChapter(url) {
+        // site does not tell us gb18030 is used to encode text
+        return HttpClient.wrapFetch(url, this.makeOptions()).then(function(xhr) {
+            return Promise.resolve(xhr.responseXML);
+        });
+    }
+
+    makeOptions() {
+        return ({
+            makeTextDecoder: () => new TextDecoder("gb18030")
+        });
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div#bookinfo div.bookright")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "script");
+    }
+}

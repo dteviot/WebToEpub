@@ -1,1 +1,112 @@
-"use strict";parserFactory.register("ixdzs.tw",()=>new IxdzsParser),parserFactory.register("ixdzs8.com",()=>new Ixdzs8Parser);class IxdzsParser extends Parser{constructor(){super(),this.tocPathName="/novel/html/"}async getChapterUrls(e){var t=new URL(e.baseURI),r=this.extractBid(t.pathname);t.pathname=this.tocPathName;let n={method:"POST",credentials:"include",body:this.makeFormData(r)};return await this.fetchChapterUrls(t.href,n,e.baseURI)}async fetchChapterUrls(e,t,r){let n=await HttpClient.wrapFetch(e,{fetchOptions:t});return util.hyperlinksToChapterList(n.responseXML.body)}makeFormData(e){let t=new FormData;return t.append("bid",e),t}extractBid(e){return e.split("/").filter(e=>!util.isNullOrEmpty(e)).pop()}findContent(e){return e.querySelector("section")}extractTitleImpl(e){return e.querySelector("h1")}extractAuthor(e){let t=e.querySelector("a.bauthor");return t?.textContent??super.extractAuthor(e)}extractLanguage(){return"zh"}findChapterTitle(e){return e.querySelector("h3")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.n-img")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("p.pintro")].map(e=>e.textContent.replace(/(^\s*)|(\s*$)/gi,"").replace(/[ ]{2,}/gi,"\n\n").replace(/\u3000/g,""))}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"p.abg"),super.removeUnwantedElementsFromContentElement(e)}}class Ixdzs8Parser extends IxdzsParser{constructor(){super(),this.tocPathName="/novel/clist/"}async fetchChapterUrls(e,t,r){return r.endsWith("/")||(r+="/"),(await HttpClient.fetchJson(e,t)).json.data.map(e=>({sourceUrl:`${r}p${e.ordernum}.html`,title:e.title}))}async fetchChapter(e){let t=(await HttpClient.wrapFetch(e)).responseXML,r=0;for(;!this.findContent(t);){let n=this.buildChallengeResponseUrl(t,e);if(t=(await HttpClient.wrapFetch(n)).responseXML,++r>10)break}return t}buildChallengeResponseUrl(e,t){let r=e.querySelector("script")?.textContent,n=r.split('"')[1];return t+"?challenge="+encodeURIComponent(n)}}
+"use strict";
+
+parserFactory.register("ixdzs.tw", () => new IxdzsParser());
+parserFactory.register("ixdzs8.com", () => new Ixdzs8Parser());
+
+class IxdzsParser extends Parser {
+    constructor() {
+        super();
+        this.tocPathName = "/novel/html/";
+    }
+
+    async getChapterUrls(dom) {
+        var tocUrl = new URL(dom.baseURI);
+        var bid = this.extractBid(tocUrl.pathname);
+        tocUrl.pathname = this.tocPathName;
+        let options = {
+            method: "POST",
+            credentials: "include",
+            body: this.makeFormData(bid)
+        };
+        return await this.fetchChapterUrls(tocUrl.href, options, dom.baseURI);
+    }
+
+    async fetchChapterUrls(url, options, baseUri) { // eslint-disable-line no-unused-vars
+        let xhr = await HttpClient.wrapFetch(url, {fetchOptions: options});
+        return util.hyperlinksToChapterList(xhr.responseXML.body);
+    }
+
+    makeFormData(bid) {
+        let formData = new FormData();
+        formData.append("bid", bid);
+        return formData;
+    }
+
+    extractBid(path) {
+        return path.split("/")
+            .filter(s => !util.isNullOrEmpty(s))
+            .pop();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("section");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("a.bauthor");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractLanguage() {
+        return "zh";
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h3");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.n-img");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let epubDescription = ([...dom.querySelectorAll("p.pintro")]);
+        return epubDescription.map(e => e.textContent.replace(/(^\s*)|(\s*$)/gi, "").replace(/[ ]{2,}/gi, "\n\n").replace(/\u3000/g, ""));
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "p.abg");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+class Ixdzs8Parser extends IxdzsParser {
+    constructor() {
+        super();
+        this.tocPathName = "/novel/clist/";
+    }
+
+    async fetchChapterUrls(url, options, baseUri) {
+        if (!baseUri.endsWith("/")) {
+            baseUri += "/";
+        }
+        let json = (await HttpClient.fetchJson(url, options)).json;
+        return json.data.map(d => ({
+            sourceUrl: `${baseUri}p${d.ordernum}.html`,
+            title: d.title,
+        }));
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let count = 0;
+        while (!this.findContent(dom)) {
+            let responseUrl = this.buildChallengeResponseUrl(dom, url);
+            dom = (await HttpClient.wrapFetch(responseUrl)).responseXML;
+            if (++count > 10) {
+                break;
+            }
+        }
+        return dom;
+    }
+
+    buildChallengeResponseUrl(dom, url) {
+        let script = dom.querySelector("script")?.textContent;
+        let token = script.split("\"")[1];
+        return url +"?challenge=" + encodeURIComponent(token);
+    }
+}

@@ -1,1 +1,53 @@
-"use strict";parserFactory.register("nepustation.com",()=>new NepustationParser);class CryptEngine{constructor(){this.decryptTable=new Map}buildLookup(t,e){for(let r=0;r<e.length;++r){let n=t.charAt(r),i=e.charAt(r);if(void 0===this.decryptTable.get(n))this.decryptTable.set(n,i);else if(this.decryptTable.get(n)!==i)throw new Error("Invalid conversion")}}decryptString(t){return t.split("").map(t=>{let e=this.decryptTable.get(t);return void 0===e?t:e}).join("")}}CryptEngine.ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",CryptEngine.NEPUALPHABET="ḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳ";class NepustationParser extends WordpressBaseParser{constructor(){super(),this.cryptEngine=new CryptEngine,this.cryptEngine.buildLookup(CryptEngine.NEPUALPHABET,CryptEngine.ALPHABET)}customRawDomToContentStep(t,e){let r=document.createTreeWalker(e,NodeFilter.SHOW_TEXT),n=this.cryptEngine,i=null;for(;i=r.nextNode();)i.textContent=n.decryptString(i.textContent)}}
+/*
+  parses www.nepustation.com
+*/
+"use strict";
+
+parserFactory.register("nepustation.com", () => new NepustationParser());
+
+class CryptEngine {
+    constructor() {
+        this.decryptTable = new Map();
+    }
+
+    buildLookup(cypherText, clearText) {
+        for (let i = 0; i < clearText.length; ++i) {
+            let cy = cypherText.charAt(i);
+            let cl = clearText.charAt(i);
+            if (this.decryptTable.get(cy) === undefined) {
+                this.decryptTable.set(cy, cl);
+            } else if (this.decryptTable.get(cy) !== cl) {
+                throw new Error("Invalid conversion");
+            }
+        }
+    }
+
+    decryptString(cypherText) {
+        return cypherText.split("").map(c => {
+            let t = this.decryptTable.get(c);
+            return (t === undefined) ? c : t;
+        }).join("");
+    }
+
+}
+
+CryptEngine.ALPHABET     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+CryptEngine.NEPUALPHABET = "ḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲ"+
+                           "ḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳ";
+
+class NepustationParser extends WordpressBaseParser {
+    constructor() {
+        super();
+        this.cryptEngine = new CryptEngine();
+        this.cryptEngine.buildLookup(CryptEngine.NEPUALPHABET, CryptEngine.ALPHABET);       
+    }
+
+    customRawDomToContentStep(chapter, content) {
+        let walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+        let engine = this.cryptEngine; 
+        let node = null;
+        while ((node = walker.nextNode())) {
+            node.textContent = engine.decryptString(node.textContent);
+        }
+    }
+}

@@ -1,1 +1,55 @@
-"use strict";parserFactory.register("deviantart.com",()=>new DeviantArtParser);class DeviantArtParser extends Parser{constructor(){super()}getChapterUrls(e){let r=[...e.querySelectorAll("div.folderview-art a.torpedo-thumb-link")].map(DeviantArtParser.linkToChapter);return Promise.resolve(r)}static linkToChapter(e){return{sourceUrl:e.href,title:e.href.split("/").pop(),newArc:null}}findContent(e){let r=e.querySelector("div.dev-view-deviation");return null!=r&&DeviantArtParser.removeUnwantedImages(r),r}static removeUnwantedImages(e){let r=[...e.querySelectorAll("img")];if(1===r.length1)return;let t=e.querySelector("img.dev-content-full");null===t&&(t=r[0]);for(let e of r)e.remove();e.appendChild(t)}extractTitleImpl(e){return e.querySelector("div.folderview-top h1")}extractAuthor(e){let r=e.querySelector("a.username");return null===r?super.extractAuthor(e):r.textContent}}
+"use strict";
+
+parserFactory.register("deviantart.com", () => new DeviantArtParser());
+
+class DeviantArtParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    getChapterUrls(dom) {
+        let chapters = [...dom.querySelectorAll("div.folderview-art a.torpedo-thumb-link")]
+            .map(DeviantArtParser.linkToChapter);
+        return Promise.resolve(chapters);
+    }
+
+    static linkToChapter(link) {
+        return {
+            sourceUrl:  link.href,
+            title: link.href.split("/").pop(),
+            newArc: null
+        };
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector("div.dev-view-deviation");
+        if (content != null) {
+            DeviantArtParser.removeUnwantedImages(content);
+        }
+        return content;
+    }
+
+    static removeUnwantedImages(content) {
+        let images = [...content.querySelectorAll("img")];
+        if (1 === images.length1) {
+            return;
+        }
+        let wanted = content.querySelector("img.dev-content-full");
+        if (wanted === null) {
+            wanted = images[0];
+        }
+        for (let i of images) {
+            i.remove();
+        }
+        content.appendChild(wanted);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.folderview-top h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("a.username");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+}

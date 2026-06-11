@@ -1,1 +1,67 @@
-"use strict";parserFactory.register("yushubo.net",()=>new YushuboParser);class YushuboParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.baseURI.replace("book_","list_other_"),r=(await HttpClient.wrapFetch(t)).responseXML.querySelector("ul.chapter-list");return util.hyperlinksToChapterList(r)}findContent(e){return Parser.findConstrutedContent(e)}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return e.querySelector("h1.article-title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,".bigpic")}async fetchChapter(e){let t=Parser.makeEmptyDocForContent(e),r=(await HttpClient.wrapFetch(e)).responseXML;t.content.appendChild(this.findChapterTitle(r)),t.content.appendChild(this.findRawContent(r));let n=this.findNextPageUrl(r);for(;null!=n;)r=(await HttpClient.wrapFetch(n)).responseXML,t.content.appendChild(this.findRawContent(r)),n=this.findNextPageUrl(r);return t.dom}findRawContent(e){return e.querySelector("#BookText")}findNextPageUrl(e){let t=[...e.querySelectorAll("div.articlebtn a")].filter(e=>"下一页"===e.textContent).slice(-1);return t[0]?.href}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".book-intro")]}cleanInformationNode(e){return util.removeChildElementsMatchingSelector(e,"ul.lastchapter"),e}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("yushubo.net", () => new YushuboParser());
+
+class YushuboParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.baseURI.replace("book_", "list_other_");
+        let tocDoc = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        let menu = tocDoc.querySelector("ul.chapter-list");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.article-title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".bigpic");
+    }
+
+    async fetchChapter(url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        newDoc.content.appendChild(this.findChapterTitle(dom));
+        newDoc.content.appendChild(this.findRawContent(dom));
+        let nextPageUrl = this.findNextPageUrl(dom);
+        while (nextPageUrl != null) {
+            dom = (await HttpClient.wrapFetch(nextPageUrl)).responseXML;
+            newDoc.content.appendChild(this.findRawContent(dom));
+            nextPageUrl = this.findNextPageUrl(dom);
+        }
+        return newDoc.dom;
+    }
+
+    findRawContent(dom) {
+        return dom.querySelector("#BookText");
+    }
+
+    findNextPageUrl(dom) {
+        let links = [...dom.querySelectorAll("div.articlebtn a")]
+            .filter(a => a.textContent === "下一页")
+            .slice(-1);
+        return links[0]?.href;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".book-intro")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "ul.lastchapter");
+        return node;
+    }
+}

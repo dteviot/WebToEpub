@@ -1,1 +1,77 @@
-"use strict";parserFactory.register("mimihui.com",()=>new MimihuiParser);class MimihuiParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector(".chapter-more a").href;return[...(await HttpClient.wrapFetch(t)).responseXML.querySelectorAll(".chapter-list a")].map(MimihuiParser.linkToChapter)}static linkToChapter(e){let t=e.textContent.trim(),r=!t.endsWith("VIP");return t.endsWith("VIP")?t=t.slice(0,-3).trim():t.endsWith("免费")&&(t=t.slice(0,-2).trim()),{sourceUrl:e.href,title:t,isIncludeable:r}}extractSubject(e){return[...e.querySelectorAll(".info > dl:nth-child(4) > dd a"),...e.querySelectorAll(".info > dl:nth-child(5) > dd a")].map(e=>e.textContent).join(", ")}findContent(e){return e.querySelector(".content")}findChapterTitle(e){return e.querySelector(".title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,".cover")}extractLanguage(e){return e.querySelector("html").getAttribute("lang")}extractTitleImpl(e){return e.querySelector(".info > h1")}extractAuthor(e){let t=e.querySelector(".info > dl:nth-child(2) > dd");return t?.textContent??super.extractAuthor(e)}extractDescription(e){return e.querySelector(".desc > p").textContent.trim()}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".info")]}}
+"use strict";
+
+parserFactory.register("mimihui.com", () => new MimihuiParser());
+
+class MimihuiParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector(".chapter-more a").href;
+
+        let tocPage = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+
+        let menu = [...tocPage.querySelectorAll(".chapter-list a")];
+
+        return menu.map(MimihuiParser.linkToChapter);
+    }
+
+    static linkToChapter(link) {
+        let title = link.textContent.trim();
+
+        let isIncludeable = !title.endsWith("VIP");
+
+        if (title.endsWith("VIP")) {
+            title = title.slice(0, -3).trim();
+        }
+        else if (title.endsWith("免费")) {
+            title = title.slice(0, -2).trim();
+        }
+
+        return {
+            sourceUrl: link.href, 
+            title: title, 
+            isIncludeable: isIncludeable
+        };
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".info > dl:nth-child(4) > dd a")];
+        let tags = [...dom.querySelectorAll(".info > dl:nth-child(5) > dd a")]; 
+        return [...genres, ...tags].map(e => e.textContent).join(", ");
+    }
+
+    findContent(dom) {
+        return dom.querySelector(".content");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".cover");
+    }
+
+    extractLanguage(dom) {
+        return dom.querySelector("html").getAttribute("lang");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".info > h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".info > dl:nth-child(2) > dd");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector(".desc > p").textContent.trim();
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".info")];
+    }
+}

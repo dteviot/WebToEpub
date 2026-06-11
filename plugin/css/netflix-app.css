@@ -1061,3 +1061,14 @@
 }
 
 
+
+.top-novels-empty {
+    width: 100%;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+}

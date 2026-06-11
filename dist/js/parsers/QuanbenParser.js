@@ -1,1 +1,39 @@
-"use strict";parserFactory.register("quanben.io",()=>new QuanbenParser);class QuanbenParser extends Parser{constructor(){super()}async getChapterUrls(e){if(!e.baseURI.endsWith("/list.html")){let t=e.baseURI+"/list.html";e=(await HttpClient.wrapFetch(t)).responseXML}return[...e.querySelectorAll("div.box li a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div#content")}extractTitleImpl(e){let t=e.querySelector("span[itemprop='name']");return null===t?null:t.textContent}findChapterTitle(e){return e.querySelector("h1.headline")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div[itemscope]")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.description")]}}
+"use strict";
+
+parserFactory.register("quanben.io", () => new QuanbenParser());
+
+class QuanbenParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        if (!dom.baseURI.endsWith("/list.html")) {
+            let tocUrl = dom.baseURI + "/list.html";
+            dom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        }
+        return [...dom.querySelectorAll("div.box li a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#content");
+    }
+
+    extractTitleImpl(dom) {
+        let span = dom.querySelector("span[itemprop='name']");
+        return span === null ? null : span.textContent;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.headline");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div[itemscope]");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.description")];
+    }
+}

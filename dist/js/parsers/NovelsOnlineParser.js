@@ -1,1 +1,60 @@
-"use strict";parserFactory.register("novelsonline.net",()=>new NovelsOnlineParser),parserFactory.register("novelsonline.org",()=>new NovelsOnlineParser);class NovelsOnlineParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll(".chapter-chs a")].map(e=>this.linkToChapter(e))}linkToChapter(e){return{sourceUrl:e.href,title:e.textContent}}findContent(e){return e.querySelector("div#contentall")}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.novel-cover")}getInformationEpubItemChildNodes(e){return[e.querySelector(".novel-right .novel-detail-body")]}extractAuthor(e){const r=e.querySelectorAll("div.novel-left > div.novel-details > div.novel-detail-item");if(r)for(const e of r)if(e.textContent.includes("Author(s)")){const r=e.textContent.replace("Author(s)","").trim();if(""!=r&&"N/A"!=r)return r}return"<unknown>"}}
+"use strict";
+
+parserFactory.register("novelsonline.net", () => new NovelsOnlineParser());
+parserFactory.register("novelsonline.org", () => new NovelsOnlineParser());
+
+class NovelsOnlineParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll(".chapter-chs a")]
+            .map(link => this.linkToChapter(link));
+    }
+
+    linkToChapter(link) {
+        return ({
+            sourceUrl:  link.href,
+            title: link.textContent,
+        });
+    }
+
+    findContent(dom) {
+        return (
+            dom.querySelector("div#contentall")
+        );
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.novel-cover");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [dom.querySelector(".novel-right .novel-detail-body")];
+    }
+
+    extractAuthor(dom) {
+        const detailOptionEls = dom.querySelectorAll("div.novel-left > div.novel-details > div.novel-detail-item");
+        if (detailOptionEls) {
+            for (const el of detailOptionEls) {
+                if (el.textContent.includes("Author(s)")) {
+                    const author = el.textContent.replace("Author(s)", "").trim();
+                    if (author != "" && author != "N/A") {
+                        return author;
+                    }
+                }
+            }
+        }
+
+        return "<unknown>";
+    }
+}

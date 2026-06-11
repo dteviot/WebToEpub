@@ -1,1 +1,55 @@
-"use strict";parserFactory.register("mayanovel.com",()=>new MayanovelParser);class MayanovelParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll(".m-book-list li a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("#article")}extractTitleImpl(e){return e.querySelector("h1")}extractAuthor(e){return e.querySelector(".m-infos a")?.textContent??null}findChapterTitle(e){return e.querySelector("h1")}async fetchChapter(e){let t=(await HttpClient.wrapFetch(e)).responseXML,r=this.nextPageOfChapterUrl(t),n=this.findContent(t);for(;null!=r;){let e=(await HttpClient.wrapFetch(r)).responseXML,t=this.findContent(e);util.moveChildElements(t,n),r=this.nextPageOfChapterUrl(e)}return t}nextPageOfChapterUrl(e){let t=e.querySelector("a[rel='next']")?.href;return null!=t&&t.includes("_")?t:null}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".m-book_info p")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("mayanovel.com", () => new MayanovelParser());
+
+class MayanovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll(".m-book-list li a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#article");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    extractAuthor(dom) {
+        return dom.querySelector(".m-infos a")?.textContent ?? null;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    async fetchChapter(url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let nextUrl = this.nextPageOfChapterUrl(dom);
+        let oldContent = this.findContent(dom);
+        while (nextUrl != null) {
+            let nextDom = (await HttpClient.wrapFetch(nextUrl)).responseXML;
+            let newContent = this.findContent(nextDom);
+            util.moveChildElements(newContent, oldContent);
+            nextUrl = this.nextPageOfChapterUrl(nextDom);
+        }
+        return dom;
+    }
+
+    nextPageOfChapterUrl(dom) {
+        let nextUrl = dom.querySelector("a[rel='next']")?.href;
+        return (nextUrl != null) && nextUrl.includes("_")
+            ? nextUrl
+            : null;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".m-book_info p")];
+    }
+}

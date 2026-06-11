@@ -1,1 +1,52 @@
-"use strict";parserFactory.register("fenrirealm.com",()=>new FenrirealmParser);class FenrirealmParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelector(".grid-chapter").querySelectorAll("a")].map(e=>this.hyperLinkToChapter(e)).reverse()}hyperLinkToChapter(e){return{sourceUrl:e.href,title:e.querySelector("span").textContent.trim()}}findContent(e){return e.querySelector("[id^='reader-area-']")}extractTitleImpl(e){return e.querySelector(".main-area > .container h1")}findChapterTitle(e){let r=e.querySelector("h1").textContent;return this.removeDuplicatedChapterPrefix(r)}removeDuplicatedChapterPrefix(e){let r=e.split(":");return r.length>=2&&r[0].trim()===r[1].trim()?r.slice(1).join(":"):e}findCoverImageUrl(e){let r=e.querySelector(".main-area .container:nth-of-type(2) img:nth-of-type(2)");return r?.src||null}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".synopsis")]}}
+"use strict";
+
+parserFactory.register("fenrirealm.com", () => new FenrirealmParser());
+
+class FenrirealmParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector(".grid-chapter");
+        return [...menu.querySelectorAll("a")]
+            .map(a => this.hyperLinkToChapter(a))
+            .reverse();
+    }
+
+    hyperLinkToChapter(link) {
+        return ({
+            sourceUrl:  link.href,
+            title: link.querySelector("span").textContent.trim(),
+        });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("[id^='reader-area-']");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".main-area > .container h1");
+    }
+
+    findChapterTitle(dom) {
+        let titleText = dom.querySelector("h1").textContent;
+        return this.removeDuplicatedChapterPrefix(titleText);
+    }
+
+    removeDuplicatedChapterPrefix(titleText) {
+        let parts = titleText.split(":");
+        return (parts.length >= 2) && (parts[0].trim() === parts[1].trim())
+            ? parts.slice(1).join(":")
+            : titleText;
+    }
+
+    findCoverImageUrl(dom) {
+        let img = dom.querySelector(".main-area .container:nth-of-type(2) img:nth-of-type(2)");
+        return img?.src || null;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".synopsis")];
+    }
+}

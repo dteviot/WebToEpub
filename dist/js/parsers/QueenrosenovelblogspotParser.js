@@ -1,1 +1,52 @@
-"use strict";parserFactory.register("queenrosenovel.blogspot.com",()=>new QueenrosenovelblogspotParser);class QueenrosenovelblogspotParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.epcheck li a")].map(this.linkToChapter).reverse()}linkToChapter(e){return{sourceUrl:e.href,title:e.querySelector(".chapternum").textContent}}findContent(e){return e.querySelector("div.Novel")}extractTitleImpl(e){return e.querySelector("header h1")}findChapterTitle(e){let r=e.querySelector("h1");return util.removeChildElementsMatchingSelector(r,"script"),r}findCoverImageUrl(e){return util.getFirstImgSrc(e,"figure")}preprocessRawDom(e){let r=this.findContent(e),t=r.querySelector("script").textContent,n=t.substring(t.indexOf("`")+1,t.length-1),l=util.sanitize("<div id='start'>"+n+"</div>");r.appendChild(l.querySelector("div#start"))}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("#synopsis")]}}
+"use strict";
+
+parserFactory.register("queenrosenovel.blogspot.com", () => new QueenrosenovelblogspotParser());
+
+class QueenrosenovelblogspotParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.epcheck li a")]
+            .map(this.linkToChapter)
+            .reverse();
+    }
+
+    linkToChapter(link) {
+        return ({
+            sourceUrl:  link.href,
+            title: link.querySelector(".chapternum").textContent
+        });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.Novel");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("header h1");
+    }
+
+    findChapterTitle(dom) {
+        let title = dom.querySelector("h1");
+        util.removeChildElementsMatchingSelector(title, "script");
+        return title;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "figure");
+    }
+
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        let script = content.querySelector("script").textContent;
+        let html = script.substring(script.indexOf("`") + 1, script.length - 1);
+        let doc = util.sanitize("<div id='start'>" + html + "</div>");
+        content.appendChild(doc.querySelector("div#start"));
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("#synopsis")];
+    }
+}

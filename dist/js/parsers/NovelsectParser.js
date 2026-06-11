@@ -1,1 +1,120 @@
-"use strict";parserFactory.register("novelsect.com",()=>new NovelsectParser);class NovelsectParser extends Parser{constructor(){super()}async getChapterUrls(t,e){let r=t.querySelector("ul.scrollbar-medium"),l=util.hyperlinksToChapterList(r);e.showTocProgress(l);let n=this.getNovelSlug(t.baseURI),s=await this.getUrlsOfTocPages(n);for(let t of s){await this.rateLimitDelay();let r=(await HttpClient.fetchJson(t)).json,s=this.extractPartialChapterList(n,r.chapters);e.showTocProgress(s),l=l.concat(s)}return l}async getUrlsOfTocPages(t){let e=await this.getNovelIdAndChapterCount(t),r=[],l=Math.ceil(e.chapter_count/100);for(let t=2;t<=l;++t)r.push(`https://novelsect.com/api/fetchchapterlistbyindex?novelId=${e.id}&page=${t}`);return r}getNovelSlug(t){let e=t.split("/");return e[e.length-1]}async getNovelIdAndChapterCount(t){let e=JSON.stringify({slug:t}),r=this.makeOptions(e);return(await HttpClient.fetchJson("https://novelsect.com/api/fetchsinglenovel",r)).json}extractPartialChapterList(t,e){return e.map(e=>({sourceUrl:`https://novelsect.com/novel/${t}/${e.slug}`,title:e.title}))}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(t){return t.querySelector("div.text-2xl")}findCoverImageUrl(t){return t.querySelector("img")?.src??null}async fetchChapter(t){let e=this.makeOptions(this.makeJsonBody(t)),r=(await HttpClient.fetchJson("https://novelsect.com/api/singlechapter",e)).json;return this.jsonToHtml(r.chapter,t)}makeOptions(t){return{method:"POST",credentials:"include",headers:{Accept:"application/json","Content-Type":"application/json"},body:t}}makeJsonBody(t){let e=t.split("/");return JSON.stringify({chapterSlug:e[e.length-1],novelSlug:e[e.length-2]})}jsonToHtml(t){let e=Parser.makeEmptyDocForContent();this.appendElement(e,"h1",t.title);let r=t.content.replace(/<p>/g,"").replace(/<\/p>/g,"").split("\n\n").filter(t=>!util.isNullOrEmpty(t));for(let t of r)this.appendElement(e,"p",t);return e.dom}appendElement(t,e,r){let l=t.dom.createElement(e);l.textContent=r,t.content.appendChild(l)}getInformationEpubItemChildNodes(t){let e=t.querySelector(".overflow-y-scroll");return null===e?[]:[e]}}
+"use strict";
+
+parserFactory.register("novelsect.com", () => new NovelsectParser());
+
+class NovelsectParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let menu = dom.querySelector("ul.scrollbar-medium");
+        let chapters = util.hyperlinksToChapterList(menu);
+        chapterUrlsUI.showTocProgress(chapters);
+
+        let novelSlug = this.getNovelSlug(dom.baseURI);
+        let urlsOfTocPages  = await this.getUrlsOfTocPages(novelSlug);
+        for (let url of urlsOfTocPages) {
+            await this.rateLimitDelay();
+            let json = (await HttpClient.fetchJson(url)).json;
+            let partialList = this.extractPartialChapterList(novelSlug, json.chapters);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
+    }
+
+    async getUrlsOfTocPages(novelSlug) {
+        let info = await this.getNovelIdAndChapterCount(novelSlug);
+        let tocUrls = [];
+        let maxPage = Math.ceil(info.chapter_count / 100);
+        for (let i = 2; i <= maxPage; ++i) {
+            tocUrls.push(`https://novelsect.com/api/fetchchapterlistbyindex?novelId=${info.id}&page=${i}`);
+        }
+        return tocUrls;
+    }
+
+    getNovelSlug(url) {
+        let path = url.split("/");
+        return path[path.length - 1];
+    }
+
+    async getNovelIdAndChapterCount(novelSlug) {
+        let body = JSON.stringify({slug: novelSlug});
+        let options = this.makeOptions(body);
+        let novelRestUrl = "https://novelsect.com/api/fetchsinglenovel";
+        return (await HttpClient.fetchJson(novelRestUrl, options)).json;
+    }
+
+    extractPartialChapterList(novelSlug, json) {
+        return json.map(c => ({
+            sourceUrl: `https://novelsect.com/novel/${novelSlug}/${c.slug}`,
+            title: c.title 
+        }));
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.text-2xl");
+    }
+
+    findCoverImageUrl(dom) {
+        return dom.querySelector("img")?.src ?? null;
+    }
+
+    async fetchChapter(url) {
+        let chapterRestUrl = "https://novelsect.com/api/singlechapter";
+        let options = this.makeOptions(this.makeJsonBody(url));
+        let json = (await HttpClient.fetchJson(chapterRestUrl, options)).json;
+        return this.jsonToHtml(json.chapter, url);
+    }
+
+    makeOptions(body) {
+        return ({
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: body
+        });
+    }
+
+    makeJsonBody(url) {
+        let path = url.split("/");
+        return JSON.stringify({
+            chapterSlug: path[path.length - 1], 
+            novelSlug: path[path.length - 2]
+        });
+    }
+
+    jsonToHtml(json) {
+        let newDoc = Parser.makeEmptyDocForContent();
+        this.appendElement(newDoc, "h1", json.title);
+        let paragraphs = json.content
+            .replace(/<p>/g, "").replace(/<\/p>/g, "")
+            .split("\n\n")
+            .filter(p => !util.isNullOrEmpty(p));
+        for (let text of paragraphs) {
+            this.appendElement(newDoc, "p", text);
+        }
+        return newDoc.dom;
+    }
+
+    appendElement(newDoc, tag, text) {
+        let element = newDoc.dom.createElement(tag);
+        element.textContent = text;
+        newDoc.content.appendChild(element);
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let synopsis = dom.querySelector(".overflow-y-scroll");
+        return synopsis === null
+            ? []
+            : [synopsis];
+    }
+}

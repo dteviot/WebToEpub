@@ -1,1 +1,97 @@
-"use strict";parserFactory.register("wnmtl.org",()=>new WnmtlOrgParser);class WnmtlOrgParser extends Parser{constructor(){super()}async getChapterUrls(t,e){let r=this.idFromUrl(t.baseURI),a=this.makeTocUrl(r,1),o=(await HttpClient.fetchJson(a)).json.data,n=this.extractPartialChapterListFromJson(o);for(let t of this.makeUrlsOfTocPages(r,o.totalPages)){o=(await HttpClient.fetchJson(t)).json.data;let r=this.extractPartialChapterListFromJson(o);e.showTocProgress(r),n=n.concat(r)}return n}idFromUrl(t){return new URL(t).pathname.split("/").pop().split("-")[0]}makeTocUrl(t,e){return`https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/page?sortDirection=ASC&bookId=${t}&pageNumber=${e}&pageSize=100`}makeUrlsOfTocPages(t,e){let r=[];for(let a=2;a<=e;++a)r.push(this.makeTocUrl(t,a));return r}extractPartialChapterListFromJson(t){return t.list.map(t=>({sourceUrl:`https://wnmtl.org/chapter/${t.id}-dummy`,title:`${t.chapterOrder}. ${t.title}`}))}findContent(t){return Parser.findConstrutedContent(t)}extractTitleImpl(t){return t.querySelector("div.book-name")}extractAuthor(t){let e=t.querySelector("div.author-name");return null===e?super.extractAuthor(t):e.textContent}findCoverImageUrl(t){return util.getFirstImgSrc(t,"div.cover")}async fetchChapter(t){let e=this.calcRestUrlForContent(t),r=(await HttpClient.fetchJson(e)).json.data;return WnmtlOrgParser.buildChapter(r,t)}calcRestUrlForContent(t){return`https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/${this.idFromUrl(t)}`}static buildChapter(t,e){let r=Parser.makeEmptyDocForContent(e),a=r.dom.createElement("h1");a.textContent=`${t.chapterOrder}. ${t.title}`,r.content.appendChild(a);let o=t.content.split("\n").filter(t=>!util.isNullOrEmpty(t));for(let t of o){let e=r.dom.createElement("p");e.appendChild(r.dom.createTextNode(t)),r.content.appendChild(e)}return r.dom}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll("div#about-panel")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("wnmtl.org", () => new WnmtlOrgParser());
+
+class WnmtlOrgParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let bookId = this.idFromUrl(dom.baseURI);
+        let tocUrl = this.makeTocUrl(bookId, 1);
+        let data = (await HttpClient.fetchJson(tocUrl)).json.data;
+        let chapters = this.extractPartialChapterListFromJson(data);
+        for (let url of this.makeUrlsOfTocPages(bookId, data.totalPages)) {
+            data = (await HttpClient.fetchJson(url)).json.data;
+            let partialList = this.extractPartialChapterListFromJson(data);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
+    }
+
+    idFromUrl(url) {
+        return new URL(url).pathname.split("/").pop().split("-")[0];
+    }
+
+    makeTocUrl(bookId, page) {
+        return "https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/page?sortDirection=ASC" +
+            `&bookId=${bookId}&pageNumber=${page}&pageSize=100`;
+    }
+
+    makeUrlsOfTocPages(bookId, totalPages) {
+        let urls = [];
+        for (let page = 2; page <= totalPages; ++page) {
+            urls.push(this.makeTocUrl(bookId, page));
+        }
+        return urls;
+    }
+
+    extractPartialChapterListFromJson(data) {
+        return data.list.map(e => ({
+            sourceUrl:  `https://wnmtl.org/chapter/${e.id}-dummy`,
+            title: `${e.chapterOrder}. ${e.title}`
+        }));
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.book-name");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.author-name");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.cover");
+    }
+
+    async fetchChapter(url) {
+        let restUrl = this.calcRestUrlForContent(url);
+        let data = (await HttpClient.fetchJson(restUrl)).json.data;
+        return WnmtlOrgParser.buildChapter(data, url);
+    }
+
+    calcRestUrlForContent(url) {
+        // assumes chapter URL like https://wnmtl.org/chapter/148888-untitled
+        // and REST URL like https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/148888
+        let id = this.idFromUrl(url);
+        return `https://api.mystorywave.com/story-wave-backend/api/v1/content/chapters/${id}`;
+    }
+
+    static buildChapter(json, url) {
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        title.textContent = `${json.chapterOrder}. ${json.title}`;
+        newDoc.content.appendChild(title);
+        let paragraphs = json.content.split("\n")
+            .filter(p => !util.isNullOrEmpty(p));
+        for (let text of paragraphs) {
+            let p = newDoc.dom.createElement("p");
+            p.appendChild(newDoc.dom.createTextNode(text));
+            newDoc.content.appendChild(p);
+        }
+        return newDoc.dom;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div#about-panel")];
+    }
+}

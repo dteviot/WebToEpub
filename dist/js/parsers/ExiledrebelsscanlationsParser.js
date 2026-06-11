@@ -1,1 +1,46 @@
-"use strict";parserFactory.register("exiledrebelsscanlations.com",()=>new ExiledrebelsscanlationsParser);class ExiledrebelsscanlationsParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.lcp_catlist a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div#wtr-content")||e.querySelector("div.entry-content")}populateUIImpl(){document.getElementById("removeAuthorNotesRow").hidden=!1}extractTitleImpl(e){return e.querySelector(".entry-title")}findChapterTitle(e){return e.querySelector(".entry-title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"article")}preprocessRawDom(e){if(!this.userPreferences.removeAuthorNotes.value){let t=[...e.querySelectorAll("div.easy-footnote-title, ol.easy-footnotes-wrapper")],r=this.findContent(e);this.tagAuthorNotes(t);for(let e of t)r.appendChild(e)}}}
+"use strict";
+
+parserFactory.register("exiledrebelsscanlations.com", () => new ExiledrebelsscanlationsParser());
+
+class ExiledrebelsscanlationsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.lcp_catlist a")]
+            .map((a) => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div#wtr-content")
+            || dom.querySelector("div.entry-content");
+    }
+
+    populateUIImpl() {
+        document.getElementById("removeAuthorNotesRow").hidden = false; 
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "article");
+    }
+
+    preprocessRawDom(webPageDom) {
+        if (!this.userPreferences.removeAuthorNotes.value) {
+            let notes = [...webPageDom.querySelectorAll("div.easy-footnote-title, ol.easy-footnotes-wrapper")];
+            let content = this.findContent(webPageDom);
+            this.tagAuthorNotes(notes);
+            for (let e of notes) {
+                content.appendChild(e);
+            }
+        }
+    }
+}

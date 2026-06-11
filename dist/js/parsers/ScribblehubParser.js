@@ -1,1 +1,154 @@
-"use strict";parserFactory.register("scribblehub.com",()=>new ScribblehubParser);class ScribblehubParser extends Parser{constructor(){super(),this.minimumThrottle=5e3}async getChapterUrls(e,t){let r=e.baseURI,l=1,n=e.querySelector("span.cnt_toc"),i=n?parseInt(n.textContent||"0"):0,o=this.minimumThrottle;this.minimumThrottle=0;let a=(await this.walkTocPages(e,ScribblehubParser.getChapterUrlsFromTocPage,function(e,t,n){return t.length<i&&0<n.length?`${r}?toc=${++l}`:null},t)).reverse();return this.minimumThrottle=o,a}static getChapterUrlsFromTocPage(e){return[...e.querySelectorAll("a.toc_a")].map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("div.fic_row, div#chp_raw")}populateUIImpl(){document.getElementById("removeAuthorNotesRow").hidden=!1}extractTitleImpl(e){return e.querySelector("div.fic_title")}extractAuthor(e){let t=e.querySelector("span.auth_name_fic");return null===t?super.extractAuthor(e):t.textContent}extractSubject(e){let t="[property='genre']";return document.getElementById("lesstagsCheckbox").checked||(t+=", .stag"),[...e.querySelectorAll(t)].map(e=>e.textContent.trim()).join(", ")}extractDescription(e){return this.extractDescriptionInternal(e)?.innerText?.trim()}extractDescriptionInternal(e){let t=e.querySelector(".wi_fic_desc");return null!=t&&(t.querySelectorAll(".dots, .morelink").forEach(e=>e.remove()),t.querySelectorAll(".testhide").forEach(e=>e.replaceWith(...e.childNodes))),t}findChapterTitle(e){return e.querySelector("div.chapter-title").textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.fic_image")}preprocessRawDom(e){let t=this.findContent(e);this.tagAuthorNotesBySelector(t,".wi_authornotes, .wi_news");for(let r of t.querySelectorAll(".sp-wrap")){r.querySelector(".sp-body>.spdiv")?.remove();let t=e.createElement("details"),l=e.createElement("summary");l.append(...r.querySelector(".sp-head").childNodes),t.append(l),t.append(...r.querySelector(".sp-body").childNodes),r.replaceWith(t)}for(let e of t.querySelectorAll(".wi_news_title"))e.setAttribute("style","font-weight: bold"),e.querySelector(".fa-exclamation-triangle").replaceWith("⚠");for(let e of t.querySelectorAll(".p-avatar-wrap"))e.remove()}getInformationEpubItemChildNodes(e){function t(e,t,r){let l=e.ownerDocument.createElement("a");return l.setAttribute("href",e.getAttribute("href")),l.innerText=e.innerText,t<r.length-1?[l,", "]:[l]}let r=[];r.push(e.createElement("div").innerHTML="<p><b>Synopsis</b></p>");let l=this.extractDescriptionInternal(e);l&&r.push(...l.childNodes);let n=e.querySelectorAll(".wi_fic_genre a.fic_genre");n.length>0&&(r.push(e.createElement("div").innerHTML="<p><b>Genre</b></p>"),r.push(...[...n].flatMap(t)));let i=e.querySelectorAll(".wi_fic_genre a.stag");i.length>0&&(r.push(e.createElement("div").innerHTML="<p><b>Fandom</b></p>"),r.push(...[...i].flatMap(t)));let o=e.querySelectorAll(".wi_fic_showtags a.stag");return o.length>0&&(r.push(e.createElement("div").innerHTML="<p><b>Tags</b></p>"),r.push(...[...o].flatMap(t))),r}}
+"use strict";
+
+parserFactory.register("scribblehub.com", () => new ScribblehubParser());
+
+class ScribblehubParser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 5000;
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let baseUrl = dom.baseURI;
+        let nextTocIndex = 1;
+        let cntToc = dom.querySelector("span.cnt_toc");
+        let numChapters = cntToc ? parseInt(cntToc.textContent || "0") : 0;
+        let nextTocPageUrl = function(_dom, chapters, lastFetch) {
+            // site has bug, sometimes, won't return chapters, so 
+            // don't loop forever when this happens
+            return ((chapters.length < numChapters) && (0 < lastFetch.length))
+                ? `${baseUrl}?toc=${++nextTocIndex}`
+                : null;
+        };
+        let saveThrottle = this.minimumThrottle;
+        this.minimumThrottle = 0;
+        let chapters = (await this.walkTocPages(dom,
+            ScribblehubParser.getChapterUrlsFromTocPage,
+            nextTocPageUrl,
+            chapterUrlsUI
+        )).reverse();
+        this.minimumThrottle = saveThrottle;
+        return chapters;
+    }
+
+    static getChapterUrlsFromTocPage(dom) {
+        return [...dom.querySelectorAll("a.toc_a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.fic_row, div#chp_raw");
+    }
+
+    populateUIImpl() {
+        document.getElementById("removeAuthorNotesRow").hidden = false;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.fic_title");
+    }
+
+    extractAuthor(dom) {
+        let author = dom.querySelector("span.auth_name_fic");
+        return (author === null) ? super.extractAuthor(dom) : author.textContent;
+    }
+    
+    extractSubject(dom) {
+        let selector = "[property='genre']";
+        if (!document.getElementById("lesstagsCheckbox").checked) {
+            selector += ", .stag";
+        }
+        let tags = [...dom.querySelectorAll(selector)];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return this.extractDescriptionInternal(dom)?.innerText?.trim();
+    }
+    // unwrap the description from the readmore that you may get on mobile
+    extractDescriptionInternal(dom) {
+        let desc = dom.querySelector(".wi_fic_desc");
+        if (desc != null) {
+            desc.querySelectorAll(".dots, .morelink").forEach(e => e.remove());
+            desc.querySelectorAll(".testhide").forEach(e => e.replaceWith(...e.childNodes));
+        }
+
+        return desc;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("div.chapter-title").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.fic_image");
+    }
+
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+
+        this.tagAuthorNotesBySelector(content, ".wi_authornotes, .wi_news");
+
+        // spoilers
+        for (let element of content.querySelectorAll(".sp-wrap")) {
+            element.querySelector(".sp-body>.spdiv")?.remove();
+
+            let details = webPageDom.createElement("details");
+            let summary = webPageDom.createElement("summary");
+            summary.append(...element.querySelector(".sp-head").childNodes);
+            details.append(summary);
+            details.append(...element.querySelector(".sp-body").childNodes);
+
+            element.replaceWith(details);
+        }
+
+        // anouncements
+        for (let element of content.querySelectorAll(".wi_news_title")) {
+            element.setAttribute("style", "font-weight: bold");
+            element.querySelector(".fa-exclamation-triangle").replaceWith("⚠");
+        }
+
+        // author notes
+        for (let element of content.querySelectorAll(".p-avatar-wrap")) {
+            element.remove();
+        }
+
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        function cleanTag(tag, index, array) {
+            let out = tag.ownerDocument.createElement("a");
+            out.setAttribute("href", tag.getAttribute("href"));
+            out.innerText = tag.innerText;
+            return index < array.length -1 ? [out, ", "] : [out];
+        }
+
+        let info = [];
+
+        info.push(dom.createElement("div").innerHTML = "<p><b>Synopsis</b></p>");
+        let synopsis = this.extractDescriptionInternal(dom);
+        if (synopsis) {
+            info.push(...synopsis.childNodes);
+        }
+
+        let genre = dom.querySelectorAll(".wi_fic_genre a.fic_genre");
+        if (genre.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Genre</b></p>");
+            info.push(...[...genre].flatMap(cleanTag));
+        }
+
+        let fandom = dom.querySelectorAll(".wi_fic_genre a.stag");
+        if (fandom.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Fandom</b></p>");
+            info.push(...[...fandom].flatMap(cleanTag));
+        }
+
+        let tags = dom.querySelectorAll(".wi_fic_showtags a.stag");
+        if (tags.length > 0) {
+            info.push(dom.createElement("div").innerHTML = "<p><b>Tags</b></p>");
+            info.push(...[...tags].flatMap(cleanTag));
+        }
+  
+        return info;
+    }
+}

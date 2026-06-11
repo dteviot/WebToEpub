@@ -1,1 +1,42 @@
-"use strict";parserFactory.register("isekaiscan.com",()=>new IsekaiScanParser);class IsekaiScanParser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("ul.version-chap");return util.hyperlinksToChapterList(r).reverse()}findContent(e){let r=e.querySelector("div.reading-content");for(let e of r.querySelectorAll("img")){let r=e.getAttribute("data-src");util.isNullOrEmpty(r)||(e.src=r)}return r}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.summary_image")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("divsummary__content")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("isekaiscan.com", () => new IsekaiScanParser());
+
+class IsekaiScanParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("ul.version-chap");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector("div.reading-content");
+        for (let i of content.querySelectorAll("img")) {
+            let data_src = i.getAttribute("data-src");
+            if (!util.isNullOrEmpty(data_src)) {
+                i.src = data_src;
+            }
+        }
+        return content;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.summary_image");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("divsummary__content")];
+    }
+}

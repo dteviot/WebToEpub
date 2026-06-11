@@ -1,1 +1,56 @@
-"use strict";parserFactory.register("inoveltranslation.com",()=>new InoveltranslationParser);class InoveltranslationParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("section[class^='styles_chapter_list'] div:has(>a):not(:has(> div))")].map(e=>this.linkToChapter(e)).reverse()}linkToChapter(e){let t=e.querySelector("a");return{sourceUrl:t.href,title:t.textContent}}findContent(e){return e.querySelector("section[data-sentry-component='RichText']")}preprocessRawDom(e){let t=[...e.body.querySelectorAll("div.rounded-xl")];if(0<t.length){t.forEach(e=>e.remove());let r=this.findContent(e),l=e.createElement("h2");l.appendChild(e.createTextNode("Author Notes")),r.appendChild(l),t.forEach(e=>r.appendChild(e))}}findChapterTitle(e){return e.querySelector("h1")}extractTitleImpl(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"article")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("section[class^='styles_details_container'] dl:last-child")]}}
+"use strict";
+
+parserFactory.register("inoveltranslation.com", () => new InoveltranslationParser());
+
+class InoveltranslationParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("section[class^='styles_chapter_list'] div:has(>a):not(:has(> div))")]
+            .map(link => this.linkToChapter(link)).reverse();
+    }
+
+    linkToChapter(link) {
+        let a = link.querySelector("a");
+
+        return ({
+            sourceUrl: a.href,
+            title: a.textContent,
+        });
+    }
+
+    findContent(dom) {
+        return dom.querySelector("section[data-sentry-component='RichText']");
+    }
+
+    preprocessRawDom(webPageDom) {
+        // notes can preceed content.  Move them into content
+        let notes = [...webPageDom.body.querySelectorAll("div.rounded-xl")];
+        if (0 < notes.length) {
+            notes.forEach(n => n.remove());
+            let content = this.findContent(webPageDom);
+            let footnoteTitle = webPageDom.createElement("h2");
+            footnoteTitle.appendChild(webPageDom.createTextNode("Author Notes"));
+            content.appendChild(footnoteTitle);
+            notes.forEach(n => content.appendChild(n));
+        }
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "article");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("section[class^='styles_details_container'] dl:last-child")];
+    }
+}

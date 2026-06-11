@@ -1,1 +1,34 @@
-"use strict";parserFactory.register("spiritfanfiction.com",()=>new SpiritfanfictionParser);class SpiritfanfictionParser extends Parser{constructor(){super()}async getChapterUrls(t){let e=t.querySelector("table.listagemCapitulos");return util.hyperlinksToChapterList(e)}findContent(t){return t.querySelector("div.texto-capitulo")}extractTitleImpl(t){return t.querySelector("h1.tituloPrincipal")}findChapterTitle(t){return t.querySelector("h1.tituloPrincipal")}findCoverImageUrl(t){return util.getFirstImgSrc(t,"section.boxConteudo")}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll("section.boxConteudo div.texto")]}}
+"use strict";
+
+parserFactory.register("spiritfanfiction.com", () => new SpiritfanfictionParser());
+
+class SpiritfanfictionParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("table.listagemCapitulos");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.texto-capitulo");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.tituloPrincipal");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.tituloPrincipal");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "section.boxConteudo");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("section.boxConteudo div.texto")];
+    }
+}

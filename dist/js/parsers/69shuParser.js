@@ -1,1 +1,171 @@
-"use strict";parserFactory.registerUrlRule(e=>util.extractHostName(e).includes("69shu"),()=>new ShuParser),parserFactory.register("69shuba.tw",()=>new _69shuTwParser),parserFactory.registerDeadSite("69yuedu.net",()=>new _69yueduParser);class ShuParser extends Parser{constructor(){super(),this.minimumThrottle=1e3}async getChapterUrls(e){let t=e.querySelector("a.more-btn").href,r=(await HttpClient.wrapFetch(t,this.makeOptions())).responseXML.querySelector("#catalog ul");return util.hyperlinksToChapterList(r).reverse()}findContent(e){return e.querySelector("div.txtnav")}extractTitleImpl(e){return e.querySelector("div.booknav2 h1").textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.bookbox")}extractAuthor(e){let t=e.querySelectorAll(".booknav2 a")[1];return t?.textContent??super.extractAuthor(e)}extractLanguage(){return"zh"}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,".txtinfo, #txtright, .bottom-ad"),super.removeUnwantedElementsFromContentElement(e)}extractSubject(e){let t=[...e.querySelectorAll(".booknav2 > p:nth-child(3) a")],r=e.querySelector(".tagtitle");if("标签"==r?.textContent){let r=[...e.querySelectorAll("#tagul a")];return[...t,...r].map(e=>e.textContent).join(", ")}return t.map(e=>e.textContent).join(", ")}extractDescription(e){return e.querySelector(".navtxt > p:nth-child(1)").textContent.trim()}async fetchChapter(e){return(await HttpClient.wrapFetch(e,this.makeOptions())).responseXML}makeOptions(){return{makeTextDecoder:()=>new TextDecoder("gb18030")}}}class _69yueduParser extends ShuParser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("a.btn").href,r=(await HttpClient.wrapFetch(t,this.makeOptions())).responseXML.querySelector("#chapters ul");return util.hyperlinksToChapterList(r)}makeOptions(){return{makeTextDecoder:()=>new TextDecoder("gbk")}}findChapterTitle(e){return e.querySelector("h1")}findContent(e){return e.querySelector("div.content")}}class _69shuTwParser extends ShuParser{async getChapterUrls(e){let t="https://69shuba.tw",r=e.querySelector(".book-op > tbody tr td:nth-child(2) a").href,n=[...(await HttpClient.wrapFetch(r)).responseXML.querySelectorAll("#indexselect-top option")].map(e=>new URL(e.value,t).href),a=[];for(let e of n){let r=(await HttpClient.wrapFetch(e)).responseXML,n=[...r.querySelectorAll(".last9 li:not(.title) :is(a, span.protected-chapter-link)")].map(e=>{if("A"===e.tagName)return e;let n=r.createElement("a");return n.href=new URL(e.dataset.cidUrl,t).href,n.textContent=e.textContent.trim(),n});a.push(...n.map(e=>util.hyperLinkToChapter(e)))}return a}async fetchChapter(e){return(await HttpClient.wrapFetch(e)).responseXML}findContent(e){return e.querySelector("#nr1")}extractTitleImpl(e){return e.querySelector(".info h1")}extractAuthor(e){let t=e.querySelector(".info p:nth-child(2) a");return t?.textContent??super.extractAuthor(e)}extractSubject(e){return[...e.querySelectorAll(".book-tags a")].map(e=>e.textContent.trim()).join(", ")}extractDescription(e){return e.querySelector(".intro p").textContent.trim()}findChapterTitle(e){return e.querySelector("#nr_title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,".bookinfo")}}
+"use strict";
+
+parserFactory.registerUrlRule(
+    url => (util.extractHostName(url).includes("69shu")),
+    () => new ShuParser()
+);
+parserFactory.register("69shuba.tw", () => new _69shuTwParser());
+parserFactory.registerDeadSite("69yuedu.net", () => new _69yueduParser());
+
+class ShuParser extends Parser {
+    constructor() {
+        super();
+        this.minimumThrottle = 1000;
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector("a.more-btn").href;
+        let toc = (await HttpClient.wrapFetch(tocUrl, this.makeOptions())).responseXML;
+        let menu = toc.querySelector("#catalog ul");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.txtnav");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.booknav2 h1").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.bookbox");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelectorAll(".booknav2 a")[1];
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractLanguage() {
+        return "zh";
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, ".txtinfo, #txtright, .bottom-ad");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    extractSubject(dom) {
+        let genres = [...dom.querySelectorAll(".booknav2 > p:nth-child(3) a")];
+
+        let tagHeader = dom.querySelector(".tagtitle");
+        if (tagHeader?.textContent == "标签") { 
+            let tags = [...dom.querySelectorAll("#tagul a")];
+            return [...genres, ...tags].map(e => e.textContent).join(", ");
+        }
+
+        return genres.map(e => e.textContent).join(", ");
+    }
+
+    extractDescription(dom) { // We only take the first p element that holds the description, the second one holds the story keywords.
+        return dom.querySelector(".navtxt > p:nth-child(1)").textContent.trim(); 
+    }
+
+    async fetchChapter(url) {
+        // site does not tell us gb18030 is used to encode text
+        return (await HttpClient.wrapFetch(url, this.makeOptions())).responseXML;
+    }
+
+    makeOptions() {
+        return ({
+            makeTextDecoder: () => new TextDecoder("gb18030")
+        });
+    }
+}
+
+class _69yueduParser extends ShuParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = dom.querySelector("a.btn").href;
+        let toc = (await HttpClient.wrapFetch(tocUrl, this.makeOptions())).responseXML;
+        let menu = toc.querySelector("#chapters ul");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    makeOptions() {
+        return ({
+            makeTextDecoder: () => new TextDecoder("gbk")
+        });
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.content");
+    }
+}
+
+class _69shuTwParser extends ShuParser {
+
+    async getChapterUrls(dom) {
+        let base = "https://69shuba.tw";
+        
+        let tocUrl = dom.querySelector(".book-op > tbody tr td:nth-child(2) a").href;
+
+        let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+
+        let pageUrls = [...tocDom.querySelectorAll("#indexselect-top option")]
+            .map(o => new URL(o.value, base).href);
+
+        let chapters = [];
+
+        for (let pageUrl of pageUrls) {
+            let pageDom = (await HttpClient.wrapFetch(pageUrl)).responseXML;
+
+            let nodes = [...pageDom.querySelectorAll(".last9 li:not(.title) :is(a, span.protected-chapter-link)")];
+
+            let links = nodes.map(el => {
+                if (el.tagName === "A") return el;
+
+                let a = pageDom.createElement("a");
+                a.href = new URL(el.dataset.cidUrl, base).href;
+                a.textContent = el.textContent.trim();
+                return a;
+            });
+
+            chapters.push(...links.map(a => util.hyperLinkToChapter(a)));
+        }
+
+        return chapters;
+    }
+
+    async fetchChapter(url) {
+        return (await HttpClient.wrapFetch(url)).responseXML;
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#nr1");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".info h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".info p:nth-child(2) a");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll(".book-tags a")];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector(".intro p").textContent.trim();
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("#nr_title");
+    }
+    
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".bookinfo");
+    }
+}

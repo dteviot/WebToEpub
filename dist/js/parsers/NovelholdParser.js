@@ -1,1 +1,41 @@
-"use strict";parserFactory.register("novelhold.com",()=>new NovelholdParser);class NovelholdParser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("div#morelist");return util.hyperlinksToChapterList(r)}findContent(e){return e.querySelector("#content")}extractTitleImpl(e){return e.querySelector("h1")}extractAuthor(e){let r=e.querySelector(".detail p")?.textContent?.split("：")[1];return r??super.extractAuthor(e)}findChapterTitle(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,".bookimg")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll(".content")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("novelhold.com", () => new NovelholdParser());
+
+class NovelholdParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("div#morelist");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".detail p")
+            ?.textContent?.split("：")[1];
+        return authorLabel ?? super.extractAuthor(dom);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".bookimg");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".content")];
+    }
+}

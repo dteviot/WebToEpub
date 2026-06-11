@@ -1,1 +1,113 @@
-"use strict";parserFactory.register("a-t.nu",()=>new ActiveTranslationsParser);class ActiveTranslationsParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("li.wp-manga-chapter.free-chap a")].map(e=>util.hyperLinkToChapter(e)).reverse()}findContent(e){let t=e.querySelector("div.entry-content");return null===t&&(t=e.querySelector("div.entry-content-container")),null===t&&(t=e.querySelector("div.nv-content-wrap")),null!==t&&util.removeChildElementsMatchingSelector(t,".code-block, #comments"),t}findChapterTitle(e){return e.querySelector("h1#chapter-heading")}preprocessRawDom(e){this.unscrambleText(e,this.findContent(e))}unscrambleText(e,t){if(null==t.querySelector("style"))return;let r=this.parseStyle(t),n=new Map;for(let e of[...t.querySelectorAll("p span")])n.set(e.className.trim(),e);this.addRuleContent(e,n,r)}parseStyle(e){let t=new Map,r=[...e.querySelectorAll("style")].pop(),n=r.textContent.split(/;\s*}/).map(e=>e.trim()).filter(e=>!util.isNullOrEmpty(e));for(let e of n){let r=e.indexOf("::before {");if(0<r)this.addPsudoElement(e,r,t,"before");else{if(r=e.indexOf("::after {"),!(0<r))break;this.addPsudoElement(e,r,t,"after")}}return r.remove(),t}addPsudoElement(e,t,r,n){let l=e.substring(1,t),a=this.extractContent(e),s=r.get(l);void 0===s&&(s={},r.set(l,s)),s[n]=a}extractContent(e){let t=e.indexOf("'"),r=e.lastIndexOf("'");return e.substring(t+1,r).replace("\\a0","")}addRuleContent(e,t,r){for(let n of t.entries()){let t=r.get(n[0]);if(null!=t){let r=n[1].textContent;t.before&&(r=t.before+r),t.after&&(r+=t.after);let l=e.createTextNode(r);n[1].replaceWith(l)}}}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.tab-summary")}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("a-t.nu", () => new ActiveTranslationsParser());
+
+class ActiveTranslationsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("li.wp-manga-chapter.free-chap a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .reverse();
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector("div.entry-content");
+        if (content === null) {
+            content = dom.querySelector("div.entry-content-container");
+        }
+        if (content === null) {
+            content = dom.querySelector("div.nv-content-wrap");
+        }
+        if (content !== null) {
+            util.removeChildElementsMatchingSelector(content, ".code-block, #comments");
+        }
+        return content;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1#chapter-heading");
+    }
+
+    preprocessRawDom(chapterDom) {
+        this.unscrambleText(chapterDom, this.findContent(chapterDom));
+    }
+
+    unscrambleText(dom, content) {
+        let style = content.querySelector("style");
+        if (style == null) {
+            return;
+        }
+        let rules = this.parseStyle(content);
+        let spans = new Map();
+        for (let span of [...content.querySelectorAll("p span")]) {
+            spans.set(span.className.trim(), span);
+        }
+        this.addRuleContent(dom, spans, rules);
+    }
+
+    parseStyle(content) {
+        let rules = new Map();
+        let style = [...content.querySelectorAll("style")].pop();
+        let lines = style.textContent.split(/;\s*}/)
+            .map(l => l.trim())
+            .filter(l => !util.isNullOrEmpty(l));
+        for (let line of lines) {
+            let index = line.indexOf("::before {");
+            if (0 < index) {
+                this.addPsudoElement(line, index, rules, "before");
+                continue;
+            }
+            index = line.indexOf("::after {");
+            if (0 < index) {
+                this.addPsudoElement(line, index, rules, "after");
+                continue;
+            }
+            break;
+        }
+        style.remove();
+        return rules;
+    }
+
+    addPsudoElement(line, index, rules, name) {
+        let className = line.substring(1, index);
+        let context = this.extractContent(line);
+        let rule = rules.get(className);
+        if (rule === undefined) {
+            rule = {};
+            rules.set(className, rule);
+        }
+        rule[name] = context;
+    }
+
+    extractContent(contextLine) {
+        let start = contextLine.indexOf("'");
+        let end = contextLine.lastIndexOf("'");
+        return contextLine.substring(start + 1, end).replace("\\a0", "");
+    }
+
+    addRuleContent(dom, spans, rules)
+    {
+        for (let span of spans.entries()) {
+            let rule = rules.get(span[0]);
+            if (rule != null) {
+                let text = span[1].textContent;
+                if (rule.before) {
+                    text = rule.before + text;
+                }
+                if (rule.after) {
+                    text += rule.after;
+                }
+                let textNode = dom.createTextNode(text);
+                span[1].replaceWith(textNode);
+            }
+        }
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.tab-summary");
+    }
+}

@@ -1,1 +1,40 @@
-"use strict";parserFactory.register("meionovel.id",()=>new MeionovelParser);class MeionovelParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("div.listing-chapters_wrap ul.list-chap");return util.hyperlinksToChapterList(t).reverse()}findContent(e){return e.querySelector("div.reading-content")}extractTitleImpl(e){return e.querySelector("div.post-title h3")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"div#text-chapter-toolbar"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){let t=e.querySelector("ol.breadcrumb li.active");return null===t?null:t.textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.summary_image")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.post-content, .summary__content")]}}
+"use strict";
+
+parserFactory.register("meionovel.id", () => new MeionovelParser());
+
+class MeionovelParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("div.listing-chapters_wrap ul.list-chap");
+        return util.hyperlinksToChapterList(menu).reverse();
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.reading-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.post-title h3");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "div#text-chapter-toolbar");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        let breadcrumb = dom.querySelector("ol.breadcrumb li.active");
+        return breadcrumb === null ? null : breadcrumb.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.summary_image");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.post-content, .summary__content")];
+    }
+}

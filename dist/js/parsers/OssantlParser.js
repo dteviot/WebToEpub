@@ -1,1 +1,49 @@
-"use strict";parserFactory.register("ossantl.com",()=>new OssantlParser);class OssantlParser extends Parser{constructor(){super()}async getChapterUrls(t){return[...t.querySelectorAll("div.eplister a")].map(t=>this.linkToChapter(t))}linkToChapter(t){let e=this.concatTextContent(t,".epl-num, .epl-title");return{sourceUrl:t.href,title:e}}findContent(t){return t.querySelector("div.entry-content")}extractTitleImpl(t){return t.querySelector(".entry-title")}findChapterTitle(t){return this.concatTextContent(t,"h1.entry-title, div.cat-series")}concatTextContent(t,e){return[...t.querySelectorAll(e)].map(t=>t.textContent.trim()).join(" ")}findCoverImageUrl(t){return util.getFirstImgSrc(t,"div.thumb")}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll("div.entry-content")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("ossantl.com", () => new OssantlParser());
+
+class OssantlParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.eplister a")]
+            .map(a => this.linkToChapter(a));
+    }
+
+    linkToChapter(link) {
+        let title = this.concatTextContent(link, ".epl-num, .epl-title");
+        return {
+            sourceUrl:  link.href,
+            title: title,
+        };
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.entry-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    findChapterTitle(dom) {
+        return this.concatTextContent(dom, "h1.entry-title, div.cat-series");
+    }
+
+    concatTextContent(element, selector) {
+        return [...element.querySelectorAll(selector)]
+            .map(e => e.textContent.trim())
+            .join(" ");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.thumb");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.entry-content")];
+    }
+}

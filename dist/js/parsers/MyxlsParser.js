@@ -1,1 +1,45 @@
-"use strict";parserFactory.register("myxls.net",()=>new MyxlsParser);class MyxlsParser extends Parser{constructor(){super()}async getChapterUrls(e){let r=e.querySelector("div#list dl").children,t=[],l=0;for(let e of r){let r=e.tagName.toLowerCase();"dt"===r&&++l,"dd"===r&&2===l&&t.push(e.querySelector("a"))}return t.map(e=>util.hyperLinkToChapter(e))}findContent(e){return e.querySelector("#content")}extractTitleImpl(e){return e.querySelector("h1")}findChapterTitle(e){return e.querySelector(".bookname h1")?.textContent??null}findCoverImageUrl(e){return util.getFirstImgSrc(e,"#fmimg")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("#intro")]}}
+"use strict";
+
+parserFactory.register("myxls.net", () => new MyxlsParser());
+
+class MyxlsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let rows = dom.querySelector("div#list dl").children;
+        let links = [];
+        let count = 0;
+        for (let row of rows) {
+            let tag = row.tagName.toLowerCase();
+            if (tag === "dt") {
+                ++count;
+            }
+            if ((tag === "dd") && (count === 2)) {
+                links.push(row.querySelector("a"));
+            }
+        }
+        return links.map(a => util.hyperLinkToChapter(a));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".bookname h1")?.textContent ?? null;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "#fmimg");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("#intro")];
+    }
+}

@@ -1,1 +1,87 @@
-"use strict";parserFactory.register("novel.babelchain.org",()=>new BabelChainParser),parserFactory.register("babelnovel.com",()=>new BabelChainParser);class BabelChainParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=this.extractChapterList(e);if(0===t.length){let r=e.baseURI+"/chapters",n=(await HttpClient.wrapFetch(r)).responseXML;t=this.extractChapterList(n)}return t}findDiv(e,t){let r=[...e.querySelectorAll("div")].filter(e=>e.className.startsWith(t));return 0<r.length?r[0]:null}extractChapterList(e){let t=this.findDiv(e,"chapters_list__ttW1Q");return null===t?[]:util.hyperlinksToChapterList(t)}static jsonToChapters(e,t){return e.data.map(e=>({sourceUrl:t+e.canonicalName,title:e.name,newArc:null}))}extractTitleImpl(e){return e.querySelector("h1")}findContent(e){return Parser.findConstrutedContent(e)}findCoverImageUrl(e){let t=this.findDiv(e,"book-info_wrapper");return null===t?null:t.querySelector("img").src}getInformationEpubItemChildNodes(e){let t=this.findDiv(e,"book-info_synopsis-wrapper");return null===t?[]:[t]}async fetchChapter(e){await util.sleep(3e3);let t=e.replace("//babelnovel.com/","//api.babelnovel.com/v1/")+"/content",r=await HttpClient.fetchJson(t);return BabelChainParser.jsonToHtml(r.json,t)}static jsonToHtml(e,t){let r=Parser.makeEmptyDocForContent(t),n=r.dom.createElement("h1");n.textContent=e.data.name||e.data.canonicalName,r.content.appendChild(n);let a=e.data.content.split("\n\n").filter(e=>!util.isNullOrEmpty(e));for(let e of a){let t=r.dom.createElement("p");t.appendChild(r.dom.createTextNode(e)),r.content.appendChild(t)}return r.dom}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("novel.babelchain.org", () => new BabelChainParser());
+//dead url
+parserFactory.register("babelnovel.com", () => new BabelChainParser());
+
+class BabelChainParser extends Parser {
+    constructor() {
+        super();
+    }
+    
+    async getChapterUrls(dom) {
+        let chapters = this.extractChapterList(dom);
+        if (chapters.length === 0) {
+            let url = dom.baseURI + "/chapters";
+            let chapterDom = (await HttpClient.wrapFetch(url)).responseXML;
+            chapters = this.extractChapterList(chapterDom);
+        }
+        return chapters;
+    }
+
+    findDiv(element, classPrefix) {
+        let candidates = [...element.querySelectorAll("div")]
+            .filter(e => e.className.startsWith(classPrefix));
+        return 0 < candidates.length ? candidates[0] : null;
+    }
+
+    extractChapterList(dom) {
+        let menu = this.findDiv(dom, "chapters_list__ttW1Q");
+        return (menu === null)
+            ? []
+            :  util.hyperlinksToChapterList(menu);
+    }
+
+    static jsonToChapters(json, chapterUrlBase) {
+        return json.data.map(e => ({
+            sourceUrl: chapterUrlBase + e.canonicalName,
+            title: e.name,
+            newArc: null
+        }));
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    findCoverImageUrl(dom) {
+        let coverImage = this.findDiv(dom, "book-info_wrapper");
+        return coverImage === null
+            ? null
+            : coverImage.querySelector("img").src;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let synopsis = this.findDiv(dom, "book-info_synopsis-wrapper");
+        return synopsis === null ? [] : [synopsis];
+    }
+
+    async fetchChapter(url) {
+        const rateLimitTo20PagePerMinute = 3000;
+        await util.sleep(rateLimitTo20PagePerMinute);
+        let contentUrl = url.replace("//babelnovel.com/", "//api.babelnovel.com/v1/") + "/content";
+        let xhr = await HttpClient.fetchJson(contentUrl);
+        let doc = BabelChainParser.jsonToHtml(xhr.json, contentUrl);
+        return doc;
+    }
+ 
+    static jsonToHtml(json, contentUrl) {
+        let newDoc = Parser.makeEmptyDocForContent(contentUrl);
+        let header = newDoc.dom.createElement("h1");
+        header.textContent = json.data.name || json.data.canonicalName;
+        newDoc.content.appendChild(header);
+        let paragraphs = json.data.content.split("\n\n")
+            .filter(p => !util.isNullOrEmpty(p));
+        for (let text of paragraphs) {
+            let p = newDoc.dom.createElement("p");
+            p.appendChild(newDoc.dom.createTextNode(text));
+            newDoc.content.appendChild(p);
+        }
+        return newDoc.dom;
+    }
+}

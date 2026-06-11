@@ -1,1 +1,150 @@
-"use strict";class ErrorLog{constructor(){}static SuppressErrorLog=!1;static log(r){ErrorLog.history.push(ErrorLog.getMsgText(r))}static showErrorMessage(r){if(this.SuppressErrorLog&&null==r.retryAction)return;if(ErrorLog.queue.push(r),1<ErrorLog.queue.length)return;let e=ErrorLog.hideAllSectionsSavingVisibility();ErrorLog.getErrorSection().hidden=!1,ErrorLog.setErrorMessageText(r),ErrorLog.setErrorMessageButtons(r,e)}static onCloseError(r){ErrorLog.queue.shift(),0===ErrorLog.queue.length?ErrorLog.restoreSectionVisibility(r):(ErrorLog.setErrorMessageText(ErrorLog.queue[0]),ErrorLog.setErrorMessageButtons(ErrorLog.queue[0],r))}static showLogToUser(){let r=ErrorLog.dumpHistory();util.isNullOrEmpty(r)||ErrorLog.showErrorMessage(r)}static clearHistory(){ErrorLog.history=[]}static dumpHistory(){return ErrorLog.history.join("\r\n\r\n")}static getErrorSection(){return document.getElementById("errorSection")}static hideAllSectionsSavingVisibility(){let r=new Map;for(let e of document.querySelectorAll("section"))r.set(e,e.hidden),e.hidden=!0;return r}static setErrorMessageText(r){document.querySelector("#errorMessageText pre").textContent=ErrorLog.getMsgText(r)}static getMsgText(r){if("string"==typeof r)return r;{let e=""+r.stack;return e.includes(r.message)||(e=r.message+" "+e),e}}static setErrorMessageButtons(r,e){let t=()=>ErrorLog.onCloseError(e),o=document.getElementById("errorButtonOk"),n=document.getElementById("errorButtonRetry"),i=document.getElementById("errorButtonCancel"),s=document.getElementById("errorButtonOpenURL"),c=document.getElementById("errorButtonBlockURL");void 0!==r.retryAction?(o.hidden=!0,n.hidden=!1,n.onclick=function(){t(),r.retryAction()},i.hidden=!1,i.onclick=function(){t(),r.cancelAction()},i.textContent=UIText.Common.cancel,void 0!==r.cancelLabel&&(i.textContent=r.cancelLabel),void 0!==r.openurl?(s.hidden=!1,s.onclick=function(){chrome.tabs.create({url:r.openurl})},c.hidden=!1,c.onclick=function(){t(),BlockedHostNames.add(new URL(r.blockurl).hostname),r.cancelAction()}):(s.hidden=!0,c.hidden=!0)):(o.hidden=!1,o.onclick=t,n.hidden=!0,i.hidden=!0,s.hidden=!0,c.hidden=!0)}static restoreSectionVisibility(r){for(let[e,t]of r)e.hidden=t}}ErrorLog.queue=[],ErrorLog.history=[];
+"use strict";
+
+class ErrorLog {
+    constructor() {
+    }
+    static SuppressErrorLog =  false;
+
+    static log(error) {
+        ErrorLog.history.push(ErrorLog.getMsgText(error));
+    }
+
+    static showErrorMessage(msg) {
+        // if already showing an error message, queue the new one to display
+        // when currently showing is closed. 
+        if (this.SuppressErrorLog && msg.retryAction == null) {
+            return;
+        }
+        ErrorLog.queue.push(msg);
+        if (1 < ErrorLog.queue.length) {
+            return;
+        }
+
+        let sections = ErrorLog.hideAllSectionsSavingVisibility();
+        ErrorLog.getErrorSection().hidden = false;
+
+        ErrorLog.setErrorMessageText(msg);
+        ErrorLog.setErrorMessageButtons(msg, sections);
+    }
+
+    static onCloseError(sections) {
+        ErrorLog.queue.shift();
+        if (ErrorLog.queue.length === 0) {
+            ErrorLog.restoreSectionVisibility(sections);
+        } else {
+            ErrorLog.setErrorMessageText(ErrorLog.queue[0]);
+            ErrorLog.setErrorMessageButtons(ErrorLog.queue[0], sections);
+        }
+    }
+
+    static showLogToUser() {
+        let history = ErrorLog.dumpHistory();
+        if (!util.isNullOrEmpty(history)) {
+            ErrorLog.showErrorMessage(history);
+        }
+    }
+
+    static clearHistory() {
+        ErrorLog.history = [];
+    }
+
+    static dumpHistory() {
+        let errors = ErrorLog.history.join("\r\n\r\n");
+        return errors;
+    }
+
+    /** private */
+    static getErrorSection() {
+        return document.getElementById("errorSection");
+    }
+
+    /** private */
+    static hideAllSectionsSavingVisibility() {
+        let sections = new Map();
+        for (let section of document.querySelectorAll("section")) {
+            sections.set(section, section.hidden);
+            section.hidden = true;
+        }
+        return sections;
+    }
+
+    /** private */
+    static setErrorMessageText(msg) {
+        let textRow = document.querySelector("#errorMessageText pre");
+        textRow.textContent = ErrorLog.getMsgText(msg);
+    }
+
+    static getMsgText(msg) {
+        if (typeof (msg) === "string") {
+            return msg;
+        } else {
+            // assume msg is some sort of error object
+            let retVal = "" + msg.stack;
+            if (!retVal.includes(msg.message)) {
+                retVal = msg.message + " " + retVal;
+            }
+            return retVal;
+        }
+    }
+
+    /** private */
+    static setErrorMessageButtons(msg, sections) {
+        let close = () => ErrorLog.onCloseError(sections);
+        let okButton = document.getElementById("errorButtonOk");
+        let retryButton = document.getElementById("errorButtonRetry");
+        let cancelButton = document.getElementById("errorButtonCancel");
+        let OpenURLButton = document.getElementById("errorButtonOpenURL");
+        let BlockURLButton = document.getElementById("errorButtonBlockURL");
+        if (msg.retryAction !== undefined) {
+            okButton.hidden = true;
+            retryButton.hidden = false;
+            retryButton.onclick = function() {
+                close();
+                msg.retryAction();
+            };
+            cancelButton.hidden = false;
+            cancelButton.onclick = function() {
+                close();
+                msg.cancelAction();
+            };
+            cancelButton.textContent = UIText.Common.cancel;
+            if (msg.cancelLabel !== undefined) {
+                cancelButton.textContent =  msg.cancelLabel;
+            }
+            if (msg.openurl !== undefined) {
+                OpenURLButton.hidden = false;
+                OpenURLButton.onclick = function() {
+                    //window.open(new URL(msg.openurl), "_blank").focus();
+                    //use chrome.tabs.create to prevent auto popup block from browser
+                    chrome.tabs.create({ url: msg.openurl});
+                };
+                BlockURLButton.hidden = false;
+                BlockURLButton.onclick = function() {
+                    close();
+                    BlockedHostNames.add(new URL(msg.blockurl).hostname);
+                    msg.cancelAction();
+                };
+            } else {
+                OpenURLButton.hidden = true;
+                BlockURLButton.hidden = true;
+            }
+        } else {
+            okButton.hidden = false;
+            okButton.onclick = close;
+            retryButton.hidden = true;
+            cancelButton.hidden = true;
+            OpenURLButton.hidden = true;
+            BlockURLButton.hidden = true;
+        }
+    }
+
+    /** private */
+    static restoreSectionVisibility(sections) {
+        for (let [key,value] of sections) {
+            key.hidden = value;
+        }
+    }
+}
+
+ErrorLog.queue = [];
+ErrorLog.history = [];

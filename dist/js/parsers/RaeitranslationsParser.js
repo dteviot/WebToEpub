@@ -1,1 +1,62 @@
-"use strict";parserFactory.register("raeitranslations.com",()=>new RaeitranslationsParser);class RaeitranslationsParser extends Parser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.chapter-list a")].map(this.linkToChapter)}linkToChapter(e){return{sourceUrl:e.href,title:e.querySelector(".chapter-title").innerText.trim()}}findContent(e){return Parser.findConstrutedContent(e)}extractTitleImpl(e){return e.querySelector("h2.title")}findCoverImageUrl(e){let t=e.querySelector("div.img.wrapper [style*=background-image]");return"https://raeitranslations.com"+util.extractUrlFromBackgroundImage(t)}async fetchChapter(e){let t=this.makeRestUrl(e),r=(await HttpClient.fetchJson(t)).json,a=this.buildHtml(r.currentChapter),n=Parser.makeEmptyDocForContent(e);return n.content.appendChild(a),n.dom}makeRestUrl(e){let t=new URL(e).pathname.split("/"),r=new URL("https://api.raeitranslations.com/api/chapters/single");return r.searchParams.set("id",t[1]),r.searchParams.set("num",t[2]),r}buildHtml(e){let t=e.body.replace(/\n/g,"</p><p>"),r=`<div><h1>${e.chapTitle}</h1><p>${t}</p></div>`;return util.sanitize(r,"text/html").querySelector("div")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.white-space")]}}
+"use strict";
+
+parserFactory.register("raeitranslations.com", () => new RaeitranslationsParser());
+
+class RaeitranslationsParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.chapter-list a")]
+            .map(this.linkToChapter);
+    }
+
+    linkToChapter(link) {
+        return {
+            sourceUrl:  link.href,
+            title: link.querySelector(".chapter-title").innerText.trim(),
+        };
+    }
+
+    findContent(dom) {
+        return Parser.findConstrutedContent(dom);
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h2.title");
+    }
+
+    findCoverImageUrl(dom) {
+        let div = dom.querySelector("div.img.wrapper [style*=background-image]");
+        return "https://raeitranslations.com" + util.extractUrlFromBackgroundImage(div);
+    }
+
+    async fetchChapter(url) {
+        let restUrl = this.makeRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        let content = this.buildHtml(json.currentChapter);
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        newDoc.content.appendChild(content);
+        return newDoc.dom; 
+    }
+
+    makeRestUrl(chapterUrl) {
+        let path = new URL(chapterUrl).pathname.split("/");
+        let restUrl = new URL("https://api.raeitranslations.com/api/chapters/single");
+        restUrl.searchParams.set("id", path[1]);
+        restUrl.searchParams.set("num", path[2]);
+        return restUrl;
+    }
+
+    buildHtml(json) {
+        let paragraphs = json.body.replace(/\n/g, "</p><p>");
+        let html = `<div><h1>${json.chapTitle}</h1><p>${paragraphs}</p></div>`;
+        let doc = util.sanitize(html, "text/html");
+        return doc.querySelector("div");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.white-space")];
+    }
+}

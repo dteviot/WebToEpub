@@ -1,1 +1,64 @@
-"use strict";parserFactory.register("unlimitednovelfailures.mangamatters.com",()=>new UnlimitedNovelFailuresParser);class UnlimitedNovelFailuresParser extends Parser{constructor(e){super(e)}getChapterUrls(e){return Promise.resolve(util.hyperlinksToChapterList(e))}extractTitleImpl(e){return e.querySelector(".entry-title")}findContent(e){return WordpressBaseParser.findContentElement(e)}findChapterTitle(e){return e.querySelector(".entry-title")}webPageToEpubItems(e,t){let r=this.convertRawDomToContent(e),n=[];return null!=r&&(n=this.splitContentIntoEpubItems(r,e.sourceUrl,t)),BakaTsukiParser.fixupInternalHyperLinks(n),n}splitContentIntoEpubItems(e,t,r){this.convertAnchorsToHeaders(e);let n=BakaTsukiParser.splitContentOnHeadingTags(e);return BakaTsukiParser.itemsToEpubItems(n,r,t)}convertAnchorsToHeaders(e){let t=e.ownerDocument;for(let r of e.querySelectorAll("a[id]")){let e=t.createElement("h2");e.id=r.id,e.appendChild(t.createTextNode(r.textContent));let n=r.parentElement;"p"===n.tagName.toLowerCase()?(n.after(e),r.remove()):r.replaceWith(e)}}}
+/*
+  Parses unlimitednovelfailures.mangamatters.com
+*/
+"use strict";
+
+//dead url/ parser
+parserFactory.register("unlimitednovelfailures.mangamatters.com", 
+    () => new UnlimitedNovelFailuresParser()
+);
+
+class UnlimitedNovelFailuresParser extends Parser {
+    constructor(imageCollector) {
+        super(imageCollector);
+    }
+
+    getChapterUrls(dom) {
+        return Promise.resolve(util.hyperlinksToChapterList(dom));
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    // find the node(s) holding the story content
+    findContent(dom) {
+        return WordpressBaseParser.findContentElement(dom);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".entry-title");
+    }
+
+    webPageToEpubItems(webPage, epubItemIndex) {
+        let content = this.convertRawDomToContent(webPage);
+        let items = [];
+        if (content != null) {
+            items = this.splitContentIntoEpubItems(content, webPage.sourceUrl, epubItemIndex);
+        }
+        BakaTsukiParser.fixupInternalHyperLinks(items);
+        return items;
+    }
+
+    splitContentIntoEpubItems(content, baseUri, epubItemIndex) {
+        this.convertAnchorsToHeaders(content);
+        let items = BakaTsukiParser.splitContentOnHeadingTags(content);
+        return BakaTsukiParser.itemsToEpubItems(items, epubItemIndex, baseUri);
+    }
+
+    convertAnchorsToHeaders(content) {
+        let document = content.ownerDocument;
+        for (let link of content.querySelectorAll("a[id]")) {
+            let h2 = document.createElement("h2");
+            h2.id = link.id;
+            h2.appendChild(document.createTextNode(link.textContent));
+            let parent = link.parentElement;
+            if (parent.tagName.toLowerCase() === "p") {
+                parent.after(h2);
+                link.remove();
+            } else {
+                link.replaceWith(h2);
+            }
+        }
+    }
+}

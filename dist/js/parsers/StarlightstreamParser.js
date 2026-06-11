@@ -1,1 +1,35 @@
-"use strict";parserFactory.register("starlightstream.net",()=>new StarlightstreamParser);class StarlightstreamParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector("[role='list']");return util.hyperlinksToChapterList(t)}findContent(e){return e.querySelector("[data-id='rich-content-viewer']")}extractTitleImpl(e){return e.querySelector("h1")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"[data-hook='buttonViewer']"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("h1")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"wix-image")}}
+"use strict";
+
+parserFactory.register("starlightstream.net", () => new StarlightstreamParser());
+
+class StarlightstreamParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let menu = dom.querySelector("[role='list']");
+        return util.hyperlinksToChapterList(menu);
+    }
+
+    findContent(dom) {
+        return dom.querySelector("[data-id='rich-content-viewer']");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "[data-hook='buttonViewer']");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "wix-image");
+    }
+}

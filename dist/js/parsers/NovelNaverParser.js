@@ -1,1 +1,78 @@
-"use strict";parserFactory.register("novel.naver.com",()=>new NovelNaverParser);class NovelNaverImageCollector extends ImageCollector{constructor(){super()}extractWrappingUrl(e){return("img"===e.tagName.toLowerCase()?e:e.querySelector("img")).src}}class NovelNaverParser extends Parser{constructor(){super(new NovelNaverImageCollector)}async getChapterUrls(e,t){let r=this.extractPartialChapterList(e),a=await this.extractTocPageUrls(e);return await this.getChaptersFromAllTocPages(r,this.extractPartialChapterList,a,t)}async extractTocPageUrls(e){let t=new Set,r=this.extractPartialTocPages(e,t),a=null;for(;null!=(a=e.querySelector("div.default_paging a.ico_next")?.href);)e=(await HttpClient.wrapFetch(a)).responseXML,r=r.concat(this.extractPartialTocPages(e,t));return r}extractPartialTocPages(e,t){let r=[...e.querySelectorAll("div.default_paging a")].map(e=>e.href).filter(e=>!t.has(e));for(let e of r)t.add(e);return r}extractPartialChapterList(e){return[...e.querySelector("div.cont_sub > ul.list_type2").querySelectorAll("a")].map(e=>({sourceUrl:e.href,title:e.querySelector("p.subj").textContent.trim()}))}findContent(e){return e.querySelector("div.viewer_container")}extractTitleImpl(e){return e.querySelector("h2.book_title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.section_area_info")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("#summaryText")]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("novel.naver.com", () => new NovelNaverParser());
+
+class NovelNaverImageCollector extends ImageCollector {
+    constructor() {
+        super();
+    }
+
+    //  Ignore address of hyperlink that wraps an image tag
+    extractWrappingUrl(element) {
+        let tagName = element.tagName.toLowerCase();
+        let img = (tagName === "img")
+            ? element
+            : element.querySelector("img");
+        return img.src;
+    }
+}
+
+class NovelNaverParser extends Parser {
+    constructor() {
+        super(new NovelNaverImageCollector());
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let chapters = this.extractPartialChapterList(dom);
+        let urlsOfTocPages = await this.extractTocPageUrls(dom);
+        return (await this.getChaptersFromAllTocPages(chapters, 
+            this.extractPartialChapterList, urlsOfTocPages, chapterUrlsUI));
+    }
+
+    async extractTocPageUrls(dom) {
+        let found = new Set();
+        let urls = this.extractPartialTocPages(dom, found);
+        let nextTocPageUrl = null;
+        while ((nextTocPageUrl = dom.querySelector("div.default_paging a.ico_next")?.href) != null) {
+            dom = (await HttpClient.wrapFetch(nextTocPageUrl)).responseXML;
+            urls = urls.concat(this.extractPartialTocPages(dom, found));
+        }
+        return urls;
+    }
+
+    extractPartialTocPages(dom, found) {
+        let urls = [...dom.querySelectorAll("div.default_paging a")]
+            .map(l => l.href)
+            .filter(u => !found.has(u));
+        for (let u of urls) {
+            found.add(u);
+        }
+        return urls;
+    }
+
+    extractPartialChapterList(dom) {
+        let menu = dom.querySelector("div.cont_sub > ul.list_type2");
+        return [...menu.querySelectorAll("a")]
+            .map(a => ({
+                sourceUrl:  a.href,
+                title: a.querySelector("p.subj").textContent.trim()
+            }));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.viewer_container");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h2.book_title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.section_area_info");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("#summaryText")];
+    }
+}

@@ -1,1 +1,66 @@
-"use strict";parserFactory.register("lightnovelbox.com",()=>new LightnovelboxParser);class LightnovelboxParser extends Parser{constructor(){super()}async getChapterUrls(e,t){let r=[...e.querySelectorAll("ul.chapter-list a")],o=LightnovelboxParser.linksToChapters(r),l=LightnovelboxParser.getUrlsOfTocPages(e);for(let e of l){let l=(await HttpClient.fetchJson(e)).json.chapters;r=[...util.sanitize(l).querySelectorAll("a")];let a=LightnovelboxParser.linksToChapters(r);t.showTocProgress(a),o=o.concat(a)}return o}static getUrlsOfTocPages(e){let t=[...e.querySelectorAll("div.pagination-container a[id]")].map(e=>parseInt(e.id)),r=Math.max(...t),o=[];if(null!==r){let t=`https://lightnovelbox.com/api/novels/${new URL(e.baseURI).pathname.split("/").pop()}/chapters?page=`;for(let e=2;e<=r;++e)o.push(t+e)}return o}static linksToChapters(e){return e.map(e=>({sourceUrl:"https://lightnovelbox.com"+new URL(e.href).pathname,title:e.querySelector(".chapter-title").textContent.trim()}))}findContent(e){return e.querySelector("div.chapter__content")}extractTitleImpl(e){return e.querySelector("div.main-head h1")}extractAuthor(e){let t=e.querySelector("div.author a");return null===t?super.extractAuthor(e):t.textContent}findCoverImageUrl(e){return util.getFirstImgSrc(e,"figure.cover")}getInformationEpubItemChildNodes(e){return[...e.querySelectorAll("div.summary")]}}
+"use strict";
+
+parserFactory.register("lightnovelbox.com", () => new LightnovelboxParser());
+
+class LightnovelboxParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let links = [...dom.querySelectorAll("ul.chapter-list a")];
+        let chapters = LightnovelboxParser.linksToChapters(links);
+        let urls = LightnovelboxParser.getUrlsOfTocPages(dom);
+        for (let url of urls) {
+            let rawDom = (await HttpClient.fetchJson(url)).json.chapters;
+            links = [...util.sanitize(rawDom).querySelectorAll("a")];
+            let partialList = LightnovelboxParser.linksToChapters(links);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+        }
+        return chapters;
+    }
+
+    static getUrlsOfTocPages(dom) {
+        let ids = [...dom.querySelectorAll("div.pagination-container a[id]")]
+            .map(a => parseInt(a.id));
+        let last = Math.max(...ids);
+        let urls = [];
+        if (last !== null) {
+            let name = new URL(dom.baseURI).pathname.split("/").pop();
+            let prefix = `https://lightnovelbox.com/api/novels/${name}/chapters?page=`;
+            for (let i = 2; i <= last; ++i) {
+                urls.push(prefix + i);
+            }
+        }
+        return urls;
+    }
+
+    static linksToChapters(links) {
+        return links.map(link => ({
+            sourceUrl:  "https://lightnovelbox.com" + new URL(link.href).pathname,
+            title: link.querySelector(".chapter-title").textContent.trim(),
+        }));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.chapter__content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("div.main-head h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("div.author a");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "figure.cover");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.summary")];
+    }
+}

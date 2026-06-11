@@ -1,1 +1,247 @@
-"use strict";parserFactory.register("arcanetranslations.com",()=>new NoblemtlParser),parserFactory.register("bookalb.com",()=>new NoblemtlParser),parserFactory.register("ckandawrites.online",()=>new KnoxtspaceParser),parserFactory.register("daotranslate.com",()=>new NoblemtlParser),parserFactory.register("daotranslate.us",()=>new NoblemtlParser),parserFactory.register("faloomtl.com",()=>new NoblemtlParser),parserFactory.register("genesistls.com",()=>new NoblemtlParser),parserFactory.register("hoxionia.com",()=>new NoblemtlParser),parserFactory.register("jobnib.com",()=>new NoblemtlParser),parserFactory.register("moonlightnovel.com",()=>new NoblemtlParser),parserFactory.register("noblemtl.com",()=>new NoblemtlParser),parserFactory.register("novelcranel.org",()=>new NoblemtlParser),parserFactory.register("novelsparadise.net",()=>new NoblemtlParser),parserFactory.register("readfreebooksonline.org",()=>new NoblemtlParser),parserFactory.register("tamagotl.com",()=>new NoblemtlParser),parserFactory.register("taonovel.com",()=>new NoblemtlParser),parserFactory.register("knoxt.space",()=>new KnoxtspaceParser),parserFactory.register("lazygirltranslations.com",()=>new LazygirltranslationsParser),parserFactory.register("novelsknight.com",()=>new NoblemtlParser),parserFactory.register("novelsknight.punchmanga.online",()=>new NovelsknightlParser),parserFactory.register("cyborg-tl.com",()=>new CyborgTlParser),parserFactory.register("pandamtl.com",()=>new NoblemtlParser),parserFactory.register("universalnovel.com",()=>new NoblemtlParser),parserFactory.register("whitemoonlightnovels.com",()=>new WhitemoonlightnovelsParser),parserFactory.register("my-novel.online",()=>new MyNovelOnlineParser),parserFactory.registerRule((e,r)=>.7*NoblemtlParser.isNoblemtlTheme(r),()=>new NoblemtlParser);class NoblemtlParser extends Parser{constructor(){super()}static isNoblemtlTheme(e){return null!=e.querySelector("div.eplister a")&&null!=e.querySelector(".thumbook, .sertothumb")}async getChapterUrls(e){return[...e.querySelectorAll("div.eplister a")].map(this.linkToChapter).reverse()}linkToChapter(e){let r=e.querySelector(".epl-title")?.textContent?.trim()??"",t=NoblemtlParser.extractChapterNum(e).trim()+" "+r;return{sourceUrl:e.href,title:t}}static extractChapterNum(e){let r=e.querySelector(".epl-num"),t=r.querySelector(".chapter_num");return null==t?r.textContent:t.textContent}findContent(e){return e.querySelector(".entry-content")}extractTitleImpl(e){return e.querySelector("h1.entry-title")}removeUnwantedElementsFromContentElement(e){let r=[...e.querySelectorAll("p")].filter(e=>"0"===e.style.opacity);util.removeElements(r),util.removeElements(this.findEmptySpanElements(e)),util.removeChildElementsMatchingSelector(e,"span.modern-footnotes-footnote__note"),util.removeChildElementsMatchingSelector(e,"span.footnote_tooltip"),util.removeChildElementsMatchingSelector(e,"div#hpk"),super.removeUnwantedElementsFromContentElement(e)}findEmptySpanElements(e){return[...e.querySelectorAll("span")].filter(e=>!e.firstChild)}findChapterTitle(e,r){return r.title}static buildChapterTitle(e){let r="",t=t=>{let l=e.querySelector(t);null!=l&&(r+=" "+l.textContent)};return t("h1.entry-title"),t(".cat-series"),r}findCoverImageUrl(e){return util.getFirstImgSrc(e,".thumbook, .sertothumb")}preprocessRawDom(e){util.removeChildElementsMatchingSelector(e,"div.saboxplugin-wrap, div.code-block")}getInformationEpubItemChildNodes(e){let r=e.querySelector("div.synp .entry-content, div.sersys.entry-content");return null==r?[]:[r]}}class KnoxtspaceParser extends NoblemtlParser{constructor(){super()}findChapterTitle(e){return NoblemtlParser.buildChapterTitle(e)}stripAdverts(e){for(let r of e.querySelectorAll("div.code-block"))util.removeChildElementsMatchingSelector(r,"center, div.ad-container"),util.flattenNode(r)}preprocessRawDom(e){this.stripAdverts(e),super.preprocessRawDom(e)}cleanInformationNode(e){this.stripAdverts(e)}}class WhitemoonlightnovelsParser extends NoblemtlParser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.eplister a")].map(this.linkToChapter)}findChapterTitle(e){return NoblemtlParser.buildChapterTitle(e)}cleanInformationNode(e){util.removeChildElementsMatchingSelector(e,".code-block")}}class LazygirltranslationsParser extends KnoxtspaceParser{constructor(){super()}async getChapterUrls(e){if(e.querySelector("div.eplister a"))return super.getChapterUrls(e);let r=e.querySelector(".page");return util.hyperlinksToChapterList(r)}}class MyNovelOnlineParser extends NoblemtlParser{constructor(){super(),this.minimumThrottle=3e3}findChapterTitle(e){return e.querySelector(".epheader .entry-title")}findContent(e){let r=e.querySelector(".epwrapper .epcontent");for(let t of r.querySelectorAll("p.chapter a.num-link")){let r=e.createElement("span");r.textContent=t.innerText,t.replaceWith(r)}return r}removeUnwantedElementsFromContentElement(e){util.removeElements(e.querySelectorAll("div.post-views, div.chapter-protected-message")),super.removeUnwantedElementsFromContentElement(e)}}class NovelsknightlParser extends NoblemtlParser{constructor(){super(),this.minimumThrottle=3e3}findContent(e){return e.querySelector("[itemprop='text']")}}class CyborgTlParser extends NoblemtlParser{constructor(){super()}customRawDomToContentStep(e){let r=e.rawDom.querySelector("#js-post-content");r&&(r.textContent=r.getAttribute("data-obf"))}}
+"use strict";
+
+parserFactory.register("arcanetranslations.com", () => new NoblemtlParser());
+//dead url
+parserFactory.register("bookalb.com", () => new NoblemtlParser());
+parserFactory.register("ckandawrites.online", () => new KnoxtspaceParser());
+parserFactory.register("daotranslate.com", () => new NoblemtlParser());
+parserFactory.register("daotranslate.us", () => new NoblemtlParser());
+//dead url
+parserFactory.register("faloomtl.com", () => new NoblemtlParser());
+//dead url
+parserFactory.register("genesistls.com", () => new NoblemtlParser());
+parserFactory.register("hoxionia.com", () => new NoblemtlParser());
+parserFactory.register("jobnib.com", () => new NoblemtlParser());
+parserFactory.register("moonlightnovel.com", () => new NoblemtlParser());
+parserFactory.register("noblemtl.com", () => new NoblemtlParser());
+parserFactory.register("novelcranel.org", () => new NoblemtlParser());
+//dead url
+parserFactory.register("novelsparadise.net", () => new NoblemtlParser());
+//dead url
+parserFactory.register("readfreebooksonline.org", () => new NoblemtlParser());
+//dead url
+parserFactory.register("tamagotl.com", () => new NoblemtlParser());
+parserFactory.register("taonovel.com", () => new NoblemtlParser());
+parserFactory.register("knoxt.space", () => new KnoxtspaceParser());
+parserFactory.register("lazygirltranslations.com", () => new LazygirltranslationsParser());
+//dead url
+parserFactory.register("novelsknight.com", () => new NoblemtlParser());
+parserFactory.register("novelsknight.punchmanga.online", () => new NovelsknightlParser());
+parserFactory.register("cyborg-tl.com", () => new CyborgTlParser());
+
+parserFactory.register("pandamtl.com", () => new NoblemtlParser());
+parserFactory.register("universalnovel.com", () => new NoblemtlParser());
+parserFactory.register("whitemoonlightnovels.com", () => new WhitemoonlightnovelsParser());
+
+parserFactory.register("my-novel.online", () => new MyNovelOnlineParser());
+
+parserFactory.registerRule(
+    (url, dom) => NoblemtlParser.isNoblemtlTheme(dom) * 0.7,
+    () => new NoblemtlParser()
+);
+
+class NoblemtlParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    static isNoblemtlTheme(dom) {
+        return (dom.querySelector("div.eplister a") != null) &&
+            (dom.querySelector(".thumbook, .sertothumb") != null);
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.eplister a")]
+            .map(this.linkToChapter)
+            .reverse();
+    }
+
+    linkToChapter(link) {
+        let titleName = link.querySelector(".epl-title")?.textContent?.trim() ?? "";
+        let title = NoblemtlParser.extractChapterNum(link).trim() + " "
+            + titleName;
+        return ({
+            sourceUrl:  link.href,
+            title: title
+        });
+    }
+
+    static extractChapterNum(link) {
+        let eplnum = link.querySelector(".epl-num");
+        let chapnum = eplnum.querySelector(".chapter_num");
+        return chapnum == null
+            ? eplnum.textContent
+            : chapnum.textContent;
+    }
+
+    findContent(dom) {
+        return dom.querySelector(".entry-content");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1.entry-title");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        let toRemove = [...element.querySelectorAll("p")]
+            .filter(p => p.style.opacity === "0");
+        util.removeElements(toRemove);
+        util.removeElements(this.findEmptySpanElements(element));
+        util.removeChildElementsMatchingSelector(element, "span.modern-footnotes-footnote__note");
+        util.removeChildElementsMatchingSelector(element, "span.footnote_tooltip");
+        util.removeChildElementsMatchingSelector(element, "div#hpk");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findEmptySpanElements(element) {
+        return [...element.querySelectorAll("span")]
+            .filter(s => !s.firstChild);
+    }
+
+    findChapterTitle(dom, webPage) {
+        return webPage.title;
+    }
+
+    static buildChapterTitle(dom) {
+        let title = "";
+        let addText = (selector) => {
+            let element = dom.querySelector(selector);
+            if (element != null) {
+                title += " " +  element.textContent;
+            }
+        };
+        addText("h1.entry-title");
+        addText(".cat-series");
+        return title;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".thumbook, .sertothumb");
+    }
+
+    preprocessRawDom(webPageDom) {
+        util.removeChildElementsMatchingSelector(webPageDom, "div.saboxplugin-wrap, div.code-block");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let info = dom.querySelector("div.synp .entry-content, div.sersys.entry-content");
+        return info == null
+            ? []
+            : [info];
+    }
+}
+
+class KnoxtspaceParser extends NoblemtlParser {
+    constructor() {
+        super();
+    }
+
+    findChapterTitle(dom) {
+        return NoblemtlParser.buildChapterTitle(dom);
+    }
+
+    stripAdverts(node) {
+        // On Knoxt chapters, first code-block contains chapter text and advert
+        for (let block of node.querySelectorAll("div.code-block")) {
+            util.removeChildElementsMatchingSelector(
+                block,
+                "center, div.ad-container"
+            );
+            util.flattenNode(block);
+        }
+    }
+
+    preprocessRawDom(webPageDom) {
+        this.stripAdverts(webPageDom);
+        super.preprocessRawDom(webPageDom);
+    }
+
+    cleanInformationNode(node) {
+        this.stripAdverts(node);
+    }
+}
+
+class WhitemoonlightnovelsParser extends NoblemtlParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.eplister a")]
+            .map(this.linkToChapter);
+    }
+
+    findChapterTitle(dom) {
+        return NoblemtlParser.buildChapterTitle(dom);
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, ".code-block");
+    }
+}
+
+class LazygirltranslationsParser extends KnoxtspaceParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        if (dom.querySelector("div.eplister a"))
+        {
+            return super.getChapterUrls(dom);
+        }
+        let menu = dom.querySelector(".page");
+        return util.hyperlinksToChapterList(menu);        
+    }
+}
+
+class MyNovelOnlineParser extends NoblemtlParser {
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".epheader .entry-title");
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector(".epwrapper .epcontent");
+        //there are random links embeded everywhere i think it is to boost other sites on google as the other site is "relevant"
+        for (let e of content.querySelectorAll("p.chapter a.num-link")) {
+            let pnode = dom.createElement("span");
+            pnode.textContent = e.innerText;
+            e.replaceWith(pnode);
+        }
+        return content;
+    }
+
+    removeUnwantedElementsFromContentElement(content) {
+        util.removeElements(content.querySelectorAll("div.post-views, div.chapter-protected-message"));
+        super.removeUnwantedElementsFromContentElement(content);
+    }
+}
+
+class NovelsknightlParser extends NoblemtlParser {
+    constructor() {
+        super();
+        this.minimumThrottle = 3000;
+    }
+
+    findContent(dom) {
+        return dom.querySelector("[itemprop='text']");
+    }
+}
+
+class CyborgTlParser extends NoblemtlParser {
+    constructor() {
+        super();
+    }
+
+    customRawDomToContentStep(chapter) {
+        let crypt = chapter.rawDom.querySelector("#js-post-content");
+        if (crypt) {
+            crypt.textContent = crypt.getAttribute("data-obf");
+        }
+    }
+}

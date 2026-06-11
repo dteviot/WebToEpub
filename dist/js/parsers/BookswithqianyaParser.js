@@ -1,1 +1,36 @@
-"use strict";parserFactory.register("bookswithqianya.com",()=>new BookswithqianyaParser);class BookswithqianyaParser extends WordpressBaseParser{constructor(){super()}async getChapterUrls(e){return[...e.querySelectorAll("div.elementor-tab-content a")].map(e=>util.hyperLinkToChapter(e)).filter(e=>this.isChapterUrl(e.sourceUrl))}isChapterUrl(e){return!e.includes("/products/")&&!e.includes("/novels/")&&!e.includes("myrics")}extractTitleImpl(e){return e.querySelector(".elementor-image-box-title")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"button"),super.removeUnwantedElementsFromContentElement(e)}preprocessRawDom(e){let t=this.findContent(e),r=(new FootnoteExtractor).scriptElementsToFootnotes(e);this.moveFootnotes(e,t,r)}}
+"use strict";
+
+parserFactory.register("bookswithqianya.com", () => new BookswithqianyaParser());
+
+class BookswithqianyaParser extends WordpressBaseParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        return [...dom.querySelectorAll("div.elementor-tab-content a")]
+            .map(a => util.hyperLinkToChapter(a))
+            .filter(c => this.isChapterUrl(c.sourceUrl));
+    }
+
+    isChapterUrl(url) {
+        return !url.includes("/products/") 
+            && !url.includes("/novels/")
+            && !url.includes("myrics");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector(".elementor-image-box-title");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "button");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    preprocessRawDom(webPageDom) {
+        let content = this.findContent(webPageDom);
+        let footnotes = new FootnoteExtractor().scriptElementsToFootnotes(webPageDom);
+        this.moveFootnotes(webPageDom, content, footnotes);
+    }
+}

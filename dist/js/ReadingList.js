@@ -1,1 +1,185 @@
-"use strict";class ReadingList{constructor(){this.epubs=new Map}addEpub(e){null==this.epubs.get(e)&&this.epubs.set(e,"")}deleteEpub(e){this.epubs.delete(e)}tryDeleteEpubAndSave(e){return!!this.getEpub(e)&&(this.deleteEpub(e),this.writeToLocalStorage(),!0)}setEpub(e,t){this.epubs.set(e,t),this.writeToLocalStorage()}getEpub(e){return this.epubs.get(e)}async deselectOldChapters(e,t){let r=this.epubs.get(e);if(null!=r){let s=!1;for(let e=0;e<t.length;++e)if(r===t[e].sourceUrl){s=!0;for(let r=0;r<=e;++r)t[r].isIncludeable=!1,t[r].previousDownload=!0;break}if(!s){let r=await Library.LibGetSourceChapterList(e);if(null==r)return;for(let e=t.length-1;e>=0;--e)for(let s=r.length-1;s>=0;--s)if(r[s]===t[e].sourceUrl){for(let r=0;r<=e;++r)t[r].isIncludeable=!1,t[r].previousDownload=!0;return}}}}update(e,t){let r=this.epubs.get(e),s=[...t].filter(e=>e.isIncludeable);if(null!=r){let t=ProgressBar.getUiElement()?.value;if(t){let r=t-1;for(let t=0;t<r;t++)this.epubs.set(e,s[t].sourceUrl)}else for(let t of s)this.epubs.set(e,t.sourceUrl);r!==this.epubs.get(e)&&this.writeToLocalStorage()}}static replacer(e,t){return"epubs"===e?[...t].map(e=>({toc:e[0],lastUrl:e[1]})):t}static reviver(e,t){switch(e){case"epubs":return new Map([...t].map(ReadingList.reviveEpub));case"history":return t[t.length-1];default:return t}}static reviveEpub(e){return null==e.history?[e.toc,e.lastUrl]:[e.toc,e.history]}toJson(){return JSON.stringify(this,ReadingList.replacer)}static fromJson(e){let t=new ReadingList;return t.epubs=JSON.parse(e,ReadingList.reviver).epubs,t}readFromLocalStorage(){let e=window.localStorage.getItem(ReadingList.storageName);null!=e&&(this.epubs=ReadingList.fromJson(e).epubs)}writeToLocalStorage(){window.localStorage.setItem(ReadingList.storageName,this.toJson())}onReadingListCheckboxClicked(e,t){e?this.addEpub(t):this.deleteEpub(t),this.writeToLocalStorage()}showReadingList(e){util.removeChildElementsMatchingSelector(e,"tr");for(let t of this.epubs.keys()){let r=document.createElement("tr");e.appendChild(r);let s=document.createElement("a");s.href=t,s.textContent=t,this.appendColumnToRow(r,s);let i=document.createElement("button");i.textContent=UIText.Common.remove,this.appendColumnToRow(r,i)}}appendColumnToRow(e,t){let r=document.createElement("td");r.appendChild(t),e.appendChild(r)}onClickRemove(e){if("BUTTON"===e.target.tagName){let t=e.target.parentElement.parentElement;this.deleteEpub(t.querySelector("a").href),this.showReadingList(e.currentTarget),this.writeToLocalStorage()}}}ReadingList.storageName="ReadingList";
+
+"use strict";
+
+/** Track EPUB chapters that have been previously downloaded 
+ * Note, as local storage is limited to 5 Megabytes, 
+ * and some stories can have  * 4k or more chapters, 
+ * Can't hold all URLs.  So just record last chapter for each story.
+*/
+class ReadingList {
+    constructor() {
+        this.epubs = new Map();
+    }
+
+    addEpub(url) {
+        let oldUrl = this.epubs.get(url);
+        if (oldUrl == null) {
+            this.epubs.set(url, "");
+        }
+    }
+
+    deleteEpub(url) {
+        this.epubs.delete(url);
+    }
+
+    tryDeleteEpubAndSave(url) {
+        if (this.getEpub(url)) {
+            this.deleteEpub(url);
+            this.writeToLocalStorage();
+            return true;
+        }
+        return false;
+    }
+
+    setEpub(url, chapterURL) {
+        this.epubs.set(url, chapterURL);
+        this.writeToLocalStorage();
+    }
+
+    getEpub(url) {
+        return this.epubs.get(url);
+    }
+
+    async deselectOldChapters(url, chapterList) {
+        let oldUrl = this.epubs.get(url);
+        if (oldUrl != null) {
+            let foundLastURL = false;
+            for (let i = 0; i < chapterList.length; ++i) {
+                if (oldUrl === chapterList[i].sourceUrl) {
+                    foundLastURL = true;
+                    for (let j = 0; j <= i; ++j) {
+                        chapterList[j].isIncludeable = false;
+                        chapterList[j].previousDownload = true;
+                    }
+                    break;
+                }
+            }
+            if (!foundLastURL) {
+                let SourceChapterList = await Library.LibGetSourceChapterList(url);
+                if (SourceChapterList == null) {
+                    return;
+                }
+                for (let i = chapterList.length-1; i >= 0; --i) {
+                    for (let j = SourceChapterList.length-1; j >= 0; --j) {
+                        if (SourceChapterList[j] === chapterList[i].sourceUrl) {
+                            for (let z = 0; z <= i; ++z) {
+                                chapterList[z].isIncludeable = false;
+                                chapterList[z].previousDownload = true;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    update(url, chapterList) {
+        let oldUrl = this.epubs.get(url);
+        let chapterListIsIncludeable = [...chapterList].filter(a => a.isIncludeable);
+        if (oldUrl != null) {
+            let progressBarValue = ProgressBar.getUiElement()?.value;
+            if (progressBarValue) {
+                let finished = progressBarValue - 1;
+                for (let i = 0; i < finished; i++) {
+                    this.epubs.set(url, chapterListIsIncludeable[i].sourceUrl);
+                }
+            } else {
+                for (let c of chapterListIsIncludeable) {
+                    this.epubs.set(url, c.sourceUrl);
+                }
+            }
+            if (oldUrl !== this.epubs.get(url)) {
+                this.writeToLocalStorage();
+            }
+        }
+    }
+
+    static replacer(key, value) {
+        switch (key) {
+            case "epubs":
+                return [...value].map(v => ({ toc: v[0], lastUrl: v[1] }));
+            default:
+                return value;
+        }
+    }
+
+    static reviver(key, value) {
+        switch (key) {
+            case "epubs":
+                return new Map([...value].map(ReadingList.reviveEpub));
+            case "history": {
+                return value[value.length - 1];
+            }
+            default:
+                return value;
+        }
+    }
+
+    static reviveEpub(packedEpub) {
+        return (packedEpub.history == null)
+            ? [packedEpub.toc, packedEpub.lastUrl]
+            : [packedEpub.toc, packedEpub.history];
+    }
+
+    toJson() {
+        return JSON.stringify(this, ReadingList.replacer);
+    }
+
+    static fromJson(json) {
+        let rl = new ReadingList();
+        rl.epubs = JSON.parse(json, ReadingList.reviver).epubs;
+        return rl;
+    }
+
+    readFromLocalStorage() {
+        let config = window.localStorage.getItem(ReadingList.storageName);
+        if (config != null) {
+            this.epubs = ReadingList.fromJson(config).epubs;
+        }
+    }
+
+    writeToLocalStorage() {
+        window.localStorage.setItem(ReadingList.storageName, this.toJson());
+    }
+
+    onReadingListCheckboxClicked(checked, url) {
+        if (checked) {
+            this.addEpub(url);
+        } else {
+            this.deleteEpub(url);
+        }
+        this.writeToLocalStorage();
+    }
+
+    showReadingList(table) {
+        util.removeChildElementsMatchingSelector(table, "tr");
+        for (let e of this.epubs.keys()) {
+            let row = document.createElement("tr");
+            table.appendChild(row);
+            let link = document.createElement("a");
+            link.href = e;
+            link.textContent = e;
+            this.appendColumnToRow(row, link);
+            let button = document.createElement("button");
+            button.textContent = UIText.Common.remove;
+            this.appendColumnToRow(row, button);
+        }
+    }
+
+    appendColumnToRow(row, element) {
+        let col = document.createElement("td");
+        col.appendChild(element);
+        row.appendChild(col);
+    }
+
+    onClickRemove(evt) {
+        if (evt.target.tagName === "BUTTON") {
+            let row = evt.target.parentElement.parentElement;
+            this.deleteEpub(row.querySelector("a").href);
+            this.showReadingList(evt.currentTarget);
+            this.writeToLocalStorage();
+        }
+    }
+}
+ReadingList.storageName = "ReadingList";

@@ -1,1 +1,52 @@
-"use strict";parserFactory.register("gamefaqs.gamespot.com",()=>new GamefaqsGamespotParser);class GamefaqsGamespotParser extends Parser{constructor(){super()}async getChapterUrls(e){let t=e.querySelector(".ftoc");return null!==t?this.linksToChapters(e.baseURI,t):(t=e.querySelector("div.main_content"),null!==t?(util.removeChildElementsMatchingSelector(t,"nav.content_nav_wrap"),this.linksToChapters(e.baseURI,t)):[])}linksToChapters(e,t){e.endsWith("/")||(e+="/");let r=new URL(e);return[...t.querySelectorAll("a")].map(e=>({sourceUrl:new URL(e.getAttribute("href"),r).toString(),title:e.innerText.trim()}))}findContent(e){return e.querySelector("#faqwrap")}extractTitleImpl(e){return e.querySelector("h3.platform-title")}extractAuthor(e){let t=e.querySelector("a.contrib1");return null===t?super.extractAuthor(e):t.textContent}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,".ftoc"),super.removeUnwantedElementsFromContentElement(e)}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("gamefaqs.gamespot.com", () => new GamefaqsGamespotParser());
+
+class GamefaqsGamespotParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let toc = dom.querySelector(".ftoc");
+        if (toc !== null) {
+            return this.linksToChapters(dom.baseURI, toc);
+        }
+        toc = dom.querySelector("div.main_content");
+        if (toc !== null) {
+            util.removeChildElementsMatchingSelector(toc, "nav.content_nav_wrap");
+            return this.linksToChapters(dom.baseURI, toc);
+        }
+        return [];
+    }
+
+    linksToChapters(base, toc) {
+        if (!base.endsWith("/")) {
+            base += "/";
+        }
+        let baseUrl = new URL(base);
+        return [...toc.querySelectorAll("a")].map(link => ({
+            sourceUrl:  new URL(link.getAttribute("href"), baseUrl).toString(),
+            title: link.innerText.trim(),
+        }));
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#faqwrap");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h3.platform-title");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector("a.contrib1");
+        return (authorLabel === null) ? super.extractAuthor(dom) : authorLabel.textContent;
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, ".ftoc");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}

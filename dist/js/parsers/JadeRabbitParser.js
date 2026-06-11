@@ -1,1 +1,55 @@
-"use strict";parserFactory.register("jade-rabbit.net",()=>new JadeRabbitParser);class JadeRabbitParser extends Parser{constructor(){super()}async getChapterUrls(e,t){return this.walkTocPages(e,JadeRabbitParser.chaptersFromDom,JadeRabbitParser.nextTocPageUrl,t)}static chaptersFromDom(e){return[...e.querySelectorAll("h2.entry-title a")].map(e=>util.hyperLinkToChapter(e))}static nextTocPageUrl(e){let t=e.querySelector("div.older a");return null===t?null:t.href}findContent(e){return e.querySelector("div.post-entry")}extractTitleImpl(e){return e.querySelector("h1")}removeUnwantedElementsFromContentElement(e){util.removeChildElementsMatchingSelector(e,"div.wp-block-ugb-container, div.wp-block-uagb-buttons, div.notranslate, div.post-tags"),super.removeUnwantedElementsFromContentElement(e)}findChapterTitle(e){return e.querySelector("h1.entry-title")}findCoverImageUrl(e){return util.getFirstImgSrc(e,"div.post-img")}getInformationEpubItemChildNodes(e){let t=e.querySelector("div.post-entry");return null===t?[]:[t]}}
+"use strict";
+
+//dead url/ parser
+parserFactory.register("jade-rabbit.net", () => new JadeRabbitParser());
+
+class JadeRabbitParser extends Parser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom, chapterUrlsUI) {
+        return this.walkTocPages(dom, 
+            JadeRabbitParser.chaptersFromDom, 
+            JadeRabbitParser.nextTocPageUrl, 
+            chapterUrlsUI
+        );
+    }
+
+    static chaptersFromDom(dom) {
+        return [...dom.querySelectorAll("h2.entry-title a")]
+            .map(a => util.hyperLinkToChapter(a));
+    }
+
+    static nextTocPageUrl(dom) {
+        let link = dom.querySelector("div.older a");
+        return link === null ? null : link.href;
+    }
+
+    findContent(dom) {
+        return dom.querySelector("div.post-entry");
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("h1");
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "div.wp-block-ugb-container, "
+            + "div.wp-block-uagb-buttons, div.notranslate, div.post-tags");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("h1.entry-title");
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.post-img");
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        let summary = dom.querySelector("div.post-entry");
+        return summary === null ? [] : [summary];
+    }
+}

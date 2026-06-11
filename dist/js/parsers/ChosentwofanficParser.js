@@ -1,1 +1,70 @@
-"use strict";parserFactory.register("chosentwofanfic.com",()=>new ChosentwofanficParser);class ChosentwofanficParser extends Parser{constructor(){super(),this.ChacheChapterTitle=new Map}async getChapterUrls(t){let e=new URL(t.baseURI).searchParams.get("sid");return[...(await HttpClient.wrapFetch("https://chosentwofanfic.com/viewstory.php?sid="+e+"&index=1")).responseXML.querySelectorAll("#output a")].filter(t=>t.href.includes("viewstory.php?sid="+e+"&")).map(t=>({sourceUrl:t.href,title:t.textContent}))}async loadEpubMetaInfo(t){let e=new URL(t.baseURI).searchParams.get("sid"),r=(await HttpClient.wrapFetch("https://chosentwofanfic.com/viewstory.php?sid="+e+"&index=1")).responseXML,s=[...r.querySelectorAll("#pagetitle a")].filter(t=>""!=t.textContent);this.title=s[0].textContent,this.author=s[1].textContent,this.description=r.querySelectorAll("#output .content p")[0].textContent,this.img=t.querySelector("#pagetitle img")?.src??null}extractTitleImpl(){return this.title}extractAuthor(){return this.author}extractDescription(){return this.description.trim()}findCoverImageUrl(){return this.img}getInformationEpubItemChildNodes(t){return[...t.querySelectorAll("#output div.content")]}findContent(t){return t.querySelector("#story")}findChapterTitle(t){return this.ChacheChapterTitle.get(t.baseURI)}preprocessRawDom(){if(0==this.ChacheChapterTitle.size){[...this.state.webPages.values()].filter(t=>t.isIncludeable).map(t=>this.ChacheChapterTitle.set(t.sourceUrl,t.title))}}}
+"use strict";
+
+parserFactory.register("chosentwofanfic.com", () => new ChosentwofanficParser());
+
+class ChosentwofanficParser extends Parser {
+    constructor() {
+        super();
+        this.ChacheChapterTitle = new Map();
+    }
+
+    async getChapterUrls(dom) {
+        let urlparams = new URL(dom.baseURI).searchParams;
+        let bookid = urlparams.get("sid");
+        let tocHtml = (await HttpClient.wrapFetch("https://chosentwofanfic.com/viewstory.php?sid="+bookid+"&index=1")).responseXML;
+        let chapters = [...tocHtml.querySelectorAll("#output a")].filter(a => a.href.includes("viewstory.php?sid="+bookid+"&"));
+        let ret = chapters.map(a => ({
+            sourceUrl: a.href, 
+            title: a.textContent
+        }));
+        return ret;
+    }
+    
+    async loadEpubMetaInfo(dom) {
+        let urlparams = new URL(dom.baseURI).searchParams;
+        let bookid = urlparams.get("sid");
+        let bookinfo = (await HttpClient.wrapFetch("https://chosentwofanfic.com/viewstory.php?sid="+bookid+"&index=1")).responseXML;
+        let pagetitle = [...bookinfo.querySelectorAll("#pagetitle a")].filter(a => a.textContent != "");
+        this.title = pagetitle[0].textContent;
+        this.author = pagetitle[1].textContent;
+        this.description = bookinfo.querySelectorAll("#output .content p")[0].textContent;
+        this.img = dom.querySelector("#pagetitle img")?.src ?? null;
+        return;
+    }
+
+    extractTitleImpl() {
+        return this.title;
+    }
+
+    extractAuthor() {
+        return this.author;
+    }
+
+    extractDescription() {
+        return this.description.trim();
+    }
+
+    findCoverImageUrl() {
+        return this.img;
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("#output div.content")];
+    }
+
+    findContent(dom) {
+        return dom.querySelector("#story");
+    }
+
+    findChapterTitle(dom) {
+        let tmptitle = this.ChacheChapterTitle.get(dom.baseURI);
+        return tmptitle;
+    }
+
+    preprocessRawDom() {
+        if (this.ChacheChapterTitle.size == 0) {
+            let pagesToFetch = [...this.state.webPages.values()].filter(c => c.isIncludeable);
+            pagesToFetch.map(a => (this.ChacheChapterTitle.set(a.sourceUrl, a.title)));
+        }
+    }
+}

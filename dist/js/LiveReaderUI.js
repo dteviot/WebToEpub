@@ -14,7 +14,23 @@ class LiveReaderUI {
         this.currentChapterIndex = -1;
 
         // Reading state
-        this.lazyCache = new Map();
+        this.lazyCacheLimit = 15;
+        this.lazyCache = {
+            map: new Map(),
+            has: (key) => this.lazyCache.map.has(key),
+            get: (key) => this.lazyCache.map.get(key),
+            set: (key, val) => {
+                const { map } = this.lazyCache;
+                if (map.has(key)) map.delete(key);
+                map.set(key, val);
+                if (map.size > this.lazyCacheLimit) {
+                    map.delete(map.keys().next().value); // Evict oldest
+                }
+                return this.lazyCache;
+            },
+            delete: (key) => this.lazyCache.map.delete(key),
+            clear: () => this.lazyCache.map.clear()
+        };
         this.lazyPromiseMap = new Map();
         this.lazyPrefetchCount = 3;
 
@@ -51,6 +67,7 @@ class LiveReaderUI {
     // INIT
     // ─────────────────────────────────────────
     init() {
+        this._teardownObservers();
         this._bindUIEvents();
         this._loadPreferences();
 
@@ -65,12 +82,26 @@ class LiveReaderUI {
         }
     }
 
+    _teardownObservers() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        if (this.lazyLoadObserver) {
+            this.lazyLoadObserver.disconnect();
+            this.lazyLoadObserver = null;
+        }
+    }
+
     _loadPreferences() {
         try {
             if (typeof UserPreferences !== "undefined") {
                 this.userPrefs = UserPreferences.readFromLocalStorage();
                 HttpClient.enableCorsProxy = this.userPrefs.enableCorsProxy.value;
                 HttpClient.corsProxyUrl = this.userPrefs.corsProxyUrl.value;
+                if (this.userPrefs.wtrLabCookieImport) {
+                    HttpClient.setWtrLabCookiesFromUserInput(this.userPrefs.wtrLabCookieImport.value);
+                }
             }
         } catch (e) { /* ignore */ }
 
@@ -182,6 +213,7 @@ class LiveReaderUI {
                 if (startBtn && this.toc.length > 0 && startBtn.disabled) {
                     startBtn.disabled = false;
                     startBtn.textContent = "Start Reading";
+                    startBtn.onclick = () => this._startReading(0);
                 }
 
                 if (tocStatus) {
@@ -205,7 +237,7 @@ class LiveReaderUI {
                     let idx = this.toc.findIndex(ch => ch.sourceUrl === savedChapUrl);
                     if (idx !== -1) {
                         startBtn.textContent = "Resume Reading";
-                        startBtn.onclick = () => this._startReading(idx, true);
+                        startBtn.onclick = () => this._startReading(idx);
                         return;
                     }
                 }
@@ -225,9 +257,8 @@ class LiveReaderUI {
 
         if (coverEl) {
             if (this.metaInfo.coverUrl) {
-                coverEl.src = typeof HttpClient !== "undefined"
-                    ? HttpClient.getProxiedUrl(this.metaInfo.coverUrl)
-                    : this.metaInfo.coverUrl;
+                // Load directly without proxy, as <img> tags bypass CORS and Cloudflare blocks proxies for images
+                coverEl.src = this.metaInfo.coverUrl;
                 coverEl.style.display = "";
             } else {
                 coverEl.style.display = "none";
@@ -257,7 +288,7 @@ class LiveReaderUI {
             li.dataset.index = index;
             li.title = ch.href;
             li.addEventListener("click", () => {
-                this._startReading(index, true);
+                this._startReading(index);
             });
             tocList.appendChild(li);
         });
@@ -336,7 +367,7 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     // START READING
     // ─────────────────────────────────────────
-    _startReading(chapterIndex = 0, forceChapterLoad = false) {
+    _startReading(chapterIndex = 0) {
         if (this.toc.length === 0) return;
         this._showView("readerView");
         this._applyReaderTheme();
@@ -345,16 +376,16 @@ class LiveReaderUI {
         this._initIntersectionObserver();
         this._initVoices();
         this._buildReaderToc();
-        
-        if (chapterIndex > 0 || forceChapterLoad) {
-            this.loadChapter(chapterIndex);
-        } else {
-            this._renderCoverPage();
-        }
+
+        this._renderCoverPage();
 
         // Pre-fetch first chapters
         for (let i = 0; i < Math.min(this.lazyPrefetchCount, this.toc.length); i++) {
             this._loadChapterIntoCache(i).catch(() => {});
+        }
+
+        if (chapterIndex > 0) {
+            setTimeout(() => this.loadChapter(chapterIndex), 200);
         }
     }
 
@@ -598,9 +629,6 @@ class LiveReaderUI {
 
     _appendCoverToScrollView(contentBody) {
         const coverSrc = this.metaInfo.coverUrl || "";
-        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
-            ? HttpClient.getProxiedUrl(coverSrc)
-            : coverSrc;
         const wrap = document.createElement("div");
         wrap.className = "lr-scroll-wrap";
         wrap.dataset.index = -1;
@@ -608,7 +636,7 @@ class LiveReaderUI {
         wrap.id = "lr-chapter-wrap-cover";
         wrap.innerHTML = `
             <div class="lr-cover-section">
-                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Cover" class="lr-scroll-cover-img">` : ""}
+                ${coverSrc ? `<img src="${coverSrc}" alt="Cover" class="lr-scroll-cover-img" onerror="this.onerror=null; if(typeof HttpClient !== 'undefined' && HttpClient.corsProxyUrl) { this.src = HttpClient.corsProxyUrl + encodeURIComponent('${coverSrc}'); }">` : ""}
                 <h1 class="lr-scroll-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-scroll-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 <div class="lr-scroll-start-hint">↓ SCROLL TO START READING ↓</div>
@@ -687,12 +715,9 @@ class LiveReaderUI {
         const contentBody = document.getElementById("lrContentBody");
         if (!contentBody) return;
         const coverSrc = this.metaInfo.coverUrl || "";
-        const proxiedCoverSrc = typeof HttpClient !== "undefined" && coverSrc
-            ? HttpClient.getProxiedUrl(coverSrc)
-            : coverSrc;
         contentBody.innerHTML = `
             <div class="lr-cover-section" style="min-height:80vh;">
-                ${proxiedCoverSrc ? `<img src="${proxiedCoverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
+                ${coverSrc ? `<img src="${coverSrc}" alt="Book Cover" class="lr-cover-img">` : ""}
                 <h1 class="lr-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 ${this.metaInfo.description ? `<p class="lr-cover-desc">${this.metaInfo.description}</p>` : ""}
@@ -996,15 +1021,23 @@ class LiveReaderUI {
         if (!Array.isArray(chapters)) return [];
         const seen = new Set();
         return chapters.filter(ch => {
-            const url = ch?.sourceUrl || ch?.href;
+            const url = ch?.sourceUrl || ch?.href || (typeof ch === "string" ? ch : null);
             if (!url || seen.has(url)) return false;
             seen.add(url);
             return true;
-        }).map((ch, i) => ({
-            title: ch.title?.trim() || `Chapter ${i + 1}`,
-            href: ch.sourceUrl || ch.href,
-            sourceUrl: ch.sourceUrl || ch.href
-        }));
+        }).map((ch, i) => {
+            let rawUrl = ch?.sourceUrl || ch?.href || (typeof ch === "string" ? ch : null);
+            if (rawUrl && !rawUrl.startsWith("http")) {
+                try {
+                    rawUrl = new URL(rawUrl, baseUrl).href;
+                } catch(e) {}
+            }
+            return {
+                title: ch.title?.trim() || `Chapter ${i + 1}`,
+                href: rawUrl,
+                sourceUrl: rawUrl
+            };
+        });
     }
 
     // ─────────────────────────────────────────
@@ -1019,7 +1052,13 @@ class LiveReaderUI {
                     this.parser.removeUnusedElementsToReduceMemoryConsumption(doc);
                 }
                 const el = this.parser.findContent(doc);
-                if (el) return el.cloneNode(true);
+                if (el) {
+                    const cloned = el.cloneNode(true);
+                    if (typeof this.parser.removeUnwantedElementsFromContentElement === "function") {
+                        this.parser.removeUnwantedElementsFromContentElement(cloned);
+                    }
+                    return cloned;
+                }
             } catch (_) {}
         }
 
@@ -1127,23 +1166,32 @@ class LiveReaderUI {
             .filter(el => el.textContent.trim().length > 10);
         const main = document.getElementById("lrReaderMain");
         if (main) main.classList.add("lr-tts-mode-active");
-        this.ttsParagraphs.forEach((p, i) => {
-            p.style.cursor = "pointer";
-            p.addEventListener("click", () => {
-                this.ttsCurrentIndex = i;
-                if (!this.ttsActive) this._playTTS();
-                else this._speakParagraph(i);
-            });
-        });
     }
 
     _speakParagraph(index) {
+        // Refresh paragraphs to account for newly loaded chapters
+        this._prepareTTSParagraphs();
         if (index >= this.ttsParagraphs.length) { this._stopTTS(); return; }
-        window.speechSynthesis.cancel();
+        
+        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        if (this.speechUtterance) {
+            this.speechUtterance.onend = null;
+            this.speechUtterance.onerror = null;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        
         const p = this.ttsParagraphs[index];
+        this.currentTtsElement = p;
         document.querySelectorAll(".lr-tts-active-para").forEach(el => el.classList.remove("lr-tts-active-para"));
         p.classList.add("lr-tts-active-para");
-        p.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        if (this.ttsAutoScroll !== false) {
+            this.isAutoScrolling = true;
+            p.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => this.isAutoScrolling = false, 250);
+        }
 
         const rate = parseFloat(document.getElementById("lrTtsRate")?.value || 1);
         const pitch = parseFloat(document.getElementById("lrTtsPitch")?.value || 1);
@@ -1156,19 +1204,92 @@ class LiveReaderUI {
             if (voice) this.speechUtterance.voice = voice;
         }
         this.speechUtterance.onend = () => {
-            this.ttsCurrentIndex++;
-            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+            if (!this.ttsActive) return;
+            this._prepareTTSParagraphs();
+            const currentIdx = this.ttsParagraphs.indexOf(this.currentTtsElement);
+            if (currentIdx !== -1) {
+                this.ttsCurrentIndex = currentIdx + 1;
+            } else {
+                let targetIdx = 0;
+                for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                    const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                    if (rect.bottom > 0) {
+                        targetIdx = i;
+                        break;
+                    }
+                }
+                this.ttsCurrentIndex = targetIdx;
+            }
+            this._speakParagraph(this.ttsCurrentIndex);
         };
         window.speechSynthesis.speak(this.speechUtterance);
     }
 
     _playTTS() {
-        this.ttsActive = true;
         this._prepareTTSParagraphs();
+        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
+
+        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
+            let targetIdx = 0;
+            const viewportHeight = window.innerHeight;
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                if (rect.bottom > 0 && rect.top < viewportHeight) {
+                    targetIdx = i;
+                    break;
+                }
+            }
+            this.ttsCurrentIndex = targetIdx;
+        }
+
+        // Check if we are resuming from a paused state;
+        let needsSync = false;
+        if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
+            const p = this.ttsParagraphs[this.ttsCurrentIndex];
+            const rect = p.getBoundingClientRect();
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.bottom < 0 || rect.top > vHeight) {
+                needsSync = true;
+            }
+        } else {
+            needsSync = true;
+        }
+
+        if (needsSync) {
+            const vHeight = window.innerHeight || document.documentElement.clientHeight;
+            const offset = 60; // rough header height
+            for (let i = 0; i < this.ttsParagraphs.length; i++) {
+                const rect = this.ttsParagraphs[i].getBoundingClientRect();
+                if ((rect.top >= offset && rect.top < vHeight) || (rect.top < offset && rect.bottom > offset)) {
+                    this.ttsCurrentIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (window.speechSynthesis.paused && this.ttsActive) {
+            if (needsSync) {
+                window.speechSynthesis.cancel();
+                this.ttsActive = false;
+            } else {
+                window.speechSynthesis.resume();
+                const playBtn = document.getElementById("lrTtsPlayBtn");
+                const pauseBtn = document.getElementById("lrTtsPauseBtn");
+                if (playBtn) playBtn.style.display = "none";
+                if (pauseBtn) pauseBtn.style.display = "";
+                this.ttsAutoScroll = true;
+                return;
+            }
+        }
+
+        this.ttsActive = true;
+        this.ttsAutoScroll = true; // reset auto-scroll on play
+        
         const playBtn = document.getElementById("lrTtsPlayBtn");
         const pauseBtn = document.getElementById("lrTtsPauseBtn");
         if (playBtn) playBtn.style.display = "none";
         if (pauseBtn) pauseBtn.style.display = "";
+        
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this._speakParagraph(this.ttsCurrentIndex);
     }
@@ -1296,6 +1417,37 @@ class LiveReaderUI {
         if (ttsPause) ttsPause.addEventListener("click", () => this._pauseTTS());
         if (ttsStop) ttsStop.addEventListener("click", () => this._stopTTS());
 
+        // TTS Event Delegation and Scroll Detection
+        const contentBody = document.getElementById("lrContentBody");
+        if (contentBody) {
+            contentBody.addEventListener("click", (e) => {
+                if (!this.ttsActive) return;
+                const p = e.target.closest("p, h1, h2, h3, blockquote, li");
+                if (p) {
+                    this._prepareTTSParagraphs();
+                    const idx = this.ttsParagraphs.indexOf(p);
+                    if (idx !== -1) {
+                        this.ttsCurrentIndex = idx;
+                        this.ttsAutoScroll = true; // resume auto-scroll on manual jump
+                        this._speakParagraph(this.ttsCurrentIndex);
+                    }
+                }
+            });
+        }
+        
+        const mainReader = document.getElementById("lrReaderMain");
+        if (mainReader) {
+            const disableAutoScroll = () => {
+                if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
+            };
+            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
+            mainReader.addEventListener("keydown", (e) => {
+                if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
+                    disableAutoScroll();
+                }
+            }, { passive: true });
+        }
+
         // Proxy config
         const proxySelect = document.getElementById("lrCorsProxySelect");
         const proxyInput = document.getElementById("lrCorsProxyInput");
@@ -1378,7 +1530,7 @@ class LiveReaderUI {
 
             let updateData = {
                 "LibArray": libArray,
-                [`LibEpub${id}`]: "lazy:liveread",
+                [`LibEpub${id}`]: `lazy:liveread:${this.url}`,
                 [`LibFilename${id}`]: "livebook.html",
                 [`LibCover${id}`]: this.metaInfo.coverUrl || "",
                 [`LibStoryURL${id}`]: this.url,
