@@ -57,7 +57,7 @@ class MegaLibrary {
 
         try {
             // Using megajs browser build
-            const folder = await megajs.File.fromURL(url);
+            const folder = await mega.File.fromURL(url);
             await folder.loadAttributes();
             this.currentFolder = folder;
             
