@@ -305,10 +305,15 @@ class LibraryUI {
         const detailsBackBtn = document.getElementById("detailsBackBtn");
         if (detailsBackBtn) {
             detailsBackBtn.addEventListener("click", () => {
-                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                document.getElementById("librariesView").classList.add("active");
-                const globalBackBtn = document.getElementById("globalBackBtn");
-                if (globalBackBtn) globalBackBtn.style.display = "flex";
+                if (typeof window.showView === "function") {
+                    window.showView("librariesView");
+                } else {
+                    const lv = document.getElementById("librariesView");
+                    if (lv) { lv.style.display = "block"; lv.classList.add("active"); }
+                    document.querySelectorAll(".app-view").forEach(v => { if (v.id !== "librariesView") { v.classList.remove("active"); v.style.display = "none"; } });
+                    const globalBackBtn = document.getElementById("globalBackBtn");
+                    if (globalBackBtn) globalBackBtn.style.display = "flex";
+                }
             });
         }
 
@@ -1296,13 +1301,15 @@ class LibraryUI {
                 downloadBtn.style.display = isLiveBook ? "none" : "flex";
             }
 
-            // Switch view
-            document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-            document.getElementById("bookDetailsView").classList.add("active");
-            
-            const globalBackBtn = document.getElementById("globalBackBtn");
-            if (globalBackBtn) {
-                globalBackBtn.style.display = "none"; // Hide global back button, detailsBackBtn handles going back
+            // Switch view — must use showView (or set display:block) so the view is actually visible
+            if (typeof window.showView === "function") {
+                await window.showView("bookDetailsView");
+            } else {
+                const bdv = document.getElementById("bookDetailsView");
+                if (bdv) { bdv.style.display = "block"; bdv.classList.add("active"); }
+                document.querySelectorAll(".app-view").forEach(v => { if (v.id !== "bookDetailsView") { v.classList.remove("active"); v.style.display = "none"; } });
+                const globalBackBtn = document.getElementById("globalBackBtn");
+                if (globalBackBtn) globalBackBtn.style.display = "none";
             }
 
             if (typeof HFStatsLibrary !== "undefined") {
