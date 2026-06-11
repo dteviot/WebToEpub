@@ -1567,18 +1567,7 @@ class EpubViewerUI {
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
 
-        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
-            let targetIdx = 0;
-            const viewportHeight = window.innerHeight;
-            for (let i = 0; i < this.ttsParagraphs.length; i++) {
-                const rect = this.ttsParagraphs[i].element.getBoundingClientRect();
-                if (rect.bottom > 0 && rect.top < viewportHeight) {
-                    targetIdx = i;
-                    break;
-                }
-            }
-            this.ttsCurrentIndex = targetIdx;
-        }
+        
 
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this.speakCurrentParagraph();
@@ -1671,7 +1660,7 @@ class EpubViewerUI {
             if (this.ttsActive) this.stopTTS();
         };
 
-        window.speechSynthesis.speak(this.speechUtterance);
+        setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
 
     pauseTTS() {
@@ -1752,9 +1741,7 @@ class EpubViewerUI {
         const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
         const noWorkerLoaded = typeof document !== "undefined"
             && document.querySelector("script[src*=\"zip-no-worker.min.js\"]");
-        if (isWebsite || noWorkerLoaded) {
-            return "zip-no-worker.min.js";
-        }
+        if (noWorkerLoaded) { return "zip-no-worker.min.js"; }
         return (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())
             ? "zip.min.js"
             : "zip-no-worker.min.js";

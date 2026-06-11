@@ -1247,25 +1247,14 @@ class LiveReaderUI {
             }
             this._speakParagraph(this.ttsCurrentIndex);
         };
-        window.speechSynthesis.speak(this.speechUtterance);
+        setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
 
     _playTTS() {
         this._prepareTTSParagraphs();
         if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
 
-        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
-            let targetIdx = 0;
-            const viewportHeight = window.innerHeight;
-            for (let i = 0; i < this.ttsParagraphs.length; i++) {
-                const rect = this.ttsParagraphs[i].getBoundingClientRect();
-                if (rect.bottom > 0 && rect.top < viewportHeight) {
-                    targetIdx = i;
-                    break;
-                }
-            }
-            this.ttsCurrentIndex = targetIdx;
-        }
+        
 
         // Check if we are resuming from a paused state;
         let needsSync = false;
