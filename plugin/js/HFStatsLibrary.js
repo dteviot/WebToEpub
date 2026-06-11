@@ -17,6 +17,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
     static FETCH_TIMEOUT_MS = 8000;
     static WORKER_TOP_TIMEOUT_MS = 8000;
     static _reportedReads = new Set();
+    static _memoryCache = new Map();
 
     static _clearLegacyWorkerBlocks() {
         try {
@@ -457,7 +458,21 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         return merged.slice(0, limit);
     }
 
-    static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS } = {}) {
+    static getCachedTopNovels(mode = "all", limit = 20) {
+        const cacheKey = `${mode}:${limit}`;
+        const cached = HFStatsLibrary._memoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.ts < 300000) {
+            return cached.data;
+        }
+        return null;
+    }
+
+    static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS, forceRefresh = false } = {}) {
+        const cached = HFStatsLibrary.getCachedTopNovels(mode, limit);
+        if (!forceRefresh && cached) {
+            return cached;
+        }
+
         HFStatsLibrary._clearLegacyWorkerBlocks();
         const localEntries = HFStatsLibrary.getLocalTopEntries(mode, limit);
 
@@ -490,7 +505,9 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             source = "hf";
         }
 
-        return { entries: merged, source };
+        const data = { entries: merged, source };
+        HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
+        return data;
     }
 
     static _normalizeEntries(data, mode, limit) {

@@ -68,11 +68,16 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
         
         // 1. Render local stats instantly (Stale-while-revalidate)
         try {
-            const local = HFStatsLibrary.getLocalTopEntries(mode, 16);
-            if (local && local.length > 0) {
-                TopNovelsUI._render(row, local, mode);
+            const cachedRemote = HFStatsLibrary.getCachedTopNovels(mode, 16);
+            if (cachedRemote && cachedRemote.entries?.length > 0) {
+                TopNovelsUI._render(row, cachedRemote.entries, mode);
             } else {
-                row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+                const local = HFStatsLibrary.getLocalTopEntries(mode, 16);
+                if (local && local.length > 0) {
+                    TopNovelsUI._render(row, local, mode);
+                } else {
+                    row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+                }
             }
         } catch (_) {
             row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
