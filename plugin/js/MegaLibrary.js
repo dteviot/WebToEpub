@@ -229,21 +229,51 @@ class MegaLibrary {
     async readOnline(file, btnElement) {
         if (btnElement.disabled) return;
         
+        // Generate a unique token for this load attempt
+        const loadToken = Date.now();
+        this.currentLoadToken = loadToken;
+        
         const originalText = btnElement.textContent;
         btnElement.textContent = "Loading...";
         btnElement.disabled = true;
         btnElement.style.background = "#555";
         
-        // Show the global loader so user knows what's happening
         const loader = document.getElementById("libraryLoader");
+        const cancelBtn = document.getElementById("cancelLibraryLoadBtn");
+        
+        const onCancel = () => {
+            this.currentLoadToken = null; // Invalidate
+            if (loader) loader.style.display = "none";
+            if (cancelBtn) {
+                cancelBtn.style.display = "none";
+                cancelBtn.onclick = null;
+            }
+            btnElement.textContent = originalText;
+            btnElement.disabled = false;
+            btnElement.style.background = "";
+        };
+        
+        // Show the global loader so user knows what's happening
         if (loader) {
             loader.style.display = "flex";
-            const statusText = loader.querySelector("div:last-child");
-            if (statusText) statusText.textContent = "Downloading EPUB from Mega...";
+            const textDiv = loader.querySelector("div:nth-of-type(2)");
+            if (textDiv) textDiv.textContent = "Downloading EPUB from Mega... (Large files may take a minute)";
+            
+            if (cancelBtn) {
+                cancelBtn.style.display = "inline-block";
+                cancelBtn.onclick = onCancel;
+            }
         }
+        
+        // Yield to browser to paint loader UI before freezing the thread with decryption
+        await new Promise(r => setTimeout(r, 50));
         
         try {
             const data = await file.downloadBuffer();
+            
+            // If user cancelled or started another load, drop this one
+            if (this.currentLoadToken !== loadToken) return;
+            
             const blob = new Blob([data], { type: "application/epub+zip" });
             
             // Monkeypatch the blob so it has a name property, needed by loadEpubFile
@@ -253,6 +283,7 @@ class MegaLibrary {
                 // Let the library manager handle loading the blob into the reader
                 window.libraryManager.openBookInReader(blob);
                 if (loader) loader.style.display = "none";
+                if (cancelBtn) cancelBtn.style.display = "none";
             } else {
                 throw new Error("Library manager not available to load epub");
             }
@@ -267,6 +298,9 @@ class MegaLibrary {
             }, 3000);
             
         } catch (error) {
+            // If user cancelled, don't show error
+            if (this.currentLoadToken !== loadToken) return;
+            
             console.error("Mega read online error:", error);
             btnElement.textContent = "Error";
             btnElement.style.background = "red";
@@ -278,8 +312,8 @@ class MegaLibrary {
                 btnElement.style.background = "";
             }, 3000);
             
-            const loader = document.getElementById("libraryLoader");
             if (loader) loader.style.display = "none";
+            if (cancelBtn) cancelBtn.style.display = "none";
         }
     }
     
