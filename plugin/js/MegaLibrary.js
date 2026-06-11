@@ -8,6 +8,30 @@ class MegaLibrary {
     init() {
         // Expose instance globally
         window.megaLibrary = this;
+        this.epubFiles = [];
+        this.searchQuery = "";
+        
+        const searchInput = document.getElementById("megaLibrarySearch");
+        const clearBtn = document.getElementById("clearMegaSearch");
+        
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                this.searchQuery = e.target.value.toLowerCase().trim();
+                if (clearBtn) {
+                    clearBtn.style.display = this.searchQuery.length > 0 ? "flex" : "none";
+                }
+                this.renderGrid();
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener("click", () => {
+                if (searchInput) searchInput.value = "";
+                this.searchQuery = "";
+                clearBtn.style.display = "none";
+                this.renderGrid();
+            });
+        }
     }
 
     showMegaSection() {
@@ -85,13 +109,11 @@ class MegaLibrary {
                 return;
             }
             
-            statusEl.textContent = `Found ${epubFiles.length} EPUB files.`;
-            statusEl.style.color = "#10b981"; // success green
-            
             // Sort alphabetically
             epubFiles.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
             
-            this.renderFiles(epubFiles, grid);
+            this.epubFiles = epubFiles;
+            this.renderGrid();
             
         } catch (error) {
             console.error("Mega folder load error:", error);
@@ -100,8 +122,24 @@ class MegaLibrary {
         }
     }
     
-    renderFiles(files, grid) {
-        files.forEach((file, index) => {
+    renderGrid() {
+        const grid = document.getElementById("megaLibraryGrid");
+        const statusEl = document.getElementById("megaLibraryStatus");
+        if (!grid) return;
+        
+        grid.innerHTML = "";
+        
+        const filtered = this.epubFiles.filter(f => {
+            if (!this.searchQuery) return true;
+            return (f.name || "").toLowerCase().includes(this.searchQuery);
+        });
+        
+        if (statusEl) {
+            statusEl.textContent = `Found ${filtered.length} EPUB files.`;
+            statusEl.style.color = "#10b981";
+        }
+        
+        filtered.forEach((file, index) => {
             const title = file.name.replace(/\.epub$/i, "");
             
             const card = document.createElement("div");
@@ -116,6 +154,7 @@ class MegaLibrary {
                         </svg>
                     </div>
                     <div class="book-hover-actions">
+                        <button class="book-action-btn read-btn-main">Read Now</button>
                         <button class="book-action-btn download-btn-main">Save File</button>
                     </div>
                 </div>
@@ -128,6 +167,14 @@ class MegaLibrary {
             
             const dlBtn = card.querySelector(".download-btn-main");
             dlBtn.addEventListener("click", () => this.downloadFile(file, dlBtn));
+            
+            const readBtn = card.querySelector(".read-btn-main");
+            readBtn.addEventListener("click", () => this.readOnline(file, readBtn));
+            
+            card.querySelector(".book-cover-wrap").addEventListener("click", (e) => {
+                if (e.target.classList.contains("book-action-btn")) return;
+                this.readOnline(file, readBtn);
+            });
             
             grid.appendChild(card);
         });
@@ -160,6 +207,11 @@ class MegaLibrary {
             
             btnElement.textContent = "Done";
             btnElement.style.background = "#10b981"; // success green
+            setTimeout(() => {
+                btnElement.textContent = originalText;
+                btnElement.disabled = false;
+                btnElement.style.background = "";
+            }, 3000);
         } catch (error) {
             console.error("Mega download error:", error);
             btnElement.textContent = "Error";
@@ -171,6 +223,62 @@ class MegaLibrary {
                 btnElement.disabled = false;
                 btnElement.style.background = "";
             }, 3000);
+        }
+    }
+    
+    async readOnline(file, btnElement) {
+        if (btnElement.disabled) return;
+        
+        const originalText = btnElement.textContent;
+        btnElement.textContent = "Loading...";
+        btnElement.disabled = true;
+        btnElement.style.background = "#555";
+        
+        // Show the global loader so user knows what's happening
+        const loader = document.getElementById("libraryLoader");
+        if (loader) {
+            loader.style.display = "flex";
+            const statusText = loader.querySelector("div:last-child");
+            if (statusText) statusText.textContent = "Downloading EPUB from Mega...";
+        }
+        
+        try {
+            const data = await file.downloadBuffer();
+            const blob = new Blob([data], { type: "application/epub+zip" });
+            
+            // Monkeypatch the blob so it has a name property, needed by loadEpubFile
+            blob.name = file.name || "book.epub";
+            
+            if (window.libraryManager && window.libraryManager.loadEpubFile) {
+                // Let the library manager handle loading the blob into the reader
+                window.libraryManager.loadEpubFile(blob);
+            } else {
+                throw new Error("Library manager not available to load epub");
+            }
+            
+            btnElement.textContent = "Ready";
+            btnElement.style.background = "#10b981"; // success green
+            
+            setTimeout(() => {
+                btnElement.textContent = originalText;
+                btnElement.disabled = false;
+                btnElement.style.background = "";
+            }, 3000);
+            
+        } catch (error) {
+            console.error("Mega read online error:", error);
+            btnElement.textContent = "Error";
+            btnElement.style.background = "red";
+            alert("Failed to read file: " + error.message);
+            
+            setTimeout(() => {
+                btnElement.textContent = originalText;
+                btnElement.disabled = false;
+                btnElement.style.background = "";
+            }, 3000);
+            
+            const loader = document.getElementById("libraryLoader");
+            if (loader) loader.style.display = "none";
         }
     }
     
