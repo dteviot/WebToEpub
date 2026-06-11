@@ -252,6 +252,7 @@ class MegaLibrary {
             if (window.libraryManager && window.libraryManager.openBookInReader) {
                 // Let the library manager handle loading the blob into the reader
                 window.libraryManager.openBookInReader(blob);
+                if (loader) loader.style.display = "none";
             } else {
                 throw new Error("Library manager not available to load epub");
             }
