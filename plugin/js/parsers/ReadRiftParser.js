@@ -1,260 +1,209 @@
-/*
-  Template to use to create a new parser
-*/
-"use strict";
+parserFactory.register("readrift.net", () => new ReadRiftParser());
 
-// Use one or more of these to specify when the parser is to be used
-/*
-// Use this function if site's host name is sufficient.  
-// i.e. All pages are on same site, and use same format.
-parserFactory.register("template.org", () => new TemplateParser());
-
-// Use this function if site's URL is sufficient
-parserFactory.registerUrlRule(
-    url => TemplateParser.urlMeetsSelectionCriteria(url), 
-    () => new TemplateParser()
-);
-
-// Use this if pages are on multiple sites, or host name isn't unique
-parserFactory.registerRule(
-    function(url, dom) {
-        return TemplateParser.urlMeetsSelectionCriteria(url) ||
-            TemplateParser.domMeetsSelectionCritera(dom); 
-    }, 
-    () => new TemplateParser()
-);
-*/
-
-class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
+class ReadRiftParser extends Parser {
     constructor() {
         super();
-        //Optional Parameters:
-
-        /*
-        // Minimum delay (in ms) between page requests. Useful for 403 error prevention.
-        // If the sites this parser accesses throttles requests or uses cloudflare, it is recommended to set this.
         this.minimumThrottle = 3000;
-        */
+
+        // Using these to share book information across the different methods of
+        // the parser class without making redundant API requests.
+        this.novelId = null;
+        this.bookMeta = null;
     }
 
-    // returns promise with the URLs of the chapters to fetch
-    // promise is used because may need to fetch the list of URLs from internet
-    /*
-    async getChapterUrls(dom, chapterUrlsUI) {
-        // Most common implementation is to find element holding the hyperlinks to 
-        // the web pages holding the chapters.  Then call util.hyperlinksToChapterList()
-        // to convert the links into a list of URLs the parser will collect.
-        let menu = dom.querySelector("div.su-tabs-panes");
-        return util.hyperlinksToChapterList(menu);
+    async loadEpubMetaInfo(dom) {
+        /**
+         * ReadRift is a client-side Nuxt app that loads slow, so it's a gamble
+         * whether the css selector we're targetting has the chapters loaded.
+         * Thankfully, I found API requests in the network tab so we can just
+         * query all the necessary data cleanly. *
+         */
+        this.novelId = null;
+        this.bookMeta = null;
 
-        // Almost as common, find links on page and convert.
-        return [...dom.querySelectorAll("li.wp-manga-chapter.free-chap a")]
-            .map(a => util.hyperLinkToChapter(a));
-
-        // Need to walk multiple ToC pages, page by page
-        return (await this.walkTocPages(dom, 
-            TemplateParser.chaptersFromDom, 
-            TemplateParser.nextTocPageUrl, 
-            chapterUrlsUI
-        ));
-
-        // Can get list of all ToC pages
-        let tocPage1chapters = TemplateParser.extractPartialChapterList(dom);
-        let urlsOfTocPages  = TemplateParser.getUrlsOfTocPages(dom);
-        return (await this.getChaptersFromAllTocPages(tocPage1chapters,
-            TemplateParser.extractPartialChapterList,
-            urlsOfTocPages,
-            chapterUrlsUI
-        ));
+        try {
+            await this.getNovelIdFromApi(dom);
+        } catch (err) {
+            throw new Error(
+                `ReadRiftParser aborted during initialization: ${err.message}`,
+            );
+        }
     }
-    */
 
-    // returns the element holding the story content in a chapter
-    /*
-    findContent(dom) {
-        // typical implementation is find node with all wanted content
-        // return is the element holding just the wanted content.
-        return dom.querySelector("article");
+    async getNovelIdFromApi(dom) {
+        /*
+         * The site has an API where you can request the novel id from the server.
+         * As such, we're pulling the novel-slug out of the url to pass to that api.
+         * Then we make a HTTP request to `/api/v1/books/{novel-slug}`
+         */
+        try {
+            const currentUrl = dom.baseURI;
+
+            const novelSlug = currentUrl.split("/book/")[1]?.replace(/\/$/, "");
+            if (!novelSlug) {
+                throw new Error(
+                    "Could not parse the novel title identifier from the URL.",
+                );
+            }
+
+            const apiUrl = `https://readrift.net/api/v1/books/${novelSlug}/`;
+            const response = await HttpClient.fetchJson(apiUrl);
+
+            const jsonPayload = response.json;
+            if (!jsonPayload?.id) {
+                throw new Error("The api response didn't contain the novel id");
+            }
+
+            this.novelId = String(jsonPayload.id);
+            this.bookMeta = jsonPayload;
+        } catch (err) {
+            throw new Error(`Failed to get novel id from api: ${err.message}`);
+        }
     }
-    */
 
-    // title of the story  (not to be confused with title of each chapter)
-    /*
-    extractTitleImpl(dom) {
-        // typical implementation is find node with the Title and return name from title
-        // NOTE. Can return Title as a string, or an  HTML element
-        return dom.querySelector("h1");
+    async getChapterUrls() {
+        /*
+         * Most of the code in the function consists of parsing the html to find
+         * ids we need to make an API request to get the chapter urls directly.
+         */
+        const urls = [];
+
+        if (!this.novelId) {
+            return urls;
+        }
+
+        // Now we're getting the chapter ids directly from the api so we can
+        // populate the urls
+        let apiUrl =
+            "https://readrift.net/api/v1/books/" +
+            this.novelId +
+            "/chapters/?limit=10&page=1";
+
+        while (apiUrl) {
+            try {
+                apiUrl = await this.getChaptersFromApi(apiUrl, urls);
+                await util.sleep(300);
+            } catch (err) {
+                apiUrl = null;
+                throw new Error(
+                    `ReadRiftParser failed while scanning novel's chapters: ${err.message}`,
+                );
+            }
+        }
+
+        return urls;
     }
-    */
 
-    // author of the story
-    // Optional, if not provided, will default to "<unknown>"
-    /*
-    extractAuthor(dom) {
-        // typical implementation is find node with the author's name and return name from title
-        // Major points to note
-        //   1. Return the Author's name as a string, not a HTML element
-        //   2. If can't find Author, call the base implementation
-        let authorLabel = dom.querySelector(".meta span a");
-        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    async getChaptersFromApi(apiUrl, urls) {
+        const response = await HttpClient.fetchJson(apiUrl);
+        const jsonPayload = response.json;
+        const chapters = jsonPayload.results;
+
+        if (Array.isArray(chapters) && chapters.length > 0) {
+            chapters.forEach((chapter) => {
+                if (chapter?.id) {
+                    // Since the chapter url pattern is the same for
+                    // every chapter on this site, we'll map the chapter
+                    // id to the end for every chapter
+                    urls.push({
+                        sourceUrl: `https://readrift.net/book/chapter/${chapter.id}/`,
+                        title:
+                            chapter.title ||
+                            `Chapter ${chapter.chapter_num || chapter.id}`,
+                        // Weirdly enough, is_paid = true means you have access, even for free chapters
+                        isIncludeable: chapter.is_paid,
+                    });
+                } else {
+                    throw new Error("API response is missing chapter IDs");
+                }
+            });
+
+            // Use the pagination engine's built-in pointer string to
+            // shift to the next page layout
+            apiUrl = jsonPayload.next || null;
+        } else {
+            apiUrl = null;
+        }
+        return apiUrl;
     }
-    */
 
-    // language used
-    // Optional, if not provided, will default to ISO code for English "en"
-    /*
-    extractLanguage(dom) {
-        return dom.querySelector("html").getAttribute("lang");
-    }
-    */
-
-    // load EpubMetaInfo async in local variable to retieve with all other Metadata functions
-    // Optional, will default to "return"
-    /*
-    async loadEpubMetaInfo(){
-        let data = (await HttpClient.fetchJson(api)).json;
-        this.subject = data.subject;
-        ...
-        return;
-    }
-    */
-
-    // Genre of the story
-    // Optional, Genre for metadata, if not provided, will default to ""
-    /*
-    extractSubject(dom) {
-        let tags = [...dom.querySelectorAll("[property='genre']")];
-        return tags.map(e => e.textContent.trim()).join(", ");
-    }
-    */
-
-    // Description of the story
-    // Optional, Description for metadata, if not provided, will default to ""
-    /*
-    extractDescription(dom) {
-        return dom.querySelector("div [property='description']").textContent.trim();
-    }
-    */
-
-    // Publisher of the story
-    // Optional, Publisher for metadata, if not provided, will default to ""
-    /*
-    extractPublisher(dom) {
-        // Element from dom containing publisher data
-        return dom.querySelector("").textContent.trim();
-
-        return "site_name";
-    }
-    */
-
-    // Optional, supply if need to do special manipulation of content
-    // e.g. decrypt content
-    /*
-    customRawDomToContentStep(chapter, content) {
-        // for example of this, refer to LnmtlParser
-    }
-    */
-
-    // Optional, supply if need to do custom cleanup of content
-    /*
-    removeUnwantedElementsFromContentElement(element) {
-        util.removeChildElementsMatchingSelector(element, "button");
-        super.removeUnwantedElementsFromContentElement(element);
-    }
-    */
-
-    // Optional, supply if individual chapter titles are not inside the content element
-    /*
-    findChapterTitle(dom) {
-        // typical implementation is find node with the Title
-        // Return Title element, OR the title as a string
-        return dom.querySelector("h3.dashhead-title");
-    }
-    */
-
-    // Optional, if "next/previous chapter" are nested inside other elements,
-    // this says how to find the highest parent element to remove
-    /*
-    findParentNodeOfChapterLinkToRemoveAt(link) {
-        // The links may be wrapped, so need to walk up tree to find the 
-        // highest element holding the chapter links.
-        // e.g. Following code assumes links are sometimes enclosed in a <strong> tag
-        // that is enclosed in a <p> tag.  We want to remove the <p> tag
-        // and everything inside it
-        let toRemove = util.moveIfParent(link, "strong");
-        return util.moveIfParent(toRemove, "p");    
-    }
-    */
-
-    // Optional, supply if cover image can usually be found on inital web page
-    // Notes.
-    //   1. If cover image is first image in content section, do not implement this function
-    /*
-    findCoverImageUrl(dom) {
-        // Most common implementation is get first image in specified container. e.g. 
-        return util.getFirstImgSrc(dom, "div.td-ss-main-sidebar");
-    }
-    */
-
-    // Optional, supply if need to chase hyperlinks in page to get all chapter content
-    // or site can send challenge pages for some chapters
-    /*
     async fetchChapter(url) {
-        return (await HttpClient.wrapFetch(url)).responseXML;
+        const match = url.match(/chapter\/(\d+)/);
+        if (!match) {
+            return super.fetchChapter(url);
+        }
+        const chapterId = match[1];
 
-        // Handling to catch sites that send challenge pages
-        // Note, need to implement isCustomError() and setCustomErrorResponse()
-        let options = { parser: this };
-        return (await HttpClient.wrapFetch(url, options)).responseXML;
-    }
-    */
+        // I also found the chapter API so we can just directly request the content
+        const apiUrl = `https://readrift.net/api/v1/books/chapter/${chapterId}/`;
 
-    // Optional, supply these if site can send challenge pages for some chapters
-    /*
-    // return true if response is a challenge response
-    isCustomError(response){
-        return (response.responseXML.title == "Just a moment...");
+        try {
+            const response = await HttpClient.fetchJson(apiUrl);
+            const jsonPayload = response.json;
+
+            return await this.createDomForContent(jsonPayload, url);
+        } catch (err) {
+            throw new Error(
+                `ReadRiftParser aborted while fetching chapter: ${err.message}`,
+            );
+        }
     }
 
-    // what to do if encounter challenge
-    setCustomErrorResponse(url, wrapOptions){
-        let newresp = {};
-        newresp.url = url;
-        newresp.wrapOptions = wrapOptions;
-        newresp.response = {};
-        newresp.response.url = this.RestToUrl(checkedresponse.response.url);
-        newresp.response.status = 403;
-        return newresp;
-    }
-    */
+    async createDomForContent(jsonPayload, url) {
+        /*
+         * Since we went ahead of got the chapter content directly from the api, we need
+         * to pass it to WebToEpub in a way it can read. Hence, using the parser method
+         * to create an empty doc for the content.
+         */
 
-    // Optional, supply if need to modify DOM before normal processing steps
-    /*
-    preprocessRawDom(webPageDom) {
-    }
-    */
+        try {
+            const newDoc = Parser.makeEmptyDocForContent(url);
 
-    // Optional, called when user presses the "Pack EPUB" button.
-    // Implement if parser needs to do anything after user sets UI settings 
-    // but before collecting pages
-    /*
-    onStartCollecting() {
-    }
-    */
+            const titleNode = newDoc.dom.createElement("h1");
+            titleNode.className = "chapter-title";
+            titleNode.textContent = jsonPayload.title || "";
+            newDoc.content.appendChild(titleNode);
 
-    // Optional, Return elements from page
-    // that are to be shown on epub's "information" page
-    /*
-    getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll("div.novel-details")];
-    }
-    */
+            const cleanBody = util.sanitize(jsonPayload.content || "");
 
-    // Optional, Any cleanup operations to perform on the nodes
-    // returned by getInformationEpubItemChildNodes
-    /*
-    cleanInformationNode(node) {
-        return node;
+            const storyContentWrapper = newDoc.dom.createElement("div");
+            storyContentWrapper.className = "tiptap";
+            util.moveChildElements(cleanBody.body, storyContentWrapper);
+            newDoc.content.appendChild(storyContentWrapper);
+
+            return newDoc.dom;
+        } catch (e) {
+            throw new Error(
+                `Failed to create DOM for chapter content: ${e.message}`,
+            );
+        }
     }
-    */
+
+    findContent(dom) {
+        return dom.querySelector(".tiptap");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector(".chapter-title");
+    }
+
+    extractTitleImpl() {
+        /*
+         * Since we already grabbed the metadata earlier, we can grab the data
+         * instantly out of our shared `bookMeta` variable
+         */
+        return this.bookMeta?.title || "ReadRift Novel";
+    }
+
+    extractAuthor(dom) {
+        return this.bookMeta?.author?.title || super.extractAuthor(dom);
+    }
+
+    extractDescription() {
+        return this.bookMeta?.description || "";
+    }
+
+    findCoverImageUrl() {
+        return this.bookMeta?.photo || null;
+    }
 }
