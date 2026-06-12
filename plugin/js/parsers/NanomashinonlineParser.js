@@ -32,7 +32,7 @@ class NanomashinonlineParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("body img[decoding]")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("body img[decoding]")) ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {

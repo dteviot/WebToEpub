@@ -26,7 +26,7 @@ class MangalamaParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img.img-thumbnail").src;
+        return util.extractImgSrc(dom.querySelector("img.img-thumbnail"));
     }
 
     getInformationEpubItemChildNodes(dom) {

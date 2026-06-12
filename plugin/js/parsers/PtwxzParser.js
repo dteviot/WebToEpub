@@ -34,6 +34,6 @@ class PtwxzParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("#content table table a:not([tiptitle]) img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("#content table table a:not([tiptitle]) img")) ?? null;
     }
 }

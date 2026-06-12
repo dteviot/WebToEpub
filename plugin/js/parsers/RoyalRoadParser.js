@@ -146,7 +146,7 @@ class RoyalRoadParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img.thumbnail")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("img.thumbnail")) ?? null;
     }
 
     removeImgTagsWithNoSrc(webPageDom) {

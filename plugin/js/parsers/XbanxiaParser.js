@@ -44,7 +44,7 @@ class XbanxiaParser extends Parser {
 
     findCoverImageUrl(dom) {
         let image = dom.querySelector("#content-list > div.book-intro.clearfix > div.book-img img");
-        return image?.getAttribute("data-original") ?? image?.src ?? null;
+        return util.extractImgSrc(image?.getAttribute("data-original") ?? image) ?? null;
     }
 
     removeUnwantedElementsFromContentElement(element) {

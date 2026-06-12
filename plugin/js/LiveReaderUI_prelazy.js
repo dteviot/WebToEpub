@@ -263,11 +263,11 @@ class LiveReaderUI {
                 if (navEl) {
                     let navHtml = "";
                     if (this.currentChapterIndex > 0) {
-                        navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Previous Chapter</button>`;
+                        navHtml += "<button class=\"lr-nav-btn\" id=\"lrNavPrev\">← Previous Chapter</button>";
                     } else {
-                        navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Book Cover</button>`;
+                        navHtml += "<button class=\"lr-nav-btn\" id=\"lrNavPrev\">← Book Cover</button>";
                     }
-                    navHtml += `<button class="lr-nav-btn lr-nav-primary" id="lrNavNext">Next Chapter →</button>`;
+                    navHtml += "<button class=\"lr-nav-btn lr-nav-primary\" id=\"lrNavNext\">Next Chapter →</button>";
                     navEl.innerHTML = navHtml;
                     
                     const prevBtn = document.getElementById("lrNavPrev");
@@ -489,12 +489,12 @@ class LiveReaderUI {
         nav.className = "lr-chapter-nav";
         let navHtml = "";
         if (index > 0) {
-            navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Previous Chapter</button>`;
+            navHtml += "<button class=\"lr-nav-btn\" id=\"lrNavPrev\">← Previous Chapter</button>";
         } else {
-            navHtml += `<button class="lr-nav-btn" id="lrNavPrev">← Book Cover</button>`;
+            navHtml += "<button class=\"lr-nav-btn\" id=\"lrNavPrev\">← Book Cover</button>";
         }
         if (index < this.toc.length - 1) {
-            navHtml += `<button class="lr-nav-btn lr-nav-primary" id="lrNavNext">Next Chapter →</button>`;
+            navHtml += "<button class=\"lr-nav-btn lr-nav-primary\" id=\"lrNavNext\">Next Chapter →</button>";
         }
         nav.innerHTML = navHtml;
         contentBody.appendChild(nav);
@@ -653,7 +653,7 @@ class LiveReaderUI {
                 <h1 class="lr-cover-title">${this.metaInfo.title || "Novel"}</h1>
                 <div class="lr-cover-author">${this.metaInfo.author ? "by " + this.metaInfo.author : ""}</div>
                 ${this.metaInfo.description ? `<p class="lr-cover-desc">${this.metaInfo.description}</p>` : ""}
-                ${this.toc.length > 0 ? `<button class="lr-start-btn" onclick="window.liveReader.loadChapter(0)">Start Reading →</button>` : ""}
+                ${this.toc.length > 0 ? "<button class=\"lr-start-btn\" onclick=\"window.liveReader.loadChapter(0)\">Start Reading →</button>" : ""}
             </div>
         `;
         document.getElementById("lrViewport").scrollTop = 0;
@@ -1058,7 +1058,7 @@ class LiveReaderUI {
         if (!voiceSelect) return;
         const populate = () => {
             this.voices = window.speechSynthesis.getVoices();
-            voiceSelect.innerHTML = `<option value="">Default Voice</option>`;
+            voiceSelect.innerHTML = "<option value=\"\">Default Voice</option>";
             this.voices.forEach(v => {
                 const opt = document.createElement("option");
                 opt.value = v.voiceURI;

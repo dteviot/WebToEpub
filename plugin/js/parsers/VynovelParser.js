@@ -29,7 +29,7 @@ class VynovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("div.img-manga > img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("div.img-manga > img")) ?? null;
     }
 
     extractAuthor(dom) {

@@ -75,7 +75,7 @@ class BlogusParser extends Parser {
     findCoverImageUrl(dom) {
         let img = dom.querySelector(".novel-image img") ||
             dom.querySelector(".single-left-img .main-img-single");
-        return img?.src || null;
+        return util.extractImgSrc(img) || null;
     }
 
     removeUnwantedElementsFromContentElement(element) {

@@ -539,7 +539,7 @@ class EpubViewerUI {
 
     initVoices() {
         const voiceSelect = document.getElementById("ttsVoiceSelect");
-        if (!voiceSelect || !('speechSynthesis' in window)) return;
+        if (!voiceSelect || !("speechSynthesis" in window)) return;
 
         const populate = () => {
             this.voices = window.speechSynthesis.getVoices();
@@ -1536,7 +1536,7 @@ class EpubViewerUI {
 
     playTTS() {
         this.prepareTTSParagraphs();
-        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
+        if (this.ttsParagraphs.length === 0 || !("speechSynthesis" in window)) return;
 
         let needsSync = false;
         if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
@@ -1597,7 +1597,7 @@ class EpubViewerUI {
         // Refresh paragraphs to account for newly loaded chapters
         this.prepareTTSParagraphs();
         
-        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !('speechSynthesis' in window)) {
+        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !("speechSynthesis" in window)) {
             this.stopTTS();
             return;
         }
@@ -1634,7 +1634,7 @@ class EpubViewerUI {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
         }
-        if ('speechSynthesis' in window) {
+        if ("speechSynthesis" in window) {
             window.speechSynthesis.cancel();
         }
 
@@ -1684,7 +1684,7 @@ class EpubViewerUI {
     }
 
     pauseTTS() {
-        if (!('speechSynthesis' in window)) return;
+        if (!("speechSynthesis" in window)) return;
         if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
             window.speechSynthesis.pause();
             document.getElementById("ttsPauseBtn").style.display = "none";
@@ -1694,7 +1694,7 @@ class EpubViewerUI {
 
     stopTTS() {
         this.ttsActive = false;
-        if ('speechSynthesis' in window) {
+        if ("speechSynthesis" in window) {
             window.speechSynthesis.cancel();
         }
         

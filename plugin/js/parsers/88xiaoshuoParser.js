@@ -90,7 +90,7 @@ class _88xiaoshuoParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".box_con img, .detail > img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector(".box_con img, .detail > img")) ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {

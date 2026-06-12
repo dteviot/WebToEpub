@@ -32,7 +32,7 @@ class ShinningnoveltranslationsParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".wp-block-image > img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector(".wp-block-image > img")) ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {

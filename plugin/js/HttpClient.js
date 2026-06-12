@@ -452,7 +452,7 @@ class HttpClient {
                 HttpClient.proxyRacePromise = null;
 
                 if (wrapOptions.bypassDirectFetchFallback) {
-                    return Promise.reject(new Error(`Proxy error: All proxies failed.`));
+                    return Promise.reject(new Error("Proxy error: All proxies failed."));
                 }
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);

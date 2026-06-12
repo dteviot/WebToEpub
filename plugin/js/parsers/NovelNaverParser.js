@@ -14,7 +14,7 @@ class NovelNaverImageCollector extends ImageCollector {
         let img = (tagName === "img")
             ? element
             : element.querySelector("img");
-        return img.src;
+        return util.extractImgSrc(img);
     }
 }
 

@@ -291,7 +291,7 @@ class MegaLibrary {
     async downloadFile(file, btnElement) {
         if (btnElement.disabled) return;
         const originalHTML = btnElement.innerHTML;
-        btnElement.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;animation:spin 1s linear infinite;"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v8.69l2.22-2.22a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 111.06-1.06l2.22 2.22V3.75A.75.75 0 0110 3zm-7.25 13.5a.75.75 0 000 1.5h14.5a.75.75 0 000-1.5H2.75z" clip-rule="evenodd"/></svg> Downloading…`;
+        btnElement.innerHTML = "<svg viewBox=\"0 0 20 20\" fill=\"currentColor\" style=\"width:13px;height:13px;animation:spin 1s linear infinite;\"><path fill-rule=\"evenodd\" d=\"M10 3a.75.75 0 01.75.75v8.69l2.22-2.22a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 111.06-1.06l2.22 2.22V3.75A.75.75 0 0110 3zm-7.25 13.5a.75.75 0 000 1.5h14.5a.75.75 0 000-1.5H2.75z\" clip-rule=\"evenodd\"/></svg> Downloading…";
         btnElement.disabled = true;
         btnElement.style.opacity = "0.7";
 
@@ -307,7 +307,7 @@ class MegaLibrary {
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
 
-            btnElement.innerHTML = `✓ Saved`;
+            btnElement.innerHTML = "✓ Saved";
             btnElement.style.background = "#10b981";
             btnElement.style.color = "#fff";
             btnElement.style.border = "none";
@@ -321,7 +321,7 @@ class MegaLibrary {
             }, 2500);
         } catch (error) {
             console.error("Mega download error:", error);
-            btnElement.innerHTML = `✗ Failed`;
+            btnElement.innerHTML = "✗ Failed";
             btnElement.style.background = "#dc2626";
             setTimeout(() => {
                 btnElement.innerHTML = originalHTML;
@@ -406,7 +406,7 @@ class MegaLibrary {
             if (loader) loader.style.display = "none";
 
             // Update button briefly to show success before view switch
-            btnElement.innerHTML = `✓ Opening…`;
+            btnElement.innerHTML = "✓ Opening…";
             btnElement.style.background = "#10b981";
             btnElement.style.color = "#fff";
             btnElement.style.border = "none";
@@ -452,7 +452,7 @@ class MegaLibrary {
             if (loader) loader.style.display = "none";
 
             resetBtn();
-            btnElement.innerHTML = `✗ Failed`;
+            btnElement.innerHTML = "✗ Failed";
             btnElement.style.background = "#dc2626";
             btnElement.style.opacity = "1";
             setTimeout(resetBtn, 3000);

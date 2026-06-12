@@ -1055,7 +1055,7 @@ class LiveReaderUI {
             if (rawUrl && !rawUrl.startsWith("http")) {
                 try {
                     rawUrl = new URL(rawUrl, baseUrl).href;
-                } catch(e) {}
+                } catch (e) {}
             }
             return {
                 title: ch.title?.trim() || `Chapter ${i + 1}`,
@@ -1203,7 +1203,7 @@ class LiveReaderUI {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
         }
-        if ('speechSynthesis' in window) {
+        if ("speechSynthesis" in window) {
             window.speechSynthesis.cancel();
         }
         
@@ -1252,7 +1252,7 @@ class LiveReaderUI {
 
     _playTTS() {
         this._prepareTTSParagraphs();
-        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
+        if (this.ttsParagraphs.length === 0 || !("speechSynthesis" in window)) return;
 
         
 

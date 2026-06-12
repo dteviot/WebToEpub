@@ -142,7 +142,7 @@ class WattpadParser extends Parser {
         // Wattpad embeds a JSON blob in a <script> tag containing "parts":[...]
         for (let script of dom.querySelectorAll("script")) {
             let src = script.textContent || script.innerHTML || "";
-            let idx = src.indexOf('"parts":[');
+            let idx = src.indexOf("\"parts\":[");
             if (idx === -1) continue;
             try {
                 // Find the enclosing object by searching backwards for '{'

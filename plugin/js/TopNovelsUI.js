@@ -76,11 +76,11 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
                 if (local && local.length > 0) {
                     TopNovelsUI._render(row, local, mode);
                 } else {
-                    row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+                    row.innerHTML = "<div class=\"top-novels-empty\">Loading top novels...</div>";
                 }
             }
         } catch (_) {
-            row.innerHTML = `<div class="top-novels-empty">Loading top novels...</div>`;
+            row.innerHTML = "<div class=\"top-novels-empty\">Loading top novels...</div>";
         }
 
         // 2. Fetch remote and merge
@@ -91,7 +91,7 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
             }
             if (!result?.entries?.length) {
                 if (!row.querySelector(".top-novel-card")) {
-                    row.innerHTML = `<div class="top-novels-empty">No usage stats yet. Start reading to populate the catalog!</div>`;
+                    row.innerHTML = "<div class=\"top-novels-empty\">No usage stats yet. Start reading to populate the catalog!</div>";
                 }
                 return;
             }
@@ -102,7 +102,7 @@ class TopNovelsUI { // eslint-disable-line no-unused-vars
             }
             console.warn("[TopNovels] Catalog fetch failed:", e.message);
             if (!row.querySelector(".top-novel-card")) {
-                row.innerHTML = `<div class="top-novels-empty">Catalog unavailable. Please try again later.</div>`;
+                row.innerHTML = "<div class=\"top-novels-empty\">Catalog unavailable. Please try again later.</div>";
             }
         }
     }

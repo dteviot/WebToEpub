@@ -43,7 +43,7 @@ class TeanovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("main img")?.src;
+        return util.extractImgSrc(dom.querySelector("main img"));
     }
     getInformationEpubItemChildNodes(dom) {
         return [dom.querySelector("article")];

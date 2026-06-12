@@ -43,7 +43,7 @@ class FenrirealmParser extends Parser {
 
     findCoverImageUrl(dom) {
         let img = dom.querySelector(".main-area .container:nth-of-type(2) img:nth-of-type(2)");
-        return img?.src || null;
+        return util.extractImgSrc(img) || null;
     }
 
     getInformationEpubItemChildNodes(dom) {

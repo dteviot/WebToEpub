@@ -31,7 +31,7 @@ class RuversParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".book_inner img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector(".book_inner img")) ?? null;
     }
 
     extractDescription(dom) {

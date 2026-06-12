@@ -460,7 +460,10 @@ const util = (function() {
     }
 
     function getFirstImgSrc(dom, selector) {
-        let img = dom.querySelector(selector)?.querySelector("img");
+        return extractImgSrc(dom.querySelector(selector)?.querySelector("img"));
+    }
+
+    function extractImgSrc(img) {
         if (img) {
             let srcAttr = img.getAttribute("src");
             if (srcAttr && srcAttr.trim() !== "") {
@@ -1243,6 +1246,7 @@ const util = (function() {
         isInlineElement: isInlineElement,
         isBlockElement: isBlockElement,
         getFirstImgSrc: getFirstImgSrc,
+        extractImgSrc: extractImgSrc,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         extractHashFromUri: extractHashFromUri,

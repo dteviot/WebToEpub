@@ -57,7 +57,7 @@ class SangtacvietParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("center img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("center img")) ?? null;
     }
 
     async fetchChapter(url) {

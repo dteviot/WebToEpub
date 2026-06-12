@@ -216,6 +216,9 @@ class ImageCollector {
         for (let imageElement of content.querySelectorAll("img")) {
             this.fixLazyLoadImageSource(imageElement);
             let src = this.findHighestResImage(imageElement);
+            if (!src || src === imageElement.ownerDocument.baseURI || src === "") {
+                continue;
+            }
             let wrappingElement = this.findImageWrappingElement(imageElement);
             let wrappingUrl = this.extractWrappingUrl(wrappingElement);
             let existing = this.imageInfoByUrl(wrappingUrl);

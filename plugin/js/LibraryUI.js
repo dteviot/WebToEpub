@@ -326,7 +326,7 @@ class LibraryUI {
                         if (!url && this.currentDetailsId) {
                             url = this.currentDetailsId; // fallback for legacy saved live books
                         }
-                        const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                        const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
                         const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
                         window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                     } else {
@@ -517,7 +517,7 @@ class LibraryUI {
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
                         <button class="book-action-btn download-btn-main">Save File</button>
-                        ${(epubBase64 && epubBase64.startsWith("lazy:")) ? "" : `<button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>`}
+                        ${(epubBase64 && epubBase64.startsWith("lazy:")) ? "" : "<button class=\"book-action-btn share-public-btn\" style=\"background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;\">Share Public</button>"}
                     </div>
                 </div>
                 <div class="book-details">
@@ -542,7 +542,7 @@ class LibraryUI {
                 if (epubBase64 && typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
                     let url = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
                     if (!url) url = id;
-                    const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                    const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
                     const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
                     window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                 } else {
@@ -572,38 +572,38 @@ class LibraryUI {
             if (sharePublicBtn) {
                 sharePublicBtn.addEventListener("click", async () => {
                     const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
-                }
-
-                try {
-                    const token = HFLibrary.ensureTokenConfigured(true);
-                    if (!token) {
-                        throw new Error("Hugging Face token is required to share books publicly.");
+                    if (loader) {
+                        loader.style.display = "flex";
+                        const statusText = loader.querySelector("div:last-child");
+                        if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
                     }
 
-                    // Convert epubBase64 data URL to a Blob
-                    const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
-                    
-                    // Upload to HF Public Library
-                    await HFLibrary.uploadBook(epubBlob, {
-                        title: title,
-                        author: author,
-                        coverDataUrl: cover,
-                        description: description
-                    });
+                    try {
+                        const token = HFLibrary.ensureTokenConfigured(true);
+                        if (!token) {
+                            throw new Error("Hugging Face token is required to share books publicly.");
+                        }
 
-                    alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                        // Convert epubBase64 data URL to a Blob
+                        const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
                     
-                    // Trigger a re-render of Public Library to show the new addition
-                    this.renderPublicLibrary();
-                } catch (e) {
-                    alert("Error sharing to public library: " + e.message);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
+                        // Upload to HF Public Library
+                        await HFLibrary.uploadBook(epubBlob, {
+                            title: title,
+                            author: author,
+                            coverDataUrl: cover,
+                            description: description
+                        });
+
+                        alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                    
+                        // Trigger a re-render of Public Library to show the new addition
+                        this.renderPublicLibrary();
+                    } catch (e) {
+                        alert("Error sharing to public library: " + e.message);
+                    } finally {
+                        if (loader) loader.style.display = "none";
+                    }
                 });
             }
 

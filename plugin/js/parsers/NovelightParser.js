@@ -77,7 +77,7 @@ class NovelightParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".poster img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector(".poster img")) ?? null;
     }
 
     findContent(dom) {

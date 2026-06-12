@@ -39,7 +39,7 @@ class VelvetReverieParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img.story-cover")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("img.story-cover")) ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {
