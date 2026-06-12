@@ -460,7 +460,14 @@ const util = (function() {
     }
 
     function getFirstImgSrc(dom, selector) {
-        return dom.querySelector(selector)?.querySelector("img")?.src ?? null;
+        let img = dom.querySelector(selector)?.querySelector("img");
+        if (img) {
+            let srcAttr = img.getAttribute("src");
+            if (srcAttr && srcAttr.trim() !== "") {
+                return img.src;
+            }
+        }
+        return null;
     }
 
     function extractHashFromUri(uri) {
