@@ -689,12 +689,17 @@ class HttpClient {
         return lower.includes("window._cf_chl_opt") ||
             lower.includes("cf-challenge-") ||
             lower.includes("cf-browser-verification") ||
+            lower.includes("id=\"cf-wrapper\"") ||
+            lower.includes("error code: 522") ||
+            lower.includes("error code: 1020") ||
+            lower.includes("522: connection timed out") ||
             (lower.includes("cloudflare") && (
                 lower.includes("<title>just a moment...</title>") ||
                 lower.includes("<title>attention required") ||
                 lower.includes("please complete the security check") ||
                 lower.includes("checking your browser before accessing") ||
                 lower.includes("enable javascript and cookies") ||
+                lower.includes("connection timed out") ||
                 (lower.includes("access denied") && (lower.includes("ray id") || lower.includes("error 10") || lower.includes("error 403")))
             ));
     }
