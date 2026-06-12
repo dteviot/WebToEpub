@@ -31,6 +31,8 @@
   <p align="center">
     Extension that converts Web Novels (and other web pages) into an EPUB for offline reading.
     <br />
+    <a href="http://rasadonly.github.io/WebToEpub-App/"><strong>Website</strong></a>
+    ·
     <a href="https://github.com/dteviot/WebToEpub/wiki"><strong>Explore the wiki »</strong></a>
     <br />
     <br />
