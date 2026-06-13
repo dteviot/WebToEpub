@@ -215,12 +215,12 @@ class EpubViewerUI {
             });
         }
         
-        const mainReader = document.getElementById("epubReaderMain");
-        if (mainReader) {
+        const viewport = document.getElementById("epubReaderViewport");
+        if (viewport) {
             const disableAutoScroll = () => {
                 if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
+            viewport.addEventListener("scroll", disableAutoScroll, { passive: true });
             document.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();
@@ -236,7 +236,6 @@ class EpubViewerUI {
         });
 
         // Continuous scroll next-chapter loader: governed completely by lazyLoadObserver now.
-        const viewport = document.getElementById("epubReaderViewport");
         if (viewport) {
             viewport.addEventListener("scroll", () => {
                 // Dual IntersectionObservers handle elegant skeleton loading

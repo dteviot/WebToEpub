@@ -408,6 +408,9 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     async loadChapter(index) {
         if (index < 0 || index >= this.toc.length) return;
+        const wasTtsActive = this.ttsActive;
+        this._stopTTS();
+
         this.currentChapterIndex = index;
         this.loadedChaptersIndex = index;
         this._saveProgress(index);
@@ -444,6 +447,9 @@ class LiveReaderUI {
             }
             this.currentChapterIndex = index;
             this._updateActiveTocHighlight();
+            if (wasTtsActive) {
+                setTimeout(() => this._playTTS(), 300);
+            }
             return;
         }
 
@@ -453,6 +459,9 @@ class LiveReaderUI {
             await this._loadAndRenderSingleChapter(index);
         } finally {
             this._hideReaderLoader();
+        }
+        if (wasTtsActive) {
+            setTimeout(() => this._playTTS(), 300);
         }
     }
 
@@ -1500,13 +1509,13 @@ class LiveReaderUI {
             });
         }
         
-        const mainReader = document.getElementById("lrReaderMain");
-        if (mainReader) {
+        const viewport = document.getElementById("lrViewport");
+        if (viewport) {
             const disableAutoScroll = () => {
                 if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
-            mainReader.addEventListener("keydown", (e) => {
+            viewport.addEventListener("scroll", disableAutoScroll, { passive: true });
+            document.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();
                 }
