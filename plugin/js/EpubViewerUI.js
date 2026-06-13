@@ -1568,6 +1568,17 @@ class EpubViewerUI {
                 this.ttsActive = false;
             } else {
                 window.speechSynthesis.resume();
+                
+                // Restart heartbeat watchdog to prevent 15s timeout
+                if (!this.ttsHeartbeatInterval) {
+                    this.ttsHeartbeatInterval = setInterval(() => {
+                        if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        }
+                    }, 10000);
+                }
+                
                 document.getElementById("ttsPlayBtn").style.display = "none";
                 document.getElementById("ttsPauseBtn").style.display = "inline-flex";
                 this.ttsAutoScroll = true;
@@ -1586,8 +1597,6 @@ class EpubViewerUI {
         
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
-
-        
 
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
         this.speakCurrentParagraph();
@@ -1641,6 +1650,16 @@ class EpubViewerUI {
         // Setup Utterance
         this.speechUtterance = new SpeechSynthesisUtterance(activeBlock.text);
         
+        // Prevent Chrome garbage collection by keeping reference on window
+        window._activeUtterances = window._activeUtterances || [];
+        window._activeUtterances.push(this.speechUtterance);
+        
+        const cleanupUtterance = (utt) => {
+            if (window._activeUtterances) {
+                window._activeUtterances = window._activeUtterances.filter(u => u !== utt);
+            }
+        };
+        
         // Apply Selected Speech Voice
         if (this.selectedVoiceURI && this.voices.length > 0) {
             const voiceObj = this.voices.find(v => v.voiceURI === this.selectedVoiceURI);
@@ -1655,6 +1674,7 @@ class EpubViewerUI {
         this.speechUtterance.pitch = pitchInput ? parseFloat(pitchInput.value) : 1;
 
         this.speechUtterance.onend = () => {
+            cleanupUtterance(this.speechUtterance);
             if (!this.ttsActive) return;
             // Re-evaluate current index based on the DOM
             this.prepareTTSParagraphs();
@@ -1676,9 +1696,20 @@ class EpubViewerUI {
         };
 
         this.speechUtterance.onerror = (e) => {
+            cleanupUtterance(this.speechUtterance);
             console.error("Speech Synthesis Error:", e);
             if (this.ttsActive) this.stopTTS();
         };
+
+        // Start heartbeat watchdog to prevent Chrome's 15s timeout
+        if (!this.ttsHeartbeatInterval) {
+            this.ttsHeartbeatInterval = setInterval(() => {
+                if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        }
 
         setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
@@ -1690,12 +1721,20 @@ class EpubViewerUI {
             document.getElementById("ttsPauseBtn").style.display = "none";
             document.getElementById("ttsPlayBtn").style.display = "inline-flex";
         }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
     }
 
     stopTTS() {
         this.ttsActive = false;
         if ("speechSynthesis" in window) {
             window.speechSynthesis.cancel();
+        }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
         }
         
         const contentBody = document.getElementById("epubReaderContentBody");

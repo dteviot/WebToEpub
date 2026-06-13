@@ -1222,6 +1222,17 @@ class LiveReaderUI {
         const pitch = parseFloat(document.getElementById("lrTtsPitch")?.value || 1);
 
         this.speechUtterance = new SpeechSynthesisUtterance(p.textContent);
+        
+        // Prevent Chrome garbage collection by keeping reference on window
+        window._activeUtterances = window._activeUtterances || [];
+        window._activeUtterances.push(this.speechUtterance);
+        
+        const cleanupUtterance = (utt) => {
+            if (window._activeUtterances) {
+                window._activeUtterances = window._activeUtterances.filter(u => u !== utt);
+            }
+        };
+
         this.speechUtterance.rate = rate;
         this.speechUtterance.pitch = pitch;
         if (this.selectedVoiceURI) {
@@ -1229,6 +1240,7 @@ class LiveReaderUI {
             if (voice) this.speechUtterance.voice = voice;
         }
         this.speechUtterance.onend = () => {
+            cleanupUtterance(this.speechUtterance);
             if (!this.ttsActive) return;
             this._prepareTTSParagraphs();
             const currentIdx = this.ttsParagraphs.indexOf(this.currentTtsElement);
@@ -1247,14 +1259,28 @@ class LiveReaderUI {
             }
             this._speakParagraph(this.ttsCurrentIndex);
         };
+        this.speechUtterance.onerror = (e) => {
+            cleanupUtterance(this.speechUtterance);
+            console.error("Speech Synthesis Error:", e);
+            if (this.ttsActive) this._stopTTS();
+        };
+
+        // Start heartbeat watchdog to prevent Chrome's 15s timeout
+        if (!this.ttsHeartbeatInterval) {
+            this.ttsHeartbeatInterval = setInterval(() => {
+                if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        }
+
         setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
 
     _playTTS() {
         this._prepareTTSParagraphs();
         if (this.ttsParagraphs.length === 0 || !("speechSynthesis" in window)) return;
-
-        
 
         // Check if we are resuming from a paused state;
         let needsSync = false;
@@ -1287,6 +1313,17 @@ class LiveReaderUI {
                 this.ttsActive = false;
             } else {
                 window.speechSynthesis.resume();
+                
+                // Restart heartbeat watchdog to prevent 15s timeout
+                if (!this.ttsHeartbeatInterval) {
+                    this.ttsHeartbeatInterval = setInterval(() => {
+                        if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        }
+                    }, 10000);
+                }
+
                 const playBtn = document.getElementById("lrTtsPlayBtn");
                 const pauseBtn = document.getElementById("lrTtsPauseBtn");
                 if (playBtn) playBtn.style.display = "none";
@@ -1317,11 +1354,19 @@ class LiveReaderUI {
             if (pauseBtn) pauseBtn.style.display = "none";
             this.ttsActive = false;
         }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
     }
 
     _stopTTS() {
         this.ttsActive = false;
         window.speechSynthesis.cancel();
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
         document.querySelectorAll(".lr-tts-active-para").forEach(el => el.classList.remove("lr-tts-active-para"));
         const main = document.getElementById("lrReaderMain");
         if (main) main.classList.remove("lr-tts-mode-active");
