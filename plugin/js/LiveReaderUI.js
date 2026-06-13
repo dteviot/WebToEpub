@@ -1227,7 +1227,7 @@ class LiveReaderUI {
         const rate = parseFloat(document.getElementById("lrTtsRate")?.value || 1);
         const pitch = parseFloat(document.getElementById("lrTtsPitch")?.value || 1);
 
-        this.speechUtterance = new SpeechSynthesisUtterance(p.textContent);
+        this.speechUtterance = new SpeechSynthesisUtterance(this._normalizeTTSText(p.textContent));
         
         // Prevent Chrome garbage collection by keeping reference on window
         window._activeUtterances = window._activeUtterances || [];
@@ -1385,6 +1385,63 @@ class LiveReaderUI {
         if (playBtn) playBtn.style.display = "";
         if (pauseBtn) pauseBtn.style.display = "none";
         this.ttsCurrentIndex = 0;
+    }
+
+
+    /**
+     * Normalize raw paragraph text before passing to SpeechSynthesisUtterance.
+     * Makes TTS sound more natural by expanding abbreviations, converting dashes
+     * and ellipses to natural pauses, stripping junk characters, and ensuring
+     * correct spacing after punctuation.
+     */
+    _normalizeTTSText(raw) {
+        let t = raw;
+
+        // 1. Expand abbreviations that confuse TTS
+        const abbr = [
+            [/\bMr\./g, "Mister"],
+            [/\bMrs\./g, "Missus"],
+            [/\bMs\./g, "Miss"],
+            [/\bDr\./g, "Doctor"],
+            [/\bProf\./g, "Professor"],
+            [/\bSt\./g, "Saint"],
+            [/\bJr\./g, "Junior"],
+            [/\bSr\./g, "Senior"],
+            [/\bvs\./gi, "versus"],
+            [/\betc\./gi, "etcetera"],
+            [/\bapprox\./gi, "approximately"],
+            [/\bvol\./gi, "volume"],
+            [/\bch\./gi, "chapter"],
+            [/\bno\.\s*(\d)/gi, "number $1"],
+            [/\bpg\./gi, "page"],
+            [/\bfig\./gi, "figure"],
+            [/\ba\.m\./gi, "A M"],
+            [/\bp\.m\./gi, "P M"],
+        ];
+        abbr.forEach(([re, rep]) => { t = t.replace(re, rep); });
+
+        // 2. Em-dash / en-dash → comma pause
+        t = t.replace(/\s*[\u2014\u2013]\s*/g, ", ");
+
+        // 3. Ellipsis → single comma pause
+        t = t.replace(/\.{2,}/g, ",");
+
+        // 4. Strip junk characters
+        t = t.replace(/\*{1,5}/g, " ");
+        t = t.replace(/[~\u00A4\u00A7\u00A6\u00B0\u00B1\u00A9\u00AE\u2122]/g, " ");
+        t = t.replace(/&(amp|lt|gt|nbsp|quot|apos);/gi, (m) => {
+            const map = { amp: "&", lt: "<", gt: ">", nbsp: " ", quot: "\"" , apos: "'" };
+            return map[m.slice(1, -1).toLowerCase()] || " ";
+        });
+        t = t.replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "");
+
+        // 5. Ensure space after sentence-ending punctuation
+        t = t.replace(/([.!?;:])([A-Za-z])/g, "$1 $2");
+
+        // 6. Collapse whitespace
+        t = t.replace(/\s+/g, " ").trim();
+
+        return t;
     }
 
     // ─────────────────────────────────────────
