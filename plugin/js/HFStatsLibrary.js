@@ -301,6 +301,35 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         } catch (_) { /* fire-and-forget */ }
     }
 
+    static async fetchActiveUsersCount() {
+        const base = HFStatsLibrary.getWorkerBase();
+        if (!base) {
+            throw new Error("Worker URL not configured");
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        try {
+            const resp = await fetch(`${base}/api/active`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ referrer: window.location.href }),
+                signal: controller.signal,
+                mode: "cors"
+            });
+            clearTimeout(timeoutId);
+            if (!resp.ok) {
+                throw new Error(`HTTP ${resp.status}`);
+            }
+            const data = await resp.json();
+            return data.activeUsers;
+        } catch (e) {
+            clearTimeout(timeoutId);
+            throw e;
+        }
+    }
+
     static async _fetchTopFromHf(mode, limit, signal) {
         try {
             const resp = await fetch(HFStatsLibrary.getStatsCatalogUrl(), { signal, cache: "default" });

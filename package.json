@@ -7,7 +7,8 @@
     "dompurify": "^3.2.6",
     "jsdom": "^27.4.0",
     "linkedom": "^0.18.12",
-    "megajs": "^1.3.10"
+    "megajs": "^1.3.10",
+    "puppeteer": "^24.43.1"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.7.5",
