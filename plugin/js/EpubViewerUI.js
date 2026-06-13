@@ -204,7 +204,12 @@ class EpubViewerUI {
                     if (idx !== -1) {
                         this.ttsCurrentIndex = idx;
                         this.ttsAutoScroll = true; // resume auto-scroll on manual jump
-                        this.speakCurrentParagraph();
+                        if ("speechSynthesis" in window) {
+                            window.speechSynthesis.cancel();
+                        }
+                        setTimeout(() => {
+                            if (this.ttsActive) this.speakCurrentParagraph();
+                        }, 200);
                     }
                 }
             });
@@ -1599,7 +1604,11 @@ class EpubViewerUI {
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
 
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
-        this.speakCurrentParagraph();
+        
+        // Wait 200ms for stopTTS's cancel() to settle in Chrome before speaking
+        setTimeout(() => {
+            if (this.ttsActive) this.speakCurrentParagraph();
+        }, 200);
     }
 
     speakCurrentParagraph() {
@@ -1638,13 +1647,10 @@ class EpubViewerUI {
             }
         }
 
-        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        // Clear previous utterance handlers
         if (this.speechUtterance) {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
-        }
-        if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
         }
 
         // Setup Utterance

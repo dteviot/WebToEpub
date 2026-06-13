@@ -1198,13 +1198,10 @@ class LiveReaderUI {
         this._prepareTTSParagraphs();
         if (index >= this.ttsParagraphs.length) { this._stopTTS(); return; }
         
-        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        // Clear previous utterance handlers
         if (this.speechUtterance) {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
-        }
-        if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
         }
         
         const p = this.ttsParagraphs[index];
@@ -1342,7 +1339,11 @@ class LiveReaderUI {
         if (pauseBtn) pauseBtn.style.display = "";
         
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
-        this._speakParagraph(this.ttsCurrentIndex);
+        
+        // Wait 200ms for cancel() to settle in Chrome before speaking
+        setTimeout(() => {
+            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+        }, 200);
     }
 
     _pauseTTS() {
@@ -1488,7 +1489,12 @@ class LiveReaderUI {
                     if (idx !== -1) {
                         this.ttsCurrentIndex = idx;
                         this.ttsAutoScroll = true; // resume auto-scroll on manual jump
-                        this._speakParagraph(this.ttsCurrentIndex);
+                        if ("speechSynthesis" in window) {
+                            window.speechSynthesis.cancel();
+                        }
+                        setTimeout(() => {
+                            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+                        }, 200);
                     }
                 }
             });
