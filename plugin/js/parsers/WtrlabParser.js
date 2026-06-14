@@ -266,6 +266,60 @@ class WtrlabParser extends Parser {
         return JSON.parse(new TextDecoder().decode(decrypted));
     }
 
+    async translateText(paragraphs) {
+        if (!paragraphs || paragraphs.length === 0) return paragraphs;
+
+        // Quick heuristic to check if it looks like English (contains a lot of ASCII chars)
+        // If it's mostly Chinese characters, it's not English.
+        let sample = paragraphs.slice(0, 5).join(" ");
+        let englishChars = sample.match(/[a-zA-Z]/g)?.length || 0;
+        if (englishChars > sample.length * 0.5) {
+            return paragraphs; // Already seems like English
+        }
+
+        try {
+            let translatedParagraphs = [];
+            let currentBatch = [];
+            let currentLength = 0;
+            const MAX_LEN = 3500;
+
+            let flushBatch = async () => {
+                if (currentBatch.length === 0) return;
+                let text = currentBatch.join("\n\n");
+                let url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + encodeURIComponent(text);
+                let resp = await HttpClient.fetchJson(url);
+                let data = resp.json;
+                let translatedText = "";
+                for (let part of data[0]) {
+                    if (part[0]) {
+                        translatedText += part[0];
+                    }
+                }
+                translatedParagraphs.push(...translatedText.split("\n\n").map(s => s.trim()));
+                currentBatch = [];
+                currentLength = 0;
+            };
+
+            for (let p of paragraphs) {
+                if (currentLength + p.length > MAX_LEN) {
+                    await flushBatch();
+                }
+                currentBatch.push(p);
+                currentLength += p.length + 2; // +2 for \n\n
+            }
+            await flushBatch();
+
+            // Fallback if lengths don't match exactly, but usually split works fine
+            if (translatedParagraphs.length > 0) {
+                 return translatedParagraphs;
+            }
+            return paragraphs;
+        } catch (e) {
+            console.error("Auto-translate failed:", e);
+            return paragraphs; // Fallback to raw text if translation fails
+        }
+    }
+
     async buildChapterFromWebPlus(json, url) {
         let chapterInfo = json?.chapter ?? {};
         let encryptedBody = json?.data?.data?.body ?? "";
@@ -278,11 +332,19 @@ class WtrlabParser extends Parser {
         if (!Array.isArray(paragraphs) || paragraphs.length === 0) {
             throw new Error("wtr-lab webplus returned empty content for " + url);
         }
+        
+        paragraphs = await this.translateText(paragraphs);
+
         let leaves = url.split("/");
         let chapterNum = leaves[leaves.length - 1].split("?")[0].replace("chapter-", "");
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        let titleText = chapterInfo.title ?? (chapterNum + " (Raw)");
+        
+        let titleText = chapterInfo.title ?? (chapterNum + " (Translated)");
+        // Translate title if needed
+        let translatedTitle = await this.translateText([titleText]);
+        titleText = translatedTitle[0] || titleText;
+
         title.textContent = this.shouldRemoveChapterNumber() ? titleText : chapterNum + ": " + titleText;
         newDoc.content.appendChild(title);
         let br = newDoc.dom.createElement("br");
