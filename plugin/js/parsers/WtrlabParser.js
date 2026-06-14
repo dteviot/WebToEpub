@@ -216,7 +216,8 @@ class WtrlabParser extends Parser {
         } catch (e) {
             // If it's a login-required error thrown by our custom handler, fall through
             // to webplus. Any other error re-throw.
-            if (!e.message?.includes("requires you to be logged in")) {
+            let errMsg = e.errorMessage || e.message || "";
+            if (!errMsg.includes("requires you to be logged in")) {
                 throw e;
             }
         }
