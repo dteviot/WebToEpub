@@ -74,7 +74,7 @@ class WtrlabParser extends Parser {
 
         let serie_id = chapters.chapters[0].serie_id;
         try {
-            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config", { bypassProxy: true })).json;
             terms = (terms?.config?.terms ?? []).filter(a => (a[4] == null) || (a[4].includes(serie_id)));
             terms = terms.map(a => ({ from: a[2].split("|"), to: a[1] }));
             let index = 0;
