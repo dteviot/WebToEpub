@@ -230,6 +230,10 @@ class WtrlabParser extends Parser {
     }
 
     isCustomError(response) {
+        // code 1401 = login required — not a retryable error, handle separately
+        if (response.json?.code === 1401) {
+            return true;
+        }
         if (response.json?.data?.data?.body ? false : true) {
             return true;
         }
@@ -240,7 +244,21 @@ class WtrlabParser extends Parser {
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse) {
-        if (checkedresponse.json?.requireTurnstile || checkedresponse.json?.code == 1401) {
+        // code 1401 = "You are not logged in!" — chapters past the free limit require a wtr-lab account.
+        // Do NOT retry (would loop forever). Throw immediately with a descriptive message.
+        if (checkedresponse.json?.code === 1401) {
+            let body = JSON.parse(wrapOptions.fetchOptions.body);
+            let chapterUrl = this.PostToUrl(checkedresponse.response.url, body);
+            let newresp = {};
+            newresp.url = url;
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = { url: chapterUrl, status: 401 };
+            newresp.errorMessage = "wtr-lab.com requires you to be logged in to download chapter " + body.chapter_no + ".\n" +
+                "This novel has exceeded the free chapter limit.\n" +
+                "URL: " + chapterUrl;
+            return newresp;
+        }
+        if (checkedresponse.json?.requireTurnstile) {
             let newresp = {};
             newresp.url = url;
             newresp.wrapOptions = wrapOptions;
