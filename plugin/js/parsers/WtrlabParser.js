@@ -204,6 +204,7 @@ class WtrlabParser extends Parser {
             method: "POST",
             body: JSON.stringify(aiFormData),
             headers: header,
+            credentials: "include",
             parser: this
         };
 
@@ -234,7 +235,8 @@ class WtrlabParser extends Parser {
         let wpOptions = {
             method: "POST",
             body: JSON.stringify(wpFormData),
-            headers: header
+            headers: header,
+            credentials: "include"
             // No parser: skip custom error handler for webplus (different response format)
         };
         let wpJson = (await HttpClient.fetchJson(fetchUrl, wpOptions)).json;
