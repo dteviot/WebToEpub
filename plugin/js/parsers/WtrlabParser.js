@@ -241,30 +241,41 @@ class WtrlabParser extends Parser {
         return this.buildChapterFromWebPlus(wpJson, url);
     }
 
-    /**
-     * Decrypt the AES-GCM encoded body returned by wtr-lab's web/webplus API.
-     * Format: "arr:IV_b64:TAG_b64:CIPHER_b64"
-     * Key is the first 32 bytes of the hardcoded string in wtr-lab's JS bundle.
-     */
     static async decryptWtrlabBody(encryptedStr) {
-        if (!encryptedStr || !encryptedStr.startsWith("arr:")) {
+        if (typeof encryptedStr !== "string") {
             return encryptedStr;
         }
-        let parts = encryptedStr.split(":");
-        if (parts.length < 4) return encryptedStr;
-        let iv = Uint8Array.from(atob(parts[1]), c => c.charCodeAt(0));
-        let tag = Uint8Array.from(atob(parts[2]), c => c.charCodeAt(0));
-        // Remaining parts[3..] may contain colons (base64 padding edge cases)
-        let cipherB64 = parts.slice(3).join(":");
+        
+        let isArray = false;
+        let dataStr = encryptedStr;
+        if (dataStr.startsWith("arr:")) {
+            isArray = true;
+            dataStr = dataStr.substring(4);
+        } else if (dataStr.startsWith("str:")) {
+            dataStr = dataStr.substring(4);
+        } else {
+            return encryptedStr; // Not encrypted or unknown format
+        }
+
+        let parts = dataStr.split(":");
+        if (parts.length < 3) return encryptedStr;
+        
+        let iv = Uint8Array.from(atob(parts[0]), c => c.charCodeAt(0));
+        let tag = Uint8Array.from(atob(parts[1]), c => c.charCodeAt(0));
+        let cipherB64 = parts.slice(2).join(":"); // Handle possible colons in base64 padding
         let cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+        
         // GCM ciphertext = cipher_bytes + tag_bytes
         let combined = new Uint8Array(cipher.length + tag.length);
         combined.set(cipher);
         combined.set(tag, cipher.length);
-        let rawKey = new TextEncoder().encode("IJAFUUxjM25hyzL2AZrn0wl7cESED6Ru").slice(0, 32);
+        
+        let rawKey = new TextEncoder().encode("IJAFUUxjM25hyzL2AZrn0wl7cESED6Ru".slice(0, 32));
         let cryptoKey = await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
         let decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, cryptoKey, combined);
-        return JSON.parse(new TextDecoder().decode(decrypted));
+        let decodedStr = new TextDecoder().decode(decrypted);
+        
+        return isArray ? JSON.parse(decodedStr) : decodedStr;
     }
 
     async translateText(paragraphs) {
