@@ -6,6 +6,10 @@ class VelvetReverieParser extends Parser {
     constructor() {
         super();
     }
+    
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
+    }
 
     async getChapterUrls(dom) {
         let table = dom.querySelector("div.story-toc ul");
