@@ -189,7 +189,10 @@ class WtrlabParser extends Parser {
         }
 
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
-        let formData = {
+        let header = { "Content-Type": "application/json;charset=UTF-8" };
+
+        // Try AI translation first (best quality — English output)
+        let aiFormData = {
             "translate": "ai",
             "language": language,
             "raw_id": id,
@@ -197,15 +200,100 @@ class WtrlabParser extends Parser {
             "retry": false,
             "force_retry": false
         };
-        let header = { "Content-Type": "application/json;charset=UTF-8" };
-        let options = {
+        let aiOptions = {
             method: "POST",
-            body: JSON.stringify(formData),
+            body: JSON.stringify(aiFormData),
             headers: header,
             parser: this
         };
-        let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        return this.buildChapter(json, url);
+
+        let aiResp;
+        try {
+            aiResp = (await HttpClient.fetchJson(fetchUrl, aiOptions)).json;
+            if (aiResp?.code !== 1401) {
+                return this.buildChapter(aiResp, url);
+            }
+        } catch (e) {
+            // If it's a login-required error thrown by our custom handler, fall through
+            // to webplus. Any other error re-throw.
+            if (!e.message?.includes("requires you to be logged in")) {
+                throw e;
+            }
+        }
+
+        // AI requires login for this chapter — fall back to webplus (free, AES-GCM encrypted raw text)
+        let wpFormData = {
+            "translate": "webplus",
+            "language": language,
+            "raw_id": id,
+            "chapter_no": chapter,
+            "retry": false,
+            "force_retry": false
+        };
+        let wpOptions = {
+            method: "POST",
+            body: JSON.stringify(wpFormData),
+            headers: header
+            // No parser: skip custom error handler for webplus (different response format)
+        };
+        let wpJson = (await HttpClient.fetchJson(fetchUrl, wpOptions)).json;
+        return this.buildChapterFromWebPlus(wpJson, url);
+    }
+
+    /**
+     * Decrypt the AES-GCM encoded body returned by wtr-lab's web/webplus API.
+     * Format: "arr:IV_b64:TAG_b64:CIPHER_b64"
+     * Key is the first 32 bytes of the hardcoded string in wtr-lab's JS bundle.
+     */
+    static async decryptWtrlabBody(encryptedStr) {
+        if (!encryptedStr || !encryptedStr.startsWith("arr:")) {
+            return encryptedStr;
+        }
+        let parts = encryptedStr.split(":");
+        if (parts.length < 4) return encryptedStr;
+        let iv = Uint8Array.from(atob(parts[1]), c => c.charCodeAt(0));
+        let tag = Uint8Array.from(atob(parts[2]), c => c.charCodeAt(0));
+        // Remaining parts[3..] may contain colons (base64 padding edge cases)
+        let cipherB64 = parts.slice(3).join(":");
+        let cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+        // GCM ciphertext = cipher_bytes + tag_bytes
+        let combined = new Uint8Array(cipher.length + tag.length);
+        combined.set(cipher);
+        combined.set(tag, cipher.length);
+        let rawKey = new TextEncoder().encode("IJAFUUxjM25hyzL2AZrn0wl7cESED6Ru").slice(0, 32);
+        let cryptoKey = await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
+        let decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, cryptoKey, combined);
+        return JSON.parse(new TextDecoder().decode(decrypted));
+    }
+
+    async buildChapterFromWebPlus(json, url) {
+        let chapterInfo = json?.chapter ?? {};
+        let encryptedBody = json?.data?.data?.body ?? "";
+        let paragraphs;
+        try {
+            paragraphs = await WtrlabParser.decryptWtrlabBody(encryptedBody);
+        } catch (e) {
+            throw new Error("wtr-lab webplus decryption failed for " + url + ": " + e.message);
+        }
+        if (!Array.isArray(paragraphs) || paragraphs.length === 0) {
+            throw new Error("wtr-lab webplus returned empty content for " + url);
+        }
+        let leaves = url.split("/");
+        let chapterNum = leaves[leaves.length - 1].split("?")[0].replace("chapter-", "");
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        let titleText = chapterInfo.title ?? (chapterNum + " (Raw)");
+        title.textContent = this.shouldRemoveChapterNumber() ? titleText : chapterNum + ": " + titleText;
+        newDoc.content.appendChild(title);
+        let br = newDoc.dom.createElement("br");
+        for (let line of paragraphs) {
+            if (typeof line !== "string" || line.trim() === "") continue;
+            let p = newDoc.dom.createElement("p");
+            p.textContent = line;
+            newDoc.content.appendChild(p);
+            newDoc.content.appendChild(br.cloneNode());
+        }
+        return newDoc.dom;
     }
 
     buildChapterFromNext(json, url) {
