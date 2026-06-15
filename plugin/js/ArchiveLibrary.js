@@ -304,7 +304,7 @@ class ArchiveLibrary {
                             }
                         } catch (err) {
                             lastError = err;
-                            console.warn(`Fetch via ${proxy.name} failed. Trying next...`, err);
+                            console.log(`Fetch via ${proxy.name} failed. Trying next proxy...`);
                         }
                     }
 
