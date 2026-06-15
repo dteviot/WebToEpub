@@ -124,6 +124,9 @@ class EpubPacker {
 
             this.createAndAppendChildNS(metadata, dc_ns, "dc:description", formatted);
         }
+        if (!util.isNullOrEmpty(this.metaInfo.publisher)) {
+            this.createAndAppendChildNS(metadata, dc_ns, "dc:publisher", this.metaInfo.publisher);
+        }
 
         let author = this.createAndAppendChildNS(metadata, dc_ns, "dc:creator", this.metaInfo.author);
         this.addMetaProperty(metadata, author, "file-as", "creator", this.metaInfo.getFileAuthorAs());
@@ -370,7 +373,6 @@ class EpubPacker {
         for (let file of epubItemSupplier.files()) {
             file.packInEpub(zipWriter, this.emptyDocFactory, this.contentValidator);
         }
-
         if (epubItemSupplier.hasCoverImageFile()) {
             let fileContent =
                 epubItemSupplier.makeCoverImageXhtmlFile(this.emptyDocFactory, "Cover");
@@ -419,7 +421,6 @@ class EpubPacker {
                 new zip.TextReader(fileContent)
             );
         }
-
     }
 
     createAndAppendChildNS(element, ns, name, data) {
