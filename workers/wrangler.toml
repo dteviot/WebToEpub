@@ -1,0 +1,7 @@
+name = "webtoepub-stats-worker"
+main = "stats-worker.mjs"
+compatibility_date = "2024-06-15"
+
+[[kv_namespaces]]
+binding = "STATS_KV"
+id = "efec19985f684bc39059e91d10200495"

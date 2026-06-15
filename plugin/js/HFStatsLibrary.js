@@ -7,7 +7,8 @@
 
 class HFStatsLibrary { // eslint-disable-line no-unused-vars
 
-    static WORKER_URL = localStorage.getItem("stats_worker_url") || null;
+    static WORKER_URL = localStorage.getItem("stats_worker_url") 
+        || "https://webtoepub-stats-worker.telegram-bridge.workers.dev";
 
     static STATS_REPO_ID = "prasadonly/webtoepub-library";
     static STATS_CATALOG_FILE = "stats-catalog.json";
