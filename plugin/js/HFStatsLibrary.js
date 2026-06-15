@@ -329,15 +329,16 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
     }
 
-    static async _fetchTopFromHf(mode, limit, signal) {
+    static async _fetchTopFromWorker(mode, limit, signal) {
+        const base = HFStatsLibrary.getWorkerBase();
+        if (!base) return null;
         try {
-            const resp = await fetch(HFStatsLibrary.getStatsCatalogUrl(), { signal, cache: "default" });
+            const resp = await fetch(`${base}/api/top?mode=${mode}&limit=${limit}`, { signal, mode: "cors" });
             if (!resp.ok) {
                 return null;
             }
             const data = await resp.json();
-            const entries = HFStatsLibrary._normalizeEntries(data, mode, limit)
-                .filter(e => !HFStatsLibrary.isSampleEntry(e));
+            const entries = HFStatsLibrary._normalizeEntries(data, mode, limit);
             return entries.length > 0 ? entries : null;
         } catch (_) {
             return null;
@@ -484,26 +485,26 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         HFStatsLibrary._clearLegacyWorkerBlocks();
         const localEntries = HFStatsLibrary.getLocalTopEntries(mode, limit);
 
-        const hfController = new AbortController();
-        const hfTimer = setTimeout(() => hfController.abort(), timeoutMs);
-        let hfEntries = null;
+        const workerController = new AbortController();
+        const workerTimer = setTimeout(() => workerController.abort(), timeoutMs);
+        let workerEntries = null;
         try {
-            hfEntries = await HFStatsLibrary._fetchTopFromHf(mode, limit, hfController.signal);
+            workerEntries = await HFStatsLibrary._fetchTopFromWorker(mode, limit, workerController.signal);
         } finally {
-            clearTimeout(hfTimer);
+            clearTimeout(workerTimer);
         }
 
-        const merged = HFStatsLibrary._mergeEntryLists([hfEntries, localEntries], mode, limit);
+        const merged = HFStatsLibrary._mergeEntryLists([workerEntries, localEntries], mode, limit);
 
         let source = "local";
-        if (hfEntries?.length && localEntries.length) {
-            source = "hf+local";
-        } else if (hfEntries?.length) {
-            source = "hf";
+        if (workerEntries?.length && localEntries.length) {
+            source = "worker+local";
+        } else if (workerEntries?.length) {
+            source = "worker";
         }
 
         const data = { entries: merged, source };
-        if (hfEntries !== null) {
+        if (workerEntries !== null) {
             HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
         }
         return data;
