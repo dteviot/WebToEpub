@@ -168,6 +168,7 @@
                     <button id="tabLibraryPublic" class="library-tab">Public Library</button>
                     <button id="tabLibraryTelegram" class="library-tab">Telegram</button>
                     <button id="tabLibraryMega" class="library-tab">Mega Library</button>
+                    <button id="tabLibraryArchive" class="library-tab">Archive Library</button>
                 </div>
             </div>
 
@@ -235,6 +236,40 @@
                 <!-- List of book rows (Telegram-style) -->
                 <div id="megaLibraryGrid" style="display:flex; flex-direction:column;">
                     <!-- Rows will be injected by MegaLibrary.js -->
+                </div>
+            </div>
+
+            <!-- Archive Library View -->
+            <div id="archiveLibraryView" style="display: none;">
+                <!-- Header: status + search -->
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" style="width:22px;height:22px;flex-shrink:0;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
+                        </svg>
+                        <span id="archiveLibraryStatus" style="font-size:0.9rem; font-weight:600; color:#3b82f6;">Archive.org Library</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.25); border:1px solid var(--reader-border,#333); border-radius:30px; padding:8px 16px;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:var(--text-muted,#777);flex-shrink:0;">
+                            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/>
+                        </svg>
+                        <input id="archiveLibrarySearch" type="text" placeholder="Search Archive…" style="background:transparent;border:none;outline:none;color:var(--text-main,#eee);width:100%;font-size:0.9rem;">
+                        <button id="clearArchiveSearch" style="background:transparent;border:none;color:var(--text-muted,#777);cursor:pointer;display:none;align-items:center;padding:2px;">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Breadcrumb -->
+                <div id="archiveBreadcrumb" style="display:flex; align-items:center; gap:8px; margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; color: #aaa;">
+                    <span id="archiveBreadcrumbRoot" style="cursor:pointer; color: #3b82f6;">Root</span>
+                    <span id="archiveBreadcrumbSeparator" style="display:none;">/</span>
+                    <span id="archiveBreadcrumbCurrent" style="color: #fff; display:none;"></span>
+                </div>
+
+                <!-- Modern Grid for Folders/Books -->
+                <div id="archiveLibraryGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px;">
+                    <!-- Cards will be injected by ArchiveLibrary.js -->
                 </div>
             </div>
 
@@ -582,7 +617,8 @@
                         "plugin/js/HFLibrary.js?v=20260602_v1",
                         "plugin/js/LibraryUI.js?v=20260607_v3",
                         "plugin/js/megajs.browser.js",
-                        "plugin/js/MegaLibrary.js"
+                        "plugin/js/MegaLibrary.js",
+                        "plugin/js/ArchiveLibrary.js"
                     ]).then(() => {
                         if (!window.epubViewer) {
                             window.epubViewer = new EpubViewerUI();

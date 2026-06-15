@@ -230,6 +230,7 @@ class LibraryUI {
         const tabPublic = document.getElementById("tabLibraryPublic");
         const tabTelegram = document.getElementById("tabLibraryTelegram");
         const tabMega = document.getElementById("tabLibraryMega");
+        const tabArchive = document.getElementById("tabLibraryArchive");
         const uploadSection = document.querySelector(".library-upload-section");
         const publicSearch = document.getElementById("publicLibrarySearch");
         const clearPublicSearch = document.getElementById("clearPublicSearch");
@@ -257,16 +258,17 @@ class LibraryUI {
 
         const setActiveTab = (tabId) => {
             this.activeLibraryTab = tabId;
-            [tabPersonal, tabPublic, tabTelegram, tabMega].forEach(tab => {
+            [tabPersonal, tabPublic, tabTelegram, tabMega, tabArchive].forEach(tab => {
                 if (tab) tab.classList.remove("active");
             });
             if (tabId === "personal" && tabPersonal) tabPersonal.classList.add("active");
             if (tabId === "public" && tabPublic) tabPublic.classList.add("active");
             if (tabId === "telegram" && tabTelegram) tabTelegram.classList.add("active");
             if (tabId === "mega" && tabMega) tabMega.classList.add("active");
+            if (tabId === "archive" && tabArchive) tabArchive.classList.add("active");
 
             // Hide all views first
-            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView"];
+            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView", "archiveLibraryView"];
             views.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = "none";
@@ -282,6 +284,14 @@ class LibraryUI {
                 
                 if (window.megaLibrary && !window.megaLibrary.currentFolder) {
                     window.megaLibrary.loadFolder("https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw");
+                }
+            } else if (tabId === "archive") {
+                const archiveView = document.getElementById("archiveLibraryView");
+                if (archiveView) archiveView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
+                
+                if (window.archiveLibrary && !window.archiveLibrary.isLoaded) {
+                    window.archiveLibrary.loadRoot();
                 }
             } else {
                 document.getElementById("publicLibraryView").style.display = "block";
@@ -300,6 +310,7 @@ class LibraryUI {
         if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab("public"));
         if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab("telegram"));
         if (tabMega) tabMega.addEventListener("click", () => setActiveTab("mega"));
+        if (tabArchive) tabArchive.addEventListener("click", () => setActiveTab("archive"));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");

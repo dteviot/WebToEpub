@@ -441,6 +441,14 @@
     border-radius: 12px;
     padding: 4px;
     margin-bottom: 24px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+.libraries-tabs-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
 }
 
 .library-tab {
@@ -453,6 +461,8 @@
     cursor: pointer;
     border-radius: 8px;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .library-tab:hover {
