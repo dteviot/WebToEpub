@@ -110,37 +110,44 @@ class ArchiveLibrary {
 
     setupBreadcrumb() {
         const rootBtn = document.getElementById("archiveBreadcrumbRoot");
-        if (rootBtn) {
-            rootBtn.addEventListener("click", () => {
-                this.currentFolder = null;
-                const searchInput = document.getElementById("archiveLibrarySearch");
-                if (searchInput) {
-                    searchInput.value = "";
-                    this.searchQuery = "";
-                    const clearBtn = document.getElementById("clearArchiveSearch");
-                    if (clearBtn) clearBtn.style.display = "none";
-                }
-                this.renderFolders();
-            });
-        }
+        const backBtn = document.getElementById("archiveBackToRootBtn");
+
+        const goRoot = () => {
+            this.currentFolder = null;
+            const searchInput = document.getElementById("archiveLibrarySearch");
+            if (searchInput) {
+                searchInput.value = "";
+                this.searchQuery = "";
+                const clearBtn = document.getElementById("clearArchiveSearch");
+                if (clearBtn) clearBtn.style.display = "none";
+            }
+            this.renderFolders();
+        };
+
+        if (rootBtn) rootBtn.addEventListener("click", goRoot);
+        if (backBtn) backBtn.addEventListener("click", goRoot);
     }
 
     updateBreadcrumb(folderName) {
         const rootBtn = document.getElementById("archiveBreadcrumbRoot");
         const separator = document.getElementById("archiveBreadcrumbSeparator");
         const currentLabel = document.getElementById("archiveBreadcrumbCurrent");
+        const backBtn = document.getElementById("archiveBackToRootBtn");
 
         if (folderName) {
             separator.style.display = "inline";
             currentLabel.style.display = "inline";
             currentLabel.textContent = folderName;
+            currentLabel.title = folderName; // Tooltip for truncated text
             rootBtn.style.cursor = "pointer";
             rootBtn.style.color = "#3b82f6";
+            if (backBtn) backBtn.style.display = "flex";
         } else {
             separator.style.display = "none";
             currentLabel.style.display = "none";
             rootBtn.style.cursor = "default";
             rootBtn.style.color = "#fff";
+            if (backBtn) backBtn.style.display = "none";
         }
     }
 

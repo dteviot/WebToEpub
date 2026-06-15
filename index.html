@@ -260,11 +260,17 @@
                     </div>
                 </div>
 
-                <!-- Breadcrumb -->
-                <div id="archiveBreadcrumb" style="display:flex; align-items:center; gap:8px; margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; color: #aaa;">
-                    <span id="archiveBreadcrumbRoot" style="cursor:pointer; color: #3b82f6;">Root</span>
-                    <span id="archiveBreadcrumbSeparator" style="display:none;">/</span>
-                    <span id="archiveBreadcrumbCurrent" style="color: #fff; display:none;"></span>
+                <!-- Breadcrumb & Back Button -->
+                <div id="archiveBreadcrumb" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-size: 0.95rem; font-weight: 500; color: #aaa;">
+                        <span id="archiveBreadcrumbRoot" style="cursor:pointer; color: #3b82f6; transition: color 0.2s;">Root</span>
+                        <span id="archiveBreadcrumbSeparator" style="display:none;">/</span>
+                        <span id="archiveBreadcrumbCurrent" style="color: #fff; display:none; max-width: 150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+                    </div>
+                    <button id="archiveBackToRootBtn" style="display:none; align-items:center; gap:6px; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#3b82f6; padding:6px 14px; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.25)'" onmouseout="this.style.background='rgba(59,130,246,0.15)'">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                        Back to Root
+                    </button>
                 </div>
 
                 <!-- Modern Grid for Folders/Books -->
