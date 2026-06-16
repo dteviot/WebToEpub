@@ -195,9 +195,9 @@ async function handleActive(request, env) {
     let count = 0;
     try {
         const list = await env.STATS_KV.list({ prefix: "active:" });
-        count = list.keys.length;
+        const nowSec = Math.floor(Date.now() / 1000);
+        count = list.keys.filter(k => !k.expiration || k.expiration > nowSec).length;
     } catch (_) { /* ignore list failures */ }
 
-    // Guarantee a minimum display of 5 users so page doesn't look empty
-    return json({ ok: true, activeUsers: Math.max(count, 5) });
+    return json({ ok: true, activeUsers: Math.max(count, 1) });
 }
