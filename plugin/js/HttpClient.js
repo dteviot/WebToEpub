@@ -352,8 +352,13 @@ class HttpClient {
                         let response = await fetch(fetchUrl, fetchOpts);
                         clearTimeout(tid);
                         if (!response.ok) throw new Error(`${response.status}`);
-                        let text = await response.clone().text();
-                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                        
+                        let arrayBuffer = await response.clone().arrayBuffer();
+                        if (!HttpClient.isImageBuffer(arrayBuffer)) {
+                            let text = new TextDecoder("utf-8").decode(arrayBuffer);
+                            if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                            if (HttpClient.isGarbledResponse(text)) throw new Error("Garbled response");
+                        }
                         
                         resolve({ response, proxyUrl });
                     } catch (err) {
@@ -690,6 +695,26 @@ class HttpClient {
      * @param {Error|any} err The error to analyze
      * @returns {boolean} True if the proxy should be blacklisted
      */
+    static isGarbledResponse(text) {
+        if (!text || text.length < 500) return false;
+        let replacementChars = (text.match(/\uFFFD/g) || []).length;
+        return replacementChars / text.length > 0.05;
+    }
+
+    static isImageBuffer(arrayBuffer) {
+        let view = new Uint8Array(arrayBuffer, 0, Math.min(arrayBuffer.byteLength, 12));
+        if (view.length < 4) return false;
+        // PNG: 89 50 4E 47
+        if (view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) return true;
+        // JPEG: FF D8 FF
+        if (view[0] === 0xFF && view[1] === 0xD8 && view[2] === 0xFF) return true;
+        // GIF: 47 49 46 38 (GIF8)
+        if (view[0] === 0x47 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x38) return true;
+        // WEBP: starts with "RIFF" and has "WEBP" at byte 8
+        if (view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46 && view.length >= 12 && view[8] === 0x57 && view[9] === 0x45 && view[10] === 0x42 && view[11] === 0x50) return true;
+        return false;
+    }
+
     static isCloudflareBlock(text) {
         if (!text || text.length < 200) return false;
         let lower = text.toLowerCase();
@@ -783,24 +808,10 @@ class FetchResponseHandler {
         }
     }
 
-    isImageBuffer(arrayBuffer) {
-        let view = new Uint8Array(arrayBuffer, 0, Math.min(arrayBuffer.byteLength, 12));
-        if (view.length < 4) return false;
-        // PNG: 89 50 4E 47
-        if (view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) return true;
-        // JPEG: FF D8 FF
-        if (view[0] === 0xFF && view[1] === 0xD8 && view[2] === 0xFF) return true;
-        // GIF: 47 49 46 38 (GIF8)
-        if (view[0] === 0x47 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x38) return true;
-        // WEBP: starts with "RIFF" and has "WEBP" at byte 8
-        if (view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46 && view.length >= 12 && view[8] === 0x57 && view[9] === 0x45 && view[10] === 0x42 && view[11] === 0x50) return true;
-        return false;
-    }
-
     responseToHtml(response) {
         return response.arrayBuffer().then(function(rawBytes) {
             // Some proxies incorrectly return text/html for binary images. Sniff the bytes first!
-            if (this.isImageBuffer(rawBytes)) {
+            if (HttpClient.isImageBuffer(rawBytes)) {
                 this.arrayBuffer = rawBytes;
                 this.contentType = "unknown/unknown"; // override so isHtml() becomes false and ImageCollector fallback detection runs
                 return this;
