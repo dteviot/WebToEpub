@@ -34,11 +34,22 @@ class DefaultParser extends Parser {
                     let validBlock = false;
                     for (let j = 1; j <= 5 && (i + j) < allLinks.length; j++) {
                         if (getScore(allLinks[i + j].innerText || allLinks[i + j].textContent) >= 5) {
-                            let pBase = (allLinks[i].href || "").replace(/\d+/g, '');
-                            let cBase = (allLinks[i + j].href || "").replace(/\d+/g, '');
-                            if (pBase === cBase && pBase.length > 10) {
-                                validBlock = true;
-                                break;
+                            let pUrl = null, cUrl = null;
+                            try {
+                                pUrl = new URL(allLinks[i].href);
+                                cUrl = new URL(allLinks[i + j].href);
+                            } catch (e) {}
+
+                            if (pUrl && cUrl && pUrl.hostname === cUrl.hostname && pUrl.pathname.length > 5) {
+                                let pDir = pUrl.pathname.substring(0, pUrl.pathname.lastIndexOf('/'));
+                                let cDir = cUrl.pathname.substring(0, cUrl.pathname.lastIndexOf('/'));
+                                let pBase = pUrl.pathname.replace(/\d+/g, '');
+                                let cBase = cUrl.pathname.replace(/\d+/g, '');
+
+                                if ((pDir === cDir && pDir.length > 1) || (pBase === cBase && pBase.length > 10)) {
+                                    validBlock = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -136,8 +147,22 @@ class DefaultParser extends Parser {
         let chapters = this._getChaptersFromPage(dom, config, true);
         let logic = this.siteConfigs.constructFindContentLogicForSite(hostName);
 
-        if (!logic.findNextPageUrl) {
-            return chapters;
+        let findNextPageUrl = logic.findNextPageUrl;
+        if (!findNextPageUrl) {
+            findNextPageUrl = (doc, currentUrl) => {
+                let allLinks = Array.from(doc.getElementsByTagName("a"));
+                let nextLink = allLinks.find(a => {
+                    let text = (a.innerText || a.textContent || "").trim().toLowerCase();
+                    return /^next( page)?\s*(›|»|>|&gt;)?$|^(›|»|>|&gt;)$/i.test(text);
+                });
+                if (nextLink && nextLink.href) {
+                    try {
+                        let u = new URL(nextLink.href, currentUrl);
+                        if (u.href !== currentUrl) return u.href;
+                    } catch(e) {}
+                }
+                return null;
+            };
         }
 
         let maxPages = 100; // Limit to 100 pages to avoid infinite loops
@@ -160,7 +185,7 @@ class DefaultParser extends Parser {
                 chapterUrlsUI.showTocProgress(chapters);
             }
 
-            let nextUrl = logic.findNextPageUrl(currentDom, currentUrl);
+            let nextUrl = findNextPageUrl(currentDom, currentUrl);
             if (!nextUrl || nextUrl === currentUrl) {
                 break;
             }
