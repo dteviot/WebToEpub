@@ -457,7 +457,14 @@ class HttpClient {
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
                 let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });
-                return HttpClient.wrapFetchImpl(url, newOptions);
+                try {
+                    return await HttpClient.wrapFetchImpl(url, newOptions);
+                } catch (fallbackErr) {
+                    let host = url;
+                    try { host = new URL(url).hostname; } catch(e){}
+                    let customMsg = `Failed to fetch from ${host}. All CORS proxies were blocked (likely by Cloudflare or Anti-Bot protection) and direct fetch failed due to CORS. Please use the WebToEpub Chrome Extension, which can bypass Cloudflare using your browser session.`;
+                    return Promise.reject(new Error(customMsg));
+                }
             }
         }
 
