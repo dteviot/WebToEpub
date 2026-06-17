@@ -61,7 +61,7 @@ ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -75,11 +75,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "[]";
             const results = JSON.parse(AiClient._extractJson(aiText));
 
@@ -118,7 +117,7 @@ ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -132,10 +131,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "{}";
             const results = JSON.parse(AiClient._extractJson(aiText));
 
@@ -175,7 +174,7 @@ ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -189,10 +188,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "{}";
             return JSON.parse(AiClient._extractJson(aiText));
         } catch (e) {
