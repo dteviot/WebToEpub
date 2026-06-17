@@ -11,12 +11,41 @@ class RoyalRoadParser extends Parser {
         super();
     }
 
-    async getChapterUrls(dom) {
-        // Page in browser has links reduced to "Number of links to show"
-        // Fetch new page to get all chapter links.
-        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
-        let table = tocHtml.querySelector("table#chapters");
-        return util.hyperlinksToChapterList(table);
+    async getChapterUrls(dom, chapterUrlsUI) {
+        let tocUrl = this.extractTocUrl(dom.baseURI);
+        let tocHtml = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+
+        let chaptersFromDom = (doc) => {
+            let table = doc.querySelector("table#chapters");
+            return util.hyperlinksToChapterList(table);
+        };
+
+        let nextTocPageUrl = (doc, allChapters, partialList) => {
+            if (partialList.length === 0) return null;
+            let pagination = doc.querySelector("ul.pagination a[href*='?page=']")?.closest("ul.pagination");
+            if (!pagination) return null;
+            let activeLi = pagination.querySelector("li.page-active, li.active");
+            let nextLi = activeLi ? activeLi.nextElementSibling : null;
+            if (!nextLi) return null;
+            let nextLink = nextLi.querySelector("a");
+            return nextLink ? nextLink.href : null;
+        };
+
+        return await this.walkTocPages(tocHtml, chaptersFromDom, nextTocPageUrl, chapterUrlsUI);
+    }
+
+    extractTocUrl(url) {
+        try {
+            let urlObj = new URL(url);
+            let parts = urlObj.pathname.split("/").filter(p => p);
+            let chapterIndex = parts.indexOf("chapter");
+            if (chapterIndex > 0) {
+                parts = parts.slice(0, chapterIndex);
+            }
+            return urlObj.origin + "/" + parts.join("/");
+        } catch (e) {
+            return url;
+        }
     }
 
     // find the node(s) holding the story content
@@ -146,7 +175,7 @@ class RoyalRoadParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img.thumbnail")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("img.thumbnail")) ?? null;
     }
 
     removeImgTagsWithNoSrc(webPageDom) {
