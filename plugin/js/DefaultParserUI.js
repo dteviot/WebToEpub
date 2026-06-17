@@ -25,14 +25,15 @@ class DefaultParserSiteSettings {
             && !util.isNullOrEmpty(selectors.contentCss);
     }
 
-    saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl) {
-        if (this.isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl)) {
+    saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl, nextPageCss) {
+        if (this.isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl, nextPageCss)) {
             this.configs.set(
                 hostname, {
                     contentCss: contentCss,
                     titleCss: titleCss,
                     removeCss: removeCss,
-                    testUrl: testUrl
+                    testUrl: testUrl,
+                    nextPageCss: nextPageCss
                 }
             );
             let serialized = JSON.stringify(Array.from(this.configs.entries()));
@@ -41,13 +42,14 @@ class DefaultParserSiteSettings {
     }
 
     /** @private */
-    isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl) {
+    isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl, nextPageCss) {
         let config = this.configs.get(hostname);
         return (config === undefined) ||
             (contentCss !== config.contentCss) ||
             (titleCss !== config.titleCss) ||
             (removeCss !== config.removeCss) ||
-            (testUrl !== config.testUrl);
+            (testUrl !== config.testUrl) ||
+            (nextPageCss !== config.nextPageCss);
     }
 
     getConfigForSite(hostname) {
@@ -58,7 +60,8 @@ class DefaultParserSiteSettings {
         let logic = {
             findContent: dom => dom.querySelector("body"),
             findChapterTitle: () => null,
-            removeUnwanted: () => null
+            removeUnwanted: () => null,
+            findNextPageUrl: () => null
         };
         let config = this.getConfigForSite(hostname);
         if (config != null) {
@@ -71,6 +74,12 @@ class DefaultParserSiteSettings {
                     for (let e of element.querySelectorAll(config.removeCss)) {
                         e.remove();
                     }
+                };
+            }
+            if (!util.isNullOrEmpty(config.nextPageCss)) {
+                logic.findNextPageUrl = (dom, currentUrl) => {
+                    let nextLnk = dom.querySelector(config.nextPageCss);
+                    return nextLnk ? util.resolveRelativeUrl(currentUrl, nextLnk.getAttribute("href") || "") : null;
                 };
             }
         }
@@ -136,6 +145,10 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
                     if (tocInfo.author && !document.getElementById("authorInput").value) {
                         document.getElementById("authorInput").value = tocInfo.author;
                     }
+                    if (tocInfo.nextPageCss) {
+                        let nextInput = DefaultParserUI.getNextPageCssInput();
+                        if (nextInput) nextInput.value = tocInfo.nextPageCss;
+                    }
                 } else {
                     throw new Error("AI could not find the first chapter link from the TOC. Please input it manually.");
                 }
@@ -184,8 +197,10 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         let titleCss = DefaultParserUI.getChapterTitleCssInput().value;
         let removeCss = DefaultParserUI.getUnwantedElementsCssInput().value.trim();
         let testUrl = DefaultParserUI.getTestChapterUrlInput().value.trim();
+        let nextInput = DefaultParserUI.getNextPageCssInput();
+        let nextPageCss = nextInput ? nextInput.value.trim() : "";
 
-        parser.siteConfigs.saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl);
+        parser.siteConfigs.saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl, nextPageCss);
     }
 
     static populateDefaultParserUI(hostname, parser) {
@@ -195,6 +210,8 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         DefaultParserUI.getChapterTitleCssInput().value = "";
         DefaultParserUI.getUnwantedElementsCssInput().value = "";
         DefaultParserUI.getTestChapterUrlInput().value = "";
+        let nextInput = DefaultParserUI.getNextPageCssInput();
+        if (nextInput) nextInput.value = "";
 
         let config = parser.siteConfigs.getConfigForSite(hostname);
         if (config != null) {
@@ -202,6 +219,9 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
             DefaultParserUI.getChapterTitleCssInput().value = config.titleCss;
             DefaultParserUI.getUnwantedElementsCssInput().value = config.removeCss;
             DefaultParserUI.getTestChapterUrlInput().value = config.testUrl;
+            if (nextInput && config.nextPageCss) {
+                nextInput.value = config.nextPageCss;
+            }
         }
     }
 
@@ -309,6 +329,10 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
 
     static getResultViewElement() {
         return document.getElementById("defaultParserVewResult");
+    }
+
+    static getNextPageCssInput() {
+        return document.getElementById("defaultParserNextPageCss");
     }
 }
 

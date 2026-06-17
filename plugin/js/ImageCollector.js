@@ -140,9 +140,22 @@ class ImageCollector {
     * @private
     */
     static async calculateHash(arraybuffer) {
-        const hashBuffer = await crypto.subtle.digest("SHA-1", arraybuffer);
-        const hashArray = new Uint8Array(hashBuffer);
-        return Array.from(hashArray).map(b => b.toString(16).padStart(2, "0")).join("");
+        if (typeof crypto !== "undefined" && crypto.subtle) {
+            const hashBuffer = await crypto.subtle.digest("SHA-1", arraybuffer);
+            const hashArray = new Uint8Array(hashBuffer);
+            return Array.from(hashArray).map(b => b.toString(16).padStart(2, "0")).join("");
+        } else {
+            // Fallback for insecure contexts (e.g. testing on http://0.0.0.0)
+            // Provides a naive sampled hash to allow duplicate detection without crypto API
+            let hash = 0;
+            const view = new Uint8Array(arraybuffer);
+            const step = Math.max(1, Math.floor(view.length / 1000));
+            for (let i = 0; i < view.length; i += step) {
+                hash = ((hash << 5) - hash) + view[i];
+                hash |= 0; // Convert to 32bit integer
+            }
+            return "fallback_" + view.length + "_" + hash;
+        }
     }
 
 

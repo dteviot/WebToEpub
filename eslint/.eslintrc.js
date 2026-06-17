@@ -49,6 +49,7 @@ module.exports = {
         "zip": "readonly",
 
         // Project globals
+        "AiClient": "readonly",
         "BakaTsukiImageCollector": "readonly",
         "BakaTsukiParser": "readonly",
         "BakaTsukiSeriesPageParser": "readonly",
@@ -84,6 +85,7 @@ module.exports = {
         "ProgressBar": "readonly",
         "ReadingList": "readonly",
         "RoyalRoadParser": "readonly",
+        "Secrets": "readonly",
         "UIText": "readonly",
         "UserPreferences": "readonly",
         "util": "readonly",
