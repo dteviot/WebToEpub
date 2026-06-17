@@ -34,6 +34,10 @@
         ],
         "optional": []
       },
+      "strict_min_version": "140.0"
+    },
+    "gecko_android": {
+      "id": "WebToEpub@Baka-tsuki.org",
       "strict_min_version": "142.0"
     }
   },
