@@ -17,9 +17,10 @@ class MtnovelParser extends Parser {
 
     static getUrlsOfTocPages(dom) {
         let lastUrl = dom.querySelector("#pagelink a.last").href;
-        let index = lastUrl.lastIndexOf("/");
-        let maxUrl = parseInt(lastUrl.substring(index + 1));
-        let baseUrl = lastUrl.substring(0, index + 1);
+        let parts = lastUrl.split(/%2F|\//);
+        let maxUrlString = parts.pop();
+        let maxUrl = parseInt(maxUrlString);
+        let baseUrl = lastUrl.substring(0, lastUrl.length - maxUrlString.length);
         let urls = [];
         for (let i = 2; i <= maxUrl; ++i) {
             urls.push(baseUrl + i);

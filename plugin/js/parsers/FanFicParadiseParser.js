@@ -37,7 +37,7 @@ class FanFicParadiseParser extends Parser {
         let fetchedDom = await this.cache.fetch(url);
         let newDoc = Parser.makeEmptyDocForContent(url);
         let newUrl = new URL(url);
-        let id = newUrl.hash.substring(1) || newUrl.href.substring(newUrl.href.lastIndexOf("/") + 1);
+        let id = newUrl.hash.substring(1) || newUrl.href.split(/%2F|\//).pop();
         let parent;
         if (id == "") {
             parent = fetchedDom.querySelector("li.hasThreadmark");

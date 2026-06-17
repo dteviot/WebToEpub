@@ -10,8 +10,9 @@ class QuotevParser extends Parser {
     async getChapterUrls(dom) {
         let baseUrl = dom.baseURI;
         if (!baseUrl.endsWith("/")) {
-            const index = baseUrl.lastIndexOf("/");
-            baseUrl = baseUrl.substring(0, index + 1);
+            let parts = baseUrl.split(/%2F|\//);
+            let lastPart = parts.pop();
+            baseUrl = baseUrl.substring(0, baseUrl.length - lastPart.length);
         }
         let select = dom.querySelector("div#footer_pages select");
         if (select === null) {

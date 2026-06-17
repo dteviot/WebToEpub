@@ -43,8 +43,9 @@ class MangaReadParser extends Parser {
         let img = dom.querySelector(".wp-manga-chapter-img");
         let options = [...dom.querySelector("select#single-pager").querySelectorAll("option")];
         let base = img.getAttribute("data-lazy-src");
-        let index = base.lastIndexOf("/");
-        base = base.substring(0, index + 1);
+        let parts = base.split(/%2F|\//);
+        let lastPart = parts.pop();
+        base = base.substring(0, base.length - lastPart.length);
         let imgUrls = [];
         for (let i = 1; i <= options.length; ++i) {
             let name = ("00" + i);

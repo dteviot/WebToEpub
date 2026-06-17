@@ -804,6 +804,27 @@ class FetchResponseHandler {
             // Use the original target URL stored in setResponse — this is reliable
             // even when a proxy performs a server-side redirect that mutates response.url.
             util.setBaseTag(this.originalUrl, html);
+            
+            // Unproxy all absolute links returned by proxies to ensure parsers see original URLs
+            for (let a of html.querySelectorAll("a")) {
+                if (a.href) {
+                    try {
+                        a.href = HttpClient.unproxyUrl(a.href);
+                    } catch (e) {
+                        // ignore invalid urls
+                    }
+                }
+            }
+            for (let img of html.querySelectorAll("img")) {
+                if (img.src) {
+                    try {
+                        img.src = HttpClient.unproxyUrl(img.src);
+                    } catch (e) {
+                        // ignore invalid urls
+                    }
+                }
+            }
+
             this.responseXML = html;
             this.responseText = data;
             return this;

@@ -25,8 +25,8 @@ class KakuyomuParser extends Parser {
 
     extractWorkId(dom) {
         let url = dom.baseURI;
-        let index = url.lastIndexOf("/");
-        return url.substring(index + 1);
+        let parts = url.split(/%2F|\//);
+        return parts.pop();
     }
 
     buildSubToc(chapters, tocc, json, baseURI) {

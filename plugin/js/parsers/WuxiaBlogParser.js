@@ -26,9 +26,10 @@ class WuxiaBlogParser extends Parser {
         let urls = [];
         let paginationUrl = WuxiaBlogParser.getLastPaginationUrl(dom);
         if (paginationUrl !== null) {
-            let index = paginationUrl.lastIndexOf("/");
-            let maxPage = parseInt(paginationUrl.substring(index + 1));
-            let prefix = paginationUrl.substring(0, index + 1);
+            let parts = paginationUrl.split(/%2F|\//);
+            let maxPageString = parts.pop();
+            let maxPage = parseInt(maxPageString);
+            let prefix = paginationUrl.substring(0, paginationUrl.length - maxPageString.length);
             for (let i = 2; i <= maxPage; ++i) {
                 urls.push(prefix + i);
             }

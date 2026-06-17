@@ -94,8 +94,9 @@ class MangaHereParser extends Parser {
         let chapterId = util.extractSubstring(script[0], MangaHereParser.chatperIdPrefix, ";");
         let imageCount = parseInt(util.extractSubstring(script[0], /var\s*imagecount\s*=\s*/, ";"));
 
-        let index = url.lastIndexOf("/");
-        let root = url.substring(0, index + 1);
+        let parts = url.split(/%2F|\//);
+        let lastPart = parts.pop();
+        let root = url.substring(0, url.length - lastPart.length);
         let urls = [];
         for (let i = 1; i <= imageCount; ++i) {
             urls.push(`${root}chapterfun.ashx?cid=${chapterId}&page=${i}`);
