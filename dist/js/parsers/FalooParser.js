@@ -54,7 +54,7 @@ class FalooParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".imgcss").src;
+        return util.extractImgSrc(dom.querySelector(".imgcss"));
     }
 
     async fetchChapter(url) {

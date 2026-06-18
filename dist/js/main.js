@@ -70,10 +70,6 @@ var main = (function() {
         document.getElementById("translatorRow").hidden = true;
         document.getElementById("fileAuthorAsRow").hidden = true;
         document.getElementById("defaultParserSection").hidden = true;
-        let wtrLabCookieRow = document.getElementById("wtrLabCookieRow");
-        if (wtrLabCookieRow) {
-            wtrLabCookieRow.hidden = true;
-        }
     }
 
     function populateMetaInfo(metaInfo) {
@@ -145,11 +141,23 @@ var main = (function() {
         }
         let direct = await WattpadParser.tryFetchDirectEpub(url);
         if (!direct) {
+            if (progressString) {
+                progressString.textContent = "wpd.my unavailable — loading via Wattpad parser…";
+            }
             return false;
         }
         let overwriteExisting = userPreferences.overwriteExistingEpub.value;
         let backgroundDownload = userPreferences.noDownloadPopup.value;
         await Download.save(direct.blob, direct.fileName, overwriteExisting, backgroundDownload);
+        if (typeof HFStatsLibrary !== "undefined") {
+            HFStatsLibrary.recordEvent({
+                url: url,
+                mode: "manual",
+                action: "epub_convert",
+                title: direct.fileName,
+                author: ""
+            });
+        }
         if (progressString) {
             progressString.textContent = "EPUB downloaded from wpd.my.";
         }
@@ -198,6 +206,16 @@ var main = (function() {
                 await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
             } else {
                 await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            }
+            if (typeof HFStatsLibrary !== "undefined") {
+                HFStatsLibrary.recordEvent({
+                    url: startingUrl,
+                    mode: "manual",
+                    action: "epub_convert",
+                    title: metaInfo.title,
+                    author: metaInfo.author,
+                    coverUrl: CoverImageUI.getCoverImageUrl()
+                });
             }
             try {
                 parser.updateReadingList();
@@ -334,7 +352,6 @@ var main = (function() {
         // Sync HttpClient with preferences
         HttpClient.enableCorsProxy = userPreferences.enableCorsProxy.value;
         HttpClient.corsProxyUrl = userPreferences.corsProxyUrl.value;
-        HttpClient.setWtrLabCookiesFromUserInput(userPreferences.wtrLabCookieImport.value);
     }
 
     function isRunningInTabMode() {
@@ -412,9 +429,18 @@ var main = (function() {
 
     async function onLoadAndAnalyseButtonClick() {
         // load page via XmlHTTPRequest
-        let url = getValueFromUiField("startingUrlInput");
+        let rawUrl = getValueFromUiField("startingUrlInput");
         getLoadAndAnalyseButton().disabled = true;
         try {
+            let url = util.normalizeHttpUrl(rawUrl);
+            if (!url) {
+                throw new Error(util.isNullOrEmpty(rawUrl)
+                    ? "Please enter a web page URL to convert."
+                    : `Invalid URL: ${String(rawUrl).trim()}`);
+            }
+            if (url !== String(rawUrl).trim()) {
+                setUiFieldToValue("startingUrlInput", url);
+            }
             if (await tryWattpadDirectEpubDownload(url)) {
                 getLoadAndAnalyseButton().disabled = false;
                 return;
@@ -435,7 +461,7 @@ var main = (function() {
         if (!util.isNullOrEmpty(windowId)) {
             // Check if it's a URL parameter or a Tab ID
             let params = new URLSearchParams(window.location.search);
-            let targetUrl = params.get("url");
+            let targetUrl = util.normalizeHttpUrl(params.get("url"));
             if (targetUrl) {
                 setUiFieldToValue("startingUrlInput", targetUrl);
                 // Trigger analysis
@@ -731,7 +757,7 @@ var main = (function() {
 
             // If a URL was passed in the query string, automatically start analysis
             let params = new URLSearchParams(window.location.search);
-            let targetUrl = params.get("url");
+            let targetUrl = util.normalizeHttpUrl(params.get("url"));
             if (targetUrl) {
                 setUiFieldToValue("startingUrlInput", targetUrl);
                 // Wait a tiny bit for handlers to be fully ready

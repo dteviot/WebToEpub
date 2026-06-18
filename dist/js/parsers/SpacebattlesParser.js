@@ -61,7 +61,7 @@ class SpacebattlesParser extends Parser {
     async fetchArticle(url) {
         let fetchedDom = await this.cache.fetch(url);
         let newUrl = new URL(url);
-        let id = newUrl.hash.substring(1) || newUrl.href.substring(newUrl.href.lastIndexOf("/") + 1);
+        let id = newUrl.hash.substring(1) || newUrl.href.split(/%2F|\//).pop();
         let parent = fetchedDom.querySelector(`article.hasThreadmark[data-content='${id}']`);
         if (parent === null)
         {

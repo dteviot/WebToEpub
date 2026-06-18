@@ -34,7 +34,7 @@ class NobadnovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img.object-cover")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("img.object-cover")) ?? null;
     }
 
     getInformationEpubItemChildNodes(dom) {

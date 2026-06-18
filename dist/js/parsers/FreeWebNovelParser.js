@@ -70,12 +70,12 @@ class NovelliveParser extends FreeWebNovelParser {
         let lastUrl = [...dom.querySelectorAll(".page a.index-container-btn")]?.pop()?.href;
         let urls = [];
         if (lastUrl) {
-            let lastTocIndex = lastUrl.lastIndexOf("/");
-            let lastIndexPageName = lastUrl.substring(lastTocIndex + 1);
+            let parts = lastUrl.split(/%2F|\//);
+            let lastIndexPageName = parts.pop();
             let lastIndex = parseInt(lastIndexPageName);
             let tocHasMultiplePages = !isNaN(lastIndex);
             if (tocHasMultiplePages) {
-                let baseUrl = lastUrl.substring(0, lastTocIndex + 1);
+                let baseUrl = lastUrl.substring(0, lastUrl.length - lastIndexPageName.length);
                 for (let i = 2; i <= lastIndex; ++i) {
                     urls.push(baseUrl + i);
                 }

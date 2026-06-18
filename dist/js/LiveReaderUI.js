@@ -99,9 +99,6 @@ class LiveReaderUI {
                 this.userPrefs = UserPreferences.readFromLocalStorage();
                 HttpClient.enableCorsProxy = this.userPrefs.enableCorsProxy.value;
                 HttpClient.corsProxyUrl = this.userPrefs.corsProxyUrl.value;
-                if (this.userPrefs.wtrLabCookieImport) {
-                    HttpClient.setWtrLabCookiesFromUserInput(this.userPrefs.wtrLabCookieImport.value);
-                }
             }
         } catch (e) { /* ignore */ }
 
@@ -153,6 +150,12 @@ class LiveReaderUI {
             }
             if (!doc) throw new Error("Failed to fetch the novel page. The CORS proxy may have failed.");
 
+            if (typeof WattpadParser !== "undefined"
+                && WattpadParser.isWattpadStoryUrl(url)
+                && WattpadParser.isStoryNotFoundDom(doc)) {
+                throw new Error("This story does not exist, or has been deleted on Wattpad.");
+            }
+
             // Inject baseURI if possible
             try {
                 Object.defineProperty(doc, "baseURI", { get: () => url, configurable: true });
@@ -169,6 +172,17 @@ class LiveReaderUI {
 
             this._renderBookDetailsCard();
             this._showView("bookDetailsView");
+
+            if (typeof HFStatsLibrary !== "undefined") {
+                HFStatsLibrary.recordEvent({
+                    url: url,
+                    mode: "live",
+                    action: "open",
+                    title: this.metaInfo.title,
+                    author: this.metaInfo.author,
+                    coverUrl: this.metaInfo.coverUrl
+                });
+            }
             
             const addToLibBtn = document.getElementById("lrAddToLibraryBtn");
             if (addToLibBtn) {
@@ -379,10 +393,8 @@ class LiveReaderUI {
 
         this._renderCoverPage();
 
-        // Pre-fetch first chapters
-        for (let i = 0; i < Math.min(this.lazyPrefetchCount, this.toc.length); i++) {
-            this._loadChapterIntoCache(i).catch(() => {});
-        }
+        // Pre-fetch first chapters sequentially
+        this._triggerPrefetch(0);
 
         if (chapterIndex > 0) {
             setTimeout(() => this.loadChapter(chapterIndex), 200);
@@ -394,9 +406,23 @@ class LiveReaderUI {
     // ─────────────────────────────────────────
     async loadChapter(index) {
         if (index < 0 || index >= this.toc.length) return;
+        const wasTtsActive = this.ttsActive;
+        this._stopTTS();
+
         this.currentChapterIndex = index;
         this.loadedChaptersIndex = index;
         this._saveProgress(index);
+
+        if (typeof HFStatsLibrary !== "undefined" && this.url) {
+            HFStatsLibrary.recordEvent({
+                url: this.url,
+                mode: "live",
+                action: "read",
+                title: this.metaInfo?.title,
+                author: this.metaInfo?.author,
+                coverUrl: this.metaInfo?.coverUrl
+            });
+        }
 
         if (this.layout === "scroll") {
             // Scroll view: ensure placeholder exists, then lazy load
@@ -419,6 +445,9 @@ class LiveReaderUI {
             }
             this.currentChapterIndex = index;
             this._updateActiveTocHighlight();
+            if (wasTtsActive) {
+                setTimeout(() => this._playTTS(), 300);
+            }
             return;
         }
 
@@ -428,6 +457,9 @@ class LiveReaderUI {
             await this._loadAndRenderSingleChapter(index);
         } finally {
             this._hideReaderLoader();
+        }
+        if (wasTtsActive) {
+            setTimeout(() => this._playTTS(), 300);
         }
     }
 
@@ -455,10 +487,8 @@ class LiveReaderUI {
             `;
 
             if (this.observer) this.observer.observe(wrapper);
-            // Pre-fetch ahead
-            for (let i = index + 1; i < index + 1 + this.lazyPrefetchCount && i < this.toc.length; i++) {
-                this._loadChapterIntoCache(i).catch(() => {});
-            }
+            // Pre-fetch ahead sequentially
+            this._triggerPrefetch(index + 1);
         } catch (err) {
             wrapper.classList.remove("lr-placeholder-loading");
             wrapper.innerHTML = `
@@ -509,6 +539,10 @@ class LiveReaderUI {
                 } catch (_) {}
             }
             if (!doc) {
+                // Respect parser rate limits to avoid 429s (especially on fanmtl/Cloudflare)
+                if (this.parser && typeof this.parser.rateLimitDelay === "function") {
+                    await this.parser.rateLimitDelay();
+                }
                 let xhr = await HttpClient.wrapFetch(chapter.href);
                 doc = xhr?.responseXML;
                 if (!doc && xhr?.responseText) {
@@ -593,10 +627,22 @@ class LiveReaderUI {
         this.currentChapterIndex = index;
         this._updateActiveTocHighlight();
 
-        // Prefetch ahead
-        for (let i = index + 1; i < index + 1 + this.lazyPrefetchCount && i < this.toc.length; i++) {
-            this._loadChapterIntoCache(i).catch(() => {});
-        }
+        // Prefetch ahead sequentially
+        this._triggerPrefetch(index + 1);
+    }
+
+    _triggerPrefetch(startIndex) {
+        if (!this._prefetchQueue) this._prefetchQueue = Promise.resolve();
+        
+        let targetEnd = Math.min(startIndex + this.lazyPrefetchCount, this.toc.length);
+        
+        this._prefetchQueue = this._prefetchQueue.then(async () => {
+            for (let i = startIndex; i < targetEnd; i++) {
+                // If it's already cached, skip it instantly
+                if (this.lazyCache.has(i)) continue;
+                await this._loadChapterIntoCache(i).catch(() => {});
+            }
+        });
     }
 
     // ─────────────────────────────────────────
@@ -1030,7 +1076,7 @@ class LiveReaderUI {
             if (rawUrl && !rawUrl.startsWith("http")) {
                 try {
                     rawUrl = new URL(rawUrl, baseUrl).href;
-                } catch(e) {}
+                } catch (e) {}
             }
             return {
                 title: ch.title?.trim() || `Chapter ${i + 1}`,
@@ -1173,13 +1219,10 @@ class LiveReaderUI {
         this._prepareTTSParagraphs();
         if (index >= this.ttsParagraphs.length) { this._stopTTS(); return; }
         
-        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        // Clear previous utterance handlers
         if (this.speechUtterance) {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
-        }
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
         }
         
         const p = this.ttsParagraphs[index];
@@ -1196,7 +1239,18 @@ class LiveReaderUI {
         const rate = parseFloat(document.getElementById("lrTtsRate")?.value || 1);
         const pitch = parseFloat(document.getElementById("lrTtsPitch")?.value || 1);
 
-        this.speechUtterance = new SpeechSynthesisUtterance(p.textContent);
+        this.speechUtterance = new SpeechSynthesisUtterance(this._normalizeTTSText(p.textContent));
+        
+        // Prevent Chrome garbage collection by keeping reference on window
+        window._activeUtterances = window._activeUtterances || [];
+        window._activeUtterances.push(this.speechUtterance);
+        
+        const cleanupUtterance = (utt) => {
+            if (window._activeUtterances) {
+                window._activeUtterances = window._activeUtterances.filter(u => u !== utt);
+            }
+        };
+
         this.speechUtterance.rate = rate;
         this.speechUtterance.pitch = pitch;
         if (this.selectedVoiceURI) {
@@ -1204,6 +1258,7 @@ class LiveReaderUI {
             if (voice) this.speechUtterance.voice = voice;
         }
         this.speechUtterance.onend = () => {
+            cleanupUtterance(this.speechUtterance);
             if (!this.ttsActive) return;
             this._prepareTTSParagraphs();
             const currentIdx = this.ttsParagraphs.indexOf(this.currentTtsElement);
@@ -1222,25 +1277,28 @@ class LiveReaderUI {
             }
             this._speakParagraph(this.ttsCurrentIndex);
         };
-        window.speechSynthesis.speak(this.speechUtterance);
+        this.speechUtterance.onerror = (e) => {
+            cleanupUtterance(this.speechUtterance);
+            console.error("Speech Synthesis Error:", e);
+            if (this.ttsActive) this._stopTTS();
+        };
+
+        // Start heartbeat watchdog to prevent Chrome's 15s timeout
+        if (!this.ttsHeartbeatInterval) {
+            this.ttsHeartbeatInterval = setInterval(() => {
+                if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        }
+
+        setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
 
     _playTTS() {
         this._prepareTTSParagraphs();
-        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
-
-        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
-            let targetIdx = 0;
-            const viewportHeight = window.innerHeight;
-            for (let i = 0; i < this.ttsParagraphs.length; i++) {
-                const rect = this.ttsParagraphs[i].getBoundingClientRect();
-                if (rect.bottom > 0 && rect.top < viewportHeight) {
-                    targetIdx = i;
-                    break;
-                }
-            }
-            this.ttsCurrentIndex = targetIdx;
-        }
+        if (this.ttsParagraphs.length === 0 || !("speechSynthesis" in window)) return;
 
         // Check if we are resuming from a paused state;
         let needsSync = false;
@@ -1273,6 +1331,17 @@ class LiveReaderUI {
                 this.ttsActive = false;
             } else {
                 window.speechSynthesis.resume();
+                
+                // Restart heartbeat watchdog to prevent 15s timeout
+                if (!this.ttsHeartbeatInterval) {
+                    this.ttsHeartbeatInterval = setInterval(() => {
+                        if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        }
+                    }, 10000);
+                }
+
                 const playBtn = document.getElementById("lrTtsPlayBtn");
                 const pauseBtn = document.getElementById("lrTtsPauseBtn");
                 if (playBtn) playBtn.style.display = "none";
@@ -1291,7 +1360,11 @@ class LiveReaderUI {
         if (pauseBtn) pauseBtn.style.display = "";
         
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
-        this._speakParagraph(this.ttsCurrentIndex);
+        
+        // Wait 200ms for cancel() to settle in Chrome before speaking
+        setTimeout(() => {
+            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+        }, 200);
     }
 
     _pauseTTS() {
@@ -1303,11 +1376,19 @@ class LiveReaderUI {
             if (pauseBtn) pauseBtn.style.display = "none";
             this.ttsActive = false;
         }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
     }
 
     _stopTTS() {
         this.ttsActive = false;
         window.speechSynthesis.cancel();
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
         document.querySelectorAll(".lr-tts-active-para").forEach(el => el.classList.remove("lr-tts-active-para"));
         const main = document.getElementById("lrReaderMain");
         if (main) main.classList.remove("lr-tts-mode-active");
@@ -1316,6 +1397,63 @@ class LiveReaderUI {
         if (playBtn) playBtn.style.display = "";
         if (pauseBtn) pauseBtn.style.display = "none";
         this.ttsCurrentIndex = 0;
+    }
+
+
+    /**
+     * Normalize raw paragraph text before passing to SpeechSynthesisUtterance.
+     * Makes TTS sound more natural by expanding abbreviations, converting dashes
+     * and ellipses to natural pauses, stripping junk characters, and ensuring
+     * correct spacing after punctuation.
+     */
+    _normalizeTTSText(raw) {
+        let t = raw;
+
+        // 1. Expand abbreviations that confuse TTS
+        const abbr = [
+            [/\bMr\./g, "Mister"],
+            [/\bMrs\./g, "Missus"],
+            [/\bMs\./g, "Miss"],
+            [/\bDr\./g, "Doctor"],
+            [/\bProf\./g, "Professor"],
+            [/\bSt\./g, "Saint"],
+            [/\bJr\./g, "Junior"],
+            [/\bSr\./g, "Senior"],
+            [/\bvs\./gi, "versus"],
+            [/\betc\./gi, "etcetera"],
+            [/\bapprox\./gi, "approximately"],
+            [/\bvol\./gi, "volume"],
+            [/\bch\./gi, "chapter"],
+            [/\bno\.\s*(\d)/gi, "number $1"],
+            [/\bpg\./gi, "page"],
+            [/\bfig\./gi, "figure"],
+            [/\ba\.m\./gi, "A M"],
+            [/\bp\.m\./gi, "P M"],
+        ];
+        abbr.forEach(([re, rep]) => { t = t.replace(re, rep); });
+
+        // 2. Em-dash / en-dash → comma pause
+        t = t.replace(/\s*[\u2014\u2013]\s*/g, ", ");
+
+        // 3. Ellipsis → single comma pause
+        t = t.replace(/\.{2,}/g, ",");
+
+        // 4. Strip junk characters
+        t = t.replace(/\*{1,5}/g, " ");
+        t = t.replace(/[~\u00A4\u00A7\u00A6\u00B0\u00B1\u00A9\u00AE\u2122]/g, " ");
+        t = t.replace(/&(amp|lt|gt|nbsp|quot|apos);/gi, (m) => {
+            const map = { amp: "&", lt: "<", gt: ">", nbsp: " ", quot: "\"" , apos: "'" };
+            return map[m.slice(1, -1).toLowerCase()] || " ";
+        });
+        t = t.replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "");
+
+        // 5. Ensure space after sentence-ending punctuation
+        t = t.replace(/([.!?;:])([A-Za-z])/g, "$1 $2");
+
+        // 6. Collapse whitespace
+        t = t.replace(/\s+/g, " ").trim();
+
+        return t;
     }
 
     // ─────────────────────────────────────────
@@ -1429,19 +1567,24 @@ class LiveReaderUI {
                     if (idx !== -1) {
                         this.ttsCurrentIndex = idx;
                         this.ttsAutoScroll = true; // resume auto-scroll on manual jump
-                        this._speakParagraph(this.ttsCurrentIndex);
+                        if ("speechSynthesis" in window) {
+                            window.speechSynthesis.cancel();
+                        }
+                        setTimeout(() => {
+                            if (this.ttsActive) this._speakParagraph(this.ttsCurrentIndex);
+                        }, 200);
                     }
                 }
             });
         }
         
-        const mainReader = document.getElementById("lrReaderMain");
-        if (mainReader) {
+        const viewport = document.getElementById("lrViewport");
+        if (viewport) {
             const disableAutoScroll = () => {
                 if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
-            mainReader.addEventListener("keydown", (e) => {
+            viewport.addEventListener("scroll", disableAutoScroll, { passive: true });
+            document.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();
                 }

@@ -3,7 +3,7 @@
 /**
  * AiClient - Interacts with Pollinations AI for search fallbacks and parser autocompletion.
  */
-class AiClient {
+class AiClient { // eslint-disable-line no-unused-vars
     static MODEL = "nova-fast"; // Cost-efficient and fast
 
     // Pre-compiled regexes for performance
@@ -61,7 +61,7 @@ ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -75,11 +75,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "[]";
             const results = JSON.parse(AiClient._extractJson(aiText));
 
@@ -118,7 +117,7 @@ ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -132,10 +131,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "{}";
             const results = JSON.parse(AiClient._extractJson(aiText));
 
@@ -166,15 +165,16 @@ Identify:
 1. "firstChapterUrl": The absolute URL of the very first chapter (e.g., Chapter 1).
 2. "novelTitle": The title of the novel if clearly visible.
 3. "author": The author name if clearly visible.
+4. "nextPageCss": The CSS selector for the 'Next' pagination link to go to page 2 of the TOC. If there is no pagination, return an empty string.
 
-Return ONLY a JSON object: {"firstChapterUrl": "...", "novelTitle": "...", "author": "..."}
+Return ONLY a JSON object: {"firstChapterUrl": "...", "novelTitle": "...", "author": "...", "nextPageCss": "..."}
 
 HTML Snippet:
 ${simplifiedHtml}
 `;
 
         try {
-            const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+            const fetchOptions = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -188,10 +188,10 @@ ${simplifiedHtml}
                     ],
                     stream: false
                 })
-            });
+            };
 
-            if (!response.ok) throw new Error(`AI API error: ${response.status}`);
-            const data = await response.json();
+            const xhr = await HttpClient.fetchJson("https://gen.pollinations.ai/v1/chat/completions", fetchOptions);
+            const data = xhr.json;
             const aiText = data.choices[0]?.message?.content || "{}";
             return JSON.parse(AiClient._extractJson(aiText));
         } catch (e) {

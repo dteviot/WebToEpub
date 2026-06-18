@@ -11,7 +11,7 @@ class ErofusParserImageCollector extends ImageCollector {
         let img = dom.querySelector("div#picture-full img");
         if (img != null)
         {
-            return dom.querySelector("div#picture-full img").src;
+            return util.extractImgSrc(dom.querySelector("div#picture-full img"));
         }
     }
 }

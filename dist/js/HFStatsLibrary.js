@@ -1,38 +1,33 @@
 /*
   HFStatsLibrary — Anonymous usage stats for Top Novels
-  Records events via Cloudflare Worker; reads aggregated stats-catalog.json from HF CDN.
-  Never embeds or sends a Hugging Face token — reads are public CDN, writes go to the worker.
+  Records events locally (always) and via Cloudflare Worker when deployed.
+  Reads rankings from worker + local storage; HF CDN is optional merge only.
 */
 "use strict";
 
 class HFStatsLibrary { // eslint-disable-line no-unused-vars
 
-    static WORKER_URL = localStorage.getItem("hf_worker_url")
-        || (typeof HFLibrary !== "undefined" ? HFLibrary.WORKER_URL : null)
-        || "https://webtoepub-hf-proxy.telegram-bridge.workers.dev";
+    static WORKER_URL = localStorage.getItem("stats_worker_url") 
+        || "https://webtoepub-stats-worker.telegram-bridge.workers.dev";
 
     static STATS_REPO_ID = "prasadonly/webtoepub-library";
     static STATS_CATALOG_FILE = "stats-catalog.json";
-    static FETCH_TIMEOUT_MS = 6000;
+    static LOCAL_STATS_KEY = "wte_usage_stats_v1";
+    static FETCH_TIMEOUT_MS = 8000;
+    static WORKER_TOP_TIMEOUT_MS = 8000;
     static _reportedReads = new Set();
-    static _WORKER_BLOCKED_KEY = "hf_stats_worker_blocked";
+    static _memoryCache = new Map();
 
-    static isWorkerBlocked() {
+    static _clearLegacyWorkerBlocks() {
         try {
-            return localStorage.getItem(HFStatsLibrary._WORKER_BLOCKED_KEY) === "1";
-        } catch (_) {
-            return false;
-        }
-    }
-
-    static markWorkerBlocked() {
-        try {
-            localStorage.setItem(HFStatsLibrary._WORKER_BLOCKED_KEY, "1");
+            localStorage.removeItem("hf_stats_worker_blocked");
+            localStorage.removeItem("hf_stats_worker_blocked_v2");
         } catch (_) { /* ignore */ }
     }
 
     static getStatsCatalogUrl() {
-        return `https://huggingface.co/datasets/${HFStatsLibrary.STATS_REPO_ID}/resolve/main/${HFStatsLibrary.STATS_CATALOG_FILE}`;
+        const base = `https://huggingface.co/datasets/${HFStatsLibrary.STATS_REPO_ID}/raw/main/${HFStatsLibrary.STATS_CATALOG_FILE}`;
+        return `${base}?t=${Date.now()}`;
     }
 
     static getWorkerBase() {
@@ -63,11 +58,39 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             const parsed = new URL(url);
             parsed.hash = "";
             parsed.search = "";
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                const path = parsed.pathname.replace(/\/+$/, "");
+                return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+            }
+            let hostname = parsed.hostname.toLowerCase();
+            if (hostname.startsWith("www.")) {
+                hostname = hostname.slice(4);
+            }
             let path = parsed.pathname.replace(/\/+$/, "") || "/";
-            return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+            return `${parsed.protocol}//${hostname}${path}`;
         } catch (_) {
             return url.toLowerCase();
         }
+    }
+
+    static isSampleEntry(entry) {
+        if (!entry) {
+            return true;
+        }
+        if (entry.sample === true || entry.isSample === true) {
+            return true;
+        }
+        const title = String(entry.title || "").toLowerCase();
+        if (title.includes("sample ") || title.startsWith("sample")) {
+            return true;
+        }
+        const url = String(entry.url || "").toLowerCase();
+        const sampleUrls = [
+            "novelfull.net/legend-of-swordsman",
+            "wattpad.com/story/29396964",
+            "wtr-lab.com/en/novel/serie-123/example-novel"
+        ];
+        return sampleUrls.some(s => url.includes(s));
     }
 
     static computeTotalScore(entry, modeFilter) {
@@ -130,6 +153,105 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         return parts.join(" · ") || "Popular";
     }
 
+    static _readLocalStore() {
+        try {
+            const raw = localStorage.getItem(HFStatsLibrary.LOCAL_STATS_KEY);
+            if (!raw) {
+                return { entries: {} };
+            }
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed.entries !== "object") {
+                return { entries: {} };
+            }
+            return parsed;
+        } catch (_) {
+            return { entries: {} };
+        }
+    }
+
+    static _writeLocalStore(store) {
+        try {
+            localStorage.setItem(HFStatsLibrary.LOCAL_STATS_KEY, JSON.stringify(store));
+        } catch (_) { /* ignore quota */ }
+    }
+
+    static _bumpMode(modes, mode, action) {
+        if (!modes[mode]) {
+            modes[mode] = {};
+        }
+        const bucket = modes[mode];
+        const now = new Date().toISOString();
+        if (mode === "live" && action === "read") {
+            bucket.reads = (bucket.reads || 0) + 1;
+        } else if (mode === "live" && action === "open") {
+            bucket.opens = (bucket.opens || 0) + 1;
+        } else if (mode === "manual" && action === "epub_convert") {
+            bucket.epubConversions = (bucket.epubConversions || 0) + 1;
+        } else if (mode === "library" && action === "download") {
+            bucket.downloads = (bucket.downloads || 0) + 1;
+        } else if (mode === "library" && action === "open") {
+            bucket.opens = (bucket.opens || 0) + 1;
+        } else if (mode === "library" && action === "read") {
+            bucket.reads = (bucket.reads || 0) + 1;
+        }
+        bucket.lastAt = now;
+        return modes;
+    }
+
+    static _mergeModeBuckets(target, source) {
+        if (!source) {
+            return target;
+        }
+        for (const [mode, bucket] of Object.entries(source)) {
+            if (!target[mode]) {
+                target[mode] = { ...bucket };
+                continue;
+            }
+            const t = target[mode];
+            t.reads = (t.reads || 0) + (bucket.reads || 0);
+            t.opens = (t.opens || 0) + (bucket.opens || 0);
+            t.downloads = (t.downloads || 0) + (bucket.downloads || 0);
+            t.epubConversions = (t.epubConversions || 0) + (bucket.epubConversions || 0);
+            if (bucket.lastAt && (!t.lastAt || bucket.lastAt > t.lastAt)) {
+                t.lastAt = bucket.lastAt;
+            }
+        }
+        return target;
+    }
+
+    static recordLocalEvent({ url, mode, action, title, author, coverUrl }) {
+        const normalized = HFStatsLibrary.normalizeUrl(url);
+        if (!normalized) {
+            return;
+        }
+        const store = HFStatsLibrary._readLocalStore();
+        let entry = store.entries[normalized] || {
+            url: normalized,
+            title: "",
+            author: "",
+            coverUrl: "",
+            host: "",
+            modes: {}
+        };
+        if (title) entry.title = String(title).trim().slice(0, 200);
+        if (author) entry.author = String(author).trim().slice(0, 120);
+        if (coverUrl) entry.coverUrl = String(coverUrl).trim().slice(0, 500);
+        entry.host = (() => {
+            try { return new URL(normalized).hostname; } catch (_) { return ""; }
+        })();
+        entry.modes = HFStatsLibrary._bumpMode(entry.modes, mode, action);
+        entry.totalScore = HFStatsLibrary.computeTotalScore(entry, "all");
+        store.entries[normalized] = entry;
+        HFStatsLibrary._writeLocalStore(store);
+    }
+
+    static getLocalTopEntries(mode, limit) {
+        const store = HFStatsLibrary._readLocalStore();
+        const entries = Object.values(store.entries || {})
+            .filter(e => e && e.url && !HFStatsLibrary.isSampleEntry(e));
+        return HFStatsLibrary._normalizeEntries({ entries }, mode, limit);
+    }
+
     static recordEvent({ url, mode, action, title, author, coverUrl }) {
         if (!HFStatsLibrary.isContributingEnabled()) {
             return;
@@ -147,11 +269,6 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             HFStatsLibrary._reportedReads.add(dedupeKey);
         }
 
-        const base = HFStatsLibrary.getWorkerBase();
-        if (!base || HFStatsLibrary.isWorkerBlocked()) {
-            return;
-        }
-
         const payload = {
             url: normalized,
             mode: mode,
@@ -165,33 +282,58 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
             ts: new Date().toISOString()
         };
 
+        HFStatsLibrary.recordLocalEvent(payload);
+
+        const base = HFStatsLibrary.getWorkerBase();
+        if (!base) {
+            return;
+        }
+
         try {
-            fetch(`${base}/stats/event`, {
+            fetch(`${base}/api/event`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
                 keepalive: true,
                 mode: "cors"
-            }).then(resp => {
-                if (resp.status === 403) {
-                    HFStatsLibrary.markWorkerBlocked();
-                }
             }).catch(() => {});
         } catch (_) { /* fire-and-forget */ }
     }
 
-    static async _fetchTopFromWorker(mode, limit, signal) {
-        const workerBase = HFStatsLibrary.getWorkerBase();
-        if (!workerBase || HFStatsLibrary.isWorkerBlocked()) {
-            return null;
+    static async fetchActiveUsersCount() {
+        const base = HFStatsLibrary.getWorkerBase();
+        if (!base) {
+            throw new Error("Worker URL not configured");
         }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
         try {
-            const workerUrl = `${workerBase}/stats/top?limit=${limit}${mode !== "all" ? `&mode=${encodeURIComponent(mode)}` : ""}`;
-            const resp = await fetch(workerUrl, { signal, cache: "no-store" });
-            if (resp.status === 403) {
-                HFStatsLibrary.markWorkerBlocked();
-                return null;
+            const resp = await fetch(`${base}/api/active`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ referrer: window.location.href }),
+                signal: controller.signal,
+                mode: "cors"
+            });
+            clearTimeout(timeoutId);
+            if (!resp.ok) {
+                throw new Error(`HTTP ${resp.status}`);
             }
+            const data = await resp.json();
+            return data.activeUsers;
+        } catch (e) {
+            clearTimeout(timeoutId);
+            throw e;
+        }
+    }
+
+    static async _fetchTopFromWorker(mode, limit, signal) {
+        const base = HFStatsLibrary.getWorkerBase();
+        if (!base) return null;
+        try {
+            const resp = await fetch(`${base}/api/top?mode=${mode}&limit=${limit}`, { signal, mode: "cors" });
             if (!resp.ok) {
                 return null;
             }
@@ -203,30 +345,169 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
     }
 
-    static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS } = {}) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-        try {
-            const workerEntries = await HFStatsLibrary._fetchTopFromWorker(mode, limit, controller.signal);
-            if (workerEntries?.length) {
-                return { entries: workerEntries, source: "worker" };
-            }
-
-            const catalogUrl = HFStatsLibrary.getStatsCatalogUrl();
-            const resp = await fetch(catalogUrl, { signal: controller.signal, cache: "no-store" });
-            if (!resp.ok) {
-                throw new Error(`Catalog HTTP ${resp.status}`);
-            }
-            const data = await resp.json();
-            const entries = HFStatsLibrary._normalizeEntries(data, mode, limit);
-            if (entries.length === 0) {
-                throw new Error("Empty catalog");
-            }
-            return { entries, source: "hf" };
-        } finally {
-            clearTimeout(timer);
+    static _entryMergeKeys(entry) {
+        const keys = new Set();
+        const url = String(entry?.url || "").trim();
+        if (!url) {
+            return [];
         }
+
+        const hfMatch = url.match(/^hf-library:\/\/(.+)$/i);
+        if (hfMatch) {
+            keys.add(`hf:${hfMatch[1]}`);
+        }
+
+        const personalMatch = url.match(/^library:\/\/personal\/(.+)$/i);
+        if (personalMatch) {
+            keys.add(`personal:${personalMatch[1]}`);
+        }
+
+        const normalized = HFStatsLibrary.normalizeUrl(url);
+        if (normalized && /^https?:\/\//i.test(normalized)) {
+            keys.add(`url:${normalized}`);
+        }
+
+        const title = String(entry.title || "").trim().toLowerCase();
+        const author = String(entry.author || "").trim().toLowerCase();
+        let host = String(entry.host || "").trim().toLowerCase().replace(/^www\./, "");
+        if (!host && normalized && /^https?:\/\//i.test(normalized)) {
+            try {
+                host = new URL(normalized).hostname.replace(/^www\./, "");
+            } catch (_) { /* ignore */ }
+        }
+        if (title && host) {
+            keys.add(`ta:${host}|${title}|${author}`);
+        }
+
+        return [...keys];
+    }
+
+    static _mergeEntryInto(target, source) {
+        if (source.title && (!target.title || target.title.length < source.title.length)) {
+            target.title = source.title;
+        }
+        if (source.author && !target.author) {
+            target.author = source.author;
+        }
+        if (source.coverUrl && !target.coverUrl) {
+            target.coverUrl = source.coverUrl;
+        }
+        if (source.host && !target.host) {
+            target.host = source.host;
+        }
+        if (/^https?:\/\//i.test(source.url) && !/^https?:\/\//i.test(target.url)) {
+            target.url = HFStatsLibrary.normalizeUrl(source.url) || source.url;
+        }
+        HFStatsLibrary._mergeModeBuckets(target.modes, source.modes);
+    }
+
+    static _mergeEntryLists(lists, mode, limit) {
+        const entries = [];
+        const keyToIndex = new Map();
+
+        for (const list of lists) {
+            if (!Array.isArray(list)) {
+                continue;
+            }
+            for (const entry of list) {
+                if (!entry?.url || HFStatsLibrary.isSampleEntry(entry)) {
+                    continue;
+                }
+                const mergeKeys = HFStatsLibrary._entryMergeKeys(entry);
+                if (mergeKeys.length === 0) {
+                    continue;
+                }
+
+                let targetIndex = null;
+                for (const key of mergeKeys) {
+                    if (keyToIndex.has(key)) {
+                        targetIndex = keyToIndex.get(key);
+                        break;
+                    }
+                }
+
+                if (targetIndex == null) {
+                    targetIndex = entries.length;
+                    entries.push({
+                        url: /^https?:\/\//i.test(entry.url)
+                            ? (HFStatsLibrary.normalizeUrl(entry.url) || entry.url)
+                            : entry.url,
+                        title: entry.title || "",
+                        author: entry.author || "",
+                        coverUrl: entry.coverUrl || "",
+                        host: entry.host || "",
+                        modes: JSON.parse(JSON.stringify(entry.modes || {}))
+                    });
+                } else {
+                    HFStatsLibrary._mergeEntryInto(entries[targetIndex], entry);
+                }
+
+                for (const key of HFStatsLibrary._entryMergeKeys(entries[targetIndex])) {
+                    keyToIndex.set(key, targetIndex);
+                }
+            }
+        }
+
+        let merged = entries.map(e => ({
+            ...e,
+            openMode: mode === "all" ? HFStatsLibrary.getPrimaryMode(e) : mode,
+            totalScore: HFStatsLibrary.computeTotalScore(e, mode)
+        }));
+
+        if (mode !== "all") {
+            merged = merged.filter(e => HFStatsLibrary.computeTotalScore(e, mode) > 0);
+        }
+
+        merged.sort((a, b) => {
+            const scoreA = mode === "all" ? a.totalScore : HFStatsLibrary.computeTotalScore(a, mode);
+            const scoreB = mode === "all" ? b.totalScore : HFStatsLibrary.computeTotalScore(b, mode);
+            return scoreB - scoreA;
+        });
+
+        return merged.slice(0, limit);
+    }
+
+    static getCachedTopNovels(mode = "all", limit = 20) {
+        const cacheKey = `${mode}:${limit}`;
+        const cached = HFStatsLibrary._memoryCache.get(cacheKey);
+        if (cached && Date.now() - cached.ts < 300000) {
+            return cached.data;
+        }
+        return null;
+    }
+
+    static async fetchTopNovels({ mode = "all", limit = 20, timeoutMs = HFStatsLibrary.FETCH_TIMEOUT_MS, forceRefresh = false } = {}) {
+        const cached = HFStatsLibrary.getCachedTopNovels(mode, limit);
+        if (!forceRefresh && cached) {
+            return cached;
+        }
+
+        HFStatsLibrary._clearLegacyWorkerBlocks();
+        const localEntries = HFStatsLibrary.getLocalTopEntries(mode, limit);
+
+        const workerController = new AbortController();
+        const workerTimer = setTimeout(() => workerController.abort(), timeoutMs);
+        let workerEntries = null;
+        try {
+            workerEntries = await HFStatsLibrary._fetchTopFromWorker(mode, limit, workerController.signal);
+        } finally {
+            clearTimeout(workerTimer);
+        }
+
+        const merged = HFStatsLibrary._mergeEntryLists([workerEntries, localEntries], mode, limit);
+
+        let source = "local";
+        if (workerEntries?.length && localEntries.length) {
+            source = "worker+local";
+        } else if (workerEntries?.length) {
+            source = "worker";
+        }
+
+        const data = { entries: merged, source };
+        if (workerEntries !== null) {
+            HFStatsLibrary._memoryCache.set(`${mode}:${limit}`, { ts: Date.now(), data });
+        }
+        return data;
     }
 
     static _normalizeEntries(data, mode, limit) {
@@ -238,6 +519,7 @@ class HFStatsLibrary { // eslint-disable-line no-unused-vars
         }
         entries = entries
             .filter(e => e && e.url)
+            .filter(e => !HFStatsLibrary.isSampleEntry(e))
             .filter(e => mode === "all" || HFStatsLibrary.computeTotalScore(e, mode) > 0)
             .map(e => ({
                 url: e.url,

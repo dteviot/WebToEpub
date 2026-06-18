@@ -460,7 +460,17 @@ const util = (function() {
     }
 
     function getFirstImgSrc(dom, selector) {
-        return dom.querySelector(selector)?.querySelector("img")?.src ?? null;
+        return extractImgSrc(dom.querySelector(selector)?.querySelector("img"));
+    }
+
+    function extractImgSrc(img) {
+        if (img) {
+            let srcAttr = img.getAttribute("src");
+            if (srcAttr && srcAttr.trim() !== "") {
+                return img.src;
+            }
+        }
+        return null;
     }
 
     function extractHashFromUri(uri) {
@@ -729,6 +739,26 @@ const util = (function() {
                 || url.protocol.startsWith("https:");
         } catch (e) {
             return false;
+        }
+    }
+
+    /** Normalize user-entered http(s) URLs; returns null when invalid. */
+    function normalizeHttpUrl(raw) {
+        let url = String(raw ?? "").trim();
+        if (isNullOrEmpty(url)) {
+            return null;
+        }
+        if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(url)) {
+            url = "https://" + url.replace(/^\/+/, "");
+        }
+        try {
+            let parsed = new URL(url);
+            if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                return null;
+            }
+            return parsed.href;
+        } catch (_) {
+            return null;
         }
     }
 
@@ -1216,6 +1246,7 @@ const util = (function() {
         isInlineElement: isInlineElement,
         isBlockElement: isBlockElement,
         getFirstImgSrc: getFirstImgSrc,
+        extractImgSrc: extractImgSrc,
         makeRelative: makeRelative,
         makeStorageFileName: makeStorageFileName,
         extractHashFromUri: extractHashFromUri,
@@ -1246,6 +1277,7 @@ const util = (function() {
         isElementWhiteSpace: isElementWhiteSpace,
         isHeaderTag: isHeaderTag,
         isUrl: isUrl,
+        normalizeHttpUrl: normalizeHttpUrl,
         isTextAreaField: isTextAreaField,
         isTextInputField: isTextInputField,
         isXhtmlInvalid: isXhtmlInvalid,

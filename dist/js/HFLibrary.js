@@ -30,11 +30,27 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     // ─── Token Management ────────────────────────────────────────
+    // HF write tokens must never live in browser code or GitHub Pages.
+    // Website mode and the default worker proxy route all HF API calls server-side.
+    static _usesWorkerProxy() {
+        return !!HFLibrary.WORKER_URL;
+    }
+
+    static _isWebsiteMode() {
+        return typeof window !== "undefined" && window.WTE_WEBSITE_MODE === true;
+    }
+
     static getToken() {
+        if (HFLibrary._usesWorkerProxy() || HFLibrary._isWebsiteMode()) {
+            return "";
+        }
         return localStorage.getItem("hf_token") || "";
     }
 
     static setToken(token) {
+        if (HFLibrary._usesWorkerProxy() || HFLibrary._isWebsiteMode()) {
+            return;
+        }
         const trimmed = (token || "").trim();
         if (trimmed) {
             localStorage.setItem("hf_token", trimmed);
@@ -44,12 +60,15 @@ class HFLibrary { // eslint-disable-line no-unused-vars
     }
 
     static hasToken() {
-        return !!HFLibrary.WORKER_URL || !!HFLibrary.getToken();
+        return HFLibrary._usesWorkerProxy();
     }
 
     static ensureTokenConfigured(interactive = false) {
-        if (HFLibrary.WORKER_URL) {
-            return "worker_active"; // Worker handles token securely
+        if (HFLibrary._usesWorkerProxy()) {
+            return "worker_active"; // Worker holds HF token server-side
+        }
+        if (HFLibrary._isWebsiteMode()) {
+            throw new Error("Hugging Face access is proxied through the worker in website mode.");
         }
         let token = HFLibrary.getToken();
         if (token) {
@@ -69,7 +88,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
         const headers = {
             "Content-Type": "application/json"
         };
-        if (!HFLibrary.WORKER_URL) {
+        if (!HFLibrary._usesWorkerProxy() && !HFLibrary._isWebsiteMode()) {
             const token = HFLibrary.ensureTokenConfigured(false);
             if (!token) throw new Error("No Hugging Face token configured.");
             headers["Authorization"] = `Bearer ${token}`;
@@ -79,7 +98,7 @@ class HFLibrary { // eslint-disable-line no-unused-vars
 
     static _uploadHeaders() {
         const headers = {};
-        if (!HFLibrary.WORKER_URL) {
+        if (!HFLibrary._usesWorkerProxy() && !HFLibrary._isWebsiteMode()) {
             const token = HFLibrary.ensureTokenConfigured(false);
             if (!token) throw new Error("No Hugging Face token configured.");
             headers["Authorization"] = `Bearer ${token}`;

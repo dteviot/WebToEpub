@@ -168,75 +168,6 @@ class HttpClient {
         return {};
     }
 
-    /**
-     * Optional session cookies for wtr-lab.com (paste Netscape export or "Cookie:" header in Advanced options).
-     * Sent on requests to wtr-lab.com and *.wtr-lab.com. Public CORS proxies may still strip headers.
-     */
-    static setWtrLabCookiesFromUserInput(raw) {
-        HttpClient.wtrLabCookieHeader = HttpClient.parseNetscapeOrCookieHeader(raw || "");
-    }
-
-    static parseNetscapeOrCookieHeader(text) {
-        text = (text || "").trim();
-        if (!text) {
-            return "";
-        }
-        if (text.includes("\t")) {
-            let parts = [];
-            for (let rawLine of text.split(/\r?\n/)) {
-                let line = rawLine.trim();
-                if (!line) {
-                    continue;
-                }
-                if (line.startsWith("#HttpOnly_")) {
-                    line = line.replace(/^#HttpOnly_/, "");
-                } else if (line.startsWith("#")) {
-                    continue;
-                }
-                let cols = line.split("\t");
-                if (cols.length >= 7) {
-                    let name = cols[5];
-                    let value = cols.slice(6).join("\t");
-                    if (name) {
-                        parts.push(name + "=" + value);
-                    }
-                }
-            }
-            if (parts.length > 0) {
-                return parts.join("; ");
-            }
-        }
-        if (/^cookie\s*:/i.test(text)) {
-            text = text.replace(/^cookie\s*:/i, "").trim();
-        }
-        return text.replace(/\s*;\s*/g, "; ").trim();
-    }
-
-    static applyWtrLabCookieHeaderIfNeeded(fetchOptions, targetUrl) {
-        let cookie = HttpClient.wtrLabCookieHeader;
-        if (!cookie || !String(cookie).trim()) {
-            return;
-        }
-        let host = "";
-        try {
-            host = new URL(targetUrl).hostname;
-        } catch (e) {
-            return;
-        }
-        if (host !== "wtr-lab.com" && !host.endsWith(".wtr-lab.com")) {
-            return;
-        }
-        if (!fetchOptions.headers) {
-            fetchOptions.headers = { Cookie: cookie };
-            return;
-        }
-        if (typeof fetchOptions.headers.set === "function") {
-            fetchOptions.headers.set("Cookie", cookie);
-            return;
-        }
-        fetchOptions.headers = Object.assign({}, fetchOptions.headers, { Cookie: cookie });
-    }
-
     static wrapFetch(url, wrapOptions) {
         if (wrapOptions == null) {
             wrapOptions = {
@@ -285,7 +216,14 @@ class HttpClient {
         if (url == null) {
             throw new Error("URL is null or undefined");
         }
-        url = String(url).trim();
+        const normalized = util.normalizeHttpUrl(url);
+        if (!normalized) {
+            const raw = String(url).trim();
+            throw new Error(raw
+                ? `Invalid URL: ${raw}`
+                : "Please enter a web page URL.");
+        }
+        url = normalized;
 
         if (BlockedHostNames.has(new URL(url).hostname)) {
             let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
@@ -297,8 +235,6 @@ class HttpClient {
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
-        HttpClient.applyWtrLabCookieHeaderIfNeeded(wrapOptions.fetchOptions, url);
-
         if (wrapOptions.errorHandler == null) {
             wrapOptions.errorHandler = new FetchErrorHandler();
         }
@@ -315,7 +251,12 @@ class HttpClient {
                 !(targetHostname === "ko-fi.com" && activeProxyUrl.includes("corsproxy.io"))) {
                 
                 try {
-                    const fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    let fetchUrl = activeProxyUrl + encodeURIComponent(url.trim());
+                    if (activeProxyUrl.includes("lovable.app") && wrapOptions.fetchOptions && wrapOptions.fetchOptions.headers) {
+                        try {
+                            fetchUrl += "&headers=" + encodeURIComponent(JSON.stringify(wrapOptions.fetchOptions.headers));
+                        } catch (e) {}
+                    }
                     const ctrl = new AbortController();
                     const tid = setTimeout(() => ctrl.abort(), 6000); // Snappy 6s timeout for active proxy
                     const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
@@ -390,7 +331,12 @@ class HttpClient {
             for (let proxyUrl of raceProxies) {
                 const ctrl = new AbortController();
                 controllerMap.set(proxyUrl, ctrl);
-                const fetchUrl = proxyUrl + encodeURIComponent(url.trim());
+                let fetchUrl = proxyUrl + encodeURIComponent(url.trim());
+                if (proxyUrl.includes("lovable.app") && wrapOptions.fetchOptions && wrapOptions.fetchOptions.headers) {
+                    try {
+                        fetchUrl += "&headers=" + encodeURIComponent(JSON.stringify(wrapOptions.fetchOptions.headers));
+                    } catch (e) {}
+                }
                 const fetchOpts = Object.assign({}, wrapOptions.fetchOptions, {
                     credentials: "omit",
                     signal: ctrl.signal
@@ -406,8 +352,13 @@ class HttpClient {
                         let response = await fetch(fetchUrl, fetchOpts);
                         clearTimeout(tid);
                         if (!response.ok) throw new Error(`${response.status}`);
-                        let text = await response.clone().text();
-                        if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                        
+                        let arrayBuffer = await response.clone().arrayBuffer();
+                        if (!HttpClient.isImageBuffer(arrayBuffer)) {
+                            let text = new TextDecoder("utf-8").decode(arrayBuffer);
+                            if (HttpClient.isCloudflareBlock(text)) throw new Error("Cloudflare block page");
+                            if (HttpClient.isGarbledResponse(text)) throw new Error("Garbled response");
+                        }
                         
                         resolve({ response, proxyUrl });
                     } catch (err) {
@@ -506,12 +457,19 @@ class HttpClient {
                 HttpClient.proxyRacePromise = null;
 
                 if (wrapOptions.bypassDirectFetchFallback) {
-                    return Promise.reject(new Error(`Proxy error: All proxies failed.`));
+                    return Promise.reject(new Error("Proxy error: All proxies failed."));
                 }
                 // AggregateError — every proxy failed or timed out
                 console.warn("[WebToEpub] All proxies failed. Falling back to direct fetch:", url);
                 let newOptions = Object.assign({}, wrapOptions, { bypassProxy: true });
-                return HttpClient.wrapFetchImpl(url, newOptions);
+                try {
+                    return await HttpClient.wrapFetchImpl(url, newOptions);
+                } catch (fallbackErr) {
+                    let host = url;
+                    try { host = new URL(url).hostname; } catch(e){}
+                    let customMsg = `Failed to fetch from ${host}. All CORS proxies were blocked (likely by Cloudflare or Anti-Bot protection) and direct fetch failed due to CORS. Please use the WebToEpub Chrome Extension, which can bypass Cloudflare using your browser session.`;
+                    return Promise.reject(new Error(customMsg));
+                }
             }
         }
 
@@ -546,6 +504,12 @@ class HttpClient {
                 HttpClient.updateCorsProxyUi();
 
                 return HttpClient.wrapFetchImpl(url, wrapOptions);
+            }
+            if (error.message === "Cloudflare block page") {
+                delete wrapOptions.bypassProxy;
+                delete wrapOptions._waitedForRace;
+                let fakeResponse = { url: url, status: 524 };
+                return wrapOptions.errorHandler.onResponseError(url, wrapOptions, fakeResponse, error.message);
             }
 
             return wrapOptions.errorHandler.onFetchError(url, error);
@@ -731,18 +695,43 @@ class HttpClient {
      * @param {Error|any} err The error to analyze
      * @returns {boolean} True if the proxy should be blacklisted
      */
+    static isGarbledResponse(text) {
+        if (!text || text.length < 500) return false;
+        let replacementChars = (text.match(/\uFFFD/g) || []).length;
+        return replacementChars / text.length > 0.05;
+    }
+
+    static isImageBuffer(arrayBuffer) {
+        let view = new Uint8Array(arrayBuffer, 0, Math.min(arrayBuffer.byteLength, 12));
+        if (view.length < 4) return false;
+        // PNG: 89 50 4E 47
+        if (view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) return true;
+        // JPEG: FF D8 FF
+        if (view[0] === 0xFF && view[1] === 0xD8 && view[2] === 0xFF) return true;
+        // GIF: 47 49 46 38 (GIF8)
+        if (view[0] === 0x47 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x38) return true;
+        // WEBP: starts with "RIFF" and has "WEBP" at byte 8
+        if (view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46 && view.length >= 12 && view[8] === 0x57 && view[9] === 0x45 && view[10] === 0x42 && view[11] === 0x50) return true;
+        return false;
+    }
+
     static isCloudflareBlock(text) {
         if (!text || text.length < 200) return false;
         let lower = text.toLowerCase();
         return lower.includes("window._cf_chl_opt") ||
             lower.includes("cf-challenge-") ||
             lower.includes("cf-browser-verification") ||
+            lower.includes("id=\"cf-wrapper\"") ||
+            lower.includes("error code: 522") ||
+            lower.includes("error code: 1020") ||
+            lower.includes("522: connection timed out") ||
             (lower.includes("cloudflare") && (
                 lower.includes("<title>just a moment...</title>") ||
                 lower.includes("<title>attention required") ||
                 lower.includes("please complete the security check") ||
                 lower.includes("checking your browser before accessing") ||
                 lower.includes("enable javascript and cookies") ||
+                lower.includes("connection timed out") ||
                 (lower.includes("access denied") && (lower.includes("ray id") || lower.includes("error 10") || lower.includes("error 403")))
             ));
     }
@@ -785,11 +774,11 @@ HttpClient.CORS_PROXIES = [
     { name: "cors.lol", url: "https://api.cors.lol/?url=" },
     { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
     { name: "Render Proxy", url: "https://render-proxy-1-hjm6.onrender.com/proxy?url=" },
-    { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" }
+    { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" },
+    { name: "Lovable Proxy", url: "https://loveable-proxy-forwebtoepub.lovable.app/api/proxy?url=" }
 ];
 HttpClient.corsProxyUrl = HttpClient.CORS_PROXIES[0].url;
 HttpClient.enableCorsProxy = true;
-HttpClient.wtrLabCookieHeader = "";
 
 class FetchResponseHandler {
     isHtml() {
@@ -821,7 +810,17 @@ class FetchResponseHandler {
 
     responseToHtml(response) {
         return response.arrayBuffer().then(function(rawBytes) {
+            // Some proxies incorrectly return text/html for binary images. Sniff the bytes first!
+            if (HttpClient.isImageBuffer(rawBytes)) {
+                this.arrayBuffer = rawBytes;
+                this.contentType = "unknown/unknown"; // override so isHtml() becomes false and ImageCollector fallback detection runs
+                return this;
+            }
+
             let data = this.makeTextDecoder(response).decode(rawBytes);
+            if (HttpClient.isCloudflareBlock(data)) {
+                throw new Error("Cloudflare block page");
+            }
             // Strip speculative preload tags to prevent relative asset fetches through proxies
             data = data.replace(/<link\s+[^>]*?rel=["']preload["'][^>]*?>/gi, "");
             let html = new DOMParser().parseFromString(data, "text/html");
@@ -837,6 +836,27 @@ class FetchResponseHandler {
             // Use the original target URL stored in setResponse — this is reliable
             // even when a proxy performs a server-side redirect that mutates response.url.
             util.setBaseTag(this.originalUrl, html);
+            
+            // Unproxy all absolute links returned by proxies to ensure parsers see original URLs
+            for (let a of html.querySelectorAll("a")) {
+                if (a.href) {
+                    try {
+                        a.href = HttpClient.unproxyUrl(a.href);
+                    } catch (e) {
+                        // ignore invalid urls
+                    }
+                }
+            }
+            for (let img of html.querySelectorAll("img")) {
+                if (img.src) {
+                    try {
+                        img.src = HttpClient.unproxyUrl(img.src);
+                    } catch (e) {
+                        // ignore invalid urls
+                    }
+                }
+            }
+
             this.responseXML = html;
             this.responseText = data;
             return this;
@@ -852,7 +872,11 @@ class FetchResponseHandler {
 
     responseToText(response) {
         return response.arrayBuffer().then(function(rawBytes) {
-            return this.makeTextDecoder(response).decode(rawBytes);
+            let data = this.makeTextDecoder(response).decode(rawBytes);
+            if (HttpClient.isCloudflareBlock(data)) {
+                throw new Error("Cloudflare block page");
+            }
+            return data;
         }.bind(this));
     }
 

@@ -393,10 +393,8 @@ class LiveReaderUI {
 
         this._renderCoverPage();
 
-        // Pre-fetch first chapters
-        for (let i = 0; i < Math.min(this.lazyPrefetchCount, this.toc.length); i++) {
-            this._loadChapterIntoCache(i).catch(() => {});
-        }
+        // Pre-fetch first chapters sequentially
+        this._triggerPrefetch(0);
 
         if (chapterIndex > 0) {
             setTimeout(() => this.loadChapter(chapterIndex), 200);
@@ -489,10 +487,8 @@ class LiveReaderUI {
             `;
 
             if (this.observer) this.observer.observe(wrapper);
-            // Pre-fetch ahead
-            for (let i = index + 1; i < index + 1 + this.lazyPrefetchCount && i < this.toc.length; i++) {
-                this._loadChapterIntoCache(i).catch(() => {});
-            }
+            // Pre-fetch ahead sequentially
+            this._triggerPrefetch(index + 1);
         } catch (err) {
             wrapper.classList.remove("lr-placeholder-loading");
             wrapper.innerHTML = `
@@ -543,6 +539,10 @@ class LiveReaderUI {
                 } catch (_) {}
             }
             if (!doc) {
+                // Respect parser rate limits to avoid 429s (especially on fanmtl/Cloudflare)
+                if (this.parser && typeof this.parser.rateLimitDelay === "function") {
+                    await this.parser.rateLimitDelay();
+                }
                 let xhr = await HttpClient.wrapFetch(chapter.href);
                 doc = xhr?.responseXML;
                 if (!doc && xhr?.responseText) {
@@ -627,10 +627,22 @@ class LiveReaderUI {
         this.currentChapterIndex = index;
         this._updateActiveTocHighlight();
 
-        // Prefetch ahead
-        for (let i = index + 1; i < index + 1 + this.lazyPrefetchCount && i < this.toc.length; i++) {
-            this._loadChapterIntoCache(i).catch(() => {});
-        }
+        // Prefetch ahead sequentially
+        this._triggerPrefetch(index + 1);
+    }
+
+    _triggerPrefetch(startIndex) {
+        if (!this._prefetchQueue) this._prefetchQueue = Promise.resolve();
+        
+        let targetEnd = Math.min(startIndex + this.lazyPrefetchCount, this.toc.length);
+        
+        this._prefetchQueue = this._prefetchQueue.then(async () => {
+            for (let i = startIndex; i < targetEnd; i++) {
+                // If it's already cached, skip it instantly
+                if (this.lazyCache.has(i)) continue;
+                await this._loadChapterIntoCache(i).catch(() => {});
+            }
+        });
     }
 
     // ─────────────────────────────────────────

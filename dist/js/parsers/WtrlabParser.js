@@ -33,10 +33,6 @@ class WtrlabParser extends Parser {
         // leaving old code in case it gets solved.
         // document.getElementById("selectTranslationAiRow").hidden = false;
         document.getElementById("selectRetryLongerRow").hidden = false;
-        let wtrLabCookieRow = document.getElementById("wtrLabCookieRow");
-        if (wtrLabCookieRow) {
-            wtrLabCookieRow.hidden = false;
-        }
     }
 
     async getChapterUrls(dom) {
@@ -76,48 +72,40 @@ class WtrlabParser extends Parser {
 
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
 
-        let websiteMode = typeof HttpClient !== "undefined" && HttpClient.enableCorsProxy;
-        let wtrCookies = typeof HttpClient !== "undefined" && HttpClient.wtrLabCookieHeader && HttpClient.wtrLabCookieHeader.trim();
-        let fetchGlossaryApis = !websiteMode || wtrCookies;
-        if (!fetchGlossaryApis) {
+        let serie_id = chapters.chapters[0].serie_id;
+        try {
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config", { bypassProxy: true })).json;
+            terms = (terms?.config?.terms ?? []).filter(a => (a[4] == null) || (a[4].includes(serie_id)));
+            terms = terms.map(a => ({ from: a[2].split("|"), to: a[1] }));
+            let index = 0;
             this.termsuser = [];
+            for (let i = 0; i < terms.length; i++) {
+                for (let j = 0; j < terms[i].from.length; j++) {
+                    this.termsuser[index] = ({ from: terms[i].from[j], to: terms[i].to });
+                    index++;
+                }
+            }
+        } catch (error) {
+            this.termsuser = [];
+        }
+        // entire stories have their own terms that supersede the chapter ones
+        try {
+            let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/reader/terms/" + id + ".json")).json;
+            let termstmp = {};
+            for (let i = 0; i < terms?.glossaries?.length; i++) {
+                for (let j = 0; j < terms.glossaries[i]?.data?.terms?.length; j++) {
+                    if (terms.glossaries[i]?.data.terms[j]?.length > 1 && terms.glossaries[i]?.data.terms[j][0].length > 0) {
+                        termstmp[terms.glossaries[i].data.terms[j][1]] = terms.glossaries[i].data.terms[j][0][0];
+                    }
+                }
+            }
             this.termsstory = [];
-        } else {
-            let serie_id = chapters.chapters[0].serie_id;
-            try {
-                let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
-                terms = (terms?.config?.terms ?? []).filter(a => (a[4] == null) || (a[4].includes(serie_id)));
-                terms = terms.map(a => ({ from: a[2].split("|"), to: a[1] }));
-                let index = 0;
-                this.termsuser = [];
-                for (let i = 0; i < terms.length; i++) {
-                    for (let j = 0; j < terms[i].from.length; j++) {
-                        this.termsuser[index] = ({ from: terms[i].from[j], to: terms[i].to });
-                        index++;
-                    }
-                }
-            } catch (error) {
-                this.termsuser = [];
+            let index = 0;
+            for (let key in termstmp) {
+                this.termsstory[index++] = ({ from: key, to: termstmp[key] });
             }
-            // entire stories have their own terms that supersede the chapter ones
-            try {
-                let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/reader/terms/" + id + ".json")).json;
-                let termstmp = {};
-                for (let i = 0; i < terms?.glossaries?.length; i++) {
-                    for (let j = 0; j < terms.glossaries[i]?.data?.terms?.length; j++) {
-                        if (terms.glossaries[i]?.data.terms[j]?.length > 1 && terms.glossaries[i]?.data.terms[j][0].length > 0) {
-                            termstmp[terms.glossaries[i].data.terms[j][1]] = terms.glossaries[i].data.terms[j][0][0];
-                        }
-                    }
-                }
-                this.termsstory = [];
-                let index = 0;
-                for (let key in termstmp) {
-                    this.termsstory[index++] = ({ from: key, to: termstmp[key] });
-                }
-            } catch (error) {
-                this.termsstory = [];
-            }
+        } catch (error) {
+            this.termsstory = [];
         }
         return chapters.chapters.map(a => ({
             sourceUrl: "https://wtr-lab.com/" + language + "/novel/" + id + "/" + this.slug + "/chapter-" + a.order,
@@ -201,7 +189,10 @@ class WtrlabParser extends Parser {
         }
 
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
-        let formData = {
+        let header = { "Content-Type": "application/json;charset=UTF-8" };
+
+        // Try AI translation first (best quality — English output)
+        let aiFormData = {
             "translate": "ai",
             "language": language,
             "raw_id": id,
@@ -209,15 +200,176 @@ class WtrlabParser extends Parser {
             "retry": false,
             "force_retry": false
         };
-        let header = { "Content-Type": "application/json;charset=UTF-8" };
-        let options = {
+        let aiOptions = {
             method: "POST",
-            body: JSON.stringify(formData),
+            body: JSON.stringify(aiFormData),
             headers: header,
+            credentials: "include",
             parser: this
         };
-        let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        return this.buildChapter(json, url);
+
+        let aiResp;
+        try {
+            aiResp = (await HttpClient.fetchJson(fetchUrl, aiOptions)).json;
+            if (aiResp?.code !== 1401) {
+                return this.buildChapter(aiResp, url);
+            }
+        } catch (e) {
+            // If it's a login-required error thrown by our custom handler, fall through
+            // to webplus. Any other error re-throw.
+            let errMsg = e.errorMessage || e.message || "";
+            if (!errMsg.includes("requires you to be logged in")) {
+                throw e;
+            }
+        }
+
+        // AI requires login for this chapter — fall back to webplus (free, AES-GCM encrypted raw text)
+        let wpFormData = {
+            "translate": "webplus",
+            "language": language,
+            "raw_id": id,
+            "chapter_no": chapter,
+            "retry": false,
+            "force_retry": false
+        };
+        let wpOptions = {
+            method: "POST",
+            body: JSON.stringify(wpFormData),
+            headers: header,
+            credentials: "include"
+            // No parser: skip custom error handler for webplus (different response format)
+        };
+        let wpJson = (await HttpClient.fetchJson(fetchUrl, wpOptions)).json;
+        return this.buildChapterFromWebPlus(wpJson, url);
+    }
+
+    static async decryptWtrlabBody(encryptedStr) {
+        if (typeof encryptedStr !== "string") {
+            return encryptedStr;
+        }
+        
+        let isArray = false;
+        let dataStr = encryptedStr;
+        if (dataStr.startsWith("arr:")) {
+            isArray = true;
+            dataStr = dataStr.substring(4);
+        } else if (dataStr.startsWith("str:")) {
+            dataStr = dataStr.substring(4);
+        } else {
+            return encryptedStr; // Not encrypted or unknown format
+        }
+
+        let parts = dataStr.split(":");
+        if (parts.length < 3) return encryptedStr;
+        
+        let iv = Uint8Array.from(atob(parts[0]), c => c.charCodeAt(0));
+        let tag = Uint8Array.from(atob(parts[1]), c => c.charCodeAt(0));
+        let cipherB64 = parts.slice(2).join(":"); // Handle possible colons in base64 padding
+        let cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+        
+        // GCM ciphertext = cipher_bytes + tag_bytes
+        let combined = new Uint8Array(cipher.length + tag.length);
+        combined.set(cipher);
+        combined.set(tag, cipher.length);
+        
+        let rawKey = new TextEncoder().encode("IJAFUUxjM25hyzL2AZrn0wl7cESED6Ru".slice(0, 32));
+        let cryptoKey = await crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
+        let decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, cryptoKey, combined);
+        let decodedStr = new TextDecoder().decode(decrypted);
+        
+        return isArray ? JSON.parse(decodedStr) : decodedStr;
+    }
+
+    async translateText(paragraphs) {
+        if (!paragraphs || paragraphs.length === 0) return paragraphs;
+
+        // Quick heuristic to check if it looks like English (contains a lot of ASCII chars)
+        // If it's mostly Chinese characters, it's not English.
+        let sample = paragraphs.slice(0, 5).join(" ");
+        let englishChars = sample.match(/[a-zA-Z]/g)?.length || 0;
+        if (englishChars > sample.length * 0.5) {
+            return paragraphs; // Already seems like English
+        }
+
+        try {
+            let translatedParagraphs = [];
+            let currentBatch = [];
+            let currentLength = 0;
+            const MAX_LEN = 3500;
+
+            let flushBatch = async () => {
+                if (currentBatch.length === 0) return;
+                let text = currentBatch.join("\n\n");
+                let url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + encodeURIComponent(text);
+                let resp = await HttpClient.fetchJson(url);
+                let data = resp.json;
+                let translatedText = "";
+                for (let part of data[0]) {
+                    if (part[0]) {
+                        translatedText += part[0];
+                    }
+                }
+                translatedParagraphs.push(...translatedText.split("\n\n").map(s => s.trim()));
+                currentBatch = [];
+                currentLength = 0;
+            };
+
+            for (let p of paragraphs) {
+                if (currentLength + p.length > MAX_LEN) {
+                    await flushBatch();
+                }
+                currentBatch.push(p);
+                currentLength += p.length + 2; // +2 for \n\n
+            }
+            await flushBatch();
+
+            // Fallback if lengths don't match exactly, but usually split works fine
+            if (translatedParagraphs.length > 0) {
+                 return translatedParagraphs;
+            }
+            return paragraphs;
+        } catch (e) {
+            console.error("Auto-translate failed:", e);
+            return paragraphs; // Fallback to raw text if translation fails
+        }
+    }
+
+    async buildChapterFromWebPlus(json, url) {
+        let chapterInfo = json?.chapter ?? {};
+        let encryptedBody = json?.data?.data?.body ?? "";
+        let paragraphs;
+        try {
+            paragraphs = await WtrlabParser.decryptWtrlabBody(encryptedBody);
+        } catch (e) {
+            throw new Error("wtr-lab webplus decryption failed for " + url + ": " + e.message);
+        }
+        if (!Array.isArray(paragraphs) || paragraphs.length === 0) {
+            throw new Error("wtr-lab webplus returned empty content for " + url);
+        }
+        
+        paragraphs = await this.translateText(paragraphs);
+
+        let leaves = url.split("/");
+        let chapterNum = leaves[leaves.length - 1].split("?")[0].replace("chapter-", "");
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        let title = newDoc.dom.createElement("h1");
+        
+        let titleText = chapterInfo.title ?? (chapterNum + " (Translated)");
+        // Translate title if needed
+        let translatedTitle = await this.translateText([titleText]);
+        titleText = translatedTitle[0] || titleText;
+
+        title.textContent = this.shouldRemoveChapterNumber() ? titleText : chapterNum + ": " + titleText;
+        newDoc.content.appendChild(title);
+        let br = newDoc.dom.createElement("br");
+        for (let line of paragraphs) {
+            if (typeof line !== "string" || line.trim() === "") continue;
+            let p = newDoc.dom.createElement("p");
+            p.textContent = line;
+            newDoc.content.appendChild(p);
+            newDoc.content.appendChild(br.cloneNode());
+        }
+        return newDoc.dom;
     }
 
     buildChapterFromNext(json, url) {
@@ -242,6 +394,10 @@ class WtrlabParser extends Parser {
     }
 
     isCustomError(response) {
+        // code 1401 = login required — not a retryable error, handle separately
+        if (response.json?.code === 1401) {
+            return true;
+        }
         if (response.json?.data?.data?.body ? false : true) {
             return true;
         }
@@ -252,7 +408,21 @@ class WtrlabParser extends Parser {
     }
 
     setCustomErrorResponse(url, wrapOptions, checkedresponse) {
-        if (checkedresponse.json?.requireTurnstile || checkedresponse.json?.code == 1401) {
+        // code 1401 = "You are not logged in!" — chapters past the free limit require a wtr-lab account.
+        // Do NOT retry (would loop forever). Throw immediately with a descriptive message.
+        if (checkedresponse.json?.code === 1401) {
+            let body = JSON.parse(wrapOptions.fetchOptions.body);
+            let chapterUrl = this.PostToUrl(checkedresponse.response.url, body);
+            let newresp = {};
+            newresp.url = url;
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = { url: chapterUrl, status: 401 };
+            newresp.errorMessage = "wtr-lab.com requires you to be logged in to download chapter " + body.chapter_no + ".\n" +
+                "This novel has exceeded the free chapter limit.\n" +
+                "URL: " + chapterUrl;
+            return newresp;
+        }
+        if (checkedresponse.json?.requireTurnstile) {
             let newresp = {};
             newresp.url = url;
             newresp.wrapOptions = wrapOptions;

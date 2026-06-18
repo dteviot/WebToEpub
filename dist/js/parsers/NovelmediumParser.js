@@ -20,7 +20,7 @@ class NovelmediumParser extends Parser {
         let script = [...dom.querySelectorAll("script")]
             .filter(s => s.innerText.includes("__NUXT__"))[0];
         let blobs = script.innerText.split("{id:");
-        let leaf = url.substring(url.lastIndexOf("/") + 1);
+        let leaf = url.split(/%2F|\//).pop();
         let blob = blobs.filter(b => b.includes(leaf))[0];
         return blob.split(",")[0];
     }

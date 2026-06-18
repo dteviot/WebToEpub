@@ -24,7 +24,7 @@ class FuhuzzParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("img")) ?? null;
     }
     
     async fetchChapter(url) {

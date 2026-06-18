@@ -67,7 +67,7 @@ class ParserState {
 class Parser {    
     constructor(imageCollector) {
         this.minimumThrottle = 500;
-        this.maxSimultanousFetchSize = 4;
+        this.maxSimultanousFetchSize = 1;
         this.state = new ParserState();
         this.imageCollector = imageCollector || new ImageCollector();
         this.userPreferences = null;
@@ -220,7 +220,7 @@ class Parser {
             if (content != null) {
                 let cover = content.querySelector("img");
                 if (cover != null) {
-                    return cover.src;
+                    return util.extractImgSrc(cover);
                 }
             }
         }
@@ -616,7 +616,7 @@ class Parser {
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
                 if (HttpClient.enableCorsProxy && HttpClient.corsProxyUrl) {
-                    console.warn(`[WebToEpub] Content not found on page. (Proxy issue possible, but not blacklisted)`);
+                    console.warn("[WebToEpub] Content not found on page. (Proxy issue possible, but not blacklisted)");
                 }
                 let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
                 throw new Error(errorMsg);

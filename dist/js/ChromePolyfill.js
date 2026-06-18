@@ -11,6 +11,8 @@
 
 // Flag to signal website mode to other JS modules (e.g. Download.js)
 window.WTE_WEBSITE_MODE = true;
+// Never keep HF tokens in browser storage on the public website — worker proxy handles auth.
+try { localStorage.removeItem("hf_token"); } catch (_) { /* ignore */ }
 
 // ---------------------------------------------------------------------------
 // Inlined English messages (from _locales/en/messages.json)

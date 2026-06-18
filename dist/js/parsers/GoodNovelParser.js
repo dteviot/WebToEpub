@@ -85,7 +85,7 @@ class GoodNovelParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".bib_img>img").src;
+        return util.extractImgSrc(dom.querySelector(".bib_img>img"));
     }
 
     getInformationEpubItemChildNodes(dom) {

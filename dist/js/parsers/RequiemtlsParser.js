@@ -34,7 +34,7 @@ class RequiemtlsParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("div.thumbook img.ts-post-image")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector("div.thumbook img.ts-post-image")) ?? null;
     }
 
     async fetchChapter(url) {

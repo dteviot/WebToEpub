@@ -27,7 +27,7 @@ class BuntlsParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector(".story__thumbnail img")?.src ?? null;
+        return util.extractImgSrc(dom.querySelector(".story__thumbnail img")) ?? null;
     }
 
     findChapterTitle(dom) {

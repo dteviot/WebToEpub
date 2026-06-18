@@ -229,6 +229,8 @@ class LibraryUI {
         const tabPersonal = document.getElementById("tabLibraryPersonal");
         const tabPublic = document.getElementById("tabLibraryPublic");
         const tabTelegram = document.getElementById("tabLibraryTelegram");
+        const tabMega = document.getElementById("tabLibraryMega");
+        const tabArchive = document.getElementById("tabLibraryArchive");
         const uploadSection = document.querySelector(".library-upload-section");
         const publicSearch = document.getElementById("publicLibrarySearch");
         const clearPublicSearch = document.getElementById("clearPublicSearch");
@@ -256,19 +258,42 @@ class LibraryUI {
 
         const setActiveTab = (tabId) => {
             this.activeLibraryTab = tabId;
-            [tabPersonal, tabPublic, tabTelegram].forEach(tab => {
+            [tabPersonal, tabPublic, tabTelegram, tabMega, tabArchive].forEach(tab => {
                 if (tab) tab.classList.remove("active");
             });
             if (tabId === "personal" && tabPersonal) tabPersonal.classList.add("active");
             if (tabId === "public" && tabPublic) tabPublic.classList.add("active");
             if (tabId === "telegram" && tabTelegram) tabTelegram.classList.add("active");
+            if (tabId === "mega" && tabMega) tabMega.classList.add("active");
+            if (tabId === "archive" && tabArchive) tabArchive.classList.add("active");
+
+            // Hide all views first
+            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView", "archiveLibraryView"];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = "none";
+            });
 
             if (tabId === "personal") {
                 document.getElementById("personalLibraryGrid").style.display = "grid";
-                document.getElementById("publicLibraryView").style.display = "none";
                 if (uploadSection) uploadSection.style.display = "block";
+            } else if (tabId === "mega") {
+                const megaView = document.getElementById("megaLibraryView");
+                if (megaView) megaView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
+                
+                if (window.megaLibrary && !window.megaLibrary.currentFolder) {
+                    window.megaLibrary.loadFolder("https://mega.nz/folder/Ci4ETASB#KIFVuPI99P1Ytg0dxmtYlw");
+                }
+            } else if (tabId === "archive") {
+                const archiveView = document.getElementById("archiveLibraryView");
+                if (archiveView) archiveView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
+                
+                if (window.archiveLibrary && !window.archiveLibrary.isLoaded) {
+                    window.archiveLibrary.loadRoot();
+                }
             } else {
-                document.getElementById("personalLibraryGrid").style.display = "none";
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
                 
@@ -284,15 +309,22 @@ class LibraryUI {
         if (tabPersonal) tabPersonal.addEventListener("click", () => setActiveTab("personal"));
         if (tabPublic) tabPublic.addEventListener("click", () => setActiveTab("public"));
         if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab("telegram"));
+        if (tabMega) tabMega.addEventListener("click", () => setActiveTab("mega"));
+        if (tabArchive) tabArchive.addEventListener("click", () => setActiveTab("archive"));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");
         if (detailsBackBtn) {
             detailsBackBtn.addEventListener("click", () => {
-                document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-                document.getElementById("librariesView").classList.add("active");
-                const globalBackBtn = document.getElementById("globalBackBtn");
-                if (globalBackBtn) globalBackBtn.style.display = "flex";
+                if (typeof window.showView === "function") {
+                    window.showView("librariesView");
+                } else {
+                    const lv = document.getElementById("librariesView");
+                    if (lv) { lv.style.display = "block"; lv.classList.add("active"); }
+                    document.querySelectorAll(".app-view").forEach(v => { if (v.id !== "librariesView") { v.classList.remove("active"); v.style.display = "none"; } });
+                    const globalBackBtn = document.getElementById("globalBackBtn");
+                    if (globalBackBtn) globalBackBtn.style.display = "flex";
+                }
             });
         }
 
@@ -305,7 +337,7 @@ class LibraryUI {
                         if (!url && this.currentDetailsId) {
                             url = this.currentDetailsId; // fallback for legacy saved live books
                         }
-                        const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                        const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
                         const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
                         window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                     } else {
@@ -496,7 +528,7 @@ class LibraryUI {
                     <div class="book-overlay-actions">
                         <button class="book-action-btn read-btn-main">Read Now</button>
                         <button class="book-action-btn download-btn-main">Save File</button>
-                        ${(epubBase64 && epubBase64.startsWith("lazy:")) ? "" : `<button class="book-action-btn share-public-btn" style="background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;">Share Public</button>`}
+                        ${(epubBase64 && epubBase64.startsWith("lazy:")) ? "" : "<button class=\"book-action-btn share-public-btn\" style=\"background: var(--primary, #0078d4) !important; color: #000 !important; font-weight: 800 !important;\">Share Public</button>"}
                     </div>
                 </div>
                 <div class="book-details">
@@ -521,7 +553,7 @@ class LibraryUI {
                 if (epubBase64 && typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
                     let url = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
                     if (!url) url = id;
-                    const isInsidePlugin = window.location.pathname.includes('/plugin/') || window.location.protocol === 'chrome-extension:';
+                    const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
                     const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
                     window.location.href = `${lrPath}?url=${encodeURIComponent(url)}`;
                 } else {
@@ -551,38 +583,38 @@ class LibraryUI {
             if (sharePublicBtn) {
                 sharePublicBtn.addEventListener("click", async () => {
                     const loader = document.getElementById("libraryLoader");
-                if (loader) {
-                    loader.style.display = "flex";
-                    const statusText = loader.querySelector("div:last-child");
-                    if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
-                }
-
-                try {
-                    const token = HFLibrary.ensureTokenConfigured(true);
-                    if (!token) {
-                        throw new Error("Hugging Face token is required to share books publicly.");
+                    if (loader) {
+                        loader.style.display = "flex";
+                        const statusText = loader.querySelector("div:last-child");
+                        if (statusText) statusText.textContent = "Uploading to Hugging Face Open Database...";
                     }
 
-                    // Convert epubBase64 data URL to a Blob
-                    const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
-                    
-                    // Upload to HF Public Library
-                    await HFLibrary.uploadBook(epubBlob, {
-                        title: title,
-                        author: author,
-                        coverDataUrl: cover,
-                        description: description
-                    });
+                    try {
+                        const token = HFLibrary.ensureTokenConfigured(true);
+                        if (!token) {
+                            throw new Error("Hugging Face token is required to share books publicly.");
+                        }
 
-                    alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                        // Convert epubBase64 data URL to a Blob
+                        const epubBlob = await HFLibrary._dataUrlToBlobAsync(epubBase64);
                     
-                    // Trigger a re-render of Public Library to show the new addition
-                    this.renderPublicLibrary();
-                } catch (e) {
-                    alert("Error sharing to public library: " + e.message);
-                } finally {
-                    if (loader) loader.style.display = "none";
-                }
+                        // Upload to HF Public Library
+                        await HFLibrary.uploadBook(epubBlob, {
+                            title: title,
+                            author: author,
+                            coverDataUrl: cover,
+                            description: description
+                        });
+
+                        alert(`Successfully shared "${title}" to the Hugging Face Public Library!`);
+                    
+                        // Trigger a re-render of Public Library to show the new addition
+                        this.renderPublicLibrary();
+                    } catch (e) {
+                        alert("Error sharing to public library: " + e.message);
+                    } finally {
+                        if (loader) loader.style.display = "none";
+                    }
                 });
             }
 
@@ -627,6 +659,7 @@ class LibraryUI {
                     title: book.title,
                     author: book.author,
                     coverPath: book.coverPath,
+                    sourceUrl: book.sourceUrl || "",
                     desc: book.description ? `${book.description} (Size: ${HFLibrary.formatSize(book.size)})` : `Size: ${HFLibrary.formatSize(book.size)} | Shared: ${new Date(book.uploadedAt).toLocaleDateString()}`,
                     isHF: true,
                     isTelegram: isTelegram,
@@ -847,15 +880,37 @@ class LibraryUI {
         return "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
     }
 
-    openBookInReader(base64Data) {
-        // Toggle view
-        document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-        document.getElementById("epubReaderView").classList.add("active");
-        const globalBackBtn = document.getElementById("globalBackBtn");
-        if (globalBackBtn) globalBackBtn.style.display = "none";
-        
-        // Load into viewer
-        this.epubViewer.loadEpub(base64Data);
+    openBookInReader(epubData) {
+        // Pre-show the reader loader BEFORE switching views so the user
+        // always sees a spinner — never a black flash.
+        const readerLoader = document.getElementById("epubReaderLoader");
+        const readerLoaderText = document.getElementById("epubLoaderText");
+        if (readerLoader) {
+            if (readerLoaderText) readerLoaderText.textContent = "Loading EPUB…";
+            readerLoader.style.display = "flex";
+        }
+
+        // Use window.showView if available (sets display:block AND active class correctly)
+        if (typeof window.showView === "function") {
+            // showView is async but we don't await — it will set up the view,
+            // then we load the epub after two rAF frames so the view is painted.
+            window.showView("epubReaderView").then(() => {
+                this.epubViewer.loadEpub(epubData);
+            });
+        } else {
+            // Fallback for extension context where showView isn't exposed
+            const epubReaderView = document.getElementById("epubReaderView");
+            if (epubReaderView) {
+                epubReaderView.style.display = "block";
+            }
+            document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
+            if (epubReaderView) epubReaderView.classList.add("active");
+            const globalBackBtn = document.getElementById("globalBackBtn");
+            if (globalBackBtn) globalBackBtn.style.display = "none";
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                this.epubViewer.loadEpub(epubData);
+            }));
+        }
 
         if (typeof HFStatsLibrary !== "undefined" && this.currentDetailsId != null) {
             this.storage.get([
@@ -1036,6 +1091,130 @@ class LibraryUI {
         }
     }
 
+    async ensureCatalogsLoaded() {
+        const prevTab = this.activeLibraryTab;
+        if (!this.publicCatalog) {
+            this.activeLibraryTab = "public";
+            await this.renderPublicLibrary();
+        }
+        if (!this.telegramCatalog) {
+            this.activeLibraryTab = "telegram";
+            await this.renderPublicLibrary();
+        }
+        this.activeLibraryTab = prevTab;
+    }
+
+    _findPublicBookById(id) {
+        const all = [...(this.publicCatalog || []), ...(this.telegramCatalog || [])];
+        return all.find(b => String(b.id) === String(id)) || null;
+    }
+
+    async _findPersonalBookById(id) {
+        const storageData = await this.storage.get(["LibArray", `LibTitle${id}`, `LibAuthor${id}`, `LibCover${id}`, `LibEpub${id}`, `LibFilename${id}`, `LibDesc${id}`]);
+        const libArray = storageData.LibArray || [];
+        if (!libArray.includes(id)) {
+            return null;
+        }
+        return {
+            id: id,
+            title: storageData[`LibTitle${id}`] || "Unknown Novel",
+            author: storageData[`LibAuthor${id}`] || "Unknown Author",
+            cover: storageData[`LibCover${id}`] || "",
+            epubBase64: storageData[`LibEpub${id}`],
+            filename: storageData[`LibFilename${id}`] || `${storageData[`LibTitle${id}`] || "book"}.epub`,
+            desc: storageData[`LibDesc${id}`] || ""
+        };
+    }
+
+    async _findPersonalBookByStoryUrl(normalizedUrl) {
+        if (!normalizedUrl || typeof HFStatsLibrary === "undefined") {
+            return null;
+        }
+        const storageData = await this.storage.get("LibArray");
+        const libArray = storageData.LibArray || [];
+        if (libArray.length === 0) {
+            return null;
+        }
+        const urlKeys = libArray.map(bookId => `LibStoryURL${bookId}`);
+        const stored = await this.storage.get(urlKeys);
+        for (const bookId of libArray) {
+            const storyUrl = stored[`LibStoryURL${bookId}`];
+            if (storyUrl && HFStatsLibrary.normalizeUrl(storyUrl) === normalizedUrl) {
+                return this._findPersonalBookById(bookId);
+            }
+        }
+        return null;
+    }
+
+    _findPublicBookBySourceUrl(normalizedUrl) {
+        if (!normalizedUrl || typeof HFStatsLibrary === "undefined") {
+            return null;
+        }
+        const all = [...(this.publicCatalog || []), ...(this.telegramCatalog || [])];
+        return all.find(b => b.sourceUrl && HFStatsLibrary.normalizeUrl(b.sourceUrl) === normalizedUrl) || null;
+    }
+
+    async _openPersonalBook(book) {
+        if (!book) {
+            return false;
+        }
+        const epubBase64 = book.epubBase64;
+        if (typeof epubBase64 === "string" && epubBase64.startsWith("lazy:liveread")) {
+            let liveUrl = epubBase64.replace("lazy:liveread:", "").replace("lazy:liveread", "");
+            if (!liveUrl) {
+                liveUrl = book.id;
+            }
+            const isInsidePlugin = window.location.pathname.includes("/plugin/") || window.location.protocol === "chrome-extension:";
+            const lrPath = isInsidePlugin ? "live-reader.html" : "plugin/live-reader.html";
+            window.location.href = `${lrPath}?url=${encodeURIComponent(liveUrl)}`;
+            return true;
+        }
+        await this.showBookDetailsPage(book, true);
+        return true;
+    }
+
+    async openFromStatsEntry(entry) {
+        const url = String(entry?.url || "").trim();
+        if (!url) {
+            return false;
+        }
+
+        const hfMatch = url.match(/^hf-library:\/\/(.+)$/i);
+        if (hfMatch) {
+            await this.ensureCatalogsLoaded();
+            const book = this._findPublicBookById(hfMatch[1]);
+            if (book) {
+                await this.showBookDetailsPage(book, false);
+                return true;
+            }
+        }
+
+        const personalMatch = url.match(/^library:\/\/personal\/(.+)$/i);
+        if (personalMatch) {
+            const book = await this._findPersonalBookById(personalMatch[1]);
+            if (book) {
+                return this._openPersonalBook(book);
+            }
+        }
+
+        if (/^https?:\/\//i.test(url) && typeof HFStatsLibrary !== "undefined") {
+            const normalized = HFStatsLibrary.normalizeUrl(url);
+            const personalBook = await this._findPersonalBookByStoryUrl(normalized);
+            if (personalBook) {
+                return this._openPersonalBook(personalBook);
+            }
+
+            await this.ensureCatalogsLoaded();
+            const publicBook = this._findPublicBookBySourceUrl(normalized);
+            if (publicBook) {
+                await this.showBookDetailsPage(publicBook, false);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     async showBookDetailsPage(bookData, isPersonal) {
         const loader = document.getElementById("libraryLoader");
         if (loader) {
@@ -1133,13 +1312,15 @@ class LibraryUI {
                 downloadBtn.style.display = isLiveBook ? "none" : "flex";
             }
 
-            // Switch view
-            document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-            document.getElementById("bookDetailsView").classList.add("active");
-            
-            const globalBackBtn = document.getElementById("globalBackBtn");
-            if (globalBackBtn) {
-                globalBackBtn.style.display = "none"; // Hide global back button, detailsBackBtn handles going back
+            // Switch view — must use showView (or set display:block) so the view is actually visible
+            if (typeof window.showView === "function") {
+                await window.showView("bookDetailsView");
+            } else {
+                const bdv = document.getElementById("bookDetailsView");
+                if (bdv) { bdv.style.display = "block"; bdv.classList.add("active"); }
+                document.querySelectorAll(".app-view").forEach(v => { if (v.id !== "bookDetailsView") { v.classList.remove("active"); v.style.display = "none"; } });
+                const globalBackBtn = document.getElementById("globalBackBtn");
+                if (globalBackBtn) globalBackBtn.style.display = "none";
             }
 
             if (typeof HFStatsLibrary !== "undefined") {

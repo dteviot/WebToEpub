@@ -30,6 +30,6 @@ class GoldennovelParser extends Parser {
 
     findCoverImageUrl(dom) {
         let coverImg = dom.querySelector("div.cover img");
-        return coverImg ? coverImg.src : null;
+        return util.extractImgSrc(coverImg);
     }
 }

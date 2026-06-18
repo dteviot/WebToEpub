@@ -204,18 +204,23 @@ class EpubViewerUI {
                     if (idx !== -1) {
                         this.ttsCurrentIndex = idx;
                         this.ttsAutoScroll = true; // resume auto-scroll on manual jump
-                        this.speakCurrentParagraph();
+                        if ("speechSynthesis" in window) {
+                            window.speechSynthesis.cancel();
+                        }
+                        setTimeout(() => {
+                            if (this.ttsActive) this.speakCurrentParagraph();
+                        }, 200);
                     }
                 }
             });
         }
         
-        const mainReader = document.getElementById("epubReaderMain");
-        if (mainReader) {
+        const viewport = document.getElementById("epubReaderViewport");
+        if (viewport) {
             const disableAutoScroll = () => {
                 if (this.ttsActive && !this.isAutoScrolling) this.ttsAutoScroll = false;
             };
-            mainReader.addEventListener("scroll", disableAutoScroll, { passive: true });
+            viewport.addEventListener("scroll", disableAutoScroll, { passive: true });
             document.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", " "].includes(e.key)) {
                     disableAutoScroll();
@@ -231,7 +236,6 @@ class EpubViewerUI {
         });
 
         // Continuous scroll next-chapter loader: governed completely by lazyLoadObserver now.
-        const viewport = document.getElementById("epubReaderViewport");
         if (viewport) {
             viewport.addEventListener("scroll", () => {
                 // Dual IntersectionObservers handle elegant skeleton loading
@@ -539,7 +543,7 @@ class EpubViewerUI {
 
     initVoices() {
         const voiceSelect = document.getElementById("ttsVoiceSelect");
-        if (!voiceSelect || !('speechSynthesis' in window)) return;
+        if (!voiceSelect || !("speechSynthesis" in window)) return;
 
         const populate = () => {
             this.voices = window.speechSynthesis.getVoices();
@@ -623,18 +627,23 @@ class EpubViewerUI {
         }, lazyOptions);
     }
 
-    // Re-observe placeholders near current scroll position so the observer fires for them
     _reobservePlaceholders() {
         if (!this.lazyLoadObserver) return;
-        const wrappers = document.querySelectorAll(".continuous-chapter-wrapper.placeholder-loading");
+        const wrappers = document.querySelectorAll(".continuous-chapter-wrapper");
         wrappers.forEach(w => {
-            this.lazyLoadObserver.unobserve(w);
-            this.lazyLoadObserver.observe(w);
+            if (w.classList.contains("placeholder-loading")) {
+                this.lazyLoadObserver.unobserve(w);
+                this.lazyLoadObserver.observe(w);
+            }
+            if (this.observer) {
+                this.observer.unobserve(w);
+                this.observer.observe(w);
+            }
         });
     }
 
 
-    initializeScrollViewport() {
+    initializeScrollViewport(targetIndex = -1) {
         const contentBody = document.getElementById("epubReaderContentBody");
         if (!contentBody) return;
         contentBody.innerHTML = "";
@@ -683,9 +692,14 @@ class EpubViewerUI {
         // 2. Render chapter placeholders — virtualized for live-scraped books
         //    Only create the first lazyVirtualScrollBatchSize nodes to keep the DOM light.
         //    For local EPUB files, create all placeholders as before (typically small chapter counts).
-        const renderLimit = (this.isLazyScraped && this.toc.length > this.lazyVirtualScrollBatchSize)
+        let renderLimit = (this.isLazyScraped && this.toc.length > this.lazyVirtualScrollBatchSize)
             ? this.lazyVirtualScrollBatchSize
             : this.toc.length;
+
+        if (targetIndex >= 0) {
+            renderLimit = Math.max(renderLimit, targetIndex + 1);
+        }
+        renderLimit = Math.min(renderLimit, this.toc.length);
 
         this.toc.slice(0, renderLimit).forEach((chapter, index) => {
             this._createChapterPlaceholder(contentBody, chapter, index);
@@ -866,6 +880,8 @@ class EpubViewerUI {
 
             wrapper.className = "continuous-chapter-wrapper loaded";
             wrapper.removeAttribute("data-loading");
+
+            if (this.observer) this.observer.observe(wrapper);
 
             // Measure new loaded height and compensate viewport scroll top to prevent layout shifts
             const newHeight = wrapper.offsetHeight;
@@ -1262,8 +1278,16 @@ class EpubViewerUI {
             const firstChapterWrap = document.getElementById("chapter-wrap-0");
             if (!firstChapterWrap) {
                 this.showLoader("Initializing Reader...");
-                this.initializeScrollViewport();
+                this.initializeScrollViewport(index);
                 this.hideLoader();
+            } else {
+                // If the target chapter is beyond the current virtual scroll limit, force expansion
+                const targetWrapper = document.getElementById(`chapter-wrap-${index}`);
+                if (!targetWrapper) {
+                    this.showLoader("Expanding Reader...");
+                    this.initializeScrollViewport(index);
+                    this.hideLoader();
+                }
             }
 
             // Scroll the target chapter placeholder into view smoothly
@@ -1516,7 +1540,7 @@ class EpubViewerUI {
 
     playTTS() {
         this.prepareTTSParagraphs();
-        if (this.ttsParagraphs.length === 0 || !('speechSynthesis' in window)) return;
+        if (this.ttsParagraphs.length === 0 || !("speechSynthesis" in window)) return;
 
         let needsSync = false;
         if (this.ttsCurrentIndex >= 0 && this.ttsCurrentIndex < this.ttsParagraphs.length) {
@@ -1548,6 +1572,17 @@ class EpubViewerUI {
                 this.ttsActive = false;
             } else {
                 window.speechSynthesis.resume();
+                
+                // Restart heartbeat watchdog to prevent 15s timeout
+                if (!this.ttsHeartbeatInterval) {
+                    this.ttsHeartbeatInterval = setInterval(() => {
+                        if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        }
+                    }, 10000);
+                }
+                
                 document.getElementById("ttsPlayBtn").style.display = "none";
                 document.getElementById("ttsPauseBtn").style.display = "inline-flex";
                 this.ttsAutoScroll = true;
@@ -1567,28 +1602,19 @@ class EpubViewerUI {
         document.getElementById("ttsPlayBtn").style.display = "none";
         document.getElementById("ttsPauseBtn").style.display = "inline-flex";
 
-        if (this.ttsParagraphs && this.ttsParagraphs.length > 0) {
-            let targetIdx = 0;
-            const viewportHeight = window.innerHeight;
-            for (let i = 0; i < this.ttsParagraphs.length; i++) {
-                const rect = this.ttsParagraphs[i].element.getBoundingClientRect();
-                if (rect.bottom > 0 && rect.top < viewportHeight) {
-                    targetIdx = i;
-                    break;
-                }
-            }
-            this.ttsCurrentIndex = targetIdx;
-        }
-
         if (this.ttsCurrentIndex >= this.ttsParagraphs.length) this.ttsCurrentIndex = 0;
-        this.speakCurrentParagraph();
+        
+        // Wait 200ms for stopTTS's cancel() to settle in Chrome before speaking
+        setTimeout(() => {
+            if (this.ttsActive) this.speakCurrentParagraph();
+        }, 200);
     }
 
     speakCurrentParagraph() {
         // Refresh paragraphs to account for newly loaded chapters
         this.prepareTTSParagraphs();
         
-        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !('speechSynthesis' in window)) {
+        if (!this.ttsActive || this.ttsCurrentIndex >= this.ttsParagraphs.length || !("speechSynthesis" in window)) {
             this.stopTTS();
             return;
         }
@@ -1620,17 +1646,24 @@ class EpubViewerUI {
             }
         }
 
-        // Clear previous utterance handlers and cancel active speech to cleanly jump
+        // Clear previous utterance handlers
         if (this.speechUtterance) {
             this.speechUtterance.onend = null;
             this.speechUtterance.onerror = null;
         }
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-        }
 
-        // Setup Utterance
-        this.speechUtterance = new SpeechSynthesisUtterance(activeBlock.text);
+        // Setup Utterance - normalize text for natural-sounding speech
+        this.speechUtterance = new SpeechSynthesisUtterance(this._normalizeTTSText(activeBlock.text));
+        
+        // Prevent Chrome garbage collection by keeping reference on window
+        window._activeUtterances = window._activeUtterances || [];
+        window._activeUtterances.push(this.speechUtterance);
+        
+        const cleanupUtterance = (utt) => {
+            if (window._activeUtterances) {
+                window._activeUtterances = window._activeUtterances.filter(u => u !== utt);
+            }
+        };
         
         // Apply Selected Speech Voice
         if (this.selectedVoiceURI && this.voices.length > 0) {
@@ -1646,6 +1679,7 @@ class EpubViewerUI {
         this.speechUtterance.pitch = pitchInput ? parseFloat(pitchInput.value) : 1;
 
         this.speechUtterance.onend = () => {
+            cleanupUtterance(this.speechUtterance);
             if (!this.ttsActive) return;
             // Re-evaluate current index based on the DOM
             this.prepareTTSParagraphs();
@@ -1667,26 +1701,45 @@ class EpubViewerUI {
         };
 
         this.speechUtterance.onerror = (e) => {
+            cleanupUtterance(this.speechUtterance);
             console.error("Speech Synthesis Error:", e);
             if (this.ttsActive) this.stopTTS();
         };
 
-        window.speechSynthesis.speak(this.speechUtterance);
+        // Start heartbeat watchdog to prevent Chrome's 15s timeout
+        if (!this.ttsHeartbeatInterval) {
+            this.ttsHeartbeatInterval = setInterval(() => {
+                if (this.ttsActive && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        }
+
+        setTimeout(() => window.speechSynthesis.speak(this.speechUtterance), 50);
     }
 
     pauseTTS() {
-        if (!('speechSynthesis' in window)) return;
+        if (!("speechSynthesis" in window)) return;
         if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
             window.speechSynthesis.pause();
             document.getElementById("ttsPauseBtn").style.display = "none";
             document.getElementById("ttsPlayBtn").style.display = "inline-flex";
         }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
+        }
     }
 
     stopTTS() {
         this.ttsActive = false;
-        if ('speechSynthesis' in window) {
+        if ("speechSynthesis" in window) {
             window.speechSynthesis.cancel();
+        }
+        if (this.ttsHeartbeatInterval) {
+            clearInterval(this.ttsHeartbeatInterval);
+            this.ttsHeartbeatInterval = null;
         }
         
         const contentBody = document.getElementById("epubReaderContentBody");
@@ -1703,6 +1756,66 @@ class EpubViewerUI {
             playBtn.style.display = "inline-flex";
             pauseBtn.style.display = "none";
         }
+    }
+
+    /**
+     * Normalize raw paragraph text before passing to SpeechSynthesisUtterance.
+     * Makes TTS sound more natural by:
+     *  - Expanding abbreviations (Mr. → Mister, Dr. → Doctor, etc.)
+     *  - Converting em-dashes/en-dashes to comma pauses
+     *  - Collapsing ellipsis to a single comma pause
+     *  - Stripping junk characters (asterisks, special symbols, HTML entities)
+     *  - Ensuring proper spacing after punctuation
+     */
+    _normalizeTTSText(raw) {
+        let t = raw;
+
+        // 1. Expand common abbreviations that confuse TTS
+        const abbr = [
+            [/\bMr\./g, "Mister"],
+            [/\bMrs\./g, "Missus"],
+            [/\bMs\./g, "Miss"],
+            [/\bMiss\s+([A-Z])/g, "Miss $1"],
+            [/\bDr\./g, "Doctor"],
+            [/\bProf\./g, "Professor"],
+            [/\bSt\./g, "Saint"],
+            [/\bJr\./g, "Junior"],
+            [/\bSr\./g, "Senior"],
+            [/\bvs\./gi, "versus"],
+            [/\betc\./gi, "etcetera"],
+            [/\bapprox\./gi, "approximately"],
+            [/\bvol\./gi, "volume"],
+            [/\bch\./gi, "chapter"],
+            [/\bno\.\s*(\d)/gi, "number $1"],
+            [/\bpg\./gi, "page"],
+            [/\bfig\./gi, "figure"],
+            [/\ba\.m\./gi, "A M"],
+            [/\bp\.m\./gi, "P M"],
+        ];
+        abbr.forEach(([re, rep]) => { t = t.replace(re, rep); });
+
+        // 2. Convert em-dash and en-dash to comma pause for natural breath
+        t = t.replace(/\s*[—–]\s*/g, ", ");
+
+        // 3. Ellipsis → single comma pause (avoids literal "dot dot dot" reading)
+        t = t.replace(/\.{2,}/g, ",");
+
+        // 4. Strip junk characters
+        t = t.replace(/\*{1,5}/g, " ");                      // asterisk scene breaks
+        t = t.replace(/[~¤§¦°±©®™]/g, " ");                 // misc symbols
+        t = t.replace(/&(amp|lt|gt|nbsp|quot|apos);/gi, (m) => {
+            const map = { amp: "&", lt: "<", gt: ">", nbsp: " ", quot: "\"" , apos: "'" };
+            return map[m.slice(1, -1).toLowerCase()] || " ";
+        });
+        t = t.replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "");   // zero-width / soft-hyphen
+
+        // 5. Ensure space after sentence-ending punctuation if immediately followed by a letter
+        t = t.replace(/([.!?;:])([A-Za-z])/g, "$1 $2");
+
+        // 6. Collapse multiple whitespace to single space
+        t = t.replace(/\s+/g, " ").trim();
+
+        return t;
     }
 
     // Utility path solver
@@ -1752,9 +1865,7 @@ class EpubViewerUI {
         const isWebsite = !!(typeof window !== "undefined" && window.WTE_WEBSITE_MODE);
         const noWorkerLoaded = typeof document !== "undefined"
             && document.querySelector("script[src*=\"zip-no-worker.min.js\"]");
-        if (isWebsite || noWorkerLoaded) {
-            return "zip-no-worker.min.js";
-        }
+        if (noWorkerLoaded) { return "zip-no-worker.min.js"; }
         return (typeof util !== "undefined" && typeof util.useWebWorkers === "function" && util.useWebWorkers())
             ? "zip.min.js"
             : "zip-no-worker.min.js";

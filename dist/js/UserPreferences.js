@@ -114,7 +114,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.removeTranslated = this.addPreference("removeTranslated", "removeTranslatedCheckbox", false);
         this.skipChaptersThatFailFetch = this.addPreference("skipChaptersThatFailFetch", "skipChaptersThatFailFetchCheckbox", false);
         this.maxChaptersPerEpub = this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
-        this.manualDelayPerChapter = this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
+        this.manualDelayPerChapter = this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "800");
         this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);
@@ -139,7 +139,7 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         // CORS Proxy Preferences (Website Mode)
         this.enableCorsProxy = this.addPreference("enableCorsProxy", "enableCorsProxyCheckbox", true);
         this.corsProxyUrl = this.addPreference("corsProxyUrl", "corsProxyInput", HttpClient.corsProxyUrl);
-        this.wtrLabCookieImport = this.addPreference("wtrLabCookieImport", "wtrLabCookieInput", "");
+        this.contributeUsageStats = this.addPreference("contributeUsageStats", "contributeUsageStatsCheckbox", true);
 
         let themeColorTag = document.getElementById("themeColorTag");
         if (themeColorTag) {
@@ -188,9 +188,6 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         }
 
         this.writeToLocalStorage();
-        if (typeof HttpClient !== "undefined" && this.wtrLabCookieImport) {
-            HttpClient.setWtrLabCookiesFromUserInput(this.wtrLabCookieImport.value);
-        }
         this.notifyObserversOfChange();
     }
 
