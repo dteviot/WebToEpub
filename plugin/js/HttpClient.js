@@ -767,12 +767,12 @@ let BlockedHostNames = new Set();
 // CORS proxy settings (website mode)
 // These can be updated via the UI CORS proxy controls in popup.html
 HttpClient.CORS_PROXIES = [
+    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
     { name: "allOrigins (raw)", url: "https://api.allorigins.win/raw?url=" },
     { name: "CORS.SH", url: "https://proxy.cors.sh/" },
     { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
     { name: "ThingProxy", url: "https://thingproxy.freeboard.io/fetch/" },
     { name: "cors.lol", url: "https://api.cors.lol/?url=" },
-    { name: "corsproxy.io (with key)", url: "https://corsproxy.io/?key=ab3170e1&url=" },
     { name: "Render Proxy", url: "https://render-proxy-1-181c.onrender.com/proxy?url=" },
     { name: "Alwaysdata Proxy", url: "https://prasadghanwat.alwaysdata.net/proxy?url=" },
     { name: "Lovable Proxy", url: "https://loveable-proxy-forwebtoepub.lovable.app/api/proxy?url=" }

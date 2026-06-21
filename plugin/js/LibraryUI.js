@@ -231,6 +231,8 @@ class LibraryUI {
         const tabTelegram = document.getElementById("tabLibraryTelegram");
         const tabMega = document.getElementById("tabLibraryMega");
         const tabArchive = document.getElementById("tabLibraryArchive");
+        const tabAnna = document.getElementById("tabLibraryAnna");
+        const tabAudioBook = document.getElementById("tabLibraryAudioBook");
         const uploadSection = document.querySelector(".library-upload-section");
         const publicSearch = document.getElementById("publicLibrarySearch");
         const clearPublicSearch = document.getElementById("clearPublicSearch");
@@ -258,7 +260,7 @@ class LibraryUI {
 
         const setActiveTab = (tabId) => {
             this.activeLibraryTab = tabId;
-            [tabPersonal, tabPublic, tabTelegram, tabMega, tabArchive].forEach(tab => {
+            [tabPersonal, tabPublic, tabTelegram, tabMega, tabArchive, tabAnna, tabAudioBook].forEach(tab => {
                 if (tab) tab.classList.remove("active");
             });
             if (tabId === "personal" && tabPersonal) tabPersonal.classList.add("active");
@@ -266,9 +268,11 @@ class LibraryUI {
             if (tabId === "telegram" && tabTelegram) tabTelegram.classList.add("active");
             if (tabId === "mega" && tabMega) tabMega.classList.add("active");
             if (tabId === "archive" && tabArchive) tabArchive.classList.add("active");
+            if (tabId === "anna" && tabAnna) tabAnna.classList.add("active");
+            if (tabId === "audiobook" && tabAudioBook) tabAudioBook.classList.add("active");
 
             // Hide all views first
-            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView", "archiveLibraryView"];
+            const views = ["personalLibraryGrid", "publicLibraryView", "megaLibraryView", "archiveLibraryView", "annaLibraryView", "audioBookView"];
             views.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = "none";
@@ -289,10 +293,20 @@ class LibraryUI {
                 const archiveView = document.getElementById("archiveLibraryView");
                 if (archiveView) archiveView.style.display = "block";
                 if (uploadSection) uploadSection.style.display = "none";
-                
+
                 if (window.archiveLibrary && !window.archiveLibrary.isLoaded) {
                     window.archiveLibrary.loadRoot();
                 }
+            } else if (tabId === "anna") {
+                const annaView = document.getElementById("annaLibraryView");
+                if (annaView) annaView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
+                this._initAnnaSearch();
+            } else if (tabId === "audiobook") {
+                const audioView = document.getElementById("audioBookView");
+                if (audioView) audioView.style.display = "block";
+                if (uploadSection) uploadSection.style.display = "none";
+                this._initAudioBookSearch();
             } else {
                 document.getElementById("publicLibraryView").style.display = "block";
                 if (uploadSection) uploadSection.style.display = "block";
@@ -311,6 +325,8 @@ class LibraryUI {
         if (tabTelegram) tabTelegram.addEventListener("click", () => setActiveTab("telegram"));
         if (tabMega) tabMega.addEventListener("click", () => setActiveTab("mega"));
         if (tabArchive) tabArchive.addEventListener("click", () => setActiveTab("archive"));
+        if (tabAnna) tabAnna.addEventListener("click", () => setActiveTab("anna"));
+        if (tabAudioBook) tabAudioBook.addEventListener("click", () => setActiveTab("audiobook"));
 
         // Book details page interactive controls
         const detailsBackBtn = document.getElementById("detailsBackBtn");
@@ -330,7 +346,16 @@ class LibraryUI {
 
         const detailsStartReadingBtn = document.getElementById("detailsStartReadingBtn");
         if (detailsStartReadingBtn) {
-            detailsStartReadingBtn.addEventListener("click", () => {
+            detailsStartReadingBtn.addEventListener("click", async () => {
+                if (this.currentDetailsAudiobookLink) {
+                    if (this.currentDetailsMagnet) {
+                        window.open(`https://webtor.io/${encodeURIComponent(this.currentDetailsMagnet)}`, "_blank");
+                    } else {
+                        window.open(this.currentDetailsAudiobookLink, "_blank");
+                    }
+                    return;
+                }
+
                 if (this.currentDetailsEpub) {
                     if (typeof this.currentDetailsEpub === "string" && this.currentDetailsEpub.startsWith("lazy:liveread")) {
                         let url = this.currentDetailsEpub.replace("lazy:liveread:", "").replace("lazy:liveread", "");
@@ -343,6 +368,56 @@ class LibraryUI {
                     } else {
                         this.openBookInReader(this.currentDetailsEpub);
                     }
+                }
+            });
+        }
+
+        const detailsStreamBtn = document.getElementById("detailsStreamBtn");
+        if (detailsStreamBtn) {
+            detailsStreamBtn.addEventListener("click", () => {
+                if (this.currentDetailsMagnet) {
+                    window.open(`https://webtor.io/${encodeURIComponent(this.currentDetailsMagnet)}`, "_blank");
+                } else if (this.currentDetailsAudiobookLink) {
+                    window.open(this.currentDetailsAudiobookLink, "_blank");
+                }
+            });
+        }
+
+        const detailsSeedrBtn = document.getElementById("detailsSeedrBtn");
+        if (detailsSeedrBtn) {
+            detailsSeedrBtn.addEventListener("click", () => {
+                window.open("https://www.seedr.cc/", "_blank");
+            });
+        }
+
+        const detailsCopyMagnetBtn = document.getElementById("detailsCopyMagnetBtn");
+        if (detailsCopyMagnetBtn) {
+            detailsCopyMagnetBtn.addEventListener("click", async () => {
+                if (this.currentDetailsMagnet) {
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            await navigator.clipboard.writeText(this.currentDetailsMagnet);
+                        } else {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = this.currentDetailsMagnet;
+                            textArea.style.position = "fixed";
+                            textArea.style.left = "-999999px";
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                        }
+                        
+                        const originalText = detailsCopyMagnetBtn.innerHTML;
+                        detailsCopyMagnetBtn.innerHTML = "✓ Copied";
+                        setTimeout(() => { detailsCopyMagnetBtn.innerHTML = originalText; }, 2000);
+                    } catch (err) {
+                        alert("Failed to copy magnet link. See console for details.");
+                        console.error("Copy failed", err);
+                    }
+                } else {
+                    alert("No magnet link available to copy.");
                 }
             });
         }
@@ -514,7 +589,10 @@ class LibraryUI {
         libArray.forEach(id => {
             const title = booksData[`LibTitle${id}`] || "Unknown Novel";
             const author = booksData[`LibAuthor${id}`] || "Unknown Author";
-            const cover = booksData[`LibCover${id}`] || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
+            let cover = booksData[`LibCover${id}`] || "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMzAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgc3R5bGU9ImJhY2tncm91bmQ6IzFhMTExZjsiPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMTExZiIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iI2FhYSIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBDb3ZlciBBdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==";
+            if (cover && cover.includes("default_cover.jpg")) {
+                cover = this.defaultPublicCover();
+            }
             const progress = parseFloat(booksData[`LibProgress${id}`] || 0);
             const epubBase64 = booksData[`LibEpub${id}`];
             const filename = booksData[`LibFilename${id}`] || `${title}.epub`;
@@ -1248,7 +1326,65 @@ class LibraryUI {
             this.currentDetailsId = bookData.id;
 
             let meta;
-            if (isLiveBook) {
+            if (bookData.isAudiobook) {
+                let fetchedDesc = bookData.desc;
+                let fetchedMagnet = null;
+                try {
+                    const pageRes  = await HttpClient.wrapFetch(bookData.link);
+                    const pageHtml = pageRes?.responseText || "";
+                    const pageDom  = new DOMParser().parseFromString(pageHtml, "text/html");
+
+                    // Extract full description
+                    const descDiv = pageDom.querySelector(".desc");
+                    if (descDiv) {
+                        fetchedDesc = descDiv.innerHTML.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+                    }
+
+                    // Extract magnet
+                    let infoHash = null;
+                    const trackers = [];
+                    const magnetEl = pageDom.querySelector("a[href^='magnet:']");
+                    if (magnetEl) {
+                        fetchedMagnet = magnetEl.getAttribute("href");
+                    } else {
+                        const rows = pageDom.querySelectorAll("tr");
+                        for (let row of rows) {
+                            const cols = row.querySelectorAll("td");
+                            if (cols.length === 2) {
+                                const key = cols[0].textContent.trim();
+                                const val = cols[1].textContent.trim();
+                                if (key.includes("Info Hash")) {
+                                    infoHash = val;
+                                } else if (val.startsWith("udp://") || val.startsWith("http://") || val.startsWith("https://")) {
+                                    trackers.push(val);
+                                }
+                            }
+                        }
+                        
+                        if (infoHash) {
+                            const trackerParams = trackers.map(tr => `&tr=${encodeURIComponent(tr)}`).join("");
+                            fetchedMagnet = `magnet:?xt=urn:btih:${infoHash}&dn=${encodeURIComponent(bookData.title || "Audiobook")}${trackerParams}`;
+                        } else {
+                            const m = pageHtml.match(/magnet:\?xt=urn:[a-zA-Z0-9:%&=.]+/);
+                            if (m) fetchedMagnet = m[0];
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch audiobook details:", e);
+                }
+
+                meta = {
+                    title: bookData.title,
+                    author: bookData.author,
+                    description: fetchedDesc,
+                    seriesName: "",
+                    seriesIndex: "",
+                    coverDataUrl: bookData.staticCover
+                };
+                this.currentDetailsAudiobookLink = bookData.link;
+                this.currentDetailsTitle = bookData.title;
+                this.currentDetailsMagnet = fetchedMagnet;
+            } else if (isLiveBook) {
                 // Live books do not have local EPUB binaries to parse
                 meta = {
                     title: bookData.title,
@@ -1258,7 +1394,9 @@ class LibraryUI {
                     seriesIndex: "",
                     coverDataUrl: bookData.cover
                 };
+                this.currentDetailsAudiobookLink = null;
             } else {
+                this.currentDetailsAudiobookLink = null;
                 if (!isPersonal) {
                     if (bookData.isHF) {
                         const loader = document.getElementById("libraryLoader");
@@ -1309,7 +1447,38 @@ class LibraryUI {
             // Show/Hide details page Download button dynamically based on live reader status
             const downloadBtn = document.getElementById("detailsDownloadBtn");
             if (downloadBtn) {
-                downloadBtn.style.display = isLiveBook ? "none" : "flex";
+                downloadBtn.style.display = (isLiveBook || bookData.isAudiobook) ? "none" : "flex";
+            }
+
+            const seedrBtn = document.getElementById("detailsSeedrBtn");
+            if (seedrBtn) {
+                seedrBtn.style.display = bookData.isAudiobook ? "inline-flex" : "none";
+            }
+
+            const copyMagnetBtn = document.getElementById("detailsCopyMagnetBtn");
+            if (copyMagnetBtn) {
+                copyMagnetBtn.style.display = bookData.isAudiobook ? "inline-flex" : "none";
+            }
+
+            const readBtn = document.getElementById("detailsStartReadingBtn");
+            if (readBtn) {
+                readBtn.style.display = bookData.isAudiobook ? "none" : "flex";
+                readBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Read Book
+                `;
+            }
+
+            const streamBtn = document.getElementById("detailsStreamBtn");
+            if (streamBtn) {
+                streamBtn.style.display = bookData.isAudiobook ? "inline-flex" : "none";
+                streamBtn.disabled = false;
+                streamBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M8 5v14l11-7z"/></svg>
+                    Webtor stream / download
+                `;
             }
 
             // Switch view — must use showView (or set display:block) so the view is actually visible
@@ -1525,5 +1694,424 @@ class LibraryUI {
 </html>`));
 
         return await zipWriter.close();
+    }
+
+    // ─── Anna's Archive Search (5th Library) ────────────────────────────
+
+    _initAnnaSearch() {
+        if (this._annaSearchBound) return;
+        this._annaSearchBound = true;
+        const btn   = document.getElementById("annaSearchBtn");
+        const input = document.getElementById("annaSearchInput");
+        const doSearch = async () => {
+            const q = (input?.value || "").trim();
+            if (q) await this._runAnnaSearch(q);
+        };
+        if (btn)   btn.addEventListener("click", doSearch);
+        if (input) input.addEventListener("keypress", e => { if (e.key === "Enter") doSearch(); });
+    }
+
+    async _runAnnaSearch(query) {
+        const status = document.getElementById("annaSearchStatus");
+        const grid   = document.getElementById("annaResultsGrid");
+        if (!grid) return;
+
+        if (status) status.textContent = "Searching Anna's Archive…";
+        grid.innerHTML = "";
+
+        const DOMAINS = [
+            "https://annas-archive.gl",
+            "https://annas-archive.pk",
+            "https://annas-archive.org"
+        ];
+
+        let html = null, domain = DOMAINS[0];
+        for (let d of DOMAINS) {
+            try {
+                const encoded = encodeURIComponent(query);
+                const url = `${d}/search?index=&page=1&sort=&src=lgli&display=&q=${encoded}`;
+                const res = await HttpClient.wrapFetch(url);
+                if (res && res.responseText && res.responseText.length > 500) {
+                    html = res.responseText; domain = d; break;
+                }
+            } catch (_) {}
+        }
+
+        if (!html) {
+            if (status) status.textContent = "Could not reach Anna's Archive — try enabling CORS proxy.";
+            return;
+        }
+
+        const dom = new DOMParser().parseFromString(html, "text/html");
+        dom.querySelectorAll(".js-partial-matches-show").forEach(el => el.remove());
+
+        const links   = dom.querySelectorAll("a.js-vim-focus.custom-a");
+        const results = [];
+
+        for (let lnk of links) {
+            if (results.length >= 10) break;
+            const href  = lnk.getAttribute("href") || "";
+            const title = lnk.textContent.trim();
+            if (!title) continue;
+            const fullUrl = href.startsWith("http") ? href : `${domain}${href}`;
+
+            // Walk up the DOM to get metadata context
+            let ctx = lnk;
+            for (let i = 0; i < 6; i++) { if (!ctx.parentElement) break; ctx = ctx.parentElement; }
+            const allText = ctx.textContent || "";
+
+            const fmtMatch  = allText.match(/\b(EPUB|PDF|MOBI|AZW3|TXT|DOC|DOCX)\b/i);
+            const sizeMatch = allText.match(/(\d+\.?\d*\s*[MKG]B)/i);
+
+            let author = "";
+            for (let a of ctx.querySelectorAll("a")) {
+                const at = a.textContent.trim();
+                const ah = a.getAttribute("href") || "";
+                if (ah.includes("search?q=") && at && at !== title && at.split(" ").length <= 4) {
+                    author = at; break;
+                }
+            }
+
+            results.push({
+                url:    fullUrl,
+                title,
+                author,
+                format: fmtMatch  ? fmtMatch[1].toUpperCase() : "",
+                size:   sizeMatch ? sizeMatch[1] : "",
+                md5:    (href.match(/\/md5\/([a-fA-F0-9]{32})/) || [])[1] || ""
+            });
+        }
+
+        if (results.length === 0) {
+            if (status) status.textContent = "No results found.";
+            grid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">No books found for &ldquo;${query}&rdquo;</div>`;
+            return;
+        }
+
+        if (status) status.textContent = `Found ${results.length} result(s)`;
+
+        for (let book of results) {
+            const row  = document.createElement("div");
+            row.style.cssText = "display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.04);border:1px solid var(--reader-border,#333);border-radius:12px;padding:12px 16px;gap:12px;";
+
+            const info = document.createElement("div");
+            info.style.cssText = "flex:1;min-width:0;";
+            const fmt  = book.format ? `<span style="background:rgba(245,158,11,0.18);color:#f59e0b;padding:2px 7px;border-radius:10px;font-size:0.72rem;font-weight:700;">${book.format}</span>` : "";
+            const sz   = book.size   ? `<span style="margin-left:6px;font-size:0.78rem;color:var(--text-muted,#777);">${book.size}</span>` : "";
+            info.innerHTML = `
+                <div style="font-weight:700;color:var(--text-main,#eee);font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${book.title.replace(/"/g,"&quot;")}">${book.title}</div>
+                <div style="font-size:0.8rem;color:var(--text-muted,#777);margin-top:3px;">${book.author || "Unknown Author"}</div>
+                <div style="margin-top:5px;">${fmt}${sz}</div>`;
+
+            const actions = document.createElement("div");
+            actions.style.cssText = "display:flex;gap:8px;flex-shrink:0;";
+
+            // ── Download: try libgen get.php first, fall back to Anna's Archive page ──
+            const dlBtn = document.createElement("button");
+            dlBtn.textContent = "Download";
+            dlBtn.style.cssText = "background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:0.8rem;white-space:nowrap;";
+            dlBtn.onclick = async () => {
+                dlBtn.disabled    = true;
+                dlBtn.textContent = "Resolving…";
+                let directUrl = null;
+                try {
+                    // Step 1: fetch the Anna's Archive book page to find the libgen ads.php link
+                    const bookRes  = await HttpClient.wrapFetch(book.url);
+                    const bookHtml = bookRes?.responseText || "";
+                    const bookDom  = new DOMParser().parseFromString(bookHtml, "text/html");
+
+                    let adsUrl = null;
+                    for (let a of bookDom.querySelectorAll("a[href]")) {
+                        const h = a.getAttribute("href");
+                        if (h && h.includes("ads.php") && h.includes("md5")) {
+                            adsUrl = h.startsWith("http") ? h : `https://libgen.vg${h}`;
+                            break;
+                        }
+                    }
+
+                    // Step 2: fetch ads.php to find get.php direct download link
+                    if (adsUrl) {
+                        const adsRes  = await HttpClient.wrapFetch(adsUrl);
+                        const adsHtml = adsRes?.responseText || "";
+                        const adsDom  = new DOMParser().parseFromString(adsHtml, "text/html");
+                        for (let a of adsDom.querySelectorAll("a[href]")) {
+                            const h = a.getAttribute("href");
+                            if (h && h.includes("get.php")) {
+                                directUrl = h.startsWith("http") ? h : new URL(h, adsUrl).href;
+                                break;
+                            }
+                        }
+                    }
+                } catch (_) {}
+
+                if (directUrl) {
+                    window.open(directUrl, "_blank");
+                } else {
+                    // Fallback: open Anna's Archive page so user can download from there
+                    window.open(book.url, "_blank");
+                }
+                dlBtn.disabled    = false;
+                dlBtn.textContent = "Download";
+            };
+
+            // ── Read Now: fetch epub blob and open reader ──
+            const readBtn = document.createElement("button");
+            readBtn.textContent = "Read Now";
+            readBtn.style.cssText = "background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-weight:700;padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:0.8rem;white-space:nowrap;";
+            readBtn.onclick = async () => {
+                if (readBtn.disabled) return;
+                const originalHTML = readBtn.innerHTML;
+                readBtn.disabled = true;
+                readBtn.innerHTML = `
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;animation:spin 1s linear infinite;">
+                        <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd"/>
+                    </svg> Resolving…`;
+                readBtn.style.opacity = "0.7";
+
+                const loader = document.getElementById("libraryLoader");
+                const resetBtn = () => {
+                    readBtn.innerHTML = originalHTML;
+                    readBtn.disabled = false;
+                    readBtn.style.opacity = "";
+                    readBtn.style.background = "";
+                    readBtn.style.border = "";
+                };
+
+                if (loader) {
+                    loader.innerHTML = `
+                        <div class="spinner-ring"></div>
+                        <div style="color:var(--primary,#a78bfa); font-weight:700; font-size:1rem; text-align:center; max-width:300px; line-height:1.5;">
+                            Downloading EPUB…<br>
+                            <span style="font-size:0.82rem; color:var(--text-muted,#888); font-weight:400;">"${book.title}"</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--text-muted,#888); margin-top:4px;">Large files may take a moment</div>
+                    `;
+                    loader.style.display = "flex";
+                }
+
+                try {
+                    let targetUrl = book.url;
+                    const bookRes  = await HttpClient.wrapFetch(book.url);
+                    const bookHtml = bookRes?.responseText || "";
+                    const bookDom  = new DOMParser().parseFromString(bookHtml, "text/html");
+                    
+                    let adsUrl = null;
+                    for (let a of bookDom.querySelectorAll("a[href]")) {
+                        const h = a.getAttribute("href");
+                        if (h && h.includes("ads.php") && h.includes("md5")) {
+                            adsUrl = h.startsWith("http") ? h : `https://libgen.vg${h}`;
+                            break;
+                        }
+                    }
+                    if (adsUrl) {
+                        const adsRes  = await HttpClient.wrapFetch(adsUrl);
+                        const adsHtml = adsRes?.responseText || "";
+                        const adsDom  = new DOMParser().parseFromString(adsHtml, "text/html");
+                        for (let a of adsDom.querySelectorAll("a[href]")) {
+                            const h = a.getAttribute("href");
+                            if (h && h.includes("get.php")) {
+                                targetUrl = h.startsWith("http") ? h : new URL(h, adsUrl).href;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Fallback to IPFS direct links if libgen fails
+                    if (targetUrl === book.url) {
+                        for (let a of bookDom.querySelectorAll("a[href]")) {
+                            const h = a.getAttribute("href");
+                            if (h && h.includes("/ipfs/")) {
+                                targetUrl = h.startsWith("http") ? h : `https://annas-archive.org${h.startsWith("/") ? "" : "/"}${h}`;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (targetUrl === book.url) {
+                        throw new Error("No direct EPUB download links found. The file may be hosted on a slow server or requires a captcha. Please click 'Download' to get it manually.");
+                    }
+
+                    // Try to download the actual epub file arrayBuffer
+                    const fileRes = await HttpClient.wrapFetch(targetUrl, { bypassDirectFetchFallback: true });
+                    if (!fileRes || (!fileRes.arrayBuffer && !fileRes.responseBlob)) {
+                        throw new Error("Could not extract binary data from response.");
+                    }
+
+                    const blob = fileRes.responseBlob || new Blob([fileRes.arrayBuffer], { type: "application/epub+zip" });
+                    blob.name = `${book.title}.epub`;
+
+                    if (loader) loader.style.display = "none";
+
+                    readBtn.innerHTML = "✓ Opening…";
+                    readBtn.style.background = "#10b981";
+                    readBtn.style.border = "none";
+                    readBtn.style.opacity = "1";
+
+                    await new Promise(r => setTimeout(r, 150));
+
+                    if (window.libraryManager && typeof window.libraryManager.openBookInReader === "function") {
+                        window.libraryManager.openBookInReader(blob);
+                    } else {
+                        const readerLoader = document.getElementById("epubReaderLoader");
+                        if (readerLoader) readerLoader.style.display = "flex";
+                        
+                        const viewer = window.epubViewer || window.epubViewerInstance;
+                        if (typeof window.showView === "function") {
+                            window.showView("epubReaderView").then(() => {
+                                if (viewer) viewer.loadEpub(blob);
+                            });
+                        } else {
+                            const rv = document.getElementById("epubReaderView");
+                            if (rv) { rv.style.display = "block"; rv.classList.add("active"); }
+                            requestAnimationFrame(() => requestAnimationFrame(() => {
+                                if (viewer) viewer.loadEpub(blob);
+                            }));
+                        }
+                    }
+
+                    setTimeout(resetBtn, 2000);
+                } catch (err) {
+                    if (loader) loader.style.display = "none";
+                    resetBtn();
+                    readBtn.innerHTML = "✗ Failed";
+                    readBtn.style.background = "#dc2626";
+                    readBtn.style.opacity = "1";
+                    setTimeout(resetBtn, 3000);
+                    alert("Failed to load EPUB: " + (err.message || "Unknown error"));
+                }
+            };
+
+            actions.appendChild(dlBtn);
+            actions.appendChild(readBtn);
+            row.appendChild(info);
+            row.appendChild(actions);
+            grid.appendChild(row);
+        }
+    }
+
+    // ─── AudioBook Bay Search (6th Library) ─────────────────────────────
+
+    _initAudioBookSearch() {
+        if (this._audioBookSearchBound) return;
+        this._audioBookSearchBound = true;
+        const btn   = document.getElementById("audioBookSearchBtn");
+        const input = document.getElementById("audioBookSearchInput");
+        const doSearch = async () => {
+            const q = (input?.value || "").trim();
+            if (q) await this._runAudioBookSearch(q);
+        };
+        if (btn)   btn.addEventListener("click", doSearch);
+        if (input) input.addEventListener("keypress", e => { if (e.key === "Enter") doSearch(); });
+    }
+
+    async _runAudioBookSearch(query) {
+        const status = document.getElementById("audioBookSearchStatus");
+        const grid   = document.getElementById("audioBookResultsGrid");
+        if (!grid) return;
+
+        if (status) status.textContent = "Searching AudioBook Bay…";
+        grid.innerHTML = "";
+
+        const encoded = encodeURIComponent(query.toLowerCase().replace(/[''":,]/g, ""));
+        const searchUrl = `https://audiobookbay.lu/page/1/?s=${encoded}`;
+
+        let html = null;
+        try {
+            const res = await HttpClient.wrapFetch(searchUrl);
+            html = res?.responseText || null;
+        } catch (_) {}
+
+        if (!html) {
+            if (status) status.textContent = "Could not reach AudioBook Bay — try enabling CORS proxy.";
+            return;
+        }
+
+        const dom   = new DOMParser().parseFromString(html, "text/html");
+        const posts = dom.querySelectorAll("div.post, div.re-ab");
+        const results = [];
+
+        for (let post of posts) {
+            if (results.length >= 15) break;
+            const titleTag = post.querySelector("div.postTitle h2 a");
+            if (!titleTag) continue;
+            const title   = titleTag.textContent.trim();
+            const href    = titleTag.getAttribute("href") || "";
+            const link    = href.startsWith("http") ? href : `https://audiobookbay.lu${href.startsWith("/") ? "" : "/"}${href}`;
+            const imgTag  = post.querySelector("div.postContent img");
+            let image     = imgTag ? (imgTag.getAttribute("src") || "") : "";
+            if (image && !image.startsWith("http")) {
+                image = `https://audiobookbay.lu${image.startsWith("/") ? "" : "/"}${image}`;
+            }
+            const sizeTag = post.querySelector("div.postContent p");
+            const details = sizeTag ? sizeTag.textContent.trim().replace(/\s+/g, " ").substring(0, 100) : "";
+            results.push({ title, link, image, details });
+        }
+
+        if (results.length === 0) {
+            if (status) status.textContent = "No audiobooks found.";
+            grid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">No audiobooks found for &ldquo;${query}&rdquo;</div>`;
+            return;
+        }
+
+        if (status) status.textContent = `Found ${results.length} audiobook(s) — click ▶ Stream to listen via WebTorrent`;
+
+        for (let book of results) {
+            const row = document.createElement("div");
+            row.style.cssText = "display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid var(--reader-border,#333);border-radius:12px;padding:12px 16px;";
+
+            if (book.cover && !book.cover.includes("default_cover.jpg")) {
+                const img = document.createElement("img");
+                img.src = book.cover;
+                img.style.cssText = "width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;";
+                row.appendChild(img);
+            } else if (book.image) {
+                const img   = document.createElement("img");
+                img.src     = book.image;
+                img.alt     = book.title;
+                img.style.cssText = "width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;";
+                img.onerror = () => { img.style.display = "none"; };
+                row.appendChild(img);
+            }
+
+            const info = document.createElement("div");
+            info.style.cssText = "flex:1;min-width:0;";
+            info.innerHTML = `
+                <div style="font-weight:700;color:var(--text-main,#eee);font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${book.title.replace(/"/g,"&quot;")}">${book.title}</div>
+                ${book.details ? `<div style="font-size:0.78rem;color:var(--text-muted,#777);margin-top:3px;">${book.details}</div>` : ""}`;
+
+            const actions = document.createElement("div");
+            actions.style.cssText = "display:flex;gap:8px;flex-shrink:0;";
+
+            const pageBtn = document.createElement("button");
+            pageBtn.textContent = "Details";
+            pageBtn.style.cssText = "background:rgba(139,92,246,0.15);color:#8b5cf6;border:1px solid #8b5cf6;font-weight:600;padding:6px 12px;border-radius:20px;text-decoration:none;font-size:0.8rem;cursor:pointer;";
+            
+            const bookData = {
+                id: `abb_${Date.now()}_${Math.floor(Math.random()*1000)}`,
+                title: book.title,
+                author: "AudioBook Bay",
+                desc: book.details || "Audiobook from AudioBook Bay.",
+                link: book.link,
+                isAudiobook: true,
+                staticCover: book.image || LibraryUI.buildInlineCover("#1a111f", "#ec4899", "AUDIO", "BOOK", "ABB")
+            };
+
+            pageBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await this.showBookDetailsPage(bookData, false);
+            };
+
+            row.style.cursor = "pointer";
+            row.onclick = async (e) => {
+                if (!e.target.closest("button") && !e.target.closest("a")) {
+                    await this.showBookDetailsPage(bookData, false);
+                }
+            };
+
+            actions.appendChild(pageBtn);
+            row.appendChild(info);
+            row.appendChild(actions);
+            grid.appendChild(row);
+        }
     }
 }
