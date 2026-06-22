@@ -10,6 +10,10 @@ class NoveldexParser extends Parser { // eslint-disable-line no-unused-vars
         super();
     }
 
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
+    }
+
     /*
      * NOTE: As of 2026-03, it seems that classes and ids on this site can't be
      * trusted to remain stable. In a short timespan, over three separate
