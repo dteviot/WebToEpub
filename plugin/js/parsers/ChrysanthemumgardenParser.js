@@ -17,6 +17,23 @@ class ChrysanthemumgardenParser extends WordpressBaseParser {
         document.getElementById("removeAuthorNotesRow").hidden = false; 
     }
 
+    extractAuthor(dom) {
+        const prefix = "Author: ";
+        const parentElement = dom.querySelector(".novel-info");
+        let author = null;
+        parentElement?.childNodes?.forEach(node => {
+            if ((node.nodeType === Node.TEXT_NODE) && node.textContent.startsWith(prefix)) {
+                author = node.textContent.substring(prefix.length);
+            }
+        });
+        return author ?? super.extractAuthor(dom);
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll("a.series-tag")];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
     async fetchChapter(url) {
         let newDom = (await HttpClient.wrapFetch(url)).responseXML;
         let passwordForm = ChrysanthemumgardenParser.getPasswordForm(newDom);
@@ -163,5 +180,9 @@ class ChrysanthemumgardenParser extends WordpressBaseParser {
                 updateFootnote(footnote, index, backRef);
             }
         }
+    }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll(".entry-content p")];
     }
 }
