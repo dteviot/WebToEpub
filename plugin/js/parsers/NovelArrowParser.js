@@ -9,25 +9,93 @@ class NovelArrowParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let seen = new Set();
-        let chapters = [];
-        for (let link of [...dom.querySelectorAll("a")]) {
-            if (!this.isChapterLink(link)) {
-                continue;
-            }
-            let chapter = util.hyperLinkToChapter(link);
-            let key = util.normalizeUrlForCompare(chapter.sourceUrl);
-            if (!seen.has(key)) {
-                seen.add(key);
-                chapters.push(chapter);
+        let chapters = this.getChapterUrlsFromInitialChapterList(dom);
+        return chapters.length > 0
+            ? chapters
+            : util.hyperlinksToChapterList(dom, link => this.isChapterLink(link) && !this.isReadNowLink(link));
+    }
+
+    getChapterUrlsFromInitialChapterList(dom) {
+        if (!dom) {
+            return [];
+        }
+
+        let script = [...dom.querySelectorAll("script")]
+            .find(scriptElement => (scriptElement.textContent || scriptElement.innerText || "").includes("initialChapterList"));
+        if (!script) {
+            return [];
+        }
+
+        try {
+            return this.findInitialChapterList(JSON.parse(script.textContent || script.innerText || ""), dom);
+        } catch (e) {
+            return [];
+        }
+    }
+
+    findInitialChapterList(value, dom) {
+        if (Array.isArray(value?.initialChapterList)) {
+            return value.initialChapterList
+                .filter(chapter => chapter && typeof chapter === "object")
+                .map(chapter => ({
+                    sourceUrl: this.getChapterUrl(chapter.chapter_id || chapter.slug || chapter.id, dom),
+                    title: chapter.chapter_name || chapter.name || chapter.title || "",
+                    newArc: null
+                }));
+        }
+
+        if (value && typeof value === "object") {
+            for (let child of Object.values(value)) {
+                let chapters = this.findInitialChapterList(child, dom);
+                if (chapters.length > 0) {
+                    return chapters;
+                }
             }
         }
-        return chapters;
+        return [];
+    }
+
+    getChapterUrl(path, dom) {
+        if (!path) {
+            return "";
+        }
+        if (/^https?:\/\//i.test(path)) {
+            return path;
+        }
+
+        let baseUrl = this.getChapterBaseUrl(dom);
+        let slug = this.getNovelSlug(dom);
+        return new URL(path.startsWith("/") ? path : (slug ? `/chapter/${slug}/${path}` : path), baseUrl).href;
+    }
+
+    getChapterBaseUrl(dom) {
+        let url = dom?.querySelector("link[rel='canonical']")?.href
+            || dom?.querySelector("meta[property='og:url']")?.getAttribute("content")
+            || dom?.baseURI
+            || "https://novelarrow.com";
+        try {
+            return new URL(url).origin;
+        } catch (e) {
+            return "https://novelarrow.com";
+        }
+    }
+
+    getNovelSlug(dom) {
+        let url = dom?.querySelector("link[rel='canonical']")?.href
+            || dom?.querySelector("meta[property='og:url']")?.getAttribute("content")
+            || dom?.baseURI
+            || "";
+        let match = url.match(/\/novel\/([^/?#]+)/);
+        return match ? match[1] : "";
     }
 
     isChapterLink(link) {
         let href = link.getAttribute("href") || "";
         return href.includes("/chapter/") && !href.includes("/genre/") && !href.includes("/author/");
+    }
+
+    isReadNowLink(link) {
+        return (link.textContent || "").trim().toLowerCase() === "read now";
     }
 
     findContent(dom) {

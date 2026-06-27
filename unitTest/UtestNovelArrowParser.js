@@ -40,6 +40,17 @@ QUnit.test("gracefully handles missing author and cover image fields", function(
     assert.equal(parser.findCoverImageUrl(dom), null);
 });
 
+QUnit.test("prefers embedded chapter names over generic Read Now links", function(assert) {
+    let dom = new DOMParser().parseFromString(NovelArrowEmbeddedChapterListSample, "text/html");
+    let parser = new NovelArrowParser();
+
+    let chapters = parser.getChapterUrls(dom);
+    assert.equal(chapters.length, 2);
+    assert.equal(chapters[0].title, "Chapter 1: The Jar Merchant");
+    assert.equal(chapters[0].sourceUrl, "https://novelarrow.com/chapter/i-sell-gacha-jars-in-one-piece/chapter-1-the-jar-merchant");
+    assert.equal(chapters[1].title, "Chapter 2: Little Luffy");
+});
+
 QUnit.test("recognises Cloudflare challenge responses", function(assert) {
     let parser = new NovelArrowParser();
     assert.true(parser.isCustomError({responseXML: {title: "Just a moment..."}}));
@@ -103,6 +114,23 @@ let NovelArrowAuthorMetaSample = `<!DOCTYPE html>
 <body>
     <main>
         <h1>I Sell Gacha Jars in One Piece</h1>
+    </main>
+</body>
+</html>`;
+
+let NovelArrowEmbeddedChapterListSample = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>I Sell Gacha Jars in One Piece</title>
+    <link rel="canonical" href="https://novelarrow.com/novel/i-sell-gacha-jars-in-one-piece">
+    <script id="__NEXT_DATA__" type="application/json">
+    {"props":{"pageProps":{"initialChapterList":[{"chapter_id":"chapter-1-the-jar-merchant","chapter_name":"Chapter 1: The Jar Merchant"},{"chapter_id":"chapter-2-little-luffy","chapter_name":"Chapter 2: Little Luffy"}]}}}
+    </script>
+</head>
+<body>
+    <main>
+        <a href="/chapter/i-sell-gacha-jars-in-one-piece/chapter-1-the-jar-merchant">Read Now</a>
+        <a href="/chapter/i-sell-gacha-jars-in-one-piece/chapter-2-little-luffy">Chapter 2: Little Luffy</a>
     </main>
 </body>
 </html>`;
