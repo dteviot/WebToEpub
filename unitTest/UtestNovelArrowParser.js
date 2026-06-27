@@ -123,8 +123,8 @@ let NovelArrowEmbeddedChapterListSample = `<!DOCTYPE html>
 <head>
     <title>I Sell Gacha Jars in One Piece</title>
     <link rel="canonical" href="https://novelarrow.com/novel/i-sell-gacha-jars-in-one-piece">
-    <script id="__NEXT_DATA__" type="application/json">
-    {"props":{"pageProps":{"initialChapterList":[{"chapter_id":"chapter-1-the-jar-merchant","chapter_name":"Chapter 1: The Jar Merchant"},{"chapter_id":"chapter-2-little-luffy","chapter_name":"Chapter 2: Little Luffy"}]}}}
+    <script>
+        window.__INITIAL_STATE__ = {"props":{"pageProps":{"initialChapterList":[{"chapter_id":"chapter-1-the-jar-merchant","chapter_name":"Chapter 1: The Jar Merchant"},{"chapter_id":"chapter-2-little-luffy","chapter_name":"Chapter 2: Little Luffy"}]}}};
     </script>
 </head>
 <body>

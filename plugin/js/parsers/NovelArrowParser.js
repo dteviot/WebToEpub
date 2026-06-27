@@ -27,10 +27,69 @@ class NovelArrowParser extends Parser {
         }
 
         try {
-            return this.findInitialChapterList(JSON.parse(script.textContent || script.innerText || ""), dom);
+            return this.findInitialChapterList(this.extractJsonObject(script.textContent || script.innerText || ""), dom);
         } catch (e) {
             return [];
         }
+    }
+
+    extractJsonObject(scriptText) {
+        let markerIndex = scriptText.indexOf("initialChapterList");
+        if (markerIndex < 0) {
+            return null;
+        }
+
+        for (let index = markerIndex; index >= 0; --index) {
+            if (scriptText[index] !== "{") {
+                continue;
+            }
+
+            let candidate = this.extractBalancedJson(scriptText, index);
+            if (candidate == null) {
+                continue;
+            }
+
+            try {
+                return JSON.parse(candidate);
+            } catch (e) {
+                // Try the next brace if this one is not a valid JSON object.
+            }
+        }
+
+        return null;
+    }
+
+    extractBalancedJson(text, startIndex) {
+        let depth = 0;
+        let isString = false;
+        let isEscaped = false;
+
+        for (let index = startIndex; index < text.length; ++index) {
+            let char = text[index];
+            if (isString) {
+                if (isEscaped) {
+                    isEscaped = false;
+                } else if (char === "\\") {
+                    isEscaped = true;
+                } else if (char === '"') {
+                    isString = false;
+                }
+                continue;
+            }
+
+            if (char === '"') {
+                isString = true;
+            } else if (char === "{") {
+                ++depth;
+            } else if (char === "}") {
+                --depth;
+                if (depth === 0) {
+                    return text.substring(startIndex, index + 1);
+                }
+            }
+        }
+
+        return null;
     }
 
     findInitialChapterList(value, dom) {
