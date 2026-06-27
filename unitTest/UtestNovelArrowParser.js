@@ -18,6 +18,28 @@ QUnit.test("parses story metadata and chapter links", function(assert) {
     assert.equal(parser.findCoverImageUrl(dom), "https://images.novelarrow.com/novel_480_720/i-sell-gacha-jars-in-one-piece.jpg");
 });
 
+QUnit.test("finds cover image from og:image meta", function(assert) {
+    let dom = new DOMParser().parseFromString(NovelArrowOgImageStorySample, "text/html");
+    let parser = new NovelArrowParser();
+
+    assert.equal(parser.findCoverImageUrl(dom), "https://images.novelarrow.com/novel_480_720/i-sell-gacha-jars-in-one-piece.jpg");
+});
+
+QUnit.test("uses meta[name=author] when author link is absent", function(assert) {
+    let dom = new DOMParser().parseFromString(NovelArrowAuthorMetaSample, "text/html");
+    let parser = new NovelArrowParser();
+
+    assert.equal(parser.extractAuthor(dom), "ElvenKing20");
+});
+
+QUnit.test("gracefully handles missing author and cover image fields", function(assert) {
+    let dom = new DOMParser().parseFromString(NovelArrowMissingMetadataSample, "text/html");
+    let parser = new NovelArrowParser();
+
+    assert.equal(parser.extractAuthor(dom), "<unknown>");
+    assert.equal(parser.findCoverImageUrl(dom), null);
+});
+
 QUnit.test("recognises Cloudflare challenge responses", function(assert) {
     let parser = new NovelArrowParser();
     assert.true(parser.isCustomError({responseXML: {title: "Just a moment..."}}));
@@ -38,6 +60,49 @@ let NovelArrowStorySample = `<!DOCTYPE html>
         <a href="https://novelarrow.com/genre/adventure">Adventure</a>
         <a href="https://novelarrow.com/chapter/i-sell-gacha-jars-in-one-piece/chapter-1-the-jar-merchant">Chapter 1: The Jar Merchant</a>
         <a href="https://novelarrow.com/chapter/i-sell-gacha-jars-in-one-piece/chapter-2-little-luffy">Chapter 2: Little Luffy</a>
+    </main>
+</body>
+</html>`;
+
+let NovelArrowOgImageStorySample = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>I Sell Gacha Jars in One Piece</title>
+    <meta property="og:image" content="https://images.novelarrow.com/novel_480_720/i-sell-gacha-jars-in-one-piece.jpg">
+</head>
+<body>
+    <main>
+        <h1>I Sell Gacha Jars in One Piece</h1>
+        <a href="https://novelarrow.com/author/elvenking20">ElvenKing20</a>
+        <a href="https://novelarrow.com/genre/action">Action</a>
+        <a href="https://novelarrow.com/genre/adventure">Adventure</a>
+    </main>
+</body>
+</html>`;
+
+let NovelArrowMissingMetadataSample = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>I Sell Gacha Jars in One Piece</title>
+</head>
+<body>
+    <main>
+        <h1>I Sell Gacha Jars in One Piece</h1>
+        <a href="https://novelarrow.com/genre/action">Action</a>
+        <a href="https://novelarrow.com/genre/adventure">Adventure</a>
+    </main>
+</body>
+</html>`;
+
+let NovelArrowAuthorMetaSample = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>I Sell Gacha Jars in One Piece</title>
+    <meta name="author" content="ElvenKing20">
+</head>
+<body>
+    <main>
+        <h1>I Sell Gacha Jars in One Piece</h1>
     </main>
 </body>
 </html>`;

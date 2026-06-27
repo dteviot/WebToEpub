@@ -59,22 +59,27 @@ class NovelArrowParser extends Parser {
     }
 
     extractAuthor(dom) {
-        let authorLink = [...dom.querySelectorAll("a")]
-            .find(link => link.href.includes("/author/"));
-        return authorLink?.textContent?.trim() || super.extractAuthor(dom);
+        let authorLink = dom.querySelector("a[href*='/author/']");
+        let author = authorLink?.textContent?.trim();
+        if (!author && authorLink) {
+            let href = authorLink.getAttribute("href") || authorLink.href || "";
+            let segments = href.split("/").filter(Boolean);
+            author = segments.pop() || "";
+        }
+        return author || dom.querySelector("meta[name='author']")?.getAttribute("content")?.trim() || super.extractAuthor(dom);
     }
 
     extractSubject(dom) {
-        let genres = [...dom.querySelectorAll("a")]
-            .filter(link => link.href.includes("/genre/"))
+        return [...dom.querySelectorAll("a[href*='/genre/']")]
             .map(link => link.textContent.trim())
-            .filter(text => text.length > 0);
-        return genres.slice(0, 6).join(", ");
+            .filter(Boolean)
+            .slice(0, 6)
+            .join(", ");
     }
 
     extractDescription(dom) {
-        let metaDescription = dom.querySelector("meta[name='description']")?.getAttribute("content");
-        return metaDescription?.trim() || super.extractDescription(dom);
+        return dom.querySelector("meta[name='description']")?.getAttribute("content")?.trim()
+            || super.extractDescription(dom);
     }
 
     extractPublisher() {
@@ -82,10 +87,25 @@ class NovelArrowParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector("meta[property='og:image']")?.getAttribute("content")
-            || dom.querySelector("img[src*='novelarrow.com']")
-            || dom.querySelector("img");
-        return img?.getAttribute("content") || img?.getAttribute("src") || null;
+        if (!dom) {
+            return null;
+        }
+
+        let metaImage = [
+            "meta[property='og:image']",
+            "meta[property='og:image:secure_url']",
+            "meta[name='twitter:image']",
+            "meta[name='image']"
+        ]
+            .map(selector => dom.querySelector(selector)?.getAttribute("content")?.trim())
+            .find(Boolean);
+
+        if (metaImage) {
+            return metaImage;
+        }
+
+        return dom.querySelector("img[src*='novelarrow.com']")?.src
+            || util.getFirstImgSrc(dom, "body");
     }
 
     findChapterTitle(dom) {
