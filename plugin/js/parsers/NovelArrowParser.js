@@ -71,13 +71,13 @@ class NovelArrowParser extends Parser {
                     isEscaped = false;
                 } else if (char === "\\") {
                     isEscaped = true;
-                } else if (char === '"') {
+                } else if (char === "\"") {
                     isString = false;
                 }
                 continue;
             }
 
-            if (char === '"') {
+            if (char === "\"") {
                 isString = true;
             } else if (char === "{") {
                 ++depth;
