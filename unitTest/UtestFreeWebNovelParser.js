@@ -25,6 +25,9 @@ QUnit.test("extractSubject", function (assert) {
 
 QUnit.test("findCoverImageUrl", function (assert) {
     let dom = new DOMParser().parseFromString(FreeWebNovelNovelSample, "text/html");
+    let base = dom.createElement("base");
+    base.href = "https://freewebnovel.com/novel/all-jobs-and-classes-i-just-wanted-one-skill-not-them-all";
+    dom.head.appendChild(base);
     let parser = new FreeWebNovelParser();
     let cover = parser.findCoverImageUrl(dom);
     assert.equal(cover, "https://freewebnovel.com/files/article/image/14/14511/14511s.jpg");
@@ -43,8 +46,8 @@ QUnit.test("getChapterUrls first page", async function (assert) {
 
     let chapters = await parser.getChapterUrls(dom, chapterUrlsUI);
     assert.equal(chapters.length, 2);
-    assert.equal(chapters[0].newTitle, "Chapter 01");
-    assert.equal(chapters[0].newUrl, "https://freewebnovel.com/novel/all-jobs-and-classes-i-just-wanted-one-skill-not-them-all/chapter-1");
+    assert.equal(chapters[0].title, "Chapter 01");
+    assert.equal(chapters[0].sourceUrl, "https://freewebnovel.com/novel/all-jobs-and-classes-i-just-wanted-one-skill-not-them-all/chapter-1");
 });
 
 QUnit.test("findChapterTitle", function (assert) {
