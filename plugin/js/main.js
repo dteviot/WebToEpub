@@ -619,6 +619,17 @@ var main = (function() {
 
     // actions to do when window opened
     window.onload = async () => {
+        if (typeof DOMPurify === "undefined" || typeof zip === "undefined") {
+            let msg = "Error: WebToEpub is missing required third-party dependencies (DOMPurify or zip.js).\n\nIf you are running from a git clone, please run 'npm install' in the project root to fetch these dependencies.";
+            alert(msg);
+            let pleaseWait = document.getElementById("findingChapterUrlsMessageRow");
+            if (pleaseWait) {
+                pleaseWait.textContent = msg;
+                pleaseWait.style.color = "red";
+                pleaseWait.hidden = false;
+            }
+            return;
+        }
         userPreferences = UserPreferences.readFromLocalStorage();
         if (isRunningInTabMode()) { 
             ErrorLog.SuppressErrorLog =  false;
