@@ -48,7 +48,7 @@ class FreeWebNovelParser extends Parser {
                 let url = `${baseNovelUrl}?ajax=chapters&page=${page}`;
                 try {
                     let response = await HttpClient.fetchJson(url);
-                    if (response && response.json && response.json.code === 200 && response.json.html) {
+                    if (response?.json?.code === 200 && response.json.html) {
                         let parser = new DOMParser();
                         let tempDom = parser.parseFromString(response.json.html, "text/html");
                         util.setBaseTag(url, tempDom);
@@ -104,8 +104,7 @@ class FreeWebNovelParser extends Parser {
     removeUnwantedElementsFromContentElement(content) {
         // Remove ads injected by third-party ad networks (such as SSP ads and PubFuture networks)
         // whose div IDs start with 'bg-ssp-' or 'pf-'
-        util.removeChildElementsMatchingSelector(content, "div[id^='bg-ssp-']");
-        util.removeChildElementsMatchingSelector(content, "div[id^='pf-']");
+        util.removeChildElementsMatchingSelector(content, "div[id^='bg-ssp-'], div[id^='pf-']");
 
         // Clean up any remaining ad divs or empty wrapper divs left behind after ads are deleted
         for (let div of content.querySelectorAll("div")) {
@@ -136,10 +135,10 @@ class FreeWebNovelParser extends Parser {
         for (let tNode of nodesToReplace) {
             let parent = tNode.parentNode;
             if (parent) {
-                let tempSpan = content.ownerDocument.createElement("span");
-                tempSpan.innerHTML = tNode.nodeValue;
-                while (tempSpan.firstChild) {
-                    parent.insertBefore(tempSpan.firstChild, tNode);
+                let doc = util.sanitize(tNode.nodeValue);
+                let body = doc.body;
+                while (body.firstChild) {
+                    parent.insertBefore(body.firstChild, tNode);
                 }
                 tNode.remove();
             }
