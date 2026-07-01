@@ -28,22 +28,16 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
         let author = dom.querySelector("a[href*='/author/']");
         return (author === null) ? super.extractAuthor(dom) : author.innerText;    }
 
-    // Optional, supply if individual chapter titles are not inside the content element
-    /*
-    findChapterTitle(dom) {
-        // typical implementation is find node with the Title
-        // Return Title element, OR the title as a string
-        return dom.querySelector("h3.dashhead-title");
-    }
-    */
-
     findCoverImageUrl(dom) {
         return util.getFirstImgSrc(dom, ".novel-cover-frame");
     }
 
     preprocessRawDom(webPageDom) {
-        let content = this.locateContent(webPageDom);
-        let doc = util.sanitize(`<div class='${Parser.WEB_TO_EPUB_CLASS_NAME}'>"${content}</div>`);
+        let content = this.locateContent(webPageDom).trim();
+        let title = this.contentHasTitle(content)
+            ? ""
+            : `<h1>${this.getChapterTitleFromHead(webPageDom)}</h1>`;
+        let doc = util.sanitize(`<div class='${Parser.WEB_TO_EPUB_CLASS_NAME}'>"${title}${content}</div>`);
         let node = doc.querySelector("."+Parser.WEB_TO_EPUB_CLASS_NAME);
         webPageDom.body.appendChild(node);
     }
@@ -77,6 +71,15 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
             return s.startsWith("\\u003c");
         }
         return false;
+    }
+
+    contentHasTitle(content) {
+        return content.startsWith("<h");
+    }
+
+    getChapterTitleFromHead(dom) {
+        return dom.head.querySelector("meta[name='og:novel:chapter_name']")
+            ?.getAttribute("content") ?? "";
     }
 
     getInformationEpubItemChildNodes(dom) {
