@@ -8,12 +8,27 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll(".jsx-6d23f35167deb67d.space-y-6 a")]
+        let chapters = [...dom.querySelectorAll(".jsx-6d23f35167deb67d.space-y-6 a")]
             .map(a => ({
                 sourceUrl: a.href,
                 title: a.querySelector("span.hidden")?.textContent,
             }))
             .reverse();
+
+        if (NovelarrowParser.InitialChapterListMaxLength < chapters.length) {
+            return chapters;
+        }
+        return this.fetchChapterListViaRest(dom);
+    }
+
+    async fetchChapterListViaRest(dom) {
+        let root = dom.baseURI.replace("/novel/", "/chapter/") + "/";
+        let restUrl = dom.baseURI.replace("/novel/", "/api-web/novels/") + "/chapters?sort=asc";
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        return json.items.map(i => ({
+            title: i.chapter_name,
+            sourceUrl: root + i.chapter_id,
+        }));
     }
 
     findContent(dom) {
@@ -86,3 +101,6 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
         return [...dom.querySelectorAll(".site-reading-copy")];
     }
 }
+
+// When initially open ToC page, is pre-loaded with up to 30 chapters
+NovelarrowParser.InitialChapterListMaxLength = 30;
