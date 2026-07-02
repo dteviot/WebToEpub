@@ -52,7 +52,7 @@ class LiteroticaParser extends Parser {
         }
         this.title = dom.querySelector("div[data-tab=\"tabpanel-series\"] a")?.textContent??dom.querySelector("h1");
         this.author = [...dom.querySelectorAll("a")].filter(a => a.href.includes("https://www.literotica.com/authors/"))?.[0].title??"";
-        this.description = [...dom.querySelectorAll("div[data-tab=\"tabpanel-info\"] div")]?.[1]?.textContent??"";
+        this.description = [...dom.querySelectorAll("div[data-tab=\"tabpanel-info\"] div")]?.[0]?.textContent??"";
         this.tags = [...dom.querySelectorAll("div[data-tab=\"tabpanel-tags\"] a")]?.map(a => a.textContent)??[];
         return;
     }
@@ -118,7 +118,7 @@ class LiteroticaParser extends Parser {
         const section = dom.baseURI.split("//")[1].split("/")[1];
 
         if (section === "series") {
-            let links = [...dom.querySelectorAll("ul.series__works li a.br_rj")];
+            let links = [...dom.querySelectorAll("ul li a._link_qr6sx_55")];
             return links.map((a) => util.hyperLinkToChapter(a));
         } else if (section === "s") {
             let content = dom.querySelector("div.aa_ht");
