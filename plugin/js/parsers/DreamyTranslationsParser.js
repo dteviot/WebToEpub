@@ -38,7 +38,7 @@ class DreamyTranslationsParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector('img[src*="/covers/"]');
+        let img = dom.querySelector("img[src*=\\"/covers/\\"]");
         if (img) {
             return img.src;
         }
