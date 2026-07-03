@@ -2,11 +2,6 @@
 
 parserFactory.register("dreamy-translations.com", () => new DreamyTranslationsParser());
 
-parserFactory.registerManualSelect(
-    "Dreamy Translations",
-    () => new DreamyTranslationsParser()
-);
-
 class DreamyTranslationsParser extends Parser {
     constructor() {
         super();
