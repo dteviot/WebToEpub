@@ -60,7 +60,7 @@ class ChyoaParser extends Parser {
     constructor() {
         super();
         // visitedUrls maps normalized URL → epub-item index.
-        // Tracks what we've already scraped to handle circular links.
+        // Tracks what we've already fetched to handle circular links.
         this.visitedUrls = new Map();
         // Flat ordered list; each entry = { sourceUrl, title, index, depth, nodes }
         this.chyoaItems  = [];
@@ -90,7 +90,7 @@ class ChyoaParser extends Parser {
 
     // =========================================================================
     // Recursive tree-walker
-    // Mirrors parser.getlinksfromsite() / scrape_links() from chyoa.py
+    // Mirrors parser.getlinksfromsite() / fetch_links() from chyoa.py
     // =========================================================================
     async _walkBranch(dom, url, depth, chapterUrlsUI) {
         let normUrl = util.normalizeUrlForCompare(url);
@@ -104,8 +104,8 @@ class ChyoaParser extends Parser {
         this.visitedUrls.set(normUrl, index);
 
         // ── Extract content nodes for this chapter ──
-        let title   = this._scrapeChapterTitle(dom);
-        let nodes   = this._scrapeContentNodes(dom, url);
+        let title   = this._extractChapterTitle(dom);
+        let nodes   = this._extractContentNodes(dom, url);
 
         this.chyoaItems.push({ sourceUrl: url, title, index, depth, nodes });
 
@@ -115,7 +115,7 @@ class ChyoaParser extends Parser {
         }
 
         // ── Follow choice links ──
-        let choices = this._scrapeChoiceLinks(dom);
+        let choices = this._extractChoiceLinks(dom);
         for (let { href } of choices) {
             let childNorm = util.normalizeUrlForCompare(href);
             if (this.visitedUrls.has(childNorm)) {
@@ -137,7 +137,7 @@ class ChyoaParser extends Parser {
     // =========================================================================
 
     /** Extract choice/branch links from a chapter page. */
-    _scrapeChoiceLinks(dom) {
+    _extractChoiceLinks(dom) {
         let seen    = new Set();
         let results = [];
 
@@ -165,8 +165,8 @@ class ChyoaParser extends Parser {
         return results;
     }
 
-    /** Get the chapter title. Mirrors parser.scrape_title_author() in chyoa.py. */
-    _scrapeChapterTitle(dom) {
+    /** Get the chapter title. Mirrors parser.extract_title_author() in chyoa.py. */
+    _extractChapterTitle(dom) {
         // Chapter pages: <header class="chapter-header"><h1>…</h1>
         let chHeader = dom.querySelector("header.chapter-header");
         if (chHeader) {
@@ -188,9 +188,9 @@ class ChyoaParser extends Parser {
     /**
      * Extract and clean the readable content for one chapter.
      * Returns an array of DOM nodes suitable for writing into an XHTML file.
-     * Mirrors parser.scrape_content() + saveEpub() content assembly in chyoa.py.
+     * Mirrors parser.extract_content() + saveEpub() content assembly in chyoa.py.
      */
-    _scrapeContentNodes(dom, sourceUrl) {
+    _extractContentNodes(dom, sourceUrl) {
         // Identify the chapter body
         let contentEl =
             dom.querySelector("div.chapter-content") ||
@@ -227,22 +227,8 @@ class ChyoaParser extends Parser {
             // Clone so we don't mutate the live DOM
             let clone = contentEl.cloneNode(true);
 
-            // Remove CHYOA clutter: ads, ratings, navigation links
-            for (let sel of [
-                "footer",
-                "div.chyoa-adzone",
-                "div.ratings",
-                "div.links",
-                "nav",
-                "script",
-                "noscript",
-                "input",
-                "button"
-            ]) {
-                for (let el of [...clone.querySelectorAll(sel)]) {
-                    el.remove();
-                }
-            }
+            // Clean up unwanted elements
+            this.removeUnwantedElementsFromContentElement(clone);
 
             wrapper.appendChild(clone);
         } else {
@@ -264,7 +250,7 @@ class ChyoaParser extends Parser {
         // 4. Choices as a list of links
         //    We use relative xhtml filenames that fixupHyperlinksInEpubItems()
         //    will resolve later (it rewrites chyoa.com URLs → ../Text/xhtmlXXX.xhtml)
-        let choices = this._scrapeChoiceLinks(dom);
+        let choices = this._extractChoiceLinks(dom);
         if (choices.length > 0) {
             let ul = document.createElement("ul");
             for (let { href, text } of choices) {
@@ -283,11 +269,51 @@ class ChyoaParser extends Parser {
 
     // =========================================================================
     // STEP 2 – fetchContent()
-    // All content was already fetched during getChapterUrls(), so this is a no-op.
-    // The framework calls this when the user clicks "Pack EPUB".
+    // Content text was fetched during getChapterUrls(), but we must process
+    // images here so they are properly collected, downloaded, and included
+    // in the EPUB.
     // =========================================================================
-    fetchContent() {
-        return Promise.resolve();
+    async fetchContent() {
+        this.imageCollector.reset();
+        this.imageCollector.setCoverImageUrl(CoverImageUI.getCoverImageUrl());
+
+        // Get the list of URLs the user actually selected to include
+        let includedUrls = new Set();
+        for (let [url, page] of this.state.webPages) {
+            if (page.isIncludeable !== false) {
+                includedUrls.add(util.normalizeUrlForCompare(url));
+            }
+        }
+        let filterBySelection = (includedUrls.size > 0);
+        let itemsToProcess = filterBySelection
+            ? this.chyoaItems.filter(item => includedUrls.has(util.normalizeUrlForCompare(item.sourceUrl)))
+            : this.chyoaItems;
+
+        this.setUiToShowLoadingProgress(itemsToProcess.length);
+
+        for (let item of itemsToProcess) {
+            let webPage = this.state.webPages.get(item.sourceUrl);
+            if (!webPage) {
+                webPage = { sourceUrl: item.sourceUrl, row: null };
+            }
+
+            if (webPage.row) {
+                ChapterUrlsUI.showDownloadState(webPage.row, ChapterUrlsUI.DOWNLOAD_STATE_DOWNLOADING);
+            }
+
+            // Wrap the nodes back into a DOM element so imageCollector can process them
+            let wrapper = document.createElement("div");
+            item.nodes.forEach(n => wrapper.appendChild(n));
+
+            try {
+                await this.fetchImagesUsedInDocument(wrapper, webPage);
+            } catch (err) {
+                ErrorLog.log(`ChyoaParser: failed fetching images for ${item.sourceUrl}: ${err}`);
+            }
+
+            // Store the modified nodes (with image tags replaced) back into the item
+            item.nodes = Array.from(wrapper.childNodes);
+        }
     }
 
     // =========================================================================
@@ -315,13 +341,21 @@ class ChyoaParser extends Parser {
                 !includedUrls.has(util.normalizeUrlForCompare(item.sourceUrl))) {
                 continue;
             }
+
+            // The imageCollector downloaded the images in fetchContent, but we must
+            // now mutate the DOM elements to point to the local EPUB files.
+            let wrapper = document.createElement("div");
+            item.nodes.forEach(n => wrapper.appendChild(n));
+            this.imageCollector.replaceImageTags(wrapper);
+            let updatedNodes = Array.from(wrapper.childNodes);
+
             epubItems.push(
                 new ChyoaEpubItem(
                     item.sourceUrl,
                     item.title,
                     item.index,
                     item.depth,
-                    item.nodes
+                    updatedNodes
                 )
             );
         }
@@ -384,7 +418,7 @@ class ChyoaParser extends Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(
             element,
-            "footer, div.chyoa-adzone, div.ratings, div.links"
+            "footer, div.chyoa-adzone, div.ratings, div.links, nav, script, noscript, input, button"
         );
         super.removeUnwantedElementsFromContentElement(element);
     }
