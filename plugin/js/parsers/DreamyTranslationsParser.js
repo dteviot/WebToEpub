@@ -1,7 +1,6 @@
 "use strict";
 
 parserFactory.register("dreamy-translations.com", () => new DreamyTranslationsParser());
-parserFactory.register("dreamytranslations.com", () => new DreamyTranslationsParser());
 
 parserFactory.registerManualSelect(
     "Dreamy Translations",
