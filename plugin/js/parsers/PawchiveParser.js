@@ -46,7 +46,7 @@ class PawchiveParser extends Parser {
             urlbuilder.searchParams.delete(key);
         }
         let regex = new RegExp("/$");
-        //urlbuilder.pathname = urlbuilder.pathname.replace(regex, "");
+        urlbuilder.pathname = urlbuilder.pathname.replace(regex, "");
         let links = [...dom.querySelectorAll("article a")];
         links = links.filter(a => a.href.includes(urlbuilder.href+"/post"));
         return links.map(a => ({
