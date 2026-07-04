@@ -23,7 +23,7 @@ class PawchiveParser extends Parser {
         let nextTocPageUrl = function(_dom, chapters, lastFetch) {
             baseUrl.searchParams.set("o", nextTocIndex);
             nextTocIndex = nextTocIndex + 50;
-            return (chapters.length <= numChapters)
+            return (chapters.length <= numChapters && nextTocIndex <= numChapters+50)
                 ? `${baseUrl.href}`
                 : null;
         };
@@ -45,6 +45,8 @@ class PawchiveParser extends Parser {
         for (const [key] of baseurl.searchParams.entries()) {
             urlbuilder.searchParams.delete(key);
         }
+        let regex = new RegExp("/$");
+        //urlbuilder.pathname = urlbuilder.pathname.replace(regex, "");
         let links = [...dom.querySelectorAll("article a")];
         links = links.filter(a => a.href.includes(urlbuilder.href+"/post"));
         return links.map(a => ({
