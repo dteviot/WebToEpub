@@ -12,26 +12,47 @@ class PawchiveParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        let chapters = [];
-        let urlsOfTocPages = await this.getUrlsOfTocPages(dom);
-        let baseUrl = new URL(dom.baseURI);
-        baseUrl.search = "";
+        let firstUrl = new URL(dom.baseURI);
+        firstUrl.searchParams.set("o", 0);
+        let firstHtml = (await HttpClient.wrapFetch(firstUrl.href)).responseXML;
 
-        for (let url of urlsOfTocPages) {
-            await this.rateLimitDelay();
+        let baseUrl = new URL(firstHtml.baseURI);
+        baseUrl.searchParams.delete("o");
+        let nextTocIndex = 50;
+        let numChapters = this.getLastPageOffset(firstHtml);
+        let nextTocPageUrl = function(_dom, chapters, lastFetch) {
+            baseUrl.searchParams.set("o", nextTocIndex);
+            nextTocIndex = nextTocIndex + 50;
+            return (chapters.length <= numChapters && nextTocIndex <= numChapters+50 && (0 < lastFetch.length))
+                ? `${baseUrl.href}`
+                : null;
+        };
+        let chapters = (await this.walkTocPages(firstHtml,
+            PawchiveParser.getChapterUrlsFromTocPage,
+            nextTocPageUrl,
+            chapterUrlsUI
+        )).reverse();
+        return chapters;
+    }
 
-            let json = await this.fetchJson(url);
-            let partialList = this.extractPartialChapterList(json, baseUrl);
-
-            chapterUrlsUI.showTocProgress(partialList);
-            chapters = chapters.concat(partialList);
-
-            if (partialList.length === 0) {
-                break;
-            }
+    static getChapterUrlsFromTocPage(dom) {
+        if (dom == null) {
+            return [];
         }
+        let baseurl = new URL(dom.baseURI);
+        let urlbuilder = new URL(dom.baseURI);
 
-        return chapters.reverse();
+        for (const [key] of baseurl.searchParams.entries()) {
+            urlbuilder.searchParams.delete(key);
+        }
+        let regex = new RegExp("/$");
+        urlbuilder.pathname = urlbuilder.pathname.replace(regex, "");
+        let links = [...dom.querySelectorAll("article a")];
+        links = links.filter(a => a.href.includes(urlbuilder.href+"/post"));
+        return links.map(a => ({
+            sourceUrl: a.href, 
+            title: a.querySelector("header").textContent.trim()
+        }));
     }
 
     async fetchChapter(url) {
@@ -112,28 +133,6 @@ class PawchiveParser extends Parser {
         return cover?.src ?? null;
     }
 
-    async getUrlsOfTocPages(dom) {
-        let baseUrl = new URL(dom.baseURI);
-        let urlBuilder = new URL(dom.baseURI);
-
-        urlBuilder.search = "";
-        urlBuilder.pathname = "/api/v1" + baseUrl.pathname.replace(/\/$/, "");
-
-        for (const [key, value] of baseUrl.searchParams.entries()) {
-            urlBuilder.searchParams.set(key, value);
-        }
-
-        let lastPageOffset = this.getLastPageOffset(dom);
-        let urls = [];
-
-        for (let i = 0; i <= lastPageOffset; i += 50) {
-            urlBuilder.searchParams.set("o", i);
-            urls.push(urlBuilder.href);
-        }
-
-        return urls;
-    }
-
     getLastPageOffset(dom) {
         let offsets = [...dom.querySelectorAll("#paginator-top a")]
             .map(item => new URL(item.href).searchParams.get("o"))
@@ -152,19 +151,6 @@ class PawchiveParser extends Parser {
         };
 
         return (await HttpClient.fetchJson(url, options)).json;
-    }
-
-    extractPartialChapterList(data, baseUrl) {
-        return data.map(row => {
-            let chapterUrl = new URL(baseUrl.href);
-            chapterUrl.pathname = `/${row.service}/user/${row.user}/post/${row.id}`;
-            chapterUrl.search = "";
-
-            return {
-                sourceUrl: chapterUrl.href,
-                title: row.title
-            };
-        });
     }
 
     findContent(dom) {
