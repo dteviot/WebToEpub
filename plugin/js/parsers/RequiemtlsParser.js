@@ -3,8 +3,14 @@
 parserFactory.register("requiemtls.com", () => new RequiemtlsParser());
 
 class RequiemtlsParser extends Parser {
+
     constructor() {
         super();
+        this.usedfonts = new Set();
+    }
+
+    onStartCollecting() {
+        this.usedfonts = new Set();
     }
     
     async getChapterUrls(dom) {
@@ -42,20 +48,40 @@ class RequiemtlsParser extends Parser {
         return this.buildChapter(site, url);
     }
 
-    buildChapter(dom, url) {
+    async buildChapter(dom, url) {
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
         title.textContent = dom.querySelector(".entry-title").textContent;
         newDoc.content.appendChild(title);
         let divret = newDoc.dom.createElement("div");
         let content = dom.querySelector(".entry-content");
-        for (let n of [...content.childNodes]) {
-            divret.appendChild(n);
+        
+        if (content) {
+            for (let n of [...content.childNodes]) {
+                let imported = newDoc.dom.importNode(n, true);
+                divret.appendChild(imported);
+            }
+
+            // match the font token safely; construct RegExp from string to allow flags
+            let regex = new RegExp("requiem_.*?_.*?(,|\")", "s");
+            let outer = content.outerHTML;
+            let fontMatch = outer.match(regex);
+            if (fontMatch && fontMatch[0]) {
+                let font = fontMatch[0].replaceAll("\n", "").replaceAll("'", "").replaceAll(" ", "").slice(0, -1);
+                divret.style.fontFamily = font;
+                if (!this.usedfonts.has(font)) {
+                    this.usedfonts.add(font);
+                    try {
+                        let xhr = await HttpClient.wrapFetch("https://requiemtls.com/wp-content/themes/lightnovel/fonts/updated/"+font+".ttf");
+                        let newfont = new FontInfo(font+".ttf");
+                        newfont.arraybuffer = xhr.arrayBuffer;
+                        this.imageCollector.imagesToPack.push(newfont);
+                    } catch (error) {
+                        //
+                    }
+                }
+            }
         }
-        let regex = new RegExp(/requiem_tnr_.*?(,|")/, "s");
-        let font = dom.querySelector(".entry-content").outerHTML.match(regex)?.[0];
-        font = font.replaceAll("\n", "").replaceAll("'", "").replaceAll(" ", "").slice(0,-1);
-        divret.style.fontFamily = font;
         newDoc.content.appendChild(divret);
         return newDoc.dom;
     }
