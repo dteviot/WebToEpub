@@ -18,9 +18,48 @@ class WuxiaworldParser extends Parser {
                 WuxiaworldParser.isChapterHref, WuxiaworldParser.getChapterArc);
             WuxiaworldParser.removeArcsWhenOnlyOne(chapters);
         }
-        if (0 == chapters.length) {
+        if (0 === chapters.length) {
             chapters = [...dom.querySelectorAll("li.chapter-item a")]
                 .map(link => util.hyperLinkToChapter(link));
+        }
+        if (0 === chapters.length) {
+            let novelUrlMatch = dom.baseURI.match(/wuxiaworld\.com\/novel\/([^/?#]+)/);
+            if (novelUrlMatch) {
+                let novelSlug = novelUrlMatch[1];
+                let searchArea = dom.querySelector("#full-width-tabpanel-1") || dom.body;
+                let links = [...searchArea.querySelectorAll("a")].filter(a => {
+                    let href = a.getAttribute("href");
+                    let isChapter = href && href.startsWith(`/novel/${novelSlug}/`) && href.length > `/novel/${novelSlug}/`.length;
+                    
+                    if (isChapter) {
+                        let statusDiv = a.querySelector("div[role='status']");
+                        if (!statusDiv) {
+                            return false; // Not in the chapter list (e.g., hero section buttons)
+                        }
+                        if (statusDiv.innerHTML.trim() !== "") {
+                            return false; // Filter locked/wait chapters
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+
+                let seen = new Set();
+                chapters = links.filter(a => {
+                    let href = a.href;
+                    if (seen.has(href)) return false;
+                    seen.add(href);
+                    return true;
+                }).map(a => {
+                    let titleSpan = a.querySelector(".font-set-sb16 span, .line-clamp-1 span");
+                    return {
+                        sourceUrl: a.href,
+                        title: titleSpan ? titleSpan.textContent.trim() : a.textContent.trim()
+                    };
+                });
+                
+                chapters.reverse();
+            }
         }
         return Promise.resolve(chapters);  
     }
@@ -88,7 +127,22 @@ class WuxiaworldParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.novel-index");
+        let oldCover = util.getFirstImgSrc(dom, "div.novel-index");
+        if (oldCover) {
+            return oldCover;
+        }
+        let newCover = dom.querySelector("img[src*='/covers/']");
+        return newCover ? newCover.src : super.findCoverImageUrl(dom);
+    }
+
+    extractAuthor(dom) {
+        // Use a more specific selector to avoid scanning all divs on the page
+        let labels = [...dom.querySelectorAll("div.flex-row > div, div.text-gray-t3 > div")];
+        let authorLabel = labels.find(div => div.textContent.trim() === "Author:");
+        if (authorLabel && authorLabel.nextElementSibling) {
+            return authorLabel.nextElementSibling.textContent.trim();
+        }
+        return super.extractAuthor(dom);
     }
 
     getInformationEpubItemChildNodes(dom) {
