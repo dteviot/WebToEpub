@@ -23,6 +23,16 @@ class SkydemonorderParser extends Parser {
         };
     }
 
+    preprocessRawDom(webPageDom) {
+        for (let tag of webPageDom.querySelectorAll("live, comments, epicstream")) {
+            let div = webPageDom.createElement("div");
+            while (tag.firstChild) {
+                div.appendChild(tag.firstChild);
+            }
+            tag.replaceWith(div);
+        }
+    }
+
     findContent(dom) {
         return dom.querySelector("div#chapter-body");
     }
@@ -37,7 +47,18 @@ class SkydemonorderParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "div.w-full");
+        let img = dom.querySelector("div.w-full img");
+        if (img) {
+            let alpineSrc = img.getAttribute(":src");
+            if (alpineSrc) {
+                let match = alpineSrc.match(/'(https:\/\/[^']+)'/);
+                if (match) {
+                    return match[1];
+                }
+            }
+            return img.src;
+        }
+        return null;
     }
 
     getInformationEpubItemChildNodes(dom) {
