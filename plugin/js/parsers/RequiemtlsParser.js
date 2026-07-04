@@ -49,13 +49,21 @@ class RequiemtlsParser extends Parser {
         newDoc.content.appendChild(title);
         let divret = newDoc.dom.createElement("div");
         let content = dom.querySelector(".entry-content");
-        for (let n of [...content.childNodes]) {
-            divret.appendChild(n);
+        if (content) {
+            for (let n of [...content.childNodes]) {
+                let imported = newDoc.dom.importNode(n, true);
+                divret.appendChild(imported);
+            }
+
+            // match the font token safely; construct RegExp from string to allow flags
+            let regex = new RegExp("requiem_tnr_.*?(,|\")", "s");
+            let outer = content.outerHTML;
+            let fontMatch = outer.match(regex);
+            if (fontMatch && fontMatch[0]) {
+                let font = fontMatch[0].replaceAll("\n", "").replaceAll("'", "").replaceAll(" ", "").slice(0, -1);
+                divret.style.fontFamily = font;
+            }
         }
-        let regex = new RegExp(/requiem_tnr_.*?(,|")/, "s");
-        let font = dom.querySelector(".entry-content").outerHTML.match(regex)?.[0];
-        font = font.replaceAll("\n", "").replaceAll("'", "").replaceAll(" ", "").slice(0,-1);
-        divret.style.fontFamily = font;
         newDoc.content.appendChild(divret);
         return newDoc.dom;
     }
