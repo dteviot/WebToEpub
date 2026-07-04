@@ -23,7 +23,7 @@ class PawchiveParser extends Parser {
         let nextTocPageUrl = function(_dom, chapters, lastFetch) {
             baseUrl.searchParams.set("o", nextTocIndex);
             nextTocIndex = nextTocIndex + 50;
-            return (chapters.length <= numChapters && nextTocIndex <= numChapters+50)
+            return (chapters.length <= numChapters && nextTocIndex <= numChapters+50 && (0 < lastFetch.length))
                 ? `${baseUrl.href}`
                 : null;
         };
@@ -36,7 +36,7 @@ class PawchiveParser extends Parser {
     }
 
     static getChapterUrlsFromTocPage(dom) {
-        if(dom == null){
+        if (dom == null) {
             return [];
         }
         let baseurl = new URL(dom.baseURI);
