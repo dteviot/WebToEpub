@@ -53,8 +53,8 @@ let LiteroticaToCSamplePage2 =
 </head>
 <body >
 <div class="aa_ht"><div><h2 class="series__header">TABLE OF CONTENTS</h2><ul class="series__works">
-<li class="br_ri"><a href="https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01" class="br_rj">A Dirty TASK Needs Doing Pt. 01</a><p class="br_rk">Kimberly Woods is not your average high school senior...<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
-<li class="br_ri"><a href="https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07" class="br_rj">A Dirty TASK Needs Doing Pt. 02</a><p class="br_rk">Kimberly goes on her first mission!<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
+<li class="br_ri"><a href="https://www.literotica.com/s/a-dirty-task-needs-doing-pt-01" class="_link_qr6sx_55">A Dirty TASK Needs Doing Pt. 01</a><p class="br_rk">Kimberly Woods is not your average high school senior...<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
+<li class="br_ri"><a href="https://www.literotica.com/s/zelda-avatar-of-the-golden-nymph-ch-07" class="_link_qr6sx_55">A Dirty TASK Needs Doing Pt. 02</a><p class="br_rk">Kimberly goes on her first mission!<a class="br_rl" href="/series/Transgender-Crossdressers-48/">Transgender &amp; Crossdressers</a></p></li>
 </body>
 </html>
 `
