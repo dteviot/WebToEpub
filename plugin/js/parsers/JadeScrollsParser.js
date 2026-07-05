@@ -8,7 +8,6 @@ parserFactory.register("jadescrolls.com", () => new JadeScrollsParser());
 class JadeScrollsParser extends Parser {
     constructor() {
         super();
-        this.ChacheChapterContent = new Map();
     }
 
     populateUIImpl() {
@@ -16,23 +15,16 @@ class JadeScrollsParser extends Parser {
     }
 
     async getChapterUrls() {
-        let chapters = [];
         let Chapterjsons = (await HttpClient.fetchJson("https://api.jadescrolls.com/api/novels-chapter/"+this.id+"/chapters/list?limit="+this.chapters_count+"&page=1&novelId="+this.id+"&status=PUBLISHED&isDeleted=false&sortOrder=desc")).json;
-        chapters = this.chaptersFromJson(Chapterjsons);
-        this.chacheChapter(Chapterjsons);
-        return chapters;
+        return this.chaptersFromJson(Chapterjsons);
     }
 
     chaptersFromJson(json) {
         return json.data.map(a => ({
             sourceUrl: "https://jadescrolls.com/novel/"+this.slug+"/"+a.slug, 
-            title: document.getElementById("removeChapterNumberCheckbox").checked?a.title:"Chapter "+a.chapter_number+": "+a.title, 
+            title: document.getElementById("removeChapterNumberCheckbox")?.checked ? a.title : "Chapter "+a.chapter_number+": "+a.title, 
             isIncludeable: (a.type == "FREE")
         })).reverse();
-    }
-
-    chacheChapter(json) {
-        json.data.map(a => (this.ChacheChapterContent.set("https://jadescrolls.com/novel/"+this.slug+"/"+a.slug, [a.title, a.content])));
     }
 
     async loadEpubMetaInfo(dom) {
@@ -50,7 +42,7 @@ class JadeScrollsParser extends Parser {
         for (let tmp in bookinfo?.sub_genres) {
             this.tags = this.tags.concat(tmp?.name);
         }
-        this.novelSlug = novelSlug;
+        this.slug = novelSlug;
         this.id = bookinfo.id;
         this.chapters_count = bookinfo.chapters_count;
         return;
@@ -82,25 +74,10 @@ class JadeScrollsParser extends Parser {
     }
 
     async fetchChapter(url) {
-        if (this.ChacheChapterContent.has(url)) {
-            this.minimumThrottle = 0;
-            return this.buildChapterfromChache(this.ChacheChapterContent.get(url), url);
-        } else {
-            this.minimumThrottle = this.getRateLimit();
-            let restUrl = this.toRestUrl(url);
-            let json = (await HttpClient.fetchJson(restUrl)).json;
-            return this.buildChapter(json, url);
-        }
-    }
-
-    buildChapterfromChache(json, url) {
-        let newDoc = Parser.makeEmptyDocForContent(url);
-        let title = newDoc.dom.createElement("h1");
-        title.textContent = json[0];
-        newDoc.content.appendChild(title);
-        let content = util.sanitize(json[1]);
-        util.moveChildElements(content.body, newDoc.content);
-        return newDoc.dom;
+        this.minimumThrottle = this.getRateLimit();
+        let restUrl = this.toRestUrl(url);
+        let json = (await HttpClient.fetchJson(restUrl)).json;
+        return this.buildChapter(json, url);
     }
 
     toRestUrl(url) {
