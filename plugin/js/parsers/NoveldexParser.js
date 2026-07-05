@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("noveldex.io", () => new NoveldexParser());
+HttpClient.blockedSites.add("noveldex.io");
 
 /**
  * Parser for the http://noveldex.io/ site.

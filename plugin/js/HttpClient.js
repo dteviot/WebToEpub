@@ -194,7 +194,12 @@ class HttpClient {
     }
 
     static async wrapFetchImpl(url, wrapOptions) {
-        if (BlockedHostNames.has(new URL(url).hostname)) {
+        let hostname = new URL(url).hostname;
+        if (HttpClient.blockedSites.has(hostname)) {
+            let skipurlerror = new Error(UIText.Warning.parserDisabledNotification);
+            return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
+        }
+        if (BlockedHostNames.has(hostname)) {
             let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
             return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
         }
@@ -286,6 +291,7 @@ class HttpClient {
 }
 
 let BlockedHostNames = new Set();
+HttpClient.blockedSites = new Set();
 
 class FetchResponseHandler {
     isHtml() {

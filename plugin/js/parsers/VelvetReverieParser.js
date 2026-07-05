@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("velvet-reverie.org", () => new VelvetReverieParser());
+HttpClient.blockedSites.add("velvet-reverie.org");
 
 class VelvetReverieParser extends Parser {
     constructor() {

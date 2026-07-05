@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("brittanypage43.com", () => new Brittanypage43Parser());
+HttpClient.blockedSites.add("brittanypage43.com");
 
 class Brittanypage43Parser extends Parser {
     constructor() {
