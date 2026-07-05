@@ -1,6 +1,6 @@
 "use strict";
 
-parserFactory.register("metruyenchu.com.vn", () => new MeTruyenChuParser());
+parserFactory.register("metruyenchuvn.com", () => new MeTruyenChuParser());
 
 class MeTruyenChuParser extends Parser {
     constructor() {
@@ -10,7 +10,7 @@ class MeTruyenChuParser extends Parser {
     async getChapterUrls(dom) {
         const chapters = [];
         const bid = dom.querySelector("input[name='bid']")?.value;
-        const baseUrl = "https://metruyenchu.com.vn";
+        const baseUrl = "https://metruyenchuvn.com";
         let maxPage = 1;
         
         dom.querySelectorAll(".paging a[onclick]").forEach(a => {
@@ -30,9 +30,9 @@ class MeTruyenChuParser extends Parser {
                         }
                     });
                     
-                    const json = await response.json(); 
-                    const tempDiv = dom.createElement("div");
-                    tempDiv.innerHTML = json.data;
+                    const json = await response.json();
+                    const sanitized = util.sanitize(json.data);
+                    const tempDiv = sanitized.querySelector("div");
                     
                     chapters.push(...Array.from(tempDiv.querySelectorAll("li a")).map(link => ({
                         title: link.textContent.trim(),

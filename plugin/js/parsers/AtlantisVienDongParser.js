@@ -24,7 +24,7 @@ class AtlantisVienDongParser extends Parser { // eslint-disable-line no-unused-v
         let element = this.findTemplateByIndex(dom, 0);
         if (element) {
             // Remove plus symbols at the end of sentences
-            element.innerHTML = element.innerHTML.replace(/\s*\+\s*/g, " ");
+            util.removeChildElementsMatchingSelector(element, "span.highlight-comment-btn");
         }
         return element;
     }
