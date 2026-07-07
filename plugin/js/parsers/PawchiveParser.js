@@ -100,13 +100,13 @@ class PawchiveParser extends Parser {
 
     buildImageUrl(path) {
         return new URL(
-            "/data" + this.normalizePath(path),
-            "https://file.pawchive.st"
+            "/thumbnail/data" + this.normalizePath(path),
+            "https://img.pawchive.pw"
         ).href;
     }
 
     buildFileUrl(path) {
-        return new URL("/data" + this.normalizePath(path), "https://pawchive.st")
+        return new URL("/data" + this.normalizePath(path), "https://pawchive.pw")
             .href;
     }
 
