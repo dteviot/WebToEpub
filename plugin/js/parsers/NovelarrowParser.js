@@ -70,7 +70,8 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
         return s.replace(/\\u003c/g, "<")
             .replace(/\\u003e/g, ">")
             .replace(/\\"/g, "\"")
-            .replace(/\\n/g, "");
+            .replace(/\\n/g, "")
+            .replace(/\\u0026nbsp;/g, " ");
     }
 
     extractContentString(raw) {
