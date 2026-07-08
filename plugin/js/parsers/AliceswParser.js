@@ -5,7 +5,7 @@ parserFactory.register("alicesw.com", () => new AliceswParser());
 class AliceswParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 3000;
+        this.minimumThrottle = 5000;
     }
 
     async getChapterUrls(dom) {
