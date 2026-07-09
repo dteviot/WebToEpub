@@ -9,11 +9,12 @@ class Novel543Parser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let tocUrl = dom.baseURI;
-        tocUrl += tocUrl.endsWith("/")
-            ? "dir"
-            : "/dir";
-        let nextDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
+        let tocUrl = new URL(dom.baseURI);
+        let [bookId] = tocUrl.pathname.split("/").filter(Boolean);
+        tocUrl.pathname = `/${bookId}/dir`;
+        tocUrl.hash = "";
+        tocUrl.search = "";
+        let nextDom = (await HttpClient.wrapFetch(tocUrl.href)).responseXML;
         let menu = nextDom.querySelector("div.chaplist ul:nth-of-type(2)");
         return util.hyperlinksToChapterList(menu);
     }
