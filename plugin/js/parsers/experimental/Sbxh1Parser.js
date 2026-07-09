@@ -1,7 +1,7 @@
 "use strict";
 
 parserFactory.registerUrlRule(
-    (url) => /^https?:\/\/(?:www\.)?sbxh\d+\.com(?:\/|$)/.test(url),
+    (url) => /^https?:\/\/(?:www\.)?(sbxh|toki)\d+\.com(?:\/|$)/.test(url),
     () => new Sbxh1Parser(),
 );
 
@@ -10,17 +10,22 @@ class Sbxh1Parser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let novelId = Sbxh1Parser.extractNovelId(dom.baseURI);
         if (novelId == null) {
             return [];
         }
+        let chapterLinks = Sbxh1Parser.parseChapters(dom, novelId);
 
-        let chapterLinks = [
-            ...dom.querySelectorAll(`a.novel-ep-link[href*="/novel/${novelId}/"]`),
-        ];
-        if (chapterLinks.length === 0) {
-            chapterLinks = [...dom.querySelectorAll(`a[href*="/novel/${novelId}/"]`)];
+        let page = 1;
+        while (chapterLinks[chapterLinks.length - 1].querySelector(".ne-num").textContent !== "1화") {
+            page++;
+            const xml = (await HttpClient.wrapFetch(`${dom.baseURI}?epage=${page}`)).responseXML;
+            let newLinks = Sbxh1Parser.parseChapters(xml, novelId);
+            if (newLinks.length === 0) {
+                break;
+            }
+            chapterLinks.push(...newLinks);
         }
 
         let chaptersByUrl = new Map();
@@ -32,9 +37,12 @@ class Sbxh1Parser extends Parser {
                     return;
                 }
                 let normalized = util.normalizeUrlForCompare(a.href);
+                let chapterNumber = a.querySelector(".ne-num").textContent;
+                let chapterTitle = a.querySelector(".ne-title").textContent;
+
                 let chapter = {
                     sourceUrl: a.href,
-                    title: Sbxh1Parser.cleanEpisodeTitle(a.textContent),
+                    title: `${chapterNumber} - ${chapterTitle}`,
                     episodeNumber: episodeNumber,
                 };
                 let existing = chaptersByUrl.get(normalized);
@@ -52,6 +60,16 @@ class Sbxh1Parser extends Parser {
                 sourceUrl: a.sourceUrl,
                 title: a.title,
             }));
+    }
+
+    static parseChapters(dom, novelId) {
+        let chapterLinks = [
+            ...dom.querySelectorAll(`a.novel-ep-link[href*="/novel/${novelId}/"]`),
+        ];
+        if (chapterLinks.length === 0) {
+            chapterLinks = [...dom.querySelectorAll(`a[href*="/novel/${novelId}/"]`)];
+        }
+        return chapterLinks;
     }
 
     findContent(dom) {
@@ -297,15 +315,6 @@ class Sbxh1Parser extends Parser {
             new URL(url).pathname.match(new RegExp(`^/novel/${novelId}/\\d+$`)) !=
             null
         );
-    }
-
-    static cleanEpisodeTitle(title) {
-        return title
-            .replace(/\bNEW\b/g, "")
-            .replace(/\d{2}\.\s*\d{2}\.\s*\d{2}\.?/g, "")
-            .replace(/\s+/g, " ")
-            .replace(/^(\d+\s*화)\1$/, "$1")
-            .trim();
     }
 
     static extractEpisodeNumber(title) {
