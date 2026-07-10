@@ -145,9 +145,9 @@ var addPopupHtmlToZip = function(zip) {
     return readFilePromise("../plugin/popup.html")
         .then(function(data) {
             let htmlAsString = data.toString()
-                .split("\r")
+                .split("\n")
                 .filter(s => !s.includes("/experimental/"))
-                .join("\r");
+                .join("\n");
             zip.add("popup.html", new zipjs.TextReader(htmlAsString));
         });
 };
