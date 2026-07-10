@@ -1070,10 +1070,19 @@ const util = (function() {
     }
 
     function rot13(str) {
-        return str.replace(/[a-z]/gi, c => {
-            const base = c <= "Z" ? 65 : 97;
-            return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
-        });
+        let result = "";
+
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i);
+            if (code >= 65 && code <= 90) {
+                result += String.fromCharCode((code - 65 + 13) % 26 + 65);
+            } else if (code >= 97 && code <= 122) {
+                result += String.fromCharCode((code - 97 + 13) % 26 + 97);
+            } else {
+                result += str[i];
+            }
+        }
+        return result;
     }
 
     function sanitize(dirty) {
