@@ -1069,6 +1069,13 @@ const util = (function() {
         }
     }
 
+    function rot13(str) {
+        return str.replace(/[a-z]/gi, c => {
+            const base = c <= "Z" ? 65 : 97;
+            return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+        });
+    }
+
     function sanitize(dirty) {
         let savedBaseURI = dirty.baseURI;
         const clean = DOMPurify.sanitize(dirty);
@@ -1262,6 +1269,7 @@ const util = (function() {
         replaceSemanticInlineStylesWithTags: replaceSemanticInlineStylesWithTags,
         wrapInnerContentInTag: wrapInnerContentInTag,
         getDefaultExtensionByMime: getDefaultExtensionByMime,
-        detectMimeType: detectMimeType
+        detectMimeType: detectMimeType,
+        rot13: rot13
     };
 })();

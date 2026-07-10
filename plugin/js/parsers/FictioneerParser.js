@@ -112,18 +112,49 @@ class FictioneerParser extends Parser {
     }
 
     preprocessRawDom(chapterDom) {
-        let antiScrape = chapterDom.querySelector(".tiv-anti-scrape")?.parentNode;
-        if (!antiScrape) return;
+        this.processGhostContent(chapterDom);
 
-        let payloadEl = antiScrape.querySelector("script");
+        const payloadHost = chapterDom.querySelector(".tiv-anti-scrape")?.parentNode;
+        if (!payloadHost) return;
+
+        const payloadEl = payloadHost.querySelector("script");
         if (!payloadEl) return;
 
-        let data = JSON.parse(payloadEl.textContent || payloadEl.innerText || "{}");
-        antiScrape.replaceChildren();
-        let cryptNode = chapterDom.createElement("p");
-        cryptNode.className = "encryptedPayload";
-        cryptNode.textContent = data.data;
-        antiScrape.appendChild(cryptNode);
+        const data = JSON.parse(payloadEl.textContent || payloadEl.innerText || "{}");
+        payloadHost.replaceChildren();
+        const payloadNode = chapterDom.createElement("p");
+        payloadNode.className = "obfuscatedPayload";
+        payloadNode.textContent = data.data;
+        payloadHost.appendChild(payloadNode);
+    }
+
+    processGhostContent(chapterDom) {
+        const ghostScript = chapterDom.querySelector("script[data-poly]");
+        if (!ghostScript) return;
+
+        const poly = ghostScript.getAttribute("data-poly");
+        const total = parseInt(ghostScript.getAttribute("data-total") || "0", 10);
+        if (!poly || total <= 0) return;
+
+        const encoded = Array.from({ length: total }, (_, i) =>
+            ghostScript.getAttribute(`data-${poly}-${i}`) || ""
+        ).join("");
+        if (!encoded) return;
+
+        let plain;
+        try {
+            plain = decodeURIComponent(atob(util.rot13(encoded)));
+        } catch {
+            return;
+        }
+
+        const host = chapterDom.querySelector("#cherry-content-host");
+        if (host) {
+            const temp = chapterDom.createElement("div");
+            temp.innerHTML = plain;
+            host.replaceWith(...temp.childNodes);
+        }
+        ghostScript.remove();
     }
 
     customRawDomToContentStep(chapter, content) {
