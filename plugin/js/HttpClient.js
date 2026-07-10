@@ -214,6 +214,10 @@ class HttpClient {
         {
             let response = await fetch(url, wrapOptions.fetchOptions);
             let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
+            if (wrapOptions.parser?.isNoContentToError403AndContentNull(ret)) {
+                let CustomNoContentToError403Response = wrapOptions.parser.setNoContentToError403Response(url, wrapOptions, ret);
+                return wrapOptions.errorHandler.onResponseError(CustomNoContentToError403Response.url, CustomNoContentToError403Response.wrapOptions, CustomNoContentToError403Response. response, CustomNoContentToError403Response.errorMessage);
+            }
             if (wrapOptions.parser?.isCustomError(ret)) {
                 let CustomErrorResponse = wrapOptions.parser.setCustomErrorResponse(url, wrapOptions, ret);
                 return wrapOptions.errorHandler.onResponseError(CustomErrorResponse.url, CustomErrorResponse.wrapOptions, CustomErrorResponse.response, CustomErrorResponse.errorMessage);
