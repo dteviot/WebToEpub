@@ -491,6 +491,26 @@
                         <td></td>
                         <td><button id="viewReadingListButton">__MSG_button_View_Reading_List__</button></td>
                     </tr>
+                    <!-- BEGIN offstore -->
+                    <tr data-offstore="true" id="externalScriptsEnabledRow">
+                        <td><input id="externalScriptsEnabledCheckbox" type="checkbox" name="externalScriptsEnabledCheckbox" value="false"></td>
+                        <td>Load external parser scripts from remote repositories (off-store builds only)</td>
+                    </tr>
+                    <tr data-offstore="true" id="externalScriptsReposRow">
+                        <td>External script repos (one URL per line):</td>
+                        <td>
+                            <textarea id="externalScriptReposInput" rows="3" cols="60" placeholder="https://raw.githubusercontent.com/dteviot/WebToEpub/main/external-parsers/index.json"></textarea>
+                        </td>
+                    </tr>
+                    <tr data-offstore="true" id="externalScriptsAutoUpdateRow">
+                        <td><input id="externalScriptsAutoUpdateCheckbox" type="checkbox" name="externalScriptsAutoUpdateCheckbox" value="true"></td>
+                        <td>Auto-update external scripts</td>
+                    </tr>
+                    <tr data-offstore="true" id="externalScriptsStatusRow">
+                        <td></td>
+                        <td><span id="externalScriptsStatus" hidden="true"></span></td>
+                    </tr>
+                    <!-- END offstore -->
                     <tr id="developerStuffRow">
                         <td>__MSG_label_Developer_Stuff__</td>
                         <td>
@@ -599,7 +619,7 @@
         <script src="js/ErrorLog.js"></script>
         <script src="js/Util.js"></script>
         <script src="js/FootnoteExtractor.js"></script>
-        <script src="js/Firefox.js"></script>
+        <script src="js/MV2Compat.js"></script>
         <script src="js/Download.js"></script>
         <script src="js/HttpClient.js"></script>
         <script src="js/EpubItem.js"></script>
@@ -1023,6 +1043,7 @@
         <script src="js/CoverImageUI.js"></script>
         <script src="js/parsers/SonakoParser.js"></script>
         <script src="js/EpubPacker.js"></script>
+        <script src="js/offstore/ExternalScriptLoader.js"></script>
         <script src="js/main.js"></script>
     </span>
 </body>
