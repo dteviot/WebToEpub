@@ -637,13 +637,13 @@ var main = (function() {
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             getAdditionalMetadataSection().hidden = !userPreferences.ShowMoreMetadataOptions.value;
             addEventHandlers();
-            populateControls();
             if (util.isMV2()) {
                 MV2Compat.startWebRequestListeners();
             }
             if (typeof ExternalScriptLoader !== "undefined") {
-                ExternalScriptLoader.init(userPreferences);
+                await ExternalScriptLoader.init(userPreferences);
             }
+            populateControls();
         } else {
             await openTabWindow();
         }
