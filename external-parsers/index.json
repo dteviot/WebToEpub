@@ -4,7 +4,7 @@
     "scripts": [
         {
             "host": "www.ciweimao.com",
-            "url": "https://raw.githubusercontent.com/kuwoyuki/WebToEpub/feature/offstore-external-scripts/external-parsers/CiweimaoParser.js"
+            "url": "https://raw.githubusercontent.com/kuwoyuki/WebToEpub/refs/heads/feature/offstore-external-scripts/external-parsers/CiweimaoParser.js"
         }
     ]
 }
