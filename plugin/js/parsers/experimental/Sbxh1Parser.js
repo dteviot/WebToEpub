@@ -21,7 +21,11 @@ class Sbxh1Parser extends Parser {
         // eslint-disable-next-line no-constant-condition
         while (true) {
             page++;
-            const xml = (await HttpClient.wrapFetch(`${dom.baseURI}?epage=${page}`)).responseXML;
+
+            let nextUrl = new URL(dom.baseURI);
+            nextUrl.searchParams.set("epage", page);
+            const { responseXML: xml } = await HttpClient.wrapFetch(nextUrl.href);
+
             let newLinks = Sbxh1Parser.extractChapterLinks(xml, novelId);
             if (newLinks.length === 0) {
                 break;
