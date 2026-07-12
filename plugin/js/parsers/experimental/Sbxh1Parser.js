@@ -118,7 +118,7 @@ class Sbxh1Parser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("main img[alt]")?.src ?? null;
+        return dom.querySelector(".nd-thumb img[alt]")?.src ?? null;
     }
 
     findChapterTitle(dom) {
