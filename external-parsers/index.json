@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "updated": "2026-07-11",
+    "scripts": [
+        {
+            "host": "www.ciweimao.com",
+            "url": "https://raw.githubusercontent.com/kuwoyuki/WebToEpub/refs/heads/feature/offstore-external-scripts/external-parsers/CiweimaoParser.js"
+        }
+    ]
+}

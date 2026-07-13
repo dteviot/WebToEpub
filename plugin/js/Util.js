@@ -43,6 +43,15 @@ const util = (function() {
         }
     }
 
+    function isMV2() {
+        try {
+            const runtime = isFirefox() ? browser.runtime : chrome.runtime;
+            return runtime.getManifest().manifest_version === 2;
+        } catch (e) {
+            return false;
+        }
+    }
+
     function extensionVersion() {
         let runtime = isFirefox() ? browser.runtime : chrome.runtime;
         // when running unit tests, runtime is not available
@@ -1163,6 +1172,7 @@ const util = (function() {
         sleepController: sleepController,
         randomInteger: randomInteger,
         isFirefox: isFirefox,
+        isMV2: isMV2,
         extensionVersion: extensionVersion,
         createEmptyXhtmlDoc: createEmptyXhtmlDoc,
         createEmptyHtmlDoc: createEmptyHtmlDoc,

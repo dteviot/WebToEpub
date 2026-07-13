@@ -129,6 +129,14 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.disableImageResError = this.addPreference("disableImageResError", "disableImageResErrorCheckbox", false);
         this.disableWebpImageFormatError = this.addPreference("disableWebpImageFormatError", "disableWebpImageFormatErrorCheckbox", false);
 
+        // External script preferences.. only available in off-store builds
+        // UI elements only exist when /offstore/ lines are present in popup.html
+        if (document.getElementById("externalScriptsEnabledCheckbox")) {
+            this.externalScriptsEnabled = this.addPreference("externalScriptsEnabled", "externalScriptsEnabledCheckbox", false);
+            this.externalScriptRepos = this.addPreference("externalScriptRepos", "externalScriptReposInput", ExternalScriptLoader.defaultRepoUrl);
+            this.externalScriptsAutoUpdate = this.addPreference("externalScriptsAutoUpdate", "externalScriptsAutoUpdateCheckbox", true);
+        }
+
         document.getElementById("themeColorTag").addEventListener("change", UserPreferences.SetTheme);
     }
 

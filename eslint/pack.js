@@ -141,14 +141,26 @@ var getLocaleFilesNames = function() {
     });
 };
 
-var addPopupHtmlToZip = function(zip) {
+var addPopupHtmlToZip = function(zip, stripOffstore) {
     return readFilePromise("../plugin/popup.html")
         .then(function(data) {
-            let htmlAsString = data.toString()
-                .split("\r")
-                .filter(s => !s.includes("/experimental/"))
-                .join("\r");
-            zip.add("popup.html", new zipjs.TextReader(htmlAsString));
+            let html = data.toString();
+            // strip offstore UI block between BEGIN/END markers
+            if (stripOffstore) {
+                html = html.replace(/<!--\s*BEGIN offstore\s*-->[\s\S]*?<!--\s*END offstore\s*-->/g, "");
+            }
+            // strip individual lines with /experimental/ or /offstore/ markers (for script tags)
+            let lines = html.split(/\r?\n/);
+            let filtered = lines.filter(function(s) {
+                if (s.includes("/experimental/")) {
+                    return false;
+                }
+                if (stripOffstore && s.includes("/offstore/")) {
+                    return false;
+                }
+                return true;
+            });
+            zip.add("popup.html", new zipjs.TextReader(filtered.join("\n")));
         });
 };
 
@@ -169,7 +181,10 @@ var addCssFileToZip = function(zip, fileName) {
     return addBinaryFileToZip(zip, "../plugin/" + dest, dest);
 };
 
-var packNonManifestExtensionFiles = function(zip, packedFileName) {
+var packNonManifestExtensionFiles = function(zip, packedFileName, stripOffstore) {
+    let fileFilterPattern = stripOffstore
+        ? /\/experimental\/|\/offstore\//
+        : /\/experimental\//;
     return addBinaryFileToZip(zip, "../plugin/book128.png", "book128.png")
         .then(function() {
             return addImageFileToZip(zip, "ChapterStateDownloading.svg");
@@ -194,12 +209,12 @@ var packNonManifestExtensionFiles = function(zip, packedFileName) {
         }).then(function(fileList) {
             return getLocaleFilesNames().then(function(localeNames) {
                 return ["js/ContentScript.js"].concat(localeNames)
-                    .concat(fileList.filter(n => !n.includes("/experimental/")));
+                    .concat(fileList.filter(n => !fileFilterPattern.test(n)));
             });
         }).then(function(fileList) {
             return addFilesToZip(zip, fileList);
         }).then(function() {
-            return addPopupHtmlToZip(zip);
+            return addPopupHtmlToZip(zip, stripOffstore);
         }).then(function() {
             return writeZipToDisk(zip, packedFileName);
         }).then(function() {
@@ -239,18 +254,53 @@ var makeManifestForChrome = function(data) {
     return manifest;    
 };
 
-var packExtension = function(manifest, fileExtension) {
+var makeManifestForChromeMV2 = function(data) {
+    let manifest = JSON.parse(data.toString());
+    delete(manifest.incognito);
+    delete(manifest.browser_specific_settings);
+    delete(manifest.action.browser_style);
+    manifest.manifest_version = 2;
+
+    // fix permissions/host_permissions
+    let permissions = manifest.permissions;
+    permissions = permissions.filter(p => p != "scripting");
+    if (permissions.includes("webRequest") && !permissions.includes("webRequestBlocking")) {
+        permissions.push("webRequestBlocking");
+    }
+    manifest.permissions = permissions.concat(manifest.host_permissions);
+    delete manifest.host_permissions;
+    
+    // rename action => browser_action
+    manifest.browser_action = manifest.action;
+    delete manifest.action;
+
+    // allow eval for external script loading
+    manifest.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+    return manifest;    
+};
+
+var makeManifestForFirefoxOffstore = function(data) {
+    let manifest = makeManifestForFirefox(data);
+    manifest.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'";
+    return manifest;
+};
+
+var packExtension = function(manifest, fileExtension, stripOffstore) {
     let zipFileWriter = new zipjs.BlobWriter("application/epub+zip");
     let zipWriter = new zipjs.ZipWriter(zipFileWriter, {useWebWorkers: false,compressionMethod: 8, extendedTimestamp: false});
     zipWriter.add("manifest.json", new zipjs.TextReader(JSON.stringify(manifest)));
-    return packNonManifestExtensionFiles(zipWriter, "WebToEpub" + manifest.version + fileExtension);
+    return packNonManifestExtensionFiles(zipWriter, "WebToEpub" + manifest.version + fileExtension, stripOffstore);
 };
 
 // pack the extensions for Chrome and firefox
 readFilePromise("../plugin/manifest.json")
     .then(function(data) {
-        packExtension(makeManifestForFirefox(data), ".xpi");
-        packExtension(makeManifestForChrome(data), ".zip");
+        // store builds (strip /offstore/ files and lines)
+        packExtension(makeManifestForFirefox(data), ".xpi", true);
+        packExtension(makeManifestForChrome(data), ".zip", true);
+        // off-store builds (keep /offstore/ files and lines, add unsafe-eval CSP)
+        packExtension(makeManifestForFirefoxOffstore(data), ".offstore.Firefox.xpi", false);
+        packExtension(makeManifestForChromeMV2(data), ".offstore.Chrome.zip", false);
     }).catch(function(err) {
         console.log(err);
     });

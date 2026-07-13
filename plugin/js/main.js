@@ -232,8 +232,8 @@ var main = (function() {
     }
 
     function injectContentScript(tabId) {
-        if (util.isFirefox()) {
-            Firefox.injectContentScript(tabId);
+        if (util.isMV2()) {
+            MV2Compat.injectContentScript(tabId);
         } else {
             chromeInjectContentScript(tabId);
         }
@@ -637,10 +637,13 @@ var main = (function() {
             getAdvancedOptionsSection().hidden = !userPreferences.advancedOptionsVisibleByDefault.value;
             getAdditionalMetadataSection().hidden = !userPreferences.ShowMoreMetadataOptions.value;
             addEventHandlers();
-            populateControls();
-            if (util.isFirefox()) {
-                Firefox.startWebRequestListeners();
+            if (util.isMV2()) {
+                MV2Compat.startWebRequestListeners();
             }
+            if (typeof ExternalScriptLoader !== "undefined") {
+                await ExternalScriptLoader.init(userPreferences);
+            }
+            populateControls();
         } else {
             await openTabWindow();
         }
