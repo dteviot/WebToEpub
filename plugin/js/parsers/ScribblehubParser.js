@@ -5,7 +5,7 @@ parserFactory.register("scribblehub.com", () => new ScribblehubParser());
 class ScribblehubParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 5000;
+        this.minimumThrottle = 5300;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
@@ -19,14 +19,11 @@ class ScribblehubParser extends Parser {
                 ? `${baseUrl}?toc=${++nextTocIndex}`
                 : null;
         };
-        let saveThrottle = this.minimumThrottle;
-        this.minimumThrottle = 0;
         let chapters = (await this.walkTocPages(dom,
             ScribblehubParser.getChapterUrlsFromTocPage,
             nextTocPageUrl,
             chapterUrlsUI
         )).reverse();
-        this.minimumThrottle = saveThrottle;
         return chapters;
     }
 
