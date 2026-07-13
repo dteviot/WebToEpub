@@ -5,6 +5,7 @@ parserFactory.register("alicesw.com", () => new AliceswParser());
 class AliceswParser extends Parser {
     constructor() {
         super();
+        this.minimumThrottle = 5000;
     }
 
     async getChapterUrls(dom) {
@@ -16,9 +17,14 @@ class AliceswParser extends Parser {
         return util.hyperlinksToChapterList(menu);
     }
 
+    async fetchChapter(url) {
+        let options = { parser: this };
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+
     extractSubject(dom) {
         let genres = [...dom.querySelectorAll(".novel_info > p:nth-child(2) a")];
-        let tags = [...dom.querySelectorAll(".tags_list a")]; 
+        let tags = [...dom.querySelectorAll(".tags_list a")];
         return [...genres, ...tags].map(e => e.textContent).join(", ");
     }
 
@@ -49,5 +55,20 @@ class AliceswParser extends Parser {
 
     extractDescription(dom) {
         return dom.querySelector(".jianjie p").textContent.trim();
+    }
+
+    isCustomError(response) {
+        // First check is for captcha, second one for temporary rate limit.
+        return (response.responseXML.querySelector(".box h2")?.textContent.trim() == "访问验证") || (response.responseXML.body.innerHTML.includes("cuteAlert("));
+    }
+
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
+        let newresp = {};
+        newresp.url = url;
+        newresp.wrapOptions = wrapOptions;
+        newresp.response = {};
+        newresp.response.url = checkedresponse.response.url;
+        newresp.response.status = 403;
+        return newresp;
     }
 }

@@ -467,6 +467,10 @@
 		"message": "Skip chapters that return HTTP 404 error",
 		"description": "Label in front of checkbox for skipping chapters that can't be fetched"
 	},
+	"__MSG_label_No_Content_To_Error_403_Page__": {
+		"message": "Treat 'no content found error' as 'HTTP 403 error'.",
+		"description": "Label in front of checkbox for treating 'no content found' error as 'HTTP 403 error'"
+	},
 	"__MSG_label_Stylesheet__": {
 		"message": "Stylesheet:",
 		"description": "Label in front of edit field for setting the stylesheet (in Advanced settings)."
@@ -759,7 +763,7 @@
 		"description": "Internal message for developer."
 	},
 	"warning403ErrorResponse": {
-		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading to fast try to increase 'Advanced Options -> Delay per chapter in ms'\n",
+		"message": "WARNING: Site '$host$' has sent an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading too fast, try to increase 'Advanced Options -> Delay per chapter in ms'\n",
 		"description": "Warning message for user when site sends a 403 response.",
 		"placeholders": {
 			"host": {

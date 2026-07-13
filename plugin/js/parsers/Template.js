@@ -200,9 +200,11 @@ class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
     // or site can send challenge pages for some chapters
     /*
     async fetchChapter(url) {
+        // NoContentToError403 option will not be able to handle challenge pages
         return (await HttpClient.wrapFetch(url)).responseXML;
 
         // Handling to catch sites that send challenge pages
+        // needed for the NoContentToError403 option to work
         // Note, need to implement isCustomError() and setCustomErrorResponse()
         let options = { parser: this };
         return (await HttpClient.wrapFetch(url, options)).responseXML;
@@ -212,12 +214,12 @@ class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
     // Optional, supply these if site can send challenge pages for some chapters
     /*
     // return true if response is a challenge response
-    isCustomError(response){
+    isCustomError(response) {
         return (response.responseXML.title == "Just a moment...");
     }
 
     // what to do if encounter challenge
-    setCustomErrorResponse(url, wrapOptions){
+    setCustomErrorResponse(url, wrapOptions) {
         let newresp = {};
         newresp.url = url;
         newresp.wrapOptions = wrapOptions;

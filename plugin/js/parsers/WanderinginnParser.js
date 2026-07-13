@@ -17,7 +17,7 @@ class WanderinginnParser extends WordpressBaseParser {
     }
 
     findChapterTitle(dom) {
-        const titles = [...dom.querySelectorAll("h2.elementor-heading-title, div#reader-content")];
+        const titles = [...dom.querySelectorAll("div.post h2.elementor-heading-title, div#reader-content")];
         let previous = null;
         for (const title of titles) {
             if (title.id === "reader-content") {
