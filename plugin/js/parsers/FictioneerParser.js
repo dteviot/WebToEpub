@@ -112,18 +112,62 @@ class FictioneerParser extends Parser {
     }
 
     preprocessRawDom(chapterDom) {
-        let antiScrape = chapterDom.querySelector(".tiv-anti-scrape")?.parentNode;
-        if (!antiScrape) return;
+        this.processGhostContent(chapterDom);
 
-        let payloadEl = antiScrape.querySelector("script");
+        const payloadHost = chapterDom.querySelector(".tiv-anti-scrape")?.parentNode;
+        if (!payloadHost) return;
+
+        const payloadEl = payloadHost.querySelector("script");
         if (!payloadEl) return;
 
-        let data = JSON.parse(payloadEl.textContent || payloadEl.innerText || "{}");
-        antiScrape.replaceChildren();
-        let cryptNode = chapterDom.createElement("p");
-        cryptNode.className = "encryptedPayload";
-        cryptNode.textContent = data.data;
-        antiScrape.appendChild(cryptNode);
+        const data = JSON.parse(payloadEl.textContent || payloadEl.innerText || "{}");
+        payloadHost.replaceChildren();
+        const payloadNode = chapterDom.createElement("p");
+        payloadNode.className = "obfuscatedPayload";
+        payloadNode.textContent = data.data;
+        payloadHost.appendChild(payloadNode);
+    }
+
+    processGhostContent(chapterDom) {
+        const ghostScript = chapterDom.querySelector("script[data-poly]");
+        if (!ghostScript) return;
+
+        const poly = ghostScript.getAttribute("data-poly");
+        const total = parseInt(ghostScript.getAttribute("data-total") || "0", 10);
+        if (!poly || total <= 0) return;
+
+        const encoded = Array.from({ length: total }, (_, i) =>
+            ghostScript.getAttribute(`data-${poly}-${i}`) || ""
+        ).join("");
+        if (!encoded) return;
+
+        // save obfuscated payload
+        // encoding is rot13->base64->encodeURIComponent
+        const container = FictioneerParser.embedEncryptedGhost({
+            chapterDom, encoded, poly, total,
+        });
+
+        const host = chapterDom.querySelector("#cherry-content-host");
+        if (host) {
+            host.replaceWith(container);
+        } else if (ghostScript.parentNode) {
+            ghostScript.parentNode.appendChild(container);
+        }
+        ghostScript.remove();
+    }
+
+    // embed it into a div
+    static embedEncryptedGhost({ chapterDom, encoded, poly, total }) {
+        const container = chapterDom.createElement("div");
+        container.className = "fictioneer-ghost-encrypted";
+        container.setAttribute("data-fc-encrypted", encoded);
+        container.setAttribute("data-fc-poly", poly);
+        container.setAttribute("data-fc-total", String(total));
+        if (chapterDom.baseURI) {
+            container.setAttribute("data-fc-source", chapterDom.baseURI);
+        }
+        container.textContent = "[Encrypted chapter content]";
+        return container;
     }
 
     customRawDomToContentStep(chapter, content) {
