@@ -212,12 +212,12 @@ class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
     // Optional, supply these if site can send challenge pages for some chapters
     /*
     // return true if response is a challenge response
-    isCustomError(response){
+    isCustomError(response) {
         return (response.responseXML.title == "Just a moment...");
     }
 
     // what to do if encounter challenge
-    setCustomErrorResponse(url, wrapOptions){
+    setCustomErrorResponse(url, wrapOptions) {
         let newresp = {};
         newresp.url = url;
         newresp.wrapOptions = wrapOptions;
