@@ -117,7 +117,8 @@
     { "name": "Fox6935"},
     { "name": "ARYAN-9099" },
     { "name": "kuwoyuki", "email": "kuwoyuki.gh@cock.li" },
-    { "name": "bendur"}
+    { "name": "bendur"},
+    { "name": "Bartuzen", "email": "git@bartuzen.dev" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
