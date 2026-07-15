@@ -22,32 +22,31 @@ class RoyalRoadParser extends Parser {
         // JSON array (each entry has id/title/slug/url). Parse that first
         // (redesign-proof); fall back to scraping the old table for legacy pages.
         let tocHtml = await HttpClient.fetchText(dom.baseURI);
-        // Capture book metadata (description + genres) from the RAW html now — the DOM
+        let tocDoc = new DOMParser().parseFromString(tocHtml, "text/html");
+        // Capture book metadata (description + genres) from the raw page now — the DOM
         // the parser later sees has its <script> tags stripped and, on the redesign, no
-        // JSON-LD at all, so the full description must be scraped here.
-        RoyalRoadParser.lastBookMeta = RoyalRoadParser.extractBookMeta(tocHtml);
+        // JSON-LD at all, so the full description must be scraped here. Stash it on the
+        // (shared) first-page DOM so the metadata and information-page code can read it.
+        dom.royalRoadBookMeta = RoyalRoadParser.extractBookMeta(tocHtml, tocDoc);
         let fromJson = RoyalRoadParser.chaptersFromWindowChapters(tocHtml, dom.baseURI);
         if (0 < fromJson.length) {
             return fromJson;
         }
-        // fallback: legacy server-rendered table
-        let doc = new DOMParser().parseFromString(tocHtml, "text/html");
-        let table = doc.querySelector("table#chapters");
+        // fallback: legacy server-rendered table (reuse the parse above)
+        let table = tocDoc.querySelector("table#chapters");
         return util.hyperlinksToChapterList(table);
     }
 
     // Extract the chapter list from the page's `window.chapters = [...]` JSON blob.
     // Returns [] if not present/parseable, so the caller can fall back.
     static chaptersFromWindowChapters(html, baseUrl) {
-        let match = html.match(/window\.chapters\s*=\s*(\[[\s\S]*?\])\s*;/);
-        if (match === null) {
-            return [];
-        }
-        let chapters;
+        let chapters = null;
         try {
-            chapters = JSON.parse(match[1]);
+            chapters = util.locateAndExtractJson(html, "window.chapters");
         } catch (err) {
             ErrorLog.log("RoyalRoadParser: found window.chapters but could not parse it: " + err);
+        }
+        if (!Array.isArray(chapters)) {
             return [];
         }
         let fictionPath = new URL(baseUrl).pathname.replace(/\/+$/, "");
@@ -176,7 +175,7 @@ class RoyalRoadParser extends Parser {
     }
 
     extractSubject(dom) {
-        let meta = RoyalRoadParser.lastBookMeta;
+        let meta = dom.royalRoadBookMeta;
         if ((meta != null) && (0 < meta.genres.length)) {
             return meta.genres.join(", ");
         }
@@ -187,7 +186,7 @@ class RoyalRoadParser extends Parser {
     }
 
     extractDescription(dom) {
-        let meta = RoyalRoadParser.lastBookMeta;
+        let meta = dom.royalRoadBookMeta;
         if ((meta != null) && !util.isNullOrEmpty(meta.description)) {
             return meta.description;
         }
@@ -200,29 +199,24 @@ class RoyalRoadParser extends Parser {
         return util.isNullOrEmpty(og) ? "" : og.trim();
     }
 
-    // Capture the book's description + genres from the RAW page html. The sanitized DOM
-    // the parser later sees has scripts stripped and, on the redesign, no JSON-LD at all.
-    // Prefer JSON-LD when present; otherwise locate the full description in the body by
-    // matching the og:description as a needle (the redesign's classes are unstable).
-    static extractBookMeta(html) {
-        let doc = new DOMParser().parseFromString(html, "text/html");
+    // Capture the book's description (as paragraphs) + genres from the raw page. The
+    // sanitized DOM the parser later sees has scripts stripped and, on the redesign, no
+    // JSON-LD, so this must run on the raw page. `doc` is the already-parsed raw page
+    // (avoids a second parse). Prefers JSON-LD, else locates the full description in the
+    // body by matching og:description as a needle (the redesign's classes are unstable).
+    static extractBookMeta(html, doc) {
         let jsonld = RoyalRoadParser.extractBookInfo(html);
-        let description = null;
-        let descriptionHtml = null;
+        let paragraphs = [];
         if ((jsonld != null) && !util.isNullOrEmpty(jsonld.description)) {
-            descriptionHtml = jsonld.description;
-            let holder = doc.createElement("div");
-            holder.innerHTML = jsonld.description;
-            description = holder.textContent.replace(/\s+/g, " ").trim();
+            paragraphs = RoyalRoadParser.htmlToParagraphs(jsonld.description);
         } else {
             let og = doc.querySelector("meta[property='og:description'], meta[name='description']")
                 ?.getAttribute("content") ?? "";
             let el = RoyalRoadParser.findDescriptionElement(doc, og);
             if (el != null) {
-                descriptionHtml = el.innerHTML;
-                description = el.textContent.replace(/\s+/g, " ").trim();
+                paragraphs = RoyalRoadParser.elementToParagraphs(el);
             } else if (!util.isNullOrEmpty(og)) {
-                description = og.trim();
+                paragraphs = [og.trim()];
             }
         }
         // Redesign links each genre/tag to /fictions/search?tagsAdd=...; the legacy
@@ -236,12 +230,37 @@ class RoyalRoadParser extends Parser {
                 return match ? match[1].replace(/_/g, " ") : ("" + g);
             });
         }
-        return { description: description, descriptionHtml: descriptionHtml, genres: [...new Set(genres)] };
+        return {
+            description: paragraphs.join("\n\n"),
+            descriptionParagraphs: paragraphs,
+            genres: [...new Set(genres)]
+        };
+    }
+
+    // Split an element's text into paragraphs (one per <p> child, else the whole text).
+    static elementToParagraphs(el) {
+        let paras = [...el.querySelectorAll("p")]
+            .map(p => p.textContent.replace(/\s+/g, " ").trim())
+            .filter(t => 0 < t.length);
+        if (paras.length === 0) {
+            paras = (el.textContent || "").split(/\n+/)
+                .map(s => s.replace(/\s+/g, " ").trim())
+                .filter(t => 0 < t.length);
+        }
+        return paras;
+    }
+
+    // Convert an HTML fragment string to plain-text paragraphs WITHOUT assigning to
+    // innerHTML — parse it in a detached document and read text only.
+    static htmlToParagraphs(htmlFragment) {
+        let parsed = new DOMParser().parseFromString(htmlFragment, "text/html");
+        return RoyalRoadParser.elementToParagraphs(parsed.body);
     }
 
     // Locate the element holding the full description by matching the (truncated)
     // og:description as a needle: the smallest element whose text starts the same way but
-    // is longer than the meta value.
+    // is longer than the meta value. Searches likely description containers first, then a
+    // bounded fallback, to avoid scanning every element on the page.
     static findDescriptionElement(doc, og) {
         if (util.isNullOrEmpty(og)) {
             return null;
@@ -250,11 +269,21 @@ class RoyalRoadParser extends Parser {
         if (needle.length === 0) {
             return null;
         }
+        let candidates = [...doc.querySelectorAll(
+            "[id^='accordion-content-item'], [class*='description'], div.description, [property='description']"
+        )];
+        return RoyalRoadParser.smallestContaining(candidates, needle, og.length)
+            ?? RoyalRoadParser.smallestContaining([...doc.querySelectorAll("div, section, article")], needle, og.length);
+    }
+
+    // Smallest element in `els` whose collapsed text contains `needle` and is longer than
+    // `minLength` (the tightest wrapper around the full description).
+    static smallestContaining(els, needle, minLength) {
         let best = null;
         let bestLen = 0;
-        for (let el of doc.querySelectorAll("div, section, article")) {
+        for (let el of els) {
             let text = (el.textContent || "").replace(/\s+/g, " ").trim();
-            if ((og.length < text.length) && text.includes(needle)) {
+            if ((minLength < text.length) && text.includes(needle)) {
                 if ((best === null) || (text.length < bestLen)) {
                     best = el;
                     bestLen = text.length;
@@ -345,25 +374,20 @@ class RoyalRoadParser extends Parser {
         }
         RoyalRoadParser.appendInfoLine(dom, nodes, "Author", this.extractAuthor(dom));
         RoyalRoadParser.appendInfoLine(dom, nodes, "Genres", this.extractSubject(dom));
-        let heading = dom.createElement("h2");
-        heading.textContent = "Description";
-        let descriptionHtml = RoyalRoadParser.lastBookMeta?.descriptionHtml;
-        if (!util.isNullOrEmpty(descriptionHtml)) {
-            // Full description captured from the raw page, keeping its paragraph
-            // formatting (sanitized downstream by populateInfoDiv).
+        // Full description, built as individual <p> nodes (never via innerHTML). Use the
+        // paragraphs captured from the raw page; fall back to the plain-text description.
+        let paragraphs = dom.royalRoadBookMeta?.descriptionParagraphs;
+        if ((paragraphs == null) || (paragraphs.length === 0)) {
+            paragraphs = this.extractDescription(dom).split("\n").map(s => s.trim()).filter(s => 0 < s.length);
+        }
+        if (0 < paragraphs.length) {
+            let heading = dom.createElement("h2");
+            heading.textContent = "Description";
             nodes.push(heading);
-            let descDiv = dom.createElement("div");
-            descDiv.innerHTML = descriptionHtml;
-            nodes.push(descDiv);
-        } else {
-            let text = this.extractDescription(dom);
-            if (!util.isNullOrEmpty(text)) {
-                nodes.push(heading);
-                for (let para of text.split("\n").map(s => s.trim()).filter(s => 0 < s.length)) {
-                    let p = dom.createElement("p");
-                    p.textContent = para;
-                    nodes.push(p);
-                }
+            for (let para of paragraphs) {
+                let p = dom.createElement("p");
+                p.textContent = para;
+                nodes.push(p);
             }
         }
         if (0 < nodes.length) {
