@@ -743,7 +743,7 @@
 		"description": "Text put in images table when no images are found."
 	},
 	"errorMobileModeDetected": {
-		"message": "You use WebToEpub in the Mobile view please change the tab to the Desktop version.\nIn Firefox for Android ⋮-> Desktop site -> On",
+		"message": "You use WebToEpub in the Mobile view please change the tab to the Desktop version.\nIn Firefox for Android ⋮-> Desktop site -> On\n\nThe website from which you start WebToEpub also needs to be in the Desktop view.",
 		"description": "Warning message when the user is in Mobile mode."
 	},
 	"noParserFound": {
