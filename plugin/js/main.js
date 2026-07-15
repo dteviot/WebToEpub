@@ -285,6 +285,12 @@ var main = (function() {
     }
 
     function setParser(url, dom) {
+        if (/Android|Mobile/i.test(navigator.userAgent)) {
+            // tab is opened in the mobile view
+            // need to discourage this as some websites send different content depending on the user-agent
+            ErrorLog.showErrorMessage(UIText.Error.errorMobileModeDetected);
+            return false;
+        }
         let manualSelect = getManuallySelectParserTag().value;
         if (util.isNullOrEmpty(manualSelect)) {
             parser = parserFactory.fetch(url, dom);

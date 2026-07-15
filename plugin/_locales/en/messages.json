@@ -742,6 +742,10 @@
 		"message": "No images found",
 		"description": "Text put in images table when no images are found."
 	},
+	"errorMobileModeDetected": {
+		"message": "You use WebToEpub in the Mobile view please change the tab to the Desktop version.\nIn Firefox for Android ⋮-> Desktop site -> On",
+		"description": "Warning message when the user is in Mobile mode."
+	},
 	"noParserFound": {
 		"message": "No parser found for this URL.  Default parser will be used.  You will need to specify how to obtain content for each chapter.",
 		"description": "Warning message when can't figure out how to extract info from web page."

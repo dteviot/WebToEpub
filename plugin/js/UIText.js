@@ -61,6 +61,7 @@ class UIText { // eslint-disable-line no-unused-vars
     
     // Error messages
     static Error = {
+        errorMobileModeDetected: chrome.i18n.getMessage("errorMobileModeDetected"),
         noParserFound: chrome.i18n.getMessage("noParserFound"),
         noChaptersFound: chrome.i18n.getMessage("noChaptersFound"),
         noChaptersFoundAndFetchClicked: chrome.i18n.getMessage("noChaptersFoundAndFetchClicked"),
