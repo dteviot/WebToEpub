@@ -52,7 +52,7 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
         let title = this.contentHasTitle(content)
             ? ""
             : `<h1>${this.getChapterTitleFromHead(webPageDom)}</h1>`;
-        let doc = util.sanitize(`<div class='${Parser.WEB_TO_EPUB_CLASS_NAME}'>"${title}${content}</div>`);
+        let doc = util.sanitize(`<div class='${Parser.WEB_TO_EPUB_CLASS_NAME}'>${title}${content}</div>`);
         let node = doc.querySelector("."+Parser.WEB_TO_EPUB_CLASS_NAME);
         webPageDom.body.appendChild(node);
     }
@@ -70,7 +70,9 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
         return s.replace(/\\u003c/g, "<")
             .replace(/\\u003e/g, ">")
             .replace(/\\"/g, "\"")
-            .replace(/\\n/g, "");
+            .replace(/\\n/g, "")
+            .replace(/\\u0026nbsp;/g, " ")
+            .replace(/\\u0026amp;/g, "&");
     }
 
     extractContentString(raw) {

@@ -1,7 +1,7 @@
 "use strict";
 
 parserFactory.registerUrlRule(
-    (url) => /^https?:\/\/(?:www\.)?sbxh\d+\.com(?:\/|$)/.test(url),
+    (url) => /^https?:\/\/(?:www\.)?(sbxh|toki)\d+\.com(?:\/|$)/.test(url),
     () => new Sbxh1Parser(),
 );
 
@@ -10,48 +10,62 @@ class Sbxh1Parser extends Parser {
         super();
     }
 
-    getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         let novelId = Sbxh1Parser.extractNovelId(dom.baseURI);
         if (novelId == null) {
             return [];
         }
+        let chapterLinks = [];
 
+        let page = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            page++;
+
+            let nextUrl = new URL(dom.baseURI);
+            nextUrl.searchParams.set("epage", page);
+            const { responseXML: xml } = await HttpClient.wrapFetch(nextUrl.href);
+
+            let newLinks = Sbxh1Parser.extractChapterLinks(xml, novelId);
+            if (newLinks.length === 0) {
+                break;
+            }
+
+            let newChapters = newLinks.map((a) => {
+                let chapterNumber = a.querySelector(".ne-num").textContent;
+                let chapterTitle = a.querySelector(".ne-title").textContent;
+
+                return {
+                    sourceUrl: a.href,
+                    title: `${chapterNumber} - ${chapterTitle}`,
+                };
+            });
+
+            const exists = newChapters.some((newCh) =>
+                chapterLinks.some((ch) => ch.sourceUrl === newCh.sourceUrl)
+            );
+            if (exists) {
+                break;
+            }
+
+            chapterLinks.push(...newChapters);
+
+            if (newChapters[newChapters.length - 1].title.startsWith("1화 -")) {
+                break;
+            }
+        }
+
+        return chapterLinks.reverse();
+    }
+
+    static extractChapterLinks(dom, novelId) {
         let chapterLinks = [
             ...dom.querySelectorAll(`a.novel-ep-link[href*="/novel/${novelId}/"]`),
         ];
         if (chapterLinks.length === 0) {
             chapterLinks = [...dom.querySelectorAll(`a[href*="/novel/${novelId}/"]`)];
         }
-
-        let chaptersByUrl = new Map();
-        chapterLinks
-            .filter((a) => Sbxh1Parser.isEpisodeUrl(a.href, novelId))
-            .forEach((a) => {
-                let episodeNumber = Sbxh1Parser.extractEpisodeNumber(a.textContent);
-                if (episodeNumber == null) {
-                    return;
-                }
-                let normalized = util.normalizeUrlForCompare(a.href);
-                let chapter = {
-                    sourceUrl: a.href,
-                    title: Sbxh1Parser.cleanEpisodeTitle(a.textContent),
-                    episodeNumber: episodeNumber,
-                };
-                let existing = chaptersByUrl.get(normalized);
-                if (
-                    existing == null ||
-                    Sbxh1Parser.isBetterEpisodeTitle(chapter.title, existing.title)
-                ) {
-                    chaptersByUrl.set(normalized, chapter);
-                }
-            });
-
-        return [...chaptersByUrl.values()]
-            .sort((a, b) => a.episodeNumber - b.episodeNumber)
-            .map((a) => ({
-                sourceUrl: a.sourceUrl,
-                title: a.title,
-            }));
+        return chapterLinks;
     }
 
     findContent(dom) {
@@ -104,7 +118,7 @@ class Sbxh1Parser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return dom.querySelector("main img[alt]")?.src ?? null;
+        return dom.querySelector(".nd-thumb img[alt]")?.src ?? null;
     }
 
     findChapterTitle(dom) {
@@ -290,37 +304,6 @@ class Sbxh1Parser extends Parser {
 
     static extractNovelId(url) {
         return new URL(url).pathname.match(/^\/novel\/(\d+)/)?.[1] ?? null;
-    }
-
-    static isEpisodeUrl(url, novelId) {
-        return (
-            new URL(url).pathname.match(new RegExp(`^/novel/${novelId}/\\d+$`)) !=
-            null
-        );
-    }
-
-    static cleanEpisodeTitle(title) {
-        return title
-            .replace(/\bNEW\b/g, "")
-            .replace(/\d{2}\.\s*\d{2}\.\s*\d{2}\.?/g, "")
-            .replace(/\s+/g, " ")
-            .replace(/^(\d+\s*화)\1$/, "$1")
-            .trim();
-    }
-
-    static extractEpisodeNumber(title) {
-        let match = title.match(/(\d+)\s*화/);
-        return match == null ? null : parseInt(match[1], 10);
-    }
-
-    static isBetterEpisodeTitle(candidate, existing) {
-        let candidateHasNumber = /^\d+\s*화\b/.test(candidate);
-        let existingHasNumber = /^\d+\s*화\b/.test(existing);
-        return (
-            (candidateHasNumber && !existingHasNumber) ||
-            (candidateHasNumber === existingHasNumber &&
-                candidate.length > existing.length)
-        );
     }
 
     static extractViewerInfo(dom) {

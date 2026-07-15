@@ -95,6 +95,26 @@ class Parser {
         return {};
     }
 
+    isNoContentToError403AndContentNull(response) {
+        if (this.userPreferences.noContentToError403.value) {
+            let content = this.findContent(response.responseXML);
+            return (content == null);
+        }
+        else {
+            return false;
+        }
+    }
+
+    setNoContentToError403Response(url, wrapOptions, checkedresponse) {
+        let ret = {};
+        ret.url = url;
+        ret.wrapOptions = wrapOptions;
+        ret.response = {};
+        ret.response.url = checkedresponse.response.url;
+        ret.response.status = 403;
+        return ret;
+    }
+
     onUserPreferencesUpdate(userPreferences) {
         this.userPreferences = userPreferences;
         this.imageCollector.onUserPreferencesUpdate(userPreferences);
@@ -598,8 +618,14 @@ class Parser {
             pageParser.removeUnusedElementsToReduceMemoryConsumption(webPageDom);
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
-                let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
-                throw new Error(errorMsg);
+                if (this.userPreferences.noContentToError403.value) {
+                    let errorMsg = UIText.Warning.warning403ErrorResponse(new URL(webPage.sourceUrl).hostname);
+                    throw new Error(errorMsg);
+                }
+                else {
+                    let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);
+                    throw new Error(errorMsg);
+                }
             }
             return pageParser.fetchImagesUsedInDocument(content, webPage);
         } catch (error) {
@@ -634,7 +660,13 @@ class Parser {
 
     // Hook if need to chase hyperlinks in page to get all chapter content
     async fetchChapter(url) {
-        return (await HttpClient.wrapFetch(url)).responseXML;
+        if (this.userPreferences.noContentToError403.value) {
+            let options = { parser: this };
+            return (await HttpClient.wrapFetch(url, options)).responseXML;
+        }
+        else {
+            return (await HttpClient.wrapFetch(url)).responseXML;
+        }
     }
 
     updateReadingList() {

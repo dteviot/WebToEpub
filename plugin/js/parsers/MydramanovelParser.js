@@ -8,7 +8,7 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     async getChapterUrls(dom) {
-        return [...dom.querySelectorAll("#tdi_48 .td-module-thumb a,#tdi_55 h3.entry-title a")]
+        return [...dom.querySelectorAll("#tdi_47 .td-module-thumb a,#tdi_54 h3.entry-title a")]
             .map(a => this.hyperLinkToChapter(a));
     }
 
@@ -32,7 +32,7 @@ class MydramanovelParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     findCoverImageUrl(dom) {
-        let span = dom.querySelector("#tdi_48 .td-module-thumb a span[data-img-url]");
+        let span = dom.querySelector(".td-module-thumb a span[data-img-url]");
         return span.getAttribute("data-img-url") ?? null;
     }
 

@@ -5,10 +5,11 @@ parserFactory.register("scribblehub.com", () => new ScribblehubParser());
 class ScribblehubParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 5000;
+        this.minimumThrottle = 5200;
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
+        this.tocURL = dom.baseURI;
         let baseUrl = dom.baseURI;
         let nextTocIndex = 1;
         let numChapters = parseInt(dom.querySelector("span.cnt_toc").textContent);
@@ -20,7 +21,7 @@ class ScribblehubParser extends Parser {
                 : null;
         };
         let saveThrottle = this.minimumThrottle;
-        this.minimumThrottle = 0;
+        this.minimumThrottle = 500;
         let chapters = (await this.walkTocPages(dom,
             ScribblehubParser.getChapterUrlsFromTocPage,
             nextTocPageUrl,
@@ -33,6 +34,32 @@ class ScribblehubParser extends Parser {
     static getChapterUrlsFromTocPage(dom) {
         return [...dom.querySelectorAll("a.toc_a")]
             .map(a => util.hyperLinkToChapter(a));
+    }
+
+    async fetchChapter(url) {
+        let rules = [
+            {
+                id: 1,
+                priority: 1,
+                action: {
+                    type: "modifyHeaders",
+                    requestHeaders: [
+                        {
+                            header: "referer",
+                            operation: "set",
+                            value: this.tocURL,
+                        },
+                    ],
+                },
+                condition: {
+                    urlFilter: "*://www.scribblehub.com/*",
+                },
+            },
+        ];
+
+        await HttpClient.setDeclarativeNetRequestRules(rules);
+
+        return (await HttpClient.wrapFetch(url)).responseXML;
     }
 
     findContent(dom) {
