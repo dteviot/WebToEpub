@@ -413,17 +413,22 @@ class ImageCollector {
     }
 
     fixupInvalidMediaType(imageInfo) {
+        // Trust the actual bytes over the server's Content-Type. Some CDNs (e.g. Royal
+        // Road) return a wrong type (image/png for a JPEG), producing an invalid EPUB
+        // image that readers reject. Fall back to the header/extension only when the
+        // bytes are an unrecognised format.
+        let detected = util.detectMimeType(imageInfo.getBase64(25));
+        if (detected != null) {
+            imageInfo.mediaType = detected;
+            return;
+        }
         if (!imageInfo.mediaType?.startsWith("image")) {
-            imageInfo.mediaType = util.detectMimeType(imageInfo.getBase64(25));
-            if (imageInfo.mediaType == null)
-            {
-                let path = new URL(imageInfo.sourceUrl).pathname;
-                let index = path.lastIndexOf(".");
-                let format = (index < 0)
-                    ? "jpeg"
-                    : path.substring(index + 1);
-                imageInfo.mediaType = "image/" + format;
-            }
+            let path = new URL(imageInfo.sourceUrl).pathname;
+            let index = path.lastIndexOf(".");
+            let format = (index < 0)
+                ? "jpeg"
+                : path.substring(index + 1);
+            imageInfo.mediaType = "image/" + format;
         }
     }
 
