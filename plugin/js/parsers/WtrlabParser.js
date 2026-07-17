@@ -112,6 +112,18 @@ class WtrlabParser extends Parser {
         return [...dom.querySelectorAll("div#contents-tabpane-about")];
     }
 
+    extractAuthor(dom) {
+        let spans = [...dom.querySelectorAll("span")];
+        let authorSpan = spans.find(span => span.textContent.trim() === "Author");
+        if (authorSpan && authorSpan.nextElementSibling) {
+            let links = [...authorSpan.nextElementSibling.querySelectorAll("a")];
+            if (links.length > 0) {
+                return links.map(link => link.textContent.trim()).join(" - ");
+            }
+        }
+        return super.extractAuthor(dom);
+    }
+
     async fetchChapter(url) {
         let leaves = url.split("/");
         let novelIndex = leaves.indexOf("novel");
