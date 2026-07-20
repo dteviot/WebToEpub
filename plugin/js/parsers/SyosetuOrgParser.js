@@ -51,4 +51,12 @@ class SyosetuOrgParser extends Parser {
     findChapterTitle(dom) {
         return dom.querySelector("div.ss span");
     }
+
+    getInformationEpubItemChildNodes(dom) {
+        return [...dom.querySelectorAll("div.ss:nth-child(1), div.ss:nth-child(2)")];
+    }
+
+    cleanInformationNode(node) {
+        util.removeChildElementsMatchingSelector(node, "a[href='#fmenu']");
+    }
 }
