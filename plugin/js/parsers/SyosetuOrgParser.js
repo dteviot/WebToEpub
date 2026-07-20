@@ -1,6 +1,7 @@
 "use strict";
 
 parserFactory.register("syosetu.org", () => new SyosetuOrgParser());
+parserFactory.register("h.syosetu.org", () => new HSyosetuOrgParser());
 
 class SyosetuOrgParser extends Parser {
     constructor() {
@@ -58,5 +59,19 @@ class SyosetuOrgParser extends Parser {
 
     cleanInformationNode(node) {
         util.removeChildElementsMatchingSelector(node, "a[href='#fmenu']");
+    }
+}
+
+class HSyosetuOrgParser extends SyosetuOrgParser {
+    constructor() {
+        super();
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "span.alert_color, div.ss:nth-child(1) p:nth-child(2), div.novelnavi, #maegaki_open, #atogaki_open");
+        if (this.userPreferences.removeAuthorNotes.value) {
+            util.removeChildElementsMatchingSelector(element, "#maegaki, #atogaki");
+        }
+        super.removeUnwantedElementsFromContentElement(element);
     }
 }
