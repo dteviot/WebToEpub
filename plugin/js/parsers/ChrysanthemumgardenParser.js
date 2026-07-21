@@ -1,11 +1,17 @@
 "use strict";
 
 parserFactory.register("chrysanthemumgarden.com", () => new ChrysanthemumgardenParser());
+HttpClient.blockedSites.add("chrysanthemumgarden.com");
+
 
 class ChrysanthemumgardenParser extends WordpressBaseParser {
     constructor() {
         super();
         this.usedfonts = new Set();
+    }
+
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
     }
 
     onStartCollecting() {
