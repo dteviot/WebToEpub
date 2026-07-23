@@ -41,6 +41,7 @@ class Download {
         for (const [key, value] of Object.entries(ToReplace)) {
             CustomFilename = CustomFilename.replaceAll(key, value);
         }
+        CustomFilename = CustomFilename.trim();
         if (Download.isFileNameIllegalOnWindows(CustomFilename)) {
             ErrorLog.showErrorMessage(UIText.Error.errorIllegalFileName(CustomFilename, Download.illegalWindowsFileNameChars));
             return EpubPacker.addExtensionIfMissing("IllegalFileName");
@@ -50,6 +51,10 @@ class Download {
 
     /** write blob to "Downloads" directory */
     static save(blob, fileName, overwriteExisting, backgroundDownload) {
+        if (Download.isFileNameIllegalOnWindows(fileName.replace(".epub", ""))) {
+            ErrorLog.showErrorMessage(UIText.Error.errorIllegalFileName(fileName, Download.illegalWindowsFileNameChars));
+            fileName = EpubPacker.addExtensionIfMissing("IllegalFileName");
+        }
         let options = {
             url: URL.createObjectURL(blob),
             filename: fileName,

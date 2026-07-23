@@ -28,7 +28,7 @@ class Library { // eslint-disable-line no-unused-vars
         if (LibidURL == -1) {
             Library.LibHandleUpdate(-1, AddEpub, document.getElementById("startingUrlInput").value, fileName.replace(".epub", ""), LibidURL);
             if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked) {
-                return Download.save(AddEpub, fileName, overwriteExisting, backgroundDownload);
+                return Download.save(AddEpub, fileName.trim(), overwriteExisting, backgroundDownload);
             } else {
                 return new Promise((resolve) => {resolve();});
             }
@@ -42,7 +42,7 @@ class Library { // eslint-disable-line no-unused-vars
                 ErrorLog.showErrorMessage(UIText.Error.errorIllegalFileName(fileName, Download.illegalWindowsFileNameChars));
                 return;
             }
-            return Download.save(MergedEpub, fileName, overwriteExisting, backgroundDownload);
+            return Download.save(MergedEpub, fileName.trim(), overwriteExisting, backgroundDownload);
         } else {
             return new Promise((resolve) => {resolve();});
         }
@@ -857,7 +857,7 @@ class Library { // eslint-disable-line no-unused-vars
             chrome.storage.local.remove(LibRemove);
             document.getElementById("LibNewChapterCount"+objbtn.dataset.libepubid).innerHTML = "";
             let blobdata = await Library.LibConvertDataUrlToBlob(items["LibEpub" + objbtn.dataset.libepubid]);
-            return Download.save(blobdata, items["LibFilename" + objbtn.dataset.libepubid] + ".epub", overwriteExisting, backgroundDownload);
+            return Download.save(blobdata, (items["LibFilename" + objbtn.dataset.libepubid] + ".epub").trim(), overwriteExisting, backgroundDownload);
         });
     }
 
