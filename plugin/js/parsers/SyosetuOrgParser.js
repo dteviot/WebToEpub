@@ -41,6 +41,13 @@ class SyosetuOrgParser extends Parser {
         if (authorLabel?.textContent == null) { 
             authorLabel = dom.querySelector("div.ss p a:nth-child(2)");
         }
+        //Handle edge case
+        if (authorLabel?.textContent == null) {
+            authorLabel = dom.querySelector("div.ss p");
+            let clone = authorLabel.cloneNode(true);
+            clone.querySelector("span")?.remove();
+            return clone?.textContent.replace("作：", "").trim();
+        }
         return authorLabel?.textContent ?? super.extractAuthor(dom);
     }
 
