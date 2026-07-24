@@ -16,7 +16,8 @@ class Library { // eslint-disable-line no-unused-vars
     async LibAddToLibrary(AddEpub, fileName, startingUrlInput, overwriteExisting, backgroundDownload) {
         Library.LibShowLoadingText();
         Library.userPreferences.readingList.addEpub(document.getElementById("startingUrlInput").value);
-        let CurrentLibStoryURLKeys = await Library.LibGetAllLibStorageKeys("LibStoryURL");
+        let CurrentLibStoryIds = await Library.LibGetStorageIDs();
+        let CurrentLibStoryURLKeys = CurrentLibStoryIds.map(a => "LibStoryURL" + a);
         let CurrentLibStoryURLs = await Library.LibGetFromStorageArray(CurrentLibStoryURLKeys);
         let LibidURL = -1;
         for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
@@ -719,10 +720,9 @@ class Library { // eslint-disable-line no-unused-vars
 
     static async LibFileReaderload() {
         if (-1 == LibFileReader.LibStorageValueId) {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibStoryIds = await Library.LibGetStorageIDs();
             let HighestLibEpub = 0;
-            CurrentLibKeys.forEach(element => {
-                element = element.replace("LibEpub","");
+            CurrentLibStoryIds.forEach(element => {
                 if (parseInt(element)>=HighestLibEpub) {
                     HighestLibEpub = parseInt(element)+1; 
                 }
@@ -985,10 +985,9 @@ class Library { // eslint-disable-line no-unused-vars
         let regex = new RegExp("zip$");
         if (!regex.test(LibFileReader.name)) {
             let json = JSON.parse(LibFileReader.result);
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibStoryIds = await Library.LibGetStorageIDs();
             let HighestLibEpub = 0;
-            CurrentLibKeys.forEach(element => {
-                element = element.replace("LibEpub","");
+            CurrentLibStoryIds.forEach(element => {
                 if (parseInt(element)>=HighestLibEpub) {
                     HighestLibEpub = parseInt(element)+1; 
                 }
@@ -1006,10 +1005,9 @@ class Library { // eslint-disable-line no-unused-vars
             Library.userPreferences.loadReadingListFromJson(json);
             Library.LibRenderSavedEpubs();
         } else {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub");
+            let CurrentLibStoryIds = await Library.LibGetStorageIDs();
             let HighestLibEpub = 0;
-            CurrentLibKeys.forEach(element => {
-                element = element.replace("LibEpub","");
+            CurrentLibStoryIds.forEach(element => {
                 if (parseInt(element)>=HighestLibEpub) {
                     HighestLibEpub = parseInt(element)+1; 
                 }
