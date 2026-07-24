@@ -205,6 +205,10 @@ class Library { // eslint-disable-line no-unused-vars
         return new Promise((resolve) => {
             chrome.storage.local.get("LibEpub" + idfromepub, async function(items, ) {
                 try {
+                    if (await Library.LibGetFromStorage("LibCover" + idfromepub) != null) {
+                        resolve();
+                        return;
+                    }
                     let EpubReader = await new zip.Data64URIReader(items["LibEpub" + idfromepub]);
                     let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
                     let EpubContent =  await EpubZip.getEntries();
@@ -704,6 +708,7 @@ class Library { // eslint-disable-line no-unused-vars
     }
 
     static async LibFileReaderload() {
+        let manualUpload = false;
         if (-1 == LibFileReader.LibStorageValueId) {
             let CurrentLibStoryIds = await Library.LibGetStorageIDs();
             let HighestLibEpub = 0;
@@ -715,6 +720,7 @@ class Library { // eslint-disable-line no-unused-vars
             LibFileReader.LibStorageValueId = HighestLibEpub;
             if (LibFileReader.LibStorageValueURL == "") {
                 LibFileReader.LibStorageValueURL = await Library.LibGetSourceURL(LibFileReader.result);
+                manualUpload = true;
             }
         }
         let StorageNewChapterCount = await Library.LibGetFromStorage("LibNewChapterCount" + LibFileReader.LibStorageValueId);
@@ -735,8 +741,14 @@ class Library { // eslint-disable-line no-unused-vars
             ["LibFilename" + LibFileReader.LibStorageValueId]: LibFileReader.LibStorageValueFilename,
             ["LibNewChapterCount" + LibFileReader.LibStorageValueId]: NewChapterCount
         }, async function() {
-            await Library.LibSaveCoverImgInStorage(LibFileReader.LibStorageValueId);
             await Library.LibCreateStorageIDs(parseInt(LibFileReader.LibStorageValueId));
+            await Library.LibSaveCoverImgInStorage(LibFileReader.LibStorageValueId);
+            if (manualUpload) {
+                let SourceChapterList = await Library.LibGetSourceChapterList(LibFileReader.LibStorageValueURL);
+                if (SourceChapterList != null) {
+                    Library.userPreferences.readingList.setEpub(LibFileReader.LibStorageValueURL, SourceChapterList[SourceChapterList.length-1]);
+                }
+            }
             Library.LibRenderSavedEpubs();
         });
     }
@@ -1122,16 +1134,21 @@ class Library { // eslint-disable-line no-unused-vars
     }
 
     static async LibGetSourceChapterList(url) {
-        let LibArray = await Library.LibGetStorageIDs();
-        for (let i = 0; i < LibArray.length; i++) {
-            LibArray[i] = [LibArray[i], await Library.LibGetFromStorage("LibStoryURL"+LibArray[i])];
-        }       
-        LibArray = await LibArray.filter(a => a[1] == url);
-        if (0 == LibArray.length) {
+        let CurrentLibStoryIds = await Library.LibGetStorageIDs();
+        let CurrentLibStoryURLKeys = CurrentLibStoryIds.map(a => "LibStoryURL" + a);
+        let CurrentLibStoryURLs = await Library.LibGetFromStorageArray(CurrentLibStoryURLKeys);
+        let LibidURL = -1;
+        for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
+            if (CurrentLibStoryURLs[CurrentLibStoryURLKeys[i]] == url) {
+                LibidURL = CurrentLibStoryURLKeys[i].replace("LibStoryURL","");
+                continue;
+            }
+        }
+        if (LibidURL == -1) {
             return null;
         }
         
-        let EpubBase64 = await Library.LibGetFromStorage("LibEpub" + LibArray[0][0]);
+        let EpubBase64 = await Library.LibGetFromStorage("LibEpub" + LibidURL);
         let EpubReader = await new zip.Data64URIReader(EpubBase64);
         let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
         let EpubContent = await EpubZip.getEntries();
