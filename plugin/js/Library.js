@@ -38,6 +38,9 @@ class Library { // eslint-disable-line no-unused-vars
         let PreviousEpubBase64 = await Library.LibGetFromStorage("LibEpub" + LibidURL);
         let MergedEpub = await Library.LibMergeEpub(PreviousEpubBase64, AddEpub, LibidURL);
         if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked) {
+            chrome.storage.local.set({
+                ["LibNewChapterCount" + LibidURL]: "-1"
+            });
             fileName = EpubPacker.addExtensionIfMissing(await Library.LibGetFromStorage("LibFilename" + LibidURL));
             if (Download.isFileNameIllegalOnWindows(fileName)) {
                 ErrorLog.showErrorMessage(UIText.Error.errorIllegalFileName(fileName, Download.illegalWindowsFileNameChars));
@@ -715,7 +718,11 @@ class Library { // eslint-disable-line no-unused-vars
             }
         }
         let StorageNewChapterCount = await Library.LibGetFromStorage("LibNewChapterCount" + LibFileReader.LibStorageValueId);
-        let NewChapterCount = LibFileReader.NewChapterCount + parseInt(StorageNewChapterCount || "0");
+        let IntStorageNewChapterCount = parseInt(StorageNewChapterCount || "0");
+        let NewChapterCount = 0;
+        if (IntStorageNewChapterCount != -1) {
+            NewChapterCount = LibFileReader.NewChapterCount + parseInt(StorageNewChapterCount || "0");
+        }
         //Catch Firefox upload wrong Content-Type
         let result = LibFileReader.result;
         if (result.startsWith("data:application/octet-stream;base64,")) {
@@ -848,9 +855,6 @@ class Library { // eslint-disable-line no-unused-vars
     }
     
     static async Libupdateall() {
-        if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
-            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
-        }
         let LibArray = await Library.LibGetFromStorage("LibArray");
         ErrorLog.SuppressErrorLog =  true;
         for (let i = 0; i < LibArray.length; i++) {
@@ -884,9 +888,6 @@ class Library { // eslint-disable-line no-unused-vars
     }
     
     static async LibAddListToLibrary() {
-        if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
-            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
-        }
         let links = Library.getURLsFromList();
         ErrorLog.SuppressErrorLog =  true;
         for (let i = 0; i < links.length; i++) {
@@ -908,9 +909,6 @@ class Library { // eslint-disable-line no-unused-vars
     }
     
     static async LibAddListToLibraryPaused() {
-        if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
-            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
-        }
         let links = Library.getURLsFromList();
         ErrorLog.SuppressErrorLog =  true;
         let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
