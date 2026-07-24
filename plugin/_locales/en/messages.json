@@ -139,6 +139,10 @@
 		"message": "Open URL for Captcha",
 		"description": "Label on 'Open URL for Captcha' button when show error HTTP 403"
 	},
+	"__MSG_button_error_Copy_URL__": {
+		"message": "Copy URL for Captcha",
+		"description": "Label on 'Copy URL for Captcha' button when show error HTTP 403"
+	},
 	"__MSG_button_error_Block_URL__": {
 		"message": "Block Website for future requests",
 		"description": "Label on 'Block Website for future requests' button when show error HTTP 403"

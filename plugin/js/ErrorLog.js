@@ -94,6 +94,7 @@ class ErrorLog {
         let retryButton = document.getElementById("errorButtonRetry");
         let cancelButton = document.getElementById("errorButtonCancel");
         let OpenURLButton = document.getElementById("errorButtonOpenURL");
+        let CopyURLButton = document.getElementById("errorButtonCopyURL");
         let BlockURLButton = document.getElementById("errorButtonBlockURL");
         if (msg.retryAction !== undefined) {
             okButton.hidden = true;
@@ -113,10 +114,15 @@ class ErrorLog {
             }
             if (msg.openurl !== undefined) {
                 OpenURLButton.hidden = false;
+                CopyURLButton.hidden = false;
                 OpenURLButton.onclick = function() {
                     //window.open(new URL(msg.openurl), "_blank").focus();
                     //use chrome.tabs.create to prevent auto popup block from browser
                     chrome.tabs.create({ url: msg.openurl});
+                };
+                CopyURLButton.onclick = function() {
+                    //copy to clipboard
+                    navigator.clipboard.writeText(msg.openurl);
                 };
                 BlockURLButton.hidden = false;
                 BlockURLButton.onclick = function() {
@@ -126,6 +132,7 @@ class ErrorLog {
                 };
             } else {
                 OpenURLButton.hidden = true;
+                CopyURLButton.hidden = true;
                 BlockURLButton.hidden = true;
             }
         } else {
@@ -134,6 +141,7 @@ class ErrorLog {
             retryButton.hidden = true;
             cancelButton.hidden = true;
             OpenURLButton.hidden = true;
+            CopyURLButton.hidden = true;
             BlockURLButton.hidden = true;
         }
     }
