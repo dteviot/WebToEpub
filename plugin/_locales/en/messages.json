@@ -43,6 +43,10 @@
 		"message": "Add novels to Library",
 		"description": "Label on button to Add novels to Library in Library"
 	},
+	"__MSG_button_Lib_Template_Add_List_To_Library_Paused__": {
+		"message": "Add novels to Library paused",
+		"description": "Label on button to Add novels to Library in Library"
+	},
 	"__MSG_button_Lib_Template_Update_All__": {
 		"message": "Update all",
 		"description": "Label on button to Update all Epubs"

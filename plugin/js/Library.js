@@ -350,6 +350,7 @@ class Library { // eslint-disable-line no-unused-vars
             LibRenderString += "<textarea id='LibAddListToLibraryInput' type='text'>Add one novel per line</textarea>";
             LibRenderString += "<br>";
             LibRenderString += "<button id='LibAddListToLibraryButton'>"+document.getElementById("LibTemplateAddListToLibrary").innerHTML+"</button>";
+            LibRenderString += "<button id='LibAddListToLibraryButtonPaused'>"+document.getElementById("LibTemplateAddListToLibraryPaused").innerHTML+"</button>";
             
         }
         LibRenderString += "<div style='display:flex; justify-content: center;'>";
@@ -458,6 +459,7 @@ class Library { // eslint-disable-line no-unused-vars
                 document.getElementById("LibUploadEpubLabel").addEventListener("mouseout", function() {Library.LibMouseoutButtonUpload(this);});
                 document.getElementById("LibEpubNewUploadFile").addEventListener("change", function() {Library.LibHandleUpdate(this, -1, "", "", -1);});
                 document.getElementById("LibAddListToLibraryButton").addEventListener("click", function() {Library.LibAddListToLibrary();});
+                document.getElementById("LibAddListToLibraryButtonPaused").addEventListener("click", function() {Library.LibAddListToLibraryPaused();});
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibDeleteEpub(this);});
@@ -896,6 +898,35 @@ class Library { // eslint-disable-line no-unused-vars
             document.getElementById("startingUrlInput").value = links[i];
             await main.onLoadAndAnalyseButtonClick.call(obj);
             try {
+                await main.fetchContentAndPackEpub.call(obj);
+            } catch {
+                //
+            }
+        }
+        Library.LibClearFields();
+        ErrorLog.SuppressErrorLog =  false;
+    }
+    
+    static async LibAddListToLibraryPaused() {
+        if (document.getElementById("LibDownloadEpubAfterUpdateCheckbox").checked == true) {
+            document.getElementById("LibDownloadEpubAfterUpdateCheckbox").click();
+        }
+        let links = Library.getURLsFromList();
+        ErrorLog.SuppressErrorLog =  true;
+        let rangeStart = ChapterUrlsUI.getRangeStartChapterSelect();
+        let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
+        for (let i = 0; i < links.length; i++) {
+            Library.LibClearFields();
+            let obj = {};
+            obj.dataset = {};
+            obj.dataset.libclick = "yes";
+            obj.dataset.libsuppressErrorLog = true;
+            document.getElementById("startingUrlInput").value = links[i];
+            await main.onLoadAndAnalyseButtonClick.call(obj);
+            try {
+                rangeStart.selectedIndex = 0;
+                rangeEnd.selectedIndex = 0;
+                ChapterUrlsUI.onRangeChanged();
                 await main.fetchContentAndPackEpub.call(obj);
             } catch {
                 //
