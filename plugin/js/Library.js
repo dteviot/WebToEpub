@@ -233,23 +233,16 @@ class Library { // eslint-disable-line no-unused-vars
         });
     }
 
-    static Libdeleteall() {
+    static async Libdeleteall() {
         Library.LibShowLoadingText();
-        chrome.storage.local.get(null, async function(items) {
-            let CurrentLibKeys = await Library.LibGetAllLibStorageKeys("LibEpub", Object.keys(items));
-            let storyurls = [];
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                CurrentLibKeys[i] = CurrentLibKeys[i].replace("LibEpub","");
-            }
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
-            }
-            for (let i = 0; i < storyurls.length; i++) {
-                Library.userPreferences.readingList.tryDeleteEpubAndSave(storyurls[i]);
-            }
-            chrome.storage.local.clear();
-            Library.LibRenderSavedEpubs();
-        });
+        let CurrentLibStoryIds = await Library.LibGetStorageIDs();
+        let CurrentLibStoryURLKeys = CurrentLibStoryIds.map(a => "LibStoryURL" + a);
+        let CurrentLibStoryURLs = await Library.LibGetFromStorageArray(CurrentLibStoryURLKeys);
+        for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
+            Library.userPreferences.readingList.tryDeleteEpubAndSave(CurrentLibStoryURLs[CurrentLibStoryURLKeys[i]]);
+        }
+        chrome.storage.local.clear();
+        Library.LibRenderSavedEpubs();
     }
 
     static async LibChangeOrder(libepubid, change) {
@@ -341,12 +334,6 @@ class Library { // eslint-disable-line no-unused-vars
         document.getElementById("LibShowCompactViewRow").hidden = !ShowAdvancedOptions;
         document.getElementById("LibDownloadEpubAfterUpdateRow").hidden = !ShowAdvancedOptions;
         if (ShowAdvancedOptions) {
-            if (!util.isFirefox()) {
-                let LibTemplateLibraryUses = document.getElementById("LibTemplateLibraryUses").innerHTML;
-                LibRenderString += "<span>" + LibTemplateLibraryUses + "</span>";
-                LibRenderString += "<span id='LibLibraryUses'></span>";
-                LibRenderString += "<br>";
-            }
             LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
             LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
             LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
@@ -497,13 +484,6 @@ class Library { // eslint-disable-line no-unused-vars
                 Library.AppendHtmlInDiv(newChapterHTML, document.getElementById("LibNewChapterCount"+CurrentLibKeys[i]), "newChapterWraper");
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibStoryURL"+CurrentLibKeys[i]);
                 document.getElementById("LibFilename"+CurrentLibKeys[i]).value = await Library.LibGetFromStorage("LibFilename"+CurrentLibKeys[i]);
-            }
-            if (ShowAdvancedOptions) {
-                if (!util.isFirefox()) {
-                    let LibraryUsesHTML = await Library.LibBytesInUse();
-                    LibraryUsesHTML = "<span class=\"LibraryUsesWraper\">"+LibraryUsesHTML+"</span>";
-                    Library.AppendHtmlInDiv(LibraryUsesHTML, document.getElementById("LibLibraryUses"), "LibraryUsesWraper");
-                }
             }
         }
     }
@@ -925,38 +905,42 @@ class Library { // eslint-disable-line no-unused-vars
         ErrorLog.SuppressErrorLog =  false;
     }
     
-    static Libexportall() {
+    static async Libexportall() {
         Library.LibShowLoadingText();
-        chrome.storage.local.get(null, async function(items) {
-            let CurrentLibKeys = items["LibArray"];
-            let storyurls = [];
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                storyurls[i] = items["LibStoryURL" + CurrentLibKeys[i]];
-            }
-            let readingList = new ReadingList();
-            readingList.readFromLocalStorage();
-            
-            let fileReadingList = {};
-            fileReadingList.ReadingList = JSON.parse(readingList.toJson());
-            fileReadingList.ReadingList.epubs = fileReadingList.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
-            
-            let zipFileWriter = new zip.BlobWriter("application/zip");
-            let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
-            //in case for future changes to differntiate between different export versions
-            zipWriter.add("LibraryVersion.txt", new zip.TextReader("2"));
-            zipWriter.add("LibraryCountEntries.txt", new zip.TextReader(CurrentLibKeys.length));
+        let CurrentLibKeys = await Library.LibGetStorageIDs();
+        let CurrentLibStoryURLKeys = CurrentLibKeys.map(a => "LibStoryURL" + a);
+        let CurrentLibStoryURLs = await Library.LibGetFromStorageArray(CurrentLibStoryURLKeys);
+        
+        let storyurls = [];
+        for (let i = 0; i < CurrentLibKeys.length; i++) {
+            storyurls[i] = CurrentLibStoryURLs[CurrentLibStoryURLKeys[i]];
+        }
 
-            for (let i = 0; i < CurrentLibKeys.length; i++) {
-                zipWriter.add("Library/"+i+"/LibCover", new zip.TextReader(items["LibCover" + CurrentLibKeys[i]]));
-                zipWriter.add("Library/"+i+"/LibEpub", new zip.TextReader(items["LibEpub" + CurrentLibKeys[i]]));
-                zipWriter.add("Library/"+i+"/LibFilename", new zip.TextReader(items["LibFilename" + CurrentLibKeys[i]]));
-                zipWriter.add("Library/"+i+"/LibStoryURL", new zip.TextReader(items["LibStoryURL" + CurrentLibKeys[i]]));
-                zipWriter.add("Library/"+i+"/LibNewChapterCount", new zip.TextReader(items["LibNewChapterCount"+CurrentLibKeys[i]] ?? "0"));
-            }
-            zipWriter.add("ReadingList.json", new zip.TextReader(JSON.stringify(fileReadingList)));
-            Download.save(await zipWriter.close(), "Libraryexport.zip").catch (err => ErrorLog.showErrorMessage(err));
-            Library.LibRenderSavedEpubs();
-        });
+        let readingList = new ReadingList();
+        readingList.readFromLocalStorage();
+            
+        let fileReadingList = {};
+        fileReadingList.ReadingList = JSON.parse(readingList.toJson());
+        fileReadingList.ReadingList.epubs = fileReadingList.ReadingList.epubs.filter(a => storyurls.includes(a.toc));
+            
+        let zipFileWriter = new zip.BlobWriter("application/zip");
+        let zipWriter = new zip.ZipWriter(zipFileWriter,{useWebWorkers: false,compressionMethod: 8});
+        //in case for future changes to differntiate between different export versions
+        zipWriter.add("LibraryVersion.txt", new zip.TextReader("2"));
+        zipWriter.add("LibraryCountEntries.txt", new zip.TextReader(CurrentLibKeys.length));
+        ProgressBar.setMax(CurrentLibKeys.length);
+        for (let i = 0; i < CurrentLibKeys.length; i++) {
+            ProgressBar.setValue(i);
+            zipWriter.add("Library/"+i+"/LibCover", new zip.TextReader(await Library.LibGetFromStorage("LibCover"+CurrentLibKeys[i])));
+            zipWriter.add("Library/"+i+"/LibEpub", new zip.TextReader(await Library.LibGetFromStorage("LibEpub" + CurrentLibKeys[i])));
+            zipWriter.add("Library/"+i+"/LibFilename", new zip.TextReader(await Library.LibGetFromStorage("LibFilename" + CurrentLibKeys[i])));
+            zipWriter.add("Library/"+i+"/LibStoryURL", new zip.TextReader(await Library.LibGetFromStorage("LibStoryURL" + CurrentLibKeys[i])));
+            zipWriter.add("Library/"+i+"/LibNewChapterCount", new zip.TextReader(await Library.LibGetFromStorage("LibNewChapterCount"+CurrentLibKeys[i]) ?? "0"));
+        }
+        zipWriter.add("ReadingList.json", new zip.TextReader(JSON.stringify(fileReadingList)));
+        Download.save(await zipWriter.close(), "Libraryexport.zip").catch (err => ErrorLog.showErrorMessage(err));
+        ProgressBar.setValue(CurrentLibKeys.length);
+        Library.LibRenderSavedEpubs();
     }
 
     static async LibHandelImport(objbtn) {
