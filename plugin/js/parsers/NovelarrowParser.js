@@ -72,6 +72,7 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
             .replace(/\\"/g, "\"")
             .replace(/\\n/g, "")
             .replace(/\\u0026nbsp;/g, " ")
+            .replace(/\\u0026amp;/g, "&")
             .replace(/\\u0026quot;/g, "\"")
             .replace(/\\u0026#39;/g, "'")
             .replace(/\\u0026mdash;/g, "—")
@@ -84,7 +85,26 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
             .replace(/\\u0026agrave;/g, "à")
             .replace(/\\u0026ntilde;/g, "ñ")
             .replace(/\\r\\r/g, "<br>")
-            .replace(/\\r/g, "<br>");
+            .replace(/\\u0026ldquo;/g, "“")
+            .replace(/\\u0026rdquo;/g, "”")
+            .replace(/\\u0026lsquo;/g, "‘")
+            .replace(/\\u0026rsquo;/g, "’")
+            .replace(/\\u0026ndash;/g, "–")
+            .replace(/\\u0026laquo;/g, "«")
+            .replace(/\\u0026raquo;/g, "»")
+            .replace(/\\u0026igrave;/g, "ì")
+            .replace(/\\u0026ocirc;/g, "ô")
+            .replace(/\\u0026Auml;/g, "Ä")
+            .replace(/\\u0026auml;/g, "ä")
+            .replace(/\\u0026ouml;/g, "ö")
+            .replace(/\\u0026iuml;/g, "ï")
+            .replace(/\\u0026Atilde;/g, "Ã")
+            .replace(/\\u0026para;/g, "¶")
+            .replace(/\\u0026ccedil;/g, "ç")
+            .replace(/\\u0026deg;/g, "°")
+            .replace(/\\u0026egrave;/g, "è")
+            .replace(/\\u000b;/g, " ")
+            .replace(/\\u0026;/g, "\\");
 
     }
 
