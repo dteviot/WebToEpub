@@ -26,18 +26,20 @@ class WuxiaworldParser extends Parser {
             let novelUrlMatch = dom.baseURI.match(/wuxiaworld\.com\/novel\/([^/?#]+)/);
             if (novelUrlMatch) {
                 let novelSlug = novelUrlMatch[1];
-                let searchArea = dom.querySelector("#full-width-tabpanel-1") || dom.body;
+                let searchArea = dom.body;
                 let links = [...searchArea.querySelectorAll("a")].filter(a => {
                     let href = a.getAttribute("href");
                     let isChapter = href && href.startsWith(`/novel/${novelSlug}/`) && href.length > `/novel/${novelSlug}/`.length;
                     
-                    if (isChapter) {
+                    if (isChapter && a.classList.contains("group")) {
                         let statusDiv = a.querySelector("div[role='status']");
-                        if (!statusDiv) {
-                            return false; // Not in the chapter list (e.g., hero section buttons)
-                        }
-                        if (statusDiv.innerHTML.trim() !== "") {
-                            return false; // Filter locked/wait chapters
+                        if (statusDiv && statusDiv.innerHTML.trim() !== "") {
+                            // If the status div has an SVG, check if it's a lock/wait icon.
+                            // If it's just a bookmark icon, we shouldn't filter it out.
+                            // Wuxiaworld wait icons usually have a clock, locked chapters have a lock.
+                            if (statusDiv.innerHTML.includes("svg") && !statusDiv.innerHTML.includes("bookmark")) {
+                                return false; // Filter locked/wait chapters
+                            }
                         }
                         return true;
                     }
@@ -88,6 +90,11 @@ class WuxiaworldParser extends Parser {
         return arc == null ? null : arc.textContent.trim();
     }
 
+    extractTitleImpl(dom) {
+        let titleNode = dom.querySelector("span[data-testid='title'], h4");
+        return titleNode ? titleNode.textContent.trim() : super.extractTitleImpl(dom);
+    }
+
     static removeArcsWhenOnlyOne(chapters) {
         let arcCount = chapters.reduce((p, c) => p + (c.newArc != null), 0);
         if (arcCount < 2) {
@@ -123,6 +130,23 @@ class WuxiaworldParser extends Parser {
     }
 
     findChapterTitle(dom) {
+        let titleNode = dom.querySelector("h4[data-testid='heading'] span[data-testid='title'], h4[data-testid='heading']");
+        if (titleNode && titleNode.textContent.trim() !== "") {
+            return titleNode;
+        }
+        
+        // Fallback to extracting from the page <title> tag (React SSR returns empty skeletons for headings)
+        let docTitle = dom.querySelector("title");
+        if (docTitle && docTitle.textContent.includes(" - ")) {
+            let parts = docTitle.textContent.split(" - ");
+            let chapterTitle = parts.slice(1).join(" - ").trim();
+            if (chapterTitle) {
+                let h1 = dom.createElement("h1");
+                h1.textContent = chapterTitle;
+                return h1;
+            }
+        }
+        
         return dom.querySelector("div.caption h4");
     }
 
