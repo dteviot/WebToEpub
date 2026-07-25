@@ -439,8 +439,12 @@ class Library { // eslint-disable-line no-unused-vars
                 LibRenderString += "</tbody>";
                 LibRenderString += "<tbody>";
                 LibRenderString += "<tr><td style='padding:0;'>";
-                LibRenderString += "<input style=\"min-width:260\" data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
-                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibOpenURL"+CurrentLibKeys[i]+"'>"+LibTemplateOpenURLButton+"</button>";
+                if (ShowAdvancedOptions) {
+                    LibRenderString += "<input style=\"min-width:260\" data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+                    LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibOpenURL"+CurrentLibKeys[i]+"'>"+LibTemplateOpenURLButton+"</button>";
+                } else {
+                    LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+                }
                 LibRenderString += "</td></tr>";
                 LibRenderString += "</tbody>";
                 LibRenderString += "</table>";
