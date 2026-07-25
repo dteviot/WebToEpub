@@ -12,12 +12,14 @@ const util = (function() {
 
     function sleep(ms) {
         return new Promise(resolve => {
+            let timer;
             function finished() {
-                resolve();
+                clearTimeout(timer);
                 sleepController.signal.removeEventListener("abort", finished);
+                resolve();
             }
+            timer = setTimeout(finished, ms);
             sleepController.signal.addEventListener("abort", finished);
-            setTimeout(finished, ms);
         });
     }
 
