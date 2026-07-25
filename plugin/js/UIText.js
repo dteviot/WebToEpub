@@ -32,6 +32,7 @@ class UIText { // eslint-disable-line no-unused-vars
         addToLibraryPaused: chrome.i18n.getMessage("__MSG_button_Lib_Template_Add_List_To_Library_Paused__"),
         mergeUpload: chrome.i18n.getMessage("__MSG_button_Lib_Template_Add_Chapter_from_different_EPUB__"),
         editMetadata: chrome.i18n.getMessage("__MSG_button_Lib_Template_Edit_Metadata__"),
+        openURL: chrome.i18n.getMessage("__MSG_button_Lib_Template_Open_URL__"),
         warningURLChange: chrome.i18n.getMessage("__MSG_label_Lib_Template_Warning_URL_Change__"),
         warningInProgress: chrome.i18n.getMessage("__MSG_label_Lib_Warning_In_Progress___"),
         confirmClearLibrary: chrome.i18n.getMessage("__MSG_confirm_Clear_Library__")

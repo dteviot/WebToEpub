@@ -336,6 +336,7 @@ class Library { // eslint-disable-line no-unused-vars
         let LibTemplateFilename = document.getElementById("LibTemplateFilename").innerHTML;
         let LibTemplateMergeUploadButton = "";
         let LibTemplateEditMetadataButton = "";
+        let LibTemplateOpenURLButton = "";
 
         LibRenderString += "<div class='LibDivRenderWraper'>";
         document.getElementById("LibShowCompactViewRow").hidden = !ShowAdvancedOptions;
@@ -343,6 +344,7 @@ class Library { // eslint-disable-line no-unused-vars
         if (ShowAdvancedOptions) {
             LibTemplateMergeUploadButton = document.getElementById("LibTemplateMergeUploadButton").innerHTML;
             LibTemplateEditMetadataButton = document.getElementById("LibTemplateEditMetadataButton").innerHTML;
+            LibTemplateOpenURLButton = document.getElementById("LibTemplateOpenURLButton").innerHTML;
             LibRenderString += "<button id='libdeleteall'>"+document.getElementById("LibTemplateClearLibrary").innerHTML+"</button>";
             LibRenderString += "<button id='libexportall'>"+document.getElementById("LibTemplateExportLibrary").innerHTML+"</button>";
             LibRenderString += "<label data-libbuttonid='LibImportLibraryButton' data-libepubid='' id='LibImportLibraryLabel' for='LibImportLibraryFile' style='cursor: pointer;'>";
@@ -437,7 +439,8 @@ class Library { // eslint-disable-line no-unused-vars
                 LibRenderString += "</tbody>";
                 LibRenderString += "<tbody>";
                 LibRenderString += "<tr><td style='padding:0;'>";
-                LibRenderString += "<input data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+                LibRenderString += "<input style=\"min-width:260\" data-libepubid="+CurrentLibKeys[i]+" id='LibStoryURL"+CurrentLibKeys[i]+"' type='url' value=''>";
+                LibRenderString += "<button data-libepubid="+CurrentLibKeys[i]+" id='LibOpenURL"+CurrentLibKeys[i]+"'>"+LibTemplateOpenURLButton+"</button>";
                 LibRenderString += "</td></tr>";
                 LibRenderString += "</tbody>";
                 LibRenderString += "</table>";
@@ -484,6 +487,7 @@ class Library { // eslint-disable-line no-unused-vars
                     document.getElementById("LibMergeUploadLabel"+CurrentLibKeys[i]).addEventListener("mouseout", function() {Library.LibMouseoutButtonUpload(this);});
                     document.getElementById("LibSearchNewChapter"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibSearchNewChapter(this);});
                     document.getElementById("LibEditMetadata"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibEditMetadata(this);});
+                    document.getElementById("LibOpenURL"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibOpenURL(this);});
                 }
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
@@ -607,6 +611,13 @@ class Library { // eslint-disable-line no-unused-vars
         document.getElementById("LibDescriptionInput"+objbtn.dataset.libepubid).value = LibMetadata[4];
         document.getElementById("LibPublisherInput"+objbtn.dataset.libepubid).value = LibMetadata[5];
         document.getElementById("LibMetadataSave"+objbtn.dataset.libepubid).addEventListener("click", function() {Library.LibSaveMetadataChange(this);});
+    }
+
+    static async LibOpenURL(objbtn) {
+        let StoryURL = await Library.LibGetFromStorage("LibStoryURL"+objbtn.dataset.libepubid);
+        if (StoryURL != null) {
+            chrome.tabs.create({ url: StoryURL});
+        }
     }
 
     static async LibSaveMetadataChange(obj) {
