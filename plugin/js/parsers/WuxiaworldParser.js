@@ -106,6 +106,13 @@ class WuxiaworldParser extends Parser {
     findContent(dom) {
         let candidates = [...dom.querySelectorAll("div.fr-view:not(.panel-body)")];
         let content = WuxiaworldParser.elementWithMostParagraphs(candidates);
+        if (!content) {
+            // Tab-scraped pages use div.chapter-content > div.fr-view
+            let chapterContent = dom.querySelector("div.chapter-content div.fr-view");
+            if (chapterContent) {
+                content = chapterContent;
+            }
+        }
         this.cleanContent(content);
         return content;
     }
@@ -123,6 +130,9 @@ class WuxiaworldParser extends Parser {
 
     cleanContent(content)
     {
+        if (content == null) {
+            return;
+        }
         util.removeChildElementsMatchingSelector(content, "button, #spoiler_teaser");
         let toDelete = [...content.querySelectorAll("a")]
             .filter(a => a.textContent === "Teaser");
@@ -174,5 +184,79 @@ class WuxiaworldParser extends Parser {
         let summary = [...dom.querySelectorAll("div.fr-view")];
         nodes.push(summary[1]);
         return nodes;
+    }
+
+    async fetchChapter(url) {
+        // Fast background fetch first
+        let dom = await super.fetchChapter(url);
+        
+        let needsTabScrape = false;
+        
+        // 1. Check if the server explicitly marked it as a teaser in the React state
+        let scripts = [...dom.querySelectorAll("script")];
+        let stateScript = scripts.find(s => s.textContent.includes("__REACT_QUERY_STATE__"));
+        if (stateScript) {
+            let match = stateScript.textContent.match(/window\.__REACT_QUERY_STATE__\s*=\s*(\{.*?\});/s);
+            if (match) {
+                try {
+                    let state = JSON.parse(match[1]);
+                    for (let query of state.queries || []) {
+                        if (query.queryKey && query.queryKey[0] === "chapter") {
+                            if (query.state && query.state.data && query.state.data.item) {
+                                if (query.state.data.item.isTeaser) {
+                                    needsTabScrape = true;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Wuxiaworld fallback state parse error: " + e.message);
+                }
+            }
+        }
+        
+        // 2. Check if the content div is completely missing from the SSR HTML
+        if (!needsTabScrape && !this.findContent(dom)) {
+            needsTabScrape = true;
+        }
+        
+        if (needsTabScrape) {
+            try {
+                let tabId = await new Promise(resolve => {
+                    chrome.tabs.create({url: url, active: false}, tab => resolve(tab.id));
+                });
+                
+                // Wait for the React app to hydrate and fetch gRPC data
+                await util.sleep(4000);
+                
+                // Extract the DOM from the tab
+                let html = await new Promise((resolve, reject) => {
+                    chrome.scripting.executeScript({
+                        target: {tabId: tabId},
+                        func: () => document.documentElement.outerHTML
+                    }, (results) => {
+                        if (chrome.runtime.lastError) {
+                            reject(new Error(chrome.runtime.lastError.message));
+                        } else if (results && results.length > 0) {
+                            resolve(results[0].result);
+                        } else {
+                            reject(new Error("No HTML returned"));
+                        }
+                    });
+                });
+                
+                chrome.tabs.remove(tabId);
+                
+                if (html) {
+                    let parser = new DOMParser();
+                    dom = parser.parseFromString(html, "text/html");
+                    util.setBaseTag(url, dom);
+                }
+            } catch (err) {
+                console.error("Tab-scraping fallback failed for " + url + ": " + err.message);
+            }
+        }
+        
+        return dom;
     }
 }
