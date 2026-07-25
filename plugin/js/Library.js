@@ -867,6 +867,7 @@ class Library { // eslint-disable-line no-unused-vars
     }
     
     static async Libupdateall() {
+        document.getElementById("libupdateall").disabled = true;
         let LibArray = await Library.LibGetFromStorage("LibArray");
         ErrorLog.SuppressErrorLog =  true;
         for (let i = 0; i < LibArray.length; i++) {
@@ -890,6 +891,7 @@ class Library { // eslint-disable-line no-unused-vars
         }
         Library.LibClearFields();
         ErrorLog.SuppressErrorLog =  false;
+        document.getElementById("libupdateall").disabled = false;
     }
     
     static getURLsFromList() {
