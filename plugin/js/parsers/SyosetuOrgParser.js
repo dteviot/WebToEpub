@@ -10,12 +10,14 @@ class SyosetuOrgParser extends Parser {
 
     async getChapterUrls(dom) {
         let baseUrl = this.getBaseUrl(dom);
-        let menu = dom.querySelector("div.ss table");
+        let menu = [...dom.querySelectorAll("div.ss table a[href]")].map(a => util.hyperLinkToChapter(a));
         //Handle oneshot page
-        if (menu.querySelector("caption")) { 
+        let isSingleChapter = false;
+        menu.forEach(item => {if (item.sourceUrl.includes("review")) {isSingleChapter = true;}});
+        if (isSingleChapter) { 
             return this.singleChapterStory(baseUrl, dom);
         }
-        return util.hyperlinksToChapterList(menu);
+        return menu;
     }
 
     findContent(dom) {
