@@ -17,10 +17,11 @@ class WtrlabParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let json = dom.querySelector("script#__NEXT_DATA__")?.textContent;
+        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+        let json = tocHtml.querySelector("script#__NEXT_DATA__")?.textContent;
         json = JSON.parse(json);
         this.magickey = json?.buildId;
-        let leaves = dom.baseURI.split("/");
+        let leaves = tocHtml.baseURI.split("/");
         let novelIndex = leaves.indexOf("novel");
         let language = leaves[novelIndex - 1];
         let id = leaves[novelIndex + 1];
@@ -71,7 +72,8 @@ class WtrlabParser extends Parser {
 
 
     async loadEpubMetaInfo(dom) {
-        let json = dom.querySelector("script#__NEXT_DATA__")?.textContent;
+        let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+        let json = tocHtml.querySelector("script#__NEXT_DATA__")?.textContent;
         json = JSON.parse(json);
         this.img = json?.props.pageProps.serie.serie_data.data.image;
         return;
