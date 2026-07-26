@@ -18,6 +18,10 @@ const util = (function() {
                 sleepController.signal.removeEventListener("abort", finished);
                 resolve();
             }
+            //to catch 403 etc. delayed requests
+            if (sleepController.signal.aborted) {
+                return finished();
+            }
             timer = setTimeout(finished, ms);
             sleepController.signal.addEventListener("abort", finished);
         });
