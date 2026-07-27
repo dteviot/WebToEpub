@@ -103,8 +103,8 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
             .replace(/\\u0026ccedil;/g, "ç")
             .replace(/\\u0026deg;/g, "°")
             .replace(/\\u0026egrave;/g, "è")
-            .replace(/\\u000b;/g, " ")
-            .replace(/\\u0026;/g, "\\");
+            .replace(/\\u000b;/g, "")
+            .replace(/\\u0026;/g, "&");
 
     }
 
