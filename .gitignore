@@ -9,3 +9,5 @@ package-lock.json
 .vscode
 /plugin/dompurify/
 /plugin/@zip.js/
+mise.toml
+bun.lock
