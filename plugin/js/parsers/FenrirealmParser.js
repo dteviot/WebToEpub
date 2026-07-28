@@ -43,6 +43,7 @@ class FenrirealmParser extends Parser {
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, "[style*='width:1px']");
+        util.removeChildElementsMatchingSelector(element, ".reader-attribution");
         super.removeUnwantedElementsFromContentElement(element);
     }
 
