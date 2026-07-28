@@ -11,12 +11,21 @@ class SyosetuOrgParser extends Parser {
     async getChapterUrls(dom) {
         let baseUrl = this.getBaseUrl(dom);
         let menu = [...dom.querySelectorAll("div.ss table a[href]")].map(a => util.hyperLinkToChapter(a));
+        
+        //Handle edge case
+        let altMenu = [...dom.querySelectorAll(".episode-list__item a")].map(a => util.hyperLinkToChapter(a));
+        if (altMenu.length !== 0) {
+            return altMenu;
+        }
+
         //Handle oneshot page
         let isSingleChapter = false;
         menu.forEach(item => {if (item.sourceUrl.includes("review")) {isSingleChapter = true;}});
         if (isSingleChapter) { 
             return this.singleChapterStory(baseUrl, dom);
         }
+
+        //Standard multi-chapters story
         return menu;
     }
 
