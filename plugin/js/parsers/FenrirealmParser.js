@@ -41,6 +41,11 @@ class FenrirealmParser extends Parser {
             : titleText;
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "[style*='width:1px']");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findCoverImageUrl(dom) {
         let img = dom.querySelector(".main-area .flex-col div.lazy-image-wrapper img:nth-of-type(2)");
         return img?.src || null;
