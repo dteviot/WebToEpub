@@ -109,6 +109,8 @@ class UserPreferences { // eslint-disable-line no-unused-vars
         this.noContentToError403 = this.addPreference("noContentToError403", "noContentToError403Checkbox", false);
         this.maxChaptersPerEpub = this.addPreference("maxChaptersPerEpub", "maxChaptersPerEpubTag", "10,000");
         this.manualDelayPerChapter = this.addPreference("manualDelayPerChapter", "manualDelayPerChapterTag", "0");
+        this.removeFirstLinesOfChapter = this.addPreference("removeFirstLinesOfChapter", "removeFirstLinesOfChapterTag", "0");
+        this.removeLastLinesOfChapter = this.addPreference("removeLastLinesOfChapter", "removeLastLinesOfChapterTag", "0");
         this.overrideMinimumDelay = this.addPreference("overrideMinimumDelay", "overrideMinimumDelayCheckbox", false);
         this.skipImages = this.addPreference("skipImages", "skipImagesCheckbox", false);
         this.compressImages = this.addPreference("compressImages", "compressImagesCheckbox", false);

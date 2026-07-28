@@ -367,6 +367,14 @@
 		"message": "Delay per chapter in ms",
 		"description": "Delay per chapter in ms"
 	},
+	"__MSG_label_Remove_First_Lines_Of_Chapter__": {
+		"message": "Number of lines to remove from start of chapter body",
+		"description": "Label for numeric input that strips the first N lines from each chapter's content"
+	},
+	"__MSG_label_Remove_Last_Lines_Of_Chapter__": {
+		"message": "Number of lines to remove from end of chapter body",
+		"description": "Label for numeric input that strips the last N lines from each chapter's content"
+	},
 	"__MSG_label_Manually_Select_Parser__": {
 		"message": "Manually Select Parser:",
 		"description": "Label for menu to change parser (in advanced options section)"

@@ -144,6 +144,7 @@ class Parser {
         util.removeEmptyAttributes(content);
         util.removeSpansWithNoAttributes(content);
         util.removeEmptyDivElements(content);
+        this.trimContentLines(content);
         util.removeTrailingWhiteSpace(content);
         if (util.isElementWhiteSpace(content)) {
             let errorMsg = UIText.Warning.warningNoVisibleContent(webPage.sourceUrl);
@@ -201,6 +202,43 @@ class Parser {
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
         util.removeLeadingWhiteSpace(element);
+    }
+
+    // Remove the first/last N top-level "lines" (elements) from the chapter body,
+    // per the removeFirstLinesOfChapter / removeLastLinesOfChapter user preferences.
+    trimContentLines(content) {
+        // parseInt matches the existing manualDelayPerChapter convention (see getRateLimit).
+        // The (0 < n) guards below treat blank/garbage (NaN) and any negative as "disabled".
+        let firstN = parseInt(this.userPreferences.removeFirstLinesOfChapter.value);
+        let lastN = parseInt(this.userPreferences.removeLastLinesOfChapter.value);
+        let hasFirstN = !isNaN(firstN) && (0 < firstN);
+        let hasLastN = !isNaN(lastN) && (0 < lastN);
+        if (!hasFirstN && !hasLastN) {
+            return;
+        }
+        let titleElement = this.findTitleElement(content);
+        let lines = [...content.children].filter(e => e !== titleElement);
+        if (hasFirstN) {
+            util.removeElements(lines.slice(0, firstN));
+            lines = lines.slice(firstN);
+        }
+        if (hasLastN) {
+            util.removeElements(lines.slice(Math.max(0, lines.length - lastN)));
+        }
+    }
+
+    // The chapter title is the first heading in content (same identification as
+    // titleAlreadyPresent). Walk up to its top-level child of content so it's
+    // excluded from the trim even when nested in a wrapper div.
+    findTitleElement(content) {
+        let heading = content.querySelector("h1, h2, h3, h4, h5, h6");
+        if (heading == null) {
+            return null;
+        }
+        while (heading.parentElement !== content) {
+            heading = heading.parentElement;
+        }
+        return heading;
     }
 
     customRawDomToContentStep(chapter, content) { // eslint-disable-line no-unused-vars
