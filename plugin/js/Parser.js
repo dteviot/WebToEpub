@@ -196,7 +196,7 @@ class Parser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeScriptableElements(element);
         util.removeComments(element);
-        util.removeElements(element.querySelectorAll("noscript, input"));
+        util.removeElements(element.querySelectorAll("noscript, input, [aria-hidden=\"true\"]"));
         util.removeUnwantedWordpressElements(element);
         util.removeMicrosoftWordCrapElements(element);
         util.removeShareLinkElements(element);
