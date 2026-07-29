@@ -29,6 +29,8 @@ class Po18csParser extends Parser {
 
                 chapters.push(chapter);
 
+                chapterUrlsUI.monoShowTocProgress(chapter);
+
                 continue;
             }
 
@@ -48,7 +50,8 @@ class Po18csParser extends Parser {
             };
 
             chapters.push(chapter);
-
+            
+            chapterUrlsUI.monoShowTocProgress(chapter);
         }
 
         return chapters;
