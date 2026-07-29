@@ -828,6 +828,7 @@ Don't forget to give the project a star! Thanks again!
     <li>kuwoyuki</li>
     <li>bendur</li>
     <li>Bartuzen</li>
+    <li>g-play01</li>
   </ul>
 </details>
 
