@@ -565,6 +565,7 @@ class Library { // eslint-disable-line no-unused-vars
         let LibTemplateMetadataSubject = document.getElementById("LibTemplateMetadataSubject").innerHTML;
         let LibTemplateMetadataDescription = document.getElementById("LibTemplateMetadataDescription").innerHTML;
         let LibTemplateMetadataPublisher = document.getElementById("LibTemplateMetadataPublisher").innerHTML;
+        let LibTemplateMetadataCoverImageUrl = document.getElementById("LibTemplateMetadataCoverImageUrl").innerHTML;
         let LibRenderResult = document.getElementById("LibRenderMetadata" + objbtn.dataset.libepubid);
         let LibMetadata = await Library.LibGetMetadata(objbtn.dataset.libepubid);
         let LibRenderString = "";
@@ -604,6 +605,10 @@ class Library { // eslint-disable-line no-unused-vars
         LibRenderString += "<td>"+LibTemplateMetadataPublisher+"</td>";
         LibRenderString += "<td colspan='2'><input id='LibPublisherInput"+objbtn.dataset.libepubid+"' type='text'></input></td>";
         LibRenderString += "</tr>";
+        LibRenderString += "<tr id='LibRenderMetadataCoverImageUrl"+objbtn.dataset.libepubid+"'>";
+        LibRenderString += "<td>"+LibTemplateMetadataCoverImageUrl+"</td>";
+        LibRenderString += "<td colspan='2'><input id='LibCoverImageUrlInput"+objbtn.dataset.libepubid+"' type='url' placeholder='https://...'></input></td>";
+        LibRenderString += "</tr>";
         LibRenderString += "</tbody>";
         LibRenderString += "</table>";
         LibRenderString += "</div>";
@@ -631,7 +636,28 @@ class Library { // eslint-disable-line no-unused-vars
         let LibSubjectInput = document.getElementById("LibSubjectInput"+obj.dataset.libepubid).value;
         let LibDescriptionInput = document.getElementById("LibDescriptionInput"+obj.dataset.libepubid).value;
         let LibPublisherInput = document.getElementById("LibPublisherInput"+obj.dataset.libepubid).value;
+        let LibCoverImageUrlInput = document.getElementById("LibCoverImageUrlInput"+obj.dataset.libepubid).value;
         Library.LibShowLoadingText();
+
+        // Update cover image in storage if a new URL was provided
+        if (LibCoverImageUrlInput.trim() !== "") {
+            try {
+                let response = await fetch(LibCoverImageUrlInput);
+                let blob = await response.blob();
+                let reader = new FileReader();
+                let coverDataUrl = await new Promise((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+                chrome.storage.local.set({
+                    ["LibCover" + obj.dataset.libepubid]: coverDataUrl
+                });
+            } catch {
+                // If fetching the image fails, continue with the metadata save
+            }
+        }
+
         let LibDateCreated = new EpubPacker().getDateForMetaData();
         try {
             let EpubReader = await new zip.Data64URIReader(await Library.LibGetFromStorage("LibEpub"+obj.dataset.libepubid));
