@@ -639,22 +639,27 @@ class Library { // eslint-disable-line no-unused-vars
         let LibCoverImageUrlInput = document.getElementById("LibCoverImageUrlInput"+obj.dataset.libepubid).value;
         Library.LibShowLoadingText();
 
+        let newCoverBlob = null;
+        let newCoverMimeType = null;
+
         // Update cover image in storage if a new URL was provided
         if (LibCoverImageUrlInput.trim() !== "") {
             try {
                 let response = await fetch(LibCoverImageUrlInput);
-                let blob = await response.blob();
+                newCoverBlob = await response.blob();
+                newCoverMimeType = newCoverBlob.type;
                 let reader = new FileReader();
                 let coverDataUrl = await new Promise((resolve, reject) => {
                     reader.onload = () => resolve(reader.result);
                     reader.onerror = reject;
-                    reader.readAsDataURL(blob);
+                    reader.readAsDataURL(newCoverBlob);
                 });
                 chrome.storage.local.set({
                     ["LibCover" + obj.dataset.libepubid]: coverDataUrl
                 });
             } catch {
                 // If fetching the image fails, continue with the metadata save
+                newCoverBlob = null;
             }
         }
 
@@ -665,12 +670,74 @@ class Library { // eslint-disable-line no-unused-vars
             let EpubContent =  await EpubZipRead.getEntries();
             EpubContent = EpubContent.filter(a => a.directory == false);
             let opfFile = await EpubContent.filter(a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+
+            // Handle new cover embedding in EPUB
+            let oldCoverimgPath = null;
+            let newCoverimgPath = null;
+            let coverXhtmlFile = EpubContent.filter(a => a.filename == "OEBPS/Text/Cover.xhtml");
+            if (newCoverBlob != null && coverXhtmlFile.length > 0) {
+                try {
+                    let Coverxml = await coverXhtmlFile[0].getData(new zip.TextWriter());
+                    let match = Coverxml.match(/"..\/Images\/000.+?"/);
+                    if (match) {
+                        oldCoverimgPath = "OEBPS" + match[0].replace(/"../, "").replace("\"", "");
+                        
+                        let extension = "jpg";
+                        if (newCoverMimeType && newCoverMimeType.includes("png")) {
+                            extension = "png";
+                        } else if (newCoverMimeType && newCoverMimeType.includes("gif")) {
+                            extension = "gif";
+                        } else if (newCoverMimeType && newCoverMimeType.includes("webp")) {
+                            extension = "webp";
+                        }
+                        
+                        let baseName = oldCoverimgPath.substring(0, oldCoverimgPath.lastIndexOf("."));
+                        newCoverimgPath = baseName + "." + extension;
+
+                        let oldHref = oldCoverimgPath.replace("OEBPS/", "");
+                        let newHref = newCoverimgPath.replace("OEBPS/", "");
+                        
+                        // Update OPF
+                        let itemRegexStr = "<item[^>]+href=\"" + oldHref.replace(/\./g, "\\.") + "\"[^>]*>";
+                        let itemRegex = new RegExp(itemRegexStr, "g");
+                        let itemMatch = opfFile.match(itemRegex);
+                        if (itemMatch) {
+                            let oldItem = itemMatch[0];
+                            let newItem = oldItem.replace(oldHref, newHref);
+                            if (newCoverMimeType) {
+                                newItem = newItem.replace(/media-type="[^"]+"/, "media-type=\"" + newCoverMimeType + "\"");
+                            }
+                            opfFile = opfFile.replace(oldItem, newItem);
+                        }
+                        
+                        // Update Cover.xhtml
+                        let oldSrc = oldHref.replace("Images/", "../Images/");
+                        let newSrc = newHref.replace("Images/", "../Images/");
+                        coverXhtmlFile[0].newXmlData = Coverxml.replace(oldSrc, newSrc);
+                    }
+                } catch (e) {
+                    // Ignore if cover modification fails
+                    oldCoverimgPath = null;
+                    newCoverimgPath = null;
+                }
+            }
             
             let EpubWriter = new zip.BlobWriter("application/epub+zip");
             let EpubZipWrite = new zip.ZipWriter(EpubWriter,{useWebWorkers: false,compressionMethod: 8});
             //Copy Epub in NewEpub
             for (let element of EpubContent.filter(a => a.filename != "OEBPS/content.opf")) {
-                EpubZipWrite.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
+                if (oldCoverimgPath != null && element.filename === oldCoverimgPath) {
+                    continue; // Skip old image
+                }
+                if (newCoverBlob != null && element.filename === "OEBPS/Text/Cover.xhtml" && coverXhtmlFile[0].newXmlData) {
+                    EpubZipWrite.add(element.filename, new zip.TextReader(coverXhtmlFile[0].newXmlData));
+                } else {
+                    EpubZipWrite.add(element.filename, new zip.BlobReader(await element.getData(new zip.BlobWriter())));
+                }
+            }
+            
+            if (newCoverBlob != null && newCoverimgPath != null) {
+                EpubZipWrite.add(newCoverimgPath, new zip.BlobReader(newCoverBlob));
             }
             
             let regex1 = opfFile.match(new RegExp("<dc:title>.+?</dc:creator>", "gs"));
