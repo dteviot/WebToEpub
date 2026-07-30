@@ -251,13 +251,13 @@ class WuxiaworldParser extends Parser {
                     escaped = false;
                 } else if (ch === "\\") {
                     escaped = true;
-                } else if (ch === '"') {
+                } else if (ch === "\"") {
                     inString = false;
                 }
                 continue;
             }
 
-            if (ch === '"') {
+            if (ch === "\"") {
                 inString = true;
             } else if (ch === "{") {
                 ++depth;
