@@ -13,7 +13,13 @@ class SyosetuOrgParser extends Parser {
         let menu = [...dom.querySelectorAll("div.ss table a[href]")].map(a => util.hyperLinkToChapter(a));
         
         //Handle edge case
-        let altMenu = [...dom.querySelectorAll(".episode-list__item a")].map(a => util.hyperLinkToChapter(a));
+        let altMenu = [...dom.querySelectorAll(".episode-list__link")].map((a) => { 
+            return { 
+                sourceUrl: a.href,
+                title: a.querySelector(".episode-list__title").textContent.trim(),
+                isIncludeable: true,
+            }; 
+        });
         if (altMenu.length !== 0) {
             return altMenu;
         }
