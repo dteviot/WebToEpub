@@ -387,6 +387,10 @@
 		"message": "Publisher",
 		"description": "Label for Epub publisher"
 	},
+	"__MSG_label_Metadata_date_published__": {
+		"message": "Published",
+		"description": "Label for the original publication date"
+	},
 	"__MSG_label_Custom_Filename__": {
 		"message": "Custom Filename",
 		"description": "Custom Filename input"

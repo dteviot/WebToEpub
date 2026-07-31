@@ -91,7 +91,8 @@ class EpubPacker {
         opf.documentElement.appendChild(metadata);
         this.createAndAppendChildNS(metadata, dc_ns, "dc:title", this.metaInfo.title);
         this.createAndAppendChildNS(metadata, dc_ns, "dc:language", this.metaInfo.language);
-        this.createAndAppendChildNS(metadata, dc_ns, "dc:date", this.getDateForMetaData());
+        let datePublished = this.metaInfo.datePublished || this.getDateForMetaData();
+        this.createAndAppendChildNS(metadata, dc_ns, "dc:date", datePublished);
         if (!util.isNullOrEmpty(this.metaInfo.subject)) {
             this.createAndAppendChildNS(metadata, dc_ns, "dc:subject", this.metaInfo.subject);
         }
