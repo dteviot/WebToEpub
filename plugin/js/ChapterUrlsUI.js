@@ -70,18 +70,6 @@ class ChapterUrlsUI {
         });
     }
 
-    monoShowTocProgress(chapter) {
-        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
-        let row = document.createElement("tr");
-        linksTable.appendChild(row);
-        row.appendChild(document.createElement("td"));
-        let col = document.createElement("td");
-        col.className = "disabled";
-        col.appendChild(document.createTextNode(chapter.title));
-        row.appendChild(col);
-        row.appendChild(document.createElement("td"));
-    }
-
     static showDownloadState(row, state) {
         if (row != null) {
             let downloadStateDiv = row.querySelector(".downloadStateDiv");
