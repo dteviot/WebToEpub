@@ -29,7 +29,7 @@ class Po18csParser extends Parser {
 
                 chapters.push(chapter);
 
-                chapterUrlsUI.monoShowTocProgress(chapter);
+                chapterUrlsUI.showTocProgress([chapter]);
 
                 continue;
             }
