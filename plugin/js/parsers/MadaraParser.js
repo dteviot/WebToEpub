@@ -140,7 +140,44 @@ class MadaraVariantParser extends MadaraParser {
 }
 
 class KdtnovelsParser extends MadaraParser {
+    async getChapterUrls(dom) {
+        let links = [...dom.querySelectorAll("li.wp-manga-chapter a:not([title])")];
+        if (links.length === 0) {
+            links = [...dom.querySelectorAll("#chapter-list-container a.chap-item")];
+        }
+        return links.map(a => util.hyperLinkToChapter(a)).reverse();
+    }
+
+    findContent(dom) {
+        let content = dom.querySelector("#chapter-content-text");
+        if (content) {
+            return content;
+        }
+        return super.findContent(dom);
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "button.para-comment-badge, div.story-chapter-notice");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
     findChapterTitle(dom) {
-        return dom.querySelector("h3.chapter-name");
+        let titleNode = dom.querySelector("h1#chapter-heading");
+        if (titleNode) {
+            return titleNode.textContent.trim();
+        }
+        titleNode = dom.querySelector("h3.chapter-name");
+        if (titleNode) {
+            return titleNode.textContent.trim();
+        }
+        return super.findChapterTitle(dom);
+    }
+
+    findCoverImageUrl(dom) {
+        let url = util.getFirstImgSrc(dom, "div.story-cover-card");
+        if (url) {
+            return url;
+        }
+        return super.findCoverImageUrl(dom);
     }
 }
