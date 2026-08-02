@@ -64,7 +64,7 @@ class ChyoaParser extends Parser {
         let ChapterArray = this.reponseToToc(resp);
         chapterUrlsUI.showTocProgress(ChapterArray);
         let nextOffset = resp.data.nextOffset;
-        while(resp.data.hasMorePages == true){
+        while (resp.data.hasMorePages == true) {
             await this.rateLimitDelay();
             resp = (await HttpClient.fetchJson(basemaphref + ".json?collapse_default=0&collapsed=&display_offset="+nextOffset+"&expanded=", options)).json;
             let partialList = this.reponseToToc(resp);
@@ -75,7 +75,7 @@ class ChyoaParser extends Parser {
         return ChapterArray;
     }
 
-    reponseToToc(resp){
+    reponseToToc(resp) {
         return resp.data.chapters.map(a => ({
             sourceUrl: a.url, 
             title: a.position + " " + a.title, 
@@ -101,9 +101,8 @@ class ChyoaParser extends Parser {
         let title = newDoc.dom.createElement("h1");
         title.textContent = dom.querySelector(".chapter>header>h1")?.textContent??"";
         newDoc.content.appendChild(title);
-        let content = dom.createElement("div");
         let maincontent = (dom.querySelector("div.chapter-content") || dom.querySelector("div.layout-content-wrapper"));
-        let question = dom.querySelector("section.question")
+        let question = dom.querySelector("section.question");
         util.removeChildElementsMatchingSelector(question,"div.rd-story-navigation, li.dropdown");
         util.moveChildElements(maincontent, newDoc.content);
         util.moveChildElements(question, newDoc.content);
