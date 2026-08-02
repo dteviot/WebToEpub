@@ -46,6 +46,10 @@ class ChyoaParser extends Parser {
     constructor() {
         super();
     }
+
+    populateUIImpl() {
+        document.getElementById("removeChapterNumberRow").hidden = false;
+    }
     
     async getChapterUrls(dom, chapterUrlsUI) {
         let tokenrsp = (await HttpClient.fetchJson("https://chyoa.com/csrf-token")).json;
@@ -78,7 +82,7 @@ class ChyoaParser extends Parser {
     reponseToToc(resp) {
         return resp.data.chapters.map(a => ({
             sourceUrl: a.url, 
-            title: a.position + " " + a.title, 
+            title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.position+" "+a.title, 
             newArc: a.page | 0
         }));
     }
