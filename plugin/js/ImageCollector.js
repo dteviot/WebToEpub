@@ -322,7 +322,7 @@ class ImageCollector {
 
     runCompression(imageInfo, img) {
         return new Promise((resolve, reject) => {
-            if (this.userPreferences.compressImages.value) 
+            if (this.userPreferences.compressImages.value && imageInfo.mediaType != "image/gif") 
             {
                 let outputType = "image/jpeg";
                 switch (this.userPreferences.compressImagesType.value) {
