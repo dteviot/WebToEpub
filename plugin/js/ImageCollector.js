@@ -320,9 +320,42 @@ class ImageCollector {
         });
     }
 
+    isAnimatedImage(imageInfo) {
+        const animatedTypes = ["image/gif", "image/png", "image/webp"];
+
+        if (animatedTypes.includes(imageInfo.mediaType))
+        {
+            const maxScanBytes = 65536; 
+            const buffer = imageInfo.arraybuffer;
+            const scanLimit = Math.min(buffer.byteLength, maxScanBytes);
+            const view = new DataView(buffer, 0, scanLimit);
+            const limit = Math.max(0, view.byteLength - 4);
+
+            try {
+                for (let i = 0; i < limit; i++) {
+                    const current32 = view.getUint32(i, false);
+
+                    if ((imageInfo.mediaType == "image/webp" && (current32 === 0x414E494D || current32 === 0x414E4D46))
+                        || (imageInfo.mediaType == "image/png" && current32 === 0x6163544C)
+                        || (imageInfo.mediaType == "image/gif" && (current32 >>> 8) === 0x21F904)
+                    ) return true;
+                }
+            }
+            catch (e) {
+                console.error("Binary animation detection exception:", e);
+            }
+        }
+        return false;
+    }
+
+    skipAnimated(imageInfo) {
+        if (this.userPreferences.compressImagesAnimated.value) return false;
+        return this.isAnimatedImage(imageInfo);
+    }
+
     runCompression(imageInfo, img) {
         return new Promise((resolve, reject) => {
-            if (this.userPreferences.compressImages.value && imageInfo.mediaType != "image/gif") 
+            if (this.userPreferences.compressImages.value && !this.skipAnimated(imageInfo)) 
             {
                 let outputType = "image/jpeg";
                 switch (this.userPreferences.compressImagesType.value) {
