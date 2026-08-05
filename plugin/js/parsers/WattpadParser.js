@@ -87,6 +87,7 @@ class WattpadParser extends Parser {
     async fetchExtraChapterContent(extraUris) {
         let extraContent = [];
         for (let page = 2; page <= extraUris.pages; ++page) {
+            await this.rateLimitDelay();
             let text = (await this.fetchPage(extraUris, page));
             extraContent.push(text);
         }
