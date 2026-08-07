@@ -2,6 +2,28 @@
 
 parserFactory.register("wattpad.com", () => new WattpadParser());
 
+class WattpadFetchErrorHandler extends FetchErrorHandler {
+    constructor() {
+        super();
+    }
+
+    onResponseError(url, wrapOptions, response, errorMessage) {
+        if (response.status == 405) {
+            let ret = { 
+                bodyUsed : response.bodyUsed,
+                ok : response.ok,
+                redirected : response.redirected,
+                status : 403,
+                statusText : response.statusText,
+                type : response.type,
+                url : response.url
+            };
+            return super.onResponseError(url, wrapOptions, ret, errorMessage);
+        }
+        return super.onResponseError(url, wrapOptions, response, errorMessage);
+    }
+}
+
 class WattpadImageCollector extends ImageCollector {
     constructor() {
         super();
@@ -25,6 +47,7 @@ class WattpadImageCollector extends ImageCollector {
 class WattpadParser extends Parser {
     constructor() {
         super(new WattpadImageCollector());
+        this.minimumThrottle = 3000;
     }
 
     async getChapterUrls(dom) {
@@ -48,7 +71,10 @@ class WattpadParser extends Parser {
     }
 
     async fetchChapter(url) {
-        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let options = {
+            errorHandler : new WattpadFetchErrorHandler()
+        };
+        let dom = (await HttpClient.wrapFetch(url, options)).responseXML;
         let extraUris = this.findURIsWithRestOfChapterContent(dom);
         return this.fetchAndAddExtraContentForChapter(dom, extraUris);
     }
