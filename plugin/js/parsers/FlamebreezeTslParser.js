@@ -27,7 +27,8 @@ class FlamebreezeTslParser extends Parser {
         }
 
         let page = 1;
-        while (true) {
+        let hasMore = true;
+        while (hasMore) {
             let body = {
                 query_data: queryDataStr,
                 attributes: attributesStr,
@@ -46,11 +47,13 @@ class FlamebreezeTslParser extends Parser {
             });
 
             if (!response.json) {
+                hasMore = false;
                 break;
             }
 
             let htmlString = response.json;
             if (typeof htmlString !== "string") {
+                hasMore = false;
                 break;
             }
 
@@ -58,6 +61,7 @@ class FlamebreezeTslParser extends Parser {
             let tempDom = new DOMParser().parseFromString(htmlString, "text/html");
             let anchors = [...tempDom.querySelectorAll("a.ebpg-grid-post-link")];
             if (anchors.length === 0) {
+                hasMore = false;
                 break;
             }
 
@@ -68,13 +72,7 @@ class FlamebreezeTslParser extends Parser {
             }));
             chapterUrlsUI.showTocProgress(partialList);
             chapters = chapters.concat(partialList);
-            
-            // Check if there are no more posts (the response includes the text 'No more posts' in a hidden paragraph)
-            let noPosts = tempDom.querySelector(".eb-loadmore-no-post");
-            if (noPosts && noPosts.style.display !== "none" && anchors.length < 20) {
-                // Not a great check, but if we got anchors we should probably continue just in case,
-                // or just rely on anchors.length == 0 on the next page
-            }
+
             page++;
         }
         return chapters;
