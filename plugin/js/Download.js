@@ -51,10 +51,10 @@ class Download {
                 for (let c of Download.illegalWindowsFileNameChars) {
                     newCustomFilename = newCustomFilename.replaceAll(c, "");
                 }
-                if (newCustomFilename.trim() == "") {
+                newCustomFilename = newCustomFilename.trim();
+                if (newCustomFilename == "") {
                     return EpubPacker.addExtensionIfMissing("IllegalFileName");
                 }
-
                 return EpubPacker.addExtensionIfMissing(newCustomFilename);
             }
 
