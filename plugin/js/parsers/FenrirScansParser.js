@@ -21,7 +21,7 @@ class FenrirScansParser extends Parser {
         return util.getFirstImgSrc(dom, "div.novel-cover-large");
     }
 
-    extractLanguage(dom) {
+    extractLanguage() {
         return "tr";
     }
 
