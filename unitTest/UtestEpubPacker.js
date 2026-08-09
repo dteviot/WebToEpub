@@ -140,6 +140,15 @@ test("buildEpub3ContentOpf", function (assert) {
     );
 });
 
+test("buildContentOpf uses publication date", function (assert) {
+    let epubPacker = makePacker();
+    epubPacker.metaInfo.datePublished = "2019-12-23T00:00:00.000Z";
+    epubPacker.getDateForMetaData = function () { return "2026-07-31T12:34:56.789Z"; };
+    let contentOpf = epubPacker.buildContentOpf(makeEpubItemSupplier());
+
+    assert.ok(contentOpf.includes("<dc:date>2019-12-23T00:00:00.000Z</dc:date>"));
+});
+
 test("buildContentOpfWithCover", function (assert) {
     let image = new ImageInfo("http://bp.org/thepic.jpeg", 0, "http://bp.org/thepic.jpeg");
     image.isCover = true;
