@@ -21,6 +21,32 @@ class LightNovelWorldParser extends Parser {
         super();
     }
 
+    async fetchChapter(url) {
+        const dom = (await HttpClient.wrapFetch(url)).responseXML;
+        const redirectUrl = this.extractJsRedirectUrl(dom);
+        if (!redirectUrl) {
+            return dom;
+        }
+
+        await this.rateLimitDelay();
+        return (await HttpClient.wrapFetch(redirectUrl)).responseXML;
+    }
+
+    extractJsRedirectUrl(dom) {
+        for (const script of dom.querySelectorAll("script")) {
+            const match = script.textContent?.match(/window\.location\.href\s*=\s*"(.*?)"/);
+            if (match) {
+                const raw = match[1].replace(/\\\//g, "/");
+                try {
+                    return new URL(raw, dom.baseURI).href;
+                } catch {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     async getChapterUrls(dom, chapterUrlsUI) {
         if (!dom.baseURI.endsWith("/chapters")) {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
