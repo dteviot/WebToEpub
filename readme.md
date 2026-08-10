@@ -807,7 +807,7 @@ Don't forget to give the project a star! Thanks again!
     <li>MD Shabrez</li>
     <li>jurassicplayer</li>
     <li>X2E4VXpZKv</li>
-    <li>meson1271 (Parser for jadescrolls.com)</li>
+    <li>meson1271 (Parser for jadescrolls.com and sakuraze.vercel.app)</li>
     <li>AgatZan (Parser for ficbook.net)</li>
     <li>Joel Sunil</li>
     <li>nothing0074</li>
@@ -828,6 +828,8 @@ Don't forget to give the project a star! Thanks again!
     <li>kuwoyuki</li>
     <li>bendur</li>
     <li>Bartuzen</li>
+    <li>kerimmkirac</li>
+    <li>baalthasar</li>
   </ul>
 </details>
 

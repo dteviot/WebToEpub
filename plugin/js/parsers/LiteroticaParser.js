@@ -50,11 +50,78 @@ class LiteroticaParser extends Parser {
                 dom = (await HttpClient.wrapFetch(randomChapter[0].href)).responseXML;
             }
         }
-        this.title = dom.querySelector("div[data-tab=\"tabpanel-series\"] a")?.textContent??dom.querySelector("h1");
-        this.author = [...dom.querySelectorAll("a")].filter(a => a.href.includes("https://www.literotica.com/authors/"))?.[0].title??"";
-        this.description = [...dom.querySelectorAll("div[data-tab=\"tabpanel-info\"] div")]?.[0]?.textContent??"";
-        this.tags = [...dom.querySelectorAll("div[data-tab=\"tabpanel-tags\"] a")]?.map(a => a.textContent)??[];
+        let article = LiteroticaParser.articleMetadata(dom);
+        this.title = dom.querySelector("div[data-tab=\"tabpanel-series\"] a")?.textContent
+            ?? article?.headline
+            ?? dom.querySelector("h1");
+        this.author = LiteroticaParser.authorName(article?.author)
+            || [...dom.querySelectorAll("a[href*='/authors/']")]
+                .map(a => a.textContent.trim() || a.title?.trim())
+                .find(name => name)
+            || "";
+        this.description = article?.description
+            ?? dom.querySelector("div[data-tab=\"tabpanel-info\"] div")?.textContent
+            ?? "";
+        this.tags = LiteroticaParser.tagNames(article?.keywords);
+        if (this.tags.length === 0) {
+            this.tags = LiteroticaParser.tagNames(
+                dom.querySelector("meta[name='keywords']")?.content
+            );
+        }
+        if (this.tags.length === 0) {
+            this.tags = [...dom.querySelectorAll("div[data-tab=\"tabpanel-tags\"] a")]
+                .map(a => a.textContent.trim())
+                .filter(tag => tag !== "");
+        }
+        this.datePublished = article?.datePublished
+            ?? dom.querySelector("meta[property='article:published_time']")?.content
+            ?? null;
         return;
+    }
+
+    static articleMetadata(dom) {
+        for (let element of dom.querySelectorAll("script[type='application/ld+json']")) {
+            try {
+                let data = JSON.parse(element.textContent);
+                let entries = Array.isArray(data) ? data : (data["@graph"] ?? [data]);
+                let article = entries.find(entry => {
+                    let types = Array.isArray(entry?.["@type"])
+                        ? entry["@type"] : [entry?.["@type"]];
+                    return types.includes("Article");
+                });
+                if (article != null) {
+                    return article;
+                }
+            } catch (error) {
+                // Ignore unrelated or malformed structured data and use the DOM fallbacks.
+            }
+        }
+        return null;
+    }
+
+    static authorName(author) {
+        if (Array.isArray(author)) {
+            return author.map(a => LiteroticaParser.authorName(a)).filter(a => a).join(", ");
+        }
+        return (typeof author === "string") ? author.trim() : author?.name?.trim();
+    }
+
+    static tagNames(keywords) {
+        if (Array.isArray(keywords)) {
+            return keywords
+                .map(tag => LiteroticaParser.tagName(tag))
+                .filter(tag => tag !== "");
+        }
+        return (typeof keywords === "string")
+            ? keywords.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
+            : [];
+    }
+
+    static tagName(tag) {
+        if (typeof tag === "string") {
+            return tag.trim();
+        }
+        return `${tag?.name ?? tag?.tag ?? tag?.keyword ?? ""}`.trim();
     }
     
     extractTitleImpl() {
@@ -72,6 +139,10 @@ class LiteroticaParser extends Parser {
 
     extractDescription() {
         return this.description.trim();
+    }
+
+    extractDatePublished() {
+        return this.datePublished;
     }
 
     findCoverImageUrl() {
