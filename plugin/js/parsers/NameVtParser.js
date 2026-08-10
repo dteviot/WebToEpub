@@ -45,16 +45,15 @@ class NameVtParser extends Parser {
             "div.ts-chl-collapsible-content ul li a"
         );
         let chapters = Array.from(chapterLinks).map((link) => {
-            let numberElement = link.querySelector(".epl-num");
-            let titleElement = link.querySelector(".epl-title");
-            let number = numberElement ? numberElement.textContent.trim() : "";
-            let title = titleElement ? titleElement.textContent.trim() : "";
+            let number = link.querySelector(".epl-num")?.textContent.trim() ?? "";
+            let title = link.querySelector(".epl-title")?.textContent.trim() ?? "";
             return {
                 sourceUrl: link.href,
                 title: title ? `${number} - ${title}` : number
             };
         });
-       
+
+        
         return chapters.reverse();
     }
 }
