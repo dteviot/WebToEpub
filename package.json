@@ -59,7 +59,7 @@
     { "name": "Kondeeza"},
     { "name": "Sickan90"},
     { "name": "Kiradien"},
-    { "name": "Miracutor"},
+    { "name": "mddanish00"},
     { "name": "Synteresis"},
     { "name": "Lej77"},
     { "name": "nandakishore2009"},
@@ -121,7 +121,8 @@
     { "name": "bendur"},
     { "name": "Bartuzen", "email": "git@bartuzen.dev" },
     { "name": "kerimmkirac", "email": "kerimmkirac@gmail.com" },
-    { "name": "baalthasar"}
+    { "name": "baalthasar"},
+    { "name": "David Siewert", "email": "david1gruppenplan@gmail.com" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {

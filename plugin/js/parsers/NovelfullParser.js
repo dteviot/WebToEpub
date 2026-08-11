@@ -82,13 +82,22 @@ class NovelfullParser extends Parser {
         let urls = [];
         if (link != null) {
             let limit = link.getAttribute("data-page");
-            if (limit == null)
-            {
+            // data-page / page_num are 0-indexed; page is 1-indexed (novelfull.com)
+            let pageIsOneIndexed = false;
+            if (limit == null) {
                 let url = new URL(link.href);
-                limit = url.searchParams.get("page_num") || null;
+                if (url.searchParams.has("page")) {
+                    limit = url.searchParams.get("page");
+                    pageIsOneIndexed = true;
+                } else {
+                    limit = url.searchParams.get("page_num") || null;
+                }
             }
-            limit = parseInt(limit || "-1") + 1;
-            for (let i = 1; i <= limit; ++i) {
+            limit = pageIsOneIndexed
+                ? parseInt(limit || "0")
+                : parseInt(limit || "-1") + 1;
+            // page 1 is already extracted from the initial TOC dom
+            for (let i = 2; i <= limit; ++i) {
                 urls.push(NovelfullParser.buildUrlForTocPage(link, i));
             }
         }
