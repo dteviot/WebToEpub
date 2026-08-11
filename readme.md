@@ -766,7 +766,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Kondeeza</li>
     <li>Mathnerd314</li>
     <li>Sickan90</li>
-    <li>Miracutor</li>
+    <li>mddanish00</li>
     <li>Kiradien</li>
     <li>Synteresis</li>
     <li>Lej77</li>
