@@ -1,0 +1,469 @@
+name: Check Issue for Existing Fixes/Duplicates
+
+on:
+  issues:
+    types: [opened]
+
+# ──────────────────────────────────────────────────────────────
+# TESTING CONFIG
+# Set these to test on a fork while searching upstream data.
+# When running on the upstream repo itself, these are not needed
+# since context.repo already points to the right place.
+#
+# To test:
+#   1. Push this workflow to your fork
+#   2. Open an issue on your fork (e.g. "Please add site https://wuxiaworld.com")
+#   3. The bot will search dteviot/WebToEpub for data, but comment on YOUR fork's issue
+#
+# Before PR to upstream: set both to '' (empty) or remove the env block entirely
+# ──────────────────────────────────────────────────────────────
+env:
+  UPSTREAM_OWNER: 'dteviot'
+  UPSTREAM_REPO: 'WebToEpub'
+
+permissions:
+  issues: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            // ──────────────────────────────────────────────
+            // Configuration
+            // ──────────────────────────────────────────────
+            const issue = context.payload.issue;
+            const issueTitle = issue.title;
+            const issueBody = issue.body || '';
+            const issueNumber = issue.number;
+
+            // Search repo: use UPSTREAM env vars if set, otherwise current repo
+            // This allows testing on a fork while searching upstream data
+            const searchOwner = process.env.UPSTREAM_OWNER || context.repo.owner;
+            const searchRepo = process.env.UPSTREAM_REPO || context.repo.repo;
+
+            // Comment repo: always the current repo (where the issue was opened)
+            const commentOwner = context.repo.owner;
+            const commentRepo = context.repo.repo;
+
+            console.log(`Issue #${issueNumber}: ${issueTitle}`);
+            console.log(`Searching: ${searchOwner}/${searchRepo}`);
+            console.log(`Commenting on: ${commentOwner}/${commentRepo}`);
+
+            const issueText = `${issueTitle} ${issueBody}`;
+
+            // ──────────────────────────────────────────────
+            // Step 1: Extract domains from issue text
+            // ──────────────────────────────────────────────
+
+            // Domains to ignore (GitHub, extension stores, common infra)
+            const IGNORE_DOMAINS = new Set([
+              'github.com',
+              'docs.github.com',
+              'chrome.google.com',
+              'chromewebstore.google.com',
+              'addons.mozilla.org',
+              'developer.chrome.com',
+              'web.archive.org',
+              'shields.io',
+              'imgur.com',
+              'googleapis.com',
+              'w3.org',
+              'mozilla.org',
+              'google.com',
+            ]);
+
+            function extractDomains(text) {
+              const domains = new Set();
+
+              // Match full URLs: https://example.com/path
+              const urlRegex = /https?:\/\/([^\s"'<>\)\]]+)/gi;
+              let match;
+              while ((match = urlRegex.exec(text)) !== null) {
+                let domain = match[1].split('/')[0].toLowerCase().replace(/^www\./, '');
+                if (!IGNORE_DOMAINS.has(domain) && domain.includes('.')) {
+                  domains.add(domain);
+                }
+              }
+
+              // Match bare domains: example.com (with common TLDs)
+              const tlds = 'com|org|net|io|xyz|cc|me|co|info|top|site|online|app|dev|fun|live|club|biz|us|uk|ca|in|jp|cn|kr|ru|de|fr|br|tw|ph|id|my|th|vn|pl|cz|se|fi|no|dk|nl|be|at|ch|it|es|pt|au|nz|za|to|gg|moe|su';
+              const bareRegex = new RegExp(
+                `(?:^|[\\s(\\[])([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\\.(?:${tlds}))(?:[\\s)\\].,;!?]|$)`,
+                'gi'
+              );
+              while ((match = bareRegex.exec(text)) !== null) {
+                let domain = match[1].toLowerCase().replace(/^www\./, '');
+                if (!IGNORE_DOMAINS.has(domain) && domain.includes('.')) {
+                  domains.add(domain);
+                }
+              }
+
+              return [...domains];
+            }
+
+            const domains = extractDomains(issueText);
+            console.log('Extracted domains from URLs:', domains);
+
+            // ──────────────────────────────────────────────
+            // Step 1b: Scan issue text for known parser site names
+            //          Catches "wattpad stories" even without a URL
+            // ──────────────────────────────────────────────
+            const fs = require('fs');
+            const path = require('path');
+
+            // Generic parser names that should NOT be matched against issue text
+            const IGNORE_PARSERS = new Set([
+              'default', 'template', 'wordpressbase', 'xenforobatch',
+              'madara', 'blogspot', 'wordpress', 'base', 'null',
+              'nulltranslation',
+            ]);
+
+            const parserSiteNames = []; // { name, filename }
+            try {
+              const parserDir = path.join(process.env.GITHUB_WORKSPACE, 'plugin', 'js', 'parsers');
+              const files = fs.readdirSync(parserDir);
+              for (const f of files) {
+                if (!f.endsWith('Parser.js')) continue;
+                const siteName = f.replace(/Parser\.js$/i, '').toLowerCase();
+                if (siteName.length < 4) continue;
+                if (IGNORE_PARSERS.has(siteName)) continue;
+                parserSiteNames.push({ name: siteName, filename: f });
+              }
+              console.log(`Loaded ${parserSiteNames.length} parser site names from repo`);
+            } catch (e) {
+              console.log('Could not read parser directory:', e.message);
+            }
+
+            // Check if any known parser site name appears in the issue text
+            const issueTextLower = issueText.toLowerCase();
+            const matchedSiteNames = [];
+            for (const parser of parserSiteNames) {
+              // Word boundary check: the site name should appear as a
+              // standalone word, not as part of another word
+              const regex = new RegExp(`\\b${parser.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+              if (regex.test(issueText)) {
+                // Only add if we didn't already extract a domain for this site
+                const alreadyCovered = domains.some(d => {
+                  const base = d.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+                  return base === parser.name || parser.name.includes(base) || base.includes(parser.name);
+                });
+                if (!alreadyCovered) {
+                  matchedSiteNames.push(parser);
+                }
+              }
+            }
+
+            if (matchedSiteNames.length > 0) {
+              console.log('Matched parser site names from text:', matchedSiteNames.map(p => p.name));
+              // Add as synthetic domains for searching
+              for (const p of matchedSiteNames) {
+                domains.push(p.name);
+              }
+            }
+
+            if (domains.length === 0) {
+              console.log('No domains or site names found in issue. Skipping.');
+              return;
+            }
+            console.log('All search terms:', domains);
+
+            // ──────────────────────────────────────────────
+            // Helper functions
+            // ──────────────────────────────────────────────
+
+            /**
+             * Check if a domain is mentioned in a text string.
+             * Matches full domain or the domain name without TLD.
+             */
+            function domainMatchesText(domain, text) {
+              if (!text) return false;
+              const lower = text.toLowerCase();
+              if (lower.includes(domain)) return true;
+              // Also match domain without TLD (e.g. "wuxiaworld" for "wuxiaworld.com")
+              const base = domain.split('.').slice(0, -1).join('.');
+              if (base.length >= 4) { // avoid short false positives
+                return lower.includes(base);
+              }
+              return false;
+            }
+
+            /**
+             * Check if a domain matches a parser filename.
+             * e.g. "wuxiaworld.com" → "wuxiaworld" → matches "WuxiaworldParser.js"
+             * e.g. "flamebreezetsl.com" → "flamebreezetsl" → matches "FlamebreezetslParser.js"
+             */
+            function domainMatchesParserFile(domain, filename) {
+              if (!filename.endsWith('Parser.js')) return false;
+              // Ignore core files
+              if (filename === 'Parser.js' || filename === 'DefaultParser.js' || filename === 'WordpressBaseParser.js') return false;
+
+              const parserName = filename.replace(/Parser\.js$/i, '').toLowerCase();
+              if (parserName.length < 3) return false;
+
+              // Strip TLD and non-alphanumeric from domain to get comparable name
+              const domainBase = domain.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+              if (domainBase.length < 3) return false;
+
+              // Check both directions for substring match
+              return parserName.includes(domainBase) || domainBase.includes(parserName);
+            }
+
+            const commentSections = [];
+
+            // ──────────────────────────────────────────────
+            // Step 2: Check for "Status: Completed" issues
+            //         (fixed in dev, not yet in webstore)
+            // ──────────────────────────────────────────────
+            console.log('\n── Checking "Status: Completed" issues ──');
+
+            try {
+              const completedIssues = await github.paginate(
+                github.rest.issues.listForRepo, {
+                  owner: searchOwner,
+                  repo: searchRepo,
+                  state: 'open',
+                  labels: 'Status: Completed',
+                  per_page: 100,
+                }
+              );
+
+              const matchedCompleted = [];
+              for (const ci of completedIssues) {
+                if (ci.number === issueNumber && searchOwner === commentOwner) continue;
+                if (ci.pull_request) continue;
+                const ciText = `${ci.title} ${ci.body || ''}`;
+                for (const domain of domains) {
+                  if (domainMatchesText(domain, ciText)) {
+                    matchedCompleted.push({ number: ci.number, title: ci.title, domain });
+                    break;
+                  }
+                }
+              }
+
+              console.log(`Found ${matchedCompleted.length} matching completed issues`);
+
+              if (matchedCompleted.length > 0) {
+                const issueLinks = matchedCompleted.map(i => {
+                  const url = `https://github.com/${searchOwner}/${searchRepo}/issues/${i.number}`;
+                  return `- [#${i.number}](${url}) — ${i.title}`;
+                }).join('\n');
+
+                commentSections.push(
+                  `### ✅ Possibly Already Fixed in Dev\n\n` +
+                  `The following issue(s) for this site have been marked as completed ` +
+                  `and should be available in the latest developer build:\n\n` +
+                  issueLinks
+                );
+              }
+            } catch (e) {
+              console.log('Error checking completed issues:', e.message);
+            }
+
+            // ──────────────────────────────────────────────
+            // Step 3: Check merged PRs since last webstore release
+            // ──────────────────────────────────────────────
+            console.log('\n── Checking merged PRs since last webstore release ──');
+
+            let lastWebstoreDate = null;
+            let lastWebstoreTag = null;
+
+            try {
+              const releases = await github.rest.repos.listReleases({
+                owner: searchOwner,
+                repo: searchRepo,
+                per_page: 30,
+              });
+
+              const webstoreRelease = releases.data.find(r => !r.prerelease && !r.draft);
+              if (webstoreRelease) {
+                lastWebstoreDate = webstoreRelease.published_at;
+                lastWebstoreTag = webstoreRelease.tag_name;
+                console.log(`Last webstore release: ${lastWebstoreTag} on ${lastWebstoreDate}`);
+              } else {
+                console.log('No non-prerelease release found. Skipping PR check.');
+              }
+            } catch (e) {
+              console.log('Error fetching releases:', e.message);
+            }
+
+            if (lastWebstoreDate) {
+              try {
+                const since = lastWebstoreDate.split('T')[0];
+                const searchQuery =
+                  `repo:${searchOwner}/${searchRepo} is:pr is:merged merged:>=${since}`;
+
+                console.log(`Search query: ${searchQuery}`);
+
+                const prResults = await github.rest.search.issuesAndPullRequests({
+                  q: searchQuery,
+                  per_page: 100,
+                });
+
+                console.log(`Found ${prResults.data.total_count} merged PRs since ${since}`);
+
+                const matchedPRs = [];
+                for (const pr of prResults.data.items) {
+                  const prText = `${pr.title} ${pr.body || ''}`;
+                  let matched = false;
+
+                  // Check PR title/body for domain mention
+                  for (const domain of domains) {
+                    if (domainMatchesText(domain, prText)) {
+                      matchedPRs.push({ number: pr.number, title: pr.title, domain });
+                      matched = true;
+                      break;
+                    }
+                  }
+
+                  // If no title/body match, check changed files for parser filename
+                  if (!matched) {
+                    try {
+                      const files = await github.rest.pulls.listFiles({
+                        owner: searchOwner,
+                        repo: searchRepo,
+                        pull_number: pr.number,
+                        per_page: 50,
+                      });
+
+                      for (const file of files.data) {
+                        const fname = file.filename.split('/').pop();
+                        for (const domain of domains) {
+                          if (domainMatchesParserFile(domain, fname)) {
+                            matchedPRs.push({
+                              number: pr.number,
+                              title: pr.title,
+                              domain,
+                              file: fname,
+                            });
+                            matched = true;
+                            break;
+                          }
+                        }
+                        if (matched) break;
+                      }
+                    } catch (e) {
+                      console.log(`Error fetching files for PR #${pr.number}:`, e.message);
+                    }
+                  }
+                }
+
+                console.log(`Found ${matchedPRs.length} matching PRs`);
+
+                if (matchedPRs.length > 0) {
+                  const prLinks = matchedPRs.map(pr => {
+                    const url = `https://github.com/${searchOwner}/${searchRepo}/pull/${pr.number}`;
+                    return `- [#${pr.number}](${url}) — ${pr.title}` +
+                      (pr.file ? ` (modified \`${pr.file}\`)` : '');
+                  }).join('\n');
+
+                  commentSections.push(
+                    `### 🔧 Possibly Fixed by Recent PR(s)\n\n` +
+                    `The following PR(s) merged since the last webstore release ` +
+                    `(\`${lastWebstoreTag}\`) may address this site:\n\n` +
+                    prLinks
+                  );
+                }
+              } catch (e) {
+                console.log('Error searching PRs:', e.message);
+              }
+            }
+
+            // ──────────────────────────────────────────────
+            // Step 4: Check for duplicate unfixed open issues
+            // ──────────────────────────────────────────────
+            console.log('\n── Checking for duplicate unfixed open issues ──');
+
+            try {
+              const openIssues = await github.paginate(
+                github.rest.issues.listForRepo, {
+                  owner: searchOwner,
+                  repo: searchRepo,
+                  state: 'open',
+                  per_page: 100,
+                }
+              );
+
+              const matchedDuplicates = [];
+              for (const oi of openIssues) {
+                // Skip current issue (only if searching same repo)
+                if (oi.number === issueNumber && searchOwner === commentOwner) continue;
+                // Skip PRs (GitHub API returns PRs in issues endpoint)
+                if (oi.pull_request) continue;
+
+                // Skip issues already labeled "Status: Completed"
+                // (these are handled in Step 2)
+                const labels = oi.labels.map(l =>
+                  typeof l === 'string' ? l : l.name
+                );
+                if (labels.includes('Status: Completed')) continue;
+
+                const oiText = `${oi.title} ${oi.body || ''}`;
+                for (const domain of domains) {
+                  if (domainMatchesText(domain, oiText)) {
+                    matchedDuplicates.push({
+                      number: oi.number,
+                      title: oi.title,
+                      domain,
+                    });
+                    break;
+                  }
+                }
+              }
+
+              console.log(`Found ${matchedDuplicates.length} matching duplicate issues`);
+
+              if (matchedDuplicates.length > 0) {
+                const dupeLinks = matchedDuplicates.map(i => {
+                  const url = `https://github.com/${searchOwner}/${searchRepo}/issues/${i.number}`;
+                  return `- [#${i.number}](${url}) — ${i.title}`;
+                }).join('\n');
+
+                commentSections.push(
+                  `### 🔁 Possibly Duplicate Open Issue(s)\n\n` +
+                  `There are existing open request(s) for this site:\n\n` +
+                  dupeLinks +
+                  `\n\nPutting a comment on the existing issue helps prioritize it!`+
+                  `Please close this issue if it is a duplicate of an existing one.`
+                );
+              }
+            } catch (e) {
+              console.log('Error checking duplicate issues:', e.message);
+            }
+
+            // ──────────────────────────────────────────────
+            // Step 5: Post comment if anything was found
+            // ──────────────────────────────────────────────
+            if (commentSections.length === 0) {
+              console.log('\n✅ No matches found for any domain. No comment needed.');
+              return;
+            }
+
+            const devBuildUrl =
+              `https://github.com/${searchOwner}/${searchRepo}/releases/tag/developer-build`;
+
+            const commentBody =
+              `## 🤖 Automated Issue Check\n\n` +
+              commentSections.join('\n\n---\n\n') +
+              `\n\n---\n\n` +
+              `> 💡 If your issue involves a parser that may have been fixed, ` +
+              `please try the [latest developer build](${devBuildUrl}) before ` +
+              `waiting for the next webstore update.\n\n` +
+              `*This is an automated check and may not be 100% accurate. ` +
+              `\nIf this doesn't apply to your issue, please disregard this message.*`;
+
+            // Post the comment on the issue (always on the current repo, not the search repo)
+            await github.rest.issues.createComment({
+              owner: commentOwner,
+              repo: commentRepo,
+              issue_number: issueNumber,
+              body: commentBody,
+            });
+
+            console.log(`\n✅ Comment posted on issue #${issueNumber}`);
