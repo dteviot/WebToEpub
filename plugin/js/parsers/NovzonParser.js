@@ -14,7 +14,7 @@ class NovzonParser extends Parser {
 
     extractAuthor(dom) {
         let authorLink = dom.querySelector("a.author-tag");
-        return authorLink ? authorLink.textContent.trim() : super.extractAuthor(dom);
+        return authorLink?.textContent?.trim() ?? super.extractAuthor(dom);
     }
 
     findCoverImageUrl(dom) {
@@ -38,11 +38,10 @@ class NovzonParser extends Parser {
 
     getChapterUrls(dom) {
         let chapterLinks = dom.querySelectorAll("div.chapter-list-grid a.chapter-item");
+        let extract = (link, css) => link.querySelector(css)?.textContent?.trim() ?? "";
         return Array.from(chapterLinks).map((link) => {
-            let numberElement = link.querySelector("span.chapter-number");
-            let titleElement = link.querySelector("div.chapter-title");
-            let number = numberElement ? numberElement.textContent.trim() : "";
-            let title = titleElement ? titleElement.textContent.trim() : "";
+            let number = extract(link, "span.chapter-number");
+            let title = extract(link, "div.chapter-title");
             return {
                 sourceUrl: link.href,
                 title: [number, title].filter((part) => part).join(" - ")

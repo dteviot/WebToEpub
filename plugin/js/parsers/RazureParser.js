@@ -52,11 +52,7 @@ class RazureParser extends Parser {
     }
 
     removeUnwantedElementsFromContentElement(element) {
-        util.removeElements(element.querySelectorAll(".category-footer-messages"));
-        let title = element.querySelector("h1");
-        if (title) {
-            title.remove();
-        }
+        util.removeChildElementsMatchingSelector(element, ".category-footer-messages");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }

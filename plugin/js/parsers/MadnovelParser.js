@@ -28,13 +28,8 @@ class MadnovelParser extends Parser {
     }
 
     extractTitleImpl(dom) {
-        let bookSeries = this.extractBookSeriesJson(dom);
-        if (bookSeries && bookSeries.name) {
-            let el = dom.createElement("span");
-            el.textContent = bookSeries.name;
-            return el;
-        }
-        return dom.querySelector("h1");
+        return this.extractBookSeriesJson(dom)?.name
+            ?? dom.querySelector("h1");
     }
 
     extractAuthor(dom) {

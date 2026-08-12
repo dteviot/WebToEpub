@@ -28,10 +28,6 @@ class WuxiaTranslateParser extends Parser {
         return coverImg ? coverImg.src : super.findCoverImageUrl(dom);
     }
 
-    extractLanguage() {
-        return "en";
-    }
-
     extractSlug(dom) {
         let match = dom.baseURI.match(/\/series\/([^/?#]+)/);
         if (!match) {
