@@ -49,16 +49,16 @@ class NovelArchiveParser extends Parser {
     }
 
     async fetchChapter(url) {
-    let response = await HttpClient.fetchJson(url);
-    let chapterData = response.json?.chapter;
-    if (!chapterData?.content) {
-        throw new Error("Unexpected chapter response for " + url);
-    }
+        let response = await HttpClient.fetchJson(url);
+        let chapterData = response.json?.chapter;
+        if (!chapterData?.content) {
+            throw new Error("Unexpected chapter response for " + url);
+        }
 
-    let newDoc = Parser.makeEmptyDocForContent(url);
-    Parser.addTextToChapterContent(newDoc, chapterData.content);
-    return newDoc.dom;
-}
+        let newDoc = Parser.makeEmptyDocForContent(url);
+        Parser.addTextToChapterContent(newDoc, chapterData.content);
+        return newDoc.dom;
+    }
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
