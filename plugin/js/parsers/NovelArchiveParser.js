@@ -19,8 +19,7 @@ class NovelArchiveParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "#novel-cover")
-            ?? dom.querySelector("#novel-cover")?.src;
+        return dom.querySelector("#novel-cover")?.src;
     }
 
     extractNovelId(dom) {
@@ -39,12 +38,10 @@ class NovelArchiveParser extends Parser {
     async getChapterUrls(dom) {
         let novelId = this.extractNovelId(dom);
         let data = await this.fetchApiJson(`/novels/${novelId}`);
-
         let names = data.novel.chapter_names;
         if (!Array.isArray(names)) {
             throw new Error("Unexpected novel response for id " + novelId);
         }
-
         return names.map((name, index) => ({
             sourceUrl: `${this.apiBase}/novels/${novelId}/chapters/${index + 1}`,
             title: name
@@ -52,20 +49,16 @@ class NovelArchiveParser extends Parser {
     }
 
     async fetchChapter(url) {
-        let response = await HttpClient.fetchJson(url);
-        let chapterData = response.json?.chapter;
-        if (!chapterData?.content) {
-            throw new Error("Unexpected chapter response for " + url);
-        }
-
-        let newDoc = Parser.makeEmptyDocForContent(url);
-        chapterData.content.split(/\n+/).filter((line) => line.trim() !== "").forEach((line) => {
-            let p = newDoc.dom.createElement("p");
-            p.textContent = line.trim();
-            newDoc.content.appendChild(p);
-        });
-        return newDoc.dom;
+    let response = await HttpClient.fetchJson(url);
+    let chapterData = response.json?.chapter;
+    if (!chapterData?.content) {
+        throw new Error("Unexpected chapter response for " + url);
     }
+
+    let newDoc = Parser.makeEmptyDocForContent(url);
+    Parser.addTextToChapterContent(newDoc, chapterData.content);
+    return newDoc.dom;
+}
 
     findContent(dom) {
         return Parser.findConstrutedContent(dom);
