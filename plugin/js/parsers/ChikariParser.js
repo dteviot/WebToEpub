@@ -74,13 +74,7 @@ class ChikariParser extends Parser {
         }
 
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let wrapped = "<div>" + chapterData.body.split(/\n+/)
-            .filter((line) => line.trim() !== "")
-            .map((line) => `<p>${line.trim()}</p>`)
-            .join("") + "</div>";
-
-        let sanitized = util.sanitize(wrapped);
-        util.moveChildElements(sanitized.body, newDoc.content);
+        Parser.addTextToChapterContent(newDoc, chapterData.body);
         return newDoc.dom;
     }
 

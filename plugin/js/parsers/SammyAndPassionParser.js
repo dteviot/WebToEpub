@@ -56,11 +56,11 @@ class SammyAndPassionParser extends Parser {
     }
 
     findContent(dom) {
-        let content = dom.querySelector("div.entry-content");
-        if (content) {
-            this.convertBackgroundImagesToImgTags(content);
-        }
-        return content;
+        return dom.querySelector("div.entry-content");
+    }
+
+    customRawDomToContentStep(chapter, content) {
+        this.convertBackgroundImagesToImgTags(content);
     }
 
     removeUnwantedElementsFromContentElement(element) {

@@ -19,8 +19,7 @@ class NovelArchiveParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, "#novel-cover")
-            ?? dom.querySelector("#novel-cover")?.src;
+        return util.getFirstImgSrc(dom, "#novel-cover");
     }
 
     extractNovelId(dom) {
@@ -59,11 +58,7 @@ class NovelArchiveParser extends Parser {
         }
 
         let newDoc = Parser.makeEmptyDocForContent(url);
-        chapterData.content.split(/\n+/).filter((line) => line.trim() !== "").forEach((line) => {
-            let p = newDoc.dom.createElement("p");
-            p.textContent = line.trim();
-            newDoc.content.appendChild(p);
-        });
+        Parser.addTextToChapterContent(newDoc, chapterData.content);
         return newDoc.dom;
     }
 

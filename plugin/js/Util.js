@@ -459,7 +459,11 @@ const util = (function() {
     }
 
     function getFirstImgSrc(dom, selector) {
-        return dom.querySelector(selector)?.querySelector("img")?.src ?? null;
+        var element = dom.querySelector(selector);
+        if (element && (element.tagName !== "IMG")) {
+            element = element.querySelector("img");
+        }
+        return element?.src ?? null;
     }
 
     function extractHashFromUri(uri) {

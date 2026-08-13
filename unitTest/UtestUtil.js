@@ -592,3 +592,14 @@ QUnit.test("getParamFromUrl", function (assert) {
     actual = util.getParamFromUrl("https://www.baka-tsuki.org/project/index.php?title=File:HSDxD_v01_cover.jpg", "nonesuch");
     assert.equal(actual, null);
 });
+
+QUnit.test("getFirstImgSrc", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<p id='cover'><img src='https://example.com/first.png'/></p>\r" +
+        "<img id='cover_img' src='https://example.com/second.png'/>\r"
+    );
+    let actual = util.getFirstImgSrc(dom.body, "#cover");
+    assert.equal(actual, "https://example.com/first.png");
+    actual = util.getFirstImgSrc(dom.body, "#cover_img");
+    assert.equal(actual, "https://example.com/second.png");
+});
