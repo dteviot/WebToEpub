@@ -178,7 +178,7 @@ var main = (function() {
         try {
             parser.updateReadingList();
             if (util.sleepController.signal.aborted) {
-                util.sleepController = new AbortController;
+                util.resetSleepController();
                 resetUI();
             }
             if (libclick.dataset.libsuppressErrorLog == true) {
@@ -191,7 +191,7 @@ var main = (function() {
             window.workInProgress = false;
             main.getPackEpubButton().disabled = false;
             if (util.sleepController.signal.aborted) {
-                util.sleepController = new AbortController;
+                util.resetSleepController();
             }
             replaceLibAddToLibrary();
             ErrorLog.showErrorMessage(err);
