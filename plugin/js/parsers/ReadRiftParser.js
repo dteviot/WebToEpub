@@ -134,6 +134,10 @@ class ReadRiftParser extends Parser {
         }
         const chapterId = match[1];
 
+        // They changed the site to block the chapter until you watch an AD, but
+        // I figured out how to bypass
+        await this.bypassAd(chapterId);
+
         // I also found the chapter API so we can just directly request the content
         const apiUrl = `https://readrift.net/api/v1/books/chapter/${chapterId}/`;
 
@@ -145,6 +149,56 @@ class ReadRiftParser extends Parser {
         } catch (err) {
             throw new Error(
                 `ReadRiftParser aborted while fetching chapter: ${err.message}`,
+            );
+        }
+    }
+
+    /**
+     * Bypasses the chapter ad
+     *
+     * Interestingly enough, the way ReadRift implements their ad lock is
+     * by requesting a token using the user session id, then making a POST
+     * request with the token you receive to unlock the chapter for you.
+     * But while the video is around 30 seconds, the api lets you make the
+     * request instantly, allowing us to instantly bypass.
+     *
+     * @param {number} chapterId
+     @ @throws { Error } If either API request fails
+     */
+    async bypassAd(chapterId) {
+        const tokenPayload = await this.obtainAdToken(chapterId);
+        await this.bypassAdWithToken(tokenPayload);
+    }
+
+    async obtainAdToken(chapterId) {
+        const apiUrl = `https://readrift.net/api/v1/books/ad-reward/token/?chapter_no=${chapterId}`;
+
+        try {
+            const adTokenResponse = await HttpClient.fetchJson(apiUrl);
+            const tokenPayload = adTokenResponse.json;
+            return tokenPayload;
+        } catch (err) {
+            throw new Error(
+                `ReadRiftParser aborted while getting ad token: ${err.message}`,
+            );
+        }
+    }
+
+    async bypassAdWithToken(tokenPayload) {
+        const apiUrl = "https://readrift.net/api/v1/books/ad-reward/grant/";
+        const fetchOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(tokenPayload),
+        };
+
+        try {
+            await HttpClient.fetchJson(apiUrl, fetchOptions);
+        } catch (err) {
+            throw new Error(
+                `ReadRiftParser aborted while bypassing ad: ${err.message}`,
             );
         }
     }
