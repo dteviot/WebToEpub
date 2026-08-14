@@ -542,6 +542,8 @@ var main = (function() {
         document.getElementById("LibShowAdvancedOptionsCheckbox").addEventListener("change", () => Library.LibRenderSavedEpubs());
         document.getElementById("LibAddToLibrary").addEventListener("click", fetchContentAndPackEpub);
         document.getElementById("LibPauseToLibrary").addEventListener("click", pauseToLibrary);
+        document.getElementById("seriesIndexInput").addEventListener("beforeinput", (event) => seriesIndexInpuValidator(event));
+        document.getElementById("manualDelayPerChapterTag").addEventListener("beforeinput", (event) => manualDelayPerChapterValidator(event));
         document.getElementById("stylesheetToDefaultButton").onclick = onStylesheetToDefaultClick;
         document.getElementById("resetButton").onclick = resetUI;
         document.getElementById("clearCoverImageUrlButton").onclick = clearCoverUrl;
@@ -560,6 +562,17 @@ var main = (function() {
         window.addEventListener("beforeunload", onUnloadEvent);
     }
 	
+    function seriesIndexInpuValidator(event) {
+        if (event.data && !/^[0-9.]+$/.test(event.data)) {
+            event.preventDefault();
+        }
+    }
+
+    function manualDelayPerChapterValidator(event) {
+        if (event.data && !/^[0-9]+$/.test(event.data)) {
+            event.preventDefault();
+        }
+    }
 	
     // Additional metadata
     async function autosearchadditionalmetadata() {
