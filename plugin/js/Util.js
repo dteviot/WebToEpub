@@ -27,7 +27,7 @@ const util = (function() {
         });
     }
 
-    function resetSleepController(){
+    function resetSleepController() {
         sleepController = new AbortController;
     }
 
