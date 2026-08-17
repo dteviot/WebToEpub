@@ -1,12 +1,10 @@
 "use strict";
 
-/** Keep track of how to user tells us to parse different sites */
 class DefaultParserSiteSettings {
     constructor() {
         this.loadSiteConfigs();
     }
 
-    /** @private */
     loadSiteConfigs() {
         let config = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
         this.configs = new Map();
@@ -40,7 +38,6 @@ class DefaultParserSiteSettings {
         }
     }
 
-    /** @private */
     isConfigChanged(hostname, contentCss, titleCss, removeCss, testUrl) {
         let config = this.configs.get(hostname);
         return (config === undefined) || 
@@ -62,17 +59,31 @@ class DefaultParserSiteSettings {
         };
         let config = this.getConfigForSite(hostname);
         if (config != null) {
-            logic.findContent = dom => dom.querySelector(config.contentCss);
+            logic.findContent = dom => {
+                try {
+                    return dom.querySelector(config.contentCss);
+                } catch (e) {
+                    return null; 
+                }
+            };
             if (!util.isNullOrEmpty(config.titleCss))
             {
-                logic.findChapterTitle = dom => dom.querySelector(config.titleCss);
+                logic.findChapterTitle = dom => {
+                    try {
+                        return dom.querySelector(config.titleCss);
+                    } catch (e) {
+                        return null;
+                    }
+                };
             }
             if (!util.isNullOrEmpty(config.removeCss))
             {
                 logic.removeUnwanted = (element) => {
-                    for (let e of element.querySelectorAll(config.removeCss)) {
-                        e.remove();
-                    }
+                    try {
+                        for (let e of element.querySelectorAll(config.removeCss)) {
+                            e.remove();
+                        }
+                    } catch (e) {}
                 };
             }
         }
@@ -81,15 +92,15 @@ class DefaultParserSiteSettings {
 }
 DefaultParserSiteSettings.storageName = "DefaultParserConfigs";
 
-/** Class that handles UI for configuring the Default Parser */
-class DefaultParserUI { // eslint-disable-line no-unused-vars
+class DefaultParserUI {
     constructor() {
     }
 
-    static setupDefaultParserUI(hostname, parser) {
+    static setupDefaultParserUI(hostname, parser, dom) {
         DefaultParserUI.copyInstructions();
         DefaultParserUI.setDefaultParserUiVisibility(true);
-        DefaultParserUI.populateDefaultParserUI(hostname, parser);
+        // Pass the preloaded live DOM down to the populate method
+        DefaultParserUI.populateDefaultParserUI(hostname, parser, dom);
         document.getElementById("testDefaultParserButton").onclick = DefaultParserUI.testDefaultParser.bind(null, parser);
         document.getElementById("finisheddefaultParserButton").onclick = DefaultParserUI.onFinishedClicked.bind(null, parser);
     }
@@ -109,7 +120,7 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         parser.siteConfigs.saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl);
     }
 
-    static populateDefaultParserUI(hostname, parser) {
+    static populateDefaultParserUI(hostname, parser, dom) {
         DefaultParserUI.getDefaultParserHostnameInput().value = hostname;
 
         DefaultParserUI.getContentCssInput().value = "body";
@@ -118,16 +129,91 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         DefaultParserUI.getTestChapterUrlInput().value = "";
 
         let config = parser.siteConfigs.getConfigForSite(hostname);
+        let activeUrl = document.getElementById("startingUrlInput").value;
+
         if (config != null) {
             DefaultParserUI.getContentCssInput().value = config.contentCss;
             DefaultParserUI.getChapterTitleCssInput().value = config.titleCss;
             DefaultParserUI.getUnwantedElementsCssInput().value = config.removeCss;
             DefaultParserUI.getTestChapterUrlInput().value = config.testUrl;
         }
+
+        // Always ensure the Test URL is filled out, falling back to activeUrl
+        if (!DefaultParserUI.getTestChapterUrlInput().value) {
+            DefaultParserUI.getTestChapterUrlInput().value = activeUrl;
+        }
+
+        DefaultParserUI.bindSmartScanner();
+
+        // Proactively scan using the live DOM to avoid network/403 issues.
+        // This will override the old/default config purely in the UI if successful.
+        if (dom && activeUrl) {
+            DefaultParserUI.executeSmartScan(activeUrl, dom);
+        }
+    }
+
+    static bindSmartScanner() {
+        const testUrlInput = DefaultParserUI.getTestChapterUrlInput();
+        
+        if (!testUrlInput) return;
+        if (testUrlInput.dataset.smartBound === "true") return;
+        testUrlInput.dataset.smartBound = "true";
+
+        let debounceTimer = null;
+
+        testUrlInput.addEventListener("input", () => {
+            clearTimeout(debounceTimer);
+            let url = testUrlInput.value.trim();
+            
+            if (!url) {
+                const statusSpan = document.getElementById("smartDetectStatus");
+                if (statusSpan) statusSpan.textContent = "";
+                return;
+            }
+
+            const statusSpan = document.getElementById("smartDetectStatus");
+            if (statusSpan) {
+                statusSpan.textContent = "\u23F3 Detecting...";
+                statusSpan.style.color = "#666";
+            }
+
+            // User manually typed a URL, we cannot use preloaded DOM anymore.
+            debounceTimer = setTimeout(() => {
+                DefaultParserUI.executeSmartScan(url, null);
+            }, 500);
+        });
+    }
+
+    static async executeSmartScan(url, preloadedDom = null) {
+        const statusSpan = document.getElementById("smartDetectStatus");
+        if (!statusSpan) return;
+
+        statusSpan.textContent = "\u23F3 Detecting...";
+        statusSpan.style.color = "#666";
+
+        try {
+            // Pass the preloaded DOM directly to the scanner
+            let result = await HeuristicScanner.scan(url, preloadedDom);
+            
+            if (result.status === "success") {
+                DefaultParserUI.getContentCssInput().value = result.contentCss;
+                DefaultParserUI.getChapterTitleCssInput().value = result.titleCss;
+                statusSpan.textContent = "\u2705 Detection Successful";
+                statusSpan.style.color = "green";
+            } else if (result.status === "toc_detected") {
+                statusSpan.textContent = "\u26A0\uFE0F Seems to be ToC. Please use the ToC flow.";
+                statusSpan.style.color = "orange";
+            } else {
+                statusSpan.textContent = "\u274C Detection Failed. Please enter CSS manually.";
+                statusSpan.style.color = "red";
+            }
+        } catch (err) {
+            statusSpan.textContent = "\u274C Detection Failed. Please enter CSS manually.";
+            statusSpan.style.color = "red";
+        }
     }
 
     static setDefaultParserUiVisibility(isVisible) {
-        // toggle mode
         ChapterUrlsUI.setVisibleUI(!isVisible);
         if (isVisible) {
             ChapterUrlsUI.getEditChaptersUrlsInput().hidden = true;
@@ -207,4 +293,3 @@ class DefaultParserUI { // eslint-disable-line no-unused-vars
         return document.getElementById("defaultParserVewResult");
     }
 }
-
