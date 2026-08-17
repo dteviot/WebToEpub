@@ -943,8 +943,8 @@ class Library { // eslint-disable-line no-unused-vars
         LibFileReader.addEventListener("abort", function(event) {Library.LibFileReaderabort(event);});
     }
 
-    static LibFileReadererror(event) {ErrorLog.showErrorMessage(event);}
-    static LibFileReaderabort(event) {ErrorLog.showErrorMessage(event);}
+    static LibFileReadererror(event) {ErrorLog.showErrorMessage(event.currentTarget.error.message);}
+    static LibFileReaderabort(event) {ErrorLog.showErrorMessage(event.currentTarget.error.message);}
     
     static async LibDeleteEpub(objbtn) {
         await Library.LibRemoveStorageIDs(objbtn.dataset.libepubid);
@@ -1124,14 +1124,14 @@ class Library { // eslint-disable-line no-unused-vars
 
     static async LibHandelImport(objbtn) {
         Library.LibShowLoadingText();
-        Library.LibFileReaderAddListenersImport();
         let Blobdata = objbtn.files[0];
         LibFileReader.name = objbtn.files[0].name;
         let regex = new RegExp("zip$");
         if (!regex.test(LibFileReader.name)) {
+            Library.LibFileReaderAddListenersImport();
             LibFileReader.readAsText(Blobdata);
         } else {
-            LibFileReader.readAsArrayBuffer(Blobdata);
+            Library.LibFileReaderloadImport(Blobdata);
         }
     }
 
@@ -1139,68 +1139,69 @@ class Library { // eslint-disable-line no-unused-vars
         LibFileReader.removeEventListener("load", Library.LibFileReaderload);
         LibFileReader.removeEventListener("error", function(event) {Library.LibFileReadererror(event);});
         LibFileReader.removeEventListener("abort", function(event) {Library.LibFileReaderabort(event);});
-        LibFileReader.addEventListener("load", Library.LibFileReaderloadImport);
+        LibFileReader.addEventListener("load", Library.LibFileReaderloadImportLegacy);
         LibFileReader.addEventListener("error", function(event) {Library.LibFileReadererror(event);});
         LibFileReader.addEventListener("abort", function(event) {Library.LibFileReaderabort(event);});
     }
 
-    static async LibFileReaderloadImport() {
-        let regex = new RegExp("zip$");
-        if (!regex.test(LibFileReader.name)) {
-            let json = JSON.parse(LibFileReader.result);
-            let CurrentLibStoryIds = await Library.LibGetStorageIDs();
-            let HighestLibEpub = 0;
-            CurrentLibStoryIds.forEach(element => {
-                if (parseInt(element)>=HighestLibEpub) {
-                    HighestLibEpub = parseInt(element)+1; 
-                }
-            });
-            for (let i = 0; i < json.Library.length; i++) {
-                chrome.storage.local.set({
-                    ["LibEpub" + HighestLibEpub]: json.Library[i].LibEpub,
-                    ["LibStoryURL" + HighestLibEpub]: json.Library[i].LibStoryURL,
-                    ["LibCover" + HighestLibEpub]: json.Library[i].LibCover,
-                    ["LibFilename" + HighestLibEpub]: json.Library[i].LibFilename
-                });
-                await Library.LibCreateStorageIDs(HighestLibEpub);
-                HighestLibEpub++;
+    static async LibFileReaderloadImport(Blobdata) {
+        let CurrentLibStoryIds = await Library.LibGetStorageIDs();
+        let HighestLibEpub = 0;
+        CurrentLibStoryIds.forEach(element => {
+            if (parseInt(element)>=HighestLibEpub) {
+                HighestLibEpub = parseInt(element)+1; 
             }
-            Library.userPreferences.loadReadingListFromJson(json);
-            Library.LibRenderSavedEpubs();
-        } else {
-            let CurrentLibStoryIds = await Library.LibGetStorageIDs();
-            let HighestLibEpub = 0;
-            CurrentLibStoryIds.forEach(element => {
-                if (parseInt(element)>=HighestLibEpub) {
-                    HighestLibEpub = parseInt(element)+1; 
-                }
-            });
-            let blobfile = new Blob([LibFileReader.result]);
-            let zipFileReader = new zip.BlobReader(blobfile);
-            let zipReader = new zip.ZipReader(zipFileReader, {useWebWorkers: false});
-            let entries = await zipReader.getEntries();
-            //check export logic version
-            let LibraryVersion = await (await entries.filter((a) => a.filename == "LibraryVersion.txt")[0]).getData(new zip.TextWriter());
-            
-            if (LibraryVersion == null) {
-                ErrorLog.showErrorMessage("Wrong export version");
-                return;
-            }
-            let LibCountEntries = await (await entries.filter((a) => a.filename == "LibraryCountEntries.txt")[0])?.getData(new zip.TextWriter());
-            for (let i = 0; i < LibCountEntries; i++) {
-                chrome.storage.local.set({
-                    ["LibCover" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibCover")[0]).getData(new zip.TextWriter()),
-                    ["LibEpub" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibEpub")[0]).getData(new zip.TextWriter()),
-                    ["LibFilename" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibFilename")[0]).getData(new zip.TextWriter()),
-                    ["LibStoryURL" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibStoryURL")[0]).getData(new zip.TextWriter()),
-                    ["LibNewChapterCount" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibNewChapterCount")[0])?.getData(new zip.TextWriter())??"0"
-                });
-                await Library.LibCreateStorageIDs(HighestLibEpub);
-                HighestLibEpub++;
-            }
-            Library.userPreferences.loadReadingListFromJson(JSON.parse( await (await entries.filter((a) => a.filename == "ReadingList.json")[0]).getData(new zip.TextWriter())));
-            Library.LibRenderSavedEpubs();
+        });
+        let zipFileReader = new zip.BlobReader(Blobdata);
+        let zipReader = new zip.ZipReader(zipFileReader, {useWebWorkers: false});
+        let entries = await zipReader.getEntries();
+        //check export logic version
+        let LibraryVersion = await (await entries.filter((a) => a.filename == "LibraryVersion.txt")[0]).getData(new zip.TextWriter());
+        
+        if (LibraryVersion == null) {
+            ErrorLog.showErrorMessage("Wrong export version");
+            return;
         }
+        let LibCountEntries = await (await entries.filter((a) => a.filename == "LibraryCountEntries.txt")[0])?.getData(new zip.TextWriter());
+        ProgressBar.setMax(LibCountEntries);
+        for (let i = 0; i < LibCountEntries; i++) {
+            ProgressBar.setValue(i);
+            chrome.storage.local.set({
+                ["LibCover" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibCover")[0]).getData(new zip.TextWriter()),
+                ["LibEpub" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibEpub")[0]).getData(new zip.TextWriter()),
+                ["LibFilename" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibFilename")[0]).getData(new zip.TextWriter()),
+                ["LibStoryURL" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibStoryURL")[0]).getData(new zip.TextWriter()),
+                ["LibNewChapterCount" + HighestLibEpub]: await (await entries.filter((a) => a.filename == "Library/"+i+"/LibNewChapterCount")[0])?.getData(new zip.TextWriter())??"0"
+            });
+            await Library.LibCreateStorageIDs(HighestLibEpub);
+            HighestLibEpub++;
+        }
+        ProgressBar.setValue(LibCountEntries);
+        Library.userPreferences.loadReadingListFromJson(JSON.parse( await (await entries.filter((a) => a.filename == "ReadingList.json")[0]).getData(new zip.TextWriter())));
+        Library.LibRenderSavedEpubs();
+    }
+
+    static async LibFileReaderloadImportLegacy() {
+        let json = JSON.parse(LibFileReader.result);
+        let CurrentLibStoryIds = await Library.LibGetStorageIDs();
+        let HighestLibEpub = 0;
+        CurrentLibStoryIds.forEach(element => {
+            if (parseInt(element)>=HighestLibEpub) {
+                HighestLibEpub = parseInt(element)+1; 
+            }
+        });
+        for (let i = 0; i < json.Library.length; i++) {
+            chrome.storage.local.set({
+                ["LibEpub" + HighestLibEpub]: json.Library[i].LibEpub,
+                ["LibStoryURL" + HighestLibEpub]: json.Library[i].LibStoryURL,
+                ["LibCover" + HighestLibEpub]: json.Library[i].LibCover,
+                ["LibFilename" + HighestLibEpub]: json.Library[i].LibFilename
+            });
+            await Library.LibCreateStorageIDs(HighestLibEpub);
+            HighestLibEpub++;
+        }
+        Library.userPreferences.loadReadingListFromJson(json);
+        Library.LibRenderSavedEpubs();
     }
 
     static LibSaveTextURLChange(obj) {
