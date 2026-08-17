@@ -77,12 +77,11 @@ class ReadRiftParser extends Parser {
         let apiUrl =
             "https://readrift.net/api/v1/books/" +
             this.novelId +
-            "/chapters/?limit=10&page=1";
+            "/chapters/?limit=30&page=1";
 
         while (apiUrl) {
             try {
                 apiUrl = await this.getChaptersFromApi(apiUrl, urls);
-                await util.sleep(300);
             } catch (err) {
                 apiUrl = null;
                 throw new Error(
