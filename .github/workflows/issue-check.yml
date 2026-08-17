@@ -180,16 +180,26 @@ jobs:
 
             /**
              * Check if a domain is mentioned in a text string.
-             * Matches full domain or the domain name without TLD.
+             * Matches full domain or the domain name as a whole word (not substring).
              */
             function domainMatchesText(domain, text) {
               if (!text) return false;
-              const lower = text.toLowerCase();
-              if (lower.includes(domain)) return true;
-              // Also match domain without TLD (e.g. "wuxiaworld" for "wuxiaworld.com")
-              const base = domain.split('.').slice(0, -1).join('.');
-              if (base.length >= 4) { // avoid short false positives
-                return lower.includes(base);
+              
+              // Only do exact substring match for domains with a TLD (e.g. "webnovel.com")
+              if (domain.includes('.') && text.toLowerCase().includes(domain)) {
+                return true;
+              }
+              
+              // Determine the base word to check with word boundaries.
+              // If domain has a TLD (e.g. "webnovel.com"), base is "webnovel"
+              // If domain is synthetic (e.g. "wattpad"), base is just "wattpad"
+              const parts = domain.split('.');
+              const base = parts.length > 1 ? parts.slice(0, -1).join('.') : domain;
+              
+              if (base.length >= 4) {
+                const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+                return regex.test(text);
               }
               return false;
             }
@@ -211,8 +221,8 @@ jobs:
               const domainBase = domain.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
               if (domainBase.length < 3) return false;
 
-              // Check both directions for substring match
-              return parserName.includes(domainBase) || domainBase.includes(parserName);
+              // Check if one starts with the other to avoid "freewebnovel" matching "webnovel"
+              return parserName.startsWith(domainBase) || domainBase.startsWith(parserName);
             }
 
             const commentSections = [];
@@ -420,17 +430,24 @@ jobs:
               console.log(`Found ${matchedDuplicates.length} matching duplicate issues`);
 
               if (matchedDuplicates.length > 0) {
-                const dupeLinks = matchedDuplicates.map(i => {
+                const MAX_DUPLICATES = 5;
+                const shown = matchedDuplicates.slice(0, MAX_DUPLICATES);
+                const dupeLinks = shown.map(i => {
                   const url = `https://github.com/${searchOwner}/${searchRepo}/issues/${i.number}`;
                   return `- [#${i.number}](${url}) — ${i.title}`;
                 }).join('\n');
+
+                let footer = `\n\nPutting a comment on the existing issue helps prioritize it! ` +
+                  `Please close this issue if it is a duplicate of an existing one.`;
+                if (matchedDuplicates.length > MAX_DUPLICATES) {
+                  footer = `\n\n*...and ${matchedDuplicates.length - MAX_DUPLICATES} more.*` + footer;
+                }
 
                 commentSections.push(
                   `### 🔁 Possibly Duplicate Open Issue(s)\n\n` +
                   `There are existing open request(s) for this site:\n\n` +
                   dupeLinks +
-                  `\n\nPutting a comment on the existing issue helps prioritize it!`+
-                  `Please close this issue if it is a duplicate of an existing one.`
+                  footer
                 );
               }
             } catch (e) {
