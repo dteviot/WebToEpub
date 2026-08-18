@@ -74,8 +74,10 @@ class ReadRiftParser extends Parser {
         while (apiUrl) {
             try {
                 apiUrl = await this.getChaptersFromApi(apiUrl, urls);
+                if (apiUrl) {
+                    await util.sleep(150 + Math.random() * 100);
+                }
             } catch (err) {
-                apiUrl = null;
                 throw new Error(
                     `ReadRiftParser failed while scanning novel's chapters: ${err.message}`,
                 );
