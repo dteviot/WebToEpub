@@ -91,6 +91,7 @@ class RoyalRoadParser extends Parser {
         this.removeWatermarks(webPageDom);
         this.removeImgTagsWithNoSrc(webPageDom);
         this.tagAuthorNotesBySelector(webPageDom, "div.author-note-portlet");
+        this.tagAuthorNotesBySelector(webPageDom, "div.author-note");
 
         let re_cnRandomClass = new RegExp("^cn[A-Z][a-zA-Z0-9]{41}$");
         webPageDom.querySelectorAll("p").forEach(element =>
@@ -139,7 +140,8 @@ class RoyalRoadParser extends Parser {
             ((tagName === "div") && 
                 (className.startsWith("chapter-inner") ||
                 className.includes("author-note-portlet") ||
-                className.includes("page-content"))
+                className.includes("page-content") ||
+                className.includes("author-note"))
             );
     }
 
