@@ -9,11 +9,16 @@
 "use strict";
 
 parserFactory.register("sakuraze.vercel.app", () => new SakurazeParser());
+HttpClient.blockedSites.add("sakuraze.vercel.app");
 
 class SakurazeParser extends Parser {
     constructor() {
         super();
         this.chapterIdByUrl = new Map();
+    }
+
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
     }
 
     static SUPABASE_URL = "https://hlzjslwrhabsxdskinwd.supabase.co/rest/v1";
