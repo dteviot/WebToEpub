@@ -131,9 +131,6 @@ class KonkonKuupressParser extends Parser {
                 }
                 pageChapters.forEach((chapter) => {
                     // If the chapter is locked and we don't have access, skip it
-                    // TODO: the API treats all requests not coming from "Origin: <site>" as unauthenticated meaning
-                    // we can't access the chapters the user has unlocked anyways! barring them changing the way their
-                    // authentication works in order to make us work, we'd need some sort of workaround
                     if (chapter.is_locked && !chapter.user_has_access) return;
                     // Store index of volume (used in final sort)
                     chapter.volume = volumeIndex;
@@ -244,8 +241,14 @@ class KonkonKuupressParser extends Parser {
                     // Create li (empty for now) and link for chapter
                     let chapterLI = createElementWithTextContent("li", "");
                     let chapterA = createElementWithTextContent("a", chapter.title);
-                    // If the chapter is locked, add lock emoji
-                    if (chapter.is_locked) chapterA.innerText += " (🔒)";
+                    // If the chapter is locked, add lock emoji (open for user unlock, close for still locked)
+                    if (chapter.is_locked) {
+                        if (chapter.user_has_access) {
+                            chapterA.innerText += " (🔓)";
+                        } else {
+                            chapterA.innerText += " (🔒)";
+                        }
+                    }
                     chapterA.href = new URL(this.siteUrl + `/read/chapter/${chapter.id}/${chapter.slug}`);
                     chapterLI.appendChild(chapterA);
                     chaptersUL.appendChild(chapterLI);
