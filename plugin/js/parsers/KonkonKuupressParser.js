@@ -4,13 +4,33 @@ parserFactory.register("konkon.ink", () => new KonkonKuupressParser("https://kon
 parserFactory.register("kuupress.com", () => new KonkonKuupressParser("https://kuupress.com", "https://api-kp.kuupress.com", "Kuupress"));
 
 class KKPFetchCache {
-    constructor() {
+    constructor(siteUrl, apiUrl) {
         this.cache = {};
+        this.siteUrl = siteUrl;
+        this.apiUrl = apiUrl;
     }
 
     async fetch(url) {
         url = url.toString();
         if (this.cache[url]) return this.cache[url];
+        await HttpClient.setDeclarativeNetRequestRules([
+            {
+                id: 1,
+                priority: 1,
+                action: {
+                    type: "modifyHeaders",
+                    requestHeaders: [{
+                        header: "Origin",
+                        operation: "set",
+                        value: this.siteUrl
+                    }]
+                },
+                condition: {
+                    requestDomains: [(new URL(this.apiUrl).hostname)],
+                    resourceTypes: ["xmlhttprequest"]
+                }
+            }
+        ]);
         let contents = (await HttpClient.fetchJson(url)).json;
         this.cache[url] = contents;
         return contents;
@@ -23,7 +43,7 @@ class KonkonKuupressParser extends Parser {
         this.siteUrl = siteUrl;
         this.apiUrl = apiUrl;
         this.publisher = publisher;
-        this.fetchCache = new KKPFetchCache();
+        this.fetchCache = new KKPFetchCache(siteUrl, apiUrl);
     }
 
     dispatchOnChapterOrNovel(url, chapterBranch, novelBranch) {
