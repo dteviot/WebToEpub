@@ -272,7 +272,9 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>kemono.su</li>
     <li>knoxt.space</li>
     <li>kobatochan.com</li>
+    <li>konkon.ink</li>
     <li>krytykal.org</li>
+    <li>kuupress.com</li>
     <li>lazygirltranslations.com</li>
     <li>liberspark.com</li>
     <li>libread.com</li>
@@ -831,6 +833,7 @@ Don't forget to give the project a star! Thanks again!
     <li>kerimmkirac</li>
     <li>baalthasar</li>
     <li>David Siewert</li>
+    <li>MineRobber9000 (Parser for konkon.ink and kuupress.com)</li>
   </ul>
 </details>
 
