@@ -86,10 +86,14 @@ class KonkonKuupressParser extends Parser {
     async getChapterUrlsFromChapter(url) {
         // Get chapter JSON object
         let data = await this.fetchCache.fetch(url);
+        // Make sure we have data.data
+        if (!data.data) {
+            throw new Error("Something changed on the site backend (no chapter info)");
+        }
         // Get novel slug
-        let novelSlug = data.data?.novel?.slug;
+        let novelSlug = data.data.novel?.slug;
         if (novelSlug === undefined) {
-            throw new Error("Something changed on the site backend (no volume info in chapter)");
+            throw new Error("Something changed on the site backend (no novel info in chapter)");
         }
         // Converge on novel flow
         return this.getChapterUrlsFromNovel(this.novelAPIFromSlug(novelSlug));
@@ -98,13 +102,17 @@ class KonkonKuupressParser extends Parser {
     async getChapterUrlsFromNovel(url) {
         // Get novel JSON object
         let data = await this.fetchCache.fetch(url);
+        // Make sure we have data.data
+        if (!data.data) {
+            throw new Error("Something changed on the site backend (no novel info)");
+        }
         // Store novel URL and title on parser (used in addFirstPageUrlToWebPages below)
-        this.novelUrl = this.siteUrl + "/read/" + data.data?.slug;
-        this.novelTitle = data.data?.title;
+        this.novelUrl = this.siteUrl + "/read/" + data.data.slug;
+        this.novelTitle = data.data.title;
         // Collect chapters (will be turned into URLs later)
         let chapters = [];
         // First pass: all unlocked chapters
-        let volumes = data.data?.volumes;
+        let volumes = data.data.volumes;
         if (volumes == undefined) {
             throw new Error("Something changed on the site backend (no volumes)");
         }
@@ -190,6 +198,10 @@ class KonkonKuupressParser extends Parser {
     async fetchActualChapter(baseUrl, dataUrl) {
         // Get chapter JSON object
         let data = await this.fetchCache.fetch(dataUrl);
+        // Make sure we have data.data
+        if (!data.data) {
+            throw new Error("Something changed on the site backend (no chapter info)");
+        }
         // Make doc for content
         let doc = Parser.makeEmptyDocForContent(baseUrl);
         // Chapter title
@@ -202,6 +214,10 @@ class KonkonKuupressParser extends Parser {
     async generateTableOfContentsPage(baseUrl, dataUrl) {
         // Get novel JSON object
         let data = await this.fetchCache.fetch(dataUrl);
+        // Make sure we have data.data
+        if (!data.data) {
+            throw new Error("Something changed on the site backend (no novel info)");
+        }
         // Make doc for content
         let doc = Parser.makeEmptyDocForContent(baseUrl);
         // Generate table of contents based on the novel
@@ -285,10 +301,14 @@ class KonkonKuupressParser extends Parser {
         let apiUrl = await this.dispatchOnChapterOrNovel(url.href, async (chapterUrl) => {
             // Get chapter JSON object
             let data = await this.fetchCache.fetch(chapterUrl);
+            // Make sure we have data.data
+            if (!data.data) {
+                throw new Error("Something changed on the site backend (no chapter info)");
+            }
             // Get novel slug
-            let novelSlug = data.data?.novel?.slug;
+            let novelSlug = data.data.novel?.slug;
             if (novelSlug === undefined) {
-                throw new Error("Something changed on the site backend (no volume info in chapter)");
+                throw new Error("Something changed on the site backend (no novel info in chapter)");
             }
             return this.novelAPIFromSlug(novelSlug);
         },async (novelUrl) => novelUrl);
