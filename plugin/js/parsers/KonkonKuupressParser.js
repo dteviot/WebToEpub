@@ -207,7 +207,7 @@ class KonkonKuupressParser extends Parser {
         // Chapter title
         doc.dom.title = data.data?.title;
         // Chapter content into doc
-        doc.content.innerHTML = data.data?.content;
+        util.parseHtmlAndInsertIntoContent(data.data.content, doc.content);
         return doc.dom;
     }
 
@@ -226,7 +226,7 @@ class KonkonKuupressParser extends Parser {
         doc.dom.title = data.data?.title;
         // Description (nested in blockquote)
         let description = createElementWithTextContent("blockquote", "");
-        description.innerHTML = data.data?.description;
+        util.parseHtmlAndInsertIntoContent(data.data.description, description);
         doc.content.appendChild(description);
         // Each volume gets a h2 header and a ul of links to chapters.
         for (const [volumeIndex, volume] of data.data.volumes.entries()) {
@@ -332,9 +332,8 @@ class KonkonKuupressParser extends Parser {
     }
 
     extractDescription() {
-        let doc = Parser.makeEmptyDocForContent(this.siteUrl);
-        doc.content.innerHTML = this.noveldata.description;
-        return doc.content.textContent;
+        let descDom = util.sanitize(this.noveldata.description);
+        return descDom.body.textContent;
     }
 
     extractPublisher() {
