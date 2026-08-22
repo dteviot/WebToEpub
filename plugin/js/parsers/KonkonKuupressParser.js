@@ -12,7 +12,9 @@ class KKPFetchCache {
 
     async fetch(url) {
         url = url.toString();
+        // If we already have it, return the cached value
         if (this.cache[url]) return this.cache[url];
+        // Apply "Origin" header (without it, the backend won't let us get chapters the user unlocks)
         await HttpClient.setDeclarativeNetRequestRules([
             {
                 id: 1,
