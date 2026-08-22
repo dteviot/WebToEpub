@@ -204,8 +204,20 @@ class KonkonKuupressParser extends Parser {
         }
         // Make doc for content
         let doc = Parser.makeEmptyDocForContent(baseUrl);
-        // Chapter title
-        doc.dom.title = data.data?.title;
+        // Chapter title (if we can't get the title from the chapter, no big deal)
+        if (data.data.title) doc.dom.title = data.data.title;
+        // Make sure we have chapter content
+        if (data.data.content === undefined) {
+            throw new Error("Something changed on the site backend (no content)");
+        } else if (data.data.content === "") {
+            // Empty content usually means a locked chapter.
+            if (data.data.is_locked && !data.data.user_has_access) {
+                throw new Error("Locked chapter!");
+            } else {
+                // Something else must be causing this, which will need looked into.
+                throw new Error("Something changed on the site backend (empty content)");
+            }
+        }
         // Chapter content into doc
         util.parseHtmlAndInsertIntoContent(data.data.content, doc.content);
         return doc.dom;
@@ -223,11 +235,13 @@ class KonkonKuupressParser extends Parser {
         // Generate table of contents based on the novel
         let createElementWithTextContent = KonkonKuupressParser.createElementWithTextContent.bind(null, doc.dom);
         // Title
-        doc.dom.title = data.data?.title;
+        if (data.data.title) doc.dom.title = data.data.title;
         // Description (nested in blockquote)
-        let description = createElementWithTextContent("blockquote", "");
-        util.parseHtmlAndInsertIntoContent(data.data.description, description);
-        doc.content.appendChild(description);
+        if (data.data.description) {
+            let description = createElementWithTextContent("blockquote","");
+            util.parseHtmlAndInsertIntoContent(data.data.description, description);
+            doc.content.appendChild(description);
+        }
         // Each volume gets a h2 header and a ul of links to chapters.
         for (const [volumeIndex, volume] of data.data.volumes.entries()) {
             // Create header and ul
@@ -332,6 +346,7 @@ class KonkonKuupressParser extends Parser {
     }
 
     extractDescription() {
+        if (!this.noveldata.description) return "";
         let descDom = util.sanitize(this.noveldata.description);
         return descDom.body.textContent;
     }
