@@ -5,6 +5,7 @@ parserFactory.register("fenrirealm.com", () => new FenrirealmParser());
 class FenrirealmParser extends Parser {
     constructor() {
         super();
+        this.minimumThrottle = 3000;
     }
 
     async getChapterUrls(dom) {
