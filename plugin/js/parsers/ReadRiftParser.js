@@ -71,16 +71,24 @@ class ReadRiftParser extends Parser {
 
         let apiUrl = `https://readrift.net/api/v1/books/${this.novelId}/chapters/?limit=30&page=1`;
 
+        // Temporarily overwriting throttle for TOC requests. We are overwriting
+        // the `minimumThrottle` this way instead of using a sleep so that users
+        // can manually overwrite the delay if they want
+        const originalThrottle = this.minimumThrottle;
+
         while (apiUrl) {
             try {
                 apiUrl = await this.getChaptersFromApi(apiUrl, urls);
                 if (apiUrl) {
-                    await util.sleep(150 + Math.random() * 100);
+                    this.minimumThrottle = 150 + Math.random() * 100;
+                    await this.rateLimitDelay(); // Handles the sleep logic for us
                 }
             } catch (err) {
                 throw new Error(
                     `ReadRiftParser failed while scanning novel's chapters: ${err.message}`,
                 );
+            } finally {
+                this.minimumThrottle = originalThrottle; // Restoring throttle back to the original delay configured for chapter downloads
             }
         }
 
