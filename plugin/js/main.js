@@ -137,6 +137,7 @@ var main = (function() {
     }
 
     async function fetchContentAndPackEpub() {
+        util.resetSleepController();
         let libclick = this;
         let metaInfo = metaInfoFromControls();
         if (document.getElementById("noAdditionalMetadataCheckbox").checked == true
