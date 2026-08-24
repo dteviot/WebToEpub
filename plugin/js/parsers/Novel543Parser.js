@@ -24,7 +24,52 @@ class Novel543Parser extends Parser {
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector("h1.title");
+        let title = dom.querySelector("div.chapter-content h1") ?? dom.querySelector("h1.title");
+        if (title !== null && title.textContent !== null) {
+            // strip the page part marker of split chapters, e.g. "第1章 xxx (1/2)"
+            title.textContent = title.textContent.replace(/\s*\(\d+\/\d+\)\s*$/, "");
+        }
+        return title;
+    }
+
+    /**
+     * Clean junk out of each fetched chapter page before content extraction and
+     * image collection, so promo banners are not packed as images.
+     * @param { Document } dom
+     */
+    preprocessRawDom(dom) {
+        this.removeNovel543Junk(dom);
+    }
+
+    customRawDomToContentStep(chapter, content) {
+        if (content === null) {
+            return;
+        }
+        // split chapters show a title on every part page,
+        // e.g. "第1章 xxx (1/2)", "第1章 xxx (2/2)": keep only the first one
+        let headings = [...content.querySelectorAll("h1")];
+        let isPagePartTitle = (heading) => /\(\d+\/\d+\)\s*$/.test(heading.textContent ?? "");
+        util.removeElements(headings.slice(1).filter(isPagePartTitle));
+        for (let heading of content.querySelectorAll("h1")) {
+            heading.textContent = heading.textContent.replace(/\s*\(\d+\/\d+\)\s*$/, "");
+        }
+        this.removeNovel543Junk(content);
+    }
+
+    /**
+     * Remove ad slots, the "溫馨提示" site notice text, and the VIP membership
+     * promo banner. Runs on the whole document pre-collection and again on the
+     * extracted content when packing (idempotent).
+     * @param { Element | Document } root
+     */
+    removeNovel543Junk(root) {
+        util.removeElements(root.querySelectorAll("div.adBlock, div.gadBlock"));
+        for (let tip of root.querySelectorAll("p span[style*='ff6666']")) {
+            tip.closest("p")?.remove();
+        }
+        for (let img of root.querySelectorAll("img[src*='vip.png']")) {
+            img.closest("div")?.remove();
+        }
     }
 
     extractAuthor(dom) {
