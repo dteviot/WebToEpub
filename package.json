@@ -122,7 +122,8 @@
     { "name": "Bartuzen", "email": "git@bartuzen.dev" },
     { "name": "kerimmkirac", "email": "kerimmkirac@gmail.com" },
     { "name": "baalthasar"},
-    { "name": "David Siewert", "email": "david1gruppenplan@gmail.com" }
+    { "name": "David Siewert", "email": "david1gruppenplan@gmail.com" },
+    { "name": "MineRobber9000" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
