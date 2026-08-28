@@ -71,6 +71,13 @@ class PatreonParser extends Parser {
 
     async fetchChapter(url) {
         let xhr = await HttpClient.wrapFetch(url);
+        let postContent = xhr.responseXML.querySelector("div.patreon-post-content");
+        if (postContent !== null) {
+            return this.jsonToHtml({
+                title: xhr.responseXML.querySelector("h1[data-tag='post-title']").textContent,
+                content: postContent.innerHTML
+            }, url);
+        }
         let script = xhr.responseXML.querySelector("script#__NEXT_DATA__").textContent;
         let json = JSON.parse(script);
         let envelope = json.props.pageProps.bootstrapEnvelope;
