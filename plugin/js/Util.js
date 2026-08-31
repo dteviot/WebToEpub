@@ -1174,7 +1174,7 @@ const util = (function() {
         BLOCK_ELEMENTS: BLOCK_ELEMENTS,
         HEADER_TAGS: HEADER_TAGS,
         sleep: sleep,
-        sleepController: sleepController,
+        getSleepController: () => sleepController,
         resetSleepController: resetSleepController,
         randomInteger: randomInteger,
         isFirefox: isFirefox,
