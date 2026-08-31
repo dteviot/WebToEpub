@@ -70,7 +70,7 @@ class Sbxh1Parser extends Parser {
 
     findContent(dom) {
         return (
-            Parser.findConstrutedContent(dom) ??
+            Parser.findConstructedContent(dom) ??
             dom.querySelector("article.novel-viewer")
         );
     }
