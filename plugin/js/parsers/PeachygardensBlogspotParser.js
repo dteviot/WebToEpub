@@ -48,7 +48,7 @@ class PeachygardensBlogspotParser extends Parser {
     }
 
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        return Parser.findConstructedContent(dom);
     }
 
     findCoverImageUrl(dom) {

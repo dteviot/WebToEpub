@@ -13,7 +13,7 @@ class NeobookParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        return Parser.findConstructedContent(dom);
     }
 
     extractTitleImpl(dom) {

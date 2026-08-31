@@ -780,7 +780,7 @@ class Parser {
         };
     }
 
-    static findConstrutedContent(dom) {
+    static findConstructedContent(dom) {
         return dom.querySelector("div." + Parser.WEB_TO_EPUB_CLASS_NAME);
     }
 

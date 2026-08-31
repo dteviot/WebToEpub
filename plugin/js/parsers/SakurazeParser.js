@@ -82,7 +82,7 @@ class SakurazeParser extends Parser {
     }
 
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        return Parser.findConstructedContent(dom);
     }
 
     // Chapter content from the API has no heading, so use the title from the chapter list

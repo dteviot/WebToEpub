@@ -159,7 +159,7 @@ class FictionreadParser extends Parser { // eslint-disable-line no-unused-vars
      * @param { Document } dom 
      */
     findContent(dom) {
-        return Parser.findConstrutedContent(dom);
+        return Parser.findConstructedContent(dom);
     }
 
     /**

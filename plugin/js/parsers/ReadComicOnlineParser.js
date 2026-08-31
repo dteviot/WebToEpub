@@ -72,7 +72,7 @@ class ReadComicOnlineParser extends Parser {
     }
 
     findContent(dom) {
-        let content = Parser.findConstrutedContent(dom);
+        let content = Parser.findConstructedContent(dom);
         if (content === null) {
             content = dom.createElement("div");
             content.className = Parser.WEB_TO_EPUB_CLASS_NAME;
