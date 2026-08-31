@@ -15,31 +15,35 @@ class Sbxh1Parser extends Parser {
         if (novelId == null) {
             return [];
         }
-        let chapterLinks = [];
 
-        let page = 0;
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            page++;
+        let chapterLinks = Sbxh1Parser.extractChapterLinks(dom, novelId).map(
+            (a) => Sbxh1Parser.anchorToChapter(a),
+        );
 
-            let nextUrl = new URL(dom.baseURI);
-            nextUrl.searchParams.set("epage", page);
-            const { responseXML: xml } = await HttpClient.wrapFetch(nextUrl.href);
+        let baseUrl = new URL(dom.baseURI).origin;
+        await Sbxh1Parser.setApiRequestHeaders(baseUrl, dom.baseURI);
 
-            let newLinks = Sbxh1Parser.extractChapterLinks(xml, novelId);
-            if (newLinks.length === 0) {
+        let cursor = Sbxh1Parser.extractEpisodeCursor(dom);
+        while (cursor != null) {
+            let apiUrl = new URL(
+                `${baseUrl}/api/novel/${novelId}/episodes/window`,
+            );
+            apiUrl.searchParams.set("direction", "older");
+            apiUrl.searchParams.set("cursor", cursor);
+
+            const { json } = await HttpClient.fetchJson(apiUrl.href);
+            if (
+                json?.ok !== true ||
+                !Array.isArray(json.items) ||
+                json.items.length === 0
+            ) {
                 break;
             }
 
-            let newChapters = newLinks.map((a) => {
-                let chapterNumber = a.querySelector(".ne-num").textContent;
-                let chapterTitle = a.querySelector(".ne-title").textContent;
-
-                return {
-                    sourceUrl: a.href,
-                    title: `${chapterNumber} - ${chapterTitle}`,
-                };
-            });
+            let newChapters = json.items.map((item) => ({
+                sourceUrl: `${baseUrl}/novel/${novelId}/${item.id}`,
+                title: `${item.episodeLabel} - ${item.title}`,
+            }));
 
             const exists = newChapters.some((newCh) =>
                 chapterLinks.some((ch) => ch.sourceUrl === newCh.sourceUrl)
@@ -49,10 +53,7 @@ class Sbxh1Parser extends Parser {
             }
 
             chapterLinks.push(...newChapters);
-
-            if (newChapters[newChapters.length - 1].title.startsWith("1화 -")) {
-                break;
-            }
+            cursor = json.hasOlder ? (json.olderCursor ?? null) : null;
         }
 
         return chapterLinks.reverse();
@@ -66,6 +67,26 @@ class Sbxh1Parser extends Parser {
             chapterLinks = [...dom.querySelectorAll(`a[href*="/novel/${novelId}/"]`)];
         }
         return chapterLinks;
+    }
+
+    static anchorToChapter(anchor) {
+        let chapterNumber = anchor.querySelector(".ne-num")?.textContent ?? "";
+        let chapterTitle = anchor.querySelector(".ne-title")?.textContent ?? "";
+        return {
+            sourceUrl: anchor.href,
+            title: `${chapterNumber} - ${chapterTitle}`,
+        };
+    }
+
+    static extractEpisodeCursor(dom) {
+        let rows = [...dom.querySelectorAll("li.novel-ep-row")];
+        let last = rows[rows.length - 1];
+        let episodeNumber = last?.getAttribute("data-ep");
+        let episodeId = last?.getAttribute("data-episode-id");
+        if (episodeNumber == null || episodeId == null) {
+            return null;
+        }
+        return `${episodeNumber}:${episodeId}`;
     }
 
     findContent(dom) {
