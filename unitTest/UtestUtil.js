@@ -605,23 +605,23 @@ QUnit.test("getFirstImgSrc", function (assert) {
 });
 
 QUnit.test("sleepController resets properly and is not stale", function (assert) {
-    let controller1 = util.sleepController;
+    let controller1 = util.getSleepController();
     assert.ok(controller1 instanceof AbortController, "sleepController is an AbortController");
     assert.notOk(controller1.signal.aborted, "initially not aborted");
 
-    util.sleepController.abort();
-    assert.ok(util.sleepController.signal.aborted, "controller aborted");
-    assert.equal(util.sleepController, controller1, "still referencing same controller before reset");
+    util.getSleepController().abort();
+    assert.ok(util.getSleepController().signal.aborted, "controller aborted");
+    assert.equal(util.getSleepController(), controller1, "still referencing same controller before reset");
 
     util.resetSleepController();
-    let controller2 = util.sleepController;
+    let controller2 = util.getSleepController();
     assert.notEqual(controller1, controller2, "new controller instance after reset");
-    assert.notOk(util.sleepController.signal.aborted, "new controller is not aborted");
+    assert.notOk(util.getSleepController().signal.aborted, "new controller is not aborted");
 });
 
 QUnit.test("sleep resolves when sleepController is aborted", async function (assert) {
     let sleepPromise = util.sleep(5000);
-    util.sleepController.abort();
+    util.getSleepController().abort();
     await sleepPromise;
     assert.ok(true, "sleep resolved promptly upon abort");
     util.resetSleepController();
