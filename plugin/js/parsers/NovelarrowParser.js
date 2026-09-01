@@ -58,69 +58,25 @@ class NovelarrowParser extends Parser { // eslint-disable-line no-unused-vars
     }
 
     locateContent(webPageDom) {
-        let encoded = [...webPageDom.querySelectorAll("script")]
-            .filter(s => this.isContent(s))
-            .map(s => this.extractContentString(s.textContent))[0];
-        return encoded
-            ? this.cleanUnicode(encoded)
-            : "";
-    }
-
-    cleanUnicode(s) {
-        return s.replace(/\\u003c/g, "<")
-            .replace(/\\u003e/g, ">")
-            .replace(/\\"/g, "\"")
-            .replace(/\\n/g, "")
-            .replace(/\\u0026nbsp;/g, " ")
-            .replace(/\\u0026amp;/g, "&")
-            .replace(/\\u0026quot;/g, "\"")
-            .replace(/\\u0026#39;/g, "'")
-            .replace(/\\u0026mdash;/g, "—")
-            .replace(/\\u0026hellip;/g, "…")
-            .replace(/\\u0026rArr;/g, "→")
-            .replace(/\\u0026gt;/g, ">")
-            .replace(/\\u0026lt;/g, "<")
-            .replace(/\\u0026ecirc;/g, "ê")
-            .replace(/\\u0026eacute;/g, "é")
-            .replace(/\\u0026agrave;/g, "à")
-            .replace(/\\u0026ntilde;/g, "ñ")
-            .replace(/\\r\\r/g, "<br>")
-            .replace(/\\u0026ldquo;/g, "“")
-            .replace(/\\u0026rdquo;/g, "”")
-            .replace(/\\u0026lsquo;/g, "‘")
-            .replace(/\\u0026rsquo;/g, "’")
-            .replace(/\\u0026ndash;/g, "–")
-            .replace(/\\u0026laquo;/g, "«")
-            .replace(/\\u0026raquo;/g, "»")
-            .replace(/\\u0026igrave;/g, "ì")
-            .replace(/\\u0026ocirc;/g, "ô")
-            .replace(/\\u0026Auml;/g, "Ä")
-            .replace(/\\u0026auml;/g, "ä")
-            .replace(/\\u0026ouml;/g, "ö")
-            .replace(/\\u0026iuml;/g, "ï")
-            .replace(/\\u0026Atilde;/g, "Ã")
-            .replace(/\\u0026para;/g, "¶")
-            .replace(/\\u0026ccedil;/g, "ç")
-            .replace(/\\u0026deg;/g, "°")
-            .replace(/\\u0026egrave;/g, "è")
-            .replace(/\\u000b;/g, "")
-            .replace(/\\u0026;/g, "&");
-
-    }
-
-    extractContentString(raw) {
-        let start = raw.indexOf("\"");
-        let end = raw.lastIndexOf("\"");
-        return raw.substring(start + 1, end);
-    }
-
-    isContent(script) {
-        let text = script.textContent;
-        if (text.includes("self.__next_f.push([1,")) {
-            let s = this.extractContentString(text);
-            return s.startsWith("\\u003c");
+        for (let script of webPageDom.querySelectorAll("script")) {
+            let text = script.textContent;
+            if (text.includes("self.__next_f.push([1,")) {
+                let start = text.indexOf("[");
+                let end = text.lastIndexOf("]");
+                try {
+                    let json = JSON.parse(text.substring(start, end + 1));
+                    if (Array.isArray(json) && json[0] === 1 && typeof json[1] === "string") {
+                        let content = json[1];
+                        if (content.startsWith("<")) {
+                            return content;
+                        }
+                    }
+                } catch {
+                    // ignore malformed JSON
+                }
+            }
         }
-        return false;
+        return "";
     }
 
     contentHasTitle(content) {
