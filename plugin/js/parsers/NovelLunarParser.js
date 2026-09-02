@@ -44,6 +44,17 @@ class NovelLunarParser extends Parser {
     findContent(dom) {
         return dom.querySelector("div.text-gray-800");
     }
+
+    customRawDomToContentStep(chapter, content) {
+        this.convertEmptySpansToBreak(chapter.rawDom, content);
+    }
+
+    convertEmptySpansToBreak(rawDom, content) {
+        [...content.querySelectorAll("span")]
+            .filter(s => (s.attributes.length === 0) && (s.textContent.trim() === ""))
+            .forEach(s => s.replaceWith(rawDom.createElement("br")));
+    }
+
     extractTitleImpl(dom) {
         return dom.querySelector(".text-2xl");
     }
