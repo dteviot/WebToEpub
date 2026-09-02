@@ -22,7 +22,7 @@ class HeuristicScanner {
             let contentNode = HeuristicScanner.findContentNode(doc);
             let contentCss = contentNode ? HeuristicScanner.generateSelector(contentNode) : "body";
 
-            let titleNode = HeuristicScanner.findTitleNode(doc, contentNode);
+            let titleNode = HeuristicScanner.findTitleNode(doc);
             let titleCss = titleNode ? HeuristicScanner.generateSelector(titleNode) : "";
 
             return {
@@ -112,7 +112,7 @@ class HeuristicScanner {
         return bestCandidate.node;
     }
 
-    static findTitleNode(doc, contentNode) {
+    static findTitleNode(doc) {
         // Added h1, h2 to match patterns like "style_h1"
         const titlePatterns = /title|heading|chapter-title|h1|h2|\u6807\u9898|\u30BF\u30A4\u30C8\u30EB|\uC81C\uBAA9/i;
         

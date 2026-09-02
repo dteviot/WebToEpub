@@ -87,7 +87,9 @@ class DefaultParserSiteSettings {
                         for (let e of element.querySelectorAll(config.removeCss)) {
                             e.remove();
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        // Ignore invalid CSS selector errors
+                    }
                 };
             }
         }
