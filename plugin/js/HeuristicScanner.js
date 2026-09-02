@@ -14,27 +14,8 @@ class HeuristicScanner {
                 return { status: "failed", error: "Failed to parse DOM" };
             }
 
-            let walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
-            let node;
-            let totalTextLength = 0;
-            let linkTextLength = 0;
-
-            while ((node = walker.nextNode())) {
-                let text = node.textContent.trim();
-                if (text.length === 0) continue;
-                totalTextLength += text.length;
-                
-                let parent = node.parentElement;
-                while (parent && parent !== doc.body) {
-                    if (parent.tagName.toLowerCase() === "a") {
-                        linkTextLength += text.length;
-                        break;
-                    }
-                    parent = parent.parentElement;
-                }
-            }
-
-            if (totalTextLength > 0 && (linkTextLength / totalTextLength) > 0.4) {
+            // Check whether the page is a table of contents.
+            if (HeuristicScanner.isTableOfContents(doc)) {
                 return { status: "toc_detected" };
             }
 
@@ -53,6 +34,25 @@ class HeuristicScanner {
         } catch (error) {
             return { status: "failed", error: error.message };
         }
+    }
+
+    static isTableOfContents(doc) {
+        let walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        let totalTextLength = 0;
+        let linkTextLength = 0;
+
+        while ((node = walker.nextNode())) {
+            let text = node.textContent.trim();
+            if (text.length === 0) continue;
+            totalTextLength += text.length;
+
+            if (node.parentElement && node.parentElement.closest("a")) {
+                linkTextLength += text.length;
+            }
+        }
+
+        return totalTextLength > 0 && (linkTextLength / totalTextLength) > 0.4;
     }
 
     static findContentNode(doc) {

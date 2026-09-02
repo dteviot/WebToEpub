@@ -9,11 +9,15 @@ class DefaultParserSiteSettings {
         let config = window.localStorage.getItem(DefaultParserSiteSettings.storageName);
         this.configs = new Map();
         if (config != null) {
-            for (let e of JSON.parse(config)) {
-                let selectors = e[1];
-                if (DefaultParserSiteSettings.isConfigValid(selectors)) {
-                    this.configs.set(e[0], selectors);
+            try {
+                for (let e of JSON.parse(config)) {
+                    let selectors = e[1];
+                    if (DefaultParserSiteSettings.isConfigValid(selectors)) {
+                        this.configs.set(e[0], selectors);
+                    }
                 }
+            } catch (e) {
+                window.localStorage.removeItem(DefaultParserSiteSettings.storageName);
             }
         }
     }
@@ -136,6 +140,7 @@ class DefaultParserUI {
             DefaultParserUI.getChapterTitleCssInput().value = config.titleCss;
             DefaultParserUI.getUnwantedElementsCssInput().value = config.removeCss;
             DefaultParserUI.getTestChapterUrlInput().value = config.testUrl;
+            return;
         }
 
         // Always ensure the Test URL is filled out, falling back to activeUrl
