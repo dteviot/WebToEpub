@@ -208,6 +208,9 @@ class Parser {
     }
 
     populateUI(dom) {
+        let versionElement = document.getElementById("spanExtensionVersion");
+        versionElement.textContent = `WebToEpub v${util.extensionVersion()}`;
+
         CoverImageUI.showCoverImageUrlInput(true);
         let coverUrl = this.findCoverImageUrl(dom);
         CoverImageUI.setCoverImageUrl(coverUrl);

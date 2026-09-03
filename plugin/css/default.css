@@ -30,6 +30,14 @@
     border-bottom: 1px #CCC solid;
 }
 
+#extensionVersionSection {
+    text-align: center;
+}
+
+#spanWebToEpubVersion {
+    display: inline-block;
+    text-align: center;
+}
 
 progress {
     width: 56%;
