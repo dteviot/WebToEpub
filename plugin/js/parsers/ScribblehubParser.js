@@ -20,14 +20,11 @@ class ScribblehubParser extends Parser {
                 ? `${baseUrl}?toc=${++nextTocIndex}`
                 : null;
         };
-        let saveThrottle = this.minimumThrottle;
-        this.minimumThrottle = 500;
         let chapters = (await this.walkTocPages(dom,
             ScribblehubParser.getChapterUrlsFromTocPage,
             nextTocPageUrl,
             chapterUrlsUI
         )).reverse();
-        this.minimumThrottle = saveThrottle;
         return chapters;
     }
 
