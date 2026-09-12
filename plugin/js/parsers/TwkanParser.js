@@ -43,6 +43,36 @@ class TwkanParser extends Parser {
         return dom.querySelector("#txtcontent0");
     }
 
+    customRawDomToContentStep(webPage, content) { // eslint-disable-line no-unused-vars
+        // TWKAN separates paragraphs with BR elements, leaving the chapter text
+        // directly inside the content DIV.  Wrap each line in a paragraph so the
+        // generated XHTML has block-level markup around all readable text.
+        let paragraph = null;
+        let blockElements = "address, article, aside, blockquote, details, dialog, " +
+            "div, dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, " +
+            "h5, h6, header, hgroup, hr, main, menu, nav, ol, p, pre, section, " +
+            "table, ul";
+
+        for (let node of [...content.childNodes]) {
+            if (node.nodeName === "BR") {
+                paragraph = null;
+                node.remove();
+            } else if ((node.nodeType === Node.TEXT_NODE) &&
+                (node.textContent.trim().length === 0) && (paragraph === null)) {
+                node.remove();
+            } else if ((node.nodeType === Node.ELEMENT_NODE) &&
+                node.matches(blockElements)) {
+                paragraph = null;
+            } else {
+                if (paragraph === null) {
+                    paragraph = content.ownerDocument.createElement("p");
+                    content.insertBefore(paragraph, node);
+                }
+                paragraph.appendChild(node);
+            }
+        }
+    }
+
     extractTitleImpl(dom) {
         // From main book page: .booknav2 h1 a or h1 a
         let titleEl = dom.querySelector(".booknav2 h1 a, .booknav2 h1, h1 a");
