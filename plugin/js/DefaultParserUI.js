@@ -123,7 +123,21 @@ class DefaultParserUI {
         let removeCss = DefaultParserUI.getUnwantedElementsCssInput().value.trim();
         let testUrl = DefaultParserUI.getTestChapterUrlInput().value.trim();
 
+        if (!DefaultParserUI.isSafeCssSelector(contentCss)
+            || !DefaultParserUI.isSafeCssSelector(titleCss)
+            || !DefaultParserUI.isSafeCssSelector(removeCss)) {
+            alert(UIText.Warning.warningInvalidCssSelector || "Invalid characters in CSS selector");
+            return;
+        }
+
         parser.siteConfigs.saveSiteConfig(hostname, contentCss, titleCss, removeCss, testUrl);
+    }
+
+    // Only allow characters that are valid within a CSS selector, so that
+    // values pulled from user input / localStorage cannot smuggle markup or
+    // script content into later DOM query calls.
+    static isSafeCssSelector(selector) {
+        return util.isNullOrEmpty(selector) || /^[\w\s.#\-_[\]="':,>+~*^$|()]*$/.test(selector);
     }
 
     static populateDefaultParserUI(hostname, parser, dom) {
