@@ -469,7 +469,11 @@ class Parser {
         let bold = document.createElement("b");
         bold.textContent = UIText.Default.tableOfContentsUrl;
         urlElement.appendChild(bold);
-        urlElement.appendChild(document.createTextNode(this.state.chapterListUrl));
+        let link = document.createElement("a");
+        link.classList.add("webToEpub-table-of-content-url");
+        link.href = this.state.chapterListUrl;
+        link.textContent = this.state.chapterListUrl;
+        urlElement.appendChild(link);
         div.appendChild(urlElement);
         let infoDiv = document.createElement("div");
         this.populateInfoDiv(infoDiv, dom);    
@@ -704,7 +708,7 @@ class Parser {
     fixupHyperlinksInEpubItems(epubItems) {
         let targets = this.sourceUrlToEpubItemUrl(epubItems);
         for (let item of epubItems) {
-            for (let link of item.getHyperlinks().filter(this.isUnresolvedHyperlink)) {
+            for (let link of item.getHyperlinks().filter(this.isUnresolvedHyperlink).filter(link => !link.classList.contains("webToEpub-table-of-content-url"))) {
                 if (!this.hyperlinkToEpubItemUrl(link, targets)) {
                     this.makeHyperlinkAbsolute(link);
                 }
