@@ -89,7 +89,24 @@
             </div>
         </section>
         <section id="inputSection">
+            <div style="position: relative;">
             <table id="inputTable">
+                <tr id="crawlerModeRow">
+                    <td>Mode</td>
+                    <td style="white-space: nowrap; width: 355px; min-width: 355px;">
+                        <input type="radio" id="modeToc" name="crawlerMode" value="toc" checked hidden>
+                        <label for="modeToc" class="mode-btn">Has ToC</label>
+
+                        <input type="radio" id="modeChain" name="crawlerMode" value="chain" hidden>
+                        <label for="modeChain" class="mode-btn">No ToC</label>
+
+                        <span id="nextPageSelectorContainer" hidden style="align-items: center; position: relative;">
+                            <input id="nextPageCssInput" type="text" style="width: 90px;">
+                            <span id="nextPageDetectStatus" style="font-size: 12px; font-weight: bold; position: absolute; white-space: nowrap; margin-top: 2px; left: 110px;"></span>
+                        </span>
+                    </td>
+                    <td style="width: 140px; min-width: 140px;"></td>
+                </tr>
                 <tr>
                     <td>__MSG_label_Starting_URL__</td>
                     <td>
@@ -152,6 +169,7 @@
                     <td rowspan="2">   <img id="sampleCoverImg" /></td>
                 </tr>
             </table>
+            </div>
 
             <div class="progressSection">
                 <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
@@ -554,6 +572,7 @@
             </div>
         </section>
         <section id="outputSection" class="minWidth">
+            <div id="batchActionControls">
             <div id="chapterSelectControlsDiv">
                 <table id="rangeSelectTable">
                     <tr id="rangeStartChapterRow">
@@ -588,16 +607,23 @@
                     <button id="copyUrlsToClipboardButton">__MSG_button_Copy_Urls_To_Clipboard__</button>
                 </div>
             </div>
+            </div>
             <button id="applyChangesButton" hidden="true">__MSG_button_Apply_Changes__</button>
             <p id="editURLsHint" class="i18n" hidden="true">__MSG_label_Edit_URLs_Hint__</p>
             <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
+            <div id="chapterListContainer">
             <table id="chapterUrlsTable" class="chapterlist">
                 <tr>
                     <th align="left">__MSG_column_Include__</th>
                     <th align="left">__MSG_column_Title__</th>
-                    <th align="left" hidden="true">__MSG_column_URL__</th>
+                    <th align="left" hidden="true" class="url-cell">__MSG_column_URL__</th>
                 </tr>
             </table>
+            <div id="noTocNotice">
+                💡 <b>No ToC Mode Active:</b> Only the starting chapter is previewed above. <br>
+                Click the <b>Pack EPUB</b> button to automatically fetch and pack all remaining chapters.
+            </div>
+            </div>
             <div>
                 <textarea id="editChaptersUrlsInput" class="allSpace" cols="200" rows="20" hidden="true"></textarea>
             </div>
@@ -708,6 +734,7 @@
         <script src="js/parsers/DasuitlParser.js"></script>
         <script src="js/parsers/DdxsParser.js"></script>
         <script src="js/parsers/DefaultParser.js"></script>
+        <script src="js/parsers/NoTocChainParser.js"></script>
         <script src="js/parsers/DeviantArtParser.js"></script>
         <script src="js/parsers/DiurnisParser.js"></script>
         <script src="js/parsers/DragonholictranslationsParser.js"></script>
