@@ -488,7 +488,7 @@
 		"description": "Label in front of checkbox for skipping chapters that can't be fetched"
 	},
 	"__MSG_label_No_Content_To_Error_403_Page__": {
-		"message": "Treat 'no content found error' as 'HTTP 403 error'.",
+		"message": "Allow retry on 'No Content Found' error.",
 		"description": "Label in front of checkbox for treating 'no content found' error as 'HTTP 403 error'"
 	},
 	"__MSG_label_Stylesheet__": {
