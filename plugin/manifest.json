@@ -1,8 +1,6 @@
 {
   "manifest_version": 3,
   "name": "WebToEpub",
-<<<<<<< HEAD
-  "version": "1.0.14.31",
   "version": "1.0.14.36",
   "default_locale": "en",
   "icons": {
