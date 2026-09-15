@@ -34,7 +34,7 @@ jobs:
       shell: cmd
       run: |
         set version=${{ github.event.inputs.version }}
-        Get-Command "jq.exe"
+        where jq.exe
         jq.exe --version
 
         echo do some git configuration
@@ -49,16 +49,16 @@ jobs:
         )
 
         echo extract version numbers
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[0]) < plugin/manifest.json > milestone_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[1]) < plugin/manifest.json > major_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[2]) < plugin/manifest.json > minor_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|.[3]) < plugin/manifest.json > dev_version.txt
+        jq.exe "(.version | split(\".\") | map(tonumber) | .[0])" plugin/manifest.json > milestone_version.txt
+        jq.exe "(.version | split(\".\") | map(tonumber) | .[1])" plugin/manifest.json > major_version.txt
+        jq.exe "(.version | split(\".\") | map(tonumber) | .[2])" plugin/manifest.json > minor_version.txt
+        jq.exe "(.version | split(\".\") | map(tonumber) | .[3])" plugin/manifest.json > dev_version.txt
 
         set /p var_mil=<milestone_version.txt
         set /p var_maj=<major_version.txt
         set /p var_min=<minor_version.txt
         set /p var_dev=<dev_version.txt
-        jq.exe -r (.version^|split(\".\")^|map(tonumber)^|(.[0]^|=%var_mil%)^|(.[1]^|=%var_maj%)^|(.[2]^|=%var_min%)^|(.[3]^|=0)^|map(tostring)^|join(\".\")) < plugin/manifest.json > old_change_log_version.txt
+        jq.exe -r "(.version | split(\".\") | map(tonumber) | .[0] = %var_mil% | .[1] = %var_maj% | .[2] = %var_min% | .[3] = 0 | map(tostring) | join(\".\"))" plugin/manifest.json > old_change_log_version.txt
 
         set /p var_old_change_log_version=<old_change_log_version.txt
         echo save old_change_log_version with %var_old_change_log_version%
@@ -88,11 +88,11 @@ jobs:
         )
 
         echo save complete version number in new_version.txt
-        jq.exe (.version^|split(\".\")^|map(tonumber)^|(.[0]^|=%var_mil%)^|(.[1]^|=%var_maj%)^|(.[2]^|=%var_min%)^|(.[3]^|=%var_dev%)^|map(tostring)^|join(\".\")) < plugin/manifest.json > new_version.txt
+        jq.exe -r "(.version | split(\".\") | map(tonumber) | .[0] = %var_mil% | .[1] = %var_maj% | .[2] = %var_min% | .[3] = %var_dev% | map(tostring) | join(\".\"))" plugin/manifest.json > new_version.txt
         set /p var_build=<new_version.txt
 
         echo save new_manifest.json with new version number %var_build%
-        jq.exe (.version^|=\"%var_build%\") plugin/manifest.json > new_manifest.json
+        jq.exe --arg version "%var_build%" ".version = $version" plugin/manifest.json > new_manifest.json
         echo move new_manifest.json to manifest.json
         move /y new_manifest.json plugin/manifest.json
 
@@ -201,7 +201,7 @@ jobs:
           echo **Full Changelog**: https://github.com/dteviot/WebToEpub/compare/%var_old_change_log_version%...developer-build >> output.txt
 
           echo delete old developer-build release:
-          gh release delete developer-build --cleanup-tag
+          gh release delete developer-build --cleanup-tag --yes >nul 2>&1
 
           echo create developer-build release:
           gh release create developer-build -p -t "Latest developer build" --target "ExperimentalTabMode" -F output.txt
