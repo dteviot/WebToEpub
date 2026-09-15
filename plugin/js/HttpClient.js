@@ -60,7 +60,7 @@ class FetchErrorHandler {
         let msg;
         let userPreferences = main.getUserPreferences();
         if (wrapOptions.retry.HTTP === 403) { 
-            if (userPreferences.noContentToError403) {
+            if (userPreferences.noContentToError403.value) {
                 msg = new Error(UIText.Warning.warningNoContentTo403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
             }
             else {
