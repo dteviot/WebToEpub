@@ -834,6 +834,7 @@ Don't forget to give the project a star! Thanks again!
     <li>baalthasar</li>
     <li>David Siewert</li>
     <li>MineRobber9000 (Parser for konkon.ink and kuupress.com)</li>
+    <li>KitKat31337 (TWKAN paragraph markup fix)</li>
   </ul>
 </details>
 
