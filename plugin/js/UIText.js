@@ -89,7 +89,8 @@ class UIText { // eslint-disable-line no-unused-vars
         warningParserDisabledComradeMao: chrome.i18n.getMessage("warningParserDisabledComradeMao"),
         parserDisabledNotification: chrome.i18n.getMessage("parserDisabledNotification"),
         httpFetchCanRetry: chrome.i18n.getMessage("httpFetchCanRetry"),
-        warningWebpImage: (relativeHref) => chrome.i18n.getMessage("warningWebpImage", [relativeHref])
+        warningWebpImage: (relativeHref) => chrome.i18n.getMessage("warningWebpImage", [relativeHref]),
+        warningNoContentTo403ErrorResponse: (hostname) => chrome.i18n.getMessage("warningNoContentTo403ErrorResponse", [hostname])
     };
 
     // Default/Placeholder text

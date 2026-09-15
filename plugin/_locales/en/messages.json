@@ -833,5 +833,14 @@
 			    "content": "$1"
 			}
 		}
+	},
+	"warningNoContentTo403ErrorResponse": {
+		"message": "Warning: No content found on target page, treated as site `$host$` sending an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading too fast, try to increase 'Advanced Options -> Delay per chapter in ms'\n",
+		"description": "Warning message for user when content element for a page has no content and the `Treat 'no content found error' as 'HTTP 403 error'.` user preferences is checked.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
+			}
+		}
 	}
 }

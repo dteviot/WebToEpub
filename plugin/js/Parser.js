@@ -639,7 +639,7 @@ class Parser {
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
                 if (this.userPreferences.noContentToError403.value) {
-                    let errorMsg = UIText.Warning.warning403ErrorResponse(new URL(webPage.sourceUrl).hostname);
+                    let errorMsg = UIText.Warning.warningNoContentTo403ErrorResponse(new URL(webPage.sourceUrl).hostname);
                     throw new Error(errorMsg);
                 }
                 else {
