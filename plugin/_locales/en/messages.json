@@ -488,7 +488,7 @@
 		"description": "Label in front of checkbox for skipping chapters that can't be fetched"
 	},
 	"__MSG_label_No_Content_To_Error_403_Page__": {
-		"message": "Treat 'no content found error' as 'HTTP 403 error'.",
+		"message": "Allow retry on 'No Content Found' error.",
 		"description": "Label in front of checkbox for treating 'no content found' error as 'HTTP 403 error'"
 	},
 	"__MSG_label_Stylesheet__": {
@@ -831,6 +831,15 @@
 		"placeholders": {
 			"filename": {
 			    "content": "$1"
+			}
+		}
+	},
+	"warningNoContentTo403ErrorResponse": {
+		"message": "Warning: No content found on target page, treated as site `$host$` sending an Access Denied (403) error.\nYou may need to logon to site, or browse site normally\nuntil you get a Cloudflare \"Are you a human\" page or satisfy some other CAPTCHA\nbefore WebToEpub can continue.\nThis happens if you are downloading too fast, try to increase 'Advanced Options -> Delay per chapter in ms'\n",
+		"description": "Warning message for user when content element for a page has no content and the `Treat 'no content found error' as 'HTTP 403 error'.` user preferences is checked.",
+		"placeholders": {
+			"host": {
+				"content": "$1"
 			}
 		}
 	}

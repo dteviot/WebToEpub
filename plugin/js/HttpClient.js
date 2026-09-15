@@ -58,8 +58,14 @@ class FetchErrorHandler {
 
     promptUserForRetry(url, wrapOptions, response, failError) {
         let msg;
+        let userPreferences = main.getUserPreferences();
         if (wrapOptions.retry.HTTP === 403) { 
-            msg = new Error(UIText.Warning.warning403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+            if (userPreferences.noContentToError403.value) {
+                msg = new Error(UIText.Warning.warningNoContentTo403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+            }
+            else {
+                msg = new Error(UIText.Warning.warning403ErrorResponse(new URL(response.url).hostname) + this.makeFailCanRetryMessage(url, response.status));
+            }
         } else {
             msg = new Error(new Error(this.makeFailCanRetryMessage(url, response.status)));
         }
