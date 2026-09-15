@@ -41,14 +41,7 @@ class ChapterUrlsUI {
         let rangeEnd = ChapterUrlsUI.getRangeEndChapterSelect();
         let memberForTextOption = ChapterUrlsUI.textToShowInRange();
         chapters.forEach((chapter) => {
-            let row = document.createElement("tr");
-            ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
-            ChapterUrlsUI.appendInputTextToRow(row, chapter);
-            chapter.row = row;
-            ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
-            linksTable.appendChild(row);
-            ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter, memberForTextOption);
-            ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter, memberForTextOption);
+            ChapterUrlsUI.appendChapterRow(chapter, index, rangeStart, rangeEnd, memberForTextOption);
             ++index;
         });
         ChapterUrlsUI.setRangeOptionsToFirstAndLastChapters();
@@ -56,17 +49,72 @@ class ChapterUrlsUI {
         ChapterUrlsUI.resizeTitleColumnToFit(linksTable);
     }
 
+    /**
+     * Build and append one chapter row through the SAME writer path used by
+     * populateChapterUrlsTable(). Appends into the auto-created <tbody>
+     * (via appendRowToTable) so that all rows, including newly discovered
+     * chain chapters, share the same container.
+     */
+    static appendChapterRow(chapter, index, rangeStart, rangeEnd, memberForTextOption) {
+        let row = document.createElement("tr");
+        ChapterUrlsUI.appendCheckBoxToRow(row, chapter);
+        ChapterUrlsUI.appendInputTextToRow(row, chapter);
+        chapter.row = row;
+        let urlCell = ChapterUrlsUI.appendColumnDataToRow(row, chapter.sourceUrl);
+        urlCell.classList.add("url-cell");
+        // Append into the auto-<tbody> (a <tr>'s valid parent is <tbody>, not
+        // <table>; a direct table>tr append can be reordered by browser
+        // fixup). Routing through appendRowToTable also applies the current
+        // URL-column visibility, so a row appended mid-crawl does not leak its
+        // source URL while the column is hidden.
+        ChapterUrlsUI.appendRowToTable(row);
+        if (rangeStart && rangeEnd) {
+            ChapterUrlsUI.appendOptionToSelect(rangeStart, index, chapter, memberForTextOption);
+            ChapterUrlsUI.appendOptionToSelect(rangeEnd, index, chapter, memberForTextOption);
+        }
+        return row;
+    }
+
+    /**
+     * Hide/show the source-URL cell (3rd column) of a single row to match
+     * the current state of the "Show Chapter URLs" checkbox. Mirrors the
+     * per-row portion of showHideChapterUrlsColumn() so it can be applied to
+     * rows appended one-at-a-time during a crawl without re-scanning the
+     * whole table each iteration.
+     */
+    static setUrlColumnVisibilityForRow(row) {
+        let hidden = !document.getElementById("showChapterUrlsCheckbox").checked;
+        let urlTd = row.querySelector(".url-cell");
+        if (urlTd) {
+            urlTd.hidden = hidden;
+        }
+    }
+
+    /**
+     * Append a <tr> to the chapter table's (auto) <tbody> and apply the
+     * current URL-column visibility. Shared by appendChapterRow and
+     * showTocProgress so both resolve <tbody> through one path and honour
+     * the "Show Chapter URLs" toggle.
+     */
+    static appendRowToTable(row) {
+        let table = ChapterUrlsUI.getChapterUrlsTable();
+        let tbody = table.tBodies[0] || table.createTBody();
+        tbody.appendChild(row);
+        ChapterUrlsUI.setUrlColumnVisibilityForRow(row);
+    }
+
     showTocProgress(chapters) {
-        let linksTable = ChapterUrlsUI.getChapterUrlsTable();
         chapters.forEach((chapter) => {
             let row = document.createElement("tr");
-            linksTable.appendChild(row);
             row.appendChild(document.createElement("td"));
             let col = document.createElement("td");
             col.className = "disabled";
             col.appendChild(document.createTextNode(chapter.title));
             row.appendChild(col);
-            row.appendChild(document.createElement("td"));
+            let urlCell = document.createElement("td");
+            urlCell.classList.add("url-cell");
+            row.appendChild(urlCell);
+            ChapterUrlsUI.appendRowToTable(row);
         });
     }
 
@@ -339,6 +387,10 @@ class ChapterUrlsUI {
         // toggle mode
         ChapterUrlsUI.getEditChaptersUrlsInput().hidden = toTable;
         ChapterUrlsUI.getChapterUrlsTable().hidden = !toTable;
+        // Toggle the wrapper that holds the chapter list table + the "No ToC"
+        // notice so the notice inherits the chapter list's visibility (e.g. it
+        // stays hidden on the Default Parser / edit-text screens).
+        document.getElementById("chapterListContainer").hidden = !toTable;
         document.getElementById("inputSection").hidden = !toTable;
         document.getElementById("coverUrlSection").hidden = !toTable;
         document.getElementById("chapterSelectControlsDiv").hidden = !toTable;
@@ -418,7 +470,7 @@ class ChapterUrlsUI {
     showHideChapterUrlsColumn() {
         let hidden = !document.getElementById("showChapterUrlsCheckbox").checked;
         let table = ChapterUrlsUI.getChapterUrlsTable();
-        for (let t of table.querySelectorAll("th:nth-of-type(3), td:nth-of-type(3)")) {
+        for (let t of table.querySelectorAll(".url-cell")) {
             t.hidden = hidden;
         }
     }

@@ -1,3 +1,10 @@
+:root {
+    /* Shared layout primitive: height of the crawler-mode row in #inputTable.
+       Referenced by #crawlerModeRow (height) and #coverUrlSection img (top)
+       so the cover image tracks the row height instead of hard-coding 50px. */
+    --mode-row-height: 36px;
+}
+
 .expandedButton {
     padding: 5px 10px;
 }
@@ -130,6 +137,16 @@ textarea.allSpace {
     width: 69%;
 }
 
+/* Compact Next Page selector input — overrides the generic input[type=text]
+   min/max-width via id specificity (no !important needed: the element's own
+   inline width plus this rule's id selector beat input[type=text]'s 356/400px
+   and #inputSection input's 69%). */
+#nextPageCssInput {
+    min-width: 90px;
+    width: 90px;
+    max-width: 90px;
+}
+
 #inputSection table, #chapterUrlsTable {
     width: 100%;
 }
@@ -185,7 +202,17 @@ textarea.allSpace {
     width: 75px;
 }
 
-#chapterUrlsTable > tr > td:first-child, #chapterUrlsTable > tbody > tr > td:nth-child(2) {
+#chapterUrlsTable > tbody > tr > td:first-child, #chapterUrlsTable > tbody > tr > td:nth-child(2) {
+    /* width:3px is a shrink-to-fit hint for auto table-layout: the Include
+       (1st) column only holds a checkbox, and the Title (2nd) column's real
+       width is driven by its <input> min-width. Use the `tbody > tr` variant
+       only — the old `> tr > td:first-child` direct-child-of-<table> selector
+       matched only rows the browser had spec-fixed-up under an implicit
+       tbody, which is fragile and stopped matching once appendChapterRow /
+       showTocProgress appended real body rows into the auto <tbody>. The
+       source-URL column is anchored by the `.url-cell` class (written by
+       both appendChapterRow and showTocProgress) for visibility toggling, so
+       it needs no positional width rule here. */
     width: 3px;
 }
 
@@ -227,11 +254,35 @@ button {
     max-width: 648px;
 }
 
+/* Native button styling for mode selector */
+.mode-btn {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #e0e0e0; /* Faded border for unselected */
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #fafafa;
+    color: #b0b0b0; /* Faded text for unselected */
+    font-size: 13.333px;
+    margin-right: 5px;
+}
+input[name="crawlerMode"]:checked + .mode-btn {
+    box-shadow: inset 0px 1px 0px 0px #ffffff;
+    background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    color: #666666;
+}
+
+#crawlerModeRow {
+    height: var(--mode-row-height);
+}
+
 #coverUrlSection img {
     max-height: 142px;
     max-width: 106.5px;
     position: absolute;
-    top: 41px;
+    top: calc(var(--mode-row-height) + 14px); /* sit just below the mode row */
     right: 7%;
 }
 
@@ -322,3 +373,30 @@ button {
     #sbFilters input[type=text], #sbFilters input[type=url], #sbFilters textarea, #sbFilters select {
         width: calc(100% - 15px);
     }
+
+/*----------------------------------------------------*/
+/* "No ToC" mode guiding notice + shake animation     */
+/*----------------------------------------------------*/
+
+#noTocNotice {
+    display: none;
+    background-color: #e6f7ff;
+    border: 1px solid #91d5ff;
+    color: #0050b3;
+    padding: 10px 15px;
+    margin-top: 15px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.shake-anim {
+    animation: shake-notice 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake-notice {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
