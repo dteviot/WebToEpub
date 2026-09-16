@@ -128,7 +128,6 @@ class RoyalRoadParser extends Parser {
                 child.remove();
             }
         }
-        this.makeHiddenElementsVisible(content);
 
         super.removeUnwantedElementsFromContentElement(content);
     }
@@ -143,12 +142,6 @@ class RoyalRoadParser extends Parser {
                 className.includes("page-content") ||
                 className.includes("author-note-card"))
             );
-    }
-
-    makeHiddenElementsVisible(content) {
-        [...content.querySelectorAll("div")]
-            .filter(e => (e.style.display === "none"))
-            .forEach(e => e.removeAttribute("style"));
     }
 
     removeNextAndPreviousChapterHyperlinks(webPage, content) {
