@@ -38,7 +38,7 @@ class NovelsWorldParser extends Parser { // eslint-disable-line no-unused-vars
         super();
     }
 
-        async getChapterUrls(dom) {
+    async getChapterUrls(dom) {
         // 1. Gather all candidate links targeting the novel structure
         let links = [...dom.querySelectorAll("a[href*='/novel/']")];
         
