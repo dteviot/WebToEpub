@@ -208,7 +208,7 @@ class DefaultParserUI {
                 statusSpan.textContent = "\u2705 Detection Successful";
                 statusSpan.style.color = "green";
             } else if (result.status === "toc_detected") {
-                statusSpan.textContent = "\u26A0\uFE0F Seems to be ToC. Please use the ToC flow.";
+                statusSpan.textContent = "\u26A0\uFE0F ToC detected. Input a Chapter URL to test.";
                 statusSpan.style.color = "orange";
             } else {
                 statusSpan.textContent = "\u274C Detection Failed. Please enter CSS manually.";

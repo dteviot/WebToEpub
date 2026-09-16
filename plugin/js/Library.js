@@ -477,7 +477,7 @@ class Library { // eslint-disable-line no-unused-vars
             }
             for (let i = 0; i < CurrentLibKeys.length; i++) {
                 document.getElementById("LibDeleteEpub"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibDeleteEpub(this);});
-                document.getElementById("LibUpdateNewChapter"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibUpdateNewChapter(this);});
+                document.getElementById("LibUpdateNewChapter"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibUpdateNewChapter(this).catch(function(e) {ErrorLog.showErrorMessage(e);});});
                 document.getElementById("LibDownload"+CurrentLibKeys[i]).addEventListener("click", function() {Library.LibDownload(this);});
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("change", function() {Library.LibSaveTextURLChange(this);});
                 document.getElementById("LibStoryURL"+CurrentLibKeys[i]).addEventListener("focusin", function() {Library.LibShowTextURLWarning(this);});
@@ -960,12 +960,20 @@ class Library { // eslint-disable-line no-unused-vars
         let obj = {};
         obj.dataset = {};
         obj.dataset.libclick = "yes";
-        document.getElementById("startingUrlInput").value = await Library.LibGetFromStorage(LibGetURL);
+        let seedUrl = await Library.LibGetFromStorage(LibGetURL);
+        document.getElementById("startingUrlInput").value = seedUrl;
         await main.onLoadAndAnalyseButtonClick.call(obj);
-        try {
-            await main.fetchContentAndPackEpub.call(obj);
-        } catch {
-            //
+        // Option B: for No-ToC/Chain books, probe the last downloaded chapter
+        // for chapter N+1 and re-seed the crawler so the update resumes forward
+        // instead of stalling on the already-downloaded seed. Has-ToC updates
+        // return "skipped" and run exactly as before.
+        let resumeStatus = await main.maybeProbeChainResume.call(obj, seedUrl);
+        if (resumeStatus !== "uptodate" && resumeStatus !== "probeFailed") {
+            try {
+                await main.fetchContentAndPackEpub.call(obj);
+            } catch (e) {
+                ErrorLog.showErrorMessage(e);
+            }
         }
         Library.LibClearFields();
     }
@@ -1273,30 +1281,164 @@ class Library { // eslint-disable-line no-unused-vars
     }
 
     static async LibGetSourceChapterList(url) {
+        let history = await Library.LibGetSourceChapterHistory(url);
+        if (history == null) {
+            return null;
+        }
+        return history.map(h => h.sourceUrl);
+    }
+
+    /**
+     * Read the already-downloaded chapters (URLs + titles) from the stored
+     * EPUB's content.opf + toc.ncx (EPUB2/3) / toc.xhtml (EPUB3 nav, fallback).
+     * Returns null when the URL is not a library book; otherwise an ordered
+     * array of { sourceUrl, title } (one entry per xhtml spine chapter).
+     * Titles are best-effort: a missing/unparseable nav yields a fallback
+     * (source URL, then "Chapter k"), never a crash, so LibGetSourceChapterList
+     * and the Chain resume probe keep working on malformed epubs.
+     */
+    static async LibGetSourceChapterHistory(url) {
         let CurrentLibStoryIds = await Library.LibGetStorageIDs();
         let CurrentLibStoryURLKeys = CurrentLibStoryIds.map(a => "LibStoryURL" + a);
         let CurrentLibStoryURLs = await Library.LibGetFromStorageArray(CurrentLibStoryURLKeys);
         let LibidURL = -1;
         for (let i = 0; i < CurrentLibStoryURLKeys.length; i++) {
             if (CurrentLibStoryURLs[CurrentLibStoryURLKeys[i]] == url) {
-                LibidURL = CurrentLibStoryURLKeys[i].replace("LibStoryURL","");
+                LibidURL = CurrentLibStoryURLKeys[i].replace("LibStoryURL", "");
                 continue;
             }
         }
         if (LibidURL == -1) {
             return null;
         }
-        
+
         let EpubBase64 = await Library.LibGetFromStorage("LibEpub" + LibidURL);
         let EpubReader = await new zip.Data64URIReader(EpubBase64);
         let EpubZip = new zip.ZipReader(EpubReader, {useWebWorkers: false});
         let EpubContent = await EpubZip.getEntries();
         EpubContent = EpubContent.filter(a => a.directory == false);
-        let contentopftext = await EpubContent.filter( a => a.filename == "OEBPS/content.opf")[0].getData(new zip.TextWriter());
+
+        let contentopftext = null;
+        try {
+            // Dynamically locate the OPF file rather than hard-coding
+            // "OEBPS/content.opf": third-party EPUBs often place it at a
+            // different path (e.g. content.opf at the root, or under a
+            // non-OEBPS folder). endsWith() tolerates any leading path.
+            let opfEntry = EpubContent.find(e => e.filename.endsWith("content.opf"));
+            if (!opfEntry) {
+                return null;
+            }
+            contentopftext = await opfEntry.getData(new zip.TextWriter());
+        } catch (e) {
+            return null;
+        }
         let contentopf = new DOMParser().parseFromString(contentopftext, "text/html");
         let regex = new RegExp(/^xhtml[0-9]+/g);
         let chapters = [...contentopf.querySelectorAll("item")].filter(a => (a.id.match(regex) != null));
-        let chaptersource = [...chapters.map(a => contentopf.getElementById("id." + a.id).innerText)];
-        return chaptersource;
+
+        // Build a {href -> title} map from the epub's navigation document.
+        // toc.ncx is authoritative (EpubPacker writes it for both EPUB2 and
+        // EPUB3); fall back to the EPUB3 nav (toc.xhtml) only if absent/empty.
+        let titleByHref = await Library.buildTitleMapFromEpub(EpubContent);
+
+        let history = chapters.map((a, idx) => {
+            let sourceUrl = "";
+            try {
+                let meta = contentopf.getElementById("id." + a.id);
+                if (meta) {
+                    sourceUrl = (meta.innerText || "").trim();
+                }
+            } catch (e) {
+                // leave sourceUrl empty
+            }
+            let title = titleByHref.get(Library.normalizeEpubHref(a.getAttribute("href")));
+            if (!title) {
+                title = sourceUrl ? sourceUrl : ("Chapter " + (idx + 1));
+            }
+            return { sourceUrl: sourceUrl, title: title };
+        });
+        return history;
+    }
+
+    static async buildTitleMapFromEpub(EpubContent) {
+        let titleByHref = new Map();
+        let tocText = null;
+        try {
+            let ncxEntry = EpubContent.filter(a => a.filename == "OEBPS/toc.ncx")[0];
+            if (ncxEntry) {
+                tocText = await ncxEntry.getData(new zip.TextWriter());
+            }
+        } catch (e) {
+            tocText = null;
+        }
+        if (tocText) {
+            try {
+                let tocDoc = new DOMParser().parseFromString(tocText, "application/xml");
+                // getElementsByTagName is namespace-insensitive and avoids
+                // the finicky default-namespace behaviour of querySelector on
+                // XML documents; first descendant wins (chapter main title).
+                for (let np of [...tocDoc.getElementsByTagName("navPoint")]) {
+                    let labelEls = np.getElementsByTagName("navLabel");
+                    let contentEls = np.getElementsByTagName("content");
+                    if (!labelEls.length || !contentEls.length) {
+                        continue;
+                    }
+                    let label = (labelEls[0].textContent || "").trim();
+                    let src = contentEls[0].getAttribute("src") || "";
+                    if (!label || !src) {
+                        continue;
+                    }
+                    let key = Library.normalizeEpubHref(src);
+                    if (!titleByHref.has(key)) {
+                        titleByHref.set(key, label);
+                    }
+                }
+            } catch (e) {
+                // malformed ncx — fall through to nav fallback
+            }
+        }
+        if (titleByHref.size === 0) {
+            try {
+                let navEntry = EpubContent.filter(a => a.filename == "OEBPS/toc.xhtml")[0];
+                if (navEntry) {
+                    let navText = await navEntry.getData(new zip.TextWriter());
+                    let navDoc = new DOMParser().parseFromString(navText, "text/html");
+                    for (let a of [...navDoc.querySelectorAll("a[href]")]) {
+                        let href = a.getAttribute("href") || "";
+                        let label = (a.textContent || "").trim();
+                        if (!href || !label) {
+                            continue;
+                        }
+                        let key = Library.normalizeEpubHref(href);
+                        if (!titleByHref.has(key)) {
+                            titleByHref.set(key, label);
+                        }
+                    }
+                }
+            } catch (e) {
+                // ignore — titles will fall back per-chapter
+            }
+        }
+        return titleByHref;
+    }
+
+    static normalizeEpubHref(href) {
+        if (!href) {
+            return "";
+        }
+        // Strip the fragment, then fold "." / ".." segments with a single
+        // reduce pass (each ".." pops the previous segment). The old
+        // `replace(/\.\.\//g, "")` only deleted the literal "../" substring
+        // and MIS-resolved real parent refs — e.g. "OEBPS/../Chapter1.xhtml"
+        // collapsed to "OEBPS/Chapter1.xhtml" instead of "Chapter1.xhtml".
+        let segments = href.split("#")[0].split("/").reduce(function(acc, seg) {
+            if (seg === "..") {
+                acc.pop();
+            } else if (seg !== "." && seg !== "") {
+                acc.push(seg);
+            }
+            return acc;
+        }, []);
+        return segments.join("/").toLowerCase();
     }
 }

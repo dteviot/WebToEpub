@@ -13,7 +13,7 @@ var main = (function() {
             util.log(message);
             // convert the string returned from content script back into a DOM
             let dom = new DOMParser().parseFromString(message.document, "text/html");
-            populateControlsWithDom(message.url, dom);
+            populateControlsWithDom(message.url, dom).catch(e => ErrorLog.showErrorMessage(e));
         }
     }
 
@@ -22,7 +22,11 @@ var main = (function() {
     let initialMetaInfo = null;
     let parser = null;
     let userPreferences = null;
-    let library = new Library; 
+    let library = new Library;
+    // Captures the user's explicit mode choice at the instant of a physical
+    // radio click. Consumed (and cleared) by routeCrawlerMode on the next Load,
+    // bypassing HeuristicScanner entirely. null = no explicit choice this cycle.
+    let explicitUserMode = null;
 
     // register listener that is invoked when script injected into HTML sends its results
     function addMessageListener() {
@@ -160,23 +164,23 @@ var main = (function() {
         window.workInProgress = true;
         main.getPackEpubButton().disabled = true;
         replaceLibAddToLibrary();
-        parser.onStartCollecting();
-        await parser.fetchContent();
-        let content = await packEpub(metaInfo);
-        // Enable button here.  If user cancels save dialog
-        // the promise never returns
-        window.workInProgress = false;
-        main.getPackEpubButton().disabled = false;
-        replaceLibAddToLibrary();
-        let overwriteExisting = userPreferences.overwriteExistingEpub.value;
-        let backgroundDownload = userPreferences.noDownloadPopup.value;
-        let fileName = Download.CustomFilename();
-        if ("yes" == libclick.dataset.libclick || util.getSleepController().signal.aborted) {
-            await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
-        } else {
-            await Download.save(content, fileName, overwriteExisting, backgroundDownload);
-        }
         try {
+            parser.onStartCollecting();
+            await parser.fetchContent();
+            let content = await packEpub(metaInfo);
+            // Enable button here.  If user cancels save dialog
+            // the promise never returns
+            window.workInProgress = false;
+            main.getPackEpubButton().disabled = false;
+            replaceLibAddToLibrary();
+            let overwriteExisting = userPreferences.overwriteExistingEpub.value;
+            let backgroundDownload = userPreferences.noDownloadPopup.value;
+            let fileName = Download.CustomFilename();
+            if ("yes" == libclick.dataset.libclick || util.getSleepController().signal.aborted) {
+                await library.LibAddToLibrary(content, fileName, document.getElementById("startingUrlInput").value, overwriteExisting, backgroundDownload);
+            } else {
+                await Download.save(content, fileName, overwriteExisting, backgroundDownload);
+            }
             parser.updateReadingList();
             if (util.getSleepController().signal.aborted) {
                 util.resetSleepController();
@@ -278,13 +282,94 @@ var main = (function() {
         return !util.isNullOrEmpty(search);
     }
 
+    // Apply the crawler mode UI toggle (chain vs table of contents) based on the
+    // given selection, independent of handler initialization order.
+    function applyCrawlerModeUI(isChain) {
+        document.getElementById("nextPageSelectorContainer").style.display = isChain ? "inline-flex" : "none";
+        let loadBtn = document.getElementById("loadAndAnalyseButton");
+        if (loadBtn) loadBtn.hidden = isChain;
+
+        // Toggle batch-action controls (First/Last Chapter, Chapter Count, Select All, etc.)
+        let batchControls = document.getElementById("batchActionControls");
+        if (batchControls) {
+            batchControls.style.display = isChain ? "none" : "block";
+        }
+
+        // Toggle the "No ToC" guiding notice and re-trigger its shake animation.
+        let noticeBox = document.getElementById("noTocNotice");
+        if (noticeBox) {
+            if (isChain) {
+                noticeBox.style.display = "block";
+                // Re-trigger CSS animation
+                noticeBox.classList.remove("shake-anim");
+                void noticeBox.offsetWidth; // Trigger DOM reflow
+                noticeBox.classList.add("shake-anim");
+            } else {
+                noticeBox.style.display = "none";
+            }
+        }
+    }
+
+    // Smart pre-routing: run HeuristicScanner on the freshly loaded DOM. If the
+    // scan confirms chapter content, switch to No-ToC (Chain) mode; otherwise
+    // (ToC detected, scan failed, or no result) default to native WTE behaviour
+    // (Has ToC) and let the original pipeline handle selector configuration.
+    async function routeCrawlerMode(url, dom) {
+        // 1. If the user clicked a mode radio since the last Load, apply their
+        //    choice and short-circuit — the probe must never override a
+        //    genuine user action.
+        if (explicitUserMode) {
+            const modeToSet = explicitUserMode === "chain" ? "modeChain" : "modeToc";
+            document.getElementById(modeToSet).checked = true;
+            explicitUserMode = null; // consume the signal (fire-once)
+            return;
+        }
+
+        // 2. No explicit user intervention this cycle — run the probe normally.
+        let scanResult = await HeuristicScanner.scan(url, dom);
+        if (scanResult.status === "success") {
+            document.getElementById("modeChain").checked = true;
+        } else {
+            document.getElementById("modeToc").checked = true;
+        }
+    }
+
     async function populateControlsWithDom(url, dom) {
         initialWebPage = dom;
+
+        // Seed the starting-URL input with the fetched/active-tab URL so the rest
+        // of the pipeline (setBaseTag / processInitialHtml) has a canonical seed.
+        // NOTE: routeCrawlerMode below deliberately does NOT touch
+        // #startingUrlInput, so the user's current input is never clobbered by
+        // routing — it only switches the mode radio and shows soft warnings.
         setUiFieldToValue("startingUrlInput", url);
 
-        // set the base tag, in case server did not supply it 
+        // Set the base tag BEFORE routeCrawlerMode so HeuristicScanner derives
+        // pageOrigin from the correct doc.baseURI. Parsed DOMs (active-tab
+        // path) otherwise default to the popup's chrome-extension URL, making
+        // every link appear cross-origin and falsely flipping the mode to
+        // No-ToC.
         util.setBaseTag(url, initialWebPage);
-        await processInitialHtml(url, initialWebPage);
+
+        // --- Smart Pre-routing via HeuristicScanner (extracted) ---
+        // One chokepoint so every entry point (Load button, active-tab
+        // listener, openTab) re-triggers smart routing without a redundant
+        // scan at each call site.
+        await routeCrawlerMode(url, dom);
+
+        // Apply the crawler mode UI switch to mirror the currently selected radio,
+        // so the UI never desyncs from the user's (or auto-routed) mode choice.
+        applyCrawlerModeUI(document.getElementById("modeChain").checked);
+
+        let currentStartingUrl = getValueFromUiField("startingUrlInput");
+        let isChain = document.getElementById("modeChain").checked;
+        
+        // Only proceed if a ToC URL exists or Chain Mode is active
+        if (currentStartingUrl || isChain) {
+            let targetUrl = isChain ? url : currentStartingUrl;
+            await processInitialHtml(targetUrl, initialWebPage);
+        }
+
         if (document.getElementById("autosearchmetadataCheckbox").checked == true) {
             await autosearchadditionalmetadata();
         }
@@ -293,22 +378,32 @@ var main = (function() {
     function setParser(url, dom) {
         /* This didn't work as firefox on tablets behaves differently than frefox on smartphones.
         if (/Android|Mobile/i.test(navigator.userAgent)) {
-            // tab is opened in the mobile view
-            // need to discourage this as some websites send different content depending on the user-agent
             ErrorLog.showErrorMessage(UIText.Error.errorMobileModeDetected);
             return false;
-        }*/
-        let manualSelect = getManuallySelectParserTag().value;
-        if (util.isNullOrEmpty(manualSelect)) {
-            parser = parserFactory.fetch(url, dom);
+        } */
+        
+        // --- ADDED: Crawler mode routing ---
+        let isChainCrawler = document.getElementById("modeChain")?.checked;
+
+        if (isChainCrawler) {
+            parser = new NoTocChainParser(new ImageCollector());
         } else {
-            parser = parserFactory.manuallySelectParser(manualSelect);
+            let manualSelect = getManuallySelectParserTag().value;
+            if (util.isNullOrEmpty(manualSelect)) {
+                parser = parserFactory.fetch(url, dom);
+            } else {
+                parser = parserFactory.manuallySelectParser(manualSelect);
+            }
         }
+        // -----------------------------------
+
         if (parser === undefined) {
             ErrorLog.showErrorMessage(UIText.Error.noParserFound);
             return false;
         }
+        
         getLoadAndAnalyseButton().hidden = true;
+        
         let disabledMessage = parser.disabled();
         if (disabledMessage !== null) {
             ErrorLog.showErrorMessage(disabledMessage);
@@ -385,12 +480,175 @@ var main = (function() {
         getLoadAndAnalyseButton().disabled = true;
         try {
             let xhr = await HttpClient.wrapFetch(url);
-            await populateControlsWithDom(url, xhr.responseXML);
+            let dom = xhr.responseXML;
+            // Pass the POST-REDIRECT url (the one actually served), not the
+            // user-typed url: HttpClient resolves relative links against
+            // doc.baseURI = response.url, so populateControlsWithDom/setBaseTag
+            // must use the same source or <base href> resolution diverges.
+            await populateControlsWithDom(xhr.response.url, dom);
             getLoadAndAnalyseButton().disabled = false;
         } catch (error) {
             getLoadAndAnalyseButton().disabled = false;
             ErrorLog.showErrorMessage(error);
         }
+    }
+
+    /**
+     * Option B — Chain Mode auto-resume probe.
+     *
+     * For a Chain library update the seed is the book's FIRST chapter, so the
+     * normal flow would re-crawl from ch.1 and stall. This probe resumes
+     * forward without touching isIncludeable or the crawl loop:
+     *   1. Read the last downloaded chapter URL from the epub manifest
+     *      (Library.LibGetSourceChapterList), falling back to the reading list.
+     *   2. Headlessly fetch that last chapter's DOM.
+     *   3. Reuse NoTocChainParser.extractNextChapterUrlFromDom to find N+1.
+     *   4. Re-seed by re-running onLoadAndAnalyseButtonClick on N+1 (never
+     *      downloaded, so it bypasses the isIncludeable filter), then restore
+     *      #startingUrlInput to the original seed so LibAddToLibrary merges.
+     *
+     * Returns "skipped" (not a chain book / no history), "resumed" (re-seeded
+     * to N+1), "uptodate" (no N+1 link), or "probeFailed" (re-analyse did not
+     * rebuild a crawlable state). Native Has-ToC updates return "skipped"
+     * immediately.
+     */
+    async function maybeProbeChainResume(seedUrl) {
+        // Only intercept Chain (No-ToC) updates. Native Has-ToC parsers never
+        // match this guard, so their update path is left completely untouched.
+        if (!(parser instanceof NoTocChainParser)) {
+            return "skipped";
+        }
+        if (util.isNullOrEmpty(seedUrl)) {
+            return "skipped";
+        }
+
+        // 1. Locate the last downloaded chapter (the index pointer). The epub
+        //    manifest is authoritative and ordered; the reading list is a fast
+        //    lightweight fallback.
+        let lastChapterUrl = null;
+        try {
+            let sourceList = await Library.LibGetSourceChapterList(seedUrl);
+            if (sourceList && sourceList.length > 0) {
+                // Take the last non-empty source URL (data-URI chapters yield "").
+                for (let i = sourceList.length - 1; i >= 0; i--) {
+                    if (!util.isNullOrEmpty(sourceList[i])) {
+                        lastChapterUrl = sourceList[i];
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            lastChapterUrl = null;
+        }
+        if (util.isNullOrEmpty(lastChapterUrl) && userPreferences && userPreferences.readingList) {
+            lastChapterUrl = userPreferences.readingList.getEpub(seedUrl);
+        }
+
+        // No history to resume from (first-ever download, or unreadable epub):
+        // let the normal flow crawl from the original seed.
+        if (util.isNullOrEmpty(lastChapterUrl)) {
+            return "skipped";
+        }
+
+        // 2. Single headless fetch of the last downloaded chapter's DOM.
+        let probeDom = null;
+        try {
+            let xhr = await HttpClient.wrapFetch(lastChapterUrl);
+            probeDom = xhr ? xhr.responseXML : null;
+        } catch (e) {
+            // Probe failed (network/CAPTCHA/removed page). Degrade gracefully:
+            // fall back to the normal crawl-from-seed flow rather than aborting.
+            return "skipped";
+        }
+        if (!probeDom) {
+            return "skipped";
+        }
+
+        // 3. Reuse the seed parser's sniffer config (it already populated
+        //    #nextPageCssInput and dynamicFallbackSelector during getChapterUrls)
+        //    to resolve chapter N+1 from the last chapter's DOM.
+        let nextUrl = parser.extractNextChapterUrlFromDom(probeDom);
+
+        // No "next" link on the last downloaded chapter => book is up to date.
+        if (util.isNullOrEmpty(nextUrl)) {
+            ErrorLog.showErrorMessage(
+                "ℹ️ Already up to date — no new chapters found after the last downloaded chapter.\n" +
+                "(Last chapter: " + lastChapterUrl + ")"
+            );
+            return "uptodate";
+        }
+        // Guard against a self-referencing "next" link (some sites point the
+        // last chapter's next button back to itself).
+        try {
+            if (util.normalizeUrlForCompare(nextUrl) === util.normalizeUrlForCompare(lastChapterUrl)) {
+                ErrorLog.showErrorMessage(
+                    "ℹ️ Already up to date — the last downloaded chapter has no forward next link.\n" +
+                    "(Last chapter: " + lastChapterUrl + ")"
+                );
+                return "uptodate";
+            }
+        } catch (e) {
+            // normalizeUrlForCompare may throw on malformed URLs; treat the
+            // resolved nextUrl as valid and let the crawl decide.
+        }
+        // 4. Re-seed: load N+1 as if the user pasted it, so smart-routing +
+        //    the chain crawler take over from a never-downloaded page (bypasses
+        //    isIncludeable). Then restore #startingUrlInput to the canonical
+        //    seed so LibAddToLibrary merges into the existing book.
+        let preProbeParser = parser;
+        setUiFieldToValue("startingUrlInput", nextUrl);
+        // onLoadAndAnalyseButtonClick swallows its own errors internally, so
+        // it always returns normally; the verification below detects failure.
+        await onLoadAndAnalyseButtonClick();
+        // Always restore the canonical seed (regardless of re-analyse
+        // outcome) so the book's library identity is preserved for the
+        // merge step.
+        setUiFieldToValue("startingUrlInput", seedUrl);
+
+        // If the re-analyse did not rebuild a crawlable state for N+1 (fetch
+        // failed, leaving the old seed parser, or an empty webPages map),
+        // fall back without packing to avoid the "No starting URL found"
+        // stall.
+        if (parser === preProbeParser
+            || !(parser instanceof NoTocChainParser)
+            || parser.state.webPages.size === 0) {
+            return "probeFailed";
+        }
+
+        // 5. Hydrate crawl history (Issue 2) and unify the table writer
+        //    (Issue 1). Inject the already-downloaded chapters 1..N from
+        //    the stored EPUB (greyed, isIncludeable=false) ahead of the
+        //    active seed (N+1, isIncludeable=true), then re-render the
+        //    table via the single populateChapterUrlsTable() writer and
+        //    reset the fetch state. This makes the seed a normal in-table
+        //    row (no orphan direct-child-of-<table> rendered after
+        //    </tbody>) and gives the Chain UI parity with the Has-ToC
+        //    update experience. Best-effort: on any failure the crawl
+        //    still proceeds from N+1 with just the seed row.
+        try {
+            let history = await Library.LibGetSourceChapterHistory(seedUrl);
+            if (history && history.length > 0) {
+                let seedChapter = [...parser.state.webPages.values()][0];
+                if (seedChapter) {
+                    let combined = history.map(h => ({
+                        sourceUrl: h.sourceUrl,
+                        title: h.title,
+                        isIncludeable: false,
+                        previousDownload: true
+                    }));
+                    seedChapter.isIncludeable = true;
+                    seedChapter.previousDownload = false;
+                    combined.push(seedChapter);
+                    let chapterUrlsUI = new ChapterUrlsUI(parser);
+                    chapterUrlsUI.populateChapterUrlsTable(combined);
+                    parser.setPagesToFetch(combined);
+                }
+            }
+        } catch (e) {
+            // Hydration is best-effort; ignore failures.
+        }
+
+        return "resumed";
     }
 
     function configureForTabMode() {
@@ -562,6 +820,42 @@ var main = (function() {
         document.getElementById("sbClose").onclick = () => sbHide();
         document.getElementById("viewReadingListButton").onclick = () => showReadingList();
         window.addEventListener("beforeunload", onUnloadEvent);
+        // --- ADDED: Crawler Mode UI Toggle ---
+        window.crawlerModeChangeHandler = () => applyCrawlerModeUI(document.getElementById("modeChain").checked);
+        const handleManualModeSwitch = (e) => {
+            // Apply the mode UI FIRST, then the hard reset: applyCrawlerModeUI(true)
+            // hides the Load button in Chain mode, so the reset's "force Load
+            // button visible" must run after it to take effect.
+            window.crawlerModeChangeHandler();
+            if (e.isTrusted) {
+                // 0. Capture the user's explicit mode intent at the instant of
+                //    the physical click. This is consumed by routeCrawlerMode
+                //    on the next Load, bypassing the HeuristicScanner probe.
+                explicitUserMode = e.target.id === "modeChain" ? "chain" : "toc";
+
+                // 1. Clear the starting URL input
+                setUiFieldToValue("startingUrlInput", "");
+
+                // 2. Clear the chapter list table (leave the header row) and the
+                //    stale range-start/end <select> options.
+                //    getTableRowsWithChapters() queries all <tr> in the table
+                //    subtree, so it clears rows wherever they live.
+                ChapterUrlsUI.clearChapterUrlsTable();
+
+                // 3. Force the Load button to appear
+                let loadBtn = document.getElementById("loadAndAnalyseButton");
+                if (loadBtn) loadBtn.hidden = false;
+            }
+        };
+
+        document.getElementById("modeToc").addEventListener("change", handleManualModeSwitch);
+        document.getElementById("modeChain").addEventListener("change", handleManualModeSwitch);
+        window.crawlerModeChangeHandler();
+        document.getElementById("nextPageCssInput").addEventListener("input", () => {
+            if (parser && typeof parser.updateSnifferStatusUI === "function") {
+                parser.updateSnifferStatusUI(initialWebPage, true);
+            }
+        });
     }
 	
     function seriesIndexInpuValidator(event) {
@@ -679,5 +973,6 @@ var main = (function() {
         resetUI: resetUI,
         getCurrentParser: () => parser,
         getUserPreferences: () => userPreferences,
+        maybeProbeChainResume: maybeProbeChainResume
     };
 })();
