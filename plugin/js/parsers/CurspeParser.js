@@ -1,5 +1,5 @@
 "use strict";
-
+// Ai generated
 // Generic parser for every novel on Curspe.
 parserFactory.register("curspe.com", () => new CurspeParser());
 
@@ -25,17 +25,13 @@ class CurspeParser extends Parser {
         if (this.novelPath == null) {
             return [];
         }
-
         const chapters = new Map();
-
         for (const link of dom.querySelectorAll("a[href]")) {
             const chapter = this.cleanChapterUrl(link.href);
             if (chapter == null) {
                 continue;
             }
-
             let title = this.cleanChapterTitle(link.textContent, chapter.number);
-
             // The chapter list sometimes uses only "Start Reading" or
             // "Chapter N". Fetch the chapter page first so punctuation and
             // special suffixes such as "(Final Chapter)" are not lost.
@@ -45,12 +41,10 @@ class CurspeParser extends Parser {
             if (!this.isUsableChapterTitle(title)) {
                 title = this.titleFromChapterUrl(chapter.url, chapter.number);
             }
-
             // Always include the chapter number. Curspe's current list often
             // omits "Chapter N -" from the visible link text, while one or
             // more entries may still contain it.
             title = this.formatChapterTitle(chapter.number, title);
-
             chapters.set(chapter.number, {
                 sourceUrl: chapter.url,
                 title: title
@@ -66,7 +60,6 @@ class CurspeParser extends Parser {
         if (this.novelPath == null) {
             return null;
         }
-
         try {
             const url = new URL(href, document.baseURI);
             if (url.hostname.replace(/^www\./i, "").toLowerCase() !== "curspe.com") {
@@ -88,7 +81,6 @@ class CurspeParser extends Parser {
             if (!Number.isFinite(number)) {
                 return null;
             }
-
             // Keep the complete canonical chapter slug, but remove query
             // strings, fragments, duplicate slashes and trailing junk.
             const slug = match[2] ? `-${match[2]}` : "";
@@ -110,29 +102,26 @@ class CurspeParser extends Parser {
         const clean = (text || "")
             .replace(/\s+/g, " ")
             .trim();
-
         if (!clean || /^start\s+reading$/i.test(clean)) {
             return "";
         }
-
         const withoutMeta = this.removeChapterListMetadata(clean);
+        // eslint-disable-next-line
         const prefix = new RegExp(`^Chapter\s+${chapterNumber}\s*[-–—:]\s*(.+)$`, "i");
         const match = withoutMeta.match(prefix);
         if (match != null) {
             return match[1].trim();
         }
-
+        // eslint-disable-next-line
         if (new RegExp(`^Chapter\s+${chapterNumber}$`, "i").test(withoutMeta)) {
             return "";
         }
-
         // Curspe can expose bad/generated link text such as
         // "From Chapter 774". Treat it as missing and fetch the real title.
         if (/^from\s+chapter\s+\d+$/i.test(withoutMeta)
             || /^chapter\s+\d+\s+from\s+chapter\s+\d+$/i.test(withoutMeta)) {
             return "";
         }
-
         return withoutMeta;
     }
 
@@ -152,7 +141,6 @@ class CurspeParser extends Parser {
             const response = await HttpClient.wrapFetch(url);
             const chapterDom = response.responseXML;
             const content = chapterDom?.querySelector("div.chapter-content");
-
             // The title is inside div.chapter-content. Prefer a heading, then
             // fall back to the page title if the site's heading markup changes.
             const heading = content?.querySelector("h1, h2, h3, h4, h5, h6");
@@ -160,11 +148,9 @@ class CurspeParser extends Parser {
             if (!title) {
                 title = chapterDom?.title?.replace(/\s+/g, " ").trim();
             }
-
             if (!title) {
                 return "";
             }
-
             title = title
                 .replace(/\s*[–—-]\s*Curspe\s*$/i, "")
                 .replace(/\s*\|\s*Curspe\s*$/i, "")
@@ -190,19 +176,16 @@ class CurspeParser extends Parser {
             if (match == null) {
                 return `Chapter ${chapterNumber}`;
             }
-
             let value = decodeURIComponent(match[1])
                 .replace(/[-_]+/g, " ")
                 .replace(/\s+/g, " ")
                 .trim()
                 .replace(/\b\w/g, character => character.toUpperCase());
-
             // Preserve Curspe's completed-chapter suffix when the chapter
             // page itself cannot be fetched for its exact displayed title.
             if (/\s+final\s+chapter$/i.test(value)) {
                 value = value.replace(/\s+final\s+chapter$/i, "") + "! (Final Chapter)";
             }
-
             return value;
         }
         catch (e) {
@@ -213,10 +196,8 @@ class CurspeParser extends Parser {
     findContent(dom) {
         return dom.querySelector("div.chapter-content");
     }
-
     // No findChapterTitle(): the chapter title is already inside
     // div.chapter-content and must not be inserted a second time.
-
     extractTitleImpl(dom) {
         // Curspe's og:title can incorrectly be the site name "Curspe".
         // Prefer the actual novel heading and document title first.
@@ -225,14 +206,12 @@ class CurspeParser extends Parser {
             dom.title,
             dom.querySelector("meta[property='og:title']")?.getAttribute("content")
         ];
-
         for (const candidate of candidates) {
             const title = this.cleanNovelTitle(candidate);
             if (title) {
                 return title;
             }
         }
-
         // Last-resort fallback: derive a readable title from /novels/<slug>/.
         return this.titleFromNovelSlug(dom) || "Curspe";
     }
@@ -242,7 +221,6 @@ class CurspeParser extends Parser {
         if (!title) {
             return "";
         }
-
         title = title
             .replace(/\s*[–—-]\s*Curspe\s*$/i, "")
             .replace(/\s*\|\s*Curspe\s*$/i, "")
@@ -251,12 +229,10 @@ class CurspeParser extends Parser {
         if (/^curspe$/i.test(title)) {
             return "";
         }
-
         // Chapter-page titles are not novel titles.
         if (/^chapter\s+\d+\b/i.test(title)) {
             return "";
         }
-
         return title;
     }
 
@@ -267,7 +243,6 @@ class CurspeParser extends Parser {
             if (!match) {
                 return "";
             }
-
             return decodeURIComponent(match[1])
                 .replace(/[-_]+/g, " ")
                 .replace(/\s+/g, " ")
@@ -286,12 +261,10 @@ class CurspeParser extends Parser {
         if (metaAuthor?.trim()) {
             return metaAuthor.trim();
         }
-
         const jsonAuthor = this.getJsonLdAuthor(dom);
         if (jsonAuthor) {
             return jsonAuthor;
         }
-
         return this.getLabeledNovelValue(dom, /^Author$/i) || super.extractAuthor(dom);
     }
 
@@ -327,14 +300,12 @@ class CurspeParser extends Parser {
 
     extractSubject(dom) {
         const genres = [];
-
         for (const link of dom.querySelectorAll("a[href*='genre'], a[href*='genres']")) {
             const text = link.textContent.replace(/\s+/g, " ").trim();
             if (text && !/^genres?$/i.test(text) && !genres.includes(text)) {
                 genres.push(text);
             }
         }
-
         if (genres.length === 0) {
             const heading = [...dom.querySelectorAll("h1, h2, h3, h4, h5, strong, b")]
                 .find(element => /^Genres$/i.test(element.textContent.trim()));
@@ -350,7 +321,6 @@ class CurspeParser extends Parser {
                 }
             }
         }
-
         return [...new Set(genres)].join(", ");
     }
 
@@ -361,21 +331,18 @@ class CurspeParser extends Parser {
         if (visible) {
             return visible;
         }
-
         const meta = dom.querySelector(
             "meta[name='description'], meta[property='og:description']"
         )?.getAttribute("content");
         if (meta?.trim()) {
             return this.cleanDescription(meta);
         }
-
         const direct = dom.querySelector(
             "[itemprop='description'], .novel-description, .book-description, .series-description, .novel-summary, .summary, .synopsis"
         );
         if (direct?.textContent?.trim()) {
             return this.cleanDescription(direct.textContent);
         }
-
         return "";
     }
 
@@ -384,14 +351,12 @@ class CurspeParser extends Parser {
         if (!novelHeading) {
             return "";
         }
-
         const stopRegex = /^(?:see\s+more|chapters?(?:\s|$)|reviews?(?:\s|$)|premium\b)/i;
         const blocks = [];
         const seen = new Set();
         const stopMarker = [...dom.querySelectorAll("h1, h2, h3, h4, h5, h6, button, a, strong, b")].find(
             element => stopRegex.test(element.textContent.replace(/\s+/g, " ").trim())
         );
-
         for (const element of dom.querySelectorAll("p, blockquote, section, article, div, li")) {
             if (!(novelHeading.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING)) {
                 continue;
@@ -407,7 +372,6 @@ class CurspeParser extends Parser {
             if (!text || stopRegex.test(text) || this.isMetadataText(text)) {
                 continue;
             }
-
             // Keep leaf-ish blocks so parent containers do not duplicate all
             // of their child synopsis text.
             const hasBlockDescendant = [...element.children].some(child =>
@@ -416,7 +380,6 @@ class CurspeParser extends Parser {
             if (hasBlockDescendant) {
                 continue;
             }
-
             if (!seen.has(text) && text.length >= 20) {
                 seen.add(text);
                 blocks.push(text);
@@ -460,7 +423,6 @@ class CurspeParser extends Parser {
             if (!src) {
                 continue;
             }
-
             const text = [
                 element.getAttribute("alt"),
                 element.getAttribute("title"),
@@ -468,20 +430,17 @@ class CurspeParser extends Parser {
                 element.parentElement?.className,
                 src
             ].filter(Boolean).join(" ").toLowerCase();
-
             if (/logo|favicon|avatar|icon|emoji|gravatar|cropped-crop/i.test(text)) {
                 continue;
             }
             if (element.closest("div.chapter-content")) {
                 continue;
             }
-
             let score = 0;
             if (/cover|thumbnail|book|novel|series|featured/i.test(text)) score += 8;
             if (/wp-content\/uploads/i.test(src)) score += 4;
             if (/-scaled\.(?:jpe?g|png|webp)$/i.test(src)) score += 3;
             if (/\b(?:300|400|500|600|800|1000|1200)\b/.test(src)) score += 1;
-
             candidates.push({src, score});
         }
 
@@ -489,7 +448,6 @@ class CurspeParser extends Parser {
         if (candidates.length) {
             return candidates[0].src;
         }
-
         // Metadata is a final fallback. It is deliberately after visible
         // cover images because Curspe's og:image can be a generic thumbnail.
         const meta = dom.querySelector(
@@ -503,14 +461,12 @@ class CurspeParser extends Parser {
         let src = element.getAttribute("src")
             || element.getAttribute("data-src")
             || element.getAttribute("data-lazy-src");
-
         if (!src && element.getAttribute("srcset")) {
             src = element.getAttribute("srcset").split(",")[0].trim().split(/\s+/)[0];
         }
         if (!src) {
             return null;
         }
-
         try {
             return new URL(src, document.baseURI).href;
         }
@@ -526,6 +482,7 @@ class CurspeParser extends Parser {
             .replace(/^\^/, "")
             .replace(/\$$/, "");
         const labelOnly = new RegExp(`^${labelSource}$`, "i");
+        // eslint-disable-next-line
         const inline = new RegExp(`^${labelSource}\s*[:：]?\s*(.+)$`, "i");
 
         for (const element of dom.querySelectorAll("li, p, div, dt, dd, span, strong, b")) {
@@ -533,12 +490,10 @@ class CurspeParser extends Parser {
             if (!text) {
                 continue;
             }
-
             const match = text.match(inline);
             if (match?.[1]?.trim() && !labelOnly.test(match[1].trim())) {
                 return match[1].trim();
             }
-
             if (labelOnly.test(text)) {
                 let sibling = element.nextElementSibling;
                 while (sibling) {
@@ -548,7 +503,6 @@ class CurspeParser extends Parser {
                     }
                     sibling = sibling.nextElementSibling;
                 }
-
                 const parent = element.parentElement;
                 if (parent) {
                     const parts = [...parent.children]
