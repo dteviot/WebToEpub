@@ -284,7 +284,7 @@ class XswParser extends Parser {
         return super.extractAuthor(dom);
     }
 
-    extractLanguage(dom) {
+    extractLanguage() {
         return "zh-TW";
     }
 
