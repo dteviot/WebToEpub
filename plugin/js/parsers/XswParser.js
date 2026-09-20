@@ -641,14 +641,16 @@ chapterUrlsUI.showTocProgress(
     // ------------------------------------------------------------
 
     findContent(dom) {
-    const content = dom.querySelector("#nr1");
+    const content = dom.querySelector(
+        "#nr_body .content.mm-content"
+    );
 
-    if (content) {
+    if (content && content.textContent.trim()) {
         return content;
     }
 
-    return dom.querySelector("content");
-}
+    return null;
+    }
 
     // ------------------------------------------------------------
     // Book title.
