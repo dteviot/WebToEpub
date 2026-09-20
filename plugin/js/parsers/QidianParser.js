@@ -46,7 +46,7 @@ class QidianParser extends Parser {
                 }
             }
         }
-        return {sourceUrl: link.href, title: title, 
+        return {sourceUrl: link.href, title: title,
             isIncludeable: !QidianParser.isLinkLocked(link)
         };
     }
@@ -101,7 +101,7 @@ class QidianParser extends Parser {
         let newtitlenode = document.createElement("h1");
         if (tmptitle == undefined || tmptitle == "[placeholder]") {
             let titleEl = content.querySelector("div.chapter_content h1");
-            let titleDupChapRegex = new RegExp("(\\w+[\\s\\-]+\\d+):\\s*\\1:?(.*)", "i").exec(titleEl.textContent);
+            let titleDupChapRegex = new RegExp(String.Raw`(\w+[\s\-]+\d+):\s*\1:?(.*)`, "i").exec(titleEl.textContent);
             if (titleDupChapRegex && titleDupChapRegex.length > 2) {
                 let newtitleText = document.createTextNode(titleDupChapRegex[1] + titleDupChapRegex[2]);
                 newtitlenode.appendChild(newtitleText);
@@ -121,7 +121,7 @@ class QidianParser extends Parser {
             .map(s => s.textContent)
             .filter(s => s.startsWith(searchString))
             .map(s => util.locateAndExtractJson(this.fixExcaping(s), searchString))[0];
-    } 
+    }
 
     fixExcaping(s) {
         return this.stripBackslash(s)
@@ -167,7 +167,7 @@ class QidianParser extends Parser {
                 if (stripChars.includes(s[i])) {
                     temp += " ";
                 }
-                else { 
+                else {
                     if (singleEscapeChars.includes(s[i])) {
                         temp += "\\";
                     }
@@ -183,8 +183,8 @@ class QidianParser extends Parser {
     }
 
     populateUIImpl() {
-        document.getElementById("removeAuthorNotesRow").hidden = false; 
-        document.getElementById("removeChapterNumberRow").hidden = false; 
+        document.getElementById("removeAuthorNotesRow").hidden = false;
+        document.getElementById("removeChapterNumberRow").hidden = false;
     }
 
     // title of the story
@@ -196,7 +196,7 @@ class QidianParser extends Parser {
     extractAuthor(dom) {
         return dom.querySelector("a.c_primary")?.textContent ?? super.extractAuthor(dom);
     }
- 
+
     removeUnwantedElementsFromContentElement(content) {
         util.removeChildElementsMatchingSelector(content, "form.cha-score, div.cha-bts, pirate, div.cha-content div.user-links-wrap, div.tac");
         this.tagAuthorNotesBySelector(content, "div.m-thou");
@@ -205,7 +205,7 @@ class QidianParser extends Parser {
 
     findCoverImageUrl(dom) {
         let imgs = [...dom.querySelectorAll("div.det-hd i.g_thumb img")];
-        return 0 === imgs.length 
+        return 0 === imgs.length
             ? util.getFirstImgSrc(dom, "div.det-hd")
             : imgs.pop().src;
     }

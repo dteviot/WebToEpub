@@ -61,7 +61,7 @@ class XbanxiaParser extends Parser {
             }
 
             for (let label of labels) {
-                let match = text.match(new RegExp(`^${label}[：:︰]\\s*(.+)$`));
+                let match = text.match(new RegExp(String.Raw`^${label}[：:︰]\s*(.+)$`));
                 if (match != null) {
                     return match[1].trim();
                 }

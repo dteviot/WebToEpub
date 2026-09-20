@@ -175,7 +175,7 @@ class NovelfullParser extends Parser {
     }
 
     findWatermark(dom) {
-        const searchToken = 'original11Content.replace("';
+        const searchToken = "original11Content.replace(\"";
         const script = [...dom.querySelectorAll("script")]
             .filter((s) => s.innerHTML.includes(searchToken))
             .map((s) => s.innerHTML)[0];
@@ -183,7 +183,7 @@ class NovelfullParser extends Parser {
             return null;
         }
         const line = script.substring(script.indexOf(searchToken) + searchToken.length);
-        return line.substring(0, line.indexOf('"'));
+        return line.substring(0, line.indexOf("\""));
     }
 
     makeSpanWithWatermark(dom, watermark) {
@@ -293,7 +293,7 @@ class NovelfullNetParser extends NovelfullParser {
 
         for (let toc_page of toc_pages) {
             if (toc_page.selected) {
-                continue
+                continue;
             }
             urls.push(`${base_url}${toc_page.getAttribute("data-url")}`);
         }
@@ -330,21 +330,21 @@ class NovelfullNetParser extends NovelfullParser {
     }
 
     extractDescription(dom) {
-        let info_div = dom.querySelector("div#novel-summary-inner.inner")
+        let info_div = dom.querySelector("div#novel-summary-inner.inner");
         let text = [...info_div.querySelectorAll("p")]
-            .map(paragraph => paragraph.textContent.trim())
-            .join('\n\n');
+            .map((paragraph) => paragraph.textContent.trim())
+            .join("\n\n");
 
-        return text
+        return text;
     }
 
     // extractSubject -> for tags metadata
     extractSubject(dom) {
-        let [genre_div] = [...dom.querySelectorAll("div.item")]
-            .filter((u) => u.querySelector("span")?.getAttribute("title") === "Genre")
+        let [genre_div] = [...dom.querySelectorAll("div.item")].filter(
+            (u) => u.querySelector("span")?.getAttribute("title") === "Genre",
+        );
 
-        let tags = [...genre_div.querySelectorAll("div.right a")]
-            .map((u) => u.textContent);
-        return tags.join(", ")
+        let tags = [...genre_div.querySelectorAll("div.right a")].map((u) => u.textContent);
+        return tags.join(", ");
     }
 }
