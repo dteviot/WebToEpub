@@ -641,15 +641,13 @@ chapterUrlsUI.showTocProgress(
     // ------------------------------------------------------------
 
     findContent(dom) {
-    const content = dom.querySelector(
-        "#nr_body .content.mm-content"
-    );
+    const content = dom.querySelector("#nr1");
 
-    if (content && content.textContent.trim()) {
+    if (content) {
         return content;
     }
 
-    return null;
+    return dom.querySelector("content");
     }
 
     // ------------------------------------------------------------
