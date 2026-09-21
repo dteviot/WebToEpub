@@ -38,6 +38,7 @@ parserFactory.register("novelnext.com", () => new NovelfullParser());
 parserFactory.register("novelnext.dramanovels.io", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
 parserFactory.register("novelnextz.com", () => new NovelfullParser());
+parserFactory.register("novelping.com", () => new NovelpingParser());
 //dead url
 parserFactory.registerDeadSite("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
@@ -277,6 +278,45 @@ class NovelbinParser extends NovelfullParser {
 
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".unlock-buttons");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+// novelbin.com -> novelarrow.com -> novelping.com, which is back on Novelbin's layout
+// See: https://github.com/dteviot/WebToEpub/issues/3012
+class NovelpingParser extends NovelbinParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = new URL("/ajax/chapter-archive", dom.baseURI);
+        tocUrl.searchParams.set("novelId", NovelpingParser.novelSlug(dom.baseURI));
+        let tocHtml = (await HttpClient.wrapFetch(tocUrl.href)).responseXML;
+        return this.extractPartialChapterList(tocHtml);
+    }
+
+    // link text also holds the comment count, so use the title attribute
+    extractPartialChapterList(dom) {
+        return [...dom.querySelector("template").content.querySelectorAll("li a")]
+            .map(link => ({
+                sourceUrl: link.href,
+                title: link.title,
+                newArc: null
+            }));
+    }
+
+    // ToC is /novel/<slug> or /book/<slug>, chapters are /book/<slug>/<chapter>
+    static novelSlug(url) {
+        return new URL(url).pathname.split("/").filter(s => s != "")[1];
+    }
+
+    extractPublisher() {
+        return "NovelPing";
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, ".js-ad-slot");
         super.removeUnwantedElementsFromContentElement(element);
     }
 }
