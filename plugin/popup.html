@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>WebToEpub</title>
+    <link href="css/default.css" rel="stylesheet" type="text/css" />
+    <link href="css/autoDark.css" rel="stylesheet" type="text/css"  id="autoDark" />
+    <link href="css/alwaysDark.css" rel="stylesheet" type="text/css" id="alwaysDark" disabled="true"/>
+    <base />
+</head>
+<body>
+    <div class="container">
+        <section id="extensionVersionSection">
+            <span id="spanExtensionVersion"></span>
+        </section>
+        <section id="readingListSection" hidden="true">
+            <button id="closeReadingList">__MSG_button_Close_ReadingList__</button>
+            <table id="readingListTable">
+            </table>
+        </section>
+        <section id="errorSection" class="minWidth" hidden="true">
+            <table id="errorSectionTable">
+                <tr>
+                    <td>
+                        <button class="expandedButton" id="errorButtonOk" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_OK__</button>
+                        <button class="expandedButton" id="errorButtonRetry" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_Retry__</button>
+                        <button class="expandedButton" id="errorButtonOpenURL" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_Open_URL__</button>
+                        <button class="expandedButton" id="errorButtonCopyURL" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_Copy_URL__</button>
+                        <button class="expandedButton" id="errorButtonBlockURL" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_Block_URL__</button>
+                        <button class="expandedButton" id="errorButtonCancel" style="margin-left:4px; margin-right: 4px;">__MSG_button_error_Cancel__</button>
+                    </td>
+                </tr>
+                <tr id="errorMessageRow">
+                    <td id="errorMessageText"><pre></pre></td>
+                </tr>
+            </table>
+        </section>
+        <section id="defaultParserSection" hidden="true">
+            <p class="i18n">__MSG_label_Using_Default_Parser__</p>
+            <table>
+                <tr>
+                    <td>__MSG_label_Default_Parser_HostName__</td>
+                    <td>
+                        <input id="defaultParserHostName" type="text" name="defaultParserHostNameInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Test_Chapter_Url__</td>
+                    <td>
+                        <input id="defaultParserTestChapterUrl" type="text" name="defaultParserTestChapterUrlInput" size="30" value="" />
+                        <span id="smartDetectStatus" style="font-size:12px; margin-left:8px;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Content_CSS__</td>
+                    <td>
+                        <input id="defaultParserContentCss" type="text" name="defaultParserContentCssInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Chapter_Title_CSS__</td>
+                    <td>
+                        <input id="defaultParserChapterTitleCss" type="text" name="defaultParserChapterTitleCssInput" size="30" value="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Default_Parser_Unwanted_Elements_CSS__</td>
+                    <td>
+                        <input id="defaultParserUnwantedElementsCss" type="text" name="defaultParserUnwantedElementsCssInput" size="30" value="" />
+                    </td>
+                </tr>
+            </table>
+            <button id="testDefaultParserButton">__MSG_button_test_default_parser__</button>
+            <button id="finisheddefaultParserButton">__MSG_button_finished_default_parser__</button>
+            <button id="defaultParserHelpButton">__MSG_button_Help__</button>
+            <br />
+            <br />
+            <div class="withBorder">
+                <div class="scrollingtable withMargin" id="defaultParserVewResult"></div>
+            </div>
+            <div id="defaultParserInstructions" hidden="true">
+                <h3>Instructions</h3>
+                <p>WebToEpub does not know what content on each web page (chapter) to put into the EPUB.</p>
+                <p>Use this screen to tell WebToEpub which element on the web page has the wanted content.</p>
+                <p>Give a <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors">CSS Selector</a> for the wanted element.</p>
+                <p>After providing the CSS Selector, test it works by clicking the "Test" button. Which will make this box show you what will be packed into the first chapter of the EPUB.</p>
+                <br />
+                <p class="warning"><strong>For more details, and a worked example, click the "Help" button above.</strong></p>
+            </div>
+        </section>
+        <section id="inputSection">
+            <table id="inputTable">
+                <tr>
+                    <td>__MSG_label_Starting_URL__</td>
+                    <td>
+                        <input id="startingUrlInput" type="url" name="startingUrlInput" />
+                    </td>
+                    <td>
+                        <button id="loadAndAnalyseButton">__MSG_button_load_and_analyse__</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Title__</td>
+                    <td><input id="titleInput" type="text" name="titleInput" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Author__</td>
+                    <td><input id="authorInput" type="text" name="authorInput" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Language__</td>
+                    <td><input id="languageInput" type="text" name="languageInput" /></td>
+                </tr>
+                <tr>
+                    <td>__MSG_label_Filename__</td>
+                    <td><input id="fileNameInput" type="text" name="fileNameInput" /></td>
+                </tr>
+                <tr id="removeAuthorNotesRow" hidden="true">
+                    <td><input id="removeAuthorNotesCheckbox" type="checkbox" name="removeAuthorNotesCheckbox" value="false"></td>
+                    <td>__MSG_label_Remove_Author_Notes__</td>
+                </tr>
+                <tr id="removeChapterNumberRow" hidden="true">
+                    <td><input id="removeChapterNumberCheckbox" type="checkbox" name="removeChapterNumberCheckbox" value="false"></td>
+                    <td>__MSG_label_Remove_Chapter_Number__</td>
+                </tr>
+                <tr id="removeOriginalRow" hidden="true">
+                    <td><input id="removeOriginalCheckbox" type="checkbox" name="removeOriginalCheckbox" value="true"></td>
+                    <td>__MSG_label_Remove_Original__</td>
+                </tr>
+                <tr id="selectTranslationAiRow" hidden="true">
+                    <td><input id="selectTranslationAiCheckbox" type="checkbox" name="selectTranslationAiCheckbox" value="false"></td>
+                    <td>__MSG_label_Select_Translation_Google__</td>
+                </tr>
+                <tr id="selectRetryLongerRow" hidden="true">
+                    <td><input id="selectRetryLongerCheckbox" type="checkbox" name="selectRetryLongerCheckbox" value="false"></td>
+                    <td>__MSG_label_Select_Retry_Longer__</td>
+                </tr>
+                <tr id="removeTranslatedRow" hidden="true">
+                    <td><input id="removeTranslatedCheckbox" type="checkbox" name="removeTranslatedCheckbox" value="false"></td>
+                    <td>__MSG_label_Remove_Translated__</td>
+                </tr>
+                <tr  id="passwordRow" hidden="true">
+                    <td>__MSG_label_Password__</td>
+                    <td><input id="passwordInput" type="text" name="passwordInput" /></td>
+                </tr>
+                <tr id="coverUrlSection">
+                    <td>__MSG_label_Cover_Image_URL__</td>
+                    <td colspan="2">
+                        <input id="coverImageUrlInput" style="width: 68%;" type="text" name="coverImageUrlInput">
+                        <button id="clearCoverImageUrlButton">__MSG_button_Clear_Url__</button>
+                    </td>
+                    <td rowspan="2">   <img id="sampleCoverImg" /></td>
+                </tr>
+            </table>
+
+            <div class="progressSection">
+                <button id="packEpubButton" class="expandedButton">__MSG_button_Pack_EPUB__</button>
+                <progress id="fetchProgress" value=" 0" max="1"></progress>
+                <span id="progressString"></span>
+                <button data-libclick="yes" id="LibAddToLibrary" class="expandedButton">__MSG_button_Add_to_Library__</button>
+                <button data-libclick="yes" id="LibPauseToLibrary" class="expandedButton" hidden="true">__MSG_button_Pause_to_Library__</button>
+            </div>
+            <div class="HiddenButtonSection">
+                <button id="hiddenBibButton">__MSG_button_Lib_Library__</button>
+                <button id="advancedOptionsButton">__MSG_button_Advanced_Options__</button>
+            </div>
+            <section id="hiddenBibSection" hidden="true">
+                <div id="LibraryTemplate" hidden="true">
+                    <br>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td id="LibTemplateLibraryUses">Library uses: </td>
+                                <td colspan="2"><button id="LibTemplateUpdateAll">__MSG_button_Lib_Template_Update_All__</button></td>
+                                <td colspan="2"><button id="LibTemplateClearLibrary">__MSG_button_Lib_Template_Clear_Library__</button></td>
+                                <td colspan="2"><button id="LibTemplateExportLibrary">__MSG_button_Lib_Template_Export_Library__</button></td>
+                                <td colspan="2"><button id="LibTemplateImportEpubButton">__MSG_button_Lib_Template_Import_Library__</button></td>
+                                <td colspan="2"><button id="LibTemplateAddListToLibrary">__MSG_button_Lib_Template_Add_List_To_Library__</button></td>
+                                <td colspan="2"><button id="LibTemplateAddListToLibraryPaused">__MSG_button_Lib_Template_Add_List_To_Library_Paused__</button></td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateUploadEpubFileLabel">__MSG_label_Lib_Template_Upload_Epub_File_Label__</td>
+                                <button id="LibTemplateUploadEpubButton">__MSG_button_Lib_Template_Upload_Epub__</button>
+                                <input type="file" data-libepubid="LibEpubNew" id="LibEpubNewUpload">
+                            </tr>
+                            <tr>
+                                <td style="height: 115.5px; width: 106.5px;" rowspan="4">
+                                    <img src="">
+                                </td>
+                                <td colspan="2">
+                                    <button id="LibTemplateDeleteEpub">__MSG_button_Lib_Template_Delete_EPUB__</button>
+                                    <button id="LibTemplateSearchNewChapter">__MSG_button_Lib_Template_Search_new_Chapters__</button>
+                                    <button id="LibTemplateUpdateNewChapter">__MSG_button_Lib_Template_Update_new_Chapters__</button>
+                                    <button id="LibTemplateDownload">__MSG_button_Lib_Template_Download_EPUB__</button>
+                                    <label style="cursor: pointer;">
+                                        <button id="LibTemplateMergeUploadButton" style="pointer-events: none;">__MSG_button_Lib_Template_Add_Chapter_from_different_EPUB__</button>
+                                        <button id="LibTemplateEditMetadataButton">__MSG_button_Lib_Template_Edit_Metadata__</button>
+                                    </label>
+                                    <input type="file">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateNewChapter">__MSG_label_Lib_Template_New_Chapter__</td><td style="padding:0;">
+                                <td id="LibTemplateURL">__MSG_label_Lib_Template_Story_URL__</td><td style="padding:0;">
+                                    <table style="border-spacing:0;">
+                                        <tbody id="LibTemplateURLWarning">
+                                            <tr>
+                                                <td id="LibTemplateWarningURLChange">__MSG_label_Lib_Template_Warning_URL_Change__</td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding:0;">
+                                                    <input type="url" value="Library template">
+                                                    <button id="LibTemplateOpenURLButton">__MSG_button_Lib_Template_Open_URL__</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateFilename">__MSG_label_Lib_Template_Filename__</td>
+                                <td>
+                                    <input type="text" value="Library template">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateMetadataSave">__MSG_label_Metadata_Save__</td>
+                            </tr>
+                            <tr>
+                            <tr>
+                                <td id="LibTemplateMetadataTitle">__MSG_label_Title__</td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateMetadataAuthor">__MSG_label_Author__</td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateMetadataLanguage">__MSG_label_Language__</td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateMetadataSubject">__MSG_label_Metadata_subject__</td>
+                            </tr>
+                            <tr>
+                                <td id="LibTemplateMetadataDescription">__MSG_label_Metadata_description__</td>
+                                <td id="LibTemplateWarningInProgress">__MSG_label_Lib_Warning_In_Progress___</td>
+                                </tr>
+                                <tr>
+                                    <td id="LibTemplateMetadataPublisher">__MSG_label_Metadata_publisher__</td>
+                                </tr>
+                                <tr>
+                                    <td id="LibTemplateMetadataCoverImageUrl">__MSG_label_Cover_Image_URL__</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <table>
+                    <tr>
+                        <td><input id="LibShowAdvancedOptionsCheckbox" type="checkbox" name="LibShowAdvancedOptionsCheckbox" checked="false"></td>
+                        <td><p>__MSG_label_Lib_Show_Advanced_Library_Options__</p></td>
+                    </tr>
+                    <tr id="LibShowCompactViewRow" hidden="true">
+                        <td><input id="LibShowCompactViewCheckbox" type="checkbox" name="LibShowCompactViewCheckbox" checked="false"></td>
+                        <td><p>__MSG_label_Lib_Compact_View__</p></td>
+                    </tr>
+                    <tr id="LibDownloadEpubAfterUpdateRow" hidden="true">
+                        <td><input id="LibDownloadEpubAfterUpdateCheckbox" type="checkbox" name="LibDownloadEpubAfterUpdateCheckbox" checked="true"></td>
+                        <td><p>__MSG_label_Lib_Download_Epub_After_Update__</p></td>
+                    </tr>
+                </table>
+                <div id="LibRenderResult">
+                </div>
+            </section>
+
+            <section id="advancedOptionsSection" hidden="true">
+                <table id="AdditionalMetadatatable">
+                    <tr>
+                        <td>__MSG_label_Metadata_URL__</td>
+                        <td><input id="metadataUrlInput" type="text" name="metadataUrlInput" />
+                        <button id="loadMetadataButton">__MSG_button_load_Metadata__</button></td>
+                    </tr>
+                    <tr>
+                        <td><input id="noAdditionalMetadataCheckbox" type="checkbox" name="noAdditionalMetadataCheckbox" checked="true"></td>
+                        <td>__MSG_label_no_additional_metadata__</td>
+                    </tr>
+                    <tr>
+                        <td><input id="autosearchmetadataCheckbox" type="checkbox" name="autosearchmetadataCheckbox" value="true"></td>
+                        <td>__MSG_label_auto_search_metadata__</td>
+                    </tr>
+                    <tr>
+                        <td><input id="lesstagsCheckbox" type="checkbox" name="lesstagsCheckbox" value="true"></td>
+                        <td>__MSG_label_less_tags__</td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Metadata_subject__</td>
+                        <td><textarea rows="2" cols="60" id="subjectInput" type="text" name="subjectInput"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Metadata_description__</td>
+                        <td><textarea rows="2" cols="60" id="descriptionInput" type="text" name="descriptionInput"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Metadata_publisher__</td>
+                        <td><input id="publisherInput" type="text" name="publisherInput" /></td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Metadata_date_published__</td>
+                        <td><input id="datePublishedInput" type="text" name="datePublishedInput" /></td>
+                    </tr>
+                    <tr id="seriesRow">
+                        <td>__MSG_label_Series__</td>
+                        <td><input id="seriesNameInput" type="text" name="titleInput" /></td>
+                    </tr>
+                    <tr id="volumeRow">
+                        <td>__MSG_label_Volume__</td>
+                        <td><input id="seriesIndexInput" type="text" name="titleInput" inputmode="decimal" /></td>
+                    </tr>
+                </table>
+                <table id="advancedOptionsTable">
+                    <tr>
+                        <td><input id="ShowMoreMetadataOptionsCheckbox" type="checkbox" name="ShowMoreMetadataOptionsCheckbox" value="true"></td>
+                        <td>__MSG_label_Show_More_Metadata_Options__</td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Custom_Filename__</td>
+                        <td><input id="CustomFilenameInput" type="text" name="CustomFilenameInput"></td>
+                        <td><button id="CustomFilenameHelpButton">__MSG_button_Help__</button></td>
+                    </tr>
+                    <tr id="translatorRow" hidden="true">
+                        <td>__MSG_label_Translator__</td>
+                        <td><input id="translatorInput" type="text" name="translatorInput" size="80" /></td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Theme__</td>
+                        <td>
+                            <select id="themeColorTag">
+                                <option class="i18n" value="LightMode">__MSG_option_ID_Theme_Always_Light__</option>
+                                <option class="i18n" value="DarkMode">__MSG_option_ID_Theme_Always_Dark__</option>
+                                <option class="i18n" selected="true" value="">__MSG_option_ID_Theme_OS_Selection__</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="fileAuthorAsRow" hidden="true">
+                        <td>__MSG_label_File_Author_as__</td>
+                        <td><input id="fileAuthorAsInput" type="text" name="fileAuthorAsInput" size="80"></td>
+                    </tr>
+                    <tr id="styleSheetRow">
+                        <td>__MSG_label_Stylesheet__</td>
+                        <td><textarea id="stylesheetInput" rows="6" cols="60"></textarea></td>
+                    </tr>
+                    <tr id="stylesheetToDefaultRow">
+                        <td></td>
+                        <td><button id="stylesheetToDefaultButton">__MSG_button_Reset_stylesheet__</button></td>
+                    </tr>
+                    <tr id="skipImagesRow">
+                        <td><input id="skipImagesCheckbox" type="checkbox" name="skipImagesCheckbox" value="true"></td>
+                        <td>__MSG_label_Skip_Images__</td>
+                    </tr>
+                    <tr id="includeImageSourceUrlRow">
+                        <td><input id="includeImageSourceUrlCheckboxInput" type="checkbox" name="includeImageSourceUrlCheckboxInput" value="true"></td>
+                        <td>__MSG_label_Include_URL_of_Images__</td>
+                    </tr>
+                    <tr id="highestResolutionImagesRow" hidden="true">
+                        <td><input id="highestResolutionImagesCheckboxInput" type="checkbox" name="highestResolutionImagesCheckboxInput" value="true"></td>
+                        <td>__MSG_label_Fetch_Highest_Resolution_Images__</td>
+                    </tr>
+                    <tr id="compressImagesRow">
+                        <td><input id="compressImagesCheckbox" type="checkbox" name="compressImagesCheckbox" value="false"></td>
+                        <td>__MSG_label_Compress_Images__</td>
+                    </tr>
+                    <tr>
+                    <td></td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="compressImagesMaxResolutionTag" type="number" name="compressImagesMaxResolutionTag" style="width: 61px;" value="1080" min="100">
+                                </td>
+                                <td>__MSG_label_Compress_Images_Resolution__</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select id="compressImagesType" name="compressImagesType">
+                                        <option value="auto">__MSG_option_value_auto__</option>
+                                        <option value="jpg">jpg</option>
+                                        <option value="webp">webp</option>
+                                        <option value="png">png</option>
+                                    </select>
+                                </td>
+                                <td>__MSG_label_Compress_Images_Format__</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input id="compressImagesJpgCoverCheckbox" type="checkbox" name="compressImagesJpgCover" value="false">
+                                </td>
+                                <td>__MSG_label_Compress_Images_JPG_Cover__</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input id="compressImagesAnimatedCheckbox" type="checkbox" name="compressImagesAnimated" value="true">
+                                </td>
+                                <td>__MSG_label_Compress_Images_Animated__</td>
+                            </tr>
+                        </table>
+                    </td>
+                    </tr>
+                    <tr id="unSuperScriptAlternateTranslations" hidden="true">
+                        <td><input id="unSuperScriptCheckboxInput" type="checkbox" name="unSuperScriptCheckboxInput" value="true"></td>
+                        <td>__MSG_label_Remove_Superscript_From_Alternate_Translations__</td>
+                    </tr>
+                    <tr id="useSvgForImages">
+                        <td><input id="useSvgForImagesInput" type="checkbox" name="useSvgForImagesInput" value="true"></td>
+                        <td>__MSG_label_Use_SVG_for_Images__</td>
+                    </tr>
+                    <tr id="removeNextAndPreviousChapterHyperlinks">
+                        <td><input id="removeNextAndPreviousChapterHyperlinksInput" type="checkbox" name="removeNextAndPreviousChapterHyperlinksInput" value="true"></td>
+                        <td>__MSG_label_Remove_Next_and_Previous_Chapter_Hyperlinks__</td>
+                    </tr>
+                    <tr id="advancedOptionsVisibleByDefaultRow">
+                        <td><input id="advancedOptionsVisibleByDefaultCheckbox" type="checkbox" name="advancedOptionsVisibleByDefaultCheckbox" value="true"></td>
+                        <td>__MSG_label_Advanced_Options_Visible_By_Default__</td>
+                    </tr>
+                    <tr>
+                        <td>__MSG_label_Manually_Select_Parser__</td>
+                        <td>
+                            <select id="manuallySelectParserTag" />
+                        </td>
+                    </tr>
+                    <tr id="resetRow">
+                        <td></td>
+                        <td><button id="resetButton">__MSG_button_Reset__</button></td>
+                    </tr>
+                    <tr id="noDownloadPopupFileRow">
+                        <td><input id="noDownloadPopupCheckbox" type="checkbox" name="noDownloadPopupCheckbox" value="false"></td>
+                        <td>__MSG_label_No_Download_Popup__</td>
+                    </tr>
+                    <tr id="disableShiftClickAlertRow">
+                      <td><input id="disableShiftClickAlertCheckbox" type="checkbox" name="disableShiftClickAlertCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Shift_Click_Alert__</td>
+                    </tr>
+                    <tr id="disableImageResErrorRow">
+                      <td><input id="disableImageResErrorCheckbox" type="checkbox" name="disableImageResErrorCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Image_Res_Error__</td>
+                    </tr>
+                    <tr id="disableWebpImageFormatErrorRow">
+                      <td><input id="disableWebpImageFormatErrorCheckbox" type="checkbox" name="disableWebpImageFormatErrorCheckbox" value="false"></td>
+                      <td>__MSG_label_Disable_Webp_Image_Format_Error__</td>
+                    </tr>
+                    <tr id="writeErrorHistoryToFileRow">
+                        <td><input id="writeErrorHistoryToFileCheckbox" type="checkbox" name="writeErrorHistoryToFileCheckbox" value="false"></td>
+                        <td>__MSG_label_Write_Error_History_To_File__</td>
+                    </tr>
+                    <tr id="createEpub3FileRow">
+                        <td><input id="createEpub3Checkbox" type="checkbox" name="createEpub3Checkbox" value="false"></td>
+                        <td>__MSG_label_Create_Epub_3__</td>
+                    </tr>
+                    <tr id="useFullTitleAsFileName">
+                        <td><input id="useFullTitleAsFileNameCheckbox" type="checkbox" name="useFullTitleAsFileNameCheckbox" value="false"></td>
+                        <td>__MSG_label_Use_Full_Title_As_File_Name__</td>
+                    </tr>
+                    <tr id="removeIllegalCharacterFromFilenameOnDownload">
+                        <td><input id="removeIllegalCharacterFromFilenameOnDownloadCheckbox" type="checkbox" name="removeIllegalCharacterFromFilenameOnDownloadCheckbox" value="false"></td>
+                        <td>__MSG_label_Remove_Illegal_Character_From_Filename_On_Download__</td>
+                    </tr>
+                    <tr id="overwriteEpubWhenDuplicateFilename">
+                        <td><input id="overwriteEpubWhenDuplicateFilenameCheckbox" type="checkbox" name="overwriteEpubWhenDuplicateFilenameCheckbox" value="false"></td>
+                        <td>__MSG_label_Overwrite_Epub_When_Filename_Duplicte__</td>
+                    </tr>
+                    <tr id="addInformationPageToEpub">
+                        <td><input id="addInformationPageToEpubCheckbox" type="checkbox" name="addInformationPageToEpubCheckbox" value="true"></td>
+                        <td>__MSG_label_Add_Information_Page_To_Epub__</td>
+                    </tr>
+                    <tr id="chaptersPageInChapterListRow">
+                        <td><input id="chaptersPageInChapterListCheckbox" type="checkbox" name="chaptersPageInChapterListbox" value="false"></td>
+                        <td>__MSG_label_Chapters_Page_In_Chapters_List__</td>
+                    </tr>
+                    <tr id="autoParserSelectIncludesBTSeriesPageRow">
+                        <td><input id="autoParserSelectIncludesBTSeriesPageCheckbox" type="checkbox" name="autoParserSelectIncludesBTSeriesPage" value="false"></td>
+                        <td>__MSG_label_Auto_Parser_Select_Includes_Baka_Tsuki_Series_Page_Parser__</td>
+                        <td><button id="seriesPageHelpButton">__MSG_button_Help__</button></td>
+                    </tr>
+                    <tr id="skipChaptersThatFailFetch">
+                        <td><input id="skipChaptersThatFailFetchCheckbox" type="checkbox" name="skipChaptersThatFailFetchCheckbox" value="false"></td>
+                        <td>__MSG_label_Skip_Chapters_That_Fail_Fetch__</td>
+                    </tr>
+                    <tr id="noContentToError403">
+                        <td><input id="noContentToError403Checkbox" type="checkbox" name="noContentToError403Checkbox" value="false"></td>
+                        <td>__MSG_label_No_Content_To_Error_403_Page__</td>
+                    </tr>
+                    <tr id="maxChaptersPerEpub">
+                        <td>
+                            <select id="maxChaptersPerEpubTag">
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                                <option value="1,000">1,000</option>
+                                <option value="2,000">2,000</option>
+                                <option value="5,000">5,000</option>
+                                <option value="10,000" selected>10,000</option>
+                            </select>
+                        </td>
+                        <td>__MSG_label_Max_chapters_per_epub__</td>
+                    </tr>
+                    <tr id="manualDelayPerChapter">
+                        <td>
+                            <input id="manualDelayPerChapterTag" type="number" name="manualDelayPerChapterTag" style="width: 61px;" inputmode="decimal">
+                        </td>
+                        <td>__MSG_label_Manual_Delay_Per_Chapter__</td>
+                    </tr>
+                    <tr id="overrideParserDelayWithManualDelay">
+                        <td><input id="overrideMinimumDelayCheckbox" type="checkbox" name="overrideMinimumDelayCheckbox" value="false"></td>
+                        <td>__MSG_label_Override_Default_Minimum_Delay__</td>
+                    </tr>
+                    <tr id="IncludeInReadingListRow">
+                        <td><input id="includeInReadingListCheckbox" type="checkbox" name="includeInReadingListCheckbox" value="false"></td>
+                        <td>__MSG_label_Include_in_Reading_List__</td>
+                    </tr>
+                    <tr id="viewReadingListRow">
+                        <td></td>
+                        <td><button id="viewReadingListButton">__MSG_button_View_Reading_List__</button></td>
+                    </tr>
+                    <tr id="developerStuffRow">
+                        <td>__MSG_label_Developer_Stuff__</td>
+                        <td>
+                            <input id="diagnosticsCheckBoxInput" type="checkbox" name="diagnosticsCheckBoxInput" value="false">
+                            <button id="reloadButton" hidden="true">__MSG_button_Reload__</button>
+                        </td>
+                    </tr>
+                    <tr id="writeOptionsRow">
+                        <td></td>
+                        <td><button id="writeOptionsButton">__MSG_button_Write_Options_to_file__</button></td>
+                    </tr>
+                    <tr id="readOptionsRow">
+                        <td>__MSG_label_Read_Options_from_file__</td>
+                        <td><input id="readOptionsInput" type="file" name="readOptionsInput"></td>
+                    </tr>
+                </table>
+            </section>
+        </section>
+        <section id="testSection"></section>
+        <section id="imageSection" hidden="true">
+            <table id="imageOptionsTable">
+                <tr id="duplicateImagesRow">
+                    <td>__MSG_label_Remove_Duplicate_Images__</td>
+                    <td><input id="removeDuplicateImages" type="checkbox" name="removeDuplicateImages" value="false"></td>
+                </tr>
+                <tr id="coverFromUrlRow">
+                    <td>__MSG_label_Cover_from_URL__</td>
+                    <td><input id="coverFromUrlCheckboxInput" type="checkbox" name="coverFromUrlCheckboxInput" value="false"></td>
+                </tr>
+            </table>
+            <div id="imagesTableDiv" class="scrollingtable">
+                <table id="imagesTable"></table>
+            </div>
+        </section>
+        <section id="outputSection" class="minWidth">
+            <div id="chapterSelectControlsDiv">
+                <table id="rangeSelectTable">
+                    <tr id="rangeStartChapterRow">
+                        <td>__MSG_label_Range_Start_Chapter__</td>
+                        <td><select id="selectRangeStartChapter" /></td>
+                        <td><input id="showChapterUrlsCheckbox" type="checkbox" name="showChapterUrlsCheckbox" value="false"></td>
+                        <td>__MSG_label_Show_Chapter_Urls__</td>
+                    </tr>
+                    <tr id="rangeEndChapterRow">
+                        <td>__MSG_label_Range_End_Chapter__</td>
+                        <td><select id="selectRangeEndChapter" /></td>
+                        <td colspan="2">&nbsp; <button id="viewFiltersButton">__MSG_button_View_Filters__</button></td>
+                    </tr>
+                    <tr id="rangeChapterCountRow">
+                        <td>__MSG_label_Chapter_Count__</td>
+                        <td colspan="3">
+                            <table width="100%">
+                                <tr>
+                                    <td width="30%"><span id="spanChapterCount" />0</td>
+                                    <td width="50%"><span id="spanParserName" /></td>
+                                    <td width="20%"><span id="spanDelayMs" />0 ms</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <button id="selectAllUrlsButton">__MSG_button_Select_All__</button>
+                    <button id="unselectAllUrlsButton">__MSG_button_Unselect_All__</button>
+                    <button id="reverseChapterUrlsOrderButton">__MSG_button_Reverse_Chapter_Urls_Order__</button>
+                    <button id="editChaptersUrlsButton">__MSG_button_Edit_Chapter_Urls__</button>
+                    <button id="copyUrlsToClipboardButton">__MSG_button_Copy_Urls_To_Clipboard__</button>
+                </div>
+            </div>
+            <button id="applyChangesButton" hidden="true">__MSG_button_Apply_Changes__</button>
+            <p id="editURLsHint" class="i18n" hidden="true">__MSG_label_Edit_URLs_Hint__</p>
+            <div id="findingChapterUrlsMessageRow" class="i18n warning">__MSG_Searching_For_URLs_Please_Wait__</div>
+            <table id="chapterUrlsTable" class="chapterlist">
+                <tr>
+                    <th align="left">__MSG_column_Include__</th>
+                    <th align="left">__MSG_column_Title__</th>
+                    <th align="left" hidden="true">__MSG_column_URL__</th>
+                </tr>
+            </table>
+            <div>
+                <textarea id="editChaptersUrlsInput" class="allSpace" cols="200" rows="20" hidden="true"></textarea>
+            </div>
+            <button id="applyChangesButton2" hidden="true">__MSG_button_Apply_Changes__</button>
+        </section>
+    </div>
+
+    <div id="sbOptions" class="sidebar">
+        <div width="100%" id="sbClose" class="closebtn">&#x274c;</div>
+        <section id="sbFilters" hidden="true">
+            <table style="width:100%;">
+                <tr>
+                    <th colspan="2">__MSG_button_View_Filters__</th>
+                </tr>
+            </table>
+            <form id="sbFiltersForm" disabled> </form>
+        </section>
+        <!-- Create new sections for new or moved data such as Advanced Options or Reading List -->
+    </div>
+
+    <span id="scriptContainer">
+        <!-- scripts go here -->
+        <script src="js/UIText.js"></script>
+        <script src="js/ReadingList.js"></script>
+        <script src="js/UserPreferences.js"></script>
+        <script src="js/EpubMetaInfo.js"></script>
+        <script src="js/ErrorLog.js"></script>
+        <script src="js/Util.js"></script>
+        <script src="js/FootnoteExtractor.js"></script>
+        <script src="js/Firefox.js"></script>
+        <script src="js/Download.js"></script>
+        <script src="js/HttpClient.js"></script>
+        <script src="js/HeuristicScanner.js"></script>
+        <script src="js/EpubItem.js"></script>
+        <script src="js/ParserFactory.js"></script>
+        <script src="js/ImageCollector.js"></script>
+        <script src="js/Imgur.js"></script>
+        <script src="js/ChapterUrlsUI.js"></script>
+        <script src="js/DefaultParserUI.js"></script>
+        <script src="js/ProgressBar.js"></script>
+        <script src="js/Parser.js"></script>
+        <script src="js/Library.js"></script>
+
+        <!-- These parsers are (or might be) used as base for other pareser-->
+        <script src="js/parsers/WordpressBaseParser.js"></script>
+        <script src="js/parsers/MadaraParser.js"></script>
+
+        <!-- Not used as base -->
+        <script src="js/parsers/230BookParser.js"></script>
+        <script src="js/parsers/27kParser.js"></script>
+        <script src="js/parsers/4kswParser.js"></script>
+        <script src="js/parsers/69shuParser.js"></script>
+        <script src="js/parsers/88xiaoshuoParser.js"></script>
+        <script src="js/parsers/888novelParser.js"></script>
+        <script src="js/parsers/101kksParser.js"></script>
+        <script src="js/parsers/ActiveTranslationsParser.js"></script>
+        <script src="js/parsers/AdultfanfictionParser.js"></script>
+        <script src="js/parsers/AerialrainParser.js"></script>
+        <script src="js/parsers/AkknovelParser.js"></script>
+        <script src="js/parsers/AlphapolisParser.js"></script>
+        <script src="js/parsers/AliceswParser.js"></script>
+        <script src="js/parsers/AmoryaoiParser.js"></script>
+        <script src="js/parsers/AnythingNovelParser.js"></script>
+        <script src="js/parsers/ArchiveOfOurOwnParser.js"></script>
+        <script src="js/parsers/AppYoruWorldParser.js"></script>
+        <script src="js/parsers/AsianfanficsParser.js"></script>
+        <script src="js/parsers/AsianovelParser.js"></script>
+        <script src="js/parsers/AsstrParser.js"></script>
+        <script src="js/parsers/AthenaTlsParser.js"></script>
+        <script src="js/parsers/AtlantisVienDongParser.js"></script>
+        <script src="js/parsers/BabelChainParser.js"></script>
+        <script src="js/parsers/BakaTsukiParser.js"></script>
+        <script src="js/parsers/BakaTsukiSeriesPageParser.js"></script>
+        <script src="js/parsers/BeastnovelsParser.js"></script>
+        <script src="js/parsers/BetwixtedbutterflyParser.js"></script>
+        <script src="js/parsers/BiqugetwParser.js"></script>
+        <script src="js/parsers/BlogspotParser.js"></script>
+        <script src="js/parsers/BlogusParser.js"></script>
+        <script src="js/parsers/Book18Parser.js"></script>
+        <script src="js/parsers/BookswithqianyaParser.js"></script>
+        <script src="js/parsers/Booktoki152Parser.js"></script>
+        <script src="js/parsers/BotitranslationParser.js"></script>
+        <script src="js/parsers/BoxnovelOrgParser.js"></script>
+        <script src="js/parsers/BoyloveParser.js"></script>
+        <script src="js/parsers/Bqg225Parser.js"></script>
+        <script src="js/parsers/Brittanypage43Parser.js"></script>
+        <script src="js/parsers/BuntlsParser.js"></script>
+        <script src="js/parsers/BnatranslationsParser.js"></script>
+        <script src="js/parsers/CangjiParser.js"></script>
+        <script src="js/parsers/CClawTranslationsParser.js"></script>
+        <script src="js/parsers/ChaleuriaParser.js"></script>
+        <script src="js/parsers/ChichipephParser.js"></script>
+        <script src="js/parsers/ChickengegeParser.js"></script>
+        <script src="js/parsers/ChineseFantasyNovelsParser.js"></script>
+        <script src="js/parsers/ChikariParser.js"></script>
+        <script src="js/parsers/ChosentwofanficParser.js"></script>
+        <script src="js/parsers/ChrysanthemumgardenParser.js"></script>
+        <script src="js/parsers/ChyoaParser.js"></script>
+        <script src="js/parsers/CiweimaoParser.js"></script>
+        <script src="js/parsers/ComrademaoParser.js"></script>
+        <script src="js/parsers/CoronatranslationParser.js"></script>
+        <script src="js/parsers/CreativeNovelsParser.js"></script>
+        <script src="js/parsers/CrimsontranslationsParser.js"></script>
+        <script src="js/parsers/CrushnovelParser.js"></script>
+        <script src="js/parsers/CurspeParser.js"></script>
+        <script src="js/parsers/CzbooksParser.js"></script>
+        <script src="js/parsers/DaoDivineTlParser.js"></script>
+        <script src="js/parsers/DarkNovelsParser.js"></script>
+        <script src="js/parsers/DasuitlParser.js"></script>
+        <script src="js/parsers/DdxsParser.js"></script>
+        <script src="js/parsers/DefaultParser.js"></script>
+        <script src="js/parsers/DeviantArtParser.js"></script>
+        <script src="js/parsers/DiurnisParser.js"></script>
+        <script src="js/parsers/DragonholictranslationsParser.js"></script>
+        <script src="js/parsers/DreamyTranslationsParser.js"></script>
+        <script src="js/parsers/DudushugeParser.js"></script>
+        <script src="js/parsers/DummynovelsParser.js"></script>
+        <script src="js/parsers/EdanglarstranslationsParser.js"></script>
+        <script src="js/parsers/EightMusesParser.js"></script>
+        <script src="js/parsers/EmpirenovelParser.js"></script>
+        <script src="js/parsers/EngnovelParser.js"></script>
+        <script src="js/parsers/ErofusParser.js"></script>
+        <script src="js/parsers/EstarParser.js"></script>
+        <script src="js/parsers/ExiledrebelsscanlationsParser.js"></script>
+        <script src="js/parsers/FanFicParadiseParser.js"></script>
+        <script src="js/parsers/FanFictionParser.js"></script>
+        <script src="js/parsers/FanficusParser.js"></script>
+        <script src="js/parsers/FastNovelParser.js"></script>
+        <script src="js/parsers/FenrirealmParser.js"></script>
+        <script src="js/parsers/FenrirScansParser.js"></script>
+        <script src="js/parsers/Ffxs8Parser.js"></script>
+        <script src="js/parsers/FicbookParser.js"></script>
+        <script src="js/parsers/FictioneerParser.js"></script>
+        <script src="js/parsers/FictionhuntParser.js"></script>
+        <script src="js/parsers/FictionManiaParser.js"></script>
+        <script src="js/parsers/FictionreadParser.js"></script>
+        <script src="js/parsers/FicwadParser.js"></script>
+        <script src="js/parsers/FimfictionParser.js"></script>
+        <script src="js/parsers/FlamebreezeTslParser.js"></script>
+        <script src="js/parsers/FlyingLinesParser.js"></script>
+        <script src="js/parsers/FoxtellerParser.js"></script>
+        <script src="js/parsers/FreelightnovelParser.js"></script>
+        <script src="js/parsers/FreeWebNovelParser.js"></script>
+        <script src="js/parsers/FuhuzzParser.js"></script>
+        <script src="js/parsers/FullnovelParser.js"></script>
+        <script src="js/parsers/GamefaqsGamespotParser.js"></script>
+        <script src="js/parsers/GenesiStudioParser.js"></script>
+        <script src="js/parsers/GiatocvuongtaiParser.js"></script>
+        <script src="js/parsers/GlobalNovelpiaParser.js"></script>
+        <script src="js/parsers/GoodNovelParser.js"></script>
+        <script src="js/parsers/GraverobbertlParser.js"></script>
+        <script src="js/parsers/GravityNovelsParser.js"></script>
+        <script src="js/parsers/GoldennovelParser.js"></script>
+        <script src="js/parsers/Gratuit4049025WebadorParser.js"></script>
+        <script src="js/parsers/GravityTalesParser.js"></script>
+        <script src="js/parsers/GunnerkriggParser.js"></script>
+        <script src="js/parsers/GutenbergDEParser.js"></script>
+        <script src="js/parsers/GzbpParser.js"></script>
+        <script src="js/parsers/HelheimscansParser.js"></script>
+        <script src="js/parsers/HentaiFoundryParser.js"></script>
+        <script src="js/parsers/HostednovelParser.js"></script>
+        <script src="js/parsers/Hui3rParser.js"></script>
+        <script src="js/parsers/IdleturtletranslationsParser.js"></script>
+        <script src="js/parsers/ImgurParser.js"></script>
+        <script src="js/parsers/IdnovelmyidParser.js"></script>
+        <script src="js/parsers/IndomtlParser.js"></script>
+        <script src="js/parsers/IndowebnovelParser.js"></script>
+        <script src="js/parsers/InkittParser.js"></script>
+        <script src="js/parsers/InoveltranslationParser.js"></script>
+        <script src="js/parsers/IsekaiScanParser.js"></script>
+        <script src="js/parsers/IsotlsParser.js"></script>
+        <script src="js/parsers/IxdzsParser.js"></script>
+        <script src="js/parsers/JadeRabbitParser.js"></script>
+        <script src="js/parsers/JadeScrollsParser.js"></script>
+        <script src="js/parsers/JaptemParser.js"></script>
+        <script src="js/parsers/JjwxcParser.js"></script>
+        <script src="js/parsers/JonaxxstoriesParser.js"></script>
+        <script src="js/parsers/JpmtlParser.js"></script>
+        <script src="js/parsers/KakaoParser.js"></script>
+        <script src="js/parsers/KakuyomuParser.js"></script>
+        <script src="js/parsers/KaystlsParser.js"></script>
+        <script src="js/parsers/KemonopartyParser.js"></script>
+        <script src="js/parsers/KonkonKuupressParser.js"></script>
+        <script src="js/parsers/KrytykalParser.js"></script>
+        <script src="js/parsers/LanrySpaceParser.js"></script>
+        <script src="js/parsers/LeafStudioParser.js"></script>
+        <script src="js/parsers/LibersparkParser.js"></script>
+        <script src="js/parsers/Libri7Parser.js"></script>
+        <script src="js/parsers/LightnovelasiaParser.js"></script>
+        <script src="js/parsers/LightNovelBastionParser.js"></script>
+        <script src="js/parsers/LightnovelboxParser.js"></script>
+        <script src="js/parsers/LightnovelfrParser.js"></script>
+        <script src="js/parsers/LightnovelreaderParser.js"></script>
+        <script src="js/parsers/LightnovelreadParser.js"></script>
+        <script src="js/parsers/LightnovelsmeParser.js"></script>
+        <script src="js/parsers/LightNovelWorldOrgParser.js"></script>
+        <script src="js/parsers/LightNovelWorldParser.js"></script>
+        <script src="js/parsers/LiteroticaParser.js"></script>
+        <script src="js/parsers/LnmtlParser.js"></script>
+        <script src="js/parsers/LoreNovelsParser.js"></script>
+        <script src="js/parsers/LovelyBlossomsParser.js"></script>
+        <script src="js/parsers/LunoxscansParser.js"></script>
+        <script src="js/parsers/LumosStoriesParser.js"></script>
+        <script src="js/parsers/MachineTranslationParser.js"></script>
+        <script src="js/parsers/MadnovelParser.js"></script>
+        <script src="js/parsers/MagicWizardsParser.js"></script>
+        <script src="js/parsers/MangadexParser.js"></script>
+        <script src="js/parsers/MandarinducktalesParser.js"></script>
+        <script src="js/parsers/MangakakalotParser.js"></script>
+        <script src="js/parsers/MangallamaParser.js"></script>
+        <script src="js/parsers/ManganeloParser.js"></script>
+        <script src="js/parsers/ManganovParser.js"></script>
+        <script src="js/parsers/MangaHereParser.js"></script>
+        <script src="js/parsers/MangaReadParser.js"></script>
+        <script src="js/parsers/ManhwadenParser.js"></script>
+        <script src="js/parsers/ManhwatopParser.js"></script>
+        <script src="js/parsers/Marx2maoParser.js"></script>
+        <script src="js/parsers/MarxistsCNParser.js"></script>
+        <script src="js/parsers/MayanovelParser.js"></script>
+        <script src="js/parsers/McStoriesParser.js"></script>
+        <script src="js/parsers/MeionovelParser.js"></script>
+        <script src="js/parsers/MetanovelParser.js"></script>
+        <script src="js/parsers/MetruyenchuParser.js"></script>
+        <script src="js/parsers/MMyWwuxiaWorldParser.js"></script>
+        <script src="js/parsers/MidnightramblesParser.js"></script>
+        <script src="js/parsers/MimihuiParser.js"></script>
+        <script src="js/parsers/MistmintHavenParser.js"></script>
+        <script src="js/parsers/MtlarchiveParser.js"></script>
+        <script src="js/parsers/MtlBooksParser.js"></script>
+        <script src="js/parsers/MtledNovelsParser.js"></script>
+        <script src="js/parsers/MtlnationParser.js"></script>
+        <script src="js/parsers/MtlnovelsParser.js"></script>
+        <script src="js/parsers/MtlreaderParser.js"></script>
+        <script src="js/parsers/MtnovelParser.js"></script>
+        <script src="js/parsers/MoonDaisyParser.js"></script>
+        <script src="js/parsers/MoonQuillParser.js"></script>
+        <script src="js/parsers/MottruyenParser.js"></script>
+        <script src="js/parsers/MuggleNetParser.js"></script>
+        <script src="js/parsers/MvlempyrParser.js"></script>
+        <script src="js/parsers/MydramanovelParser.js"></script>
+        <script src="js/parsers/MyxlsParser.js"></script>
+        <script src="js/parsers/MznovelsParser.js"></script>
+        <script src="js/parsers/NanodesuParser.js"></script>
+        <script src="js/parsers/NanomashinonlineParser.js"></script>
+        <script src="js/parsers/NameVtParser.js"></script>
+        <script src="js/parsers/NeobookParser.js"></script>
+        <script src="js/parsers/NineHeavensParser.js"></script>
+        <script src="js/parsers/NobadnovelParser.js"></script>
+        <script src="js/parsers/NoblemtlParser.js"></script>
+        <script src="js/parsers/Novel543Parser.js"></script>
+        <script src="js/parsers/NovelAllParser.js"></script>
+        <script src="js/parsers/NovelarrowParser.js"></script>
+        <script src="js/parsers/NovelArchiveParser.js"></script>
+        <script src="js/parsers/NovelcoolParser.js"></script>
+        <script src="js/parsers/NovelCrushParser.js"></script>
+        <script src="js/parsers/NoveldexParser.js"></script>
+        <script src="js/parsers/NovelFeverParser.js"></script>
+        <script src="js/parsers/NovelfranceParser.js"></script>
+        <script src="js/parsers/NovelfullParser.js"></script>
+        <script src="js/parsers/NovelgoParser.js"></script>
+        <script src="js/parsers/NovelgreatParser.js"></script>
+        <script src="js/parsers/NovelhallParser.js"></script>
+        <script src="js/parsers/NovelhiParser.js"></script>
+        <script src="js/parsers/NovelholdParser.js"></script>
+        <script src="js/parsers/NovelightParser.js"></script>
+        <script src="js/parsers/NovelinguaParser.js"></script>
+        <script src="js/parsers/NovelLunarParser.js"></script>
+        <script src="js/parsers/NovelmaoParser.js"></script>
+        <script src="js/parsers/NovelmaniaParser.js"></script>
+        <script src="js/parsers/NovelmediumParser.js"></script>
+        <script src="js/parsers/NovelNaverParser.js"></script>
+        <script src="js/parsers/NovelOnlineFreeParser.js"></script>
+        <script src="js/parsers/NovelsfullParser.js"></script>
+        <script src="js/parsers/NovelshubParser.js"></script>
+        <script src="js/parsers/NovelsOnlineParser.js"></script>
+        <script src="js/parsers/NovelonomiconParser.js"></script>
+        <script src="js/parsers/NovelpassionParser.js"></script>
+        <script src="js/parsers/NovelplexParser.js"></script>
+        <script src="js/parsers/NovelsectParser.js"></script>
+        <script src="js/parsers/NovelsemperorParser.js"></script>
+        <script src="js/parsers/NovelsplParser.js"></script>
+        <script src="js/parsers/NovelSpreadParser.js"></script>
+        <script src="js/parsers/NovelsquareParser.js"></script>
+        <script src="js/parsers/NovelsRockParser.js"></script>
+        <script src="js/parsers/NoveltoonParser.js"></script>
+        <script src="js/parsers/NoveltranslatedbycParser.js"></script>
+        <script src="js/parsers/NovelUniverseParser.js"></script>
+        <script src="js/parsers/NovelUpdatesOnlineParser.js"></script>
+        <script src="js/parsers/NovelversetranslationsParser.js"></script>
+        <script src="js/parsers/NovelGecesiParser.js"></script>
+        <script src="js/parsers/NovicetranslationsParser.js"></script>
+        <script src="js/parsers/NovzonParser.js"></script>
+        <script src="js/parsers/NrvnqsrParser.js"></script>
+        <script src="js/parsers/NtruyenParser.js"></script>
+        <script src="js/parsers/NullTranslation.js"></script>
+        <script src="js/parsers/NyahFanfictionParser.js"></script>
+        <script src="js/parsers/NyantlParser.js"></script>
+        <script src="js/parsers/OceanstaleParser.js"></script>
+        <script src="js/parsers/OctopiiParser.js"></script>
+        <script src="js/parsers/OnlinenovelbookParser.js"></script>
+        <script src="js/parsers/OntimestoryParser.js"></script>
+        <script src="js/parsers/OssantlParser.js"></script>
+        <script src="js/parsers/PandaNovelParser.js"></script>
+        <script src="js/parsers/PatreonParser.js"></script>
+        <script src="js/parsers/PawchiveParser.js"></script>
+        <script src="js/parsers/PawreadParser.js"></script>
+        <script src="js/parsers/PeachblossomcodexParser.js"></script>
+        <script src="js/parsers/PeachpittingParser.js"></script>
+        <script src="js/parsers/PeachpuffParser.js"></script>
+        <script src="js/parsers/PeachygardensBlogspotParser.js"></script>
+        <script src="js/parsers/PindangscansParser.js"></script>
+        <script src="js/parsers/Po18csParser.js"></script>
+        <script src="js/parsers/PowanjuanParser.js"></script>
+        <script src="js/parsers/PtwxzParser.js"></script>
+        <script src="js/parsers/PuretlParser.js"></script>
+        <script src="js/parsers/QidianParser.js"></script>
+        <script src="js/parsers/QinxiaoshuoParser.js"></script>
+        <script src="js/parsers/QqxsParser.js"></script>
+        <script src="js/parsers/Quanben5Parser.js"></script>
+        <script src="js/parsers/QuanbenParser.js"></script>
+        <script src="js/parsers/QueenrosenovelblogspotParser.js"></script>
+        <script src="js/parsers/QuotevParser.js"></script>
+        <script src="js/parsers/RaeiNovelsParser.js"></script>
+        <script src="js/parsers/RandomtranslatorParser.js"></script>
+        <script src="js/parsers/RanobelibParser.js"></script>
+        <script src="js/parsers/RanobesParser.js"></script>
+        <script src="js/parsers/RazureParser.js"></script>
+        <script src="js/parsers/RainOfSnowParser.js"></script>
+        <script src="js/parsers/ReadComicOnlineParser.js"></script>
+        <script src="js/parsers/ReaderNovelParser.js"></script>
+        <script src="js/parsers/ReadhiveParser.js"></script>
+        <script src="js/parsers/ReadLightNovelCcParser.js"></script>
+        <script src="js/parsers/ReadLightNovelParser.js"></script>
+        <script src="js/parsers/ReadindpiaParser.js"></script>
+        <script src="js/parsers/ReadnoveldailyParser.js"></script>
+        <script src="js/parsers/ReadnovelfullorgParser.js"></script>
+        <script src="js/parsers/ReadNovelFullParser.js"></script>
+        <script src="js/parsers/ReadnovelmtlParser.js"></script>
+        <script src="js/parsers/ReadRiftParser.js"></script>
+        <script src="js/parsers/ReadthedramaParser.js"></script>
+        <script src="js/parsers/ReadwnParser.js"></script>
+        <script src="js/parsers/RebirthOnline.js"></script>
+        <script src="js/parsers/RedditParser.js"></script>
+        <script src="js/parsers/RequiemtlsParser.js"></script>
+        <script src="js/parsers/RoyalRoadParser.js"></script>
+        <script src="js/parsers/RtdMoeParser.js"></script>
+        <script src="js/parsers/RtenzoParser.js"></script>
+        <script src="js/parsers/RubymaybetranslationsParser.js"></script>
+        <script src="js/parsers/RulateParser.js"></script>
+        <script src="js/parsers/RuversParser.js"></script>
+        <script src="js/parsers/SakurazeParser.js"></script>
+        <script src="js/parsers/SangtacvietParser.js"></script>
+        <script src="js/parsers/SammyAndPassionParser.js"></script>
+        <script src="js/parsers/ScribblehubParser.js"></script>
+        <script src="js/parsers/SecondlifetranslationsParser.js"></script>
+        <script src="js/parsers/SemprotParser.js"></script>
+        <script src="js/parsers/SexStoriesParser.js"></script>
+        <script src="js/parsers/ShanghaifantasyParser.js"></script>
+        <script src="js/parsers/ShikkakutranslationsParser.js"></script>
+        <script src="js/parsers/ShinningnoveltranslationsParser.js"></script>
+        <script src="js/parsers/ShinsoriParser.js"></script>
+        <script src="js/parsers/ShintranslationsParser.js"></script>
+        <script src="js/parsers/ShirokunsParser.js"></script>
+        <script src="js/parsers/ShitouxsParser.js"></script>
+        <script src="js/parsers/ShubaowbParser.js"></script>
+        <script src="js/parsers/ShubaowParser.js"></script>
+        <script src="js/parsers/Shw5Parser.js"></script>
+        <script src="js/parsers/SitesGoogleParser.js"></script>
+        <script src="js/parsers/Sjks88Parser.js"></script>
+        <script src="js/parsers/SjuukanshuParser.js"></script>
+        <script src="js/parsers/SkydemonorderParser.js"></script>
+        <script src="js/parsers/SnoutandcoParser.js"></script>
+        <script src="js/parsers/SoafpParser.js"></script>
+        <script src="js/parsers/SoverseParser.js"></script>
+        <script src="js/parsers/SpacebattlesParser.js"></script>
+        <script src="js/parsers/SpiritfanfictionParser.js"></script>
+        <script src="js/parsers/SspaiParser.js"></script>
+        <script src="js/parsers/StarlightstreamParser.js"></script>
+        <script src="js/parsers/StellarRealmParser.js"></script>
+        <script src="js/parsers/StocxParser.js"></script>
+        <script src="js/parsers/SweekParser.js"></script>
+        <script src="js/parsers/SyosetuParser.js"></script>
+        <script src="js/parsers/SyosetuOrgParser.js"></script>
+        <script src="js/parsers/TangthuvienParser.js"></script>
+        <script src="js/parsers/TapasParser.js"></script>
+        <script src="js/parsers/TapreadParser.js"></script>
+        <script src="js/parsers/TeanovelParser.js"></script>
+        <script src="js/parsers/TeenficParser.js"></script>
+        <script src="js/parsers/Taffygirl13Parser.js"></script>
+        <script src="js/parsers/TiemtruyenchuParser.js"></script>
+        <script src="js/parsers/TigertranslationsParser.js"></script>
+        <script src="js/parsers/TimotxtParser.js"></script>
+        <script src="js/parsers/TitannovelParser.js"></script>
+        <script src="js/parsers/ToctruyenParser.js"></script>
+        <script src="js/parsers/TomotranslationsParser.js"></script>
+        <script src="js/parsers/TongrenquanParser.js"></script>
+        <script src="js/parsers/TranscendentalTlsParser.js"></script>
+        <script src="js/parsers/TravistranslationsParser.js"></script>
+        <script src="js/parsers/TruyenFullVisionParser.js"></script>
+        <script src="js/parsers/TruyenmoikkParser.js"></script>
+        <script src="js/parsers/TruyenyyParser.js"></script>
+        <script src="js/parsers/TruyenParser.js"></script>
+        <script src="js/parsers/TrxsParser.js"></script>
+        <script src="js/parsers/TumblrParser.js"></script>
+        <script src="js/parsers/TwkanParser.js"></script>
+        <script src="js/parsers/UaaParser.js"></script>
+        <script src="js/parsers/UltimaguilParser.js"></script>
+        <script src="js/parsers/UnlimitedNovelFailuresParser.js"></script>
+        <script src="js/parsers/UntamedAlleyParser.js"></script>
+        <script src="js/parsers/UukanshuParser.js"></script>
+        <script src="js/parsers/VelvetReverieParser.js"></script>
+        <script src="js/parsers/VipNovelParser.js"></script>
+        <script src="js/parsers/VozerioParser.js"></script>
+        <script src="js/parsers/Wenku8Parser.js"></script>
+        <script src="js/parsers/WfxsParser.js"></script>
+        <script src="js/parsers/WordexcerptParser.js"></script>
+        <script src="js/parsers/WorldnovelOnlineParser.js"></script>
+        <script src="js/parsers/WtnovelsParser.js"></script>
+        <script src="js/parsers/XiaoshuoguiParser.js"></script>
+        <script src="js/parsers/XiaxuenovelsParser.js"></script>
+        <script src="js/parsers/XklxswParser.js"></script>
+        <script src="js/parsers/YedugeParser.js"></script>
+        <script src="js/parsers/YushuboParser.js"></script>
+        <script src="js/parsers/AsianHobbyistParser.js"></script>
+        <script src="js/parsers/FalooParser.js"></script>
+        <script src="js/parsers/FoxaholicParser.js"></script>
+        <script src="js/parsers/HellpingParser.js"></script>
+        <script src="js/parsers/HiscensionParser.js"></script>
+        <script src="js/parsers/KobatochanParser.js"></script>
+        <script src="js/parsers/LightNovelsTranslationsParser.js"></script>
+        <script src="js/parsers/ReLibraryParser.js"></script>
+        <script src="js/parsers/ShmtranslationsParser.js"></script>
+        <script src="js/parsers/SnowyCodexParser.js"></script>
+        <script src="js/parsers/StorySeedlingParser.js"></script>
+        <script src="js/parsers/SystemTranslationParser.js"></script>
+        <script src="js/parsers/TranslationChickenParser.js"></script>
+        <script src="js/parsers/VolarenovelsParser.js"></script>
+        <script src="js/parsers/VynovelParser.js"></script>
+        <script src="js/parsers/WattpadVN.js"></script>
+        <script src="js/parsers/WanderinginnParser.js"></script>
+        <script src="js/parsers/WetriedTlsParser.js"></script>
+        <script src="js/parsers/WLPublishingParser.js"></script>
+        <script src="js/parsers/WatashiwasugoidesuParser.js"></script>
+        <script src="js/parsers/WattpadParser.js"></script>
+        <script src="js/parsers/WebNovelOnlineParser.js"></script>
+        <script src="js/parsers/WikipediaParser.js"></script>
+        <script src="js/parsers/WixParser.js"></script>
+        <script src="js/parsers/WnmtlOrgParser.js"></script>
+        <script src="js/parsers/WnmtlParser.js"></script>
+        <script src="js/parsers/WoopreadParser.js"></script>
+        <script src="js/parsers/WtrlabParser.js"></script>
+        <script src="js/parsers/WuxiaBlogParser.js"></script>
+        <script src="js/parsers/WuxiacityParser.js"></script>
+        <script src="js/parsers/WuxiaworldCoParser.js"></script>
+        <script src="js/parsers/WuxiaworldeuParser.js"></script>
+        <script src="js/parsers/WuxiaworldParser.js"></script>
+        <script src="js/parsers/WuxiaworldWorldParser.js"></script>
+        <script src="js/parsers/WuxiaTranslateParser.js"></script>
+        <script src="js/parsers/WxscsParser.js"></script>
+        <script src="js/parsers/XbanxiaParser.js"></script>
+        <script src="js/parsers/XbiqugeParser.js"></script>
+        <script src="js/parsers/XenforoBatchParser.js"></script>
+        <script src="js/parsers/XiaoshubaoParser.js"></script>
+        <script src="js/parsers/XswParser.js"></script>
+        <script src="js/parsers/ZenithNovelsParser.js"></script>
+        <script src="js/parsers/ZenithtlsParser.js"></script>
+        <script src="js/parsers/ZeonicrepublicParser.js"></script>
+        <script src="js/parsers/ZhenhunxiaoshuoParser.js"></script>
+        <script src="js/parsers/ZirusMusingsParser.js"></script>
+        <script src="@zip.js/zip.js/dist/zip-no-worker.min.js"></script>
+        <script src="dompurify/dist/purify.min.js"></script>
+        <script src="js/EpubItemSupplier.js"></script>
+        <script src="js/CoverImageUI.js"></script>
+        <script src="js/parsers/SonakoParser.js"></script>
+        <script src="js/EpubPacker.js"></script>
+        <script src="js/main.js"></script>
+    </span>
+</body>
+</html>
