@@ -101,7 +101,7 @@ class QidianParser extends Parser {
         let newtitlenode = document.createElement("h1");
         if (tmptitle == undefined || tmptitle == "[placeholder]") {
             let titleEl = content.querySelector("div.chapter_content h1");
-            let titleDupChapRegex = new RegExp(String.Raw`(\w+[\s\-]+\d+):\s*\1:?(.*)`, "i").exec(titleEl.textContent);
+            let titleDupChapRegex = new RegExp(String.raw`(\w+[\s\-]+\d+):\s*\1:?(.*)`, "i").exec(titleEl.textContent);
             if (titleDupChapRegex && titleDupChapRegex.length > 2) {
                 let newtitleText = document.createTextNode(titleDupChapRegex[1] + titleDupChapRegex[2]);
                 newtitlenode.appendChild(newtitleText);

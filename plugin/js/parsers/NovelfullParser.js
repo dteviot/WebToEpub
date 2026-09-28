@@ -4,7 +4,6 @@ parserFactory.register("allnovel.org", () => new NovelfullParser());
 parserFactory.register("allnovelbin.net", () => new NovelfullParser());
 parserFactory.register("allnovelfull.app", () => new NovelfullParser());
 parserFactory.register("allnovelfull.com", () => new NovelfullParser());
-parserFactory.register("novgo.net", () => new NovelfullParser());
 //dead url
 parserFactory.registerDeadSite("allnovelfull.org", () => new NovelfullParser());
 parserFactory.register("allnovelfull.net", () => new NovelfullParser());
@@ -259,9 +258,7 @@ class NovelbinParser extends NovelfullParser {
         let url = new URL(dom.baseURI);
         let slug = url.pathname.split("/").filter((a) => a != "");
         slug = slug[slug.length - 1];
-        let tocHtml = (
-            await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId=" + slug)
-        ).responseXML;
+        let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId=" + slug)).responseXML;
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
     }
