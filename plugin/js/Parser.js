@@ -95,22 +95,12 @@ class Parser {
         return {};
     }
 
-    isNoContentToError403AndContentNull(response) {
-        if (this.userPreferences.noContentToError403.value) {
-            let content = this.findContent(response.responseXML);
-            return (content == null);
-        }
-        else {
-            return false;
-        }
-    }
-
-    setNoContentToError403Response(url, wrapOptions, checkedresponse) {
+    setNoContentToError403Response(url, wrapOptions) {
         let ret = {};
         ret.url = url;
         ret.wrapOptions = wrapOptions;
         ret.response = {};
-        ret.response.url = checkedresponse.response.url;
+        ret.response.url = url;
         ret.response.status = 403;
         return ret;
     }
@@ -639,8 +629,13 @@ class Parser {
             let content = pageParser.findContent(webPage.rawDom);
             if (content == null) {
                 if (this.userPreferences.noContentToError403.value) {
-                    let errorMsg = UIText.Warning.warningNoContentTo403ErrorResponse(new URL(webPage.sourceUrl).hostname);
-                    throw new Error(errorMsg);
+                    let wrapOptions = {
+                        errorHandler: new FetchErrorHandler()
+                    };
+                    wrapOptions.responseHandler = new FetchResponseHandler();
+                    
+                    let CustomNoContentToError403Response = pageParser.setNoContentToError403Response(webPage.sourceUrl, wrapOptions);
+                    return wrapOptions.errorHandler.onNoContentToError403(CustomNoContentToError403Response.url, CustomNoContentToError403Response.wrapOptions, CustomNoContentToError403Response.response, CustomNoContentToError403Response.errorMessage);
                 }
                 else {
                     let errorMsg = UIText.Error.errorContentNotFound(webPage.sourceUrl);

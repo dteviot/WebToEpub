@@ -56,6 +56,12 @@ class FetchErrorHandler {
         }
     }
 
+    onNoContentToError403(url, wrapOptions, response, errorMessage) {
+        let retry = {retryDelay: [1], promptUser: true, HTTP: 403};
+        wrapOptions.retry = retry;
+        return this.promptUserForRetry(url, wrapOptions, response, errorMessage);
+    }
+
     promptUserForRetry(url, wrapOptions, response, failError) {
         let msg;
         let userPreferences = main.getUserPreferences();
@@ -220,10 +226,6 @@ class HttpClient {
         {
             let response = await fetch(url, wrapOptions.fetchOptions);
             let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
-            if (wrapOptions.parser?.isNoContentToError403AndContentNull(ret)) {
-                let CustomNoContentToError403Response = wrapOptions.parser.setNoContentToError403Response(url, wrapOptions, ret);
-                return wrapOptions.errorHandler.onResponseError(CustomNoContentToError403Response.url, CustomNoContentToError403Response.wrapOptions, CustomNoContentToError403Response. response, CustomNoContentToError403Response.errorMessage);
-            }
             if (wrapOptions.parser?.isCustomError(ret)) {
                 let CustomErrorResponse = wrapOptions.parser.setCustomErrorResponse(url, wrapOptions, ret);
                 return wrapOptions.errorHandler.onResponseError(CustomErrorResponse.url, CustomErrorResponse.wrapOptions, CustomErrorResponse.response, CustomErrorResponse.errorMessage);
