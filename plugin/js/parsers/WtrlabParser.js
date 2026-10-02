@@ -153,13 +153,15 @@ class WtrlabParser extends Parser {
             parser: this
         };
         let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        return this.buildChapter(json, url);
+        let contentjson = (await HttpClient.fetchJson("https://wtr-lab.com"+json.content_url)).json;
+        return this.buildChapter(contentjson, url);
     }
+    
     isCustomError(response) {
         if (response.json?.code == "CHAPTER_LOCKED") {
             return true;
         }
-        if (response.json.data?.data?.body?false:true) {
+        if (response.json?.content_url?false:true) {
             return true;
         }
         if (response.json.requireTurnstile) {
@@ -218,7 +220,7 @@ class WtrlabParser extends Parser {
         let chapter = leaves[leaves.length - 1].replace("chapter-","");
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.chapter.title;
+        title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.data.data.title;
         newDoc.content.appendChild(title);
         let br = newDoc.dom.createElement("br");
         let imagecounter = 0;
