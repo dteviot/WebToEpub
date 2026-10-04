@@ -52,7 +52,8 @@ class NovgoParser extends Parser {
     findContent(dom) {
         return dom.querySelector("#chapter-content");
     }
+
     findChapterTitle(dom) {
-    return dom.querySelector("span.chapter-title");
+        return dom.querySelector("span.chapter-title");
     }
 }
