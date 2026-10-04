@@ -55,3 +55,91 @@ let NovelfullSample =
                                 </script>                        
 </body>
 </html>`
+
+module("NovelpingParser");
+
+QUnit.test("novelpingUsesNovelpingParser", function (assert) {
+    let parser = parserFactory.fetch("https://novelping.com/novel/shadow-slave");
+    assert.ok(parser instanceof NovelpingParser);
+});
+
+QUnit.test("novelSlug", function (assert) {
+    assert.equal(NovelpingParser.novelSlug("https://novelping.com/novel/shadow-slave"), "shadow-slave");
+    assert.equal(NovelpingParser.novelSlug("https://novelping.com/book/shadow-slave/"), "shadow-slave");
+    assert.equal(NovelpingParser.novelSlug("https://novelping.com/book/shadow-slave/chapter-2-slave-caravan"), "shadow-slave");
+});
+
+QUnit.test("extractPartialChapterList", function (assert) {
+    let dom = new DOMParser().parseFromString(NovelpingChapterArchiveSample, "text/html");
+    let chapters = new NovelpingParser().extractPartialChapterList(dom);
+    assert.deepEqual(chapters, [
+        {
+            sourceUrl: "https://novelping.com/book/shadow-slave/chapter-1-nightmare-begins",
+            title: "Chapter 1 Nightmare Begins",
+            newArc: null
+        },
+        {
+            sourceUrl: "https://novelping.com/book/shadow-slave/chapter-4-mountain-king",
+            title: "Chapter 4 Mountain King",
+            newArc: null
+        }
+    ]);
+});
+
+QUnit.test("removeAdSlots", function (assert) {
+    let dom = new DOMParser().parseFromString(NovelpingChapterSample, "text/html");
+    let parser = new NovelpingParser();
+    let content = parser.findContent(dom);
+    parser.removeUnwantedElementsFromContentElement(content);
+    assert.equal(content.querySelectorAll(".js-ad-slot").length, 0);
+    assert.equal(content.querySelectorAll("p").length, 2);
+});
+
+let NovelpingChapterArchiveSample =
+`<html>
+<head></head>
+<body>
+    <div class="panel panel-default chapter-archive-panel">
+        <div class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="chapter-archive-grid" data-chapter-archive-grid></div>
+                <template data-chapter-item-template>
+                    <li data-chapter-item class="chapter-list-item">
+                        <span class="glyphicon glyphicon-certificate chapter-list-bullet"></span>
+                        <a href="https://novelping.com/book/shadow-slave/chapter-1-nightmare-begins" title="Chapter 1 Nightmare Begins">
+                            <span class="nchr-text chapter-title">Chapter 1 Nightmare Begins</span>
+                            <span class="chapter-comment-count" title="17 comments">
+                                <span class="glyphicon glyphicon-comment"></span>
+                                17
+                            </span>
+                        </a>
+                    </li>                    <li data-chapter-item class="chapter-list-item">
+                        <span class="glyphicon glyphicon-certificate chapter-list-bullet"></span>
+                        <a href="https://novelping.com/book/shadow-slave/chapter-4-mountain-king" title="Chapter 4 Mountain King">
+                            <span class="nchr-text chapter-title">Chapter 4 Mountain King</span>
+                        </a>
+                    </li>
+                </template>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+
+let NovelpingChapterSample =
+`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shadow Slave - Chapter 1 Nightmare Begins</title>
+</head>
+<body>
+    <h2><a class="chr-title" href="https://novelping.com/book/shadow-slave/chapter-1-nightmare-begins" title="Chapter 1 Nightmare Begins"><span class="chr-text"> Chapter 1 Nightmare Begins</span></a></h2>
+    <div id="chr-content" class="chr-c" data-chapter-id="chapter-1-nightmare-begins">
+        <div class="js-ad-slot" data-ad-slot="chapter-top">
+        </div>
+        <p> A frail-looking young man with pale skin and dark circles under his eyes was sitting on a rusty bench across from the police station. </p><p> After all, his life was coming to an end. </p>
+        <div class="js-ad-slot" data-ad-slot="chapter-bottom">
+        </div>
+    </div>
+</body>
+</html>`;

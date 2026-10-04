@@ -78,11 +78,78 @@ class PatreonParser extends Parser {
                 content: postContent.innerHTML
             }, url);
         }
-        let script = xhr.responseXML.querySelector("script#__NEXT_DATA__").textContent;
-        let json = JSON.parse(script);
-        let envelope = json.props.pageProps.bootstrapEnvelope;
+        return this.jsonToHtml(PatreonParser.findPostAttributes(xhr.responseXML), url);
+    }
+
+    static findPostAttributes(dom) {
+        let script = dom.querySelector("script#__NEXT_DATA__");
+        if (script !== null) {
+            let envelope = JSON.parse(script.textContent).props.pageProps.bootstrapEnvelope;
+            return PatreonParser.envelopeToPostAttributes(envelope);
+        }
+        return PatreonParser.findPostAttributesInFlightData(dom);
+    }
+
+    static envelopeToPostAttributes(envelope) {
         let bootstrap = envelope.bootstrap || envelope.pageBootstrap;
-        return this.jsonToHtml(bootstrap.post.data.attributes, url);
+        return bootstrap.post.data.attributes;
+    }
+
+    // Pages built with Next.js App Router no longer have __NEXT_DATA__.
+    // Instead, data is streamed as React Server Components "flight" data
+    // via inline <script>self.__next_f.push([1,"..."])</script> calls.
+    static findPostAttributesInFlightData(dom) {
+        let flight = PatreonParser.extractFlightData(dom);
+        let envelope = util.locateAndExtractJson(flight, "\"bootstrapEnvelope\":");
+        if (envelope === null) {
+            throw new Error("Could not find post data in Patreon page");
+        }
+        let attributes = PatreonParser.envelopeToPostAttributes(envelope);
+        for (let field of ["content", "content_json_string"]) {
+            attributes[field] = PatreonParser.resolveFlightReference(flight, attributes[field]);
+        }
+        return attributes;
+    }
+
+    static extractFlightData(dom) {
+        let startString = "self.__next_f.push(";
+        return [...dom.querySelectorAll("script")]
+            .map(el => el.textContent.trim())
+            .filter(text => text.startsWith(startString))
+            .map(text => {
+                try {
+                    return JSON.parse(text.slice(startString.length, text.lastIndexOf(")")));
+                } catch {
+                    return null;
+                }
+            })
+            .filter(chunk => chunk?.[0] === 1 && typeof chunk[1] === "string")
+            .map(chunk => chunk[1])
+            .join("");
+    }
+
+    // Large strings are sent as separate "text" rows, e.g. "6e:T757d,<text>"
+    // and referenced as "$6e". Row length is hex count of UTF-8 bytes.
+    static resolveFlightReference(flight, value) {
+        if (typeof value !== "string" || !value.startsWith("$")) {
+            return value;
+        }
+        if (value.startsWith("$$")) {
+            return value.substring(1);
+        }
+        let match = new RegExp("(^|\n)" + value.substring(1) + ":T([0-9a-f]+),").exec(flight);
+        if (match === null) {
+            return value;
+        }
+        let start = match.index + match[0].length;
+        let byteCount = parseInt(match[2], 16);
+        let end = start;
+        while ((0 < byteCount) && (end < flight.length)) {
+            let codePoint = flight.codePointAt(end);
+            byteCount -= (codePoint < 0x80) ? 1 : (codePoint < 0x800) ? 2 : (codePoint < 0x10000) ? 3 : 4;
+            end += (0xFFFF < codePoint) ? 2 : 1;
+        }
+        return flight.substring(start, end);
     }
 
     jsonToHtml(json, url) {

@@ -28,7 +28,7 @@ parserFactory.register("noveldrama.org", () => new NovelfullParser());
 //dead url
 parserFactory.registerDeadSite("novelebook.net", () => new NovelfullParser());
 parserFactory.register("novelfull.com", () => new NovelfullParser());
-parserFactory.register("novelfull.net", () => new NovelfullParser());
+parserFactory.register("novelfull.net", () => new NovelfullNetParser());
 parserFactory.register("novelfullbook.com", () => new NovelfullParser());
 parserFactory.register("novelfulll.com", () => new NovelfullParser());
 //dead url
@@ -38,6 +38,7 @@ parserFactory.register("novelnext.com", () => new NovelfullParser());
 parserFactory.register("novelnext.dramanovels.io", () => new NovelfullParser());
 parserFactory.register("novelnext.net", () => new NovelfullParser());
 parserFactory.register("novelnextz.com", () => new NovelfullParser());
+parserFactory.register("novelping.com", () => new NovelpingParser());
 //dead url
 parserFactory.registerDeadSite("noveltop1.org", () => new NovelfullParser());
 parserFactory.register("noveltrust.net", () => new NovelfullParser());
@@ -70,10 +71,11 @@ class NovelfullParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
-        return this.getChapterUrlsFromMultipleTocPages(dom,
+        return this.getChapterUrlsFromMultipleTocPages(
+            dom,
             this.extractPartialChapterList,
             this.getUrlsOfTocPages,
-            chapterUrlsUI
+            chapterUrlsUI,
         );
     }
 
@@ -93,9 +95,7 @@ class NovelfullParser extends Parser {
                     limit = url.searchParams.get("page_num") || null;
                 }
             }
-            limit = pageIsOneIndexed
-                ? parseInt(limit || "0")
-                : parseInt(limit || "-1") + 1;
+            limit = pageIsOneIndexed ? parseInt(limit || "0") : parseInt(limit || "-1") + 1;
             // page 1 is already extracted from the initial TOC dom
             for (let i = 2; i <= limit; ++i) {
                 urls.push(NovelfullParser.buildUrlForTocPage(link, i));
@@ -106,8 +106,7 @@ class NovelfullParser extends Parser {
 
     static buildUrlForTocPage(link, i) {
         let hostname = link.hostname;
-        if (hostname === "freenovelsread.com")
-        {
+        if (hostname === "freenovelsread.com") {
             link.pathname = link.pathname.split("/")[1] + "/" + i;
         } else if (hostname === "novelfulll.com") {
             link.search = `?page_num=${i}`;
@@ -120,17 +119,18 @@ class NovelfullParser extends Parser {
     extractPartialChapterList(dom) {
         if (!dom.querySelector("ul")) {
             let templateElement = dom.querySelector("template");
-            return [...templateElement.content.querySelectorAll("li a")]
-                .map(link => util.hyperLinkToChapter(link));
+            return [...templateElement.content.querySelectorAll("li a")].map((link) =>
+                util.hyperLinkToChapter(link),
+            );
         }
-        return [...dom.querySelectorAll("ul.list-chapter a")]
-            .map(link => util.hyperLinkToChapter(link));
+        return [...dom.querySelectorAll("ul.list-chapter a")].map((link) =>
+            util.hyperLinkToChapter(link),
+        );
     }
 
     // returns the element holding the story content in a chapter
     findContent(dom) {
-        return dom.querySelector("#chr-content")
-            || dom.querySelector("#chapter-content");
+        return dom.querySelector("#chr-content") || dom.querySelector("#chapter-content");
     }
 
     // title of the story  (not to be confused with title of each chapter)
@@ -140,11 +140,9 @@ class NovelfullParser extends Parser {
 
     extractAuthor(dom) {
         let items = [...dom.querySelectorAll("ul.info-meta li")]
-            .filter(u => u.querySelector("h3")?.textContent === "Author:")
-            .map(u => u.querySelector("a")?.textContent);
-        return 0 < items.length 
-            ? items[0]
-            : super.extractAuthor(dom);
+            .filter((u) => u.querySelector("h3")?.textContent === "Author:")
+            .map((u) => u.querySelector("a")?.textContent);
+        return 0 < items.length ? items[0] : super.extractAuthor(dom);
     }
 
     preprocessRawDom(dom) {
@@ -166,8 +164,9 @@ class NovelfullParser extends Parser {
     tagWatermark(dom) {
         const watermark = this.findWatermark(dom);
         if (watermark) {
-            let paragraphs = [...dom.querySelectorAll("p")]
-                .filter(p => p.textContent.includes(watermark));
+            let paragraphs = [...dom.querySelectorAll("p")].filter((p) =>
+                p.textContent.includes(watermark),
+            );
             for (let p of paragraphs) {
                 p.textContent = p.textContent.replace(watermark, "");
                 p.appendChild(this.makeSpanWithWatermark(dom, watermark));
@@ -178,8 +177,8 @@ class NovelfullParser extends Parser {
     findWatermark(dom) {
         const searchToken = "original11Content.replace(\"";
         const script = [...dom.querySelectorAll("script")]
-            .filter(s => s.innerHTML.includes(searchToken))
-            .map(s => s.innerHTML)[0];
+            .filter((s) => s.innerHTML.includes(searchToken))
+            .map((s) => s.innerHTML)[0];
         if (!script) {
             return null;
         }
@@ -221,7 +220,7 @@ class Novel35Parser extends NovelfullParser {
 
     findChapterTitle(dom) {
         return dom.querySelector("div.chapter-title").textContent;
-    }    
+    }
 }
 
 class NovelHyphenBinParser extends NovelfullParser {
@@ -233,12 +232,12 @@ class NovelHyphenBinParser extends NovelfullParser {
         let genres = [...dom.querySelectorAll(".info > li:nth-child(2) a")];
 
         let tagHeader = dom.querySelector(".info > li:nth-child(3) h3");
-        if (tagHeader.textContent == "Tag:") { 
+        if (tagHeader.textContent == "Tag:") {
             let tags = [...dom.querySelectorAll(".info > li:nth-child(3) a")];
-            return [...genres, ...tags].map(e => e.textContent).join(", ");
+            return [...genres, ...tags].map((e) => e.textContent).join(", ");
         }
 
-        return genres.map(e => e.textContent).join(", ");
+        return genres.map((e) => e.textContent).join(", ");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -258,9 +257,9 @@ class NovelbinParser extends NovelfullParser {
 
     async getChapterUrls(dom) {
         let url = new URL(dom.baseURI);
-        let slug = url.pathname.split("/").filter(a => a != "");
-        slug = slug[slug.length-1];
-        let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId="+slug)).responseXML;
+        let slug = url.pathname.split("/").filter((a) => a != "");
+        slug = slug[slug.length - 1];
+        let tocHtml = (await HttpClient.wrapFetch("https://novelbin.com/ajax/chapter-archive?novelId=" + slug)).responseXML;
         let chapters = this.extractPartialChapterList(tocHtml);
         return chapters;
     }
@@ -268,7 +267,7 @@ class NovelbinParser extends NovelfullParser {
     extractSubject(dom) {
         let genres = [...dom.querySelectorAll(".info > li:nth-child(2) a")];
         let tags = [...dom.querySelectorAll(".tag-container a")];
-        return [...genres, ...tags].map(e => e.textContent).join(", ");
+        return [...genres, ...tags].map((e) => e.textContent).join(", ");
     }
 
     extractPublisher() {
@@ -278,5 +277,111 @@ class NovelbinParser extends NovelfullParser {
     removeUnwantedElementsFromContentElement(element) {
         util.removeChildElementsMatchingSelector(element, ".unlock-buttons");
         super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+// novelbin.com -> novelarrow.com -> novelping.com, which is back on Novelbin's layout
+// See: https://github.com/dteviot/WebToEpub/issues/3012
+class NovelpingParser extends NovelbinParser {
+    constructor() {
+        super();
+    }
+
+    async getChapterUrls(dom) {
+        let tocUrl = new URL("/ajax/chapter-archive", dom.baseURI);
+        tocUrl.searchParams.set("novelId", NovelpingParser.novelSlug(dom.baseURI));
+        let tocHtml = (await HttpClient.wrapFetch(tocUrl.href)).responseXML;
+        return this.extractPartialChapterList(tocHtml);
+    }
+
+    // link text also holds the comment count, so use the title attribute
+    extractPartialChapterList(dom) {
+        return [...dom.querySelector("template").content.querySelectorAll("li a")]
+            .map(link => ({
+                sourceUrl: link.href,
+                title: link.title,
+                newArc: null
+            }));
+    }
+
+    // ToC is /novel/<slug> or /book/<slug>, chapters are /book/<slug>/<chapter>
+    static novelSlug(url) {
+        return new URL(url).pathname.split("/").filter(s => s != "")[1];
+    }
+
+    extractPublisher() {
+        return "NovelPing";
+    }
+
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, ".js-ad-slot");
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+}
+
+class NovelfullNetParser extends NovelfullParser {
+    getUrlsOfTocPages(dom) {
+        let toc_pages = dom.querySelector("select#indexselect");
+        let base_url = new URL(dom.querySelector("a.con").href).origin;
+        // Why does `this` return as undefined?
+        // With `this` being undefined, `this.getBaseUrl(dom)`
+        // from Parse.JS:422 cant be used
+        let urls = [];
+
+        for (let toc_page of toc_pages) {
+            if (toc_page.selected) {
+                continue;
+            }
+            urls.push(`${base_url}${toc_page.getAttribute("data-url")}`);
+        }
+
+        return urls;
+    }
+    extractPartialChapterList(dom) {
+        return [...dom.querySelectorAll("ul#idData.ul-list5 a.con")].map((link) =>
+            util.hyperLinkToChapter(link),
+        );
+    }
+    static buildUrlForTocPage(link, i) {
+        link.search = `?page_num=${i}`;
+        return link.href;
+    }
+
+    extractTitleImpl(dom) {
+        return dom.querySelector("a.truyen-title") || dom.querySelector("h1.tit");
+    }
+
+    findChapterTitle(dom) {
+        return dom.querySelector("span.chapter-heading-text").textContent;
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, "div.pic");
+    }
+
+    extractAuthor(dom) {
+        let items = [...dom.querySelectorAll("div.item")]
+            .filter((u) => u.querySelector("span")?.getAttribute("title") === "Author")
+            .map((u) => u.querySelector("a.a1")?.textContent);
+        return 0 < items.length ? items[0] : super.extractAuthor(dom);
+    }
+
+    extractDescription(dom) {
+        let info_div = dom.querySelector("div#novel-summary-inner.inner");
+        let text = [...info_div.querySelectorAll("p")]
+            .map((paragraph) => paragraph.textContent.trim())
+            .join("\n\n");
+
+        return text;
+    }
+
+    // extractSubject -> for tags metadata
+    extractSubject(dom) {
+        let [genre_div] = [...dom.querySelectorAll("div.item")].filter(
+            (u) => u.querySelector("span")?.getAttribute("title") === "Genre",
+        );
+
+        let tags = [...genre_div.querySelectorAll("div.right a")].map((u) => u.textContent);
+        return tags.join(", ");
     }
 }
