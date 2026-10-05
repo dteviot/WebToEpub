@@ -16,10 +16,17 @@ class FenrirealmParser extends Parser {
     // Removes zero-width watermark characters, control characters
     // and broken surrogate pairs that make strict converters fail.
     static cleanText(text) {
-        return String(text ?? "")
+        let s = String(text ?? "")
             .replace(/[\u200B-\u200D\u2060\uFEFF]/g, "")
-            .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, "")
             .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "");
+        let out = "";
+        for (let ch of s) {
+            let c = ch.codePointAt(0);
+            if (c === 9 || c === 10 || c === 13 || (c >= 32 && c !== 0xFFFE && c !== 0xFFFF)) {
+                out += ch;
+            }
+        }
+        return out;
     }
 
     static chapterHeading(number, title, name) {
@@ -142,7 +149,7 @@ class FenrirealmParser extends Parser {
 
     // The site serves AVIF covers, which Calibre and online converters
     // can't read. Cover disabled so the EPUB converts cleanly.
-    findCoverImageUrl(dom) {
+    findCoverImageUrl() {
         return null;
     }
 
