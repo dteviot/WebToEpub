@@ -13,13 +13,35 @@ class FenrirealmParser extends Parser {
         return segments[segments.indexOf("series") + 1];
     }
 
+    // Removes zero-width watermark characters, control characters
+    // and broken surrogate pairs that make strict converters fail.
+    static cleanText(text) {
+        return String(text ?? "")
+            .replace(/[\u200B-\u200D\u2060\uFEFF]/g, "")
+            .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, "")
+            .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "");
+    }
+
+    static chapterHeading(number, title, name) {
+        title = title == null ? null : FenrirealmParser.cleanText(title);
+        name = name == null ? null : FenrirealmParser.cleanText(name);
+        let generic = `Chapter ${number}`;
+        if (title == null) {
+            return name;
+        }
+        if (title.trim().toLowerCase() === generic.toLowerCase()) {
+            return generic;
+        }
+        return `${generic} - ${title}`;
+    }
+
     async getChapterUrls(dom) {
         let origin = new URL(dom.baseURI).origin;
         let slug = FenrirealmParser.slugFromUrl(dom.baseURI);
         let chapters = (await HttpClient.fetchJson(`${origin}/api/new/v2/series/${slug}/chapters`)).json;
         return chapters.map(c => ({
             sourceUrl: `${origin}/series/${slug}/${c.slug}`,
-            title: `Chapter ${c.number} - ${c.title}`,
+            title: FenrirealmParser.chapterHeading(c.number, c.title, c.name),
             isIncludeable: !(c.locked?.price > 0)
         }));
     }
@@ -28,20 +50,22 @@ class FenrirealmParser extends Parser {
         let json = (await HttpClient.fetchJson(`${url}/__data.json?x-sveltekit-invalidated=10001`)).json;
         let data = json.nodes.find(n => n?.data?.[0]?.chapterData !== undefined).data;
         let chapter = data[data[0].chapterData];
-        return this.buildChapter(url, data[chapter.title], data[chapter.number], data[chapter.content], data[chapter.content_format]);
+        let header = FenrirealmParser.chapterHeading(data[chapter.number], data[chapter.title], data[chapter.name]);
+        return this.buildChapter(url, header, data[chapter.content], data[chapter.content_format]);
     }
 
-    buildChapter(url, title, number, rawContent, format) {
+    buildChapter(url, header, rawContent, format) {
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let header = newDoc.dom.createElement("h1");
-        header.textContent = `Chapter ${number} - ${title}`;
-        newDoc.content.appendChild(header);
+        let headerElement = newDoc.dom.createElement("h1");
+        headerElement.textContent = FenrirealmParser.cleanText(header) || "Chapter";
+        newDoc.content.appendChild(headerElement);
         if (rawContent == null) {
             let locked = newDoc.dom.createElement("p");
             locked.textContent = "[This chapter is locked and could not be downloaded.]";
             newDoc.content.appendChild(locked);
             return newDoc.dom;
         }
+        rawContent = FenrirealmParser.cleanText(rawContent);
         let parsed = null;
         if (format === "json") {
             try {
@@ -62,9 +86,25 @@ class FenrirealmParser extends Parser {
     appendNodes(newDoc, parent, nodes) {
         for (let node of nodes ?? []) {
             if (node.type === "text") {
-                parent.appendChild(newDoc.dom.createTextNode(node.text));
+                if (node.text == null) continue;
+                let out = newDoc.dom.createTextNode(FenrirealmParser.cleanText(node.text));
+                for (let mark of node.marks ?? []) {
+                    let tag = {bold: "b", italic: "i"}[mark.type];
+                    if (tag) {
+                        let w = newDoc.dom.createElement(tag);
+                        w.appendChild(out);
+                        out = w;
+                    }
+                }
+                parent.appendChild(out);
+            } else if (node.type === "hardBreak") {
+                parent.appendChild(newDoc.dom.createElement("br"));
+            } else if (node.type === "horizontalRule") {
+                parent.appendChild(newDoc.dom.createElement("hr"));
             } else if (node.type === "paragraph") {
-                let text = (node.content ?? []).map(n => n.text ?? "").join("").trim();
+                let text = FenrirealmParser.cleanText(
+                    (node.content ?? []).map(n => n.text ?? "").join("")
+                ).trim();
                 if (text !== "") {
                     let p = newDoc.dom.createElement("p");
                     this.appendNodes(newDoc, p, node.content);
@@ -100,8 +140,10 @@ class FenrirealmParser extends Parser {
             .join(", ");
     }
 
+    // The site serves AVIF covers, which Calibre and online converters
+    // can't read. Cover disabled so the EPUB converts cleanly.
     findCoverImageUrl(dom) {
-        return dom.querySelector("meta[property='og:image']")?.content ?? null;
+        return null;
     }
 
     getInformationEpubItemChildNodes(dom) {
