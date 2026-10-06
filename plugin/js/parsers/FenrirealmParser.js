@@ -5,7 +5,6 @@ parserFactory.register("fenrirealm.com", () => new FenrirealmParser());
 class FenrirealmParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 3000;
     }
 
     static slugFromUrl(url) {
@@ -46,6 +45,7 @@ class FenrirealmParser extends Parser {
         let origin = new URL(dom.baseURI).origin;
         let slug = FenrirealmParser.slugFromUrl(dom.baseURI);
         let chapters = (await HttpClient.fetchJson(`${origin}/api/new/v2/series/${slug}/chapters`)).json;
+
         return chapters.map(c => ({
             sourceUrl: `${origin}/series/${slug}/${c.slug}`,
             title: FenrirealmParser.chapterHeading(c.number, c.title, c.name),
@@ -54,73 +54,36 @@ class FenrirealmParser extends Parser {
     }
 
     async fetchChapter(url) {
-        let json = (await HttpClient.fetchJson(`${url}/__data.json?x-sveltekit-invalidated=10001`)).json;
-        let data = json.nodes.find(n => n?.data?.[0]?.chapterData !== undefined).data;
-        let chapter = data[data[0].chapterData];
-        let header = FenrirealmParser.chapterHeading(data[chapter.number], data[chapter.title], data[chapter.name]);
-        return this.buildChapter(url, header, data[chapter.content], data[chapter.content_format]);
-    }
-
-    buildChapter(url, header, rawContent, format) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let headerElement = newDoc.dom.createElement("h1");
-        headerElement.textContent = FenrirealmParser.cleanText(header) || "Chapter";
-        newDoc.content.appendChild(headerElement);
-        if (rawContent == null) {
-            let locked = newDoc.dom.createElement("p");
-            locked.textContent = "[This chapter is locked and could not be downloaded.]";
-            newDoc.content.appendChild(locked);
+
+        let heading = dom.querySelector(".chapter-view h2")?.textContent
+            .replace(/\s+/g, " ").trim();
+
+        let h1 = newDoc.dom.createElement("h1");
+        h1.textContent = FenrirealmParser.cleanText(heading) || "Chapter";
+        newDoc.content.appendChild(h1);
+
+        let area = dom.querySelector("div.reader-area");
+        if (!area) {
+            let p = newDoc.dom.createElement("p");
+            p.textContent = "[This chapter is locked and could not be downloaded.]";
+            newDoc.content.appendChild(p);
             return newDoc.dom;
         }
-        rawContent = FenrirealmParser.cleanText(rawContent);
-        let parsed = null;
-        if (format === "json") {
-            try {
-                parsed = JSON.parse(rawContent);
-            } catch (e) {
-                parsed = null;
-            }
-        }
-        if (parsed != null) {
-            this.appendNodes(newDoc, newDoc.content, parsed.content);
-        } else {
-            let content = util.sanitize(rawContent);
-            util.moveChildElements(content.body, newDoc.content);
-        }
-        return newDoc.dom;
-    }
 
-    appendNodes(newDoc, parent, nodes) {
-        for (let node of nodes ?? []) {
-            if (node.type === "text") {
-                if (node.text == null) continue;
-                let out = newDoc.dom.createTextNode(FenrirealmParser.cleanText(node.text));
-                for (let mark of node.marks ?? []) {
-                    let tag = {bold: "b", italic: "i"}[mark.type];
-                    if (tag) {
-                        let w = newDoc.dom.createElement(tag);
-                        w.appendChild(out);
-                        out = w;
-                    }
-                }
-                parent.appendChild(out);
-            } else if (node.type === "hardBreak") {
-                parent.appendChild(newDoc.dom.createElement("br"));
-            } else if (node.type === "horizontalRule") {
-                parent.appendChild(newDoc.dom.createElement("hr"));
-            } else if (node.type === "paragraph") {
-                let text = FenrirealmParser.cleanText(
-                    (node.content ?? []).map(n => n.text ?? "").join("")
-                ).trim();
-                if (text !== "") {
-                    let p = newDoc.dom.createElement("p");
-                    this.appendNodes(newDoc, p, node.content);
-                    parent.appendChild(p);
-                }
-            } else {
-                this.appendNodes(newDoc, parent, node.content);
-            }
+        area.querySelectorAll("style, [aria-hidden='true']").forEach(e => e.remove());
+
+        for (let src of area.querySelectorAll("p")) {
+            let text = FenrirealmParser.cleanText(src.textContent).trim();
+            if (text === "") continue;
+
+            let p = newDoc.dom.createElement("p");
+            p.textContent = text;
+            newDoc.content.appendChild(p);
         }
+
+        return newDoc.dom;
     }
 
     findContent(dom) {
