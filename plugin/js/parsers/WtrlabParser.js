@@ -220,7 +220,7 @@ class WtrlabParser extends Parser {
         let chapter = leaves[leaves.length - 1].replace("chapter-","");
         let newDoc = Parser.makeEmptyDocForContent(url);
         let title = newDoc.dom.createElement("h1");
-        title.textContent = ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.data.data.title;
+        title.textContent = this.replaceTextWithCustomTerms(json, ((document.getElementById("removeChapterNumberCheckbox").checked)?"":chapter+": ")+json.data.data.title);
         newDoc.content.appendChild(title);
         let br = newDoc.dom.createElement("br");
         let imagecounter = 0;
@@ -235,38 +235,7 @@ class WtrlabParser extends Parser {
                 newDoc.content.appendChild(imgnode);
             } else {
                 let pnode = newDoc.dom.createElement("p");
-                let newtext = element;
-                // replace chapter provided translation with story one
-                for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
-                    for (let term of this.termsstory) {
-                        if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
-                            json.data.data.glossary_data.terms[i][0] = term?.to;
-                        }
-                    }
-                }
-                // replace chapter provided translation with user one
-                for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
-                    for (let term of this.termsuser) {
-                        if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
-                            json.data.data.glossary_data.terms[i][0] = term?.to;
-                        }
-                    }
-                }
-                // replace with provided translation
-                for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
-                    let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
-                    newtext = newtext.replaceAll("※"+i+"⛬", term);
-                    newtext = newtext.replaceAll("※" + i + "〓", term);
-                }
-                // replace custom terms
-                for (let term of this.termsuser) {
-                    newtext = newtext.replaceAll(term?.from, term?.to);
-                }
-                // patch
-                // replace with provided chapter patch wtf?!? why are there so many different terms patches etc.?
-                for (let i = 0; i < json?.data?.data?.patch?.length??0; i++) {
-                    newtext = newtext.replaceAll(json?.data?.data?.patch[i].zh, " "+json?.data?.data?.patch[i].en);
-                }
+                let newtext = this.replaceTextWithCustomTerms(json, element);
                 pnode.textContent = newtext;
                 newDoc.content.appendChild(pnode);
             }
@@ -274,4 +243,41 @@ class WtrlabParser extends Parser {
         }
         return newDoc.dom;
     }
+
+    replaceTextWithCustomTerms(json, element){
+        let newtext = element;
+        // replace chapter provided translation with story one
+        for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+            for (let term of this.termsstory) {
+                if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
+                    json.data.data.glossary_data.terms[i][0] = term?.to;
+                }
+            }
+        }
+        // replace chapter provided translation with user one
+        for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+            for (let term of this.termsuser) {
+                if ((json.data.data.glossary_data.terms[i][1]??"") == term?.from) {
+                    json.data.data.glossary_data.terms[i][0] = term?.to;
+                }
+            }
+        }
+        // replace with provided translation
+        for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
+            let term = json.data.data.glossary_data.terms[i][0]??"※"+i+"⛬";
+            newtext = newtext.replaceAll("※"+i+"⛬", term);
+            newtext = newtext.replaceAll("※" + i + "〓", term);
+        }
+        // replace custom terms
+        for (let term of this.termsuser) {
+            newtext = newtext.replaceAll(term?.from, term?.to);
+        }
+        // patch
+        // replace with provided chapter patch wtf?!? why are there so many different terms patches etc.?
+        for (let i = 0; i < json?.data?.data?.patch?.length??0; i++) {
+            newtext = newtext.replaceAll(json?.data?.data?.patch[i].zh, " "+json?.data?.data?.patch[i].en);
+        }
+        return newtext;
+    }
+
 }
