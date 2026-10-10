@@ -244,7 +244,7 @@ class WtrlabParser extends Parser {
         return newDoc.dom;
     }
 
-    replaceTextWithCustomTerms(json, element){
+    replaceTextWithCustomTerms(json, element) {
         let newtext = element;
         // replace chapter provided translation with story one
         for (let i = 0; i < json?.data?.data?.glossary_data?.terms?.length??0; i++) {
