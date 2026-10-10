@@ -70,6 +70,7 @@ module.exports = {
         "FetchErrorHandler": "readonly",
         "FetchImageErrorHandler": "readonly",
         "Firefox": "readonly",
+        "FontInfo": "readonly",
         "FootnoteExtractor": "readonly",
         "HttpClient": "readonly",
         "ImageCollector": "readonly",

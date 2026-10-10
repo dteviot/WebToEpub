@@ -76,3 +76,32 @@ test("ChapterEpubItem_chapterInfo_noNewArc", function (assert) {
     let ci = [...item.chapterInfo()];
     assert.equal(ci.length, 1);
 });
+
+QUnit.test("packInEpub with null arraybuffer does not call zipWriter.add on ImageInfo and FontInfo", function (assert) {
+    let zipWriter = {
+        addCalls: 0,
+        entries: [],
+        add: function (href, reader) {
+            this.addCalls++;
+            this.entries.push({ href: href, reader: reader });
+        }
+    };
+
+    let imageInfo = new ImageInfo("http://dummy.com/img.jpg", 0, "http://dummy.com/img.jpg");
+    imageInfo.arraybuffer = null;
+    imageInfo.packInEpub(zipWriter);
+    assert.equal(zipWriter.addCalls, 0);
+
+    let fontInfo = new FontInfo("customFont.woff2");
+    fontInfo.arraybuffer = null;
+    fontInfo.packInEpub(zipWriter);
+    assert.equal(zipWriter.addCalls, 0);
+
+    imageInfo.arraybuffer = new ArrayBuffer(16);
+    imageInfo.packInEpub(zipWriter);
+    assert.equal(zipWriter.addCalls, 1);
+
+    fontInfo.arraybuffer = new ArrayBuffer(16);
+    fontInfo.packInEpub(zipWriter);
+    assert.equal(zipWriter.addCalls, 2);
+});
