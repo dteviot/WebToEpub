@@ -27,13 +27,23 @@ class Firefox { // eslint-disable-line no-unused-vars
     }
 
     static injectContentScript(tabId) {
-        chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
-            function(result) {   // eslint-disable-line no-unused-vars
-                if (chrome.runtime.lastError) {
-                    util.log(chrome.runtime.lastError.message);
+        if (chrome.runtime.getManifest().manifest_version >= 3) {
+            return chrome.scripting.executeScript({
+                target: {tabId: tabId},
+                files: ["js/ContentScript.js"]
+            });
+        }
+        return new Promise((resolve, reject) => {
+            chrome.tabs.executeScript(tabId, { file: "js/ContentScript.js", runAt: "document_end" },
+                function(result) {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(result);
+                    }
                 }
-            }
-        );
+            );
+        });
     }
 }
 

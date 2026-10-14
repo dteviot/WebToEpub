@@ -682,6 +682,15 @@ Open Firefox and visit [WebToEpub on Firefox Add-ons][firefox-add-ons].
 
 3. Install extension in browser of choice, using instructions above.
 
+When loading the source manifest directly in Firefox, automatic source-page loading
+uses the Manifest V3 scripting API. Packaged Firefox builds retain the Manifest V2
+injection API. Injection failures appear in the extension's error display.
+
+The novelfull.net parser supports the current chapter-list and book-information
+containers as well as the older chapter-list layout. Chapter-list pages retain the
+existing sequential request throttle. Regression tests are in the `Firefox` and
+`NovelfullNetParser` modules of `unitTest/Tests.html`.
+
 See [notes](#notes) for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -751,6 +760,7 @@ Don't forget to give the project a star! Thanks again!
   <summary>Contributors</summary>
   <ul>
     <li>Firefox port by Markus Vieth</li>
+    <li>rijff24 (NovelFull and Firefox source-loading fixes, assisted by Codex)</li>
     <li>Michael Fox (Belldandu)</li>
     <li>typhoon71</li>
     <li>toshiya44</li>
