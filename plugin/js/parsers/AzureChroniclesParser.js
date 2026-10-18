@@ -3,7 +3,7 @@ const AZURE_CHRONICLES_AJAX_URL =
 const AZURE_CHRONICLES_CHAPTER_PAGE_ACTION = "ac_novel_chapter_page";
 const AZURE_CHRONICLES_CHAPTER_LINK_SELECTOR =
     ".chapter-row a:not([data-ac-locked])";
-const AZURE_CHRONICLES_COVER_IMAGE_SELECTOR = 'meta[property="og:image"]';
+const AZURE_CHRONICLES_COVER_IMAGE_SELECTOR = "meta[property=\"og:image\"]";
 
 parserFactory.register(
     "azurechronicles.com",
