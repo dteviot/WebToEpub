@@ -8,8 +8,11 @@ class SecondlifetranslationsParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("button.accordion").nextElementSibling;
-        return util.hyperlinksToChapterList(menu);
+        let chapters = [];
+        for (let button of [...dom.querySelectorAll("button.accordion")]) {
+            chapters.push(...util.hyperlinksToChapterList(button.nextElementSibling));
+        }
+        return chapters;
     }
 
     findContent(dom) {
