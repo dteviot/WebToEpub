@@ -52,10 +52,14 @@ class SecondlifetranslationsParser extends Parser {
             return;
         }
         for (let img of [...content.querySelectorAll("img")]) {
-            let src = img.getAttribute("src") || "";
+            let raw = (img.getAttribute("src") || "").trim();
             let keep = false;
             try {
-                keep = new URL(src, content.baseURI).hostname.endsWith("secondlifetranslations.com");
+                let url = new URL(raw, content.baseURI);
+                keep = (url.protocol === "http:" || url.protocol === "https:") &&
+                    url.hostname.endsWith("secondlifetranslations.com") &&
+                    !raw.includes(";base64,") &&
+                    url.pathname.length < 500;
             } catch {
                 keep = false;
             }
