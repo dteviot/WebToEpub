@@ -42,8 +42,28 @@ class SecondlifetranslationsParser extends Parser {
     preprocessRawDom(webPageDom) {
         let content = this.findContent(webPageDom);
         util.removeChildElementsMatchingSelector(content, ".code-block");
+        SecondlifetranslationsParser.removeOffsiteImages(content);
         let footnotes = [...content.querySelectorAll("span.modern-footnotes-footnote__note")];
         this.moveFootnotes(webPageDom, content, footnotes);
+    }
+
+    static removeOffsiteImages(content) {
+        if (content == null) {
+            return;
+        }
+        for (let img of [...content.querySelectorAll("img")]) {
+            let src = img.getAttribute("src") || "";
+            let keep = false;
+            try {
+                keep = new URL(src, content.baseURI).hostname.endsWith("secondlifetranslations.com");
+            } catch {
+                keep = false;
+            }
+            if (!keep) {
+                let wrap = img.closest("figure");
+                (wrap ?? img).remove();
+            }
+        }
     }
 
     getInformationEpubItemChildNodes(dom) {
