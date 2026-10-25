@@ -127,7 +127,8 @@
     { "name": "KitKat31337" },
     { "name": "Yash Raj" },
     { "name": "sakthi719" },
-    { "name": "MarTeezy" }
+    { "name": "MarTeezy" },
+    { "name": "Chris Abbey", "email": "cabbey@cabbey.net" }
   ],
   "license": "GPL-3.0-only",
   "bugs": {
