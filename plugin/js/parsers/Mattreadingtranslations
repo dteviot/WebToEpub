@@ -25,10 +25,22 @@ parserFactory.registerRule(
 );
 */
 
-class TemplateParser extends Parser { // eslint-disable-line no-unused-vars
+class MattreadingParser extends Parser { // eslint-disable-line no-unused-vars
     constructor() {
         super();
-        //Optional Parameters:
+ parserFactory.register("https://mattreadingtranslations.com", function () { return new MattreadingParser() });
+ getChapterUrls(dom) {
+    return [...dom.querySelectorAll("ul.list-chapter a")]
+        .map(link => util.hyperLinkToChapter(link, null));
+};       
+          extractTitle(dom) {
+        return dom.querySelector("h2.post-title").textContent.trim();
+    };
+      findContent(dom) {
+    return dom.querySelector("div.entry-content");
+};
+      
+      //Optional Parameters:
 
         /*
         // Minimum delay (in ms) between page requests. Useful for 403 error prevention.
