@@ -21,7 +21,10 @@ class RoyalRoadParser extends Parser {
         // variant is the full chapter list embedded as a `window.chapters = [...]`
         // JSON array (each entry has id/title/slug/url). Parse that first
         // (redesign-proof); fall back to scraping the old table for legacy pages.
-        let tocHtml = await HttpClient.fetchText(dom.baseURI);
+        let options = {
+            parser: this
+        };
+        let tocHtml = await HttpClient.fetchText(dom.baseURI, options);
         let tocDoc = new DOMParser().parseFromString(tocHtml, "text/html");
         // Capture book metadata (description + genres) from the raw page now — the DOM
         // the parser later sees has its <script> tags stripped and, on the redesign, no
@@ -390,5 +393,33 @@ class RoyalRoadParser extends Parser {
         }
         // legacy fallback
         return [...dom.querySelectorAll("div.fic-title, div.fiction-info div.portlet.row")];
+    }
+
+    async fetchChapter(url) {
+        let options = {
+            parser: this
+        };
+        return (await HttpClient.wrapFetch(url, options)).responseXML;
+    }
+
+    isCustomError(response) {
+        let tocDoc = new DOMParser().parseFromString(response, "text/html");
+        if (tocDoc?.title == "Making sure you're not a bot!") {
+            return true;
+        }
+        return false;
+    }
+
+    setCustomErrorResponse(url, wrapOptions, checkedresponse) {
+        let tocDoc = new DOMParser().parseFromString(checkedresponse, "text/html");
+        if (tocDoc?.title == "Making sure you're not a bot!") {
+            let newresp = {};
+            newresp.url = url;
+            newresp.wrapOptions = wrapOptions;
+            newresp.response = {};
+            newresp.response.url = url;
+            newresp.response.status = 403;
+            return newresp;
+        }
     }
 }
