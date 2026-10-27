@@ -8,16 +8,34 @@ class PeachpuffParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        let menu = dom.querySelector("ul.lcp_catlist");
+        let menu = dom.querySelector(".chapter-group__list");
         return util.hyperlinksToChapterList(menu);
     }
 
     findContent(dom) {
-        return dom.querySelector(".kenta-article-content");
+        return dom.querySelector("#chapter-content");
     }
 
     extractTitleImpl(dom) {
         return dom.querySelector("h1");
+    }
+
+    extractAuthor(dom) {
+        let authorLabel = dom.querySelector(".author");
+        return authorLabel?.textContent ?? super.extractAuthor(dom);
+    }
+
+    extractSubject(dom) {
+        let tags = [...dom.querySelectorAll(".tag-pill")];
+        return tags.map(e => e.textContent.trim()).join(", ");
+    }
+
+    extractDescription(dom) {
+        return dom.querySelector(".story__summary").textContent.trim();
+    }
+
+    findCoverImageUrl(dom) {
+        return util.getFirstImgSrc(dom, ".story__header");
     }
 
     removeUnwantedElementsFromContentElement(element) {
@@ -26,10 +44,10 @@ class PeachpuffParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h1");
+        return dom.querySelector(".chapter__title");
     }
 
     getInformationEpubItemChildNodes(dom) {
-        return [...dom.querySelectorAll(".kenta-article-content p")];
+        return [...dom.querySelectorAll(".story__summary")];
     }
 }
