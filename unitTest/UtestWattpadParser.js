@@ -51,10 +51,9 @@ HttpClient.simulateFetch = function (url, handler) {
     return Promise.resolve(response);
 }
 
-HttpClient.wrapFetchImpl = function (url, wrapOptions) {
-    return HttpClient.simulateFetch(url, HttpClient.makeOptions()).then(function (response) {
-        return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
-    });
+HttpClient.wrapFetchImpl = async function (url, wrapOptions) {
+    let response = await HttpClient.simulateFetch(url, HttpClient.makeOptions());
+    return HttpClient.checkResponseAndGetData(url, wrapOptions, response);
 }
 
 QUnit.test("fetchExtraChapterContent", function (assert) {
@@ -65,7 +64,10 @@ QUnit.test("fetchExtraChapterContent", function (assert) {
         "uriStart": "https://s.wattpad.com/i",
         "uriEnd": ""
     };
-    new WattpadParser().fetchExtraChapterContent(extraUris).then(function(actual) {
+    let parser = new WattpadParser();
+    parser.userPreferences = new UserPreferences();
+    parser.minimumThrottle = 0;
+    parser.fetchExtraChapterContent(extraUris).then(function(actual) {
         assert.deepEqual(actual, watpaddExtraContent);
         done();
     });

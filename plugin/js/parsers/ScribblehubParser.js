@@ -20,12 +20,27 @@ class ScribblehubParser extends Parser {
                 ? `${baseUrl}?toc=${++nextTocIndex}`
                 : null;
         };
-        let chapters = (await this.walkTocPages(dom,
-            ScribblehubParser.getChapterUrlsFromTocPage,
-            nextTocPageUrl,
-            chapterUrlsUI
-        )).reverse();
-        return chapters;
+
+        // ScribbleHub's Cloudflare protection permanently 403-blocks the client
+        // if a ToC page request arrives without a Referer, so fetch the pages
+        // sequentially, sending the previous ToC page as the Referer each time.
+        let chapters = ScribblehubParser.getChapterUrlsFromTocPage(dom);
+        chapterUrlsUI.showTocProgress(chapters);
+        let url = nextTocPageUrl(dom, chapters, chapters);
+        let referer = dom.baseURI;
+        while (url != null) {
+            await this.rateLimitDelay();
+            await HttpClient.setDeclarativeNetRequestRules(
+                ScribblehubParser.makeFetchRules(referer)
+            );
+            dom = (await HttpClient.wrapFetch(url)).responseXML;
+            referer = url;
+            let partialList = ScribblehubParser.getChapterUrlsFromTocPage(dom);
+            chapterUrlsUI.showTocProgress(partialList);
+            chapters = chapters.concat(partialList);
+            url = nextTocPageUrl(dom, chapters, partialList);
+        }
+        return chapters.reverse();
     }
 
     static getChapterUrlsFromTocPage(dom) {
@@ -33,8 +48,8 @@ class ScribblehubParser extends Parser {
             .map(a => util.hyperLinkToChapter(a));
     }
 
-    async fetchChapter(url) {
-        let rules = [
+    static makeFetchRules(referer) {
+        return [
             {
                 id: 1,
                 priority: 1,
@@ -44,7 +59,7 @@ class ScribblehubParser extends Parser {
                         {
                             header: "referer",
                             operation: "set",
-                            value: this.tocURL,
+                            value: referer,
                         },
                         {
                             header: "sec-fetch-dest",
@@ -68,8 +83,12 @@ class ScribblehubParser extends Parser {
                 },
             },
         ];
+    }
 
-        await HttpClient.setDeclarativeNetRequestRules(rules);
+    async fetchChapter(url) {
+        await HttpClient.setDeclarativeNetRequestRules(
+            ScribblehubParser.makeFetchRules(this.tocURL)
+        );
 
         return (await HttpClient.wrapFetch(url)).responseXML;
     }

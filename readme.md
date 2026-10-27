@@ -482,6 +482,7 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>shintranslations.com</li>
     <li>shirokuns.com</li>
     <li>shmtranslations.com</li>
+    <li>shrinecomics.com</li>
     <li>shubaow.net</li>
     <li>shubaowb.com</li>
     <li>shw5.cc</li>
@@ -750,91 +751,95 @@ Don't forget to give the project a star! Thanks again!
 <details>
   <summary>Contributors</summary>
   <ul>
-    <li>Firefox port by Markus Vieth</li>
-    <li>Michael Fox (Belldandu)</li>
-    <li>typhoon71</li>
-    <li>toshiya44</li>
-    <li>dreamer2908</li>
-    <li>Parser for German Project Gutenberg by GallusMax</li>
-    <li>Hogesyx</li>
-    <li>Asif Mahmood</li>
-    <li>snnsnn</li>
-    <li>Sergii Pravdzivyi</li>
-    <li>Aurimas Niekis</li>
-    <li>Tom Goetz</li>
-    <li>Alen Toma (css styling)</li>
-    <li>JimmXinu</li>
-    <li>gamebeaker (additional metadata, Library)</li>
-    <li>Kondeeza</li>
-    <li>Mathnerd314</li>
-    <li>Sickan90</li>
-    <li>mddanish00</li>
-    <li>Kiradien</li>
-    <li>Synteresis</li>
-    <li>Lej77</li>
-    <li>nandakishore2009 (Parsers for madnovel.com, www.panda-novel.com)</li>
-    <li>courli79</li>
-    <li>Dimava</li>
-    <li>alethiophile</li>
-    <li>Yoanhg421</li>
-    <li>Leone Jacob Sunil (ImLJS)</li>
-    <li>xRahul</li>
-    <li>Oleksii Taranenko</li>
-    <li>Naheulf</li>
-    <li>perishableloc</li>
-    <li>praschke</li>
-    <li>ImmortalDreamer</li>
-    <li>ktrin</li>
-    <li>nozwock</li>
-    <li>Tyderion</li>
-    <li>Darthagnon</li>
-    <li>LucasFreitaslpf1</li>
-    <li>Jemeni11</li>
-    <li>maforn</li>
-    <li>phazei</li>
-    <li>rizkiv1</li>
-    <li>pavan3999</li>
-    <li>Anartigone</li>
-    <li>crybx</li>
-    <li>ltsKbrc</li>
-    <li>Ori Avtalion</li>
-    <li>NamTH</li>
-    <li>minhngoc25a</li>
-    <li>basitcodeenv</li>
-    <li>X-Xadro</li>
-    <li>Yomafil</li>
-    <li>Varun Patkar</li>
-    <li>Peter Kaufman</li>
-    <li>patiorjunrick</li>
-    <li>MD Shabrez</li>
-    <li>jurassicplayer</li>
-    <li>X2E4VXpZKv</li>
-    <li>meson1271 (Parser for jadescrolls.com and sakuraze.vercel.app)</li>
     <li>AgatZan (Parser for ficbook.net)</li>
-    <li>Joel Sunil</li>
-    <li>nothing0074</li>
-    <li>Justin Mott</li>
-    <li>mobedoor</li>
-    <li>nitramkh</li>
-    <li>s4daharu</li>
+    <li>Alen Toma (css styling)</li>
+    <li>alethiophile</li>
+    <li>Anartigone</li>
+    <li>ARYAN-9099</li>
+    <li>Asif Mahmood</li>
+    <li>Aurimas Niekis</li>
+    <li>baalthasar</li>
+    <li>Bartuzen</li>
+    <li>basitcodeenv</li>
+    <li>bendur</li>
+    <li>cabbey (parser for Shrine Comics)</li>
+    <li>courli79</li>
     <li>crn0</li>
-    <li>meowmereo</li>
-    <li>Matthew Song</li>
-    <li>senia-psm</li>
-    <li>ltmerletti</li>
-    <li>thanhlouis</li>
+    <li>crybx</li>
+    <li>Darthagnon</li>
+    <li>David Siewert</li>
+    <li>Dimava</li>
+    <li>dreamer2908</li>
     <li>fnx4</li>
     <li>Fox6935</li>
-    <li>ARYAN-9099</li>
-    <li>possibletoactual (Royal Road redesign fix)</li>
-    <li>kuwoyuki</li>
-    <li>bendur</li>
-    <li>Bartuzen</li>
+    <li>GallusMax (Parser for German Project Gutenberg)</li>
+    <li>gamebeaker (additional metadata, Library)</li>
+    <li>Hogesyx</li>
+    <li>ImmortalDreamer</li>
+    <li>Jemeni11</li>
+    <li>JimmXinu</li>
+    <li>Joel Sunil</li>
+    <li>jurassicplayer</li>
+    <li>Justin Mott</li>
     <li>kerimmkirac</li>
-    <li>baalthasar</li>
-    <li>David Siewert</li>
-    <li>MineRobber9000 (Parser for konkon.ink and kuupress.com)</li>
+    <li>Kiradien</li>
     <li>KitKat31337 (TWKAN paragraph markup fix)</li>
+    <li>Kondeeza</li>
+    <li>ktrin</li>
+    <li>kuwoyuki</li>
+    <li>Lej77</li>
+    <li>Leone Jacob Sunil (ImLJS)</li>
+    <li>ltmerletti</li>
+    <li>ltsKbrc</li>
+    <li>LucasFreitaslpf1</li>
+    <li>maforn</li>
+    <li>Markus Vieth (Firefox port)</li>
+    <li>MarTeezy</li>
+    <li>Mathnerd314</li>
+    <li>Matthew Song</li>
+    <li>MD Shabrez</li>
+    <li>mddanish00</li>
+    <li>meowmereo</li>
+    <li>meson1271 (Parser for jadescrolls.com and sakuraze.vercel.app)</li>
+    <li>Michael Fox (Belldandu)</li>
+    <li>MineRobber9000 (Parser for konkon.ink and kuupress.com)</li>
+    <li>minhngoc25a</li>
+    <li>mobedoor</li>
+    <li>Naheulf</li>
+    <li>NamTH</li>
+    <li>nandakishore2009 (Parsers for madnovel.com, www.panda-novel.com)</li>
+    <li>nitramkh</li>
+    <li>nothing0074</li>
+    <li>nozwock</li>
+    <li>Oleksii Taranenko</li>
+    <li>Ori Avtalion</li>
+    <li>patiorjunrick</li>
+    <li>pavan3999</li>
+    <li>perishableloc</li>
+    <li>Peter Kaufman</li>
+    <li>phazei</li>
+    <li>possibletoactual (Royal Road redesign fix)</li>
+    <li>praschke</li>
+    <li>rizkiv1</li>
+    <li>s4daharu</li>
+    <li>sakthi719</li>
+    <li>senia-psm</li>
+    <li>Sergii Pravdzivyi</li>
+    <li>Sickan90</li>
+    <li>snnsnn</li>
+    <li>Synteresis</li>
+    <li>thanhlouis</li>
+    <li>Tom Goetz</li>
+    <li>toshiya44</li>
+    <li>Tyderion</li>
+    <li>typhoon71</li>
+    <li>Varun Patkar</li>
+    <li>X-Xadro</li>
+    <li>X2E4VXpZKv</li>
+    <li>xRahul</li>
+    <li>Yash Raj (Parser for novelping.com)</li>
+    <li>Yoanhg421</li>
+    <li>Yomafil</li>
   </ul>
 </details>
 

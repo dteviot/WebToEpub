@@ -43,7 +43,7 @@ class BeastnovelsParser extends Parser {
         const xdata = container?.getAttribute("x-data");
         if (!xdata) return {};
         const field = (name) => {
-            const m = new RegExp(`${name}\\s*:\\s*(['"])(.*?)\\1`).exec(xdata);
+            const m = new RegExp(String.raw`${name}\s*:\s*(['"])(.*?)\1`).exec(xdata);
             return m ? m[2] : null;
         };
         return { title: field("title"), author: field("author"), img: field("img") };
