@@ -122,6 +122,9 @@ test("buildEpub3ContentOpf", function (assert) {
             "<meta refines=\"#packingTool\" property=\"role\">bkp</meta>" +
             "<meta name=\"calibre:series\" content=\"BakaSeries\"/>" +
             "<meta name=\"calibre:series_index\" content=\"666\"/>" +
+            "<meta property=\"belongs-to-collection\" id=\"series\">BakaSeries</meta>" +
+            "<meta refines=\"#series\" property=\"collection-type\">series</meta>" + 
+            "<meta refines=\"#series\" property=\"group-position\">666</meta>" +
             "<dc:source id=\"id.xhtml0000\">http://dummy.com/Title0</dc:source>" +
             "<dc:source id=\"id.xhtml0001\">http://dummy.com/Title1</dc:source>" +
             "</metadata>"+
