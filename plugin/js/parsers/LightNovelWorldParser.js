@@ -67,11 +67,18 @@ class LightNovelWorldParser extends Parser {
 
     getUrlsOfTocPages(dom) {
         let urls = [];
-        let paginateUrls = [...dom.querySelectorAll("ul.pagination li a")]
-            .map(a => a.href);
+        let paginateUrls = [...dom.querySelectorAll("[aria-label='Chapter range'] > option")]
+            .map(option => option.value)
+            .filter(value => value && value !== "#");
+
+        if (paginateUrls.length === 0) {
+            paginateUrls = [...dom.querySelectorAll("ul.pagination li a")]
+                .map(a => a.href);
+        }
+
         if (0 < paginateUrls.length) {
             let maxPage = this.maxPageId(paginateUrls);
-            let url = new URL(paginateUrls[0]);
+            let url = new URL(paginateUrls[0], dom.baseURI);
             for (let i = 2; i <= maxPage; ++i) {
                 url.searchParams.set("page", i);
                 urls.push(url.href);
@@ -83,8 +90,13 @@ class LightNovelWorldParser extends Parser {
     // last URL isn't always last ToC page
     maxPageId(urls) {
         let pageNum = function(url) {
-            let pageNo = new URL(url).searchParams.get("page");
-            return parseInt(pageNo);
+            let parsed = new URL(url, document.baseURI);
+            let pageNo = parsed.searchParams.get("page");
+            if (pageNo != null) {
+                return parseInt(pageNo, 10);
+            }
+            let match = parsed.pathname.match(/\/page\/(\d+)/);
+            return match ? parseInt(match[1], 10) : 0;
         };
         return urls.reduce((p, c) => Math.max(p, pageNum(c)), 0);
     }
@@ -196,7 +208,7 @@ class NovelfireParser extends FindNovelParser {
 
             let host = new URL(dom.baseURI).hostname;
             return "https://" + host + fragment +
-                "&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=created_at&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=n_sort&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=false&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=2&order%5B0%5D%5Bdir%5D=asc&start=0&length=-1&search%5Bvalue%5D=&search%5Bregex%5D=false";
+                "&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&start=0&length=100000&search%5Bvalue%5D=&search%5Bregex%5D=false";
         }
         return null;
     }
