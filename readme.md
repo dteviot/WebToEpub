@@ -193,6 +193,7 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>coronatranslation.com</li>
     <li>creativenovels.com</li>
     <li>crimsonmagic.me</li>
+    <li>crimsonscrolls.net</li>
     <li>crimsontranslations.com</li>
     <li>cyborg-tl.com</li>
     <li>czbooks.net</li>
