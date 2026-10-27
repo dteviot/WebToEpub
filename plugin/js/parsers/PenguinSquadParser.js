@@ -8,25 +8,8 @@ class PenguinSquadParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        const scriptCandidates = [...dom.scripts]
-            .map((script) => script.textContent)
-            .filter((scriptText) => scriptText.includes("chapters"))
-            .filter((scriptText) => scriptText.includes("slug"));
-
-        for (const scriptText of scriptCandidates) {
-            const dataSources = [
-                scriptText,
-                ...readQuotedJsonValues(scriptText),
-            ];
-            for (const dataText of dataSources) {
-                const chapters = extractChapterList(dataText);
-                if (chapters) {
-                    return createChapterUrls(chapters, dom.baseURI);
-                }
-            }
-        }
-
-        throw new Error("Could not find Penguin Squad's chapter list.");
+        const chapters = findEmbeddedChapters(dom);
+        return createChapterUrls(chapters, dom.baseURI);
     }
 
     findContent(dom) {
@@ -50,8 +33,26 @@ class PenguinSquadParser extends Parser {
     }
 }
 
-function readQuotedJsonValues(sourceText) {
-    const values = [];
+function findEmbeddedChapters(dom) {
+    const candidateScriptTexts = [...dom.scripts]
+        .map((script) => script.textContent)
+        .filter((scriptText) => scriptText.includes("chapters"))
+        .filter((scriptText) => scriptText.includes("slug"));
+
+    for (const scriptText of candidateScriptTexts) {
+        const candidateDataTexts = [scriptText, ...decodeQuotedStrings(scriptText)];
+        for (const dataText of candidateDataTexts) {
+            const chapters = extractChapterList(dataText);
+            if (chapters) {
+                return chapters;
+            }
+        }
+    }
+    throw new Error("Could not find Penguin Squad's chapter list.");
+}
+
+function decodeQuotedStrings(sourceText) {
+    const decodedStrings = [];
     let stringStart = sourceText.indexOf("\"");
     while (stringStart !== -1) {
         const parsedString = readQuotedJsonValue(sourceText, stringStart);
@@ -59,11 +60,11 @@ function readQuotedJsonValues(sourceText) {
             break;
         }
         if (parsedString.value !== null) {
-            values.push(parsedString.value);
+            decodedStrings.push(parsedString.value);
         }
         stringStart = sourceText.indexOf("\"", parsedString.endIndex);
     }
-    return values;
+    return decodedStrings;
 }
 
 function readQuotedJsonValue(sourceText, startIndex) {
@@ -86,11 +87,20 @@ function readQuotedJsonValue(sourceText, startIndex) {
 }
 
 function extractChapterList(dataText) {
+    const arrayStart = findChapterArrayStart(dataText);
+    if (arrayStart === -1) {
+        return null;
+    }
+
+    const arrayEnd = findJsonArrayEnd(dataText, arrayStart);
+    return JSON.parse(dataText.slice(arrayStart, arrayEnd));
+}
+
+function findChapterArrayStart(dataText) {
     const chapterProperty = "\"chapters\"";
     let chaptersPosition = dataText.indexOf(chapterProperty);
-    let arrayStart = -1;
     while (chaptersPosition !== -1) {
-        arrayStart = chaptersPosition + chapterProperty.length;
+        let arrayStart = chaptersPosition + chapterProperty.length;
         while (isJsonWhitespace(dataText[arrayStart])) {
             arrayStart++;
         }
@@ -100,7 +110,7 @@ function extractChapterList(dataText) {
                 arrayStart++;
             }
             if (dataText[arrayStart] === "[") {
-                break;
+                return arrayStart;
             }
         }
         chaptersPosition = dataText.indexOf(
@@ -108,28 +118,28 @@ function extractChapterList(dataText) {
             chaptersPosition + chapterProperty.length,
         );
     }
-    if (arrayStart === -1 || dataText[arrayStart] !== "[") {
-        return null;
-    }
+    return -1;
+}
 
-    let depth = 0;
-    let inString = false;
+function findJsonArrayEnd(dataText, arrayStart) {
+    let arrayDepth = 0;
+    let insideString = false;
     let escaped = false;
 
     for (let i = arrayStart; i < dataText.length; i++) {
         const character = dataText[i];
         if (escaped) {
             escaped = false;
-        } else if (inString && character === "\\") {
+        } else if (insideString && character === "\\") {
             escaped = true;
         } else if (character === "\"") {
-            inString = !inString;
-        } else if (!inString && character === "[") {
-            depth++;
-        } else if (!inString && character === "]") {
-            depth--;
-            if (depth === 0) {
-                return JSON.parse(dataText.slice(arrayStart, i + 1));
+            insideString = !insideString;
+        } else if (!insideString && character === "[") {
+            arrayDepth++;
+        } else if (!insideString && character === "]") {
+            arrayDepth--;
+            if (arrayDepth === 0) {
+                return i + 1;
             }
         }
     }

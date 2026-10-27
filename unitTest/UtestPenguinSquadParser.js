@@ -1,6 +1,6 @@
 module("PenguinSquadParser");
 
-QUnit.test("discovers all public chapters in chronological order", (assert) => {
+QUnit.test("discovers all chapters in source order", (assert) => {
     const done = assert.async();
     const parser = new PenguinSquadParser();
 
@@ -913,6 +913,16 @@ QUnit.test("discovers all public chapters in chronological order", (assert) => {
                 chapters.map(({ sourceUrl, title }) => ({ sourceUrl, title })),
                 expected,
             );
+            assert.strictEqual(
+                chapters[0].isIncludeable,
+                true,
+                "public chapters are includeable",
+            );
+            assert.strictEqual(
+                chapters[chapters.length - 1].isIncludeable,
+                false,
+                "premium chapters are excluded",
+            );
             done();
         },
         (error) => {
@@ -943,6 +953,7 @@ QUnit.test("reads chapter JSON from a different script wrapper", (assert) => {
                     sourceUrl:
                         "https://penguin-squad.com/novels/example/chapter-1-test",
                     title: "Test Chapter",
+                    isIncludeable: true,
                 },
             ]);
             done();
