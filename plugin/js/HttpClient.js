@@ -192,9 +192,13 @@ class HttpClient {
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
 
-    static fetchText(url) {
+    static fetchText(url, fetchOptions) {
+        let parser = fetchOptions?.parser;
+        delete fetchOptions?.parser;
         let wrapOptions = {
             responseHandler: new FetchTextResponseHandler(),
+            fetchOptions: fetchOptions,
+            parser: parser
         };
         return HttpClient.wrapFetchImpl(url, wrapOptions);
     }
@@ -287,12 +291,15 @@ class HttpClient {
             cookies = cookies.filter(item => item.partitionKey != undefined);
             //create new cookies for the site without the partitionKey
             //cookies without the partitionKey get sent with fetch
-            cookies.forEach(element => chrome.cookies.set({
-                domain: element.domain,
-                url: "https://"+element.domain.substring(1),
-                name: element.name, 
-                value: element.value
-            }));
+            //some domains start with a dot, some don't.  If it starts with a dot, remove it for the url
+            for (let i = 0; i < cookies.length; i++) {
+                await chrome.cookies.set({
+                    domain: cookies[i].domain,
+                    url: "https://"+ (cookies[i].domain.startsWith(".") ? cookies[i].domain.substring(1) : cookies[i].domain),
+                    name: cookies[i].name, 
+                    value: cookies[i].value
+                });
+            }
         } catch {
             // Probably running browser that doesn't support partitionKey, e.g. Kiwi
             console.log("failed to set cookie");
