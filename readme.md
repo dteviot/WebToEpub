@@ -482,6 +482,7 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>shintranslations.com</li>
     <li>shirokuns.com</li>
     <li>shmtranslations.com</li>
+    <li>shrinecomics.com</li>
     <li>shubaow.net</li>
     <li>shubaowb.com</li>
     <li>shw5.cc</li>
@@ -838,6 +839,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Yash Raj (Parser for novelping.com)</li>
     <li>sakthi719</li>
     <li>MarTeezy</li>
+    <li>cabbey (parser for Shrine Comics)</li>
   </ul>
 </details>
 
