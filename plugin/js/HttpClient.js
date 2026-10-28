@@ -213,7 +213,6 @@ class HttpClient {
             let skipurlerror = new Error("!Blocked! URL skipped because the user blocked the site");
             return wrapOptions.errorHandler.onFetchError(url, skipurlerror);
         }
-        await HttpClient.setPartitionCookies(url);
         if (wrapOptions.fetchOptions == null) {
             wrapOptions.fetchOptions = HttpClient.makeOptions();
         }
@@ -222,7 +221,9 @@ class HttpClient {
         }
         try
         {
+            await HttpClient.setPartitionCookies(url);
             let response = await fetch(url, wrapOptions.fetchOptions);
+            await HttpClient.unsetPartitionCookies(url);
             let ret = await HttpClient.checkResponseAndGetData(url, wrapOptions, response);
             if (wrapOptions.parser?.isNoContentToError403AndContentNull(ret)) {
                 let CustomNoContentToError403Response = wrapOptions.parser.setNoContentToError403Response(url, wrapOptions, ret);
@@ -300,9 +301,38 @@ class HttpClient {
                     value: cookies[i].value
                 });
             }
-        } catch {
+        } catch (error) {
             // Probably running browser that doesn't support partitionKey, e.g. Kiwi
-            console.log("failed to set cookie");
+            console.log("failed to set cookie:" + error);
+        } 
+    }
+
+    //anubis stays in an infinite loop if the old cookies are not cleared.
+    //anubis only clears cookies with partitionKey, so we need to clear the cookies without partitionKey to prevent infinite looping.
+    static async unsetPartitionCookies(url) {
+        // get partitionKey in the form of https://<site name>.<tld>
+        let parsedUrl = new URL(url);
+        try {
+            let urlparts = parsedUrl.hostname.split(".");
+            let cookies = "";
+            if (!util.isFirefox()) {
+                cookies = await chrome.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
+            } else {
+                cookies = await browser.cookies.getAll({domain: urlparts[urlparts.length-2]+"."+urlparts[urlparts.length-1],partitionKey: {}});
+            }
+            cookies = cookies.filter(item => item.partitionKey != undefined);
+            //delete cookies for the site that have a partitionKey
+            //only delete the one without the partitionKey
+            for (let i = 0; i < cookies.length; i++) {
+                await chrome.cookies.remove({
+                    name: cookies[i].name, 
+                    url: "https://"+ (cookies[i].domain.startsWith(".") ? cookies[i].domain.substring(1) : cookies[i].domain),
+                    partitionKey: {"topLevelSite" : ""}
+                });
+            }
+        } catch (error) {
+            // Probably running browser that doesn't support partitionKey, e.g. Kiwi
+            console.log("failed to unset cookie:" + error);
         } 
     }
 }
