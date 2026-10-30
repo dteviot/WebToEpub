@@ -298,7 +298,8 @@ class HttpClient {
                     domain: cookies[i].domain,
                     url: "https://"+ (cookies[i].domain.startsWith(".") ? cookies[i].domain.substring(1) : cookies[i].domain),
                     name: cookies[i].name, 
-                    value: cookies[i].value
+                    value: cookies[i].value,
+                    path: cookies[i].path
                 });
             }
         } catch (error) {
