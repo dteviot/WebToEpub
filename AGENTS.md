@@ -30,6 +30,11 @@ Key functions, properties, and hooks available to your parser:
   - `getChaptersFromAllTocPages(chapters, extractPartialChapterList, urlsOfTocPages, chapterUrlsUI, wrapOptions)`: Fetches a known list of TOC URLs and aggregates chapters.
   - `getChapterUrlsFromMultipleTocPages(dom, extractPartialChapterList, getUrlsOfTocPages, chapterUrlsUI)`: High-level helper combining page URL extraction and fetching.
   - `walkPagesOfChapter(url, moreChapterTextUrl)`: Handles multi-page chapters by chasing "next page" links and merging content elements.
+  - **Chapter Object Structure & `isIncludeable`**:
+    `getChapterUrls(dom, chapterUrlsUI)` returns an array of chapter objects: `{ sourceUrl, title, isIncludeable? }`.
+    - `isIncludeable` (boolean, defaults to `true` if omitted): Controls the default checkbox state of each chapter in the WebToEpub popup UI and dictates whether it will be downloaded/packaged.
+    - Set `isIncludeable: false` for paywalled, VIP, coin/points locked, premium, unreleased, or non-story chapters (e.g. `isIncludeable: !chapter.is_locked` or `isIncludeable: chapter.isFree`).
+    - Chapters with `isIncludeable: false` appear in the popup UI unchecked by default, preventing failed fetches or empty chapters, while still allowing users who have unlocked or purchased the content to manually check them.
 - **Constructed / In-Memory Content Helpers**:
   - `Parser.makeEmptyDocForContent(baseUrl)`: Creates a synthetic HTML DOM (`{ dom, content }`) for parsers that construct chapters from JSON or custom text instead of scraping raw HTML pages.
   - `Parser.findConstructedContent(dom)`: Standard selector (`div.webToEpubContent`) to retrieve content created via `Parser.makeEmptyDocForContent`.
@@ -121,6 +126,7 @@ class ExampleParser extends Parser {
     }
 
     // 2. Fetch or extract list of chapters: [{ sourceUrl, title, isIncludeable? }]
+    //    `isIncludeable: false` unchecks chapter in popup UI by default (e.g. for locked/VIP/paid chapters)
     async getChapterUrls(dom, chapterUrlsUI) {
         let menu = dom.querySelector("div.chapter-list");
         return util.hyperlinksToChapterList(menu);
