@@ -9,7 +9,7 @@ parserFactory.register("lightnovelpub.com", () => new LightNovelPubParser());
 parserFactory.register("lightnovelpub.fan", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.docsachhay.net", () => new LightNovelWorldParser());
 parserFactory.register("novelbob.org", () => new LightNovelWorldParser());
-parserFactory.register("novelphoenix.com", () => new LightNovelWorldParser());
+parserFactory.register("novelphoenix.com", () => new NovelPhoenixParser());
 parserFactory.register("novelpub.com", () => new LightNovelWorldParser());
 parserFactory.register("novelfire.net", () => new NovelfireParser());
 parserFactory.register("boxnovel.art", () => new NovelfireParser());
@@ -27,7 +27,7 @@ class LightNovelWorldParser extends Parser {
             dom = (await HttpClient.wrapFetch(dom.baseURI + "/chapters")).responseXML;
         }
         let chapters = this.extractPartialChapterList(dom);
-        let urlsOfTocPages  = this.getUrlsOfTocPages(dom);
+        let urlsOfTocPages = this.getUrlsOfTocPages(dom);
 
         for (let url of urlsOfTocPages) {
             await this.rateLimitDelay();
@@ -59,7 +59,7 @@ class LightNovelWorldParser extends Parser {
             chaperNo = "";
         }
         return {
-            sourceUrl:  link.href,
+            sourceUrl: link.href,
             title: chaperNo + title,
             newArc: null
         };
@@ -130,8 +130,7 @@ class LightNovelWorldParser extends Parser {
 
     findCoverImageUrl(dom) {
         let metaImage = dom.querySelector("meta[property*='og:image']");
-        if (metaImage)
-        {
+        if (metaImage) {
             metaImage = metaImage.content;
         }
         return metaImage || util.getFirstImgSrc(dom, "div.header-body");
@@ -157,7 +156,7 @@ class FindNovelParser extends LightNovelWorldParser {
     constructor() {
         super();
     }
-    
+
     removeUnwantedElementsFromContentElement(element) {
         util.removeHTMLUnknownElement(element);
         super.removeUnwantedElementsFromContentElement(element);
@@ -204,7 +203,7 @@ class NovelfireParser extends FindNovelParser {
     getChapterUrlRoot(dom) {
         let root = dom.baseURI;
         return root.endsWith("/chapters")
-            ? root.replace("/chapters", "" )
+            ? root.replace("/chapters", "")
             : root;
     }
 
@@ -213,5 +212,25 @@ class NovelfireParser extends FindNovelParser {
             sourceUrl: root + "/chapter-" + data.n_sort,
             title: data.title,
         });
+    }
+}
+
+class NovelPhoenixParser extends LightNovelWorldParser {
+    constructor() {
+        super();
+    }
+
+    getUrlsOfTocPages(dom) {
+        let urls = [];
+        let paginateUrls = [...dom.querySelectorAll("[aria-label='Chapter range']>option")].map(a => a.value);
+        if (0 < paginateUrls.length) {
+            let maxPage = this.maxPageId(paginateUrls);
+            let url = new URL(paginateUrls[0]);
+            for (let i = 2; i <= maxPage; ++i) {
+                url.searchParams.set("page", i);
+                urls.push(url.href);
+            }
+        }
+        return urls;
     }
 }
