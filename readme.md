@@ -830,6 +830,7 @@ Don't forget to give the project a star! Thanks again!
     <li>phazei</li>
     <li>possibletoactual (Royal Road redesign fix)</li>
     <li>praschke</li>
+    <li>professor1237</li>
     <li>rijff24 (NovelFull and Firefox source-loading fixes, assisted by Codex)</li>
     <li>rizkiv1</li>
     <li>s4daharu</li>
