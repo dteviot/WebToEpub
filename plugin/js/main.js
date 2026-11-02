@@ -232,14 +232,18 @@ var main = (function() {
         }
     }
 
-    function getActiveTabDOM(tabId) {
+    async function getActiveTabDOM(tabId) {
         addMessageListener();
-        injectContentScript(tabId);
+        try {
+            await injectContentScript(tabId);
+        } catch (error) {
+            ErrorLog.showErrorMessage(error);
+        }
     }
 
     function injectContentScript(tabId) {
         if (util.isFirefox()) {
-            Firefox.injectContentScript(tabId);
+            return Firefox.injectContentScript(tabId);
         } else {
             chromeInjectContentScript(tabId);
         }

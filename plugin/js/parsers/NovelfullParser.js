@@ -321,25 +321,29 @@ class NovelpingParser extends NovelbinParser {
 }
 
 class NovelfullNetParser extends NovelfullParser {
-    getUrlsOfTocPages(dom) {
-        let toc_pages = dom.querySelector("select#indexselect");
-        let base_url = new URL(dom.querySelector("a.con").href).origin;
-        // Why does `this` return as undefined?
-        // With `this` being undefined, `this.getBaseUrl(dom)`
-        // from Parse.JS:422 cant be used
-        let urls = [];
+    getInformationEpubItemChildNodes(dom) {
+        let nodes = [...dom.querySelectorAll(".m-book1 .txt, #novel-summary-inner")];
+        return nodes.length > 0 ? nodes : super.getInformationEpubItemChildNodes(dom);
+    }
 
-        for (let toc_page of toc_pages) {
-            if (toc_page.selected) {
+    getUrlsOfTocPages(dom) {
+        let tocPages = dom.querySelectorAll("select#indexselect option");
+        let urls = [];
+        for (let tocPage of tocPages) {
+            let path = tocPage.getAttribute("data-url");
+            if (tocPage.selected || !path) {
                 continue;
             }
-            urls.push(`${base_url}${toc_page.getAttribute("data-url")}`);
+            let url = new URL(path, dom.baseURI);
+            if (url.origin === new URL(dom.baseURI).origin) {
+                urls.push(url.href);
+            }
         }
 
         return urls;
     }
     extractPartialChapterList(dom) {
-        return [...dom.querySelectorAll("ul#idData.ul-list5 a.con")].map((link) =>
+        return [...dom.querySelectorAll("#list-chapter ul.ul-list5 a.con, ul#idData.ul-list5 a.con")].map((link) =>
             util.hyperLinkToChapter(link),
         );
     }
@@ -363,12 +367,16 @@ class NovelfullNetParser extends NovelfullParser {
     extractAuthor(dom) {
         let items = [...dom.querySelectorAll("div.item")]
             .filter((u) => u.querySelector("span")?.getAttribute("title") === "Author")
-            .map((u) => u.querySelector("a.a1")?.textContent);
+            .map((u) => u.querySelector("a.a1")?.textContent.trim())
+            .filter(Boolean);
         return 0 < items.length ? items[0] : super.extractAuthor(dom);
     }
 
     extractDescription(dom) {
         let info_div = dom.querySelector("div#novel-summary-inner.inner");
+        if (!info_div) {
+            return super.extractDescription(dom);
+        }
         let text = [...info_div.querySelectorAll("p")]
             .map((paragraph) => paragraph.textContent.trim())
             .join("\n\n");
@@ -382,6 +390,9 @@ class NovelfullNetParser extends NovelfullParser {
             (u) => u.querySelector("span")?.getAttribute("title") === "Genre",
         );
 
+        if (!genre_div) {
+            return super.extractSubject(dom);
+        }
         let tags = [...genre_div.querySelectorAll("div.right a")].map((u) => u.textContent);
         return tags.join(", ");
     }

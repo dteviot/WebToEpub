@@ -9,3 +9,4 @@ package-lock.json
 .vscode
 /plugin/dompurify/
 /plugin/@zip.js/
+docs/AI_CHANGELOG.md

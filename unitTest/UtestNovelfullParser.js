@@ -1,6 +1,111 @@
 
 "use strict";
 
+module("NovelfullNetParser");
+
+function novelfullNetTocDom(body) {
+    return new DOMParser().parseFromString(
+        `<html><head><base href="https://novelfull.net/an-alchemists-path-to-eternity.html"></head><body>${body}</body></html>`,
+        "text/html"
+    );
+}
+
+QUnit.test("current chapter list excludes latest chapter sidebar", function(assert) {
+    let dom = novelfullNetTocDom(`
+        <div class="m-newest1"><ul class="ul-list5"><li><a class="con" href="/book/chapter-1194.html">Latest</a></li></ul></div>
+        <div id="list-chapter"><ul class="ul-list5">
+        <li><a class="con" href="/book/chapter-1.html">Chapter 1</a></li>
+        <li><a class="con" href="/book/chapter-2.html">Chapter 2</a></li>
+        </ul></div>`);
+    let chapters = new NovelfullNetParser().extractPartialChapterList(dom);
+    assert.equal(chapters.length, 2);
+    assert.equal(chapters[0].title, "Chapter 1");
+    assert.equal(chapters[0].sourceUrl, "https://novelfull.net/book/chapter-1.html");
+    assert.equal(chapters[1].title, "Chapter 2");
+});
+
+QUnit.test("legacy chapter list remains supported", function(assert) {
+    let dom = novelfullNetTocDom(`<ul id="idData" class="ul-list5"><li><a class="con" href="/book/chapter-1.html">Chapter 1</a></li></ul>`);
+    assert.equal(new NovelfullNetParser().extractPartialChapterList(dom).length, 1);
+});
+
+QUnit.test("pagination resolves URLs and skips selected or unsafe options", function(assert) {
+    let dom = novelfullNetTocDom(`<select id="indexselect">
+        <option selected data-url="/an-alchemists-path-to-eternity.html">1</option>
+        <option data-url="/an-alchemists-path-to-eternity.html?page=2">2</option>
+        <option data-url="https://novelfull.net/an-alchemists-path-to-eternity.html?page=30">30</option>
+        <option>Missing URL</option><option data-url="https://example.com/book">External</option>
+        </select>`);
+    assert.deepEqual(new NovelfullNetParser().getUrlsOfTocPages(dom), [
+        "https://novelfull.net/an-alchemists-path-to-eternity.html?page=2",
+        "https://novelfull.net/an-alchemists-path-to-eternity.html?page=30"
+    ]);
+    assert.deepEqual(new NovelfullNetParser().getUrlsOfTocPages(novelfullNetTocDom("")), []);
+});
+
+QUnit.test("metadata uses current author and summary markup", function(assert) {
+    let dom = novelfullNetTocDom(`<h1 class="tit">An Alchemist's Path to Eternity</h1>
+        <div class="item"><span title="Author"></span><div class="right"><a class="a1"> The Rain Keeps Falling </a><a class="a1">雨去欲续</a></div></div>
+        <div class="item"><span title="Genre"></span><div class="right"><a>Fantasy</a><a>Action</a></div></div>
+        <div id="novel-summary-inner" class="inner"><p> First paragraph. </p><p>Second paragraph.</p></div>`);
+    let parser = new NovelfullNetParser();
+    assert.equal(parser.extractTitleImpl(dom).textContent, "An Alchemist's Path to Eternity");
+    assert.equal(parser.extractAuthor(dom), "The Rain Keeps Falling");
+    assert.equal(parser.extractSubject(dom), "Fantasy, Action");
+    assert.equal(parser.extractDescription(dom), "First paragraph.\n\nSecond paragraph.");
+    assert.equal(parser.extractSubject(novelfullNetTocDom("")), "");
+    assert.equal(parser.extractDescription(novelfullNetTocDom("")), "");
+});
+
+QUnit.test("all TOC pages are fetched with progress updates", async function(assert) {
+    let dom = novelfullNetTocDom(`<div id="list-chapter"><ul class="ul-list5"><li><a class="con" href="/book/chapter-1.html">Chapter 1</a></li></ul></div>
+        <select id="indexselect"><option selected data-url="/book.html">1</option><option data-url="/book.html?page=2">2</option></select>`);
+    let parser = new NovelfullNetParser();
+    let originalFetch = HttpClient.wrapFetch;
+    let progress = [];
+    parser.rateLimitDelay = async () => {};
+    HttpClient.wrapFetch = async url => {
+        assert.equal(url, "https://novelfull.net/book.html?page=2");
+        return {responseXML: novelfullNetTocDom(`<div id="list-chapter"><ul class="ul-list5"><li><a class="con" href="/book/chapter-2.html">Chapter 2</a></li></ul></div>`)};
+    };
+    try {
+        let chapters = await parser.getChapterUrls(dom, {showTocProgress: list => progress.push(list.length)});
+        assert.deepEqual(chapters.map(chapter => chapter.title), ["Chapter 1", "Chapter 2"]);
+        assert.deepEqual(progress, [1, 1]);
+    } finally {
+        HttpClient.wrapFetch = originalFetch;
+    }
+});
+
+QUnit.test("information page includes author genres summary and source URL", function(assert) {
+    let dom = novelfullNetTocDom(`<div class="m-book1"><div class="txt">
+        <div class="item"><span title="Author"></span><a class="a1">The Rain Keeps Falling</a></div>
+        <div class="item"><span title="Genre"></span><a>Fantasy</a></div></div></div>
+        <div id="novel-summary-inner"><p>Book synopsis.</p></div><script>unwanted()</script>`);
+    let parser = new NovelfullNetParser();
+    parser.state.chapterListUrl = dom.baseURI;
+    let info = parser.makeInformationEpubItem(dom);
+    let text = info.nodes.map(node => node.textContent).join(" ");
+    assert.ok(text.includes("The Rain Keeps Falling"));
+    assert.ok(text.includes("Fantasy"));
+    assert.ok(text.includes("Book synopsis."));
+    assert.ok(text.includes(dom.baseURI));
+    assert.ok(!text.includes("unwanted()"));
+});
+
+QUnit.test("chapter heading and story content survive EPUB conversion", function(assert) {
+    let dom = novelfullNetTocDom(`<h1 class="chapter"><span class="chapter-heading-text">Chapter 1: Rogue Cultivator Luo Chen</span></h1>
+        <nav>Next chapter</nav><div id="chapter-content"><p>Story paragraph.</p><script>unwanted()</script></div>`);
+    let parser = new NovelfullNetParser();
+    parser.onUserPreferencesUpdate(new UserPreferences());
+    let page = {rawDom: dom, sourceUrl: dom.baseURI, title: "Chapter 1: Rogue Cultivator Luo Chen", nextPrevChapters: new Set()};
+    let content = parser.convertRawDomToContent(page);
+    assert.equal(content.querySelector("h1").textContent, page.title);
+    assert.ok(content.textContent.includes("Story paragraph."));
+    assert.ok(!content.textContent.includes("Next chapter"));
+    assert.equal(content.querySelectorAll("script").length, 0);
+});
+
 module("NovelfullParser");
 
 QUnit.test("findWatermark", function (assert) {
