@@ -79,7 +79,6 @@ class FenrirealmParser extends Parser {
         if (authorization?.active !== true || typeof authorization.token !== "string" || !authorization.token) {
             throw new Error("Fenrir Realm reading authorization failed for " + chapter.title);
         }
-        await this.rateLimitDelay();
         let result = await this.fetchChapterJson(new URL("/api/new/v2" + new URL(sourceUrl).pathname, url).href, sourceUrl, {
             credentials: "include",
             headers: { Accept: "application/json", "X-Accepts-Encrypted-Content": "3" }
