@@ -1,8 +1,7 @@
 const AZURE_CHRONICLES_AJAX_URL =
     "https://azurechronicles.com/wp-admin/admin-ajax.php";
 const AZURE_CHRONICLES_CHAPTER_PAGE_ACTION = "ac_novel_chapter_page";
-const AZURE_CHRONICLES_CHAPTER_LINK_SELECTOR =
-    ".chapter-row a:not([data-ac-locked])";
+const AZURE_CHRONICLES_CHAPTER_LINK_SELECTOR = ".chapter-row a";
 const AZURE_CHRONICLES_COVER_IMAGE_SELECTOR = "meta[property=\"og:image\"]";
 
 parserFactory.register(
@@ -88,7 +87,10 @@ class AzureChroniclesParser extends Parser {
             ...dom.querySelectorAll(AZURE_CHRONICLES_CHAPTER_LINK_SELECTOR),
         ];
 
-        return links.map((a) => util.hyperLinkToChapter(a));
+        return links.map((a) => ({
+            ...util.hyperLinkToChapter(a),
+            isIncludeable: !a.hasAttribute("data-ac-locked"),
+        }));
     }
 
     extractAjaxConfiguration(dom) {
