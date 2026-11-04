@@ -9,10 +9,10 @@ class FenrirealmFetchErrorHandler extends FetchErrorHandler {
     }
 
     promptUserForRetry(url, wrapOptions, response, failError) {
-        if (response.status === 403) {
-            response = { url: this.chapterUrl, status: response.status };
-        }
-        return super.promptUserForRetry(url, wrapOptions, response, failError);
+        const promptResponse = response.status === 403
+            ? { url: this.chapterUrl, status: response.status }
+            : response;
+        return super.promptUserForRetry(url, wrapOptions, promptResponse, failError);
     }
 }
 
@@ -28,88 +28,136 @@ class FenrirealmParser extends Parser {
     }
 
     async loadChapters(url) {
-        let seriesPath = this.seriesPath(url);
-        let data = (await HttpClient.fetchJson(new URL("/api/new/v2" + seriesPath + "/chapters", url).href)).json;
+        const seriesPath = this.seriesPath(url);
+        const apiUrl = new URL(`/api/new/v2${seriesPath}/chapters`, url).href;
+        const { json: data } = await HttpClient.fetchJson(apiUrl);
         if (!Array.isArray(data)) {
             throw new Error("Fenrir Realm returned an invalid chapter list.");
         }
         return data.sort((a, b) => a.index - b.index).map(chapter => {
-            if (!Number.isInteger(chapter.id) || !chapter.uuid || !chapter.slug) {
-                throw new Error("Fenrir Realm returned invalid chapter identifiers.");
-            }
-            let entry = {
-                id: chapter.id,
-                uuid: chapter.uuid,
-                slug: chapter.slug,
-                sourceUrl: new URL(seriesPath + "/" + encodeURIComponent(chapter.slug), url).href,
-                title: this.removeDuplicatedChapterPrefix(chapter.title || chapter.name || ""),
-                isIncludeable: chapter.locked?.price === 0 &&
-                    Date.parse(chapter.locked.unlocked_at) <= Date.now()
-            };
+            const entry = this.chapterListEntry(chapter, seriesPath, url);
             this.chapters.set(entry.sourceUrl, entry);
             return entry;
         });
     }
 
-    seriesPath(url) {
-        let parts = url.pathname.split("/").filter(Boolean);
-        if (parts[0] !== "series" || !parts[1]) {
-            throw new Error("Cannot identify the Fenrir Realm series from " + url.href);
+    chapterListEntry(chapter, seriesPath, url) {
+        if (!Number.isInteger(chapter.id) || !chapter.uuid || !chapter.slug) {
+            throw new Error("Fenrir Realm returned invalid chapter identifiers.");
         }
-        return "/series/" + parts[1];
+        return {
+            id: chapter.id,
+            uuid: chapter.uuid,
+            slug: chapter.slug,
+            sourceUrl: new URL(`${seriesPath}/${encodeURIComponent(chapter.slug)}`, url).href,
+            title: this.removeDuplicatedChapterPrefix(chapter.title || chapter.name || ""),
+            isIncludeable: chapter.locked?.price === 0 &&
+                Date.parse(chapter.locked.unlocked_at) <= Date.now()
+        };
+    }
+
+    seriesPath(url) {
+        const parts = url.pathname.split("/").filter(Boolean);
+        if (parts[0] !== "series" || !parts[1]) {
+            throw new Error(`Cannot identify the Fenrir Realm series from ${url.href}`);
+        }
+        return `/series/${parts[1]}`;
     }
 
     async fetchChapter(url) {
-        let chapterUrl = new URL(url);
-        let sourceUrl = chapterUrl.origin + chapterUrl.pathname.replace(/\/$/, "");
+        const sourceUrl = this.normalizeChapterUrl(url);
+        const chapter = await this.findChapter(sourceUrl);
+        const token = await this.authorizeChapter(chapter);
+        const response = await this.requestChapter(chapter);
+        const content = await this.readChapterContent(response, chapter, token);
+        return this.buildChapterDocument(url, chapter, response.json, content);
+    }
+
+    normalizeChapterUrl(url) {
+        const chapterUrl = new URL(url);
+        const path = chapterUrl.pathname;
+        const chapterPath = path.endsWith("/") ? path.slice(0, -1) : path;
+        return `${chapterUrl.origin}${chapterPath}`;
+    }
+
+    async findChapter(sourceUrl) {
         if (!this.chapters.has(sourceUrl)) {
-            await this.loadChapters(chapterUrl);
+            await this.loadChapters(new URL(sourceUrl));
             await this.rateLimitDelay();
         }
-        let chapter = this.chapters.get(sourceUrl);
+        const chapter = this.chapters.get(sourceUrl);
         if (!chapter) {
-            throw new Error("Fenrir Realm chapter not found: " + url);
+            throw new Error(`Fenrir Realm chapter not found: ${sourceUrl}`);
         }
-        let authorization = (await this.fetchChapterJson(new URL("/api/read-token", url).href, sourceUrl, {
+        return chapter;
+    }
+
+    async authorizeChapter(chapter) {
+        const apiUrl = new URL("/api/read-token", chapter.sourceUrl).href;
+        const { json: authorization } = await this.fetchChapterJson(apiUrl, chapter.sourceUrl, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
             body: JSON.stringify({ chapter_id: chapter.uuid })
-        })).json;
+        });
         if (authorization?.active !== true || typeof authorization.token !== "string" || !authorization.token) {
-            throw new Error("Fenrir Realm reading authorization failed for " + chapter.title);
+            throw new Error(`Fenrir Realm reading authorization failed for ${chapter.title}`);
         }
-        let result = await this.fetchChapterJson(new URL("/api/new/v2" + new URL(sourceUrl).pathname, url).href, sourceUrl, {
+        return authorization.token;
+    }
+
+    async requestChapter(chapter) {
+        const url = new URL(chapter.sourceUrl);
+        const apiUrl = new URL(`/api/new/v2${url.pathname}`, url).href;
+        const result = await this.fetchChapterJson(apiUrl, chapter.sourceUrl, {
             credentials: "include",
             headers: { Accept: "application/json", "X-Accepts-Encrypted-Content": "3" }
         });
-        let data = result.json;
+        const data = result.json;
         if (!data || data.id !== chapter.id) {
-            throw new Error("Fenrir Realm returned a different or invalid chapter for " + chapter.title);
+            throw new Error(`Fenrir Realm returned a different or invalid chapter for ${chapter.title}`);
         }
+        return result;
+    }
+
+    async readChapterContent(result, chapter, token) {
+        const data = result.json;
         if (data.content_format === "locked") {
-            throw new Error("Fenrir Realm chapter is locked: " + chapter.title);
+            throw new Error(`Fenrir Realm chapter is locked: ${chapter.title}`);
         }
-        let content = data.content;
-        if (data.content_format === "encrypted") {
-            if (data.content_scheme !== "fragmented-v1") {
-                throw new Error("Unsupported Fenrir Realm encryption scheme: " + data.content_scheme);
-            }
-            // A chapter response can issue a replacement for the minted reading token.
-            let token = result.response.headers.get("x-read-token-issued") || authorization.token;
-            try {
-                content = await this.decryptContent(data, token);
-            } catch {
-                throw new Error("Could not decrypt Fenrir Realm chapter: " + chapter.title);
-            }
-        } else if (data.content_format !== "html" && data.content_format !== "text") {
-            throw new Error("Unsupported Fenrir Realm content format: " + data.content_format);
-        }
+        const content = data.content_format === "encrypted"
+            ? await this.decryptChapter(result, chapter, token)
+            : this.readUnencryptedContent(data);
         if (typeof content !== "string" || !content.trim()) {
-            throw new Error("Fenrir Realm returned empty or invalid content for " + chapter.title);
+            throw new Error(`Fenrir Realm returned empty or invalid content for ${chapter.title}`);
         }
-        let newDoc = Parser.makeEmptyDocForContent(url);
-        let title = newDoc.dom.createElement("h1");
+        return content;
+    }
+
+    readUnencryptedContent(data) {
+        if (data.content_format !== "html" && data.content_format !== "text") {
+            throw new Error(`Unsupported Fenrir Realm content format: ${data.content_format}`);
+        }
+        return data.content;
+    }
+
+    async decryptChapter(result, chapter, token) {
+        const data = result.json;
+        if (data.content_scheme !== "fragmented-v1") {
+            throw new Error(`Unsupported Fenrir Realm encryption scheme: ${data.content_scheme}`);
+        }
+        // A chapter response can issue a replacement for the minted reading token.
+        const readingToken = result.response.headers.get("x-read-token-issued") || token;
+        try {
+            return await this.decryptContent(data, readingToken);
+        } catch {
+            throw new Error(`Could not decrypt Fenrir Realm chapter: ${chapter.title}`);
+        }
+    }
+
+    buildChapterDocument(url, chapter, data, content) {
+        const newDoc = Parser.makeEmptyDocForContent(url);
+        const title = newDoc.dom.createElement("h1");
         title.textContent = this.removeDuplicatedChapterPrefix(data.name || chapter.title);
         newDoc.content.appendChild(title);
         if (data.content_format === "text") {
@@ -129,36 +177,79 @@ class FenrirealmParser extends Parser {
     }
 
     async decryptContent(data, token) {
-        if (!Array.isArray(data.content) || data.content.length === 0 ||
-            !data.content.every(fragment => typeof fragment === "string")) {
+        this.validateFragments(data.content);
+        const permutation = await this.createFragmentPermutation(token, data.id, data.content.length);
+        const ciphertext = this.restoreFragmentOrder(data.content, permutation);
+        const payload = this.decodeEncryptedPayload(ciphertext);
+        const key = await this.deriveContentKey(token, data.id);
+        return this.decryptPayload(payload, key);
+    }
+
+    validateFragments(fragments) {
+        if (!Array.isArray(fragments) || fragments.length === 0 ||
+            !fragments.every(fragment => typeof fragment === "string")) {
             throw new Error("Invalid encrypted fragments.");
         }
-        let encoder = new TextEncoder();
-        let seed = await crypto.subtle.digest("SHA-256", encoder.encode(`${token}:${data.id}:fr-frag-v1`));
-        let view = new DataView(seed);
-        let state = Uint32Array.of(...[0, 4, 8, 12].map(offset => view.getUint32(offset, true)));
-        let permutation = data.content.map((fragment, index) => index);
-        // Match the reader's xorshift128 generator and Fisher–Yates shuffle.
-        for (let i = permutation.length - 1; i > 0; --i) {
-            let value = (state[0] ^ state[0] << 11) >>> 0;
-            value = (value ^ value >>> 8) >>> 0;
-            let last = state[3];
-            state[0] = state[1];
-            state[1] = state[2];
-            state[2] = last;
-            state[3] = (last ^ last >>> 19 ^ value) >>> 0;
-            let j = state[3] % (i + 1);
-            [permutation[i], permutation[j]] = [permutation[j], permutation[i]];
+    }
+
+    async createFragmentPermutation(token, chapterId, fragmentCount) {
+        const seed = await this.sha256(`${token}:${chapterId}:fr-frag-v1`);
+        const state = this.createShuffleState(seed);
+        const permutation = Array.from({ length: fragmentCount }, (unused, index) => index);
+        // Fisher–Yates shuffle, using the same generator as the site's reader.
+        for (let index = fragmentCount - 1; index > 0; --index) {
+            const swapIndex = this.nextShuffleValue(state) % (index + 1);
+            [permutation[index], permutation[swapIndex]] = [permutation[swapIndex], permutation[index]];
         }
-        let fragments = new Array(data.content.length);
-        data.content.forEach((fragment, index) => { fragments[permutation[index]] = fragment; });
-        let bytes = Uint8Array.from(atob(fragments.join("")), char => char.charCodeAt(0));
-        if (bytes.length <= 28) {
+        return permutation;
+    }
+
+    createShuffleState(seed) {
+        const view = new DataView(seed);
+        return Uint32Array.of(...[0, 4, 8, 12].map(offset => view.getUint32(offset, true)));
+    }
+
+    nextShuffleValue(state) {
+        // xorshift128: bit operations must match the site's unsigned 32-bit arithmetic.
+        const shifted = (state[0] ^ state[0] << 11) >>> 0;
+        const mixed = (shifted ^ shifted >>> 8) >>> 0;
+        const last = state[3];
+        state[0] = state[1];
+        state[1] = state[2];
+        state[2] = last;
+        state[3] = (last ^ last >>> 19 ^ mixed) >>> 0;
+        return state[3];
+    }
+
+    restoreFragmentOrder(fragments, permutation) {
+        const orderedFragments = new Array(fragments.length);
+        fragments.forEach((fragment, index) => {
+            orderedFragments[permutation[index]] = fragment;
+        });
+        return orderedFragments.join("");
+    }
+
+    decodeEncryptedPayload(ciphertext) {
+        const bytes = Uint8Array.from(atob(ciphertext), char => char.charCodeAt(0));
+        const ivLength = 12;
+        const authenticationTagLength = 16;
+        if (bytes.length <= ivLength + authenticationTagLength) {
             throw new Error("Invalid encrypted payload.");
         }
-        let keyBytes = await crypto.subtle.digest("SHA-256", encoder.encode(`${token}:${data.id}:fr-content-v1`));
-        let key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
-        let plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes.slice(0, 12) }, key, bytes.slice(12));
+        return { iv: bytes.slice(0, ivLength), ciphertext: bytes.slice(ivLength) };
+    }
+
+    async deriveContentKey(token, chapterId) {
+        const keyBytes = await this.sha256(`${token}:${chapterId}:fr-content-v1`);
+        return crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
+    }
+
+    sha256(text) {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    }
+
+    async decryptPayload(payload, key) {
+        const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: payload.iv }, key, payload.ciphertext);
         return new TextDecoder("utf-8", { fatal: true }).decode(plaintext);
     }
 
@@ -171,12 +262,12 @@ class FenrirealmParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        let titleText = dom.querySelector("h1, h2")?.textContent ?? "";
+        const titleText = dom.querySelector("h1, h2")?.textContent ?? "";
         return this.removeDuplicatedChapterPrefix(titleText);
     }
 
     removeDuplicatedChapterPrefix(titleText) {
-        let parts = titleText.split(":");
+        const parts = titleText.split(":");
         return (parts.length >= 2) && (parts[0].trim() === parts[1].trim())
             ? parts.slice(1).join(":")
             : titleText;
@@ -189,7 +280,7 @@ class FenrirealmParser extends Parser {
     }
 
     findCoverImageUrl(dom) {
-        let img = dom.querySelector(".main-area .flex-col div.lazy-image-wrapper img:nth-of-type(2)");
+        const img = dom.querySelector(".main-area .flex-col div.lazy-image-wrapper img:nth-of-type(2)");
         return img?.src || null;
     }
 
