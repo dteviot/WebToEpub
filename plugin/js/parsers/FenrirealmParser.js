@@ -2,6 +2,20 @@
 
 parserFactory.register("fenrirealm.com", () => new FenrirealmParser());
 
+class FenrirealmFetchErrorHandler extends FetchErrorHandler {
+    constructor(chapterUrl) {
+        super();
+        this.chapterUrl = chapterUrl;
+    }
+
+    promptUserForRetry(url, wrapOptions, response, failError) {
+        if (response.status === 403) {
+            response = { url: this.chapterUrl, status: response.status };
+        }
+        return super.promptUserForRetry(url, wrapOptions, response, failError);
+    }
+}
+
 class FenrirealmParser extends Parser {
     constructor() {
         super();
@@ -56,7 +70,7 @@ class FenrirealmParser extends Parser {
         if (!chapter) {
             throw new Error("Fenrir Realm chapter not found: " + url);
         }
-        let authorization = (await HttpClient.fetchJson(new URL("/api/read-token", url).href, {
+        let authorization = (await this.fetchChapterJson(new URL("/api/read-token", url).href, sourceUrl, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -66,7 +80,7 @@ class FenrirealmParser extends Parser {
             throw new Error("Fenrir Realm reading authorization failed for " + chapter.title);
         }
         await this.rateLimitDelay();
-        let result = await HttpClient.fetchJson(new URL("/api/new/v2" + new URL(sourceUrl).pathname, url).href, {
+        let result = await this.fetchChapterJson(new URL("/api/new/v2" + new URL(sourceUrl).pathname, url).href, sourceUrl, {
             credentials: "include",
             headers: { Accept: "application/json", "X-Accepts-Encrypted-Content": "3" }
         });
@@ -105,6 +119,14 @@ class FenrirealmParser extends Parser {
             util.moveChildElements(util.sanitize(content).body, newDoc.content);
         }
         return newDoc.dom;
+    }
+
+    fetchChapterJson(url, chapterUrl, fetchOptions) {
+        return HttpClient.wrapFetchImpl(url, {
+            fetchOptions: fetchOptions,
+            responseHandler: new FetchJsonResponseHandler(),
+            errorHandler: new FenrirealmFetchErrorHandler(chapterUrl)
+        });
     }
 
     async decryptContent(data, token) {
