@@ -24,20 +24,33 @@ class RoyalRoadParser extends Parser {
         let options = {
             parser: this
         };
-        let tocHtml = await HttpClient.fetchText(dom.baseURI, options);
+        let tocUrl = RoyalRoadParser.fictionUrl(dom.baseURI);
+        let tocHtml = await HttpClient.fetchText(tocUrl, options);
         let tocDoc = new DOMParser().parseFromString(tocHtml, "text/html");
+        util.setBaseTag(tocUrl, tocDoc);
         // Capture book metadata (description + genres) from the raw page now — the DOM
         // the parser later sees has its <script> tags stripped and, on the redesign, no
         // JSON-LD at all, so the full description must be scraped here. Stash it on the
         // (shared) first-page DOM so the metadata and information-page code can read it.
         dom.royalRoadBookMeta = RoyalRoadParser.extractBookMeta(tocHtml, tocDoc);
-        let fromJson = RoyalRoadParser.chaptersFromWindowChapters(tocHtml, dom.baseURI);
+        let fromJson = RoyalRoadParser.chaptersFromWindowChapters(tocHtml, tocUrl);
         if (0 < fromJson.length) {
             return fromJson;
         }
         // fallback: legacy server-rendered table (reuse the parse above)
         let table = tocDoc.querySelector("table#chapters");
         return util.hyperlinksToChapterList(table);
+    }
+
+    static fictionUrl(url) {
+        let fictionUrl = new URL(url);
+        let match = fictionUrl.pathname.match(/^(\/fiction\/\d+(?:\/[^/]+)?)(?:\/chapter\/\d+(?:\/[^/]*)?)\/?$/i);
+        if (match !== null) {
+            fictionUrl.pathname = match[1];
+            fictionUrl.search = "";
+            fictionUrl.hash = "";
+        }
+        return fictionUrl.href;
     }
 
     // Extract the chapter list from the page's `window.chapters = [...]` JSON blob.

@@ -773,6 +773,7 @@ Don't forget to give the project a star! Thanks again!
     <li>basitcodeenv</li>
     <li>bendur</li>
     <li>cabbey (parser for Shrine Comics)</li>
+    <li>Cavad (Patreon title fallback and Royal Road chapter list fixes)</li>
     <li>courli79</li>
     <li>crn0</li>
     <li>crybx</li>
