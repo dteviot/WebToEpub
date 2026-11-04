@@ -43,7 +43,11 @@ class FenrirealmParser extends Parser {
             throw new Error("Fenrir Realm returned an invalid chapter list.");
         }
         return data
-            .sort((a, b) => a.index - b.index)
+            // Chapter indexes restart within each volume.
+            .sort((a, b) =>
+                (a.group?.index ?? 0) - (b.group?.index ?? 0) ||
+                a.index - b.index,
+            )
             .map((apiChapter) => {
                 const entry = this.buildChapterListEntry(
                     apiChapter,
