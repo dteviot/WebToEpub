@@ -1,33 +1,9 @@
-"use strict";
-
 parserFactory.register("fenrirealm.com", () => new FenrirealmParser());
-
-class FenrirealmFetchErrorHandler extends FetchErrorHandler {
-    constructor(chapterUrl) {
-        super();
-        this.chapterUrl = chapterUrl;
-    }
-
-    promptUserForRetry(url, wrapOptions, response, failError) {
-        // Turnstile runs on the chapter page, not the API endpoint. But we change only
-        // the link shown to the user and keep the url so Retry repeats the API request.
-        const needsChapterPageForChallenge = response.status === 403;
-        const promptResponse = needsChapterPageForChallenge
-            ? { url: this.chapterUrl, status: response.status }
-            : response;
-        return super.promptUserForRetry(
-            url,
-            wrapOptions,
-            promptResponse,
-            failError,
-        );
-    }
-}
 
 class FenrirealmParser extends Parser {
     constructor() {
         super();
-        this.minimumThrottle = 4000;
+        this.minimumThrottle = 10000;
         this.chaptersByUrl = new Map();
     }
 
@@ -39,45 +15,51 @@ class FenrirealmParser extends Parser {
         const seriesPath = this.seriesPath(url);
         const apiUrl = new URL(`/api/new/v2${seriesPath}/chapters`, url).href;
         const { json: data } = await HttpClient.fetchJson(apiUrl);
-        if (!Array.isArray(data)) {
+        const chapterListIsInvalid = !Array.isArray(data);
+        if (chapterListIsInvalid) {
             throw new Error("Fenrir Realm returned an invalid chapter list.");
         }
-        return data
-            // Chapter indexes restart within each volume.
-            .sort((a, b) =>
-                (a.group?.index ?? 0) - (b.group?.index ?? 0) ||
-                a.index - b.index,
-            )
-            .map((apiChapter) => {
-                const entry = this.buildChapterListEntry(
-                    apiChapter,
-                    seriesPath,
-                    url,
-                );
-                this.chaptersByUrl.set(entry.sourceUrl, entry);
-                return entry;
-            });
+        return (
+            data
+                // Chapter indexes restart within each volume.
+                .sort((firstChapter, secondChapter) => {
+                    const volumeOrder =
+                        (firstChapter.group?.index ?? 0) -
+                        (secondChapter.group?.index ?? 0);
+                    if (volumeOrder) {
+                        return volumeOrder;
+                    }
+                    return firstChapter.index - secondChapter.index;
+                })
+                .map((apiChapter) => {
+                    const entry = this.buildChapterListEntry(
+                        apiChapter,
+                        seriesPath,
+                        url,
+                    );
+                    this.chaptersByUrl.set(entry.sourceUrl, entry);
+                    return entry;
+                })
+        );
     }
 
     buildChapterListEntry(apiChapter, seriesPath, url) {
-        if (
-            !Number.isInteger(apiChapter.id) ||
-            !apiChapter.uuid ||
-            !apiChapter.slug
-        ) {
+        const hasNumericId = Number.isInteger(apiChapter.id);
+        const hasSlug = Boolean(apiChapter.slug);
+        const identifiersAreInvalid = !hasNumericId || !hasSlug;
+        if (identifiersAreInvalid) {
             throw new Error(
                 "Fenrir Realm returned invalid chapter identifiers.",
             );
         }
         const isFree = apiChapter.locked?.price === 0;
         // Leave paid and unreleased chapters unchecked to avoid failed downloads.
-        const isFreeAndReleased =
-            isFree && Date.parse(apiChapter.locked.unlocked_at) <= Date.now();
+        const isReleased =
+            Date.parse(apiChapter.locked?.unlocked_at) <= Date.now();
+        const isFreeAndReleased = isFree && isReleased;
         return {
-            // Numeric id validates responses and derives decryption keys.
-            // uuid identifies the same chapter when requesting authorization.
+            // Match the rendered reader to the requested chapter.
             id: apiChapter.id,
-            uuid: apiChapter.uuid,
             slug: apiChapter.slug,
             sourceUrl: new URL(
                 `${seriesPath}/${encodeURIComponent(apiChapter.slug)}`,
@@ -92,7 +74,10 @@ class FenrirealmParser extends Parser {
 
     seriesPath(url) {
         const parts = url.pathname.split("/").filter(Boolean);
-        if (parts[0] !== "series" || !parts[1]) {
+        const isSeriesPath = parts[0] === "series";
+        const hasSeriesSlug = Boolean(parts[1]);
+        const seriesCannotBeIdentified = !isSeriesPath || !hasSeriesSlug;
+        if (seriesCannotBeIdentified) {
             throw new Error(
                 `Cannot identify the Fenrir Realm series from ${url.href}`,
             );
@@ -101,278 +86,243 @@ class FenrirealmParser extends Parser {
     }
 
     async fetchChapter(url) {
-        const chapterCacheKey = this.chapterCacheKeyFromUrl(url);
-        const chapter = await this.getOrLoadChapter(chapterCacheKey);
-        // Authorization sets the fr_read cookie used by the content request.
-        // The returned token is also needed locally to decrypt the response.
-        const decryptionToken = await this.authorizeChapter(chapter);
-        const chapterResult = await this.requestChapter(chapter);
-        const content = await this.readChapterContent(
-            chapterResult,
-            chapter,
-            decryptionToken,
+        const chapter = await this.getOrLoadChapter(
+            this.chapterCacheKeyFromUrl(url),
         );
-        return this.buildChapterDocument(
-            url,
-            chapter,
-            chapterResult.json,
-            content,
+        const snapshot = await this.fetchRenderedChapter(chapter);
+        return this.buildChapterDocument(url, chapter, snapshot);
+    }
+
+    async fetchRenderedChapter(chapter) {
+        let tabId;
+        try {
+            const tab = await this.callTabApi("create", {
+                url: chapter.sourceUrl,
+                active: false,
+            });
+            tabId = tab.id;
+            return await this.waitForRenderedChapter(tabId, chapter);
+        } catch (error) {
+            const message = error.message.toLowerCase();
+            const tabMissing = [
+                "no tab with id",
+                "invalid tab id",
+                "cannot find tab",
+            ].some((phrase) => message.includes(phrase));
+
+            if (tabMissing) {
+                throw new Error(
+                    "The reading tab opened by WebToEpub was closed. Please do not close " +
+                        "that tab: WebToEpub needs it open to read the chapter after verification. " +
+                        "It will close the tab automatically when finished. Try downloading the chapter again.",
+                );
+            }
+            throw error;
+        } finally {
+            if (tabId != null) {
+                chrome.tabs.remove(tabId, () => {
+                    void chrome.runtime.lastError;
+                });
+            }
+        }
+    }
+
+    async waitForRenderedChapter(tabId, chapter) {
+        let deadline = Date.now() + 60000;
+        let previousHtml;
+        let downloadIsActive = !util.getSleepController().signal.aborted;
+        while (downloadIsActive) {
+            const tab = await this.callTabApi("get", tabId);
+            const pageHasLoaded = tab.status === "complete";
+            let snapshot = null;
+            if (pageHasLoaded) {
+                snapshot = await this.readChapterTab(tabId, chapter.id);
+            }
+
+            const chapterIsReady = snapshot?.status === "ready";
+            const contentIsUnchanged =
+                chapterIsReady && snapshot.html === previousHtml;
+            // Two matching snapshots avoid collecting a partially rendered chapter.
+            if (contentIsUnchanged) {
+                return snapshot;
+            }
+            previousHtml = chapterIsReady ? snapshot.html : null;
+
+            const verificationIsRequired = snapshot?.status === "challenge";
+            const waitingHasTimedOut = Date.now() >= deadline;
+            const userNeedsToRetry =
+                verificationIsRequired || waitingHasTimedOut;
+            if (userNeedsToRetry) {
+                await this.retryChapterTab(tabId, chapter);
+                previousHtml = null;
+                deadline = Date.now() + 60000;
+            }
+            await util.sleep(1000);
+            downloadIsActive = !util.getSleepController().signal.aborted;
+        }
+        throw new Error("Fenrir Realm chapter download cancelled.");
+    }
+
+    async retryChapterTab(tabId, chapter) {
+        await this.promptForChapterRetry(chapter.sourceUrl);
+        const snapshot = await this.readChapterTab(tabId, chapter.id);
+        const chapterIsNotReady = snapshot?.status !== "ready";
+        if (chapterIsNotReady) {
+            await this.callTabApi("reload", tabId);
+        }
+    }
+
+    callTabApi(method, ...args) {
+        return new Promise((resolve, reject) => {
+            chrome.tabs[method](...args, (result) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
+    readChapterTab(tabId, chapterId) {
+        return new Promise((resolve, reject) => {
+            const usesManifestV3 =
+                chrome.runtime.getManifest().manifest_version >= 3;
+            const onResult = (results) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                    let snapshot = results?.[0];
+                    if (usesManifestV3) {
+                        snapshot = snapshot?.result;
+                    }
+                    resolve(snapshot);
+                }
+            };
+            if (usesManifestV3) {
+                chrome.scripting.executeScript(
+                    {
+                        target: { tabId: tabId },
+                        func: FenrirealmParser.readRenderedChapter,
+                        args: [chapterId],
+                    },
+                    onResult,
+                );
+            } else {
+                // Firefox's packaged MV2 build omits the scripting permission.
+                // chapterId is validated as an integer by buildChapterListEntry.
+                chrome.tabs.executeScript(
+                    tabId,
+                    {
+                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${chapterId})`,
+                        runAt: "document_idle",
+                    },
+                    onResult,
+                );
+            }
+        });
+    }
+
+    static readRenderedChapter = (chapterId) => {
+        // Runs in the reading tab's isolated world. Only read the DOM the site rendered.
+        const reader = document.getElementById(`reader-area-${chapterId}`);
+        const readerChallenge = reader?.querySelector(
+            "[data-testid^='unlock-'], [data-testid='turnstile-widget']",
         );
+        const pageChallenge = document.querySelector(
+            "#challenge-running, #challenge-form",
+        );
+        const verificationIsRequired = Boolean(
+            readerChallenge || pageChallenge,
+        );
+        if (verificationIsRequired) {
+            return { status: "challenge" };
+        }
+        // The site replaces the reader with a separate purchase panel for locked chapters.
+        const readerHasNoText = !reader?.textContent.trim();
+        if (readerHasNoText) {
+            return { status: "waiting" };
+        }
+        const accessIsBeingVerified =
+            reader.textContent.includes("Verifying access");
+        const humanConfirmationIsRequired = reader.textContent.includes(
+            "Confirm you're human to continue reading",
+        );
+        const verificationIsPending =
+            accessIsBeingVerified || humanConfirmationIsRequired;
+        if (verificationIsPending) {
+            return { status: "waiting" };
+        }
+        const chapterElementsAreMissing =
+            reader.querySelector("p, img, blockquote, pre") === null;
+        if (chapterElementsAreMissing) {
+            return { status: "waiting" };
+        }
+        return {
+            status: "ready",
+            html: reader.innerHTML,
+            title:
+                reader.closest(".chapter-view")?.querySelector("h2")
+                    ?.textContent || "",
+        };
+    };
+
+    promptForChapterRetry(url) {
+        const message = new Error(
+            "Fenrir Realm has not displayed the chapter. Open the chapter URL, " +
+                "complete any verification or unlock it on the site, then click Retry. " +
+                "You can also complete verification in the reading tab opened by WebToEpub. " +
+                "Please keep that original reading tab open: WebToEpub needs it to read the chapter " +
+                "after verification and will close it automatically when finished.",
+        );
+        message.openurl = url;
+        message.blockurl = url;
+        return new Promise((resolve, reject) => {
+            message.retryAction = resolve;
+            message.cancelAction = () =>
+                reject(new Error("Fenrir Realm chapter download cancelled."));
+            ErrorLog.showErrorMessage(message);
+        });
     }
 
     chapterCacheKeyFromUrl(url) {
         const chapterUrl = new URL(url);
         const path = chapterUrl.pathname;
-        const chapterPath = path.endsWith("/") ? path.slice(0, -1) : path;
+        let chapterPath = path;
+        const hasTrailingSlash = path.endsWith("/");
+        if (hasTrailingSlash) {
+            chapterPath = path.slice(0, -1);
+        }
         return `${chapterUrl.origin}${chapterPath}`;
     }
 
     async getOrLoadChapter(sourceUrl) {
-        if (!this.chaptersByUrl.has(sourceUrl)) {
+        const chapterIsNotCached = !this.chaptersByUrl.has(sourceUrl);
+        if (chapterIsNotCached) {
             await this.loadAndCacheChapterList(new URL(sourceUrl));
-            // A cache miss adds a TOC request and we throttle before authorizing.
+            // A cache miss adds a TOC request; throttle before opening the chapter.
             await this.rateLimitDelay();
         }
         const chapter = this.chaptersByUrl.get(sourceUrl);
-        if (!chapter) {
+        const chapterWasNotFound = !chapter;
+        if (chapterWasNotFound) {
             throw new Error(`Fenrir Realm chapter not found: ${sourceUrl}`);
         }
         return chapter;
     }
 
-    async authorizeChapter(chapter) {
-        const apiUrl = new URL("/api/read-token", chapter.sourceUrl).href;
-        const { json: authorization } = await this.fetchChapterJson(
-            apiUrl,
-            chapter.sourceUrl,
-            {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({ chapter_id: chapter.uuid }),
-            },
-        );
-        if (
-            authorization?.active !== true ||
-            typeof authorization.token !== "string" ||
-            !authorization.token
-        ) {
-            throw new Error(
-                `Fenrir Realm reading authorization failed for ${chapter.title}`,
-            );
-        }
-        return authorization.token;
-    }
-
-    async requestChapter(chapter) {
-        const url = new URL(chapter.sourceUrl);
-        const apiUrl = new URL(`/api/new/v2${url.pathname}`, url).href;
-        // Match the site's reader capability header to receive encrypted content.
-        const readerEncryptedContentCapability = "3";
-        const result = await this.fetchChapterJson(apiUrl, chapter.sourceUrl, {
-            credentials: "include",
-            headers: {
-                Accept: "application/json",
-                "X-Accepts-Encrypted-Content": readerEncryptedContentCapability,
-            },
-        });
-        const data = result.json;
-        if (!data || data.id !== chapter.id) {
-            throw new Error(
-                `Fenrir Realm returned a different or invalid chapter for ${chapter.title}`,
-            );
-        }
-        return result;
-    }
-
-    async readChapterContent(result, chapter, token) {
-        const data = result.json;
-        if (data.content_format === "locked") {
-            throw new Error(`Fenrir Realm chapter is locked: ${chapter.title}`);
-        }
-        const content =
-            data.content_format === "encrypted"
-                ? await this.decryptChapter(result, chapter, token)
-                : this.readUnencryptedContent(data);
-        if (typeof content !== "string" || !content.trim()) {
-            throw new Error(
-                `Fenrir Realm returned empty or invalid content for ${chapter.title}`,
-            );
-        }
-        return content;
-    }
-
-    readUnencryptedContent(data) {
-        if (data.content_format !== "html" && data.content_format !== "text") {
-            throw new Error(
-                `Unsupported Fenrir Realm content format: ${data.content_format}`,
-            );
-        }
-        return data.content;
-    }
-
-    async decryptChapter(result, chapter, token) {
-        const data = result.json;
-        if (data.content_scheme !== "fragmented-v1") {
-            throw new Error(
-                `Unsupported Fenrir Realm encryption scheme: ${data.content_scheme}`,
-            );
-        }
-        // A chapter response can issue a replacement for the minted reading token.
-        const readingToken =
-            result.response.headers.get("x-read-token-issued") || token;
-        try {
-            return await this.decryptFragmentedV1Content(data, readingToken);
-        } catch {
-            throw new Error(
-                `Could not decrypt Fenrir Realm chapter: ${chapter.title}`,
-            );
-        }
-    }
-
-    buildChapterDocument(url, chapter, data, content) {
+    buildChapterDocument(url, chapter, snapshot) {
         const newDoc = Parser.makeEmptyDocForContent(url);
         const title = newDoc.dom.createElement("h1");
         title.textContent = this.removeDuplicatedChapterPrefix(
-            data.name || chapter.title,
+            snapshot.title || chapter.title,
         );
         newDoc.content.appendChild(title);
-        if (data.content_format === "text") {
-            Parser.addTextToChapterContent(newDoc, content);
-        } else {
-            util.moveChildElements(util.sanitize(content).body, newDoc.content);
-        }
+        util.moveChildElements(
+            util.sanitize(snapshot.html).body,
+            newDoc.content,
+        );
         return newDoc.dom;
-    }
-
-    fetchChapterJson(url, chapterUrl, fetchOptions) {
-        return HttpClient.wrapFetchImpl(url, {
-            fetchOptions: fetchOptions,
-            responseHandler: new FetchJsonResponseHandler(),
-            errorHandler: new FenrirealmFetchErrorHandler(chapterUrl),
-        });
-    }
-
-    async decryptFragmentedV1Content(apiChapter, token) {
-        this.validateFragments(apiChapter.content);
-        const originalPositions = await this.createFragmentPermutation(
-            token,
-            apiChapter.id,
-            apiChapter.content.length,
-        );
-        const encodedPayload = this.restoreFragmentOrder(
-            apiChapter.content,
-            originalPositions,
-        );
-        const payload = this.decodeEncryptedPayload(encodedPayload);
-        const key = await this.deriveContentKey(token, apiChapter.id);
-        return this.decryptPayload(payload, key);
-    }
-
-    validateFragments(fragments) {
-        if (
-            !Array.isArray(fragments) ||
-            fragments.length === 0 ||
-            !fragments.every((fragment) => typeof fragment === "string")
-        ) {
-            throw new Error("Invalid encrypted fragments.");
-        }
-    }
-
-    async createFragmentPermutation(token, chapterId, fragmentCount) {
-        const seed = await this.sha256(`${token}:${chapterId}:fr-frag-v1`);
-        const state = this.createShuffleState(seed);
-        const permutation = Array.from(
-            { length: fragmentCount },
-            (unused, index) => index,
-        );
-        // Fisher–Yates shuffle, using the same generator as the site's reader.
-        for (let index = fragmentCount - 1; index > 0; --index) {
-            const swapIndex = this.nextShuffleValue(state) % (index + 1);
-            [permutation[index], permutation[swapIndex]] = [
-                permutation[swapIndex],
-                permutation[index],
-            ];
-        }
-        return permutation;
-    }
-
-    createShuffleState(seed) {
-        const view = new DataView(seed);
-        // Match the reader's first four little-endian 32-bit words exactly;
-        // a different byte order would produce the wrong fragment positions.
-        const littleEndian = true;
-        return Uint32Array.of(
-            view.getUint32(0, littleEndian),
-            view.getUint32(4, littleEndian),
-            view.getUint32(8, littleEndian),
-            view.getUint32(12, littleEndian),
-        );
-    }
-
-    nextShuffleValue(state) {
-        // xorshift128: bit operations must match the site's unsigned 32-bit arithmetic.
-        const shifted = (state[0] ^ (state[0] << 11)) >>> 0;
-        const mixed = (shifted ^ (shifted >>> 8)) >>> 0;
-        const last = state[3];
-        state[0] = state[1];
-        state[1] = state[2];
-        state[2] = last;
-        state[3] = (last ^ (last >>> 19) ^ mixed) >>> 0;
-        return state[3];
-    }
-
-    restoreFragmentOrder(fragments, originalPositions) {
-        const orderedFragments = new Array(fragments.length);
-        // The reader maps received positions to original positions, not vice versa.
-        // For example, [2, 0, 1] restores received [C, A, B] to [A, B, C].
-        fragments.forEach((fragment, receivedIndex) => {
-            const originalIndex = originalPositions[receivedIndex];
-            orderedFragments[originalIndex] = fragment;
-        });
-        return orderedFragments.join("");
-    }
-
-    decodeEncryptedPayload(encodedPayload) {
-        const bytes = Uint8Array.from(atob(encodedPayload), (char) =>
-            char.charCodeAt(0),
-        );
-        // fragmented-v1 layout: [12-byte IV][ciphertext][16-byte authentication tag].
-        const ivLength = 12;
-        const authenticationTagLength = 16;
-        if (bytes.length <= ivLength + authenticationTagLength) {
-            throw new Error("Invalid encrypted payload.");
-        }
-        // Web Crypto verifies the tag as part of decryption, so keep it appended.
-        return {
-            iv: bytes.slice(0, ivLength),
-            ciphertextWithTag: bytes.slice(ivLength),
-        };
-    }
-
-    async deriveContentKey(token, chapterId) {
-        const keyBytes = await this.sha256(
-            `${token}:${chapterId}:fr-content-v1`,
-        );
-        return crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, [
-            "decrypt",
-        ]);
-    }
-
-    sha256(text) {
-        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    }
-
-    async decryptPayload(payload, key) {
-        const plaintext = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: payload.iv },
-            key,
-            payload.ciphertextWithTag,
-        );
-        return new TextDecoder("utf-8", { fatal: true }).decode(plaintext);
     }
 
     findContent(dom) {
@@ -380,7 +330,7 @@ class FenrirealmParser extends Parser {
     }
 
     extractTitleImpl(dom) {
-        return dom.querySelector(".main-area > .container h1");
+        return dom.querySelector("#series-title");
     }
 
     findChapterTitle(dom) {
@@ -390,9 +340,15 @@ class FenrirealmParser extends Parser {
 
     removeDuplicatedChapterPrefix(titleText) {
         const parts = titleText.split(":");
-        return parts.length >= 2 && parts[0].trim() === parts[1].trim()
-            ? parts.slice(1).join(":")
-            : titleText;
+        const prefixIsMissing = parts.length < 2;
+        if (prefixIsMissing) {
+            return titleText;
+        }
+        const prefixIsRepeated = parts[0].trim() === parts[1].trim();
+        if (prefixIsRepeated) {
+            return parts.slice(1).join(":");
+        }
+        return titleText;
     }
 
     removeUnwantedElementsFromContentElement(element) {
