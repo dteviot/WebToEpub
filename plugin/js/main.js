@@ -245,21 +245,15 @@ var main = (function() {
         if (util.isFirefox()) {
             return Firefox.injectContentScript(tabId);
         } else {
-            chromeInjectContentScript(tabId);
+            return chromeInjectContentScript(tabId);
         }
     }
 
     function chromeInjectContentScript(tabId) {
-        try {
-            chrome.scripting.executeScript({
-                target: {tabId: tabId},
-                files: ["js/ContentScript.js"]
-            });
-        } catch {
-            if (chrome.runtime.lastError) {
-                util.log(chrome.runtime.lastError.message);
-            }
-        }
+        return chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            files: ["js/ContentScript.js"],
+        });
     }
 
     function populateControls() {
