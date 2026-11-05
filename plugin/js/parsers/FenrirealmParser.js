@@ -58,7 +58,6 @@ class FenrirealmParser extends Parser {
             Date.parse(apiChapter.locked?.unlocked_at) <= Date.now();
         const isFreeAndReleased = isFree && isReleased;
         return {
-            // Match the rendered reader to the requested chapter.
             id: apiChapter.id,
             slug: apiChapter.slug,
             sourceUrl: new URL(
@@ -101,7 +100,11 @@ class FenrirealmParser extends Parser {
                 active: false,
             });
             tabId = tab.id;
-            return await this.waitForRenderedChapter(tabId, chapter);
+            const snapshot = await this.waitForRenderedChapter(tabId, chapter);
+            // The trace shows a read-token request finishing after the chapter is visible.
+            // Allow that work to settle before closing the page; this duration is provisional.
+            await util.sleep(1000);
+            return snapshot;
         } catch (error) {
             const message = error.message.toLowerCase();
             const tabMissing = [
@@ -128,39 +131,98 @@ class FenrirealmParser extends Parser {
     }
 
     async waitForRenderedChapter(tabId, chapter) {
-        let deadline = Date.now() + 60000;
-        let previousHtml;
         let downloadIsActive = !util.getSleepController().signal.aborted;
         while (downloadIsActive) {
-            const tab = await this.callTabApi("get", tabId);
-            const pageHasLoaded = tab.status === "complete";
-            let snapshot = null;
-            if (pageHasLoaded) {
-                snapshot = await this.readChapterTab(tabId, chapter.id);
-            }
-
-            const chapterIsReady = snapshot?.status === "ready";
-            const contentIsUnchanged =
-                chapterIsReady && snapshot.html === previousHtml;
-            // Two matching snapshots avoid collecting a partially rendered chapter.
-            if (contentIsUnchanged) {
+            const snapshot = await this.observeChapterTab(tabId, chapter.id);
+            const chapterIsReady = snapshot.status === "ready";
+            if (chapterIsReady) {
                 return snapshot;
             }
-            previousHtml = chapterIsReady ? snapshot.html : null;
-
-            const verificationIsRequired = snapshot?.status === "challenge";
-            const waitingHasTimedOut = Date.now() >= deadline;
-            const userNeedsToRetry =
-                verificationIsRequired || waitingHasTimedOut;
-            if (userNeedsToRetry) {
-                await this.retryChapterTab(tabId, chapter);
-                previousHtml = null;
-                deadline = Date.now() + 60000;
-            }
-            await util.sleep(1000);
+            await this.retryChapterTab(tabId, chapter);
             downloadIsActive = !util.getSleepController().signal.aborted;
         }
         throw new Error("Fenrir Realm chapter download cancelled.");
+    }
+
+    observeChapterTab(tabId, chapterId) {
+        return new Promise((resolve, reject) => {
+            const signal = util.getSleepController().signal;
+            let settled = false;
+            let installation;
+            const timer = setTimeout(() => finish({status: "timeout"}), 60000);
+
+            chrome.tabs.onUpdated.addListener(onTabUpdated);
+            chrome.tabs.onRemoved.addListener(onTabRemoved);
+            chrome.runtime.onMessage.addListener(onChapterSnapshot);
+            signal.addEventListener("abort", onCancelled, {once: true});
+
+            if (signal.aborted) {
+                onCancelled();
+                return;
+            }
+            this.callTabApi("get", tabId).then(tab => {
+                onTabUpdated(tabId, {status: tab.status});
+            }, error => finish(null, error));
+
+            function onTabRemoved(closedTabId) {
+                if (closedTabId === tabId) {
+                    finish(null, new Error(`No tab with id: ${tabId}`));
+                }
+            }
+
+            function onCancelled() {
+                finish(null, new Error("Fenrir Realm chapter download cancelled."));
+            }
+
+            function onChapterSnapshot(message, sender) {
+                const isOurTab = sender.tab?.id === tabId;
+                const isOurChapter = message.chapterId === chapterId;
+                const isSnapshot = message.type === "fenrirChapterSnapshot";
+                if (isOurTab && isOurChapter && isSnapshot) {
+                    finish(message.snapshot);
+                }
+            }
+
+            const parser = this;
+            function onTabUpdated(updatedTabId, changeInfo) {
+                const isOurTab = updatedTabId === tabId;
+                const pageHasLoaded = changeInfo.status === "complete";
+                const shouldInstallObserver = isOurTab && pageHasLoaded && !installation && !settled;
+                if (shouldInstallObserver) {
+                    installation = parser.readChapterTab(tabId, chapterId, true);
+                    installation.then(snapshot => {
+                        const observationHasFinished = snapshot?.status !== "observing";
+                        if (observationHasFinished) {
+                            finish(snapshot);
+                        }
+                    }, error => finish(null, error));
+                }
+            }
+
+            function finish(snapshot, error) {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                clearTimeout(timer);
+                chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                chrome.tabs.onRemoved.removeListener(onTabRemoved);
+                chrome.runtime.onMessage.removeListener(onChapterSnapshot);
+                signal.removeEventListener("abort", onCancelled);
+                // Await installation so cancellation cannot leave a late observer running.
+                installation?.then(() => {
+                    chrome.tabs.sendMessage(tabId, {
+                        type: "fenrirStopObservation",
+                        chapterId: chapterId,
+                    }, () => { void chrome.runtime.lastError; });
+                }, () => {});
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(snapshot);
+                }
+            }
+        });
     }
 
     async retryChapterTab(tabId, chapter) {
@@ -184,7 +246,7 @@ class FenrirealmParser extends Parser {
         });
     }
 
-    readChapterTab(tabId, chapterId) {
+    readChapterTab(tabId, chapterId, observeChanges = false) {
         return new Promise((resolve, reject) => {
             const usesManifestV3 =
                 chrome.runtime.getManifest().manifest_version >= 3;
@@ -204,17 +266,16 @@ class FenrirealmParser extends Parser {
                     {
                         target: { tabId: tabId },
                         func: FenrirealmParser.readRenderedChapter,
-                        args: [chapterId],
+                        args: [chapterId, observeChanges],
                     },
                     onResult,
                 );
             } else {
                 // Firefox's packaged MV2 build omits the scripting permission.
-                // chapterId is validated as an integer by buildChapterListEntry.
                 chrome.tabs.executeScript(
                     tabId,
                     {
-                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${chapterId})`,
+                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${chapterId}, ${observeChanges})`,
                         runAt: "document_idle",
                     },
                     onResult,
@@ -223,48 +284,116 @@ class FenrirealmParser extends Parser {
         });
     }
 
-    static readRenderedChapter = (chapterId) => {
-        // Runs in the reading tab's isolated world. Only read the DOM the site rendered.
-        const reader = document.getElementById(`reader-area-${chapterId}`);
-        const readerChallenge = reader?.querySelector(
-            "[data-testid^='unlock-'], [data-testid='turnstile-widget']",
-        );
-        const pageChallenge = document.querySelector(
-            "#challenge-running, #challenge-form",
-        );
-        const verificationIsRequired = Boolean(
-            readerChallenge || pageChallenge,
-        );
-        if (verificationIsRequired) {
-            return { status: "challenge" };
+    static readRenderedChapter = (chapterId, observeChanges) => {
+        const initialSnapshot = inspectReader();
+        const chapterIsWaiting = initialSnapshot.status === "waiting";
+        const shouldObserveChanges = observeChanges && chapterIsWaiting;
+        if (shouldObserveChanges) {
+            return waitForReaderChange();
         }
-        // The site replaces the reader with a separate purchase panel for locked chapters.
-        const readerHasNoText = !reader?.textContent.trim();
-        if (readerHasNoText) {
-            return { status: "waiting" };
+        return initialSnapshot;
+
+        function inspectReader() {
+            const reader = document.getElementById(`reader-area-${chapterId}`);
+            if (verificationIsRequired(reader)) {
+                return { status: "challenge" };
+            }
+            if (chapterIsNotReady(reader)) {
+                return { status: "waiting" };
+            }
+            return createChapterSnapshot(reader);
         }
-        const accessIsBeingVerified =
-            reader.textContent.includes("Verifying access");
-        const humanConfirmationIsRequired = reader.textContent.includes(
-            "Confirm you're human to continue reading",
-        );
-        const verificationIsPending =
-            accessIsBeingVerified || humanConfirmationIsRequired;
-        if (verificationIsPending) {
-            return { status: "waiting" };
+
+        function verificationIsRequired(reader) {
+            const readerChallenge = reader?.querySelector(
+                "[data-testid^='unlock-'], [data-testid='turnstile-widget']",
+            );
+            const pageChallenge = document.querySelector(
+                "#challenge-running, #challenge-form",
+            );
+            return Boolean(readerChallenge || pageChallenge);
         }
-        const chapterElementsAreMissing =
-            reader.querySelector("p, img, blockquote, pre") === null;
-        if (chapterElementsAreMissing) {
-            return { status: "waiting" };
+
+        function chapterIsNotReady(reader) {
+            // A locked chapter's purchase panel replaces the reader entirely.
+            const readerHasNoText = !reader?.textContent.trim();
+            if (readerHasNoText) {
+                return true;
+            }
+            const accessIsBeingVerified =
+                reader.textContent.includes("Verifying access");
+            const humanConfirmationIsRequired = reader.textContent.includes(
+                "Confirm you're human to continue reading",
+            );
+            const verificationIsPending =
+                accessIsBeingVerified || humanConfirmationIsRequired;
+            if (verificationIsPending) {
+                return true;
+            }
+            return storyContentIsMissing(reader);
         }
-        return {
-            status: "ready",
-            html: reader.innerHTML,
-            title:
-                reader.closest(".chapter-view")?.querySelector("h2")
-                    ?.textContent || "",
-        };
+
+        function storyContentIsMissing(reader) {
+            const chapterElements = [
+                ...reader.querySelectorAll("p, img, blockquote, pre"),
+            ];
+            const hasStoryContent = chapterElements.some((element) => {
+                const unwantedContainer = element.closest(
+                    ".footnotes, [role='complementary'], [aria-label='Advertisement']",
+                );
+                return unwantedContainer === null;
+            });
+            return !hasStoryContent;
+        }
+
+        function createChapterSnapshot(reader) {
+            const chapterHeading = reader
+                .closest(".chapter-view")
+                ?.querySelector("h2");
+            return {
+                status: "ready",
+                html: reader.innerHTML,
+                title: chapterHeading?.textContent || "",
+            };
+        }
+
+        function waitForReaderChange() {
+            const observer = new MutationObserver(checkReaderAfterChange);
+            chrome.runtime.onMessage.addListener(onStopObservation);
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+                attributes: true,
+            });
+            return {status: "observing"};
+
+            function checkReaderAfterChange() {
+                const snapshot = inspectReader();
+                const waitingHasFinished = snapshot.status !== "waiting";
+                if (waitingHasFinished) {
+                    stopObservation();
+                    chrome.runtime.sendMessage({
+                        type: "fenrirChapterSnapshot",
+                        chapterId: chapterId,
+                        snapshot: snapshot,
+                    }, () => { void chrome.runtime.lastError; });
+                }
+            }
+
+            function onStopObservation(message) {
+                const isStopRequest = message.type === "fenrirStopObservation";
+                const isOurChapter = message.chapterId === chapterId;
+                if (isStopRequest && isOurChapter) {
+                    stopObservation();
+                }
+            }
+
+            function stopObservation() {
+                observer.disconnect();
+                chrome.runtime.onMessage.removeListener(onStopObservation);
+            }
+        }
     };
 
     promptForChapterRetry(url) {
