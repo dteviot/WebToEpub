@@ -311,7 +311,11 @@ class FenrirealmParser extends Parser {
             const pageChallenge = document.querySelector(
                 "#challenge-running, #challenge-form",
             );
-            return Boolean(readerChallenge || pageChallenge);
+            // Quick verification is displayed in a dialog outside the chapter reader.
+            const dialogChallenge = document.querySelector(
+                "[role='dialog'][data-state='open'] [data-testid='turnstile-widget']",
+            );
+            return Boolean(readerChallenge || pageChallenge || dialogChallenge);
         }
 
         function chapterIsNotReady(reader) {
