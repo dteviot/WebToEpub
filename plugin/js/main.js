@@ -241,7 +241,17 @@ var main = (function() {
         }
     }
 
-    function injectContentScript(tabId) {
+    async function injectContentScript(tabId) {
+        // Checking for firefox here because `browser.*` requires minimum chrome version 148
+        const tab = util.isFirefox()
+            ? await browser.tabs.get(tabId)
+            : await chrome.tabs.get(tabId);
+
+        const cannotReadUrl = !tab.url;
+        if (cannotReadUrl) {
+            return;
+        }
+
         if (util.isFirefox()) {
             return Firefox.injectContentScript(tabId);
         } else {
