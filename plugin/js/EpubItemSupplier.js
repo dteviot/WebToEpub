@@ -53,6 +53,6 @@ class EpubItemSupplier { // eslint-disable-line no-unused-vars
     }
 
     hasCoverImageFile() {
-        return (this.coverImageInfo != null);
+        return (this.coverImageInfo != null && !this.coverImageInfo.isFailed && (this.coverImageInfo.arraybuffer != null));
     }
 }
