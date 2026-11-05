@@ -53,11 +53,15 @@ class FenrirealmParser extends Parser {
                 "Fenrir Realm returned invalid chapter identifiers.",
             );
         }
-        const isFree = apiChapter.locked?.price === 0;
-        // Leave paid and unreleased chapters unchecked to avoid failed downloads.
-        const isReleased =
-            Date.parse(apiChapter.locked?.unlocked_at) <= Date.now();
-        const isFreeAndReleased = isFree && isReleased;
+        const price = apiChapter.locked?.price;
+        const isPaid =
+            (typeof price === "number" || typeof price === "string") &&
+            Number.isFinite(Number(price)) &&
+            Number(price) > 0;
+        const unlockedAt = apiChapter.locked?.unlocked_at;
+        const isScheduled =
+            typeof unlockedAt === "string" &&
+            Date.parse(unlockedAt) > Date.now();
         return {
             id: apiChapter.uuid,
             slug: apiChapter.slug,
@@ -68,7 +72,7 @@ class FenrirealmParser extends Parser {
             title: this.removeDuplicatedChapterPrefix(
                 apiChapter.title || apiChapter.name || "",
             ),
-            isIncludeable: isFreeAndReleased,
+            isIncludeable: !isPaid && !isScheduled,
         };
     }
 
