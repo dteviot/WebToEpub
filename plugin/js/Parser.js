@@ -97,8 +97,13 @@ class Parser {
 
     isNoContentToError403AndContentNull(response) {
         if (this.userPreferences.noContentToError403.value) {
-            let content = this.findContent(response.responseXML);
-            return (content == null);
+            if (response.responseXML) {
+                let content = this.findContent(response.responseXML);
+                return (content == null);
+            }
+            else {
+                return false;
+            }
         }
         else {
             return false;
