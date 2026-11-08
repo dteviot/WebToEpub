@@ -158,20 +158,26 @@ class FenrirealmParser extends Parser {
             const signal = util.getSleepController().signal;
             let settled = false;
             let installation;
-            const timer = setTimeout(() => finish({status: "timeout"}), 60000);
+            const timer = setTimeout(
+                () => finish({ status: "timeout" }),
+                60000,
+            );
 
             chrome.tabs.onUpdated.addListener(onTabUpdated);
             chrome.tabs.onRemoved.addListener(onTabRemoved);
             chrome.runtime.onMessage.addListener(onChapterSnapshot);
-            signal.addEventListener("abort", onCancelled, {once: true});
+            signal.addEventListener("abort", onCancelled, { once: true });
 
             if (signal.aborted) {
                 onCancelled();
                 return;
             }
-            this.callTabApi("get", tabId).then(tab => {
-                onTabUpdated(tabId, {status: tab.status});
-            }, error => finish(null, error));
+            this.callTabApi("get", tabId).then(
+                (tab) => {
+                    onTabUpdated(tabId, { status: tab.status });
+                },
+                (error) => finish(null, error),
+            );
 
             function onTabRemoved(closedTabId) {
                 if (closedTabId === tabId) {
@@ -180,7 +186,10 @@ class FenrirealmParser extends Parser {
             }
 
             function onCancelled() {
-                finish(null, new Error("Fenrir Realm chapter download cancelled."));
+                finish(
+                    null,
+                    new Error("Fenrir Realm chapter download cancelled."),
+                );
             }
 
             function onChapterSnapshot(message, sender) {
@@ -196,15 +205,24 @@ class FenrirealmParser extends Parser {
             function onTabUpdated(updatedTabId, changeInfo) {
                 const isOurTab = updatedTabId === tabId;
                 const pageHasLoaded = changeInfo.status === "complete";
-                const shouldInstallObserver = isOurTab && pageHasLoaded && !installation && !settled;
+                const shouldInstallObserver =
+                    isOurTab && pageHasLoaded && !installation && !settled;
                 if (shouldInstallObserver) {
-                    installation = parser.readChapterTab(tabId, chapterId, true);
-                    installation.then(snapshot => {
-                        const observationHasFinished = snapshot?.status !== "observing";
-                        if (observationHasFinished) {
-                            finish(snapshot);
-                        }
-                    }, error => finish(null, error));
+                    installation = parser.readChapterTab(
+                        tabId,
+                        chapterId,
+                        true,
+                    );
+                    installation.then(
+                        (snapshot) => {
+                            const observationHasFinished =
+                                snapshot?.status !== "observing";
+                            if (observationHasFinished) {
+                                finish(snapshot);
+                            }
+                        },
+                        (error) => finish(null, error),
+                    );
                 }
             }
 
@@ -219,12 +237,21 @@ class FenrirealmParser extends Parser {
                 chrome.runtime.onMessage.removeListener(onChapterSnapshot);
                 signal.removeEventListener("abort", onCancelled);
                 // Await installation so cancellation cannot leave a late observer running.
-                installation?.then(() => {
-                    chrome.tabs.sendMessage(tabId, {
-                        type: "fenrirStopObservation",
-                        chapterId: chapterId,
-                    }, () => { void chrome.runtime.lastError; });
-                }, () => {});
+                installation?.then(
+                    () => {
+                        chrome.tabs.sendMessage(
+                            tabId,
+                            {
+                                type: "fenrirStopObservation",
+                                chapterId: chapterId,
+                            },
+                            () => {
+                                void chrome.runtime.lastError;
+                            },
+                        );
+                    },
+                    () => {},
+                );
                 if (error) {
                     reject(error);
                 } else {
@@ -379,18 +406,23 @@ class FenrirealmParser extends Parser {
                 characterData: true,
                 attributes: true,
             });
-            return {status: "observing"};
+            return { status: "observing" };
 
             function checkReaderAfterChange() {
                 const snapshot = inspectReader();
                 const waitingHasFinished = snapshot.status !== "waiting";
                 if (waitingHasFinished) {
                     stopObservation();
-                    chrome.runtime.sendMessage({
-                        type: "fenrirChapterSnapshot",
-                        chapterId: chapterId,
-                        snapshot: snapshot,
-                    }, () => { void chrome.runtime.lastError; });
+                    chrome.runtime.sendMessage(
+                        {
+                            type: "fenrirChapterSnapshot",
+                            chapterId: chapterId,
+                            snapshot: snapshot,
+                        },
+                        () => {
+                            void chrome.runtime.lastError;
+                        },
+                    );
                 }
             }
 
