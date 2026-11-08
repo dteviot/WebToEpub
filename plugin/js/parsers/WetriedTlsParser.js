@@ -14,102 +14,56 @@ class WetriedTlsParser extends Parser {
     }
 
     async getChapterUrls() {
-        const chapterJson = (
-            await HttpClient.fetchJson(
-                "https://api.wetriedtls.com/chapters/" +
-                this.id +
-                "?page=1&perPage=9999&order=asc"
-            )
-        ).json;
+        let chapterJson = (await HttpClient.fetchJson(
+            `https://api.wetriedtls.com/chapters/${this.id}?page=1&perPage=9999&order=asc`
+        )).json;
 
-        const chapters = chapterJson.data.map((chapter) => {
-            const seriesUrl =
-                "https://wetriedtls.com/series/" + chapter.series.series_slug;
-
-            const removeNum = document.getElementById(
-                "removeChapterNumberCheckbox"
-            ).checked;
-            const titleParts = removeNum
+        let removeNum = document.getElementById("removeChapterNumberCheckbox").checked;
+        return chapterJson.data.map(chapter => {
+            let titleParts = removeNum
                 ? [chapter.chapter_title]
                 : [chapter.chapter_name, chapter.chapter_title];
-            const title = titleParts
-                .filter((part) => part && part.trim())
-                .join(" - ");
-
-            const mapObj = {
-                sourceUrl: `${seriesUrl}/${chapter.chapter_slug}`,
-                title,
+            let item = {
+                sourceUrl: `https://wetriedtls.com/series/${chapter.series.series_slug}/${chapter.chapter_slug}`,
+                title: titleParts.filter(part => part && part.trim()).join(" - ")
             };
-            this.chaptersSourceTitleMap.set(mapObj.sourceUrl, mapObj.title);
-            return mapObj;
+            this.chaptersSourceTitleMap.set(item.sourceUrl, item.title);
+            return item;
         });
-
-        return chapters;
     }
 
     async loadEpubMetaInfo(dom) {
-        const bookTitle = dom
-            .querySelector("section .text-xl")
-            .textContent.trim();
+        let bookTitle = dom.querySelector("meta[property='og:title']")
+            ?.getAttribute("content")
+            ?.replace(/\s*-\s*We Tried TLS\s*$/i, "")
+            .trim()
+            || dom.querySelector("main h1")?.textContent.trim();
+        if (!bookTitle) {
+            throw new Error("Could not find series title on this page.");
+        }
 
-        let series = (
-            await HttpClient.fetchJson(
-                "https://api.wetriedtls.com/query?adult=true&query_string=" +
-                bookTitle
-            )
-        ).json;
-
+        let series = (await HttpClient.fetchJson(
+            "https://api.wetriedtls.com/query?adult=true&query_string=" + encodeURIComponent(bookTitle)
+        )).json;
         if (series.data.length === 0) {
             throw new Error("No series found for the given title.");
         }
 
-        const novelData = series.data[0];
-
+        let novelData = series.data.find(s => s.title?.trim() === bookTitle) || series.data[0];
         this.id = novelData.id;
         this.title = novelData.title;
         this.thumbnail = novelData.thumbnail;
         this.description = novelData.description;
-        return;
     }
+
     async fetchChapter(url) {
-        const dom = (await HttpClient.wrapFetch(url)).responseXML;
-
-        const startString = "self.__next_f.push(";
-        const scriptElements = Array.from(dom.querySelectorAll("script"))
-            .map((el) => el.textContent)
-            .filter((text) => text.includes(startString));
-
-        // Parse all push statements
-        const parsedChunks = scriptElements
-            .map((script) => {
-                const jsonText = script.slice("self.__next_f.push(".length, -1); // remove wrapper
-                try {
-                    return JSON.parse(jsonText);
-                } catch {
-                    return null;
-                }
-            })
-            .filter(Boolean);
-
-        // Find the longest chunk with HTML content
-        const htmlChunk = parsedChunks.find(
-            ([type, data]) =>
-                type === 1 &&
-                typeof data === "string" &&
-                /<p\b[^>]*>|<div\b[^>]*>|<br\b[^>]*>|<\/?strong\b[^>]*>/i.test(
-                    data
-                ) && // looks like HTML
-                data.length > 1000 // avoid short status chunks
-        );
-
-        if (!htmlChunk) throw new Error("No HTML chapter content found.");
-
-        return this.buildChapter(htmlChunk[1], url);
-    }
-
-    buildChapter(rawHtml, url) {
+        let dom = (await HttpClient.wrapFetch(url)).responseXML;
+        let article = dom.querySelector("article[data-reader-article]");
+        if (article == null) {
+            throw new Error("No chapter content found.");
+        }
         let newDoc = Parser.makeEmptyDocForContent(url);
-        let content = util.sanitize(rawHtml);
+        let content = util.sanitize(article.innerHTML);
         util.moveChildElements(content.body, newDoc.content);
         return newDoc.dom;
     }
@@ -118,21 +72,43 @@ class WetriedTlsParser extends Parser {
         return Parser.findConstructedContent(dom);
     }
 
+    removeUnwantedElementsFromContentElement(element) {
+        util.removeChildElementsMatchingSelector(element, "p:empty");
+        this.removeTranslatorHeader(element);
+        for (let p of element.querySelectorAll("p")) {
+            if (p.textContent.includes("dsc.gg")) {
+                p.remove();
+            }
+        }
+        super.removeUnwantedElementsFromContentElement(element);
+    }
+
+    // Only strips the leading credit block, so bold text inside the story is kept
+    removeTranslatorHeader(element) {
+        let headerPattern = /^(WeTried Translations|Translator|Editor|Discord|◈|_+$|─+$|Chapter \d+)/i;
+        while (element.firstElementChild != null) {
+            let first = element.firstElementChild;
+            let text = first.textContent.trim();
+            let isBoldOnly = first.tagName === "P"
+                && first.children.length === 1
+                && first.firstElementChild.tagName === "STRONG"
+                && first.firstElementChild.textContent.trim() === text;
+            if (text === "" || headerPattern.test(text) || isBoldOnly) {
+                first.remove();
+            } else {
+                break;
+            }
+        }
+    }
+
     extractTitleImpl() {
         return this.title.trim();
     }
 
     extractAuthor(dom) {
-        if (!dom) return super.extractAuthor(dom);
-
-        const authorLabel = Array.from(
-            dom.querySelectorAll("span.text-muted-foreground")
-        ).find((el) => el.innerText.trim() === "Author");
-        const authorValue = authorLabel?.parentElement?.querySelector(
-            ":scope span:last-child"
-        );
-
-        return authorValue?.innerText || super.extractAuthor(dom);
+        let dt = Array.from(dom?.querySelectorAll("dt") ?? [])
+            .find(el => el.textContent.trim() === "Author");
+        return dt?.nextElementSibling?.textContent.trim() || super.extractAuthor(dom);
     }
 
     extractDescription() {
