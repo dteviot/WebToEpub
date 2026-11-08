@@ -105,11 +105,7 @@ class FenrirealmParser extends Parser {
                 active: false,
             });
             tabId = tab.id;
-            const snapshot = await this.waitForRenderedChapter(tabId, chapter);
-            // The trace shows a read-token request finishing after the chapter is visible.
-            // Allow that work to settle before closing the page; this duration is provisional.
-            await util.sleep(1000);
-            return snapshot;
+            return await this.waitForRenderedChapter(tabId, chapter);
         } catch (error) {
             const message = error.message.toLowerCase();
             const tabMissing = [
@@ -138,9 +134,17 @@ class FenrirealmParser extends Parser {
     async waitForRenderedChapter(tabId, chapter) {
         let downloadIsActive = !util.getSleepController().signal.aborted;
         while (downloadIsActive) {
-            const snapshot = await this.observeChapterTab(tabId, chapter.id);
-            const chapterIsReady = snapshot.status === "ready";
-            if (chapterIsReady) {
+            let snapshot = await this.observeChapterTab(tabId, chapter.id);
+            if (snapshot.status === "ready") {
+                // We have to wait for the read-token request to settle or next
+                // chapter has to validate again
+                await util.sleep(1000);
+                if (util.getSleepController().signal.aborted) {
+                    break;
+                }
+                snapshot = await this.readChapterTab(tabId, chapter.id);
+            }
+            if (snapshot.status === "ready") {
                 return snapshot;
             }
             await this.retryChapterTab(tabId, chapter);
