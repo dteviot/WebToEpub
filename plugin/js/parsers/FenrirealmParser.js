@@ -44,9 +44,10 @@ class FenrirealmParser extends Parser {
     }
 
     buildChapterListEntry(apiChapter, seriesPath, url) {
-        const hasNumericId = Number.isInteger(apiChapter.id);
+        const uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+        const hasUuid = uuidRegex.test(apiChapter.uuid);
         const hasSlug = Boolean(apiChapter.slug);
-        const identifiersAreInvalid = !hasNumericId || !hasSlug;
+        const identifiersAreInvalid = !hasUuid || !hasSlug;
         if (identifiersAreInvalid) {
             throw new Error(
                 "Fenrir Realm returned invalid chapter identifiers.",
@@ -58,7 +59,7 @@ class FenrirealmParser extends Parser {
             Date.parse(apiChapter.locked?.unlocked_at) <= Date.now();
         const isFreeAndReleased = isFree && isReleased;
         return {
-            id: apiChapter.id,
+            id: apiChapter.uuid,
             slug: apiChapter.slug,
             sourceUrl: new URL(
                 `${seriesPath}/${encodeURIComponent(apiChapter.slug)}`,
@@ -275,7 +276,7 @@ class FenrirealmParser extends Parser {
                 chrome.tabs.executeScript(
                     tabId,
                     {
-                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${chapterId}, ${observeChanges})`,
+                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${JSON.stringify(chapterId)}, ${observeChanges})`,
                         runAt: "document_idle",
                     },
                     onResult,
