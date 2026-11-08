@@ -100,6 +100,9 @@ class FenrirealmParser extends Parser {
     async fetchRenderedChapter(chapter) {
         let tabId;
         try {
+            // Fenrir realm decrypts its chapter content using client-side
+            // JavaScript, so we use a tab to wait for the site to display the
+            // actual content first, then capture it.
             const tab = await this.callTabApi("create", {
                 url: chapter.sourceUrl,
                 active: false,
@@ -136,8 +139,8 @@ class FenrirealmParser extends Parser {
         while (downloadIsActive) {
             let snapshot = await this.observeChapterTab(tabId, chapter.id);
             if (snapshot.status === "ready") {
-                // We have to wait for the read-token request to settle or next
-                // chapter has to validate again
+                // Closing the tab before the read-token request finishes forces
+                // verification again on the next chapter.
                 await util.sleep(1000);
                 if (util.getSleepController().signal.aborted) {
                     break;
@@ -215,6 +218,7 @@ class FenrirealmParser extends Parser {
                     );
                     installation.then(
                         (snapshot) => {
+                            // If the reader is still loading, the injected observer sends the snapshot later.
                             const observationHasFinished =
                                 snapshot?.status !== "observing";
                             if (observationHasFinished) {
@@ -236,7 +240,7 @@ class FenrirealmParser extends Parser {
                 chrome.tabs.onRemoved.removeListener(onTabRemoved);
                 chrome.runtime.onMessage.removeListener(onChapterSnapshot);
                 signal.removeEventListener("abort", onCancelled);
-                // Await installation so cancellation cannot leave a late observer running.
+                // Stopping before installation completes would leave a late observer running.
                 installation?.then(
                     () => {
                         chrome.tabs.sendMessage(
@@ -301,7 +305,7 @@ class FenrirealmParser extends Parser {
                 chrome.scripting.executeScript(
                     {
                         target: { tabId: tabId },
-                        func: FenrirealmParser.readRenderedChapter,
+                        func: FenrirealmParser.readChapterInTab,
                         args: [chapterId, observeChanges],
                     },
                     onResult,
@@ -311,7 +315,7 @@ class FenrirealmParser extends Parser {
                 chrome.tabs.executeScript(
                     tabId,
                     {
-                        code: `(${FenrirealmParser.readRenderedChapter.toString()})(${JSON.stringify(chapterId)}, ${observeChanges})`,
+                        code: `(${FenrirealmParser.readChapterInTab.toString()})(${JSON.stringify(chapterId)}, ${observeChanges})`,
                         runAt: "document_idle",
                     },
                     onResult,
@@ -320,7 +324,7 @@ class FenrirealmParser extends Parser {
         });
     }
 
-    static readRenderedChapter = (chapterId, observeChanges) => {
+    static readChapterInTab = (chapterId, observeChanges) => {
         const initialSnapshot = inspectReader();
         const chapterIsWaiting = initialSnapshot.status === "waiting";
         const shouldObserveChanges = observeChanges && chapterIsWaiting;
@@ -347,7 +351,6 @@ class FenrirealmParser extends Parser {
             const pageChallenge = document.querySelector(
                 "#challenge-running, #challenge-form",
             );
-            // Quick verification is displayed in a dialog outside the chapter reader.
             const dialogChallenge = document.querySelector(
                 "[role='dialog'][data-state='open'] [data-testid='turnstile-widget']",
             );
