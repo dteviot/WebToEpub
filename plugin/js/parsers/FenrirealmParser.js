@@ -44,8 +44,8 @@ class FenrirealmParser extends Parser {
     }
 
     buildChapterListEntry(apiChapter, seriesPath, url) {
-        const uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
-        const hasUuid = uuidRegex.test(apiChapter.uuid);
+        const hasUuid =
+            typeof apiChapter.uuid === "string" && apiChapter.uuid.length > 0;
         const hasSlug = Boolean(apiChapter.slug);
         const identifiersAreInvalid = !hasUuid || !hasSlug;
         if (identifiersAreInvalid) {
