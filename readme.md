@@ -771,6 +771,7 @@ Don't forget to give the project a star! Thanks again!
     <li>baalthasar</li>
     <li>Bartuzen</li>
     <li>basitcodeenv</li>
+    <li>beebutler</li>
     <li>bendur</li>
     <li>cabbey (parser for Shrine Comics)</li>
     <li>Cavad (Patreon title fallback and Royal Road chapter list fixes)</li>
