@@ -16,19 +16,45 @@ class WtrlabParser extends Parser {
         document.getElementById("selectRetryLongerRow").hidden = false;  
     }
 
+    static parseNovelUrl(url) {
+        const parts = new URL(url).pathname.split("/").filter(Boolean);
+        const novelIndex = parts.indexOf("novel");
+        const language = parts[novelIndex - 1];
+        const id = parts[novelIndex + 1];
+        const slug = parts[novelIndex + 2];
+        const chapterPart = parts[novelIndex + 3];
+        const match = /^chapter-(\d+)$/.exec(chapterPart || "");
+        if (novelIndex < 1 || !language || !/^\d+$/.test(id || "") || !slug ||
+            (chapterPart && !match) || parts.length > novelIndex + 4) {
+            throw new Error("Invalid WTR-Lab novel URL: " + url);
+        }
+        return {language, id, slug, chapter: match?.[1]};
+    }
+
+    static validateChapterContent(json, url) {
+        if (json?.requireTurnstile || json?.code === 1401) {
+            throw new Error("WTR-Lab requires verification. Open " + url +
+                " in your browser, complete the CAPTCHA and retry.");
+        }
+        if (!Array.isArray(json?.data?.data?.body) || json.data.data.body.length === 0) {
+            throw new Error("WTR-Lab returned no readable chapter body for " + url +
+                ". Open the chapter normally and retry after it loads.");
+        }
+    }
+
     async getChapterUrls(dom) {
         let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
         let json = tocHtml.querySelector("script#__NEXT_DATA__")?.textContent;
         json = JSON.parse(json);
         this.magickey = json?.buildId;
-        let leaves = tocHtml.baseURI.split("/");
-        let novelIndex = leaves.indexOf("novel");
-        let language = leaves[novelIndex - 1];
-        let id = leaves[novelIndex + 1];
-        let slug = leaves[leaves.length - 1].split("?")[0];
+        const {language, id, slug} = WtrlabParser.parseNovelUrl(tocHtml.baseURI);
         this.slug = slug;
         let chapters = (await HttpClient.fetchJson("https://wtr-lab.com/api/chapters/" + id)).json;
-        let serie_id = chapters.chapters[0].serie_id;
+        let chapterList = chapters?.chapters ?? chapters?.data?.chapters;
+        if (!Array.isArray(chapterList) || chapterList.length === 0) {
+            throw new Error("WTR-Lab returned no chapters for " + tocHtml.baseURI);
+        }
+        let serie_id = chapterList[0].serie_id;
         try {
             let terms = (await HttpClient.fetchJson("https://wtr-lab.com/api/v2/user/config")).json;
             terms = terms?.config?.terms.filter(a => (a[4] == null) || (a[4].includes(serie_id)));
@@ -64,7 +90,7 @@ class WtrlabParser extends Parser {
         } catch (error) {
             this.termsstory = [];
         }
-        return chapters.chapters.map(a => ({
+        return chapterList.map(a => ({
             sourceUrl: "https://wtr-lab.com/"+language+"/novel/"+id+"/"+slug+"/chapter-"+a.order, 
             title: (document.getElementById("removeChapterNumberCheckbox").checked)?a.title:a.order+": "+a.title
         }));
@@ -75,7 +101,7 @@ class WtrlabParser extends Parser {
         let tocHtml = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
         let json = tocHtml.querySelector("script#__NEXT_DATA__")?.textContent;
         json = JSON.parse(json);
-        this.img = json?.props.pageProps.serie.serie_data.data.image;
+        this.img = json?.props?.pageProps?.serie?.serie_data?.data?.image;
         return;
     }
 
@@ -127,14 +153,11 @@ class WtrlabParser extends Parser {
     }
 
     async fetchChapter(url) {
-        let leaves = url.split("/");
-        let novelIndex = leaves.indexOf("novel");
-        let language = leaves[novelIndex - 1];
-        let id = leaves[novelIndex + 1];
-        let chapterPart = leaves[leaves.length - 1];
-        let chapter = chapterPart.startsWith("chapter-")
-            ? chapterPart.slice(8)
-            : chapterPart;
+        const {language, id, slug, chapter} = WtrlabParser.parseNovelUrl(url);
+        if (!chapter) {
+            throw new Error("Expected a WTR-Lab chapter URL: " + url);
+        }
+        this.slug = slug;
         let fetchUrl = "https://wtr-lab.com/api/reader/get";
         let formData = 
             {
@@ -153,7 +176,15 @@ class WtrlabParser extends Parser {
             parser: this
         };
         let json = (await HttpClient.fetchJson(fetchUrl, options)).json;
-        let contentjson = (await HttpClient.fetchJson("https://wtr-lab.com"+json.content_url)).json;
+        if (typeof json?.content_url !== "string" || !json.content_url) {
+            throw new Error("WTR-Lab returned no content URL for " + url);
+        }
+        const contentUrl = new URL(json.content_url, "https://wtr-lab.com");
+        if (contentUrl.origin !== "https://wtr-lab.com") {
+            throw new Error("Unexpected WTR-Lab content URL for " + url);
+        }
+        let contentjson = (await HttpClient.fetchJson(contentUrl.href)).json;
+        WtrlabParser.validateChapterContent(contentjson, url);
         return this.buildChapter(contentjson, url);
     }
     
@@ -164,7 +195,7 @@ class WtrlabParser extends Parser {
         if (response.json?.content_url?false:true) {
             return true;
         }
-        if (response.json.requireTurnstile) {
+        if (response.json?.requireTurnstile) {
             return true;
         }
         return false;
@@ -181,7 +212,7 @@ class WtrlabParser extends Parser {
             newresp.errorMessage = "Fetch of URL '"+newresp.response.url+"' failed.\nThe Chapter isn't Ai translated.";
             return newresp;
         }
-        if (checkedresponse.json.requireTurnstile || checkedresponse.json.code == 1401) {
+        if (checkedresponse.json?.requireTurnstile || checkedresponse.json?.code == 1401) {
             let newresp = {};
             newresp.url = url;
             newresp.wrapOptions = wrapOptions;
