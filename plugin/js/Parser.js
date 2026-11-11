@@ -335,9 +335,20 @@ class Parser {
     * if not available, return ''
     */
     extractPublisher(dom) {
-        // try metadata extraction
+        // use site metadata when available
         let publisher = dom.querySelector("meta[property='og:site_name']");
-        return publisher?.content ?? "";
+        if (publisher?.content?.trim()) {
+            return publisher.content;
+        }
+
+        // fall back to the original website's hostname
+        try {
+            let url = new URL(dom.baseURI);
+            return (url.protocol === "http:" || url.protocol === "https:")
+                ? url.hostname : "";
+        } catch {
+            return "";
+        }
     }
 
     extractDatePublished(dom) {
