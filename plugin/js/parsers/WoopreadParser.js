@@ -25,20 +25,59 @@ class WoopreadParser extends Parser {
     }
 
     async getChapterUrls(dom) {
-        const chapterLinks = [...dom.querySelectorAll("main.grow .notranslate .mt-8 .grid-cols-1 a")];
-        const chapterTitles = [...dom.querySelectorAll("main.grow .line-clamp-2")];
+        let chapters = WoopreadParser.chaptersFromFlightData(dom);
+        if (chapters.length === 0) {
+            // DOM from the open tab is hydrated, so the embedded chapter list is gone
+            let rawDom = (await HttpClient.wrapFetch(dom.baseURI)).responseXML;
+            chapters = WoopreadParser.chaptersFromFlightData(rawDom);
+        }
+        return chapters
+            .sort((a, b) => a.number - b.number)
+            .map(c => ({
+                sourceUrl: new URL(`/series/${c.novelSlug}/${c.slug}`, dom.baseURI).href,
+                title: c.title
+            }));
+    }
 
-        let chapterList = [];
-        for (let i = 0; i < chapterLinks.length; i++) {
-            chapterList.push({
-                sourceUrl: chapterLinks[i].href,
-                title: chapterTitles[i].textContent,
-            });
+    // Only the newest chapter group is rendered; the full list is in the Next.js flight data
+    static chaptersFromFlightData(dom) {
+        let payload = "";
+        for (let script of dom.querySelectorAll("script")) {
+            let match = script.textContent.match(/__next_f\.push\((\[[\s\S]*\])\)\s*;?\s*$/);
+            if (match === null) {
+                continue;
+            }
+            try {
+                let arr = JSON.parse(match[1]);
+                if (typeof arr[1] === "string") {
+                    payload += arr[1];
+                }
+            } catch (e) {
+                continue;
+            }
         }
 
-        return chapterList.reverse();
+        let novelSlug = (payload.match(/"novelSlug":"([^"]+)"/) || [])[1];
+        let listStart = payload.indexOf("\"chapters\":[{");
+        if (!novelSlug || listStart < 0) {
+            return [];
+        }
+        let listEnd = payload.indexOf("],\"novelSlug\"", listStart);
+        let listText = payload.substring(listStart, listEnd > 0 ? listEnd : undefined);
+        let chapterRegex = /\{"id":"[^"]*","title":"((?:[^"\\]|\\.)*)","number":(\d+),"slug":"((?:[^"\\]|\\.)*)"/g;
+        let chapters = [];
+        let m;
+        while ((m = chapterRegex.exec(listText)) !== null) {
+            chapters.push({
+                title: JSON.parse(`"${m[1]}"`),
+                number: parseInt(m[2]),
+                slug: JSON.parse(`"${m[3]}"`),
+                novelSlug: novelSlug
+            });
+        }
+        return chapters;
     }
-    
+
     findChapterTitle(dom) {
         return dom.querySelector("h2.text-2xl");
     }
