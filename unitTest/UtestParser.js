@@ -187,3 +187,46 @@ QUnit.test("addTitleToContent-text", function (assert) {
     let actual = dom.body.innerHTML;
     assert.equal(actual, "<p>a</p><hr><p>b</p><hr>");
  });
+
+QUnit.test("extractPublisher", function (assert) {
+    let dom = new DOMParser().parseFromString(
+        '<html><head><base href="https://fiction.example.org/works/123" />' +
+        '<meta property="og:site_name" content="Fiction Archive" /></head></html>',
+        "text/html"
+    );
+
+    let parser = new Parser();
+
+    assert.equal(
+        parser.extractPublisher(dom),
+        "Fiction Archive",
+        "Preserves existing publisher metadata"
+    );
+
+    dom.querySelector("meta[property='og:site_name']").remove();
+
+    assert.equal(
+        parser.extractPublisher(dom),
+        "fiction.example.org",
+        "Uses hostname when publisher is missing"
+    );
+
+    let meta = dom.createElement("meta");
+    meta.setAttribute("property", "og:site_name");
+    meta.content = " ";
+    dom.head.appendChild(meta);
+
+    assert.equal(
+        parser.extractPublisher(dom),
+        "fiction.example.org",
+        "Uses hostname when publisher is blank"
+    );
+
+    dom.querySelector("base").href = "about:blank";
+
+    assert.equal(
+        parser.extractPublisher(dom),
+        "",
+        "Handles non-web URLs safely"
+    );
+});
