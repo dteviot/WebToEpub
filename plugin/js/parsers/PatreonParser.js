@@ -18,33 +18,41 @@ class PatreonParser extends Parser {
     }
 
     getCollectionLinks(dom) {
-        let getTitle = (e) => {
-            return [...e.querySelectorAll("span.LineClamp-module__N_eOMG__lineClamp1")]
-                .map(s => s.textContent.trim())
-                .join(" ");
+        // Patreon's generated CSS class names change often, so find posts
+        // by their /posts/ links and match classes by stable fragments only.
+        let getTitle = (link) => {
+            if (this.isCondensedView(dom)) {
+                let title = [...link.querySelectorAll("[class*='lineClamp1']")]
+                    .map(s => s.textContent.trim())
+                    .join(" ");
+                return title;
+            }
+            let heading = link.querySelector("h1, h2, h3, h4, [data-tag='post-title']");
+            let title = (heading ?? link).textContent.trim();
+            return title;
+        };
+        // Locked posts have an IconLock SVG inside the link or its row.
+        let isLocked = (link) => {
+            let row = link.parentElement;
+            return (link.querySelector("svg[data-tag='IconLock']") !== null)
+                || ((row !== null) && (row.querySelector("svg[data-tag='IconLock']") !== null));
         };
 
-        if (this.isCondensedView(dom))
-        {
-            let getLink = (e) => {
-                return e.querySelector("a");
-            };
-            // The SVG check skips all locked chapters.
-            let linksContainer = [...dom.querySelectorAll("div.ListPost-module__d2AM5a__listPost:not(:has(svg[data-tag='IconLock']))")];
-            return linksContainer.map(linkContainer => {
-                return {
-                    sourceUrl: getLink(linkContainer).href,
-                    title: getTitle(linkContainer),
-                };
-            });
+        let seen = new Set();
+        let chapters = [];
+        for (let link of dom.querySelectorAll("a[href*='/posts/']")) {
+            let url = link.href;
+            if (url.includes("#") || seen.has(url) || isLocked(link)) {
+                continue;
+            }
+            let title = getTitle(link);
+            if (title === "") {
+                continue;
+            }
+            seen.add(url);
+            chapters.push({ sourceUrl: url, title: title });
         }
-        
-        // The SVG check skips all locked chapters.
-        let links = [...dom.querySelectorAll("a.CollectionPostList-module__IhO0fW__gridCard:not(:has(svg[data-tag='IconLock']))")];
-        return links.map(link => ({
-            sourceUrl: link.href,
-            title: getTitle(link),
-        }));
+        return chapters;
     }
 
     cardToChapter(card) {
