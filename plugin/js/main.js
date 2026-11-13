@@ -242,10 +242,20 @@ var main = (function() {
     }
 
     async function injectContentScript(tabId) {
-        // Checking for firefox here because `browser.*` requires minimum chrome version 148
-        const tab = util.isFirefox()
-            ? await browser.tabs.get(tabId)
-            : await chrome.tabs.get(tabId);
+        // If a user closes the tab they used to open the extension (i.e. new
+        // tab, settings page, etc), if they then reload the extension tab, the
+        // tab id becomes invalid. So, we use a try/catch to catch the error and
+        // just return without injecting.
+        let tab;
+        try {
+            // Checking for firefox here because `browser.*` requires minimum
+            // chrome version 148
+            tab = util.isFirefox()
+                ? await browser.tabs.get(tabId)
+                : await chrome.tabs.get(tabId);
+        } catch {
+            return;
+        }
 
         const cannotReadUrl = !tab.url;
         if (cannotReadUrl) {
