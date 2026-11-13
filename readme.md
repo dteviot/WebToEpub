@@ -766,6 +766,7 @@ Don't forget to give the project a star! Thanks again!
     <li>alethiophile</li>
     <li>Anartigone</li>
     <li>ARYAN-9099</li>
+    <li>Ash-Cozey</li>
     <li>Asif Mahmood</li>
     <li>Aurimas Niekis</li>
     <li>baalthasar</li>
@@ -789,6 +790,7 @@ Don't forget to give the project a star! Thanks again!
     <li>Hogesyx</li>
     <li>ImmortalDreamer</li>
     <li>Jemeni11</li>
+    <li>jhvanriper-rgb</li>
     <li>JimmXinu</li>
     <li>Joel Sunil</li>
     <li>jurassicplayer</li>
