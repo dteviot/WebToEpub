@@ -56,7 +56,7 @@ class IxdzsParser extends Parser {
     }
 
     findChapterTitle(dom) {
-        return dom.querySelector("h3");
+        return dom.querySelector("h2");
     }
 
     findCoverImageUrl(dom) {
