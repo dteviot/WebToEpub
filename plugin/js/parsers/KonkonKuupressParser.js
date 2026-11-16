@@ -221,7 +221,7 @@ class KonkonKuupressParser extends Parser {
             }
         }
         // Chapter content into doc
-        util.parseHtmlAndInsertIntoContent(data.data.content, doc.content);
+        util.parseHtmlAndInsertIntoContent(data.data.content, doc.content, true);
         return doc.dom;
     }
 
