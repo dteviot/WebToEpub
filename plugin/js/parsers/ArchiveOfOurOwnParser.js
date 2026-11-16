@@ -26,6 +26,14 @@ class ArchiveOfOurOwnParser extends Parser {
             return this.singleChapterStory(baseUrl, dom);
         } else {
             let chaptersUrl = dom.querySelector("ul#chapter_index a");
+            if (chaptersUrl === null) {
+                // Entire Work view has chapters but no chapter-index link.
+                let workMatch = new URL(baseUrl).pathname.match(/\/works\/(\d+)(?:\/|$)/);
+                if (workMatch === null) {
+                    return this.singleChapterStory(baseUrl, dom);
+                }
+                chaptersUrl = new URL(`/works/${workMatch[1]}/navigate`, baseUrl).href;
+            }
             return this.fetchChapterUrls(chaptersUrl);
         }
     }
@@ -63,6 +71,9 @@ class ArchiveOfOurOwnParser extends Parser {
     setViewAdultFlag(url) {
         url = new URL(url);
         url.searchParams.set("view_adult", "true");
+        // A reader's "Show full work by default" preference must not make
+        // every requested chapter return the full story.
+        url.searchParams.set("view_full_work", "false");
         return url.href;
     }
 
