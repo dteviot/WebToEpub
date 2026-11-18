@@ -1,10 +1,10 @@
 parserFactory.registerDeadSite(
     "stellarrealm.net",
-    () => new StellarRealmParser(),
+    () => new BrightNovelsParser(),
 );
-parserFactory.register("brightnovels.com", () => new StellarRealmParser());
+parserFactory.register("brightnovels.com", () => new BrightNovelsParser());
 
-class StellarRealmParser extends Parser {
+class BrightNovelsParser extends Parser {
     async getChapterUrls(dom) {
         const json = this.getJson(dom);
         this.InertiaVersion = json.version;
