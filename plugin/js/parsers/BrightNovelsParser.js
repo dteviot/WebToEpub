@@ -13,9 +13,7 @@ class BrightNovelsParser extends Parser {
         slug = slug[slug.length - 1];
         const bookinfo = (
             await HttpClient.fetchJson(
-                "https://brightnovels.com/series/" +
-                    slug +
-                    "/chapters?sort_order=asc",
+                `https://brightnovels.com/series/${slug}/chapters?sort_order=asc`,
             )
         ).json;
         const chapters = bookinfo.chapters.map((a) => ({
@@ -42,8 +40,7 @@ class BrightNovelsParser extends Parser {
         const parsed = util.sanitize(bookinfo.props.series.description);
         this.description = parsed.body.textContent;
         this.img = bookinfo.props.series.cover?.path
-            ? "https://brightnovels.com/storage/" +
-              bookinfo.props.series.cover.path
+            ? `https://brightnovels.com/storage/${bookinfo.props.series.cover.path}`
             : null;
         return;
     }
