@@ -848,13 +848,19 @@ const util = (function() {
         return table;
     }
 
-    function parseHtmlAndInsertIntoContent(htmlText, content) {
+    function parseHtmlAndInsertIntoContent(htmlText, content, insertNodes = false) {
         let parsed = util.sanitize(htmlText);
         while (content.firstChild) {
             content.removeChild(content.firstChild);
         }
-        for (const tag of [...parsed.querySelector("body").children]) {
-            content.appendChild(tag);
+        if (insertNodes) {
+            for (const tag of [...parsed.querySelector("body").childNodes]) {
+                content.appendChild(tag);
+            }
+        } else {
+            for (const tag of [...parsed.querySelector("body").children]) {
+                content.appendChild(tag);
+            }
         }
     }
 
