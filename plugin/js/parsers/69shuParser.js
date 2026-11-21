@@ -4,7 +4,6 @@ parserFactory.registerUrlRule(
     url => (util.extractHostName(url).includes("69shu")),
     () => new ShuParser()
 );
-parserFactory.register("69shuba.tw", () => new _69shuTwParser());
 parserFactory.registerDeadSite("69yuedu.net", () => new _69yueduParser());
 
 class ShuParser extends Parser {
@@ -98,74 +97,5 @@ class _69yueduParser extends ShuParser {
 
     findContent(dom) {
         return dom.querySelector("div.content");
-    }
-}
-
-class _69shuTwParser extends ShuParser {
-
-    async getChapterUrls(dom) {
-        let base = "https://69shuba.tw";
-        
-        let tocUrl = dom.querySelector(".book-op > tbody tr td:nth-child(2) a").href;
-
-        let tocDom = (await HttpClient.wrapFetch(tocUrl)).responseXML;
-
-        let pageUrls = [...tocDom.querySelectorAll("#indexselect-top option")]
-            .map(o => new URL(o.value, base).href);
-
-        let chapters = [];
-
-        for (let pageUrl of pageUrls) {
-            let pageDom = (await HttpClient.wrapFetch(pageUrl)).responseXML;
-
-            let nodes = [...pageDom.querySelectorAll(".last9 li:not(.title) :is(a, span.protected-chapter-link)")];
-
-            let links = nodes.map(el => {
-                if (el.tagName === "A") return el;
-
-                let a = pageDom.createElement("a");
-                a.href = new URL(el.dataset.cidUrl, base).href;
-                a.textContent = el.textContent.trim();
-                return a;
-            });
-
-            chapters.push(...links.map(a => util.hyperLinkToChapter(a)));
-        }
-
-        return chapters;
-    }
-
-    async fetchChapter(url) {
-        return (await HttpClient.wrapFetch(url)).responseXML;
-    }
-
-    findContent(dom) {
-        return dom.querySelector("#nr1");
-    }
-
-    extractTitleImpl(dom) {
-        return dom.querySelector(".info h1");
-    }
-
-    extractAuthor(dom) {
-        let authorLabel = dom.querySelector(".info p:nth-child(2) a");
-        return authorLabel?.textContent ?? super.extractAuthor(dom);
-    }
-
-    extractSubject(dom) {
-        let tags = [...dom.querySelectorAll(".book-tags a")];
-        return tags.map(e => e.textContent.trim()).join(", ");
-    }
-
-    extractDescription(dom) {
-        return dom.querySelector(".intro p").textContent.trim();
-    }
-
-    findChapterTitle(dom) {
-        return dom.querySelector("#nr_title");
-    }
-    
-    findCoverImageUrl(dom) {
-        return util.getFirstImgSrc(dom, ".bookinfo");
     }
 }
