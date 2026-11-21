@@ -10,15 +10,22 @@ class _69shubaTwParser extends Parser {
     }
 
     async getChapterUrls(dom, chapterUrlsUI) {
+        let bookUrl = dom.baseURI || "https://69shuba.tw/";
         let tocDom = dom;
         let tocLink = dom.querySelector(".book-op a[href*='/indexlist/']")
         || dom.querySelector(".book-op > tbody tr td:nth-child(2) a");
 
         if (tocLink) {
+            this.tocURL = tocLink.href;
+            await this.setRequestHeaders(bookUrl);
             tocDom = (await HttpClient.wrapFetch(tocLink.href)).responseXML;
-        } else if (!dom.querySelector("ul.last9 span.ch-item, #indexselect-top")) {
+        } else if (dom.querySelector("ul.last9 span.ch-item, #indexselect-top")) {
+            this.tocURL = bookUrl;
+        } else {
             throw new Error("Unable to locate 69shuba.tw table of contents.");
         }
+
+        await this.setRequestHeaders(this.tocURL);
 
         let firstDecoded = this.decodeTocPage(tocDom);
         let options = [...tocDom.querySelectorAll("#indexselect-top option")];
@@ -128,7 +135,53 @@ class _69shubaTwParser extends Parser {
         };
     }
 
+    async setRequestHeaders(refererUrl) {
+        let rules = [
+            {
+                id: 1,
+                priority: 1,
+                action: {
+                    type: "modifyHeaders",
+                    requestHeaders: [
+                        {
+                            header: "referer",
+                            operation: "set",
+                            value: refererUrl,
+                        },
+                        {
+                            header: "sec-fetch-dest",
+                            operation: "set",
+                            value: "document",
+                        },
+                        {
+                            header: "sec-fetch-mode",
+                            operation: "set",
+                            value: "navigate",
+                        },
+                        {
+                            header: "sec-fetch-site",
+                            operation: "set",
+                            value: "same-origin",
+                        },
+                        {
+                            header: "origin",
+                            operation: "remove",
+                        },
+                    ],
+                },
+                condition: {
+                    urlFilter: "||69shuba.tw/",
+                    resourceTypes: ["xmlhttprequest"],
+                },
+            },
+        ];
+
+        await HttpClient.setDeclarativeNetRequestRules(rules);
+    }
+
     async fetchChapter(url) {
+        let refererUrl = this.tocURL || new URL("/", url).href;
+        await this.setRequestHeaders(refererUrl);
         let dom = await super.fetchChapter(url);
         this.decryptChapterContent(dom);
         return dom;
