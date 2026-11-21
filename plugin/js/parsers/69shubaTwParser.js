@@ -836,7 +836,7 @@ class SixNineShubaTwParserCore {
             expr = this.parsePrimary();
         }
 
-        while (true) {
+        while (this.isPunc(".") || this.isPunc("[") || (allowCall && this.isPunc("("))) {
             if (this.eatPunc(".")) {
                 let propTok = this.next();
                 expr = { type: "Member", obj: expr, prop: propTok.value, computed: false };
@@ -853,8 +853,6 @@ class SixNineShubaTwParserCore {
                 }
                 this.expectPunc(")");
                 expr = { type: "Call", callee: expr, args };
-            } else {
-                break;
             }
         }
         return expr;
@@ -1130,11 +1128,8 @@ class SixNineShubaTwRuntime {
                         this.evalExpr(node.init, loopEnv);
                     }
                 }
-                while (true) {
+                while (!node.test || this.evalExpr(node.test, loopEnv)) {
                     this.tick();
-                    if (node.test && !this.evalExpr(node.test, loopEnv)) {
-                        break;
-                    }
                     let res = this.evalStmt(node.body, loopEnv);
                     if (res) {
                         if (res.type === "return") {
@@ -1151,11 +1146,8 @@ class SixNineShubaTwRuntime {
                 return null;
             }
             case "While":
-                while (true) {
+                while (this.evalExpr(node.test, env)) {
                     this.tick();
-                    if (!this.evalExpr(node.test, env)) {
-                        break;
-                    }
                     let res = this.evalStmt(node.body, env);
                     if (res) {
                         if (res.type === "return") {
