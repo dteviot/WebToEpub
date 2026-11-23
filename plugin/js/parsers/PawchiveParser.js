@@ -5,7 +5,49 @@ parserFactory.registerRule(
     () => new PawchiveParser()
 );
 
+class PawchiveImageCollector extends ImageCollector {
+    constructor() {
+        super();
+    }
+
+    async fetchImage(imageInfo, progressIndicator, parentPageUrl) {
+        try {
+            let initialUrl = this.initialUrlToTry(imageInfo);
+            this.urlIndex.set(initialUrl, imageInfo.index);
+            let fetchOptions = { errorHandler: new FetchImageErrorHandler(parentPageUrl) };
+            let xhr;
+            try {
+                xhr = await HttpClient.wrapFetch(initialUrl, fetchOptions);
+                xhr = await this.findImageFileUrl(xhr, imageInfo, imageInfo.dataOrigFileUrl, fetchOptions);
+            } catch (error) {
+                if (util.isNullOrEmpty(imageInfo.sourceUrl) || (imageInfo.sourceUrl === initialUrl)) {
+                    throw error;
+                }
+                this.urlIndex.set(imageInfo.sourceUrl, imageInfo.index);
+                let fallbackOptions = { errorHandler: new FetchImageErrorHandler(parentPageUrl) };
+                xhr = await HttpClient.wrapFetch(imageInfo.sourceUrl, fallbackOptions);
+                xhr = await this.findImageFileUrl(xhr, imageInfo, null, fallbackOptions);
+            }
+            imageInfo.mediaType = xhr.contentType;
+            imageInfo.arraybuffer = xhr.arrayBuffer;
+            this.fixupInvalidMediaType(imageInfo);
+            {
+                let img = await this.getImageDimensions(imageInfo);
+                await this.runCompression(imageInfo, img);
+            }
+            progressIndicator();
+            this.addToPackList(imageInfo);
+        } catch (error) {
+            this.imagesToPack.push(imageInfo);
+            ErrorLog.log(error);
+        }
+    }
+}
+
 class PawchiveParser extends Parser {
+    constructor() {
+        super(new PawchiveImageCollector());
+    }
     static isPawchive(dom) {
         let baseUrl = new URL(dom.baseURI);
         return baseUrl.hostname.split(".")[0] === "pawchive";
@@ -72,6 +114,32 @@ class PawchiveParser extends Parser {
 
         let content = util.sanitize(this.escapeUnknownTags(post.content));
         util.moveChildElements(content.body, newDoc.content);
+        let file = post.file;
+        if (file?.name != null) {
+            let filachHeader = newDoc.dom.createElement("h2");
+            filachHeader.textContent = "File";
+            newDoc.content.appendChild(filachHeader);
+            if (this.isImageFileName(file.name)) {
+                let img = newDoc.dom.createElement("img");
+                img.src = this.buildImageUrl(file.path);
+                img.alt = file.name;
+                let fullImageUrl = [file.server + "/data" + file.path];
+                if (fullImageUrl !== null) {
+                    let link = newDoc.dom.createElement("a");
+                    link.href = fullImageUrl;
+                    link.appendChild(img);
+                    newDoc.content.appendChild(link);
+                } else {
+                    newDoc.content.appendChild(img);
+                }
+            } else {
+                let link = newDoc.dom.createElement("a");
+                link.href = this.buildFileUrl(file.path);
+                link.textContent = file.name;
+                newDoc.content.appendChild(link);
+                newDoc.content.appendChild(newDoc.dom.createElement("br"));
+            }
+        }
 
         let attachments = post.attachments;
         if (attachments.length > 0) {
@@ -84,7 +152,15 @@ class PawchiveParser extends Parser {
                     let img = newDoc.dom.createElement("img");
                     img.src = this.buildImageUrl(att.path);
                     img.alt = att.name;
-                    newDoc.content.appendChild(img);
+                    let fullImageUrl = [att.server + "/data" + att.path];
+                    if (fullImageUrl !== null) {
+                        let link = newDoc.dom.createElement("a");
+                        link.href = fullImageUrl;
+                        link.appendChild(img);
+                        newDoc.content.appendChild(link);
+                    } else {
+                        newDoc.content.appendChild(img);
+                    }
                 } else {
                     let link = newDoc.dom.createElement("a");
                     link.href = this.buildFileUrl(att.path);
