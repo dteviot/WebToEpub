@@ -175,6 +175,7 @@ class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
         this.width = null;
         this.dataOrigFileUrl = dataOrigFileUrl;
         this.queuedForFetch = false;
+        this.isFailed = false;
     }
 
     getZipHref() {
@@ -207,8 +208,10 @@ class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
     }
 
     packInEpub(zipWriter) {
-        zipWriter.add(this.getZipHref(),
-            new zip.BlobReader(new Blob([this.arraybuffer])));
+        if (this.arraybuffer != null) {
+            zipWriter.add(this.getZipHref(),
+                new zip.BlobReader(new Blob([this.arraybuffer])));
+        }
     }
 
     findImageSuffix(wrappingUrl) {
@@ -321,14 +324,16 @@ class ImageInfo extends EpubItem { // eslint-disable-line no-unused-vars
     }
 }
 
-class FontInfo extends ImageInfo {
+class FontInfo extends ImageInfo { // eslint-disable-line no-unused-vars
     constructor(fontName) {
         super();
         this.fontName = fontName;
     }
 
     packInEpub(zipWriter) {
-        zipWriter.add("OEBPS/Fonts/"+this.fontName,
-            new zip.BlobReader(new Blob([this.arraybuffer])));
+        if (this.arraybuffer != null) {
+            zipWriter.add("OEBPS/Fonts/"+this.fontName,
+                new zip.BlobReader(new Blob([this.arraybuffer])));
+        }
     }
 }

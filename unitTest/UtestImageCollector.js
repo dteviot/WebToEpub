@@ -307,3 +307,81 @@ QUnit.test("findHighestResImage", function (assert) {
     let actual = new ImageCollector().findHighestResImage(img);
     assert.equal(actual, "https://i0.wp.com/graverobbertl.site/wp-content/uploads/2019/08/d9s1e0ybizb43otviytn8jqbjw2t_15g0_1f3_1z4_che9.jpg?w=1839&ssl=1");
 });
+
+QUnit.test("fetchImage failure drops image from pack list, sets isFailed, calls progress, and clears cover", async function (assert) {
+    let imageCollector = new ImageCollector();
+    let preferences = new UserPreferences();
+    imageCollector.userPreferences = preferences;
+
+    let imageInfo = imageCollector.addImageInfo("http://test.com/fail.jpg", "http://test.com/fail.jpg", null, false);
+    imageCollector.setCoverImageUrl("http://test.com/fail.jpg");
+    assert.equal(imageCollector.coverImageInfo, imageInfo);
+
+    let oldWrapFetch = HttpClient.wrapFetch;
+    let oldLog = ErrorLog.log;
+    let loggedError = null;
+    ErrorLog.log = function (err) {
+        loggedError = err;
+    };
+    HttpClient.wrapFetch = function () {
+        return Promise.reject(new Error("Network fetch failed"));
+    };
+
+    let progressCount = 0;
+    try {
+        await imageCollector.fetchImage(imageInfo, () => {
+            progressCount++;
+        }, "http://test.com/page.html");
+    } finally {
+        HttpClient.wrapFetch = oldWrapFetch;
+        ErrorLog.log = oldLog;
+    }
+
+    assert.equal(imageInfo.isFailed, true);
+    assert.equal(imageInfo.arraybuffer, null);
+    assert.equal(imageCollector.imagesToPack.length, 0);
+    assert.equal(imageCollector.coverImageInfo, null);
+    assert.equal(progressCount, 1);
+    assert.ok(loggedError != null);
+});
+
+QUnit.test("replaceImageTags with failed image or null imageInfo cleanly removes wrapping element and img tag", function (assert) {
+    let dom = TestUtils.makeDomWithBody(
+        "<div>" +
+            "<p id=\"p1\">Paragraph 1 <img id=\"img_fail\" src=\"http://test.com/fail.jpg\"></p>" +
+            "<p id=\"p2\">Paragraph 2 <img id=\"img_unregistered\" src=\"http://test.com/unregistered.jpg\"></p>" +
+            "<div id=\"wrap_fail\" class=\"thumb\"><a href=\"http://test.com/fail_wrap.jpg\"><img id=\"img_fail_wrap\" src=\"http://test.com/fail_wrap.jpg\"></a></div>" +
+            "<a id=\"wrap_unregistered\" href=\"http://test.com/unregistered_wrap.jpg\"><img id=\"img_unregistered_wrap\" src=\"http://test.com/unregistered_wrap.jpg\"></a>" +
+            "<p id=\"p3\">Paragraph 3 <img id=\"img_ok\" src=\"http://test.com/ok.jpg\"></p>" +
+        "</div>"
+    );
+
+    let imageCollector = new ImageCollector();
+    let preferences = new UserPreferences();
+    imageCollector.userPreferences = preferences;
+
+    let failInfo = imageCollector.addImageInfo("http://test.com/fail.jpg", "http://test.com/fail.jpg", null, false);
+    failInfo.isFailed = true;
+
+    let failWrapInfo = imageCollector.addImageInfo("http://test.com/fail_wrap.jpg", "http://test.com/fail_wrap.jpg", null, false);
+    failWrapInfo.isFailed = true;
+
+    let okInfo = imageCollector.addImageInfo("http://test.com/ok.jpg", "http://test.com/ok.jpg", null, false);
+    okInfo.isFailed = false;
+    okInfo.mediaType = "image/jpeg";
+    okInfo.height = 100;
+    okInfo.width = 100;
+    okInfo.arraybuffer = new ArrayBuffer(8);
+
+    imageCollector.replaceImageTags(dom.body);
+
+    assert.equal(dom.getElementById("img_fail"), null);
+    assert.equal(dom.getElementById("img_unregistered"), null);
+    assert.equal(dom.getElementById("wrap_fail"), null);
+    assert.equal(dom.getElementById("img_fail_wrap"), null);
+    assert.equal(dom.getElementById("wrap_unregistered"), null);
+    assert.equal(dom.getElementById("img_unregistered_wrap"), null);
+    let p3 = dom.getElementById("p3");
+    assert.ok(p3.querySelector("img") != null);
+    assert.equal(p3.querySelector("img").src.includes("Images/"), true);
+});

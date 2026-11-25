@@ -439,8 +439,11 @@ class ImageCollector {
         }
         catch (error)
         {
-            // ToDo, implement error handler.
-            this.imagesToPack.push(imageInfo);
+            imageInfo.isFailed = true;
+            if (this.coverImageInfo === imageInfo) {
+                this.coverImageInfo = null;
+            }
+            progressIndicator();
             ErrorLog.log(error);
         }
     }
@@ -644,8 +647,8 @@ class ImageTagReplacer {
     replaceTag(imageInfo) {
         // replace tag with nested <img> tag, with new <img> tag
         let parent = this.wrappingElement.parentElement;
-        if ((imageInfo != null) && (parent != null)) {
-            if (this.isDuplicateImageToRemove(imageInfo)) {
+        if (parent != null) {
+            if ((imageInfo == null) || imageInfo.isFailed || this.isDuplicateImageToRemove(imageInfo)) {
                 this.wrappingElement.remove();
             } else {
                 this.insertImageInLegalParent(parent, imageInfo);
