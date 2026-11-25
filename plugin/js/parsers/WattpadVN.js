@@ -1,9 +1,16 @@
 "use strict";
 parserFactory.register("wattpad.com.vn", () => new WattpadVNParser());
+HttpClient.blockedSites.add("wattpad.com");
+
 class WattpadVNParser extends Parser { // eslint-disable-line no-unused-vars
     constructor() {
         super();
     }
+
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
+    }
+    
     async getChapterUrls(dom, chapterUrlsUI) {
         this.extractNovelId(dom);
         let chapters = [];

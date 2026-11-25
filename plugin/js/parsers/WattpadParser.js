@@ -1,10 +1,15 @@
 "use strict";
 
 parserFactory.register("wattpad.com", () => new WattpadParser());
+HttpClient.blockedSites.add("wattpad.com");
 
 class WattpadFetchErrorHandler extends FetchErrorHandler {
     constructor() {
         super();
+    }
+
+    disabled() {
+        return UIText.Warning.parserDisabledNotification;
     }
 
     onResponseError(url, wrapOptions, response, errorMessage) {

@@ -535,7 +535,6 @@ WebToEpub is a browser extension for Firefox and Chrome that converts web novels
     <li>wanderertl130.id</li>
     <li>wanderinginn.com</li>
     <li>watashiwasugoidesu.com</li>
-    <li>wattpad.com</li>
     <li>wetriedtls.com</li>
     <li>webnovel.com</li>
     <li>webnovel.live</li>
