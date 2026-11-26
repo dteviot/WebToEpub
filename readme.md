@@ -1,6 +1,6 @@
-# Removed from the Chrome extension Store
+# Removed from the Google Chrome extension Store
 
-Read more here: #3172
+Read more here:  <a href="https://github.com/dteviot/WebToEpub/issues/3172">#3172</a>
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 
