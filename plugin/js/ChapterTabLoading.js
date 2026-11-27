@@ -18,21 +18,35 @@ class ChapterTabLoader {
      * @param {object} [options] Optional options
      * @param {number} [options.delayMs] Delay before capture, in milliseconds
      * @param {boolean} [options.makeTabActive] Select the opened tab
+     * @param {object} [options.customCaptureScript] Custom capture script for capturing html from the tab.
+     * @param {function(args?): (string|Promise<string>)} options.customCaptureScript.script The script injected into the tab.
+     * It must be an arrow-function. Firefox MV2 uses tabs.executeScript().
+     * @param {Record<string, unknown>} [options.customCaptureScript.args] Arguments for the script
      *
      * @returns {Promise<Document>} Captured html as document.
      */
     async openChapterInTab(
         url,
-        { delayMs = 5_000, makeTabActive = false } = {},
+        { delayMs = 0, makeTabActive = false, customCaptureScript = {} } = {},
     ) {
         const notUrl = !(url instanceof URL);
+
         if (notUrl) {
             throw new TypeError("Expected an URL instance.");
+        }
+
+        const haveScript = customCaptureScript.script !== undefined;
+        const scriptIsNotFunction =
+            typeof customCaptureScript.script !== "function";
+
+        if (haveScript && scriptIsNotFunction) {
+            throw new TypeError("Capture script must be a function");
         }
 
         const html = await this.browserAdapter.snapshot(url, {
             delayMs,
             makeTabActive,
+            customCaptureScript,
         });
         return new DOMParser().parseFromString(html, "text/html");
     }

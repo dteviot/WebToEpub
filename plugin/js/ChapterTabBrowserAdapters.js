@@ -15,10 +15,13 @@ class ChapterTabLoaderBrowserAdapter {
      * @param {object} [options] Optional options
      * @param {number} [options.delayMs] Delay before capture, in milliseconds.
      * @param {boolean} [options.makeTabActive] Select the opened tab.
+     * @param {object} [options.customCaptureScript] Custom capture script for capturing html from the tab.
+     * @param {function(args?): (string|Promise<string>)} options.customCaptureScript.script The script injected into the tab.
+     * @param {Record<string, unknown>} [options.customCaptureScript.args] Arguments for the script
      *
      * @returns {Promise<string>} Captured html.
      */
-    async snapshot(url, { delayMs, makeTabActive }) {
+    async snapshot(url, { delayMs, makeTabActive, customCaptureScript = {} }) {
         let tabData;
         try {
             tabData = await this.api.tabs.create({
@@ -30,7 +33,11 @@ class ChapterTabLoaderBrowserAdapter {
         }
 
         try {
-            return await this.readHtml(tabData.id, delayMs);
+            return await this.readHtml(
+                tabData.id,
+                delayMs,
+                customCaptureScript,
+            );
         } finally {
             this.api.tabs
                 .remove(tabData.id)
@@ -43,23 +50,50 @@ class ChapterTabLoaderBrowserAdapter {
     /**
      * Browser specific implementation to capture html from the chapter loaded in a tab.
      *
-     * @returns {Promise<string>} Captured html. Rejects if capture fails.
+     * @param {number} tabId Chapter tab ID.
+     * @param {number} [delayMs] Delay before capture, in milliseconds.
+     * @param {object} [customCaptureScript] Custom capture script for capturing html from the tab.
+     * @param {function(args?): (string|Promise<string>)} customCaptureScript.script The script injected into the tab.
+     * @param {Record<string, unknown>} [customCaptureScript.args] Arguments for the script
+     *
+     * @returns {Promise<string>} Captured HTML. Rejects if injection or capture fails.
      */
-    async readHtml() {
-        throw new Error("Browser should implement.");
+    async readHtml(tabId, delayMs, customCaptureScript = {}) {
+        const script = customCaptureScript.script ?? capturePageHtml;
+        const args = customCaptureScript.args ?? {};
+
+        if (delayMs > 0) {
+            await this.runScript(tabId, waitBeforeCapture, [delayMs]);
+        }
+
+        const html = await this.runScript(tabId, script, [args]);
+        if (typeof html !== "string") {
+            throw new TypeError("Capture script must return an HTML string");
+        }
+        return html;
+    }
+
+    /**
+     * @param {number} tabId Chapter tab ID.
+     * @param {function(args?): (string|Promise<string>)} script
+     * @param {Record<string, unknown>} args
+     * @returns {Promise<string>|undefined} Captured HTML. Rejects if injection or capture fails.
+     */
+    async runScript() {
+        throw new Error(
+            "You should be calling a browser adapter, not the port",
+        );
     }
 }
 
-/**
- * @param {number} delayMs
- *
- * @returns The captured html from the injected script
- */
-const scriptToInject = async (delayMs) => {
+const capturePageHtml = () => {
+    return document.documentElement.outerHTML;
+};
+
+const waitBeforeCapture = async (delayMs) => {
     await new Promise((resolve) => {
         return setTimeout(resolve, delayMs);
     });
-    return document.documentElement.outerHTML;
 };
 
 /**
@@ -73,19 +107,20 @@ class ChromeTabLoaderAdapter extends ChapterTabLoaderBrowserAdapter {
 
     /**
      * @param {number} tabId Chapter tab ID.
-     * @param {number} delayMs Delay before capture, in milliseconds.
-     * @returns {Promise<string>} Captured HTML. Rejects if injection or capture fails.
+     * @param {function(args?): (string|Promise<string>)} script
+     * @param {Record<string, unknown>} args
+     * @returns {Promise<string>|undefined} Captured HTML. Rejects if injection or capture fails.
      */
-    async readHtml(tabId, delayMs) {
+    async runScript(tabId, script, args) {
         try {
             const scriptDetails = {
                 target: { tabId: tabId },
-                args: [delayMs],
-                func: scriptToInject,
+                func: script,
+                args,
             };
             const results =
                 await this.api.scripting.executeScript(scriptDetails);
-            return results[0].result;
+            return results[0]?.result;
         } catch (err) {
             throw new Error(`Failed to inject content script. ${err}`);
         }
@@ -103,13 +138,14 @@ class FirefoxTabLoaderAdapter extends ChapterTabLoaderBrowserAdapter {
 
     /**
      * @param {number} tabId Chapter tab ID.
-     * @param {number} delayMs Delay before capture, in milliseconds.
-     * @returns {Promise<string>} Captured HTML. Rejects if injection or capture fails.
+     * @param {function(args?): (string|Promise<string>)} script
+     * @param {Record<string, unknown>} args
+     * @returns {Promise<string>|undefined} Captured HTML. Rejects if injection or capture fails.
      */
-    async readHtml(tabId, delayMs) {
+    async runScript(tabId, script, args) {
         try {
             const results = await this.api.tabs.executeScript(tabId, {
-                code: `(${scriptToInject.toString()})(${delayMs})`,
+                code: `(${script.toString()})(...${JSON.stringify(args)})`,
                 runAt: "document_idle",
             });
             return results[0];
