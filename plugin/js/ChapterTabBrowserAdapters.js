@@ -14,6 +14,7 @@ class ChapterTabLoaderBrowserAdapter {
      * @param {URL} url
      * @param {object} [options] Optional options
      * @param {number} [options.delayMs] Delay before capture, in milliseconds.
+     * @param {number} [timeoutMs] Total time allowed to capture html, in milliseconds.
      * @param {boolean} [options.makeTabActive] Select the opened tab.
      * @param {object} [options.customCaptureScript] Custom capture script for capturing html from the tab.
      * @param {function(args?): (string|Promise<string>)} options.customCaptureScript.script The script injected into the tab.
@@ -21,7 +22,10 @@ class ChapterTabLoaderBrowserAdapter {
      *
      * @returns {Promise<string>} Captured html.
      */
-    async snapshot(url, { delayMs, makeTabActive, customCaptureScript = {} }) {
+    async snapshot(
+        url,
+        { delayMs, timeoutMs, makeTabActive, customCaptureScript = {} },
+    ) {
         let tabData;
         try {
             tabData = await this.api.tabs.create({
@@ -36,6 +40,7 @@ class ChapterTabLoaderBrowserAdapter {
             return await this.readHtml(
                 tabData.id,
                 delayMs,
+                timeoutMs,
                 customCaptureScript,
             );
         } finally {
@@ -52,25 +57,44 @@ class ChapterTabLoaderBrowserAdapter {
      *
      * @param {number} tabId Chapter tab ID.
      * @param {number} [delayMs] Delay before capture, in milliseconds.
+     * @param {number} [timeoutMs] Total time allowed to capture html, in milliseconds.
      * @param {object} [customCaptureScript] Custom capture script for capturing html from the tab.
      * @param {function(args?): (string|Promise<string>)} customCaptureScript.script The script injected into the tab.
      * @param {Record<string, unknown>} [customCaptureScript.args] Arguments for the script
      *
      * @returns {Promise<string>} Captured HTML. Rejects if injection or capture fails.
      */
-    async readHtml(tabId, delayMs, customCaptureScript = {}) {
+    async readHtml(tabId, delayMs, timeoutMs, customCaptureScript = {}) {
         const script = customCaptureScript.script ?? capturePageHtml;
         const args = customCaptureScript.args ?? {};
 
-        if (delayMs > 0) {
-            await this.runScript(tabId, waitBeforeCapture, [delayMs]);
-        }
+        let timeoutId;
+        const timeoutPromise = new Promise((_resolve, reject) => {
+            timeoutId = setTimeout(
+                () => reject(new Error("Capture script timed out.")),
+                timeoutMs,
+            );
+        });
 
-        const html = await this.runScript(tabId, script, [args]);
-        if (typeof html !== "string") {
-            throw new TypeError("Capture script must return an HTML string");
+        const capture = async () => {
+            if (delayMs > 0) {
+                await this.runScript(tabId, waitBeforeCapture, [delayMs]);
+            }
+            return this.runScript(tabId, script, [args]);
+        };
+
+        try {
+            const html = await Promise.race([timeoutPromise, capture()]);
+
+            if (typeof html !== "string") {
+                throw new TypeError(
+                    "Capture script must return an HTML string",
+                );
+            }
+            return html;
+        } finally {
+            clearTimeout(timeoutId);
         }
-        return html;
     }
 
     /**

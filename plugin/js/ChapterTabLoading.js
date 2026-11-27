@@ -17,6 +17,7 @@ class ChapterTabLoader {
      * @param {URL} url
      * @param {object} [options] Optional options
      * @param {number} [options.delayMs] Delay before capture, in milliseconds
+     * @param {number} [timeoutMs] Total time allowed to capture html, in milliseconds.
      * @param {boolean} [options.makeTabActive] Select the opened tab
      * @param {object} [options.customCaptureScript] Custom capture script for capturing html from the tab.
      * @param {function(args?): (string|Promise<string>)} options.customCaptureScript.script The script injected into the tab.
@@ -27,7 +28,12 @@ class ChapterTabLoader {
      */
     async openChapterInTab(
         url,
-        { delayMs = 0, makeTabActive = false, customCaptureScript = {} } = {},
+        {
+            delayMs = 1_000,
+            timeoutMs = 5_000,
+            makeTabActive = false,
+            customCaptureScript = {},
+        } = {},
     ) {
         const notUrl = !(url instanceof URL);
 
@@ -45,6 +51,7 @@ class ChapterTabLoader {
 
         const html = await this.browserAdapter.snapshot(url, {
             delayMs,
+            timeoutMs,
             makeTabActive,
             customCaptureScript,
         });
