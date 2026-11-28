@@ -12,13 +12,20 @@ class ChapterTabLoader {
     }
 
     /**
-     * Opens the chapter in a new tab, waits for the content to load, then captures the html.
+     * Opens the chapter in a new tab, waits for the content to load, then
+     * captures the html. Use this when a chapter requires client-side rendering
+     * before the chapter content is visible.
      *
      * @param {URL} url
      * @param {object} [options] Optional options
-     * @param {number} [options.delayMs] Delay before capture, in milliseconds
+     * @param {number} [options.delayMs] Delay before capture, in milliseconds.
+     *   Use when you need to let the site load before you can capture anything
      * @param {number} [timeoutMs] Total time allowed to capture html, in milliseconds.
-     * @param {boolean} [options.makeTabActive] Select the opened tab
+     *   Set a cap for how long a tab can take to get the data
+     * @param {boolean} [options.makeTabActive] Select the opened tab.
+     *   Some sites need to be active before they start rendering. This well
+     *   make the tab active for the user, which is a tradeoff you should
+     *   consider.
      * @param {object} [options.customCaptureScript] Custom capture script for capturing html from the tab.
      * @param {function(args?): (string|Promise<string>)} options.customCaptureScript.script The script injected into the tab.
      * It must be an arrow-function. Firefox MV2 uses tabs.executeScript().
