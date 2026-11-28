@@ -348,6 +348,9 @@ var main = (function() {
             ErrorLog.showErrorMessage(disabledMessage);
             return false;
         }
+        if (Object.values(parser).some(value => value instanceof ChapterTabLoader)) {
+            alert(UIText.Warning.warningChapterTabLoader);
+        }
         return true;
     }
 

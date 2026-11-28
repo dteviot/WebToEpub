@@ -812,6 +812,10 @@
 			}
 		}
 	},
+	"warningChapterTabLoader": {
+		"message": "WebToEpub will open browser tabs to download chapters from this site. Consider using a separate desktop browser dedicated to WebToEpub. This site's chapter downloads may not work on mobile.",
+		"description": "Warning shown when the selected parser uses browser tabs to download chapters."
+	},
 	"warningNoChapterUrl": {
 		"message": "ERROR: No Chapter URL supplied to test against.",
 		"description": "Warning message when user tries to test the Default Parser without supplying a Chapter URL to test against."
